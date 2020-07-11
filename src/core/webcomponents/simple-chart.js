@@ -34,6 +34,9 @@ export default class SimpleChart extends LitElement {
             active: {
                 type: Boolean
             },
+            type: {
+                type: String
+            },
             title: {
                 type: String
             },
@@ -41,12 +44,6 @@ export default class SimpleChart extends LitElement {
                 type: String
             },
             data: {
-                type: Object
-            },
-            type: {
-                type: String
-            },
-            config: {
                 type: Object
             },
             xAxisTitle: {
@@ -58,93 +55,112 @@ export default class SimpleChart extends LitElement {
             showButtons: {
                 type: Boolean
             },
-
+            config: {
+                // This is must be a valid Highcharts configuration object
+                type: Object
+            }
         }
     }
 
     _init(){
-        this._prefix = "plot-" + UtilsNew.randomString(6) + "_";
+        this._prefix = "plot-" + UtilsNew.randomString(6);
+
+        // Initially we set the default config, this will be overridden if 'config' is passed
+        this._config = this.getDefaultConfig();
     }
 
     connectedCallback() {
         super.connectedCallback();
+
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
     updated(changedProperties) {
-        if(changedProperties.has("type") || changedProperties.has("data")) {
-            if(this.type && this.data) {
+        if (changedProperties.has("type") || changedProperties.has("data")) {
+            if (this.type && this.data) {
                 switch (this.type) {
                     case "column":
-                        this.barChart({title: this.title, data: this.data});
+                        this.renderColumnChart();
                         break;
                     case "pie":
-                        this.pieChart({title: this.title, data: this.data});
+                        this.renderPieChart();
                         break;
                     default:
                         throw new Error("Chart type not supported");
                 }
             }
+        }
 
+        if (changedProperties.has("config")) {
+            this._config = {...this.getDefaultConfig(), ...this.config};
         }
     }
 
-    barChart(param) {
+    renderColumnChart() {
         Highcharts.chart(this._prefix + "chart", {
             chart: {
-                type: "column"
+                type: "column",
+                ...this._config.chart
             },
             title: {
-                text: param.title
+                text: this.title,
+                ...this._config.title
+            },
+            subtitle: {
+                text: this.subtitle,
+                ...this._config.subtitle
             },
             xAxis: {
-                //categories: param.categories,
+                title: {
+                    text: this.xAxisTitle || ""
+                },
                 label: {
                     enabled: true
                 },
-                crosshair: true
+                crosshair: true,
+                ...this._config.xAxis
             },
             yAxis: {
-                type: "logarithmic",
                 title: {
-                    text: ''
-                }
+                    text: this.yAxisTitle || ""
+                },
+                min: 0,
+                ...this._config.yAxis
             },
             plotOptions: {
                 column: {
                     pointPadding: 0.2,
                     borderWidth: 0
-                }
+                },
+                ...this._config.plotOptions
             },
+            series: Object.entries(this.data).map( ([name, data]) => (
+                {
+                    name: name,
+                    data: [data]
+                })
+            ),
             credits: {
                 enabled: false
             },
-            series: Object.entries(this.data).map( ([name, data]) => ({name: name, data: [data]}))
-            /*series: [{
-                colorByPoint: true,
-                name: "caca",
-                data: param.data
-            }]*/
         });
     }
 
-    pieChart(param) {
+    renderPieChart() {
         Highcharts.chart(this._prefix + "chart", {
             chart: {
+                type: "pie",
                 plotBackgroundColor: null,
                 plotBorderWidth: null,
                 plotShadow: false,
-                type: "pie"
             },
             title: {
-                text: param.title
+                text: this.title,
+                ...this._config.title
             },
-            tooltip: {
-                //pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
-            },
-
-            credits: {
-                enabled: false
+            subtitle: {
+                text: this.subtitle,
+                ...this._config.subtitle
             },
             accessibility: {
                 point: {
@@ -159,24 +175,45 @@ export default class SimpleChart extends LitElement {
                         enabled: false
                     },
                     showInLegend: true
-                }
+                },
+                ...this._config.plotOptions
             },
             series: [
                 {
                     data: Object.entries(this.data).map( ([name, data]) => ({name: name, y: data}))
                 }
-            ]
-    });
+            ],
+            credits: {
+                enabled: false
+            }
+        });
     }
 
+    /**
+     * Returns a valid Higcharts configuration object
+     * @returns {{subtitle: {text: string}, chart: {backgroundColor: {stops: [[number, string], [number, string]]}, borderWidth: number, plotBorderWidth: number, plotShadow: boolean}}}
+     */
     getDefaultConfig() {
         return {
-        }
+            chart: {
+                backgroundColor: {
+                    // linearGradient: [0, 0, 500, 500],
+                    stops: [
+                        [0, "rgb(255, 255, 255)"],
+                        [1, "rgb(240, 240, 255)"]
+                    ]
+                },
+                borderWidth: 0,
+                // plotBackgroundColor: "rgba(255, 255, 255, .9)",
+                plotShadow: true,
+                plotBorderWidth: 1
+            },
+        };
     }
 
     render() {
         return html`
-        <div id="${this._prefix}chart"></div>
+            <div id="${this._prefix}chart"></div>
         `;
     }
 

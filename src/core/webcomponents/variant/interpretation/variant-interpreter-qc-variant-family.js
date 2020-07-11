@@ -329,7 +329,12 @@ export default class VariantInterpreterQcVariantFamily extends LitElement {
                                 onlyCohortAll: true,
                                 tooltip: tooltips.cohort
                                 //cohorts: this.cohorts
-                            }
+                            },
+                            {
+                                id: "file-quality",
+                                title: "Quality Filters",
+                                tooltip: "VCF file based FILTER filters"
+                            },
                         ]
                     },
                     {

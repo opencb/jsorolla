@@ -75,11 +75,15 @@ export default class DataForm extends LitElement {
             // optional chaining is needed when "res" is undefined
             value = field.split(".").reduce((res, prop) => res?.[prop], _object);
 
+            if (value && format?.decimals) {
+                value = value.toFixed(format.decimals);
+            }
+
             // needed for handling falsy values
             if (value !== undefined) {
                 if (format) {
-                    if (format.style) {
-                        value = html`<span style="${format.style}">${value}</span>`;
+                    if (format.classes || format.style) {
+                        value = html`<span class="${format.classes}" style="${format.style}">${value}</span>`;
                     }
                     if (format.link) {
                         value = html`<a href="${format.link.replace(field.toUpperCase(), value)}" target="_blank">${value}</a>`;
@@ -230,7 +234,7 @@ export default class DataForm extends LitElement {
         if (!Array.isArray(section.elements[0])) {
             const sectionWidth = section?.display?.width ? section?.display?.width : "12";
             return html`
-                <div class="row">
+                <div class="row" style="margin: 15px 0px">
                     ${section.title ? html`<h3 class="${sectionTitleClass}" style="${sectionTitleStyle}">${section.title}</h3>` : null}
                     <div class="col-md-${sectionWidth}">    
                         <div class="">
@@ -245,15 +249,13 @@ export default class DataForm extends LitElement {
             let columnSeparatorStyle = (section.display && section.display.columnSeparatorStyle) ? section.display.columnSeparatorStyle : "";
             return html`
                 <div>
-                    ${section.title ? html`<h3 class="${sectionTitleClass}" style="${sectionTitleStyle}">${section.title}</h3>` : null}
-                    <div class="">
-                        <div class="row">
-                            <div class="col-md-${leftColumnWidth}" style="${columnSeparatorStyle}">
-                                ${section.elements[0].map(element => this._createElement(element))}
-                            </div>
-                            <div class="col-md-${rightColumnWidth}" style="padding-left: 25px">
-                                ${section.elements[1].map(element => this._createElement(element))}
-                            </div>
+                    <div class="row" style="margin: 15px 0px">
+                        ${section.title ? html`<h3 class="${sectionTitleClass}" style="${sectionTitleStyle}">${section.title}</h3>` : null}
+                        <div class="col-md-${leftColumnWidth}" style="${columnSeparatorStyle}">
+                            ${section.elements[0].map(element => this._createElement(element))}
+                        </div>
+                        <div class="col-md-${rightColumnWidth}" style="padding-left: 25px">
+                            ${section.elements[1].map(element => this._createElement(element))}
                         </div>
                     </div>
                 </div>
@@ -285,7 +287,12 @@ export default class DataForm extends LitElement {
         let content = "";
         // if not 'type' is defined we assumed is 'basic' and therefore field exist
         if (!element.type || element.type === "basic") {
-            content = html`${this.getValue(element.field, this.data, this._getDefaultValue(element), element.display ? element.display.format : null)}`;
+            content = html`
+                ${this.getValue(element.field, this.data, this._getDefaultValue(element), element.display 
+                    ? element.display
+                    // 'format' is the old way, to be removed
+                    : element.display?.format
+                )}`
         } else {
             // Other 'type' are rendered by specific functions
             switch (element.type) {
@@ -310,6 +317,7 @@ export default class DataForm extends LitElement {
                 case "table":
                     content = this._createTableElement(element);
                     break;
+                case "chart":
                 case "plot":
                     content = this._createPlotElement(element);
                     break;
@@ -665,7 +673,7 @@ export default class DataForm extends LitElement {
     }
 
     _createPlotElement(element) {
-        // By default we use data object in the element
+        // By default we use data field in the element
         let data = element.data;
 
         // If a valid field object or arrays is defined we use it
@@ -681,12 +689,28 @@ export default class DataForm extends LitElement {
                 data = _data;
             } else {
                 if (typeof value === "object") {
+                    // Sort Object by numeric values
+                    if (element?.display?.sort === true) {
+                        value = Object.entries(value)
+                            .sort((a, b) => b[1] - a[1])
+                            .reduce((sortedObj, [k, v]) => ({
+                                ...sortedObj,
+                                [k]: v
+                            }), {});
+                    }
                     data = value;
                 }
             }
         }
         if (data) {
-            return html`<simple-chart .active="${true}" type="${element.display.chart}" title="${element.name}" .data="${data}"></simple-chart>`;
+        debugger
+            return html`
+                <simple-chart   .active="${true}" 
+                                .type="${element.display.highcharts?.chart?.type || "column"}"
+                                .title="${element.display.highcharts?.title?.text || element.name}" 
+                                .data="${data}" 
+                                .config="${element.display.highcharts}">
+                </simple-chart>`;
         } else {
             return this._getErrorMessage(element);
         }

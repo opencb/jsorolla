@@ -40,20 +40,24 @@ export default class FileQualityFilter extends LitElement {
             },
             qual: {
                 type: String
-            }
+            },
+            config: {
+                type: Object
+            },
         };
     }
 
     _init() {
         this._prefix = "fqf-" + UtilsNew.randomString(6);
+        this._config = this.getDefaultConfig();
     }
 
-    updated(_changedProperties) {
-        if (_changedProperties.has("filter")) {
+    updated(changedProperties) {
+        if (changedProperties.has("filter")) {
             this.querySelector("#" + this._prefix + "FilePassCheckbox").checked = this.filter === "PASS";
         }
 
-        if (_changedProperties.has("qual")) {
+        if (changedProperties.has("qual")) {
             if (this.qual && this.qual > 0) {
                 this.querySelector("#" + this._prefix + "FileQualCheckbox").checked = true;
                 this.querySelector("#" + this._prefix + "FileQualInput").value = this.qual;
@@ -64,6 +68,10 @@ export default class FileQualityFilter extends LitElement {
                 this.qualEnabled = false;
             }
             this.requestUpdate();
+        }
+
+        if (changedProperties.has("config")) {
+            this._config = {...this.getDefaultConfig(), ...this.config};
         }
     }
 
@@ -79,7 +87,7 @@ export default class FileQualityFilter extends LitElement {
         let qualChecked = this.querySelector("#" + this._prefix + "FileQualCheckbox").checked;
         let qualValue = this.querySelector("#" + this._prefix + "FileQualInput").value;
         if (qualChecked && qualValue > 0) {
-            _value.qual = qualValue;
+            _value.qual = ">=" + qualValue;
         }
 
         this.dispatchEvent(new CustomEvent("filterChange", {
@@ -97,25 +105,35 @@ export default class FileQualityFilter extends LitElement {
         this.requestUpdate();
     }
 
+    getDefaultConfig() {
+        return {
+            hideQuality: false
+        };
+    }
+
     render() {
         return html`
-                <div id="${this._prefix}FilePassCheckboxDiv" class="subsection-content form-group">
-                    <input id="${this._prefix}FilePassCheckbox" type="checkbox" class="${this._prefix}FilterCheckbox" 
-                            @change="${this.filterChange}" .checked="${this.filter === "PASS"}">
-                    <span>Include only <span style="font-weight: bold;">PASS</span> variants</span>
-                </div>
-                <form class="form-horizontal subsection-content">
-                    <div class="form-group row">
-                        <div class="col-md-8">
-                            <input id="${this._prefix}FileQualCheckbox" type="checkbox" class="${this._prefix}FilterCheckBox" 
-                                    @change="${this.onChangeQualCheckBox}" .checked="${this.qualEnabled}">
-                            <span>Introduce min. <span style="font-weight: bold;">QUAL</span></span>
+            <div id="${this._prefix}FilePassCheckboxDiv" class="subsection-content form-group">
+                <input id="${this._prefix}FilePassCheckbox" type="checkbox" class="${this._prefix}FilterCheckbox" 
+                        @change="${this.filterChange}" .checked="${this.filter === "PASS"}">
+                <span>Include only <span style="font-weight: bold;">PASS</span> variants</span>
+            </div>
+            ${this._config.hideQuality === false
+                ? html`
+                    <form class="form-horizontal subsection-content">
+                        <div class="form-group row">
+                            <div class="col-md-8">
+                                <input id="${this._prefix}FileQualCheckbox" type="checkbox" class="${this._prefix}FilterCheckBox" 
+                                        @change="${this.onChangeQualCheckBox}" .checked="${this.qualEnabled}">
+                                <span>Introduce min. <span style="font-weight: bold;">QUAL</span></span>
+                            </div>
+                            <div class="col-md-4">
+                                <input id="${this._prefix}FileQualInput" type="number" class="form-control input-sm ${this._prefix}FilterTextInput" .disabled="${!this.qualEnabled}" @input="${this.filterChange}">
+                            </div>
                         </div>
-                        <div class="col-md-4">
-                            <input id="${this._prefix}FileQualInput" type="number" class="form-control input-sm ${this._prefix}FilterTextInput" .disabled="${!this.qualEnabled}" @input="${this.filterChange}">
-                        </div>
-                    </div>
-                </form>
+                    </form>`
+                : null
+            }
         `;
     }
 

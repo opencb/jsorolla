@@ -55,9 +55,24 @@ class SampleVariantStatsView extends LitElement {
 
     _init() {
         this._prefix = "vcis-" + UtilsNew.randomString(6);
-        //this.types = ["SNV", "INDEL", "CNV", "INSERTION", "DELETION", "MNV"];
-        this._config = this.getDefaultConfig();
         this._sampleVariantStats = {};
+
+        // Default config for Highcharts charts
+        this.defaultChartConfig = {
+            backgroundColor: {
+                // linearGradient: [0, 0, 500, 500],
+                stops: [
+                    [0, "rgb(255, 255, 255)"],
+                    [1, "rgb(240, 240, 255)"]
+                ]
+            },
+            borderWidth: 0,
+            // plotBackgroundColor: "rgba(255, 255, 255, .9)",
+            plotShadow: true,
+            plotBorderWidth: 1
+        };
+
+        this._config = this.getDefaultConfig();
     }
 
     connectedCallback() {
@@ -70,42 +85,21 @@ class SampleVariantStatsView extends LitElement {
         // if (changedProperties.has("opencgaSession")) {
         //     this.opencgaSessionObserver();
         // }
-        if (changedProperties.has("sampleId")) {
-            this.sampleIdObserver();
-        }
+
         if (changedProperties.has("sampleVariantStats")) {
             this.sampleVariantStatsObserver();
         }
+
+        if (changedProperties.has("sampleId")) {
+            this.sampleIdObserver();
+        }
+
+        if (changedProperties.has("sample")) {
+            this.getVariantStatFromSample();
+        }
+
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
-        }
-    }
-
-    sampleIdObserver() {
-        // if (this.sampleId) {
-        //     this.opencgaSession.opencgaClient.variants().infoSampleStats(this.sampleId, {study: this.opencgaSession.study.fqn})
-        //         .then(response => {
-        //             this.sampleVariantStats = response.getResult(0);
-        //             this.requestUpdate();
-        //         }).catch(response => {
-        //         console.error(response);
-        //         this.sampleVariantStats = null;
-        //     }).finally(() => this.requestUpdate());
-        // }
-        if (this.opencgaSession && this.sampleId) {
-            this.opencgaSession.opencgaClient.samples().info(this.sampleId, {study: this.opencgaSession.study.fqn})
-                .then(response => {
-                    this.sample = response.responses[0].results[0];
-                    if (this.sample && this.sample?.qualityControl?.metrics && this.sample.qualityControl.metrics.length > 0) {
-                        let _variantStats = this.sample.qualityControl.metrics[0].variantStats.find(stat => stat.id === "ALL");
-                        //_variantStats.stats.chromosomeCount.filter( ch => Boolean(parseInt(ch)) || ["X", "Y", "MT"].includes(ch))
-                        this.sampleVariantStats = _variantStats.stats;
-                    }
-                    this.requestUpdate();
-                })
-                .catch(response => {
-                    console.error("An error occurred fetching clinicalAnalysis: ", response);
-                });
         }
     }
 
@@ -113,6 +107,33 @@ class SampleVariantStatsView extends LitElement {
         this._sampleVariantStats = {
             ...this.sampleVariantStats,
             chromosomeCount: ClinicalAnalysisUtils.chromosomeFilterSorter(this.sampleVariantStats.chromosomeCount)
+        }
+        this.requestUpdate();
+    }
+
+    sampleIdObserver() {
+        if (this.opencgaSession && this.sampleId) {
+            this.opencgaSession.opencgaClient.samples().info(this.sampleId, {study: this.opencgaSession.study.fqn})
+                .then(response => {
+                    this.sample = response.responses[0].results[0];
+                    this.getVariantStatFromSample();
+                })
+                .catch(response => {
+                    console.error("An error occurred fetching clinicalAnalysis: ", response);
+                });
+        }
+    }
+
+    getVariantStatFromSample() {
+        if (this.sample?.qualityControl?.metrics?.length && this.sample.qualityControl.metrics[0].variantStats?.length) {
+            // By default we render the stat 'ALL' from the first metric
+            let variantStats = this.sample.qualityControl.metrics[0].variantStats.find(stat => stat.id === "ALL");
+
+            // If there is not stat 'ALL@ then we rd the first one
+            if (!variantStats) {
+                variantStats = this.sample.qualityControl.metrics[0].variantStats[0];
+            }
+            this.sampleVariantStats = variantStats.stats;
         }
         this.requestUpdate();
     }
@@ -130,12 +151,14 @@ class SampleVariantStatsView extends LitElement {
             },
             sections: [
                 {
-                    //title: "General", //it is not required
-                    collapsed: false,
+                    title: "Summary",
                     elements: [
                         {
                             name: "Sample ID",
-                            field: "id"
+                            field: "id",
+                            display: {
+                                style: "font-weight: bold",
+                            }
                         },
                         {
                             name: "Number of Variants",
@@ -143,10 +166,13 @@ class SampleVariantStatsView extends LitElement {
                         },
                         {
                             name: "Ti/Tv Ratio",
-                            field: "tiTvRatio"
+                            field: "tiTvRatio",
+                            display: {
+                                decimals: 4
+                            }
                         },
                         {
-                            name: "Quality Avg (Quality Standard dev.)",
+                            name: "Quality Avg (Quality Standard Dev.)",
                             type: "complex",
                             display: {
                                 template: "${qualityAvg} (${qualityStdDev})"
@@ -154,29 +180,49 @@ class SampleVariantStatsView extends LitElement {
                         },
                         {
                             name: "Heterozygosity Rate",
-                            field: "heterozygosityRate"
+                            field: "heterozygosityRate",
+                            display: {
+                                decimals: 4
+                            }
                         }
                     ]
                 }, {
-                    //title: "plots",
+                    title: "Variant Stats",
                     elements: [
                         [
                             {
-                                name: "Disorders",
+                                name: "Chromosomes",
                                 field: "chromosomeCount",
-                                type: "plot",
+                                type: "chart",
                                 showLabel: false,
                                 display: {
-                                    chart: "column"
+                                    highcharts: {
+                                        chart: {
+                                            type: "column",
+                                            ...this.defaultChartConfig
+                                        },
+                                        title: {
+                                            text: "Chromosomes"
+                                        },
+                                        subtitle: {
+                                            text: "Number of variants per chromosome"
+                                        },
+                                    }
                                 }
                             },
                             {
-                                name: "Types",
+                                name: "Variant Type",
                                 field: "typeCount",
-                                type: "plot",
+                                type: "chart",
                                 showLabel: false,
                                 display: {
-                                    chart: "column"
+                                    sort: true,
+                                    highcharts: {
+                                        chart: {
+                                            type: "column",
+                                            ...this.defaultChartConfig
+                                        }
+                                    }
                                 }
                             }
                         ], [
@@ -185,31 +231,32 @@ class SampleVariantStatsView extends LitElement {
                                 type: "custom",
                                 showLabel: false,
                                 display: {
-                                    width: 12,
                                     render: data => {
                                         return html`
-                                        <div class="">
                                             <div class="row">
-                                                <div class="col-md-6">
+                                                <div class="col-md-5 col-md-offset-1">
                                                     <simple-chart .active="${true}" type="pie" title="Genotypes" .data="${data.genotypeCount}"></simple-chart>
                                                 </div>
-                                                <div class="col-md-6">
-                                                    <simple-chart .active="${true}" type="pie" title="Filters" .data="${data.filterCount}"></simple-chart>
+                                                <div class="col-md-5 col-md-offset-1">
+                                                    <simple-chart .active="${true}" type="pie" title="VCF Filter" .data="${data.filterCount}"></simple-chart>
                                                 </div>  
                                             </div>
-                                        </div>
-                                    `;
+                                        `;
                                     }
                                 }
                             },
-
                             {
-                                name: "INDEL Length",
+                                name: "INDEL Size",
                                 field: "indelLengthCount",
-                                type: "plot",
+                                type: "chart",
                                 showLabel: false,
                                 display: {
-                                    chart: "column"
+                                    highcharts: {
+                                        chart: {
+                                            type: "column",
+                                            ...this.defaultChartConfig
+                                        }
+                                    }
                                 }
                             }
                         ]
@@ -218,21 +265,33 @@ class SampleVariantStatsView extends LitElement {
                     //title: "plots2",
                     elements: [
                         {
-                            name: "Consequence type",
+                            name: "Consequence Type",
                             field: "consequenceTypeCount",
-                            type: "plot",
+                            type: "chart",
                             showLabel: false,
                             display: {
-                                chart: "column"
+                                sort: true,
+                                highcharts: {
+                                    chart: {
+                                        type: "column",
+                                        ...this.defaultChartConfig
+                                    }
+                                }
                             }
                         },
                         {
                             name: "Biotype",
                             field: "biotypeCount",
-                            type: "plot",
+                            type: "chart",
                             showLabel: false,
                             display: {
-                                chart: "column"
+                                sort: true,
+                                highcharts: {
+                                    chart: {
+                                        type: "column",
+                                        ...this.defaultChartConfig
+                                    }
+                                }
                             }
                         }
                     ]
@@ -243,12 +302,9 @@ class SampleVariantStatsView extends LitElement {
 
     render() {
         return html`
-            <style>
-                .plot-wrapper {
-                    margin: 25px 0
-                }
-            </style>
-            <data-form .data=${this._sampleVariantStats} .config="${this.getDefaultConfig()}"></data-form>
+            <div style="">
+                <data-form .data=${this._sampleVariantStats} .config="${this.getDefaultConfig()}"></data-form>
+            </div>
         `;
     }
 
