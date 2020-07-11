@@ -168,14 +168,15 @@ class SampleVariantStatsView extends LitElement {
                             name: "Ti/Tv Ratio",
                             field: "tiTvRatio",
                             display: {
-                                decimals: 4
+                                decimals: 4,
+                                visible: (tiTvRatio) => !tiTvRatio
                             }
                         },
                         {
                             name: "Quality Avg (Quality Standard Dev.)",
                             type: "complex",
                             display: {
-                                template: "${qualityAvg} (${qualityStdDev})"
+                                template: "${qualityAvg} (${qualityStdDev})",
                             }
                         },
                         {
@@ -206,7 +207,7 @@ class SampleVariantStatsView extends LitElement {
                                         },
                                         subtitle: {
                                             text: "Number of variants per chromosome"
-                                        },
+                                        }
                                     }
                                 }
                             },
@@ -251,6 +252,7 @@ class SampleVariantStatsView extends LitElement {
                                 type: "chart",
                                 showLabel: false,
                                 display: {
+                                    visible: indelLengthCount => !indelLengthCount,
                                     highcharts: {
                                         chart: {
                                             type: "column",
@@ -302,7 +304,7 @@ class SampleVariantStatsView extends LitElement {
 
     render() {
         return html`
-            <div style="">
+            <div>
                 <data-form .data=${this._sampleVariantStats} .config="${this.getDefaultConfig()}"></data-form>
             </div>
         `;

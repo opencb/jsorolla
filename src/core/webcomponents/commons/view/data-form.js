@@ -703,7 +703,6 @@ export default class DataForm extends LitElement {
             }
         }
         if (data) {
-        debugger
             return html`
                 <simple-chart   .active="${true}" 
                                 .type="${element.display.highcharts?.chart?.type || "column"}"
