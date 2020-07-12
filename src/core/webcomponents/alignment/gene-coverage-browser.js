@@ -120,7 +120,7 @@ export default class GeneCoverageBrowser extends LitElement {
 
     async fetchData(geneId) {
         if (this.geneCoverageStats[geneId]) {
-            console.error("gene", geneId, "already fetched")
+            console.warn("gene", geneId, "already fetched")
             return;
         }
         this.loading = true;
@@ -240,7 +240,7 @@ export default class GeneCoverageBrowser extends LitElement {
         this.geneCoverageStats = {...this.geneCoverageStats};
         const geneIds = Object.keys(this.geneCoverageStats);
         if (geneIds.length > 0) {
-            console.error("changing view to ", geneIds[0])
+            console.log("changing view to ", geneIds[0])
             this._changeView(geneIds[0]);
         }
     }

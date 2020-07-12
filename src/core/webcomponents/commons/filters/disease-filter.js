@@ -107,6 +107,7 @@ export default class DiseaseFilter extends LitElement {
     }
 
     panelChange(e) {
+        e.stopPropagation();
         const select_vals = e.detail.value || null;
         this.genes = this.diseasePanels.find( diseasePanel => diseasePanel.id === select_vals)?.genes ?? [];
         this.requestUpdate();

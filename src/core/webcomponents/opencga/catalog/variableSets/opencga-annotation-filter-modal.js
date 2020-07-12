@@ -269,7 +269,7 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
                             <ul class="nav nav-tabs" role="tablist">
                                 ${this.variableSets.map( (variableSet, i) => html`
                                     <li role="presentation" class="${classMap({"active" : i === 0})}">
-                                        <a href="#${variableSet.id}_tab" aria-controls="profile" role="tab" data-toggle="tab">${variableSet.description}</a>
+                                        <a href="#${variableSet.id}_tab" aria-controls="profile" role="tab" data-toggle="tab">${variableSet.name}</a>
                                     </li>
                                 `)}
                             </ul>
@@ -277,6 +277,7 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
                             <div class="tab-content">
                                 ${this.variableSets.map( (variableSet, i) => html`
                                     <div role="tabpanel" class="tab-pane ${classMap({"active" : i === 0})}" id="${variableSet.id}_tab">
+                                    ${variableSet.description ? html`<div class="alert alert-info"><i class="fas fa-3x fa-info-circle align-middle"></i> ${variableSet.description}</div>` : null}
                                     <div class="row">
                                     ${variableSet.variables.map(variable => html`<div> ${this.renderVariable(variable, variableSet)}</div>`)}
                                     </div>
@@ -286,7 +287,7 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
                         </div>
             
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-primary" @click="${this.closeModal}">OK</button>
+                            <button type="button" class="btn btn-primary ripple" @click="${this.closeModal}">OK</button>
                         </div>
                     </div>
                 </div>

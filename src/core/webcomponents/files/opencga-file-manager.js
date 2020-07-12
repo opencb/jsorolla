@@ -59,13 +59,19 @@ export default class OpencgaFileManager extends LitElement {
 
     updated(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
-            this.opencgaSession.opencgaClient.files().tree(this.currentRootId, {study: this.opencgaSession.study.fqn, maxDepth: 2, include: "id,name,path,size,format"})
+            this.opencgaSession.opencgaClient.files().tree(this.currentRootId, {study: this.opencgaSession.study.fqn, maxDepth: 1, include: "id,name,path,size,format"})
                 .then(restResponse => {
+                    this.errorState = false;
                     this.tree = restResponse.getResult(0);
                     this.currentRoot = restResponse.getResult(0);
                     this.requestUpdate();
                 })
                 .catch(restResponse => {
+                    if (restResponse.getEvents("ERROR").length) {
+                        this.errorState = restResponse.getEvents("ERROR").map(error => error.message).join("<br>");
+                    } else {
+                        this.errorState = "Server Error";
+                    }
                     console.error(restResponse);
                 });
         }
@@ -77,16 +83,23 @@ export default class OpencgaFileManager extends LitElement {
     async fetchFolder(node) {
         try {
             if (!node.visited) {
-                const restResponse = await this.opencgaSession.opencgaClient.files().tree(node.file.id, {study: this.opencgaSession.study.fqn, maxDepth: 2,include: "id,name,path,size,format"})
+                const restResponse = await this.opencgaSession.opencgaClient.files().tree(node.file.id, {study: this.opencgaSession.study.fqn, maxDepth: 1,include: "id,name,path,size,format"})
                 const result = restResponse.getResult(0);
                 node.children = result.children;
                 node.visited = true;
             }
+            this.errorState = false;
             //console.log("current root", this.currentRoot)
             this.requestUpdate();
         } catch (restResponse) {
+            if (restResponse.getEvents("ERROR").length) {
+                this.errorState = restResponse.getEvents("ERROR").map(error => error.message).join("<br>");
+            } else {
+                this.errorState = "Server Error";
+            }
             console.error(restResponse);
         }
+
     }
 
     searchNode(nodeId, array) {
@@ -188,7 +201,7 @@ export default class OpencgaFileManager extends LitElement {
                     <span class="icon"><i class="fas fa-folder fa-4x"></i></span>
                     <span class="content">
                         <span class="name"><span class="max-lines-2"> ${node.file.name} </span>
-                        <span class="details">${node.children.length} items</span>
+                        <!-- <span class="details">${node.children.length} items</span> -->
                     </span>
                 </a>
             </li>
@@ -263,12 +276,17 @@ export default class OpencgaFileManager extends LitElement {
             <div class="opencga-file-manager">
                 <tool-header title="${this._config.title}" icon="${this._config.icon}"></tool-header>
             
-                <div class="row">
+                <div class="row file-manager-full-height">
                     <div class="file-manager-tree left-menu col-md-3">
                         ${this.tree ? html`${this.renderTree(this.tree)}` : null}
                     </div>
     
                     <div class="file-manager-grid col-md-9">
+                    ${this.errorState ? html`
+                        <div id="error" class="alert alert-danger" role="alert">
+                            ${this.errorState}
+                        </div>
+                    ` : null}
                         ${this.currentRoot 
                             ? html`
                                 <div>

@@ -541,7 +541,6 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
         }
 
         const _this = this;
-        console.error("arguments order inverted after new clients. recheck functionality");
         this.opencgaSession.opencgaClient.clinical().create(_clinicalAnalysis, {study: this.opencgaSession.study.fqn})
             .then(function(response) {
                 _this.onClear();

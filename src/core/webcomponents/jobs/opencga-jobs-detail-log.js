@@ -66,7 +66,7 @@ export default class OpencgaJobsDetailLog extends LitElement {
         }
 
         if (changedProperties.has("active")) {
-            console.log("active", this.active);
+            //console.log("active", this.active);
             this.content = null;
 
             await this.requestUpdate();
@@ -96,9 +96,9 @@ export default class OpencgaJobsDetailLog extends LitElement {
 
     // setInterval makes sense only in case of Tail log
     setReloadInterval() {
-        console.log(this.job)
+        //console.log(this.job)
         if (this.active && this._config.command === "tail" && this.job.internal.status.name === "RUNNING") {
-            console.log("setting interval");
+            //console.log("setting interval");
             this.requestUpdate();
             this.interval = setInterval(() => {
                 // this.content += "\n" + UtilsNew.randomString(6);
@@ -117,7 +117,7 @@ export default class OpencgaJobsDetailLog extends LitElement {
         this.contentOffset = 0;
         clearInterval(this.interval);
         this.requestUpdate();
-        console.log("cleared")
+        //console.log("cleared")
     }
 
     async fetchContent(job, params = {}, append = false) {
