@@ -62,9 +62,9 @@ export default class OpencgaIndividualInferredSexView extends LitElement {
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("individuals")) {
+        if (changedProperties.has("individual")) {
+            this.individuals = [this.individual];
         }
-
         if (changedProperties.has("individualId")) {
             this.individualIdObserver();
         }
@@ -78,7 +78,7 @@ export default class OpencgaIndividualInferredSexView extends LitElement {
             this.opencgaSession.opencgaClient.individuals().info(this.individualId, {study: this.opencgaSession.study.fqn})
                 .then( response => {
                     this.individuals = response.responses[0].results;
-                    this.requestUpdate();
+                    // this.requestUpdate();
                 })
                 .catch(function(reason) {
                     console.error(reason);
@@ -221,7 +221,8 @@ export default class OpencgaIndividualInferredSexView extends LitElement {
     }
 
     render() {
-        if (!this.individual && !this.individuals.length) {
+        debugger
+        if (!this.individual?.qualityControl || !this.individuals?.length) {
             return html`<div class="alert alert-info"><i class="fas fa-3x fa-info-circle align-middle"></i> No QC data are available yet.</div>`;
         }
 

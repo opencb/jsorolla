@@ -261,7 +261,15 @@ export default class OpencgaSampleGrid extends LitElement {
     }
 
     fileFormatter(values, row) {
-        return values?.length ? values.filter(fileId => fileId.endsWith("vcf") || fileId.endsWith("vcf.gz") || fileId.endsWith("bam")).join("<br>") : "-";
+        return values?.length
+            ? values
+                .filter(fileId => fileId.endsWith("vcf") || fileId.endsWith("vcf.gz") || fileId.endsWith("bam"))
+                .map(fileId => {
+                    let fields = fileId.split(":");
+                    return fields[fields.length - 1];
+                })
+                .join("<br>")
+            : "-";
     }
 
     dateFormatter(value, row) {

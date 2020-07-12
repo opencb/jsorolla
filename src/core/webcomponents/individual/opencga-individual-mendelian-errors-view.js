@@ -103,6 +103,7 @@ export default class OpencgaIndividualMendelianErrorsView extends LitElement {
                 [this.individual.mother?.id]: "MOTHER"
             };
             return html`
+                <h4 style="padding-top: 15px">Summary</h4>
                 <table class="table table-hover table-no-bordered">
                     <thead>
                         <tr>
@@ -181,7 +182,7 @@ export default class OpencgaIndividualMendelianErrorsView extends LitElement {
                 <div class="btn-group pull-right">
                     <button type="button" class="btn btn-default ripple btn-xs dropdown-toggle" data-toggle="dropdown"
                             aria-haspopup="true" aria-expanded="false">
-                        <i class="fa fa-download pad5" aria-hidden="true"></i> Download <span class="caret"></span>
+                        <i class="fa fa-download pad5" aria-hidden="true" style="padding-right: 10px"></i> Download <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu btn-sm">
                         ${this._config.download && this._config.download.length 

@@ -169,10 +169,10 @@ export default class OpencgaSampleFilter extends LitElement {
                 `;
                 break;
             case "individual":
-                content = html`<individual-id-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></individual-id-autocomplete>`;
+                content = html`<individual-id-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange("individualId", e.detail.value)}"></individual-id-autocomplete>`;
                 break;
             case "file":
-                content = html`<file-name-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></file-name-autocomplete>`;
+                content = html`<file-name-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange("fileIds", e.detail.value)}"></file-name-autocomplete>`;
                 break;
             case "source":
             case "phenotypes":

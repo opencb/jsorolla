@@ -63,7 +63,7 @@ export default class OpencgaIndividualDetail extends LitElement {
 
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
-            this.requestUpdate();
+            // this.requestUpdate();
         }
     }
 

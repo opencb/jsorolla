@@ -68,12 +68,11 @@ export default class OpencgaIndividualView extends LitElement {
     }
 
     individualIdObserver() {
-        if (this.individualId) {
-            let _this = this;
+        if (this.opencgaSession && this.individualId) {
             this.opencgaSession.opencgaClient.individuals().info(this.individualId, {study: this.opencgaSession.study.fqn})
                 .then( response => {
-                    _this.individual = response.response[0].result[0];
-                    _this.requestUpdate();
+                    this.individual = response.responses[0].results[0];
+                    this.requestUpdate();
                 })
                 .catch(function(reason) {
                     console.error(reason);
@@ -86,10 +85,6 @@ export default class OpencgaIndividualView extends LitElement {
             title: "Summary",
             icon: "",
             display: {
-                // mode: {
-                //     type: "card",
-                //     width: 1024
-                // },
                 collapsable: true,
                 showTitle: false,
                 labelWidth: 2,
@@ -113,13 +108,6 @@ export default class OpencgaIndividualView extends LitElement {
                             field: "name"
                         },
                         {
-                            name: "Sex (Karyotypic)",
-                            type: "complex",
-                            display: {
-                                template: "${sex} (${karyotypicSex})",
-                            }
-                        },
-                        {
                             name: "Father ID",
                             field: "father.id",
                             type: "basic"
@@ -128,6 +116,26 @@ export default class OpencgaIndividualView extends LitElement {
                             name: "Mother ID",
                             field: "mother.id",
                             type: "basic"
+                        },
+                        {
+                            name: "Reported Sex (Karyotypic)",
+                            type: "complex",
+                            display: {
+                                template: "${sex} (${karyotypicSex})",
+                            }
+                        },
+                        {
+                            name: "Inferred Karyotypic Sex",
+                            type: "custom",
+                            display: {
+                                render: data => {
+                                    if (data?.qualityControl?.inferredSexReports && data.qualityControl.inferredSexReports?.length > 0) {
+                                        return data.qualityControl.inferredSexReports[0].inferredKaryotypicSex;
+                                    } else {
+                                        return "-";
+                                    }
+                                },
+                            }
                         },
                         {
                             name: "Disorders",

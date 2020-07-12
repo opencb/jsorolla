@@ -230,20 +230,19 @@ export default class OpencgaFileGrid extends LitElement {
     }
 
     _getDefaultColumns() {
-        // name,path,samples,status,format,bioformat,creationDate,modificationDate,uuid"
         let _columns = [
-            {
-                title: "Uuid",
-                field: "uuid",
-                visible: false
-            },
             {
                 title: "Name",
                 field: "name"
             },
             {
-                title: "Directory",
+                title: "Path",
                 formatter: this.pathFormatter,
+            },
+            {
+                title: "Size",
+                field: "size",
+                formatter: UtilsNew.getDiskUsage
             },
             {
                 title: "Format",
@@ -252,11 +251,6 @@ export default class OpencgaFileGrid extends LitElement {
             {
                 title: "Bioformat",
                 field: "bioformat"
-            },
-            {
-                title: "Size",
-                field: "size",
-                formatter: UtilsNew.getDiskUsage
             },
             {
                 title: "Creation date",

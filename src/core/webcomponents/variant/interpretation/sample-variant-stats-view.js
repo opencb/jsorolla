@@ -133,6 +133,7 @@ class SampleVariantStatsView extends LitElement {
             if (!variantStats) {
                 variantStats = this.sample.qualityControl.metrics[0].variantStats[0];
             }
+            // debugger
             this.sampleVariantStats = variantStats.stats;
         }
         this.requestUpdate();
@@ -303,6 +304,10 @@ class SampleVariantStatsView extends LitElement {
     }
 
     render() {
+        if (!this._sampleVariantStats || !this._sampleVariantStats.id) {
+            return html`<div class="alert alert-info"><i class="fas fa-3x fa-info-circle align-middle" style="padding-right: 10px"></i> No Variant Stats found.</div>`;
+        }
+
         return html`
             <div>
                 <data-form .data=${this._sampleVariantStats} .config="${this.getDefaultConfig()}"></data-form>

@@ -16,6 +16,7 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
+import "./opencga-individual-inferred-sex-view.js";
 import "../commons/opencga-browser.js";
 
 
@@ -237,6 +238,20 @@ export default class OpencgaIndividualBrowser extends LitElement {
                             active: true,
                             render: (individual, active, opencgaSession) => {
                                 return html`<opencga-individual-view .individual="${individual}" .opencgaSession="${opencgaSession}"></opencga-individual-view>`;
+                            }
+                        },
+                        {
+                            id: "individual-inferred-sex",
+                            name: "Inferred Sex",
+                            render: (individual, active, opencgaSession) => {
+                                return html`<opencga-individual-inferred-sex-view .individual="${individual}" .opencgaSession="${opencgaSession}"></opencga-individual-inferred-sex-view>`;
+                            }
+                        },
+                        {
+                            id: "individual-mendelian-error",
+                            name: "Mendelian Error",
+                            render: (individual, active, opencgaSession) => {
+                                return html`<opencga-individual-mendelian-errors-view .individual="${individual}" .opencgaSession="${opencgaSession}"></opencga-individual-mendelian-errors-view>`;
                             }
                         },
                         {
