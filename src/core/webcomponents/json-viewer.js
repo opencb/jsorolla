@@ -16,6 +16,7 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../utilsNew.js";
+import "./download-button.js";
 
 export default class JsonViewer extends LitElement {
 
@@ -66,6 +67,9 @@ export default class JsonViewer extends LitElement {
 
     render() {
         return html`
+            <div class="text-right">
+                <download-button class="btn-sm" .json="${this.data}"></download-button>
+            </div>
             <div class="json-renderer"></div>
         `;
     }

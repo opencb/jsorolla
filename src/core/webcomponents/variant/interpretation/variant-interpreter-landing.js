@@ -401,11 +401,11 @@ class VariantInterpreterLanding extends LitElement {
                                         <h2>Case ${this.clinicalAnalysis.id}</h2>
                                     </div> -->
                                     
-                                    ${this._config.clinicalAnalysisSelector ? html`
+                                    ${false && this._config.clinicalAnalysisSelector ? html`
                                         <div class="row pad5">
                                             <div class="pull-right">
                                                 <button class="btn btn-primary ripple" @click="${this.onCloseClinicalAnalysis}">
-                                                    <i class="fas fa-times" style="padding-right: 10px"></i>Close
+                                                    <i class="fas fa-times icon-padding"></i>Close
                                                 </button>
                                             </div>
                                         </div>  

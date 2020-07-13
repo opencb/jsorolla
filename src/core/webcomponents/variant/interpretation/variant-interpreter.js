@@ -30,6 +30,7 @@ import "../../clinical/opencga-clinical-analysis-view.js";
 import "../../clinical/clinical-interpretation-view.js";
 import "../../commons/opencga-active-filters.js";
 import "../../commons/filters/select-field-filter-autocomplete-simple.js";
+import "../../download-button.js";
 
 
 class VariantInterpreter extends LitElement {
@@ -95,15 +96,19 @@ class VariantInterpreter extends LitElement {
     }
 
     clinicalAnalysisIdObserver() {
-        if (this.opencgaSession && this.clinicalAnalysisId) {
-            this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
-                .then(response => {
-                    this.clinicalAnalysis = response.responses[0].results[0];
-                    this.requestUpdate();
-                })
-                .catch(response => {
-                    console.error("An error occurred fetching clinicalAnalysis: ", response);
-                });
+        if (this.opencgaSession) {
+            if( this.clinicalAnalysisId) {
+                this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
+                    .then(response => {
+                        this.clinicalAnalysis = response.responses[0].results[0];
+                        this.requestUpdate();
+                    })
+                    .catch(response => {
+                        console.error("An error occurred fetching clinicalAnalysis: ", response);
+                    });
+            } else {
+                this.clinicalAnalysis = null;
+            }
         }
     }
 
@@ -150,6 +155,12 @@ class VariantInterpreter extends LitElement {
         // this.clinicalAnalysis.type = "CANCER";
         this.requestUpdate();
     }
+
+    /*async closeClinicalAnalysis() {
+        // after a while clinicalAnalysis reappears as it is defined in the hash
+        this.clinicalAnalysisId = null;
+        this.clinicalAnalysis = null;
+    }*/
 
     getDefaultConfig() {
         return {
@@ -222,9 +233,14 @@ class VariantInterpreter extends LitElement {
                 }
             </style>
             
-            <div class="">
+            <div class="variant-interpreter-interpretation">
                 ${this.clinicalAnalysis && this.clinicalAnalysis.id ? html`
-                    <tool-header .title="${`${this._config.title}<span class="inverse"> Case ${this.clinicalAnalysis?.id} </span>` }" icon="${this._config.icon}"></tool-header>
+                    <tool-header    icon="${this._config.icon}"
+                                    .title="${`${this._config.title}<span class="inverse"> Case ${this.clinicalAnalysis?.id} </span>` }"
+                                    .rhs="${html`
+                                                <a class="btn btn-primary ripple" title="Close Clinical Analysis" href="#clinicalAnalysisPortal/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}"><i class="fas fa-times"></i> Close</a>
+                                                <download-button .json="${this.clinicalAnalysis}" title="Download Clinical Analysis"></download-button>
+                                    `}"></tool-header>
                 ` : html`
                     <tool-header .title="${this._config.title}" icon="${this._config.icon}"></tool-header>
                 `}

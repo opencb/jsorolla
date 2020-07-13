@@ -40,6 +40,9 @@ export default class ToolHeader extends LitElement {
             },
             class: {
                 type: String
+            },
+            rhs: {
+                type: Object
             }
         }
     }
@@ -56,6 +59,9 @@ export default class ToolHeader extends LitElement {
                     ${UtilsNew.renderHTML(this.title)}
                 </h2>
                 ${this.subtitle ? html`<h3>${this.subtitle}</h3>` : null}
+                <div class="page-title-right">
+                    ${this.rhs}
+                </div>
             </div>
         `;
     }

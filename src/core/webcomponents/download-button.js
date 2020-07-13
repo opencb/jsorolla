@@ -33,8 +33,14 @@ export default class DownloadButton extends LitElement {
             name: {
                 type: String
             },
+            title: {
+                type: String
+            },
             json: {
                 type: Object
+            },
+            class: {
+                type: String
             }
         };
     }
@@ -44,12 +50,12 @@ export default class DownloadButton extends LitElement {
     }
 
     download() {
-        const dataString = JSON.stringify(this.json, null, "\t");
+        const dataString = JSON.stringify(this.json || {}, null, "\t");
         const data = new Blob([dataString], {type: "application/json"});
         const file = window.URL.createObjectURL(data);
         const a = document.createElement("a");
         a.href = file;
-        a.download = (this.json.id || this.json.name || "download") + ".json";
+        a.download = (this.json?.id || this.json?.name || "download") + ".json";
         document.body.appendChild(a);
         a.click();
         setTimeout(function() {
@@ -58,11 +64,7 @@ export default class DownloadButton extends LitElement {
     }
 
     render() {
-        return html`
-            <div>
-                <button class="btn btn-primary ripple" @click="${this.download}"><i class="fa fa-download" aria-hidden="true"></i> ${this.name}</button>
-            </div>
-        `;
+        return html`<button class="btn btn-primary ripple ${this.class ?? ""}" title="${this.title || ""}" @click="${this.download}"><i class="fa fa-download" aria-hidden="true"></i> ${this.name || "Download"}</button>`;
     }
 }
 

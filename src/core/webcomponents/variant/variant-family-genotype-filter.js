@@ -187,8 +187,6 @@ export default class VariantFamilyGenotypeFilter extends LitElement {
                     _sampleFilters.push(_sampleFilter);
                 }
             }
-            console.error("sampleFilters", this.sampleFilters);
-
             this.sampleFilters = _sampleFilters;
         } else {
             // There is an event and no individuals have been found
