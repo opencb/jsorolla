@@ -148,7 +148,8 @@ export default class OpencgaKnockoutAnalysis extends LitElement {
             },
             execute: (opencgaSession, data, params) => {
                 let body = {};
-                data.sample ? body.sample = data.sample.join(",") : null;
+                // data.sample ? body.sample = data.sample.join(",") : null;
+                data.sample ? body.sample = data.sample : null;
                 data.gene ? body.gene = data.gene.join(",") : null;
                 data.biotype ? body.biotype = data.biotype.join(",") : null;
                 data.consequenceType ? body.consequenceType = data.consequenceType.join(",") : null;

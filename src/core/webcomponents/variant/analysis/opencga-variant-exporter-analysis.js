@@ -79,12 +79,50 @@ export default class OpencgaVariantExporterAnalysis extends LitElement {
                         title: "Input Parameters",
                         collapsed: false,
                         parameters: [
+                            {
+                                id: "sample",
+                                title: "Select samples",
+                                type: "SAMPLE_FILTER",
+                                showList: true,
+                                fileUpload: true
+                            },
+                            {
+                                id: "family",
+                                title: "Select Families",
+                                type: "FAMILY_FILTER",
+                                showList: true,
+                                fileUpload: true
+                            },
                         ]
                     },
                     {
-                        title: "Output Parameters",
+                        title: "Filters",
                         collapsed: false,
                         parameters: [
+                            {
+                                id: "region",
+                                title: "Select Region",
+                                type: "text"
+                            },
+                            {
+                                id: "gene",
+                                title: "Select gene",
+                                type: "text"
+                            },
+                            {
+                                id: "biotype",
+                                title: "Select biotype",
+                                type: "category",
+                                defaultValue: "protein_coding",
+                                allowedValues: ["3prime_overlapping_ncrna", "IG_C_gene", "IG_C_pseudogene", "IG_D_gene", "IG_J_gene",
+                                    "IG_J_pseudogene", "IG_V_gene", "IG_V_pseudogene", "Mt_rRNA", "Mt_tRNA", "TR_C_gene", "TR_D_gene",
+                                    "TR_J_gene", "TR_J_pseudogene", "TR_V_gene", "TR_V_pseudogene", "antisense", "lincRNA", "miRNA",
+                                    "misc_RNA", "non_stop_decay", "nonsense_mediated_decay", "polymorphic_pseudogene", "processed_pseudogene",
+                                    "processed_transcript", "protein_coding", "pseudogene", "rRNA", "retained_intron", "sense_intronic",
+                                    "sense_overlapping", "snRNA", "snoRNA", "transcribed_processed_pseudogene", "transcribed_unprocessed_pseudogene",
+                                    "translated_processed_pseudogene", "unitary_pseudogene", "unprocessed_pseudogene"
+                                ]
+                            },
                         ]
                     }
                 ],
@@ -100,7 +138,12 @@ export default class OpencgaVariantExporterAnalysis extends LitElement {
                 }
             },
             execute: (opencgaSession, data, params) => {
-                opencgaSession.opencgaClient.variants().runGwas(data, params);
+                let body = {outputFormat: "TEXT"};
+                data.sample ? body.sample = data.sample.join(",") : null;
+                data.family ? body.family = data.family.join(",") : null;
+                data.gene ? body.gene = data.gene.join(",") : null;
+                data.biotype ? body.biotype = data.biotype.join(",") : null;
+                opencgaSession.opencgaClient.variants().runExport(body, params);
             },
             result: {
             }
