@@ -208,6 +208,20 @@ export default class VariantInterpreterGrid extends LitElement {
                 variantGrid: _this,
 
                 ajax: (params) => {
+                    if (this.clinicalAnalysis.type.toUpperCase() === "FAMILY" && this.query?.sample) {
+                        let samples = this.query.sample.split(";");
+                        let sortedSamples = [];
+                        for (let sample of samples) {
+                            let sampleFields = sample.split(":");
+                            if (sampleFields && sampleFields[0] === this.clinicalAnalysis.proband.samples[0].id) {
+                                sortedSamples.unshift(sample);
+                            } else {
+                                sortedSamples.push(sample);
+                            }
+                        }
+                        this.query.sample = sortedSamples.join(";");
+                    }
+
                     let tableOptions = $(this.table).bootstrapTable("getOptions");
                     let filters = {
                         study: this.opencgaSession.study.fqn,
