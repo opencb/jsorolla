@@ -108,7 +108,7 @@ class VariantInterpreterLanding extends LitElement {
                 }
             }
             if (!_editMode) {
-                _editMode = this.opencgaSession.study.acl.includes("WRITE_CLINICAL_ANALYSIS");
+                _editMode = this.opencgaSession.study?.acl?.includes("WRITE_CLINICAL_ANALYSIS");
             }
             this.editMode = _editMode;
         }
@@ -231,7 +231,6 @@ class VariantInterpreterLanding extends LitElement {
         //console.error("getLastClinicalAnalysis")
         this.opencgaSession.opencgaClient.clinical().search({study: this.opencgaSession.study.fqn, limit: 10})
             .then(response => {
-                console.warn(response.responses[0].results)
                 this.lastClinicalAnalysis = response.responses[0].results.map(value => value.id);
                 this.lastClinicalAnalysis = [...this.lastClinicalAnalysis];
                 //console.log("this.lastClinicalAnalysis", this.lastClinicalAnalysis)
@@ -240,6 +239,7 @@ class VariantInterpreterLanding extends LitElement {
             })
             .catch(response => {
                 console.error("An error occurred fetching clinicalAnalysis: ", response);
+                this.lastClinicalAnalysis = [];
             });
     }
 

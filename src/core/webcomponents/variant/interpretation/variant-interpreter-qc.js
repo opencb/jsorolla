@@ -95,7 +95,7 @@ class VariantInterpreterQc extends LitElement {
         const tabId = e.currentTarget.dataset.id;
         const navTabs = $(`#${this._prefix}QcTabs > .nav-tabs > .content-pills`, this);
         const contentTabs = $(`#${this._prefix}QcTabs > .content-tab-wrapper > .tab-pane`, this);
-        if (!e.currentTarget.className.includes("disabled")) {
+        if (!e.currentTarget?.className?.split(" ")?.includes("disabled")) {
             navTabs.removeClass("active");
             contentTabs.removeClass("active");
             $("#" + this._prefix + tabId).addClass("active");

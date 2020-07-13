@@ -114,11 +114,13 @@ class VariantInterpreter extends LitElement {
 
     onClickSection(e) {
         e.preventDefault();
-        this._changeView(e.currentTarget.dataset.view);
+        if (e.currentTarget?.dataset?.view && !e.currentTarget.className.split(" ").includes("disabled")) {
+            this._changeView(e.currentTarget.dataset.view);
+        }
     }
 
     _changeView(tabId) {
-        console.log("changing to ", tabId)
+        //console.log("changing to ", tabId)
         $(`.clinical-portal-step`, this).removeClass("active");
         $(`.clinical-portal-content`, this).hide(); // hides all content divs
         for (const tab in this.activeTab) this.activeTab[tab] = false;
