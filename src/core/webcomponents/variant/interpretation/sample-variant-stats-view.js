@@ -129,12 +129,16 @@ class SampleVariantStatsView extends LitElement {
             // By default we render the stat 'ALL' from the first metric
             let variantStats = this.sample.qualityControl.metrics[0].variantStats.find(stat => stat.id === "ALL");
 
-            // If there is not stat 'ALL@ then we rd the first one
+            // If there is not stat 'ALL' then we take the first one
             if (!variantStats) {
                 variantStats = this.sample.qualityControl.metrics[0].variantStats[0];
             }
             // debugger
             this.sampleVariantStats = variantStats.stats;
+        } else {
+            // Check if sample variant stats has been indexed in annotationSets
+            let annotationSet = this.sample?.annotationSets?.find(annotSet => annotSet.id.toLowerCase() === "opencga_sample_variant_stats");
+            this.sampleVariantStats = annotationSet?.annotations;
         }
         this.requestUpdate();
     }
