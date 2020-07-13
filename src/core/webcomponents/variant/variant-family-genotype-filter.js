@@ -86,11 +86,13 @@ export default class VariantFamilyGenotypeFilter extends LitElement {
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("clinicalAnalysis")) {
-            this.clinicalAnalysisObserver();
-        }
+
         if (changedProperties.has("query")) {
             this.queryObserver();
+        }
+
+        if (changedProperties.has("clinicalAnalysis")) {
+            this.clinicalAnalysisObserver();
         }
         if (changedProperties.has("config")) {
             // this.configObserver();
@@ -110,8 +112,6 @@ export default class VariantFamilyGenotypeFilter extends LitElement {
             console.log("clinicalAnalysis is undefined or null: ", this.clinicalAnalysis);
             return;
         }
-
-        debugger
         /*
          * First, get and render individual options
          * Second, get and render files options
@@ -169,12 +169,13 @@ export default class VariantFamilyGenotypeFilter extends LitElement {
                     //     }
                     // }
 
+                    // TODO recheck individual?.disorders?.length. It seems it silently fails in case disorders is undefined.
                     // There should be just one sample per individual in the Clinical Analysis
                     const sample = individual.samples[0];
                     const _sampleFilter = {
                         id: sample.id,
                         proband: this.clinicalAnalysis.proband && individual.id === this.clinicalAnalysis.proband.id,
-                        affected: this.clinicalAnalysis.disorder && individual?.disorders.length ? individual?.disorders.some(disorder => disorder.id === this.clinicalAnalysis.disorder.id) : false, // some() returns either true or false, false of the ternary operator is useless
+                        affected: this.clinicalAnalysis.disorder && individual?.disorders?.length ? individual.disorders.some(disorder => disorder.id === this.clinicalAnalysis.disorder.id) : false,
                         sex: individual.sex,
                         karyotypicSex: individual.karyotypicSex,
                         role: this.clinicalAnalysis.roleToProband[individual.id],
@@ -493,7 +494,7 @@ export default class VariantFamilyGenotypeFilter extends LitElement {
                                 <th rowspan="2">Sample</th>
 <!--                                <th rowspan="2">Proband</th>-->
                                 <th rowspan="2">Role</th>
-                                <th rowspan="2">Sex</th>
+                                <th rowspan="2">Sex (karyotype)</th>
                                 <th rowspan="2">Affected (${this.clinicalAnalysis.disorder.id})</th>
 <!--                                <th rowspan="2">Father</th>-->
 <!--                                <th rowspan="2">Mother</th>-->
