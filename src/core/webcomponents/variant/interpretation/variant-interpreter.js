@@ -108,7 +108,7 @@ class VariantInterpreter extends LitElement {
     }
 
     onClickSection(e) {
-        // e.preventDefault();
+        e.preventDefault();
         this._changeView(e.currentTarget.dataset.view);
     }
 

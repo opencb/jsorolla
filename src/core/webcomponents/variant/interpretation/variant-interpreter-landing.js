@@ -93,7 +93,8 @@ class VariantInterpreterLanding extends LitElement {
     }
 
     opencgaSessionObserver() {
-        this.onCloseClinicalAnalysis();
+
+        //debugger
         // Check logged user is the study owner
         let _studyOwner = this.opencgaSession.study.fqn.split("@")[0];
         if (this.opencgaSession.user.id === _studyOwner) {
@@ -103,7 +104,7 @@ class VariantInterpreterLanding extends LitElement {
             for (let group of this.opencgaSession.study.groups) {
                 if (group.id === "@admins") {
                     _editMode = group.userIds.includes(this.opencgaSession.user.id);
-                    break;
+                    //break;
                 }
             }
             if (!_editMode) {
@@ -111,6 +112,8 @@ class VariantInterpreterLanding extends LitElement {
             }
             this.editMode = _editMode;
         }
+
+        this.onCloseClinicalAnalysis();
 
         this.getLastClinicalAnalysis();
     }
@@ -225,10 +228,10 @@ class VariantInterpreterLanding extends LitElement {
 
     getLastClinicalAnalysis() {
         // Fetch object from server since the server automatically adds some information
-        //console.log("getLastClinicalAnalysis")
+        //console.error("getLastClinicalAnalysis")
         this.opencgaSession.opencgaClient.clinical().search({study: this.opencgaSession.study.fqn, limit: 10})
             .then(response => {
-                //console.log(response.responses[0].results)
+                console.error(response.responses[0].results)
                 this.lastClinicalAnalysis = response.responses[0].results.map(value => value.id);
                 this.lastClinicalAnalysis = [...this.lastClinicalAnalysis];
                 //console.log("this.lastClinicalAnalysis", this.lastClinicalAnalysis)

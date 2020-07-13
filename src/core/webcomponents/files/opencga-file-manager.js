@@ -50,6 +50,7 @@ export default class OpencgaFileManager extends LitElement {
 
         this.tree = null;
         this.fileId = null;
+        this.loading = false;
     }
 
     connectedCallback() {
@@ -57,8 +58,11 @@ export default class OpencgaFileManager extends LitElement {
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
-    updated(changedProperties) {
+    async updated(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
+            this.loading = true;
+            this.currentRoot = null;
+            await this.requestUpdate();
             this.opencgaSession.opencgaClient.files().tree(this.currentRootId, {study: this.opencgaSession.study.fqn, maxDepth: 1, include: "id,name,path,size,format"})
                 .then(restResponse => {
                     this.errorState = false;
@@ -67,12 +71,17 @@ export default class OpencgaFileManager extends LitElement {
                     this.requestUpdate();
                 })
                 .catch(restResponse => {
+                    this.currentRoot = null;
                     if (restResponse.getEvents("ERROR").length) {
                         this.errorState = restResponse.getEvents("ERROR").map(error => error.message).join("<br>");
                     } else {
                         this.errorState = "Server Error";
                     }
                     console.error(restResponse);
+                })
+                .finally( () => {
+                    this.loading = false;
+                    this.requestUpdate();
                 });
         }
         if (changedProperties.has("config")) {
@@ -287,16 +296,20 @@ export default class OpencgaFileManager extends LitElement {
                             ${this.errorState}
                         </div>
                     ` : null}
-                        ${this.currentRoot 
-                            ? html`
-                                <div>
-                                    ${this.renderFileManager(this.currentRoot)}
-                                </div>
-                                <div class="opencga-file-view">
-                                    <opencga-file-view .opencgaSession="${this.opencgaSession}" .fileId="${this.fileId}"></opencga-file-view>
-                                </div>` 
-                            : html`<loading-spinner></loading-spinner>`
-                        }
+                    ${this.loading ? html`
+                        <div id="loading">
+                            <loading-spinner></loading-spinner>
+                        </div>
+                    ` : null}
+                    ${this.currentRoot
+                        ? html`
+                            <div>
+                                ${this.renderFileManager(this.currentRoot)}
+                            </div>
+                            <div class="opencga-file-view">
+                                <opencga-file-view .opencgaSession="${this.opencgaSession}" .fileId="${this.fileId}"></opencga-file-view>
+                            </div>`
+                        : null}
                     </div>
                 </div>
             </div>

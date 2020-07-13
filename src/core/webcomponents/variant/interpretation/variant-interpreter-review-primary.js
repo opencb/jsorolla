@@ -297,17 +297,17 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                     console.log(response);
                     // TODO We should update here clinicalAnalysis and add to interpretation list this file with its name from save interpertation form.
                     console.error("interpretation ref is not defined");
-                    if (UtilsNew.isNotUndefinedOrNull(interpretation) && UtilsNew.isNotUndefinedOrNull(interpretation.clinicalAnalysis)) {
-                        if (UtilsNew.isEmptyArray(interpretation.clinicalAnalysis.interpretations)) {
-                            interpretation.clinicalAnalysis.interpretations = [];
+                    if (UtilsNew.isNotUndefinedOrNull(this.interpretation) && UtilsNew.isNotUndefinedOrNull(this.interpretation.clinicalAnalysis)) {
+                        if (UtilsNew.isEmptyArray(this.interpretation.clinicalAnalysis.interpretations)) {
+                            this.interpretation.clinicalAnalysis.interpretations = [];
                         } else {
-                            interpretation.clinicalAnalysis.interpretations = interpretation.clinicalAnalysis.interpretations.map(interpretation => {
+                            this.interpretation.clinicalAnalysis.interpretations = this.interpretation.clinicalAnalysis.interpretations.map(interpretation => {
                                 return {id: interpretation.id, name: interpretation.name, file: interpretation.file.id};
                             });
                         }
-                        interpretation.clinicalAnalysis.interpretations.push({
-                            id: interpretation.id,
-                            name: interpretation.name,
+                        this.interpretation.clinicalAnalysis.interpretations.push({
+                            id: this.interpretation.id,
+                            name: this.interpretation.name,
                             file: response.response[0].result[0].id
                         });
                     }
@@ -315,13 +315,13 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                     params = {
                         study: _this.opencgaSession.study.fqn,
                     };
-                    const interpretations = {interpretations: interpretation.clinicalAnalysis.interpretations};
+                    const interpretations = {interpretations: this.interpretation.clinicalAnalysis.interpretations};
                     console.log("new clients change")
-                    _this.opencgaSession.opencgaClient.clinical().update(interpretation.clinicalAnalysis.id, interpretations, params)
+                    _this.opencgaSession.opencgaClient.clinical().update(this.interpretation.clinicalAnalysis.id, interpretations, params)
                         .then(response => {
                             this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
                                 detail: {
-                                    message: interpretation.id + " interpretation has been created correctly.",
+                                    message: this.interpretation.id + " interpretation has been created correctly.",
                                     type: UtilsNew.MESSAGE_SUCCESS
                                 },
                                 bubbles: true,
@@ -562,8 +562,7 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                                                           .opencgaClient="${this.opencgaSession.opencgaClient}"
                                                           .cellbaseClient="${this.cellbaseClient}"
                                                           .consequenceTypes="${this.consequenceTypes}"
-                                                          .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
-                                                          style="font-size: 12px">
+                                                          .proteinSubstitutionScores="${this.proteinSubstitutionScores}">
                             </clinical-interpretation-view>
                         ` : null}
                     </div>

@@ -577,12 +577,12 @@ class VariantInterpreterCancerBrowser extends LitElement {
                     <div class="btn-toolbar " role="toolbar" aria-label="..." style="padding-bottom: 20px">
                         <!-- Left buttons -->
                         <div class="btn-group" role="group" aria-label="...">
-                            <button id="${this._prefix}TableResultButton" type="button" class="btn btn-success variant-interpretation-view-buttons active ripple" data-view="TableResult" @click="${this.onChangeView}">
+                            <!--<button id="${this._prefix}TableResultButton" type="button" class="btn btn-success variant-interpretation-view-buttons active ripple" data-view="TableResult" @click="${this.onChangeView}">
                                 <i class="fa fa-filter icon-padding" aria-hidden="true" data-view="TableResult" @click="${this.onChangeView}"></i>Table Result
                             </button>
                             <button id="${this._prefix}SummaryReportButton" type="button" class="btn btn-success variant-interpretation-view-buttons ripple" data-view="SummaryReport" @click="${this.onChangeView}">
                                 <i class="fas fa-random icon-padding" aria-hidden="true" data-view="SummaryReport" @click="${this.onChangeView}"></i>Summary Stats
-                            </button>
+                            </button>-->
                         </div>
                     </div>  <!-- Close toolbar -->
                 
