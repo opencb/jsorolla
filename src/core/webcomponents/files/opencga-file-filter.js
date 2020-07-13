@@ -121,9 +121,8 @@ export default class OpencgaFileFilter extends LitElement {
     }
 
     queryObserver() {
-        console.log("queryObserver: calling to 'renderQueryFilters()'", this.query);
-        this.preparedQuery = this.query;
-        // this.renderQueryFilters();
+        console.log("queryObserver()", this.query);
+        this.preparedQuery = this.query || {};
         this.requestUpdate();
     }
 

@@ -132,27 +132,27 @@ export default class OpencgaBrowser extends LitElement {
         if (this.opencgaSession && this.opencgaSession.project) {
             this.checkProjects = true;
             this.query = {study: this.opencgaSession.study.fqn};
-            this.requestUpdate().then(() => $(".bootstrap-select", this).selectpicker());
+            //this.requestUpdate().then(() => $(".bootstrap-select", this).selectpicker());
         } else {
             this.checkProjects = false;
         }
     }
 
     queryObserver() {
-        // Query passed is executed and set to variant-filter, active-filters and variant-grid components
-        let _query = {};
-        if (UtilsNew.isEmpty(this.query) && this.opencgaSession && this.opencgaSession.study) {
-            _query = {
-                study: this.opencgaSession.study.fqn
-            };
-        }
-
-        if (UtilsNew.isNotUndefinedOrNull(this.query)) {
-            this.preparedQuery = {..._query, ...this.query};
-            this.executedQuery = {..._query, ...this.query};
+          if (this.opencgaSession) {
+            if(this.query) {
+                this.preparedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
+                this.executedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
+            } else {
+                this.preparedQuery = {study: this.opencgaSession.study.fqn};
+                this.executedQuery = {study: this.opencgaSession.study.fqn};
+            }
         }
         // onServerFilterChange() in opencga-active-filters drops a filterchange event when the Filter dropdown is used
-        this.dispatchEvent(new CustomEvent("queryChange", {detail: this.preparedQuery}));
+        this.dispatchEvent(new CustomEvent("queryChange", {
+                detail: this.preparedQuery
+            }
+        ));
         this.detail = {};
         this.requestUpdate();
     }

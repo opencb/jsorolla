@@ -96,8 +96,8 @@ export default class OpencgaFamilyFilter extends LitElement {
     }
 
     queryObserver() {
-        console.log("onQueryUpdate: calling to 'renderQueryFilters()'", this.query);
-        this.preparedQuery = this.query;
+        console.log("queryObserver()", this.query);
+        this.preparedQuery = this.query || {};
         this.requestUpdate();
     }
 

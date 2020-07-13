@@ -67,25 +67,6 @@ export default class OpencgaActiveFilters extends LitElement {
         return this;
     }
 
-    updated(changedProperties) {
-        if (changedProperties.has("query")) {
-            this.queryObserver();
-        }
-        if (changedProperties.has("refresh")) {
-            this.searchClicked();
-        }
-        if (changedProperties.has("config")) {
-            this.configObserver();
-        }
-        if (changedProperties.has("opencgaSession")) {
-            this.checkFilters();
-        }
-        if (changedProperties.has("facetQuery")) {
-            // TODO review queryObserver and unify the behaviour of the Warning alert
-            this.facetQueryObserver();
-        }
-    }
-
     init() {
         this._prefix = "oaf" + UtilsNew.randomString(6) + "_";
         this._config = this.getDefaultConfig();
@@ -125,6 +106,28 @@ export default class OpencgaActiveFilters extends LitElement {
                     break;
                 }
             }
+        }
+    }
+
+    updated(changedProperties) {
+        debugger
+        if (changedProperties.has("opencgaSession")) {
+            this.opencgaSessionObserver();
+        }
+
+        if (changedProperties.has("query")) {
+            this.queryObserver();
+        }
+        if (changedProperties.has("refresh")) {
+            this.searchClicked();
+        }
+        if (changedProperties.has("config")) {
+            this.configObserver();
+        }
+
+        if (changedProperties.has("facetQuery")) {
+            // TODO review queryObserver and unify the behaviour of the Warning alert
+            this.facetQueryObserver();
         }
     }
 
@@ -175,7 +178,7 @@ export default class OpencgaActiveFilters extends LitElement {
         return UtilsNew.isNotEmpty(config);
     }
 
-    checkFilters() {
+    opencgaSessionObserver() {
         const _this = this;
         if (this.opencgaClient instanceof OpenCGAClient && UtilsNew.isNotUndefined(this.opencgaSession.token)) {
             // console.error("arguments changed inverted after new clients. recheck functionality. serverVersion is now ignored");
@@ -472,7 +475,8 @@ export default class OpencgaActiveFilters extends LitElement {
                 </div>
             `}
         
-            <!-- <div class="alert alert-info">${JSON.stringify(this.queryList)}</div> --> 
+            <!--<div class="alert alert-info">query ${JSON.stringify(this.query)}</div> 
+            <div class="alert alert-info">queryList ${JSON.stringify(this.queryList)}</div>--> 
             <div class="panel panel-default">
                 <div class="panel-body" style="padding: 8px 10px">
                     <div class="lhs">

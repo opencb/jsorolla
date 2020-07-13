@@ -105,10 +105,8 @@ export default class OpencgaSampleFilter extends LitElement {
     }
 
     queryObserver() {
-        console.log("queryObserver: calling to 'renderQueryFilters()'", this.query);
-        this.preparedQuery = this.query;
-        // renderQueryFilters shouldn't be necessary anymore
-        // this.renderQueryFilters();
+        console.log("queryObserver()", this.query);
+        this.preparedQuery = this.query || {};
         this.requestUpdate();
     }
 
@@ -213,7 +211,7 @@ export default class OpencgaSampleFilter extends LitElement {
     }
 
     render() {
-        return html`            
+        return html`
             ${this.searchButton ? html`
                 <div class="search-button-wrapper">
                     <button type="button" class="btn btn-primary ripple" @click="${this.onSearch}">

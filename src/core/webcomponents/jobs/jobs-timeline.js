@@ -67,7 +67,8 @@ export default class JobsTimeline extends LitElement {
 
     async fetchContent() {
         console.log("query observer");
-        this.querySelector("#svg-timeline").innerHTML = "";
+        this.draw?.clear();
+        $("#svg-timeline").empty();
         this.querySelector("#loading").style.display = "block";
         this.intervals = [];
         this.status = {};
@@ -124,14 +125,16 @@ export default class JobsTimeline extends LitElement {
             this.querySelector("#svg-timeline").innerHTML = "No matching records found";
             return;
         }
-        this.querySelector("#svg-timeline").innerHTML = "";
+        $("#svg-timeline").empty();
         if (this.draw) {
             this.draw.clear();
             // TODO FIXME for some reason draw is not actually really cleared (cache issue?)
-            //console.log("CHILDS", this.draw)
+            console.log("CHILDS", this.draw)
+            console.log("first", this.draw.first())
         }
 
-        // console.log("timestampMinMax", timestampMin, timestampMax);
+        debugger
+        console.log("timestampMinMax", this.timestampMin, this.timestampMax);
 
         this._config.board.width = this._config.board.width || this.querySelector("#svg-timeline").clientWidth - 200;
 

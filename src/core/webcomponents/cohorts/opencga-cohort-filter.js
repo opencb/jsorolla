@@ -146,10 +146,8 @@ export default class OpencgaCohortFilter extends LitElement {
     }
 
     queryObserver() {
-        console.log("queryObserver: calling to 'renderQueryFilters()'", this.query);
-        this.preparedQuery = this.query;
-        // renderQueryFilters shouldn't be necessary anymore
-        // this.renderQueryFilters();
+        console.log("queryObserver()", this.query);
+        this.preparedQuery = this.query || {};
         this.requestUpdate();
     }
 

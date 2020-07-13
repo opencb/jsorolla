@@ -103,10 +103,8 @@ export default class OpencgaIndividualFilter extends LitElement {
 
 
     queryObserver() {
-        console.log("onQueryUpdate: calling to 'renderQueryFilters()'", this.query);
-        this.preparedQuery = this.query;
-        // renderQueryFilters shouldn't be necessary anymore
-        // this.renderQueryFilters();
+        console.log("queryObserver()", this.query);
+        this.preparedQuery = this.query || {};
         this.requestUpdate();
     }
 

@@ -79,6 +79,9 @@ export default class OpencgaSampleBrowser extends LitElement {
     }
 
     updated(changedProperties) {
+        /*if (changedProperties.has("opencgaSession")) {
+            this.opencgaSessionObserver();
+        }*/
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
             this.requestUpdate();
