@@ -80,7 +80,7 @@ export class JobMonitor extends LitElement {
         // and then every 'interval' ms
         this.interval = setInterval(() => {
             this.fetchLastJobs();
-        }, this._config.interval || 30000);
+        }, this._config.interval);
 
     }
 
@@ -115,7 +115,9 @@ export class JobMonitor extends LitElement {
     }
 
     fetchLastJobs() {
-        if (!this.opencgaSession) {
+        console.log("job opencgaSession", this.opencgaSession)
+        console.log("job study", this.opencgaSession?.study?.fqn)
+        if (!this.opencgaSession?.study?.fqn || !$("#job-monitor").is(":visible")) {
             clearInterval(this.interval);
             return;
         }
@@ -205,7 +207,7 @@ export class JobMonitor extends LitElement {
     getDefaultConfig() {
         return {
             limit: 10,
-            interval: 30000
+            interval: 5000
         }
     }
 

@@ -728,13 +728,13 @@ class VariantInterpreterRdBrowser extends LitElement {
                 </div> <!-- Close col-md-2 -->
                 
                 <div class="col-md-10">
-                    <div class="btn-toolbar " role="toolbar" aria-label="..." style="padding-bottom: 20px">
+                    <div class="btn-toolbar " role="toolbar" aria-label="..." style="padding-bottom: 60px">
                         <!-- Left buttons -->
                         <div class="btn-group" role="group" aria-label="..." >
-                            <button id="${this._prefix}InteractiveButton" type="button" class="btn btn-success variant-interpretation-view-buttons active ripple" data-view="Interactive" @click="${this.onChangeView}">
+                            <!--<button id="${this._prefix}InteractiveButton" type="button" class="btn btn-success variant-interpretation-view-buttons active ripple" data-view="Interactive" @click="${this.onChangeView}">
                                 <i class="fa fa-filter icon-padding" aria-hidden="true" data-view="Interactive" @click="${this.onChangeView}"></i>Table Result
                             </button>
-                            <!--
+                            
                              <button id="${this._prefix}SummaryReportButton" type="button" class="btn btn-success variant-interpretation-view-buttons ripple" data-view="SummaryReport" @click="${this.onChangeView}">
                                 <i class="fas fa-random icon-padding" aria-hidden="true" data-view="SummaryReport" @click="${this.onChangeView}"></i>Summary Report
                             </button>

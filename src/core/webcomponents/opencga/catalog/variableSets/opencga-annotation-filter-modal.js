@@ -252,6 +252,10 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
                 .annotation-modal .tab-pane {
                     padding-top: 20px;
                 }
+                
+                .variable-set-description {
+                    margin: 5px 0 20px 0;
+                }
             </style>
            
             <button type="button" class="btn btn-default" @click="${this.showModal}"> Annotation </button>
@@ -277,7 +281,7 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
                             <div class="tab-content">
                                 ${this.variableSets.map( (variableSet, i) => html`
                                     <div role="tabpanel" class="tab-pane ${classMap({"active" : i === 0})}" id="${variableSet.id}_tab">
-                                    ${variableSet.description ? html`<div class="alert alert-info"><i class="fas fa-3x fa-info-circle align-middle"></i> ${variableSet.description}</div>` : null}
+                                    ${variableSet.description ? html`<div class="variable-set-description"><i class="fas fa-info-circle align-middle"></i> ${variableSet.description}</div>` : null}
                                     <div class="row">
                                     ${variableSet.variables.map(variable => html`<div> ${this.renderVariable(variable, variableSet)}</div>`)}
                                     </div>
