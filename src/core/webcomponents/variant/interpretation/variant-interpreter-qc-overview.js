@@ -176,13 +176,13 @@ class VariantInterpreterQcOverview extends LitElement {
                     <button type="button" class="list-group-item active" 
                           data-id="Summary" @click="${this.onSideNavClick}">Summary</button>
                     <button type="button" class="list-group-item" 
-                          data-id="InferredSex" @click="${this.onSideNavClick}">Sex Inference</button>
-                    <button type="button" class="list-group-item" 
-                          data-id="Relatedness" @click="${this.onSideNavClick}">Relatedness</button>
-                    <button type="button" class="list-group-item" 
                           data-id="VariantStats" @click="${this.onSideNavClick}">Variant Stats</button>
                     <button type="button" class="list-group-item" 
+                          data-id="InferredSex" @click="${this.onSideNavClick}">Sex Inference</button>
+                    <button type="button" class="list-group-item" 
                           data-id="MendelianErrors" @click="${this.onSideNavClick}">Mendelian Errors</button>
+                    <button type="button" class="list-group-item" 
+                          data-id="Relatedness" @click="${this.onSideNavClick}">Relatedness</button>
                     <button type="button" class="list-group-item" 
                           data-id="AlignmentStats" @click="${this.onSideNavClick}">Alignment Stats</button>
                     <button type="button" class="list-group-item" 
@@ -197,21 +197,7 @@ class VariantInterpreterQcOverview extends LitElement {
                                                             .config="${this._config}">
                             </variant-interpreter-qc-summary>
                         </div>
-                        
-                        <div id="${this._prefix}InferredSex" role="tabpanel" class="tab-pane content-tab">
-                            <h3>Inferred Sex</h3>
-                            <variant-interpreter-qc-inferred-sex    .opencgaSession=${this.opencgaSession} 
-                                                                    .clinicalAnalysis="${this.clinicalAnalysis}">
-                            </variant-interpreter-qc-inferred-sex>
-                        </div>
-                        
-                        <div id="${this._prefix}Relatedness" role="tabpanel" class="tab-pane content-tab">
-                            <h3>Relatedness</h3>
-                            <variant-interpreter-qc-relatedness     .opencgaSession=${this.opencgaSession} 
-                                                                    .clinicalAnalysis="${this.clinicalAnalysis}">
-                            </variant-interpreter-qc-relatedness>
-                        </div>
-                        
+                         
                         <div id="${this._prefix}VariantStats" role="tabpanel" class="tab-pane content-tab">
                             <h3>Variant Stats</h3>
                             <variant-interpreter-qc-variant-stats     .opencgaSession=${this.opencgaSession} 
@@ -219,12 +205,25 @@ class VariantInterpreterQcOverview extends LitElement {
                             </variant-interpreter-qc-variant-stats>
                         </div>
                         
+                        <div id="${this._prefix}InferredSex" role="tabpanel" class="tab-pane content-tab">
+                            <h3>Inferred Sex</h3>
+                            <variant-interpreter-qc-inferred-sex    .opencgaSession=${this.opencgaSession} 
+                                                                    .clinicalAnalysis="${this.clinicalAnalysis}">
+                            </variant-interpreter-qc-inferred-sex>
+                        </div>
+                                                
                         <div id="${this._prefix}MendelianErrors" role="tabpanel" class="tab-pane content-tab">
                             <h3>Mendelian Errors</h3>
                             <variant-interpreter-qc-mendelian-errors    .opencgaSession=${this.opencgaSession} 
                                                                         .clinicalAnalysis="${this.clinicalAnalysis}">
                             </variant-interpreter-qc-mendelian-errors>
-                           
+                        </div>
+                        
+                        <div id="${this._prefix}Relatedness" role="tabpanel" class="tab-pane content-tab">
+                            <h3>Relatedness</h3>
+                            <variant-interpreter-qc-relatedness     .opencgaSession=${this.opencgaSession} 
+                                                                    .clinicalAnalysis="${this.clinicalAnalysis}">
+                            </variant-interpreter-qc-relatedness>
                         </div>
                         
                         <div id="${this._prefix}AlignmentStats" role="tabpanel" class="tab-pane content-tab">

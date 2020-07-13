@@ -68,6 +68,9 @@ export default class OpencgaIndividualInferredSexView extends LitElement {
         if (changedProperties.has("individualId")) {
             this.individualIdObserver();
         }
+        if (changedProperties.has("individuals")) {
+            this.requestUpdate();
+        }
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
         }
@@ -221,8 +224,7 @@ export default class OpencgaIndividualInferredSexView extends LitElement {
     }
 
     render() {
-        //debugger
-        if (!this.individual?.qualityControl || !this.individuals?.length) {
+        if (!this.individual?.qualityControl && !this.individuals?.length) {
             return html`<div class="alert alert-info"><i class="fas fa-3x fa-info-circle align-middle"></i> No QC data are available yet.</div>`;
         }
 

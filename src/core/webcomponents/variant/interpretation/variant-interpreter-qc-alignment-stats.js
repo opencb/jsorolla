@@ -129,7 +129,9 @@ class VariantInterpreterQcAlignmentStats extends LitElement {
 
         // Alignment stats are the same for FAMILY and CANCER analysis
         return html`
-            <alignment-stats-view .opencgaSession=${this.opencgaSession} .alignmentStats="${this.alignmentStats}"></alignment-stats-view>
+            <div style="margin: 20px 10px">
+                <alignment-stats-view .opencgaSession=${this.opencgaSession} .alignmentStats="${this.alignmentStats}"></alignment-stats-view>
+            </div>
         `;
     }
 
