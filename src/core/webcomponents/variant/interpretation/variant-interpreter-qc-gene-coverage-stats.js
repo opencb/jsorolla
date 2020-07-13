@@ -139,7 +139,9 @@ class VariantInterpreterQcGeneCoverageStats extends LitElement {
 
         if (!this.geneCoverageStats || Object.keys(this.geneCoverageStats).length) {
             return html`
-                <div class="alert alert-info"><i class="fas fa-3x fa-info-circle align-middle"></i> No QC data are available yet.</div>
+                <div style="margin: 20px 10px">
+                    <div class="alert alert-info"><i class="fas fa-3x fa-info-circle align-middle"></i> No QC data are available yet.</div>
+                </div>
             `
         }
 

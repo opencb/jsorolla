@@ -183,7 +183,11 @@ class VariantInterpreterQcVariantStats extends LitElement {
         }
 
         if (!this.variantStats) {
-            return html`<div class="alert alert-info"><i class="fas fa-3x fa-info-circle align-middle"></i> No QC data are available yet.</div>`;
+            return html`
+                <div style="margin: 20px 10px">
+                    <div class="alert alert-info"><i class="fas fa-3x fa-info-circle align-middle"></i> No QC data are available yet.</div>
+                </div>
+            `;
         }
 
         return html`

@@ -109,9 +109,11 @@ class VariantInterpreterQcRelatedness extends LitElement {
         }
 
         return html`
-            <opencga-family-relatedness-view    .opencgaSession="${this.opencgaSession}" 
-                                                .family="${this.clinicalAnalysis.family}">
-            </opencga-family-relatedness-view>
+            <div style="margin: 20px 10px">
+                <opencga-family-relatedness-view    .opencgaSession="${this.opencgaSession}" 
+                                                    .family="${this.clinicalAnalysis.family}">
+                </opencga-family-relatedness-view>
+            </div>
         `;
     }
 
