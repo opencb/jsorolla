@@ -16,6 +16,7 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../utilsNew.js";
+import OpencgaCatalogUtils from "../../../clients/opencga/opencga-catalog-utils.js";
 import "./opencga-analysis-tool-form-field.js";
 
 
@@ -97,32 +98,33 @@ export default class OpencgaAnalysisToolForm extends LitElement {
     updated(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
             this.params["study"] = this.opencgaSession.study.fqn;
-            // Check logged user is the study owner
-            let loggedUser = this.opencgaSession.user.id;
-            // Check if user is the Study owner
-            let _studyOwner = this.opencgaSession.study.fqn.split("@")[0];
-            if (this.opencgaSession.user.id === _studyOwner) {
-                this.runnable = true;
-            } else {
-                // Check if user is a Study admin, belongs to @admins group
-                let admins = this.opencgaSession.study.groups.find(group => group.id === "@admins");
-                if (admins.userIds.includes(loggedUser)) {
-                    this.runnable = true;
-                } else {
-                    // Check if user is in acl
-                    let aclIds = this.opencgaSession.study.groups
-                        .filter(group => group.userIds.includes(loggedUser))
-                        .map(group => group.id);
-                    aclIds.push(loggedUser);
-                    for (let aclId of aclIds) {
-                        if (this.opencgaSession.study?.acl?.[aclId]?.includes("EXECUTE_JOBS")) {
-                            this.runnable = true;
-                            break;
-                        }
-                    }
-                    // this.runnable = this.opencgaSession.study.acl.includes("EXECUTE_JOBS")
-                }
-            }
+            // // Check logged user is the study owner
+            // let loggedUser = this.opencgaSession.user.id;
+            // // Check if user is the Study owner
+            // let _studyOwner = this.opencgaSession.study.fqn.split("@")[0];
+            // if (this.opencgaSession.user.id === _studyOwner) {
+            //     this.runnable = true;
+            // } else {
+            //     // Check if user is a Study admin, belongs to @admins group
+            //     let admins = this.opencgaSession.study.groups.find(group => group.id === "@admins");
+            //     if (admins.userIds.includes(loggedUser)) {
+            //         this.runnable = true;
+            //     } else {
+            //         // Check if user is in acl
+            //         let aclIds = this.opencgaSession.study.groups
+            //             .filter(group => group.userIds.includes(loggedUser))
+            //             .map(group => group.id);
+            //         aclIds.push(loggedUser);
+            //         for (let aclId of aclIds) {
+            //             if (this.opencgaSession.study?.acl?.[aclId]?.includes("EXECUTE_JOBS")) {
+            //                 this.runnable = true;
+            //                 break;
+            //             }
+            //         }
+            //         // this.runnable = this.opencgaSession.study.acl.includes("EXECUTE_JOBS")
+            //     }
+            // }
+            this.runnable = OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "EXECUTE_JOBS")
             this.requestUpdate();
         }
     }
