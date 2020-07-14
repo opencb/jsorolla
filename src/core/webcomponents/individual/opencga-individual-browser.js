@@ -191,7 +191,7 @@ export default class OpencgaIndividualBrowser extends LitElement {
                             },
                             {
                                 id: "annotations",
-                                name: "Family Annotations",
+                                name: "Individual Annotations",
                                 description: ""
                             }
                         ]

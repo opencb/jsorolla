@@ -29,11 +29,11 @@ export default class ClinicalAnalysisUtils {
     }
 
     static chromosomeFilterSorter(chromosomeCount) {
-        let sorted = Object.assign({}, ...Object.entries(chromosomeCount).map( ([ch, val]) => {
+        let filtered = Object.assign({}, ...Object.entries(chromosomeCount).map( ([ch, val]) => {
             if(Boolean(parseInt(ch)) || ["X", "Y", "MT"].includes(ch)) return {[ch]: val}
         }))
         let ordered = {};
-        Object.keys(sorted).sort( (a,b) => {
+        Object.keys(filtered).sort( (a,b) => {
             const chA = a;
             const chB = b;
             const A = Boolean(parseInt(chA))
@@ -42,7 +42,7 @@ export default class ClinicalAnalysisUtils {
             if(!A && B) return 1;
             if(!A && !B) return chA.length < chB.length ? -1 : chA < chB ? -1 : 1
             return chA - chB;
-        }).forEach(k => ordered[k] = sorted[k]);
+        }).forEach(k => ordered[k] = filtered[k]);
         return ordered;
     }
 

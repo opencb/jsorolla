@@ -67,7 +67,8 @@ export default class OpencgaFileManager extends LitElement {
                 .then(restResponse => {
                     this.errorState = false;
                     this.tree = restResponse.getResult(0);
-                    this.currentRoot = restResponse.getResult(0);
+                    this.tree.visited = true;
+                    this.currentRoot = this.tree;
                     this.requestUpdate();
                 })
                 .catch(restResponse => {
@@ -121,6 +122,9 @@ export default class OpencgaFileManager extends LitElement {
                 if (r) return r;
             }
         }
+        //this happens on click on files in root dir
+        //console.error("Node not found, root node fallback", "nodeId", nodeId, array)
+        return this.tree;
     }
 
     renderFileManager(root) {
@@ -307,7 +311,7 @@ export default class OpencgaFileManager extends LitElement {
                                 ${this.renderFileManager(this.currentRoot)}
                             </div>
                             <div class="opencga-file-view">
-                                <opencga-file-view .opencgaSession="${this.opencgaSession}" .fileId="${this.fileId}"></opencga-file-view>
+                                <opencga-file-view .opencgaSession="${this.opencgaSession}" .fileId="${this.fileId}" mode="full"></opencga-file-view>
                             </div>`
                         : null}
                     </div>

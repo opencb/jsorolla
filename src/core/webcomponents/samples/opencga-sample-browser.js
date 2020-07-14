@@ -153,7 +153,7 @@ export default class OpencgaSampleBrowser extends LitElement {
                             },
                             {
                                 id: "annotations",
-                                name: "Family Annotations",
+                                name: "Sample Annotations",
                                 description: ""
                             }
                         ]

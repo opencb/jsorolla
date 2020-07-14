@@ -18,6 +18,7 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import {classMap} from "/web_modules/lit-html/directives/class-map.js";
 import UtilsNew from "../../../../utilsNew.js";
+import "./../../../commons/filters/select-field-filter.js";
 
 export default class OpencgaAnnotationFilterModal extends LitElement {
 
@@ -53,6 +54,7 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
         this._prefix = "oafm-" + UtilsNew.randomString(6) + "_";
         this.selectedVariables = {};
         this.selectedVariablesText = "";
+        this.variableMap = {};
     }
 
     connectedCallback() {
@@ -76,9 +78,10 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
         this.selectedVariables = {};
         if (this.selectedVariablesText) {
             const variables = this.selectedVariablesText.split(";");
+            debugger
             await this.requestUpdate();
             for (let v of variables) {
-                let [, variableSetId, variableId, value] = [...v.matchAll(/(\w+):(\w+)=(\w+)/g)][0];
+                let [, variableSetId, variableId, value] = [...v.matchAll(/(\w+):(\w+\.\w+)=(\w+)/g)][0];
                 this.selectedVariables[variableSetId] = {...this.selectedVariables[variableSetId] ?? {}, [variableId]: value};
             }
 
@@ -133,6 +136,7 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
 
     async _updateVariableSets(study) {
 
+        const sort = ["TEXT", "STRING", "NUMERIC", "INTEGER", "DOUBLE", "CATEGORICAL", "BOOLEAN", "OBJECT", "MAP_STRING", "MAP_DOUBLE", "MAP_INTEGER"];
         if (typeof study.variableSets === "undefined") {
             this.variableSets = [];
         } else {
@@ -140,7 +144,10 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
             for (const variableSet of study.variableSets) {
                 if (UtilsNew.isEmpty(this.entity) || variableSet.entities.includes(this.entity)) {
                     //moving OBJECT type variables at the end of the list
-                    variableSet.variables.sort( (a, b) => a.type === "OBJECT" ? 1 : -1)
+                    variableSet.variables.sort( (a, b) => {
+
+                        return sort.indexOf(a.type) - sort.indexOf(b.type)
+                    })
                     _variableSets.push({
                         name: variableSet.name || variableSet.id,
                         ...variableSet
@@ -164,6 +171,20 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
         this.selectedVariablesSerializer();
     }
 
+    changeMap(variableSetId, variableId, key) {
+        console.log(variableSetId, variableId, key)
+        if (key) {
+            this.variableMap[variableSetId] = {
+                ...this.variableMap[variableSetId],
+                [variableId]: key.split(",")
+            }
+        } else {
+            delete this.variableMap[variableSetId][variableId];
+        }
+        this.variableMap = {...this.variableMap};
+        this.requestUpdate();
+    }
+
     renderVariable(variable, variableSet) {
         let content = "";
         switch (variable.type) {
@@ -173,11 +194,41 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
                                 ${variable.variableSet.map( v => this.renderVariable(v,variableSet))}
                             </div>`;
                 break;
-            case "TEXT":
-            case "STRING":
-            case "MAP_INTEGER":
             case "MAP_STRING":
             case "MAP_DOUBLE":
+            case "MAP_INTEGER":
+                content = html`
+                            <!--<pre> ${JSON.stringify(variable)}</pre>-->
+                            ${variable?.allowedKeys?.length ? html`
+                                <div class="col-md-12 map-field-wrapper">
+                                    <label><a tooltip-title="${variable.id}" tooltip-text="${variable.description}"><i class="fa fa-info-circle" aria-hidden="true"></i></a> ${variable.name}</label>
+                                    <select-field-filter multiple .data="${variable?.allowedKeys}" @filterChange="${e => this.changeMap(variableSet.id, variable.id, e.detail.value)}"></select-field-filter>
+                                    <div class="form-inline row map-field-inputs">
+                                        ${this.variableMap?.[variableSet.id]?.[variable.id]?.map(key => {
+                                            return html`
+                                                <div class="form-group col-md-3">
+                                                    <label> ${key} </label>
+                                                    <input type="text" class="form-control map-field-input" placeholder="${key}" data-variable-id="${variable.id + "." + key}" data-variable-set-id="${variableSet.id}"
+                                                @input="${this.addInputFilter}" .value="${this.selectedVariables?.[variableSet.id]?.[variable.id] || ""}"/>
+                                                </div>
+                                            `
+                                        })
+                                        }
+                                    </div>
+                                </div>
+                            ` : html`<div class="form-group col-md-3">
+                                <label><a tooltip-title="${variable.id}" tooltip-text="${variable.description}"><i class="fa fa-info-circle" aria-hidden="true"></i></a> ${variable.name}</label>
+                                <input type="text" class="form-control"
+                                    placeholder="${variable.name}" data-variable-id="${variable.id}" data-variable-set-id="${variableSet.id}"
+                                    pattern="${variable?.attributes?.pattern ?? null}"
+                                    aria-describedby="basic-addon1" @input="${this.addInputFilter}" .value="${this.selectedVariables?.[variableSet.id]?.[variable.id] || ""}"/>
+                            </div>`}
+                            
+                                
+                            `;
+                break;
+            case "TEXT":
+            case "STRING":
             case "NUMERIC":
             case "INTEGER":
             case "DOUBLE":
@@ -281,7 +332,7 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
                             <div class="tab-content">
                                 ${this.variableSets.map( (variableSet, i) => html`
                                     <div role="tabpanel" class="tab-pane ${classMap({"active" : i === 0})}" id="${variableSet.id}_tab">
-                                    ${variableSet.description ? html`<div class="variable-set-description"><i class="fas fa-info-circle align-middle"></i> ${variableSet.description}</div>` : null}
+                                    ${variableSet.description ? html`<h4 class="variable-set-description">${variableSet.description}</h4>` : null}
                                     <div class="row">
                                     ${variableSet.variables.map(variable => html`<div> ${this.renderVariable(variable, variableSet)}</div>`)}
                                     </div>

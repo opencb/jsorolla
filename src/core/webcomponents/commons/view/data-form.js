@@ -75,18 +75,17 @@ export default class DataForm extends LitElement {
             // optional chaining is needed when "res" is undefined
             value = field.split(".").reduce((res, prop) => res?.[prop], _object);
 
-            if (value && format?.decimals) {
-                value = value.toFixed(format.decimals);
-            }
-
             // needed for handling falsy values
-            if (value !== undefined) {
+            if (value !== undefined && value !== "") {
                 if (format) {
                     if (format.classes || format.style) {
                         value = html`<span class="${format.classes}" style="${format.style}">${value}</span>`;
                     }
                     if (format.link) {
                         value = html`<a href="${format.link.replace(field.toUpperCase(), value)}" target="_blank">${value}</a>`;
+                    }
+                    if (format.decimals) {
+                        value = value.toFixed(format.decimals);
                     }
                 }
             } else {
@@ -660,7 +659,7 @@ export default class DataForm extends LitElement {
                         <tr scope="row">
                             ${element.display.columns.map(elem => html`
                                 <td>
-                                   ${elem.type === "complex" ? this._createComplexElement(elem, row)
+                                   ${elem.type === "complex" ? this._createComplexElement(elem)
                                     : elem.type === "custom" ? elem.display.render(this.getValue(elem.field, row))
                                     : this.getValue(elem.field, row, elem.defaultValue, elem.format)}
                                 </td>

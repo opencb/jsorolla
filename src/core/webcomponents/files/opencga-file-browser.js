@@ -168,7 +168,7 @@ export default class OpencgaFileBrowser extends LitElement {
                             },
                             {
                                 id: "annotations",
-                                name: "Family Annotations",
+                                name: "File Annotations",
                                 description: ""
                             }
                         ]

@@ -43,6 +43,9 @@ export default class OpencgaFileView extends LitElement {
             },
             config: {
                 type: Object
+            },
+            mode: {
+                type: String
             }
         };
     }
@@ -162,6 +165,15 @@ export default class OpencgaFileView extends LitElement {
                             type: "custom",
                             display: {
                                 render: field => field?.name ? html`${field.name} (${UtilsNew.dateFormatter(field.date)})` : "-"
+                            }
+                        },
+                        {
+                            name: "Preview",
+                            type: "custom",
+
+                            display: {
+                                visible: this.mode === "full",
+                                render: file => html`<opencga-file-preview .opencgaSession=${this.opencgaSession} .active="${true}" .file="${file}"></opencga-file-preview>`
                             }
                         }
                     ]
