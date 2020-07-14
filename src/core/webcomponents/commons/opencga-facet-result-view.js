@@ -155,7 +155,7 @@ export default class OpencgaFacetResultView extends LitElement {
                 yAxis: {
                     min: 0,
                     title: {
-                        text: this.yAxisTitle || "Total number of Variants"
+                        text: this.yAxisTitle || ""
                     },
                     ...this._config.yAxis
                 },
