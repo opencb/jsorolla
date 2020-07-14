@@ -228,6 +228,7 @@ export default class OpencgaVariantFilter extends LitElement {
      * @param value the new value of the property
      */
     onFilterChange(key, value) {
+        debugger
         /* Some filters may return more than parameter, in this case key and value are objects with all the keys and filters
              - key: an object mapping filter name with the one returned
              - value: and object with the filter
@@ -406,8 +407,13 @@ export default class OpencgaVariantFilter extends LitElement {
                 break;
             case "file-quality":
                 // content = html`<file-qual-filter .qual="${this.preparedQuery.qual}" @filterChange="${e => this.onFilterChange("qual", e.detail.value)}"></file-qual-filter>`;
-                content = html`<file-quality-filter .filter="${this.preparedQuery.filter}" .qual="${this.preparedQuery.qual}" 
-                                    @filterChange="${e => this.onFilterChange({filter: "filter", qual: "qual"}, e.detail.value)}">
+                let depth;
+                if (this.preparedQuery?.sampleData) {
+                    let sampleDataFilters = this.preparedQuery.sampleData.split(";");
+                    depth = sampleDataFilters.find(filter => filter.startsWith("DP")).split(">=")[1];
+                }
+                content = html`<file-quality-filter .filter="${this.preparedQuery.filter}" .depth="${depth}" .qual="${this.preparedQuery.qual}" 
+                                    @filterChange="${e => this.onFilterChange({filter: "filter", sampleData: "sampleData", qual: "qual"}, e.detail.value)}">
                                </file-quality-filter>
                             `;
                 break;

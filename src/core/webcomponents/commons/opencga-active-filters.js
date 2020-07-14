@@ -110,7 +110,6 @@ export default class OpencgaActiveFilters extends LitElement {
     }
 
     updated(changedProperties) {
-        debugger
         if (changedProperties.has("opencgaSession")) {
             this.opencgaSessionObserver();
         }

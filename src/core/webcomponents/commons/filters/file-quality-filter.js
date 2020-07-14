@@ -38,6 +38,9 @@ export default class FileQualityFilter extends LitElement {
             filter: {
                 type: String
             },
+            depth: {
+                type: String
+            },
             qual: {
                 type: String
             },
@@ -49,6 +52,18 @@ export default class FileQualityFilter extends LitElement {
 
     _init() {
         this._prefix = "fqf-" + UtilsNew.randomString(6);
+
+        this.values = {};
+        this.depths = [
+            {id: "5", name: "5x"}, //, selected: true
+            {id: "10", name: "10x"},
+            {id: "15", name: "15x"},
+            {id: "20", name: "20x"},
+            {id: "30", name: "30x"},
+            {id: "40", name: "40x"},
+            {id: "50", name: "50x"},
+        ];
+
         this._config = this.getDefaultConfig();
     }
 
@@ -77,22 +92,36 @@ export default class FileQualityFilter extends LitElement {
 
     //NOTE filterChange is called both on checkbox and text field
     filterChange(e) {
-        let _value = {};
-
         let passChecked = this.querySelector("#" + this._prefix + "FilePassCheckbox").checked;
         if (passChecked) {
-            _value.filter = "PASS";
+            this.values.filter = "PASS";
+        } else {
+            delete this.values.filter;
         }
 
-        let qualChecked = this.querySelector("#" + this._prefix + "FileQualCheckbox").checked;
-        let qualValue = this.querySelector("#" + this._prefix + "FileQualInput").value;
-        if (qualChecked && qualValue > 0) {
-            _value.qual = ">=" + qualValue;
-        }
+        // let qualChecked = this.querySelector("#" + this._prefix + "FileQualCheckbox").checked;
+        // let qualValue = this.querySelector("#" + this._prefix + "FileQualInput").value;
+        // if (qualChecked && qualValue > 0) {
+        //     _value.qual = ">=" + qualValue;
+        // }
 
+        this.notifyFilterChange();
+    }
+
+    depthFilterChange(e) {
+        this.depthChecked = this.querySelector("#" + this._prefix + "FileDepthCheckbox").checked;
+        if (this.depthChecked && e.detail) {
+            this.values.sampleData = "DP>=" + e.detail.value;
+        } else {
+            delete this.values.sampleData;
+        }
+        this.notifyFilterChange();
+    }
+
+    notifyFilterChange() {
         this.dispatchEvent(new CustomEvent("filterChange", {
             detail: {
-                value: _value
+                value: this.values
             },
             bubbles: true,
             composed: true
@@ -107,17 +136,32 @@ export default class FileQualityFilter extends LitElement {
 
     getDefaultConfig() {
         return {
-            hideQuality: false
+            hideQuality: true
         };
     }
 
     render() {
         return html`
+            
             <div id="${this._prefix}FilePassCheckboxDiv" class="subsection-content form-group">
                 <input id="${this._prefix}FilePassCheckbox" type="checkbox" class="${this._prefix}FilterCheckbox" 
-                        @change="${this.filterChange}" .checked="${this.filter === "PASS"}">
+                        @change="${this.filterChange}" .checked="${this.filter === "PASS"}" style="margin-right: 5px">
                 <span>Include only <span style="font-weight: bold;">PASS</span> variants</span>
             </div>
+            
+            <form class="form-horizontal subsection-content">
+                <div id="${this._prefix}FileDepthCheckboxDiv" class="subsection-content form-group">
+                    <div class="col-md-8">
+                        <input id="${this._prefix}FileDepthCheckbox" type="checkbox" class="${this._prefix}FilterCheckbox" 
+                                @change="${this.depthFilterChange}" .checked="${this.depth}" style="margin-right: 5px">
+                        <span>Select min. <span style="font-weight: bold;">DEPTH</span></span>
+                    </div>
+                    <div class="col-md-4">
+                        <select-field-filter .data="${this.depths}" .value="${this.depth}" @filterChange="${this.depthFilterChange}" ?disabled="${this.depthChecked}"></select-field-filter> 
+                    </div>
+                </div>
+            </form>
+
             ${this._config.hideQuality === false
                 ? html`
                     <form class="form-horizontal subsection-content">
@@ -133,7 +177,7 @@ export default class FileQualityFilter extends LitElement {
                         </div>
                     </form>`
                 : null
-            }
+            }            
         `;
     }
 
