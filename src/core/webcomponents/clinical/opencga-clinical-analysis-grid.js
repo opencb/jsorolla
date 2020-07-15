@@ -425,6 +425,14 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                 visible: !this._config.columns.hidden.includes("probandId")
             },
             {
+                title: "Sample IDs",
+                field: "proband.samples",
+                formatter: samples => samples?.map( sample => sample.id)?.join("<br>") ?? "-",
+                display: {
+                    labelWidth: 3,
+                }
+            },
+            {
                 title: "Family (#members)",
                 field: "family.id",
                 valign: "middle",

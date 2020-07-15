@@ -98,15 +98,27 @@ export default class OpencgaClinicalReviewCases extends LitElement {
     onClearQuery(e) {
         //FIXME monkey patch to reset button (text) fields. TODO complete refactor.
         this.case = "All";
-        this.querySelector(`#${this._prefix}caseInput`).value = "";
+        if (this.querySelector(`#${this._prefix}caseInput`)) {
+            this.querySelector(`#${this._prefix}caseInput`).value = "";
+        }
         this.sample = "All";
-        this.querySelector(`#${this._prefix}sampleInput`).value = "";
+        if (this.querySelector(`#${this._prefix}sampleInput`)) {
+            this.querySelector(`#${this._prefix}sampleInput`).value = "";
+        }
+
         this.proband = "All";
-        this.querySelector(`#${this._prefix}probandInput`).value = "";
+        if (this.querySelector(`#${this._prefix}probandInput`)) {
+            this.querySelector(`#${this._prefix}probandInput`).value = "";
+        }
         this.family = "All";
-        this.querySelector(`#${this._prefix}familyInput`).value = "";
+        if (this.querySelector(`#${this._prefix}familyInput`)) {
+            this.querySelector(`#${this._prefix}familyInput`).value = "";
+        }
+
         this.disorder = "All";
-        this.querySelector(`#${this._prefix}disorderInput`).value = "";
+        if (this.querySelector(`#${this._prefix}disorderInput`)) {
+            this.querySelector(`#${this._prefix}disorderInput`).value = "";
+        }
         $(".filter-button").css("color","rgb(153, 153, 153)");
 
         $(`#${this._prefix}-type`).selectpicker("val", "");
