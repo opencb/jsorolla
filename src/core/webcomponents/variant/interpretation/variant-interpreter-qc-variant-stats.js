@@ -148,10 +148,13 @@ class VariantInterpreterQcVariantStats extends LitElement {
         this.stats = null;
         const individuals = this.clinicalAnalysis.type.toUpperCase() === "FAMILY" ? this.clinicalAnalysis.family.members : [this.clinicalAnalysis.proband]
         for (let member of individuals) {
-            const vStat = member.samples[0].qualityControl?.metrics[0]?.variantStats.find( vStat => vStat.id === statsId);
-            if (member.samples[0].id === sampleId && vStat) {
-                this.variantStats = vStat;
+            if (member?.samples?.length > 0) {
+                const vStat = member.samples[0].qualityControl?.metrics[0]?.variantStats.find( vStat => vStat.id === statsId);
+                if (member.samples[0].id === sampleId && vStat) {
+                    this.variantStats = vStat;
+                }
             }
+
         }
         if (!this.variantStats) {
             console.error("No stats found");
@@ -218,7 +221,10 @@ class VariantInterpreterQcVariantStats extends LitElement {
                         <div class="form-group">
                             <label class="col-md-2">Stats Query Filters</label>
                             <div class="col-md-4">
-                                <span>${this.variantStats?.query ? this.variantStats?.query.map( q => html`<span class="badge">${q}</span>`) : "none"}</span>
+                                <span>${this.variantStats?.query && !UtilsNew.isEmpty(this.variantStats.query)
+                                    ? Object.entries(this.variantStats.query).map( (k, v) => html`<span class="badge">${k}: ${v}</span>`) 
+                                    : "none"}
+                                </span>
                             </div>
                         </div>
                         <div class="form-group">
