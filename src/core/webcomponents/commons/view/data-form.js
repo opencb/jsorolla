@@ -172,6 +172,23 @@ export default class DataForm extends LitElement {
         return element?.display?.labelWidth ?? this.config?.display?.labelWidth ?? 2;
     }
 
+    _getTitleHeader(header, title, classes, style) {
+        switch (header) {
+            case "h1":
+                return html`<h1 class="${classes}" style="${style}">${title}</h1>`;
+            case "h2":
+                return html`<h2 class="${classes}" style="${style}">${title}</h2>`;
+            case "h3":
+                return html`<h3 class="${classes}" style="${style}">${title}</h3>`;
+            case "h4":
+                return html`<h4 class="${classes}" style="${style}">${title}</h4>`;
+            case "h5":
+                return html`<h5 class="${classes}" style="${style}">${title}</h5>`;
+            case "h6":
+                return html`<h6 class="${classes}" style="${style}">${title}</h6>`;
+        }
+    }
+
 
     renderData() {
         // Render custom display.layout array when provided
@@ -226,6 +243,7 @@ export default class DataForm extends LitElement {
         }
 
         // Get some default values
+        const titleHeader = section?.display?.titleHeader ?? "h3";
         const sectionTitleClass = section?.display?.title?.class ?? "";
         const sectionTitleStyle = section?.display?.title?.style ?? "";
 
@@ -234,7 +252,7 @@ export default class DataForm extends LitElement {
             const sectionWidth = section?.display?.width ? section?.display?.width : "12";
             return html`
                 <div class="row" style="margin: 15px 0px">
-                    ${section.title ? html`<h3 class="${sectionTitleClass}" style="${sectionTitleStyle}">${section.title}</h3>` : null}
+                    ${section.title ? this._getTitleHeader(titleHeader, section.title, sectionTitleClass, sectionTitleStyle) : null}
                     <div class="col-md-${sectionWidth}">    
                         <div class="">
                             ${section.elements.map(element => this._createElement(element))}
@@ -817,6 +835,7 @@ export default class DataForm extends LitElement {
                 </div>
             `;
         }
+
         if (!this.data) {
             // in this case equality (==) is better than identity (===) because undefined == null
             if(this.config.nullData == null) {

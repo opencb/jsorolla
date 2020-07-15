@@ -99,7 +99,11 @@ class SampleVariantStatsView extends LitElement {
         }
 
         if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
+            // this._config = {...this.getDefaultConfig(), ...this.config};
+            this._config = this.getDefaultConfig();
+            _.merge(this._config, this.config);
+            // debugger
+            this.requestUpdate();
         }
     }
 
@@ -149,7 +153,7 @@ class SampleVariantStatsView extends LitElement {
             icon: "",
             display: {
                 collapsable: true,
-                showTitle: false,
+                // showTitle: false,
                 labelWidth: 3,
                 defaultValue: "-",
                 defaultLayout: "horizontal"
@@ -157,6 +161,9 @@ class SampleVariantStatsView extends LitElement {
             sections: [
                 {
                     title: "Summary",
+                    display: {
+                        // titleHeader: "h1"
+                    },
                     elements: [
                         {
                             name: "Sample ID",
@@ -314,7 +321,7 @@ class SampleVariantStatsView extends LitElement {
 
         return html`
             <div>
-                <data-form .data=${this._sampleVariantStats} .config="${this.getDefaultConfig()}"></data-form>
+                <data-form .data=${this._sampleVariantStats} .config="${this._config}"></data-form>
             </div>
         `;
     }
