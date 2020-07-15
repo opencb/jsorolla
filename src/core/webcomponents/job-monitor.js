@@ -115,8 +115,8 @@ export class JobMonitor extends LitElement {
     }
 
     fetchLastJobs() {
-        console.log("job opencgaSession", this.opencgaSession)
-        console.log("job study", this.opencgaSession?.study?.fqn)
+        //console.log("job opencgaSession", this.opencgaSession)
+        //console.log("job study", this.opencgaSession?.study?.fqn)
         if (!this.opencgaSession?.study?.fqn || !$("#job-monitor").is(":visible")) {
             clearInterval(this.interval);
             return;
