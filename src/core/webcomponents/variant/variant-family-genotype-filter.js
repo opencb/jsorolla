@@ -316,10 +316,10 @@ export default class VariantFamilyGenotypeFilter extends LitElement {
         const {gt, sampleId} = e.target.dataset;
         console.log("GT", gt, sampleId);
         const sampleIndex = this.sampleFilters.findIndex(sample => sample.id === sampleId);
-        console.log("checked", e.target.checked);
-        console.log("sample", sampleIndex);
+        //console.log("checked", e.target.checked);
+        //console.log("sample", sampleIndex);
 
-        console.log("sampleFilters before", this.sampleFilters);
+        //console.log("sampleFilters before", this.sampleFilters);
 
         if (e.target.checked) {
             this.sampleFilters[sampleIndex].genotypes.push(gt);
@@ -329,7 +329,7 @@ export default class VariantFamilyGenotypeFilter extends LitElement {
             // console.log("removed", this.sampleFilters[sampleIndex].genotypes);
         }
 
-        console.log("sampleFilters after", this.sampleFilters);
+        //console.log("sampleFilters after", this.sampleFilters);
         this.sampleFilters = [...this.sampleFilters];
         // this.sampleFilters = $.extend(true, [], this.sampleFilters);
         // this.requestUpdate();
@@ -553,7 +553,7 @@ export default class VariantFamilyGenotypeFilter extends LitElement {
                                         -->
                                         <td style="padding-left: 20px">
                                             <input id="${this._prefix}${sampleFilter.id}00" type="checkbox" class="sample-checkbox" aria-label="..." data-gt="0/0" data-sample-id="${sampleFilter.id}"
-                                                   .checked="${sampleFilter.genotypes.includes("0/0")}" ?disabled="${this.mode !== "CUSTOM"}" @change="${this.onSampleTableChange}">
+                                                   .checked="${sampleFilter.genotypes.includes("0/0")}" ?disabled="${this.mode !== "CUSTOM" || sampleFilter.role.toUpperCase() === "PROBAND"}" @change="${this.onSampleTableChange}">
                                         </td>
                                         <td style="padding-left: 20px">
                                             <input id="${this._prefix}${sampleFilter.id}01" type="checkbox" class="sample-checkbox" aria-label="..." data-gt="0/1" data-sample-id="${sampleFilter.id}"

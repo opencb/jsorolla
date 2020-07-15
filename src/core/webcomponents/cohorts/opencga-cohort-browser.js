@@ -151,7 +151,7 @@ export default class OpencgaCohortBrowser extends LitElement {
                 ],
                 examples: [
                     {
-                        name: "Full",
+                        id: "Full",
                         query: {
                             annotation: "Pedigree:versionControl.GitVersionControl=git",
                             type: "TIME_SERIES,FAMILY",
@@ -291,7 +291,7 @@ export default class OpencgaCohortBrowser extends LitElement {
 
     render() {
         return this._config ? html`
-            <opencga-browser  resource="cohort"
+            <opencga-browser  resource="COHORT"
                             .opencgaSession="${this.opencgaSession}"
                             .query="${this.query}"
                             .config="${this._config}">

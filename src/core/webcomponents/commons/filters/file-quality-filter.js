@@ -63,9 +63,12 @@ export default class FileQualityFilter extends LitElement {
             {id: "40", name: "40x"},
             {id: "50", name: "50x"}
         ];
-
-        this._config = this.getDefaultConfig();
         this.depthChecked = false;
+    }
+
+    connectedCallback() {
+        super.connectedCallback();
+        this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
     updated(changedProperties) {
@@ -101,17 +104,21 @@ export default class FileQualityFilter extends LitElement {
     //NOTE filterChange is called both on checkbox and text field
     filterChange(e) {
         e.stopPropagation();
-        let passChecked = this.querySelector("#" + this._prefix + "FilePassCheckbox").checked;
-        if (passChecked) {
-            this.values.filter = "PASS";
-        } else {
-            delete this.values.filter;
+        if (this.querySelector("#" + this._prefix + "FilePassCheckbox")) {
+            let passChecked = this.querySelector("#" + this._prefix + "FilePassCheckbox").checked;
+            if (passChecked) {
+                this.values.filter = "PASS";
+            } else {
+                delete this.values.filter;
+            }
         }
-        this.depthChecked = this.querySelector("#" + this._prefix + "FileDepthCheckbox").checked;
-        if (this.depthChecked && this.depth) {
-            this.values.sampleData = "DP>=" + this.depth;
-        } else {
-            delete this.values.sampleData;
+        if (this.querySelector("#" + this._prefix + "FileDepthCheckbox")) {
+            this.depthChecked = this.querySelector("#" + this._prefix + "FileDepthCheckbox").checked;
+            if (this.depthChecked && this.depth) {
+                this.values.sampleData = "DP>=" + this.depth;
+            } else {
+                delete this.values.sampleData;
+            }
         }
 
         // let qualChecked = this.querySelector("#" + this._prefix + "FileQualCheckbox").checked;
@@ -152,7 +159,8 @@ export default class FileQualityFilter extends LitElement {
 
     getDefaultConfig() {
         return {
-            hideQuality: true
+            showDepth: true,
+            showQuality: false
         };
     }
 
@@ -165,7 +173,8 @@ export default class FileQualityFilter extends LitElement {
                 <span>Include only <span style="font-weight: bold;">PASS</span> variants</span>
             </div>
             
-            <form class="form-horizontal subsection-content">
+            ${this._config.showDepth ? html`
+                <form class="form-horizontal subsection-content">
                 <div id="${this._prefix}FileDepthCheckboxDiv" class="subsection-content form-group">
                     <div class="col-md-8">
                         <input id="${this._prefix}FileDepthCheckbox" type="checkbox" class="${this._prefix}FilterCheckbox" 
@@ -177,8 +186,10 @@ export default class FileQualityFilter extends LitElement {
                     </div>
                 </div>
             </form>
+            ` : null}
+            
 
-            ${this._config.hideQuality === false
+            ${this._config.showQuality
                 ? html`
                     <form class="form-horizontal subsection-content">
                         <div class="form-group row">

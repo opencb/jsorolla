@@ -142,7 +142,7 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
         } else {
             const _variableSets = [];
             for (const variableSet of study.variableSets) {
-                if (UtilsNew.isEmpty(this.entity) || variableSet.entities.includes(this.entity)) {
+                if (UtilsNew.isEmpty(this.resource) || variableSet.entities.includes(this.resource)) {
                     //moving OBJECT type variables at the end of the list
                     variableSet.variables.sort( (a, b) => {
 
@@ -186,6 +186,7 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
     }
 
     renderVariable(variable, variableSet) {
+        console.log("going to render", variable, "of", variableSet.id)
         let content = "";
         switch (variable.type) {
             case "OBJECT":

@@ -385,8 +385,10 @@ export default class VariantInterpreterQcVariantCancer extends LitElement {
                         fields: [
                             {
                                 id: "file-quality",
-                                title: "Quality Filter"
-                            },
+                                title: "Quality Filter",
+                                tooltip: "VCF file based FILTER and QUAL filters",
+                                showDepth: application.appConfig === "opencb"
+                            }
                         ]
                     },
                     {
@@ -436,7 +438,7 @@ export default class VariantInterpreterQcVariantCancer extends LitElement {
                 ],
                 examples: [
                     {
-                        name: "Example Missense PASS",
+                        id: "Example Missense PASS",
                         active: false,
                         query: {
                             filter: "PASS",
@@ -474,7 +476,7 @@ export default class VariantInterpreterQcVariantCancer extends LitElement {
                 <div class="col-md-9">
                     <div class="row">
                         <div class="col-md-12">
-                            <opencga-active-filters filterBioformat="VARIANT"
+                            <opencga-active-filters resource="VARIANT"
                                                     .opencgaSession="${this.opencgaSession}"
                                                     .defaultStudy="${this.opencgaSession.study.fqn}"
                                                     .query="${this.preparedQuery}"

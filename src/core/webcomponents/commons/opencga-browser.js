@@ -258,7 +258,7 @@ export default class OpencgaBrowser extends LitElement {
                 </opencb-facet-results>
             </div>`;
         switch (entity) {
-            case "files":
+            case "FILE":
                 this.endpoint = this.opencgaSession.opencgaClient.files();
                 return html`
                             <div id="table-tab" class="content-tab active">
@@ -276,7 +276,7 @@ export default class OpencgaBrowser extends LitElement {
                             </div>
                             ${facetView}
                             `;
-            case "samples":
+            case "SAMPLE":
                 this.endpoint = this.opencgaSession.opencgaClient.samples();
                 return html`
                         <div id="table-tab" class="content-tab active">
@@ -293,7 +293,7 @@ export default class OpencgaBrowser extends LitElement {
                             </opencga-sample-detail>
                         </div>
                         ${facetView}`;
-            case "individuals":
+            case "INDIVIDUAL":
                 this.endpoint = this.opencgaSession.opencgaClient.individuals();
                 return html`
                         <div id="table-tab" class="content-tab active">
@@ -310,7 +310,7 @@ export default class OpencgaBrowser extends LitElement {
                             </opencga-individual-detail>
                         </div>
                         ${facetView}`;
-            case "cohort":
+            case "COHORT":
                 this.endpoint = this.opencgaSession.opencgaClient.cohorts();
                 return html`
                         <div id="table-tab" class="content-tab active">
@@ -328,7 +328,7 @@ export default class OpencgaBrowser extends LitElement {
                             </opencga-cohort-detail>
                         </div>
                         ${facetView}`;
-            case "family":
+            case "FAMILY":
                 this.endpoint = this.opencgaSession.opencgaClient.families();
                 return html`
                         <div id="table-tab" class="content-tab active">
@@ -345,7 +345,7 @@ export default class OpencgaBrowser extends LitElement {
                             </opencga-family-detail>
                         </div>
                         ${facetView}`;
-            case "clinical-analysis":
+            case "CLINICAL_ANALYSIS":
                 this.endpoint = this.opencgaSession.opencgaClient.clinical();
                 return html`
                         <div id="table-tab" class="content-tab active">
@@ -363,7 +363,7 @@ export default class OpencgaBrowser extends LitElement {
                             </opencga-clinical-analysis-detail>
                         </div>
                         `;
-            case "jobs":
+            case "JOB":
                 this.endpoint = this.opencgaSession.opencgaClient.jobs();
                 return html`
                     <div id="table-tab" class="content-tab active">
@@ -413,7 +413,7 @@ export default class OpencgaBrowser extends LitElement {
                         
                         <div class="tab-content">
                             <div role="tabpanel" class="tab-pane active" id="filters_tab">
-                                ${this.resource === "files" ? html`
+                                ${this.resource === "FILE" ? html`
                                     <opencga-file-filter    .opencgaSession="${this.opencgaSession}"
                                                             .config="${this._config.filter}"
                                                             .query="${this.query}"
@@ -423,7 +423,7 @@ export default class OpencgaBrowser extends LitElement {
                                     </opencga-file-filter>
                                 ` : null}
                                 
-                                ${this.resource === "samples" ? html`
+                                ${this.resource === "SAMPLE" ? html`
                                     <opencga-sample-filter  .opencgaSession="${this.opencgaSession}"
                                                             .config="${this._config.filter}"
                                                             .query="${this.query}"
@@ -433,7 +433,7 @@ export default class OpencgaBrowser extends LitElement {
                                     </opencga-sample-filter>
                                 ` : null}
                                 
-                                ${this.resource === "individuals" ? html`
+                                ${this.resource === "INDIVIDUAL" ? html`
                                     <opencga-individual-filter  .opencgaSession="${this.opencgaSession}"
                                                                 .config="${this._config.filter}"
                                                                 .query="${this.query}"
@@ -443,7 +443,7 @@ export default class OpencgaBrowser extends LitElement {
                                     </opencga-individual-filter>
                                 ` : null}                            
                                 
-                                ${this.resource === "family" ? html`
+                                ${this.resource === "FAMILY" ? html`
                                     <opencga-family-filter  .opencgaSession="${this.opencgaSession}"
                                                             .config="${this._config.filter}"
                                                             .query="${this.query}"
@@ -453,7 +453,7 @@ export default class OpencgaBrowser extends LitElement {
                                     </opencga-family-filter>
                                 ` : null}
                                 
-                                ${this.resource === "cohort" ? html`
+                                ${this.resource === "COHORT" ? html`
                                     <opencga-cohort-filter  .opencgaSession="${this.opencgaSession}"
                                                             .config="${this._config.filter}"
                                                             .query="${this.query}"
@@ -464,7 +464,7 @@ export default class OpencgaBrowser extends LitElement {
                                     </opencga-cohort-filter>
                                 ` : null}
                                 
-                                ${this.resource === "clinical-analysis" ? html`
+                                ${this.resource === "CLINICAL_ANALYSIS" ? html`
                                     <opencga-clinical-analysis-filter   .opencgaSession="${this.opencgaSession}"
                                                                         .config="${this._config.filter}"
                                                                         .query="${this.query}"
@@ -474,7 +474,7 @@ export default class OpencgaBrowser extends LitElement {
                                     </opencga-clinical-analysis-filter>
                                 ` : null}
                                 
-                                ${this.resource === "jobs" ? html`
+                                ${this.resource === "JOB" ? html`
                                     <opencga-jobs-filter .opencgaSession="${this.opencgaSession}"
                                                         .config="${this._config.filter}"
                                                         .files="${this.files}"
@@ -512,6 +512,7 @@ export default class OpencgaBrowser extends LitElement {
                         
                         <div>
                             <opencga-active-filters facetActive 
+                                                    .resource="${this.resource}"
                                                     .opencgaSession="${this.opencgaSession}"
                                                     .defaultStudy="${this.opencgaSession.study.fqn}"
                                                     .query="${this.preparedQuery}"

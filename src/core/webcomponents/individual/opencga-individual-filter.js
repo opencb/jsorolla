@@ -170,7 +170,7 @@ export default class OpencgaIndividualFilter extends LitElement {
                 break;
             case "annotations":
                 content = html`<opencga-annotation-filter-modal .opencgaSession="${this.opencgaSession}"
-                                                      entity="INDIVIDUAL"
+                                                      resource="INDIVIDUAL"
                                                       .config="${this.annotationFilterConfig}"
                                                       .selectedVariablesText="${this.preparedQuery.annotation}"
                                                       @annotationChange="${this.onAnnotationChange}">

@@ -201,7 +201,7 @@ export default class OpencgaCohortFilter extends LitElement {
             case "annotations":
                 content = html`<opencga-annotation-filter-modal .opencgaSession="${this.opencgaSession}"
                                                       .opencgaClient="${this.opencgaSession.opencgaClient}"
-                                                      entity="COHORT"
+                                                      resource="COHORT"
                                                       .config="${this.annotationFilterConfig}"
                                                       .selectedVariablesText="${this.preparedQuery.annotation}"
                                                       @annotationChange="${this.onAnnotationChange}">

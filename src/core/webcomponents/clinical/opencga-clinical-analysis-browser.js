@@ -580,7 +580,7 @@ export default class OpencgaClinicalAnalysisBrowser extends LitElement {
 
     render() {
         return this._config ? html`
-            <opencga-browser  resource="clinical-analysis"
+            <opencga-browser  resource="CLINICAL_ANALYSIS"
                             .opencgaSession="${this.opencgaSession}"
                             .query="${this.query}"
                             .config="${this._config}">

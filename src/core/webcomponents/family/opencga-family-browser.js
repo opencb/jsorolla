@@ -154,7 +154,7 @@ export default class OpencgaFamilyBrowser extends LitElement {
                 ],
                 examples: [
                     {
-                        name: "Full",
+                        id: "Full",
                         query: {
                             id: "lp",
                             members: "hg",
@@ -318,7 +318,7 @@ export default class OpencgaFamilyBrowser extends LitElement {
     render() {
         return this.opencgaSession && this._config
             ? html`
-                <opencga-browser  resource="family"
+                <opencga-browser  resource="FAMILY"
                                   .opencgaSession="${this.opencgaSession}"
                                   .query="${this.query}"
                                   .config="${this._config}">

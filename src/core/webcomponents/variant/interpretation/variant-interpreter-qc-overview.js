@@ -94,53 +94,44 @@ class VariantInterpreterQcOverview extends LitElement {
 
     getDefaultConfig() {
         return {
-            title: "QC Summary",
-            icon: "",
-            display: {
-                collapsable: true,
-                showTitle: false,
-                labelWidth: 2,
-                defaultValue: "-",
-                defaultLayout: "horizontal"
-            },
+            title: "Quality Control Overview",
             sections: [
                 {
-                    title: "",
-                    collapsed: false,
-                    elements: [
+                    fields: [
                         {
-                            name: "Analysis ID",
-                            field: "id"
+                            id: "Summary",
+                            title: "Summary"
                         },
                         {
-                            name: "Proband",
-                            field: "proband.id",
-                            type: "custom",
-                            display: {
-                                render: probandId => html`<strong>${probandId}</strong>`
-                            }
+                            id: "VariantStats",
+                            title: "Variant Stats"
                         },
                         {
-                            name: "Disorder",
-                            field: "disorder",
-                            type: "custom",
-                            display: {
-                                render: disorder => {
-                                    let id = disorder.id;
-                                    if (disorder.id.startsWith("OMIM:")) {
-                                        id = html`<a href="https://omim.org/entry/${disorder.id.split(":")[1]}" target="_blank">${disorder.id}</a>`;
-                                    }
-                                    return html`${disorder.name || "-"} (${id})`
-                                },
-                            }
+                            id: "InferredSex",
+                            title: "Sex Inference"
                         },
                         {
-                            name: "Analysis Type",
-                            field: "type"
+                            id: "MendelianErrors",
+                            title: "Mendelian Errors"
                         },
+                        {
+                            id: "Relatedness",
+                            title: "Relatedness"
+                        },
+                        {
+                            id: "AlignmentStats",
+                            title: "Alignment Stats",
+                            disabled: application.appConfig !== "opencb"
+                        },
+                        {
+                            id: "GeneCoverageStats",
+                            title: "Gene Coverage Stats",
+                            disabled: application.appConfig !== "opencb"
+                        }
                     ]
-                },
+                }
             ]
+
         }
     }
 
@@ -170,31 +161,20 @@ class VariantInterpreterQcOverview extends LitElement {
         }
 
         return html`
-            <tool-header title="Quality Control Overview" class="bg-white" icon="${this._config.icon}"></tool-header>
+            <tool-header title="${this._config.title}" class="bg-white" icon="${this._config.icon}"></tool-header>
             <div class="row variant-interpreter-overview" style="padding: 10px 15px">
                 <div class="col-md-2 list-group interpreter-side-nav side-tabs side-nav">
-                    <button type="button" class="list-group-item active" 
-                          data-id="Summary" @click="${this.onSideNavClick}">Summary</button>
-                    <button type="button" class="list-group-item" 
-                          data-id="VariantStats" @click="${this.onSideNavClick}">Variant Stats</button>
-                    <button type="button" class="list-group-item" 
-                          data-id="InferredSex" @click="${this.onSideNavClick}">Sex Inference</button>
-                    <button type="button" class="list-group-item" 
-                          data-id="MendelianErrors" @click="${this.onSideNavClick}">Mendelian Errors</button>
-                    <button type="button" class="list-group-item" 
-                          data-id="Relatedness" @click="${this.onSideNavClick}">Relatedness</button>
-                    <button type="button" class="list-group-item" 
-                          data-id="AlignmentStats" @click="${this.onSideNavClick}">Alignment Stats</button>
-                    <button type="button" class="list-group-item" 
-                          data-id="GeneCoverageStats" @click="${this.onSideNavClick}">Gene Coverage Stats</button>
+                    ${this._config.sections[0].fields.filter( field => !field.disabled).map ( (field, i) => {
+                        return html`<button type="button" class="list-group-item ${i === 0 ? "active" : ""}" 
+                          data-id="${field.id}" @click="${this.onSideNavClick}">${field.title}</button>`
+                    })}
                 </div>
                 <div class="col-md-10">
                     <div class="content-tab-wrapper interpreter-content-tab" style="margin: 0px 10px">
                         <div id="${this._prefix}Summary" role="tabpanel" class="tab-pane content-tab active">
                             <h3>Summary</h3>
                             <variant-interpreter-qc-summary .opencgaSession=${this.opencgaSession}
-                                                            .clinicalAnalysis=${this.clinicalAnalysis} 
-                                                            .config="${this._config}">
+                                                            .clinicalAnalysis=${this.clinicalAnalysis}>
                             </variant-interpreter-qc-summary>
                         </div>
                          

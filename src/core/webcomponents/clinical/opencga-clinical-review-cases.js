@@ -306,7 +306,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                 ],
                 examples: [
                     {
-                        name: "Intellectual disability",
+                        id: "Intellectual disability",
                         active: false,
                         query: {
                             disorder: "Intellectual disability"

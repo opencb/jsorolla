@@ -477,7 +477,7 @@ export default class OpencgaVariantBrowser extends LitElement {
                 ],
                 examples: [
                     {
-                        name: "BRCA2 missense variants",
+                        id: "BRCA2 missense variants",
                         active: false,
                         query: {
                             gene: "BRCA2",
@@ -485,7 +485,7 @@ export default class OpencgaVariantBrowser extends LitElement {
                         }
                     },
                     {
-                        name: "Complex Example",
+                        id: "Complex Example",
                         query: {
                             "xref": "BRCA1,TP53",
                             "biotype": "protein_coding",
@@ -682,7 +682,7 @@ export default class OpencgaVariantBrowser extends LitElement {
                     
                     <div>
                         <opencga-active-filters facetActive
-                                                filterBioformat="VARIANT"
+                                                resource="VARIANT"
                                                 .opencgaSession="${this.opencgaSession}"
                                                 .defaultStudy="${this.opencgaSession.study.fqn}"
                                                 .query="${this.preparedQuery}"

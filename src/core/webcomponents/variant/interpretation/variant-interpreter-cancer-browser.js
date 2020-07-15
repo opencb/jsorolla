@@ -126,8 +126,8 @@ class VariantInterpreterCancerBrowser extends LitElement {
                 this.preparedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
                 this.executedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
             } else {
-                this.preparedQuery = {study: this.opencgaSession.study.fqn};
-                this.executedQuery = {study: this.opencgaSession.study.fqn};
+                this.preparedQuery = {study: this.opencgaSession.study.fqn, sample: this.predefinedFilter};
+                this.executedQuery = {study: this.opencgaSession.study.fqn, sample: this.predefinedFilter};
             }
         }
         this.requestUpdate();
@@ -156,14 +156,7 @@ class VariantInterpreterCancerBrowser extends LitElement {
         if (sampleQc?.metrics?.length > 0) {
             let variantStats = sampleQc.metrics[0].variantStats;
             if (variantStats && variantStats.length > 0) {
-                for (let variantStat of variantStats) {
-                    _activeFilterFilters.push(
-                        {
-                            name: variantStats.id,
-                            query: variantStats.query
-                        }
-                    );
-                }
+                _activeFilterFilters = variantStats.map(variantStat => ({id: variantStat.id, query: variantStat.query}))
             }
         }
         this.activeFilterFilters = _activeFilterFilters && _activeFilterFilters.length > 0 ? _activeFilterFilters : this._config.filter.examples;
@@ -219,7 +212,7 @@ class VariantInterpreterCancerBrowser extends LitElement {
         // TODO quick fix to avoid warning message on sample
         if (!this.predefinedFilter) {
             this.executedQuery = e.detail.query;
-            this.predefinedFilter = true;
+            this.predefinedFilter = e.detail.query;
         }
         this.requestUpdate();
     }
@@ -233,13 +226,13 @@ class VariantInterpreterCancerBrowser extends LitElement {
 
 
     onActiveFilterChange(e) {
-        this.query = {...e.detail};
+        this.query = {...this.predefinedFilter, ...e.detail}; // we add this.predefinedFilter in case sample field is not present
         this.preparedQuery = {...e.detail};
         this.requestUpdate();
     }
 
     onActiveFilterClear() {
-        this.query = {study: this.opencgaSession.study.fqn};
+        this.query = {study: this.opencgaSession.study.fqn, ...this.predefinedFilter};
         this.preparedQuery = {...this.query};
         this.requestUpdate();
     }
@@ -401,7 +394,7 @@ class VariantInterpreterCancerBrowser extends LitElement {
                 ],
                 examples: [
                     {
-                        name: "Example BRCA2",
+                        id: "Example BRCA2",
                         active: false,
                         query: {
                             gene: "BRCA2",
@@ -409,14 +402,14 @@ class VariantInterpreterCancerBrowser extends LitElement {
                         }
                     },
                     {
-                        name: "Example OR11",
+                        id: "Example OR11",
                         query: {
                             gene: "OR11H1",
                             conservation: "phylop<=0.001"
                         }
                     },
                     {
-                        name: "Full Example",
+                        id: "Full Example",
                         query: {
                             "xref": "BRCA1,TP53",
                             "biotype": "protein_coding",
@@ -594,7 +587,7 @@ class VariantInterpreterCancerBrowser extends LitElement {
                                                     .query="${this.preparedQuery}"
                                                     .refresh="${this.executedQuery}"
                                                     .filters="${this.activeFilterFilters}"
-                                                    .filterBioformat="VARIANT"
+                                                    resource="VARIANT"
                                                     .alias="${this._config.activeFilterAlias}"
                                                     .genotypeSamples="${this.genotypeSamples}"
                                                     .modeInheritance="${this.modeInheritance}"

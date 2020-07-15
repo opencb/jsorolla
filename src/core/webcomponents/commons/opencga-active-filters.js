@@ -39,7 +39,7 @@ export default class OpencgaActiveFilters extends LitElement {
             filters: {
                 type: Array
             },
-            filterBioformat: {
+            resource: {
                 type: String
             },
             alias: {
@@ -71,6 +71,7 @@ export default class OpencgaActiveFilters extends LitElement {
         this._prefix = "oaf" + UtilsNew.randomString(6) + "_";
         this._config = this.getDefaultConfig();
         this.filters = [];
+        this._filters = [];
 
         this.query = {};
         this.lockedFieldsMap = {};
@@ -178,88 +179,87 @@ export default class OpencgaActiveFilters extends LitElement {
     }
 
     opencgaSessionObserver() {
-        const _this = this;
         if (this.opencgaClient instanceof OpenCGAClient && UtilsNew.isNotUndefined(this.opencgaSession.token)) {
             // console.error("arguments changed inverted after new clients. recheck functionality. serverVersion is now ignored");
-            this.opencgaClient.users().filters(this.opencgaSession.user.id).then(function(response) {
-                const result = response.response[0].result;
+            this.opencgaClient.users().filters(this.opencgaSession.user.id).then( restResponse => {
+                const result = restResponse.getResults();
                 if (result.length > 0) {
-                    if (UtilsNew.isUndefined(_this.filters)) {
-                        _this.filters = [];
-                    }
-                    for (const obj of result) {
-                        _this.filters.push = obj;
-                    }
+                    this._filters = [...this.filters, ...result.filter( f => f.resource === this.resource)];
+                } else {
+                    this._filters = [...this.filters];
                 }
+                this.requestUpdate();
             });
         }
     }
-
+    // TODO recheck & refactor
     save() {
-        const filterName = PolymerUtils.getValue("filterName");
+        const filterName = PolymerUtils.getValue(this._prefix + "filterName");
         const filterDescription = PolymerUtils.getValue(this._prefix + "filterDescription");
 
-        const data = {};
-        data.name = filterName;
-        data.description = filterDescription;
-        data.bioformat = this.filterBioformat;
-        data.query = this.query;
-        data.options = {};
-        const _this = this;
-        this.opencgaClient.users().filters(this.opencgaSession.user.id, {name: filterName})
-            .then( response => {
-                console.log("GET filters", response)
-                if (response.response[0].result.length > 0) {
-                    delete params.name;
-                    // TODO recheck!!
+        const data = {
+            id: filterName,
+            description: filterDescription,
+            resource: this.resource,
+            query: this.query,
+            options: {}
+        };
+        this.opencgaClient.users().filters(this.opencgaSession.user.id)
+            .then(restResponse => {
+                console.log("GET filters", restResponse);
+                const savedFilters = restResponse.getResults() || [];
+
+                console.log("savedFilters", savedFilters);
+                // updating an existing filter
+
+                //check if filterName else updateFilters
+                if (savedFilters.find(savedFilter => savedFilter.id === filterName)) {
                     this.opencgaClient.users().updateFilter(this.opencgaSession.user.id, filterName, data)
                         .then(response => {
-                            for (const i in _this.filters) {
-                                if (this.filters[i].name === filterName) {
-                                    this.filters[i] = response.response[0].result[0];
+                            for (const i in this._filters) {
+                                if (this._filters[i].id === filterName) {
+                                    this._filters[i] = response.response[0].result[0];
                                 }
                             }
-                            PolymerUtils.setValue("filterName", "");
-                            PolymerUtils.setValue(_this._prefix + "filterDescription", "");
+                            PolymerUtils.setValue(this._prefix + "filterName", "");
+                            PolymerUtils.setValue(this._prefix + "filterDescription", "");
                         });
                 } else {
-                    this.opencgaClient.users().updateFilters(this.opencgaSession.user.id, data)
+                    // saving a new filter
+                    this.opencgaClient.users().updateFilters(this.opencgaSession.user.id, data, {action: "ADD"})
                         .then(response => {
-                            //this.push("filters", data); // TODO recheck!!
-                            this.filters = [...this.filters, ...data];
-                            PolymerUtils.setValue("filterName", "");
-                            PolymerUtils.setValue(_this._prefix + "filterDescription", "");
-                        });
 
-                    /*if (_this.opencgaClient._config.serverSession !== undefined && _this.opencgaClient._config.serverSession === "1.3") {
-                        _this.opencgaClient.users().create(data)
-                            .then(function(response) {
-                                _this.push("filters", data); // TODO recheck!!
-                                PolymerUtils.setValue("filterName", "");
-                                PolymerUtils.setValue(_this._prefix + "filterDescription", "");
-                            });
-                    } else {
-                        _this.opencgaClient.users().updateFilters(this.opencgaSession.user.id, data)
-                            .then(function(response) {
-                                _this.push("filters", data); // TODO recheck!!
-                                PolymerUtils.setValue("filterName", "");
-                                PolymerUtils.setValue(_this._prefix + "filterDescription", "");
-                            });
-                    }*/
+                            this._filters = [...this._filters, data];
+                            PolymerUtils.setValue(this._prefix + "filterName", "");
+                            PolymerUtils.setValue(this._prefix + "filterDescription", "");
+                            this.requestUpdate();
+                        });
                 }
+
+            })
+            .catch(restResponse => {
+
+                if (restResponse.getEvents("ERROR").length) {
+
+                } else {
+
+                }
+                console.error(restResponse);
+            })
+            .finally(() => {
+
             });
     }
 
     onServerFilterChange(e) {
         this.querySelector("#" + this._prefix + "Warning").style.display = "none";
 
-        if (!UtilsNew.isUndefinedOrNull(this.filters)) {
+        if (!UtilsNew.isUndefinedOrNull(this._filters)) {
             // We look for the filter name in the filters array
-            for (const filter of this.filters) {
-                if (filter.name === e.target.dataset.filterName) {
+            for (const filter of this._filters) {
+                if (filter.id === e.target.dataset.filterId) {
                     PolymerUtils.addStyleByClass("filtersLink", "color", "black");
                     e.target.style.color = "green";
-
                     const _queryList = Object.assign({}, filter.query);
                     this.dispatchEvent(new CustomEvent("activeFilterChange", {
                         detail: _queryList,
@@ -278,7 +278,7 @@ export default class OpencgaActiveFilters extends LitElement {
         // Reset selected filters to none
         PolymerUtils.addStyleByClass("filtersLink", "color", "black");
 
-        const {filterName: name, filterValue: value} = e.target.dataset
+        const {filterName: name, filterValue: value} = e.target.dataset;
         console.log("onQueryFilterDelete", name, value);
 
         if (UtilsNew.isEmpty(value)) {
@@ -474,7 +474,7 @@ export default class OpencgaActiveFilters extends LitElement {
 
     render() {
         return html`
-            ${ this.facetActive ? html`
+            ${this.facetActive ? html`
                 <div class="alert alert-warning filter-warning" role="alert" id="${this._prefix}Warning" style="">
                     <span><strong>Warning!</strong></span>&nbsp;&nbsp;Filters or Facets have changed, please click on <strong> ${this._config.searchButtonText} </strong> to update the results.
                 </div>` : html`
@@ -491,29 +491,29 @@ export default class OpencgaActiveFilters extends LitElement {
                         <p class="active-filter-label">Filters</p>
                     
                         ${this.queryList ? html`
-                            ${this.queryList.length === 0 
+                            ${this.queryList.length === 0
                                 ? html`
-                                    <label>No filters selected</label>` 
+                                    <label>No filters selected</label>`
                                 : html`
-                                    ${this.queryList.map(item => !this._isMultiValued(item) 
+                                    ${this.queryList.map(item => !this._isMultiValued(item)
                                         ? html` 
-                                            ${!item.locked 
+                                            ${!item.locked
                                                 ? html`
                                                     <!-- No multi-valued filters -->
                                                     <button type="button" class="btn btn-warning btn-sm ${item.name}ActiveFilter active-filter-button ripple no-transform" data-filter-name="${item.name}" data-filter-value=""
                                                             @click="${this.onQueryFilterDelete}">
                                                     ${item.text}
-                                                    </button>` 
+                                                    </button>`
                                                 : html`
                                                     <button type="button" class="btn btn-warning btn-sm ${item.name}ActiveFilter active-filter-button ripple no-transform" data-filter-name="${item.name}" data-filter-value=""
-                                                             @click="${this.onQueryFilterDelete}" title="${item.message ?? ''}" disabled>
+                                                             @click="${this.onQueryFilterDelete}" title="${item.message ?? ""}" disabled>
                                                         ${item.text}
                                                     </button>`
-                                            }` 
+                                            }`
                                         : html`
                                             <!-- Multi-valued filters -->
                                             <div class="btn-group">
-                                                ${item.locked 
+                                                ${item.locked
                                                     ? html`
                                                         <button type="button" class="btn btn-warning btn-sm ${item.name}ActiveFilter active-filter-button ripple no-transform" data-filter-name="${item.name}" data-filter-value=""
                                                                 @click="${this.onQueryFilterDelete}" disabled> ${item.text} <span class="badge">${item.items.length}</span>
@@ -546,11 +546,11 @@ export default class OpencgaActiveFilters extends LitElement {
                                                                 </li>
                                                             `)}
                                                         </ul>`
-                                                }
+                                                    }
                                             </div>`
-                                    )}
+                                        )}
                                 `}
-                            ` 
+                            `
                         : null}
                     </div> 
                         
@@ -568,12 +568,11 @@ export default class OpencgaActiveFilters extends LitElement {
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-right">
                                     <li><a style="font-weight: bold">Saved Filters</a></li>
-                                    <!--TODO check why filter is initialized (init()) but I still need to check for truthy-->
-                                    ${this.filters && this.filters.length ? this.filters.map(item => html`
+                                    ${this._filters && this._filters.length ? this._filters.map(item => html`
                                         <li> <!-- TODO recheck and simplify!!-->
-                                            ${!item.active ? html`
-                                                <a data-filter-name="${item.name}" style="cursor: pointer" @click="${this.onServerFilterChange}" class="filtersLink">&nbsp;&nbsp;${item.name}</a>` : html`
-                                                <a data-filter-name="${item.name}" style="cursor: pointer;color: green" @click="${this.onServerFilterChange}" class="filtersLink">&nbsp;&nbsp;${item.name}</a>
+                                            ${!item.active
+                                                ? html`<a data-filter-id="${item.id}" style="cursor: pointer" @click="${this.onServerFilterChange}" class="filtersLink">&nbsp;&nbsp;${item.id}</a>`
+                                                : html`<a data-filter-id="${item.id}" style="cursor: pointer;color: green" @click="${this.onServerFilterChange}" class="filtersLink">&nbsp;&nbsp;${item.id}</a>
                                             `}
                                         </li>
                                     `) : null}
@@ -592,7 +591,7 @@ export default class OpencgaActiveFilters extends LitElement {
                         <div class="facet-wrapper">
                             <p class="active-filter-label">Aggregation fields</p>
                                 <div class="button-list">
-                                    ${Object.entries(this.facetQuery).map( ([name, facet]) => html`
+                                    ${Object.entries(this.facetQuery).map(([name, facet]) => html`
                                         <button type="button" class="btn btn-danger btn-sm ${name}ActiveFilter active-filter-button ripple no-transform" data-filter-name="${name}" data-filter-value=""
                                                      @click="${this.onQueryFacetDelete}">
                                             ${facet.formatted}
@@ -605,7 +604,7 @@ export default class OpencgaActiveFilters extends LitElement {
                                     </button>
                                 </div>
                             </div>
-                    ` : null }
+                    ` : null}
                 </div>
             </div>
     

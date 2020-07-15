@@ -176,7 +176,7 @@ export default class OpencgaFileBrowser extends LitElement {
                 ],
                 examples: [
                     {
-                        name: "Alignment",
+                        id: "Alignment",
                         active: false,
                         query: {
                             format: "BAM,SAM,BIGWIG",
@@ -425,7 +425,7 @@ export default class OpencgaFileBrowser extends LitElement {
 
     render() {
         return this._config ? html`
-            <opencga-browser  resource="files"
+            <opencga-browser  resource="FILE"
                             .opencgaSession="${this.opencgaSession}"
                             .query="${this.query}"
                             .config="${this._config}">

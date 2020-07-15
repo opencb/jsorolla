@@ -179,7 +179,7 @@ export default class OpencgaSampleFilter extends LitElement {
             case "annotations":
                 content = html`<opencga-annotation-filter-modal .opencgaSession="${this.opencgaSession}"
                                                       .opencgaClient="${this.opencgaSession.opencgaClient}"
-                                                      entity="SAMPLE"
+                                                      resource="SAMPLE"
                                                       .config="${this.annotationFilterConfig}"
                                                       .selectedVariablesText="${this.preparedQuery.annotation}"
                                                       @annotationChange="${this.onAnnotationChange}">

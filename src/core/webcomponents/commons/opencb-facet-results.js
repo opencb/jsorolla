@@ -134,21 +134,21 @@ class OpencbFacetResults extends LitElement {
 
     endpoint(resource) {
         switch (resource) {
-            case "variant":
+            case "VARIANT":
                 return this.opencgaSession.opencgaClient.variants();
-            case "files":
+            case "FILE":
                 return this.opencgaSession.opencgaClient.files();
-            case "samples":
+            case "SAMPLE":
                 return this.opencgaSession.opencgaClient.samples();
-            case "individuals":
+            case "INDIVIDUAL":
                 return this.opencgaSession.opencgaClient.individuals();
-            case "cohort":
+            case "COHORT":
                 return this.opencgaSession.opencgaClient.cohorts();
-            case "family":
+            case "FAMILY":
                 return this.opencgaSession.opencgaClient.families();
-            case "clinical-analysis":
+            case "CLINICAL_ANALYSIS":
                 return this.opencgaSession.opencgaClient.clinical();
-            case "jobs":
+            case "JOB":
                 return this.opencgaSession.opencgaClient.jobs();
             default:
                 throw new Error("Resource not recognized");

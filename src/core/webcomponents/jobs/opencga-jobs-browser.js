@@ -187,7 +187,7 @@ export default class OpencgaJobsBrowser extends LitElement {
                 ],
                 examples: [
                     {
-                        name: "Full",
+                        id: "Full",
                         active: false,
                         query: {
                             name: "bam",
@@ -373,7 +373,7 @@ export default class OpencgaJobsBrowser extends LitElement {
 
     render() {
         return this._config ? html`
-            <opencga-browser  resource="jobs"
+            <opencga-browser  resource="JOB"
                             .opencgaSession="${this.opencgaSession}"
                             .query="${this.query}"
                             .config="${this._config}">

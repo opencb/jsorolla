@@ -66,6 +66,7 @@ export default class VariantInterpreterGrid extends LitElement {
 
         // Config for the grid toolbar
         this.toolbarConfig = {
+            download: ["JSON"],
             columns: [
                 {title: "Variant", field: "id"},
                 {title: "Genes", field: "genes"},
@@ -559,7 +560,7 @@ export default class VariantInterpreterGrid extends LitElement {
                 }
 
                 // Third, prepare the tooltip information
-                const tooltipText = `<div class="col-md-12" style="padding: 0px">
+                const tooltipText = `<div class="col-md-12 zygosity-formatter" style="padding: 0px">
                                                 <form class="form-horizontal">
                                                     <div class="form-group" style="margin: 0px 2px">
                                                         <label class="col-md-5">GT</label>
@@ -973,26 +974,45 @@ export default class VariantInterpreterGrid extends LitElement {
         }
     }
 
-    // TODO adapt to this resource!
+    // TODO fix tab jsonToTabConvert isn't working!
     onDownload(e) {
-        const urlQueryParams = this._getUrlQueryParams();
-        const params = urlQueryParams.queryParams;
-        params.limit = 1000; // Default limit is 1000 for now
+        console.log("onDownload interpreter-grid")
+        //this.downloadRefreshIcon.css("display", "inline-block");
+        //this.downloadIcon.css("display", "none");
 
-        this.downloadRefreshIcon.css("display", "inline-block");
-        this.downloadIcon.css("display", "none");
 
-        const _this = this;
-        this.opencgaSession.opencgaClient.variants().query(params)
-            .then(function(response) {
-                const result = response.response[0].result;
+        if (this.clinicalAnalysis.type.toUpperCase() === "FAMILY" && this.query?.sample) {
+            let samples = this.query.sample.split(";");
+            let sortedSamples = [];
+            for (let sample of samples) {
+                let sampleFields = sample.split(":");
+                if (sampleFields && sampleFields[0] === this.clinicalAnalysis.proband.samples[0].id) {
+                    sortedSamples.unshift(sample);
+                } else {
+                    sortedSamples.push(sample);
+                }
+            }
+            this.query.sample = sortedSamples.join(";");
+        }
+
+        let filters = {
+            study: this.opencgaSession.study.fqn,
+            limit: 1000,
+            count: false,
+            includeSampleId: "true",
+            ...this.query
+        };
+        this.opencgaSession.opencgaClient.clinical().queryVariant(filters)
+            .then(restResponse => {
+                const result = restResponse.getResults();
                 let dataString = [];
                 let mimeType = "";
                 let extension = "";
 
                 // Check if user clicked in Tab or JSON format
                 if (e.detail.option.toLowerCase() === "tab") {
-                    dataString = VariantUtils.jsonToTabConvert(result, _this.populationFrequencies.studies, _this.samples, _this._config.nucleotideGenotype);
+                    dataString = VariantUtils.jsonToTabConvert(result, this.populationFrequencies.studies, this.samples, this._config.nucleotideGenotype);
+                    console.log("dataString", dataString)
                     mimeType = "text/plain";
                     extension = ".txt";
                 } else {
@@ -1008,16 +1028,19 @@ export default class VariantInterpreterGrid extends LitElement {
                 const file = window.URL.createObjectURL(data);
                 const a = document.createElement("a");
                 a.href = file;
-                a.download = _this.opencgaSession.study.alias + extension;
+                a.download = this.opencgaSession.study.alias + extension;
                 document.body.appendChild(a);
                 a.click();
                 setTimeout(function() {
                     document.body.removeChild(a);
                 }, 0);
+
+
+
+
             })
-            .then(function() {
-                _this.downloadRefreshIcon.css("display", "none");
-                _this.downloadIcon.css("display", "inline-block");
+            .catch( e => {
+                console.error(e);
             });
     }
 

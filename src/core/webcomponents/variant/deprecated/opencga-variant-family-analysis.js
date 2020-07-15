@@ -440,7 +440,7 @@ export default class OpencgaVariantFamilyAnalysis extends LitElement {
                                                 .query="${this.preparedQuery}"
                                                 .refresh="${this.executedQuery}"
                                                 .filters="${this._config.filter.examples}"
-                                                .filterBioformat="VARIANT"
+                                                resource="VARIANT"
                                                 .alias="${this._config.activeFilterAlias}"
                                                 .genotypeSamples="${this.genotypeSamples}"
                                                 .modeInheritance="${this.modeInheritance}"

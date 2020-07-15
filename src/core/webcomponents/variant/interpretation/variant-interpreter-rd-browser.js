@@ -134,8 +134,8 @@ class VariantInterpreterRdBrowser extends LitElement {
                 this.preparedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
                 this.executedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
             } else {
-                this.preparedQuery = {study: this.opencgaSession.study.fqn};
-                this.executedQuery = {study: this.opencgaSession.study.fqn};
+                this.preparedQuery = {study: this.opencgaSession.study.fqn, sample: this.predefinedFilter};
+                this.executedQuery = {study: this.opencgaSession.study.fqn, sample: this.predefinedFilter};
             }
         }
         this.requestUpdate();
@@ -190,14 +190,7 @@ class VariantInterpreterRdBrowser extends LitElement {
         if (sampleQc?.metrics?.length > 0) {
             let variantStats = sampleQc.metrics[0].variantStats;
             if (variantStats && variantStats.length > 0) {
-                for (let variantStat of variantStats) {
-                    _activeFilterFilters.push(
-                        {
-                            name: variantStats.id,
-                            query: variantStats.query
-                        }
-                    );
-                }
+                _activeFilterFilters = variantStats.map(variantStat => ({id: variantStat.id, query: variantStat.query}))
             }
         }
         this.activeFilterFilters = _activeFilterFilters.length > 0 ? _activeFilterFilters : this._config.filter.examples;
@@ -381,7 +374,7 @@ class VariantInterpreterRdBrowser extends LitElement {
         // TODO quick fix to avoid warning message on sample
         if (!this.predefinedFilter) {
             this.executedQuery = e.detail.query;
-            this.predefinedFilter = true;
+            this.predefinedFilter = e.detail.query;
         }
         this.requestUpdate();
     }
@@ -395,13 +388,13 @@ class VariantInterpreterRdBrowser extends LitElement {
 
 
     onActiveFilterChange(e) {
-        this.query = {...e.detail};
+        this.query = {...this.predefinedFilter, ...e.detail}; // we add this.predefinedFilter in case sample field is not present
         this.preparedQuery = {...e.detail};
         this.requestUpdate();
     }
 
     onActiveFilterClear() {
-        this.query = {study: this.opencgaSession.study.fqn};
+        this.query = {study: this.opencgaSession.study.fqn, ...this.predefinedFilter};
         this.preparedQuery = {...this.query};
         this.requestUpdate();
     }
@@ -434,11 +427,13 @@ class VariantInterpreterRdBrowser extends LitElement {
                             {
                                 id: "sample",
                                 title: "Sample Genotype",
+                                tooltip: tooltips.sample
                             },
                             {
                                 id: "file-quality",
                                 title: "Quality Filters",
-                                tooltip: "VCF file based FILTER and QUAL filters"
+                                tooltip: "VCF file based FILTER and QUAL filters",
+                                showDepth: application.appConfig === "opencb"
                             },
                             // {
                             //     id: "cohort",
@@ -566,14 +561,14 @@ class VariantInterpreterRdBrowser extends LitElement {
                 ],
                 examples: [
                     {
-                        name: "Example BRCA2",
+                        id: "Example BRCA2",
                         query: {
                             gene: "BRCA2",
                             ct: "missense_variant"
                         }
                     },
                     {
-                        name: "Full Example",
+                        id: "Full Example",
                         query: {
                             "xref": "BRCA1,TP53",
                             "biotype": "protein_coding",
@@ -744,7 +739,7 @@ class VariantInterpreterRdBrowser extends LitElement {
     
                     <div id="${this._prefix}MainContent">
                         <div id="${this._prefix}ActiveFilters">
-                            <opencga-active-filters .filterBioformat="VARIANT"
+                            <opencga-active-filters resource="VARIANT"
                                                     .opencgaSession="${this.opencgaSession}"
                                                     .clinicalAnalysis="${this.clinicalAnalysis}"
                                                     .defaultStudy="${this.opencgaSession.study.fqn}"

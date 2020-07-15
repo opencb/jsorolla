@@ -199,7 +199,7 @@ export default class OpencgaIndividualBrowser extends LitElement {
                 ],
                 examples: [
                     {
-                        name: "Full",
+                        id: "Full",
                         active: false,
                         query: {
                             id: "LP",
@@ -461,7 +461,7 @@ export default class OpencgaIndividualBrowser extends LitElement {
 
     render() {
         return this._config ? html`
-            <opencga-browser  resource="individuals"
+            <opencga-browser  resource="INDIVIDUAL"
                             .opencgaSession="${this.opencgaSession}"
                             .query="${this.query}"
                             .config="${this._config}">

@@ -439,7 +439,7 @@ export default class VariantInterpreterReview extends LitElement {
                     </ul>
                 </div>
                 
-                <div class="content-tab-wrapper container">
+                <div class="content-tab-wrapper">
                     <div id="${this._prefix}GeneralInfo" role="tabpanel" class="tab-pane active content-tab">
                         <variant-interpreter-review-summary .opencgaSession="${this.opencgaSession}" 
                                                             .clinicalAnalysis="${this.clinicalAnalysis}"

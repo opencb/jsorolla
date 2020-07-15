@@ -412,7 +412,7 @@ export default class OpencgaVariantFilter extends LitElement {
                     depth = sampleDataFilters.find(filter => filter.startsWith("DP")).split(">=")[1];
                 }
                 content = html`<file-quality-filter .filter="${this.preparedQuery.filter}" .depth="${depth}" .qual="${this.preparedQuery.qual}" 
-                                    @filterChange="${e => this.onFilterChange({filter: "filter", sampleData: "sampleData", qual: "qual"}, e.detail.value)}">
+                                    @filterChange="${e => this.onFilterChange({filter: "filter", sampleData: "sampleData", qual: "qual"}, e.detail.value)}" .config="${subsection}" >
                                </file-quality-filter>
                             `;
                 break;

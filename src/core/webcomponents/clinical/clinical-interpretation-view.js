@@ -430,17 +430,17 @@ export default class ClinicalInterpretationView extends LitElement {
     fileMetricsFormatter(value, row, index) {
         let val;
         if (row !== undefined && row.studies !== undefined && row.studies.length > 0 && row.studies[0].files.length > 0 && UtilsNew.isNotUndefinedOrNull(row.studies[0].files[0].attributes)) {
-            val = `<div class="col-md-12" style="padding: 0px">
+            val = `<div class="row">
                                 <form class="form-horizontal">
-                                    <div class="form-group" style="margin: 0px 2px">
+                                    <div class="form-group" >
                                         <label class="col-md-4">Quality:</label>
                                         <span class="col-md-8">${row.studies[0].files[0].attributes.QUAL}</span>
                                     </div>
-                                    <div class="form-group" style="margin: 0px 2px">
+                                    <div class="form-group">
                                         <label class="col-md-4">Filter:</label>
                                         <span class="col-md-8">${row.studies[0].files[0].attributes.FILTER}</span>
                                     </div>
-                                    <div class="form-group" style="margin: 0px 2px">
+                                    <div class="form-group">
                                         <label class="col-md-4">DP:</label>
                                         <span class="col-md-8">${row.studies[0].files[0].attributes.DP}</span>
                                     </div>

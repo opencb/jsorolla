@@ -340,8 +340,9 @@ export default class VariantInterpreterQcVariantFamily extends LitElement {
                             {
                                 id: "file-quality",
                                 title: "Quality Filters",
-                                tooltip: "VCF file based FILTER filters"
-                            },
+                                tooltip: "VCF file based FILTER and QUAL filters",
+                                showDepth: application.appConfig === "opencb"
+                            }
                         ]
                     },
                     {
@@ -392,7 +393,7 @@ export default class VariantInterpreterQcVariantFamily extends LitElement {
                 ],
                 examples: [
                     {
-                        name: "Example BRCA2",
+                        id: "Example BRCA2",
                         active: false,
                         query: {
                             gene: "BRCA2",
@@ -400,7 +401,7 @@ export default class VariantInterpreterQcVariantFamily extends LitElement {
                         }
                     },
                     {
-                        name: "Full Example",
+                        id: "Full Example",
                         query: {
                             "region": "1,2,3,4,5",
                             "xref": "BRCA1,TP53",
@@ -441,7 +442,7 @@ export default class VariantInterpreterQcVariantFamily extends LitElement {
 
                 <div class="col-md-9">
                     <div>
-                        <opencga-active-filters filterBioformat="VARIANT"
+                        <opencga-active-filters resource="VARIANT"
                                                 .opencgaSession="${this.opencgaSession}"
                                                 .defaultStudy="${this.opencgaSession.study.fqn}"
                                                 .query="${this.preparedQuery}"
