@@ -206,7 +206,7 @@ class VariantInterpreterQcVariantStats extends LitElement {
             </style>
             
             <div style="margin: 20px 10px">
-                <h4>Select Sample Variant Stats</h4>
+<!--                <h4>Select Sample Variant Stats</h4>-->
                 <div style="margin: 20px 10px">
                     <div class="form-horizontal">
                         <div class="form-group">
@@ -232,9 +232,12 @@ class VariantInterpreterQcVariantStats extends LitElement {
             </div>
             
             <div style="margin: 20px 10px;padding-top: 10px">
-                <h4>Sample Variant Stats - ${this.variantStats?.stats.id}</h4>
-                <div style="margin: 20px 10px">
-                    <sample-variant-stats-view .opencgaSession="${this.opencgaSession}" .sampleVariantStats="${this.variantStats?.stats}"> </sample-variant-stats-view>
+<!--                <h4>Sample Variant Stats - ${this.variantStats?.stats.id}</h4>-->
+                <div>
+                    <sample-variant-stats-view  .opencgaSession="${this.opencgaSession}" 
+                                                .sampleVariantStats="${this.variantStats?.stats}" 
+                                                .config="${{sections: [{title: `Summary - ${this.variantStats?.stats?.id}`}]}}">
+                    </sample-variant-stats-view>
                 </div>
             </div>
         `;
