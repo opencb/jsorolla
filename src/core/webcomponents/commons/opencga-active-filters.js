@@ -206,23 +206,32 @@ export default class OpencgaActiveFilters extends LitElement {
         data.query = this.query;
         data.options = {};
         const _this = this;
-        this.opencgaClient.users().filtersConfigs(this.opencgaSession.user.id, {name: filterName})
-            .then(function(response) {
+        this.opencgaClient.users().filters(this.opencgaSession.user.id, {name: filterName})
+            .then( response => {
+                console.log("GET filters", response)
                 if (response.response[0].result.length > 0) {
                     delete params.name;
                     // TODO recheck!!
-                    _this.opencgaClient.users().updateFilter(this.opencgaSession.user.id, filterName, data)
-                        .then(function(response) {
+                    this.opencgaClient.users().updateFilter(this.opencgaSession.user.id, filterName, data)
+                        .then(response => {
                             for (const i in _this.filters) {
-                                if (_this.filters[i].name === filterName) {
-                                    _this.filters[i] = response.response[0].result[0];
+                                if (this.filters[i].name === filterName) {
+                                    this.filters[i] = response.response[0].result[0];
                                 }
                             }
                             PolymerUtils.setValue("filterName", "");
                             PolymerUtils.setValue(_this._prefix + "filterDescription", "");
                         });
                 } else {
-                    if (_this.opencgaClient._config.serverSession !== undefined && _this.opencgaClient._config.serverSession === "1.3") {
+                    this.opencgaClient.users().updateFilters(this.opencgaSession.user.id, data)
+                        .then(response => {
+                            //this.push("filters", data); // TODO recheck!!
+                            this.filters = [...this.filters, ...data];
+                            PolymerUtils.setValue("filterName", "");
+                            PolymerUtils.setValue(_this._prefix + "filterDescription", "");
+                        });
+
+                    /*if (_this.opencgaClient._config.serverSession !== undefined && _this.opencgaClient._config.serverSession === "1.3") {
                         _this.opencgaClient.users().create(data)
                             .then(function(response) {
                                 _this.push("filters", data); // TODO recheck!!
@@ -236,7 +245,7 @@ export default class OpencgaActiveFilters extends LitElement {
                                 PolymerUtils.setValue("filterName", "");
                                 PolymerUtils.setValue(_this._prefix + "filterDescription", "");
                             });
-                    }
+                    }*/
                 }
             });
     }

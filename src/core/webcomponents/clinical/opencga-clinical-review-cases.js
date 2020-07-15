@@ -62,6 +62,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
     firstUpdated(_changedProperties) {
         this.case = "All";
         this.proband = "All";
+        this.sample = "All";
         this.family = "All";
         this.disorder = "All";
 
@@ -324,6 +325,8 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                 padding: 7px;
             }
         </style>
+
+                    <div class="alert alert-info"> ${JSON.stringify(this._query)}</div>
 
         <div class="row">
             <div class="col-md-12">

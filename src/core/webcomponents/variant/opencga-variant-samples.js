@@ -348,12 +348,12 @@ export default class OpencgaVariantSamples extends LitElement {
             const rows = samples.map( sample => {
                 return  [
                     sample.id,
-                    sample?.attributes?.OPENCGA_VARIANT.data[0],
+                    sample?.attributes?.OPENCGA_VARIANT?.data[0] ?? "-",
                     this.variantFormatter(sample?.attributes?.OPENCGA_VARIANT),
                     sample.individualId,
                     this.sexFormatter(sample?.attributes?.OPENCGA_INDIVIDUAL),
-                    sample?.attributes?.OPENCGA_INDIVIDUAL?.phenotypes.map( p => p.id),
-                    sample?.attributes?.OPENCGA_INDIVIDUAL?.disorders.map( d => d.id)
+                    sample?.attributes?.OPENCGA_INDIVIDUAL?.phenotypes?.map( p => p.id) ?? "-",
+                    sample?.attributes?.OPENCGA_INDIVIDUAL?.disorders?.map( d => d.id) ?? "-"
                 ].join("\t");
 
             })
