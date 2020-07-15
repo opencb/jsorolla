@@ -195,6 +195,7 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                             name: "Analysis Type",
                             field: "type",
                             display: {
+                                visible: application.appConfig === "opencb",
                                 // width: 9,
                                 labelWidth: 3,
                             }
@@ -215,6 +216,7 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                             name: "Status",
                             field: "status.name",
                             display: {
+                                visible: application.appConfig === "opencb",
                                 labelWidth: 3,
                             }
                         },
@@ -231,6 +233,7 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                             field: "priority",
                             type: "custom",
                             display: {
+                                visible: application.appConfig === "opencb",
                                 labelWidth: 3,
                                 render: clinicalAnalysis => {
                                     let colors = {"URGENT": "red", "HIGH": "darkorange"};
@@ -242,6 +245,7 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                             name: "Assigned To",
                             field: "analyst.assignee",
                             display: {
+                                visible: application.appConfig === "opencb",
                                 labelWidth: 3,
                             }
                         },

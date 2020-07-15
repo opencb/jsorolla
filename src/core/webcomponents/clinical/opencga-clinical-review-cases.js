@@ -182,22 +182,22 @@ export default class OpencgaClinicalReviewCases extends LitElement {
         }
 
         const type = $(`#${this._prefix}-type`).selectpicker("val");
-        if (UtilsNew.isNotEmpty(type)) {
+        if ($(`#${this._prefix}-type`).length && UtilsNew.isNotEmpty(type)) {
             _query.type = type.join(",");
         }
 
         const status = $(`#${this._prefix}-status`).selectpicker("val");
-        if (UtilsNew.isNotEmpty(status)) {
-            _query.status = status.join(",");
+        if ($(`#${this._prefix}-status`).length && UtilsNew.isNotEmpty(status)) {
+            _query.status = status?.join(",");
         }
 
         const priority = $(`#${this._prefix}-priority`).selectpicker("val");
-        if (UtilsNew.isNotEmpty(priority)) {
+        if ($(`#${this._prefix}-priority`).length && UtilsNew.isNotEmpty(priority)) {
             _query.priority = priority.join(",");
         }
 
         const assigned = $(`#${this._prefix}-assigned`).selectpicker("val");
-        if (UtilsNew.isNotEmpty(assigned)) {
+        if ($(`#${this._prefix}-assigned`).length && UtilsNew.isNotEmpty(assigned)) {
             _query.analystAssignee = assigned.join(",");
         }
 
@@ -278,7 +278,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                 id: "disorder"
                             },
                             {
-                                id: "type"
+                                id: "ttype"
                             },
                             {
                                 id: "status"
@@ -294,11 +294,10 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                 ],
                 examples: [
                     {
-                        name: "High Priority",
+                        name: "Intellectual disability",
                         active: false,
                         query: {
-                            type: "FAMILY",
-                            priority: "URGENT,HIGH"
+                            disorder: "Intellectual disability"
                         }
                     }
                 ]
