@@ -252,11 +252,46 @@ export default class OpencgaClinicalReviewCases extends LitElement {
         $("#" + this._prefix + "-assigned").validator("update");
     }
 
+    //TODO better adapt config to the a dynamic view
     getDefaultConfig() {
         return {
             title: "Review Cases",
             showTitle: true,
             filter: {
+                sections: [
+                    {
+                        title: "",
+                        fields: [
+                            {
+                                id: "case"
+                            },
+                            {
+                                id: "sample"
+                            },
+                            {
+                                id: "proband"
+                            },
+                            {
+                                id: "family"
+                            },
+                            {
+                                id: "disorder"
+                            },
+                            {
+                                id: "type"
+                            },
+                            {
+                                id: "status"
+                            },
+                            {
+                                id: "priority"
+                            },
+                            {
+                                id: "assignee"
+                            }
+                        ]
+                    }
+                ],
                 examples: [
                     {
                         name: "High Priority",
@@ -264,7 +299,6 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                         query: {
                             type: "FAMILY",
                             priority: "URGENT,HIGH"
-                            // assigned: "cafetero"
                         }
                     }
                 ]
@@ -326,17 +360,9 @@ export default class OpencgaClinicalReviewCases extends LitElement {
             }
         </style>
 
-                    <div class="alert alert-info"> ${JSON.stringify(this._query)}</div>
-
         <div class="row">
             <div class="col-md-12">
-
-                <!--<div>-->
-                    <!--<h2 style="margin-top: 10px">{{_config.title}}</h2>-->
-                <!--</div>-->
-
                 <div style="">
-
                     <form @submit="${() => console.log("submit")}">
                         <div class="panel panel-default" style="margin-bottom: 10px">
                             <!--<div class="panel-heading">Case Filters</div>-->
@@ -347,23 +373,26 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                         <p class="active-filter-label">Filters</p>
                                     </div>
         
-                                    <!-- Case ID -->
-                                    <div class="btn-group">
-                                        <button type="button" class="dropdown-toggle btn btn-default filter-button" style="width:125px; color: rgb(153, 153, 153);"
-                                                id="${this._prefix}caseMenu"
-                                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                                            <span class="ocap-text-button">Case: <span>${this.case}</span></span>&nbsp;<span class="caret"></span>
-                                        </button>
-                                        <ul class="dropdown-menu" aria-labelledby="${this._prefix}caseMenu">
-                                            <li style="padding: 5px;">
-                                                <div style="display: inline-flex; width: 300px;">
-                                                    <label class="filter-label">Case ID:</label>
-                                                    <input type="text" id="${this._prefix}caseInput" class="${this._prefix}-input form-control" data-id="case" placeholder="All" @input="${this.onFilterInputText}" @keypress="${this.onEnter}">
-                                                </div>
-                                            </li>
-                                        </ul>
-                                    </div>
+                                    ${~this._config.filter.sections[0].fields.findIndex( field => field.id === "case") ? html`
+                                        <!-- Case ID -->
+                                        <div class="btn-group">
+                                            <button type="button" class="dropdown-toggle btn btn-default filter-button" style="width:125px; color: rgb(153, 153, 153);"
+                                                    id="${this._prefix}caseMenu"
+                                                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                                <span class="ocap-text-button">Case: <span>${this.case}</span></span>&nbsp;<span class="caret"></span>
+                                            </button>
+                                            <ul class="dropdown-menu" aria-labelledby="${this._prefix}caseMenu">
+                                                <li style="padding: 5px;">
+                                                    <div style="display: inline-flex; width: 300px;">
+                                                        <label class="filter-label">Case ID:</label>
+                                                        <input type="text" id="${this._prefix}caseInput" class="${this._prefix}-input form-control" data-id="case" placeholder="All" @input="${this.onFilterInputText}" @keypress="${this.onEnter}">
+                                                    </div>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    ` : null}
                                     
+                                    ${~this._config.filter.sections[0].fields.findIndex( field => field.id === "sample") ? html`
                                     <!-- Sample -->
                                     <div class="btn-group">
                                         <button type="button" class="dropdown-toggle btn btn-default filter-button" style="width:125px; color: rgb(153, 153, 153);"
@@ -380,7 +409,9 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                             </li>
                                         </ul>
                                     </div>
-        
+                                    ` : null}
+                                    
+                                    ${~this._config.filter.sections[0].fields.findIndex( field => field.id === "proband") ? html`
                                     <!-- Proband -->
                                     <div class="btn-group">
                                         <button type="button" class="btn btn-default dropdown-toggle filter-button" style="width:125px; color: rgb(153, 153, 153);"
@@ -396,7 +427,9 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                             </li>
                                         </ul>
                                     </div>
-        
+                                    ` : null}
+                                    
+                                    ${~this._config.filter.sections[0].fields.findIndex( field => field.id === "family") ? html`                                    
                                     <!-- Family -->
                                     <div class="btn-group">
                                         <button type="button" class="dropdown-toggle btn btn-default filter-button" style="width:125px; color: rgb(153, 153, 153);"
@@ -412,7 +445,9 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                             </li>
                                         </ul>
                                     </div>
-        
+                                    ` : null}
+                                    
+                                    ${~this._config.filter.sections[0].fields.findIndex(field => field.id === "disorder") ? html`
                                     <!-- Disorder -->
                                     <div class="btn-group">
                                         <button type="button" class="dropdown-toggle btn btn-default filter-button" style="width:125px; color: rgb(153, 153, 153);"
@@ -428,7 +463,9 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                             </li>
                                         </ul>
                                     </div>
-        
+                                    ` : null}
+                                    
+                                    ${~this._config.filter.sections[0].fields.findIndex(field => field.id === "type") ? html`
                                     <!-- Type -->
                                     <div class="btn-group">
                                         <select class="selectpicker" data-width="105px" id="${this._prefix}-type" multiple
@@ -440,7 +477,9 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                             <option value="AUTOCOMPARATIVE">Autocomparative</option>
                                         </select>
                                     </div>
-        
+                                    ` : null}
+                                    
+                                    ${~this._config.filter.sections[0].fields.findIndex(field => field.id === "status") ? html`
                                     <!-- Status -->
                                     <div class="btn-group">
                                         <select class="selectpicker" data-width="105px" id="${this._prefix}-status" multiple
@@ -459,7 +498,9 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                             <option value="CLOSED">Closed</option>
                                         </select>
                                     </div>
-        
+                                    ` : null}
+                                    
+                                    ${~this._config.filter.sections[0].fields.findIndex(field => field.id === "priority") ? html`
                                     <!-- Priority -->
                                     <div class="btn-group">
                                         <select class="selectpicker" data-width="105px" id="${this._prefix}-priority" multiple
@@ -470,7 +511,9 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                             <option style="color: green; font-weight: bold;" value="LOW">Low</option>
                                         </select>
                                     </div>
-        
+                                    ` : null}
+                                    
+                                    ${~this._config.filter.sections[0].fields.findIndex(field => field.id === "assignee") ? html`
                                     <!-- Assignees -->
                                     <div class="btn-group">
                                         <select class="selectpicker" data-width="105px" id="${this._prefix}-assigned" multiple
@@ -481,7 +524,8 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                                 
                                         </select>
                                     </div>
-        
+                                    ` : null}
+                                    
                                     <!-- Buttons -->
                                     <button type="button" class="btn btn-primary btn-sm ripple" @click="${this.updateQuery}">
                                             <i class="fa fa-search icon-padding" aria-hidden="true"></i> Search
