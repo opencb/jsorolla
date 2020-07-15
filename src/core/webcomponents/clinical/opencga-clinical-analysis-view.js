@@ -163,7 +163,7 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                     },
                     elements: [
                         {
-                            name: "Analysis ID",
+                            name: "Case ID",
                             field: "id",
                             display: {
                                 labelWidth: 3,
@@ -205,6 +205,7 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                             field: "flags",
                             type: "list",
                             display: {
+                                visible: application.appConfig === "opencb",
                                 labelWidth: 3,
                                 contentLayout: "horizontal",
                                 render: field => {
@@ -224,6 +225,7 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                             name: "Description",
                             field: "description",
                             display: {
+                                visible: application.appConfig === "opencb",
                                 labelWidth: 3,
                                 errorMessage: "-"
                             }
