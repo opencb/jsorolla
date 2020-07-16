@@ -17,6 +17,7 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../../utilsNew.js";
 
+/* TODO check functionality Polymer refs in it */
 
 export default class OpencgaAnnotationComparator extends LitElement {
 

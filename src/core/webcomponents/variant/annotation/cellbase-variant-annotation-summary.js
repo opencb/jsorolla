@@ -261,7 +261,7 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
                                             ${this.proteinSubScore.sift.description}
                                         </span>
                                         ${this.isTranscriptAvailable(this.proteinSubScore.sift.transcript) ? html`
-                                            (<b>Gene:</b>{{proteinSubScore.sift.gene}, <b>Transcript: </b>{{proteinSubScore.sift.transcript})
+                                            (<b>Gene:</b>${this.proteinSubScore.sift.gene}, <b>Transcript: </b>${this.proteinSubScore.sift.transcript})
                                         ` : null }
                                     </span>
                                 </div>
