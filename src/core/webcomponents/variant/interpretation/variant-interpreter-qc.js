@@ -139,10 +139,12 @@ class VariantInterpreterQc extends LitElement {
                             <a href="javascript: void 0" role="tab" data-id="AlignmentQc" @click="${this._changeTab}" class="tab-title">Alignment
                             </a>
                         </li>-->
-                        <li role="presentation" class="content-pills ${classMap({active: this.activeTab["GeneCoverage"]})}">
-                            <a href="javascript: void 0" role="tab" data-id="GeneCoverage" @click="${this._changeTab}" class="tab-title">Gene Coverage Stats
-                            </a>
-                        </li>
+                        ${application.appConfig === "opencb" ? html`
+                            <li role="presentation" class="content-pills ${classMap({active: this.activeTab["GeneCoverage"]})}">
+                                <a href="javascript: void 0" role="tab" data-id="GeneCoverage" @click="${this._changeTab}" class="tab-title">Gene Coverage Stats
+                                </a>
+                            </li>
+                        ` : null}
                         <!-- 
                         ${this.clinicalAnalysis.type.toUpperCase() === "FAMILY" ? html`
                             <li role="presentation" class="content-pills ${classMap({active: this.activeTab["Upd"]})}">
