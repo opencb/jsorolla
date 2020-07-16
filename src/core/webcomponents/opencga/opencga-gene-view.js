@@ -116,20 +116,19 @@ export default class OpencgaGeneView extends LitElement {
         PolymerUtils.removeClass(".gene-ct-buttons", "active");
         PolymerUtils.addClass(e.target.id, "active");
         const query = this.query;
-        switch (e.target.innerText) {
-        case "Missense":
-            query["ct"] = "missense_variant";
+        switch (e.target.dataset.value) {
+        case "missense":
+            query.ct = "missense_variant";
             break;
-        case "LoF":
-            query["ct"] = this.consequenceTypes.lof.join(",");
+        case "lof":
+            query.ct = this.consequenceTypes.lof.join(",");
             break;
         default:
-            if (UtilsNew.isNotUndefined(query["ct"])) {
-                delete query["ct"];
-            }
+            delete query.ct;
             break;
         }
-        this.query = Object.assign({}, query);
+        this.query = {...query};
+        this.requestUpdate();
     }
 
     checkVariant(variant) {
@@ -148,30 +147,19 @@ export default class OpencgaGeneView extends LitElement {
 
     render() {
         return this.geneObj ? html`
-        <style>
-            .gene-variant-tab-title {
-                font-size: 150%;
-                font-weight: bold;
-            }
-
-            .gene-summary-title {
-                font-weight: bold;
-            }
-        </style>
-
         <tool-header title="${`Gene <span class="inverse"> ${this.geneObj.name} </span>` }" icon="gene-view.svg"></tool-header>
         <div class="container-fluid">
             <div class="row">
                 <div class="col-md-10 col-md-offset-1">
-                    <div style="float: right;padding: 10px 5px 10px 5px">
+                    <!--<div style="float: right;padding: 10px 5px 10px 5px">
                         <button type="button" class="btn btn-primary" @click="${this.showBrowser}">
                             <i class="fa fa-hand-o-left" aria-hidden="true"></i> Variant Browser
                         </button>
-                    </div>
+                    </div>-->
         
                     <div class="row" style="padding: 5px 0px 25px 0px">
                         <div class="col-md-4">
-                            <h3>Summary</h3>
+                            <h3 class="section-title">Summary</h3>
                             <table width="100%">
                                 <tr>
                                     <td class="gene-summary-title" width="20%">Name</td>
@@ -202,7 +190,7 @@ export default class OpencgaGeneView extends LitElement {
                         </div>
         
                         <div class="col-md-8">
-                            <h3>Transcripts</h3>
+                            <h3 class="section-title">Transcripts</h3>
                             <table class="table table-bordered" width="100%">
                                 <thead style="background-color: #eeeeee">
                                 <tr>
@@ -259,14 +247,14 @@ export default class OpencgaGeneView extends LitElement {
             
                     <div class="tab-content" style="height: 1024px">
                         <div role="tabpanel" class="tab-pane active" id="${this._prefix}Variants">
-                            <div class="btn-group btn-group" role="group" aria-label="..." style="padding: 15px;float: right">
-                                <button id="${this._prefix}AllConsTypeButton" type="button" class="btn btn-default btn-warning gene-ct-buttons active" @click="${this.updateQuery}">
+                            <div class="btn-group btn-group pad15" role="group">
+                                <button id="${this._prefix}AllConsTypeButton" type="button" class="btn btn-primary ripple gene-ct-buttons active" data-value="${"all"}" @click="${this.updateQuery}">
                                     All
                                 </button>
-                                <button id="${this._prefix}MissenseConsTypeButton" type="button" class="btn btn-default btn-warning gene-ct-buttons" @click="${this.updateQuery}">
+                                <button id="${this._prefix}MissenseConsTypeButton" type="button" class="btn btn-primary ripple gene-ct-buttons" data-value="${"missense"}" @click="${this.updateQuery}">
                                     Missense
                                 </button>
-                                <button id="${this._prefix}LoFConsTypeButton" type="button" class="btn btn-default btn-warning gene-ct-buttons" @click="${this.updateQuery}">
+                                <button id="${this._prefix}LoFConsTypeButton" type="button" class="btn btn-primary ripple gene-ct-buttons" data-value="${"lof"}" @click="${this.updateQuery}">
                                     LoF
                                 </button>
                             </div>
@@ -285,8 +273,8 @@ export default class OpencgaGeneView extends LitElement {
             
                             ${this.checkVariant(this.variant) ? html`
                                 <!-- Bottom tabs with specific variant information -->
-                                <div style="padding-top: 20px; height: 400px">
-                                    <h3>Advanced Annotation for Variant: ${this.variant}</h3>
+                                <div style="padding-top: 20px;">
+                                    <h3 class="break-word">Advanced Annotation for Variant: ${this.variant}</h3>
                                     <cellbase-variantannotation-view _prefix="${this._prefix}"
                                                                      .data="${this.variant}"
                                                                      .cellbaseClient="${this.cellbaseClient}"
@@ -294,8 +282,7 @@ export default class OpencgaGeneView extends LitElement {
                                                                      .hashFragmentCredentials="${this.hashFragmentCredentials}"
                                                                      .populationFrequencies="${this.populationFrequencies}"
                                                                      .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
-                                                                     .consequenceTypes="${this.consequenceTypes}"
-                                                                     style="font-size: 12px">
+                                                                     .consequenceTypes="${this.consequenceTypes}">
                                     </cellbase-variantannotation-view>
                                 </div>
                             ` : html`

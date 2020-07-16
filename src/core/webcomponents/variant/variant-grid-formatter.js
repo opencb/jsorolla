@@ -111,9 +111,9 @@ export default class VariantGridFormatter {
 
         let snpLinkHtml = "";
         if (id.startsWith("rs")) {
-            snpLinkHtml = `<div style="padding: 5px"><a target="_blank" href="https://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?searchType=adhoc_search&type=rs&rs=${id}">dbSNP</a></div>
-                           <div style="padding: 5px"><a target="_blank" href="https://www.snpedia.com/index.php/${id}">SNPedia</a></div>
-                           <div style="padding: 5px"><a target="_blank" href="https://www.ncbi.nlm.nih.gov/clinvar/?term=${id}">ClinVar</a></div>
+            snpLinkHtml = `<div class="pad5"><a target="_blank" href="https://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?searchType=adhoc_search&type=rs&rs=${id}">dbSNP</a></div>
+                           ${application.appConfig === "opencb" ? `<div class="pad5"><a target="_blank" href="https://www.snpedia.com/index.php/${id}">SNPedia</a></div>` : ``}
+                           <div class="pad5"><a target="_blank" href="https://www.ncbi.nlm.nih.gov/clinvar/?term=${id}">ClinVar</a></div>
                 `;
         }
 

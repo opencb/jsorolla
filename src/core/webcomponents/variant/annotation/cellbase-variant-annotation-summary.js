@@ -199,7 +199,7 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
                                 <span class="col-md-9"><a target="_blank" href="http://grch37.ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v=${this.variantAnnotation.id}">${this.variantAnnotation.id}</a></span>
                             </div>
                             
-                                ${this.variantAnnotation?.hgvs.length ? html`
+                                ${this.variantAnnotation?.hgvs?.length ? html`
                                 <div class="form-group">
                                     <label class="col-md-3 label-title">HGVS</label>
                                     <span class="col-md-9">${this.variantAnnotation.hgvs.map(item => html` ${item}<br> `)}</span>

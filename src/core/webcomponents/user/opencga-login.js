@@ -69,58 +69,65 @@ export default class OpencgaLogin extends LitElement {
             const user = this.querySelector("#opencgaUser").value;
             const pass = this.querySelector("#opencgaPassword").value;
             const _this = this;
-            this.opencgaSession.opencgaClient.login(user, pass)
-                .then( response => {
 
-                    if(response.getEvents("ERROR").length) {
-                        this.errorState = response.getEvents("ERROR")[0];
-                        new NotificationQueue().push(this.errorState.name, this.errorState.message, "error");
-                    } else if(response) {
-                        this.querySelector("#opencgaUser").value = "";
-                        this.querySelector("#opencgaPassword").value = "";
-                        console.log("response", response)
-                        const token = response.getResult(0).token;
-                        const decoded = jwt_decode(token); // TODO expose as module
-                        const dateExpired = new Date(decoded.exp * 1000);
-                        const validTimeSessionId = moment(dateExpired, "YYYYMMDDHHmmss").format("D MMM YY HH:mm:ss"); // TODO expose as module
+            //in case a previous error has prevented the creation of opencgaSession object (in opencgaClient.createSession()), this would be undefined
+            if (this.opencgaSession) {
+                this.opencgaSession.opencgaClient.login(user, pass)
+                    .then( response => {
+
+                        if(response.getEvents("ERROR").length) {
+                            this.errorState = response.getEvents("ERROR")[0];
+                            new NotificationQueue().push(this.errorState.name, this.errorState.message, "error");
+                        } else if(response) {
+                            this.querySelector("#opencgaUser").value = "";
+                            this.querySelector("#opencgaPassword").value = "";
+                            console.log("response", response)
+                            const token = response.getResult(0).token;
+                            const decoded = jwt_decode(token); // TODO expose as module
+                            const dateExpired = new Date(decoded.exp * 1000);
+                            const validTimeSessionId = moment(dateExpired, "YYYYMMDDHHmmss").format("D MMM YY HH:mm:ss"); // TODO expose as module
 
 
-                        this.dispatchEvent(new CustomEvent("login", {
-                            detail: {
-                                userId: user,
-                                token: token
-                            },
-                            bubbles: true,
-                            composed: true
-                        }));
+                            this.dispatchEvent(new CustomEvent("login", {
+                                detail: {
+                                    userId: user,
+                                    token: token
+                                },
+                                bubbles: true,
+                                composed: true
+                            }));
 
+                            this.dispatchEvent(new CustomEvent(_this.notifyEventMessage, {
+                                detail: {
+                                    title: "Login success",
+                                    message: "Welcome, " + user + ". Your session is valid until " + validTimeSessionId,
+                                    options: {
+                                        icon: "fa fa-user-circle"
+                                    },
+                                    type: UtilsNew.MESSAGE_SUCCESS
+                                },
+                                bubbles: true,
+                                composed: true
+                            }));
+                        }
+                    })
+                    .catch( response => {
+                        // response isn't necessarily a restResponse instance
+                        this.errorState = {title: "Login error", message: "Please check your credentials."};
                         this.dispatchEvent(new CustomEvent(_this.notifyEventMessage, {
                             detail: {
-                                title: "Login success",
-                                message: "Welcome, " + user + ". Your session is valid until " + validTimeSessionId,
-                                options: {
-                                    icon: "fa fa-user-circle"
-                                },
-                                type: UtilsNew.MESSAGE_SUCCESS
+                                title: this.errorState.title,
+                                message: this.errorState.message,
+                                type: UtilsNew.MESSAGE_ERROR
                             },
                             bubbles: true,
                             composed: true
                         }));
-                    }
-                })
-                .catch( response => {
-                    // response isn't necessarily a restResponse instance
-                    this.errorState = {title: "Login error", message: "Please check your credentials."};
-                    this.dispatchEvent(new CustomEvent(_this.notifyEventMessage, {
-                        detail: {
-                            title: this.errorState.title,
-                            message: this.errorState.message,
-                            type: UtilsNew.MESSAGE_ERROR
-                        },
-                        bubbles: true,
-                        composed: true
-                    }));
-                }).finally( () => this.requestUpdate());
+                    }).finally( () => this.requestUpdate());
+            } else {
+                new NotificationQueue().push("OpencgaSession is undefined", null, "ERROR");
+            }
+
         }
 
     }

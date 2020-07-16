@@ -38,7 +38,7 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            entity: {
+            resource: {
                 type: String
             },
             selectedVariablesText: {
@@ -78,10 +78,9 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
         this.selectedVariables = {};
         if (this.selectedVariablesText) {
             const variables = this.selectedVariablesText.split(";");
-            debugger
             await this.requestUpdate();
             for (let v of variables) {
-                let [, variableSetId, variableId, value] = [...v.matchAll(/(\w+):(\w+\.\w+)=(\w+)/g)][0];
+                let [, variableSetId, variableId, value] = [...v.matchAll(/(\w+):(\w+\.?\w+)=(\w+)/g)][0];
                 this.selectedVariables[variableSetId] = {...this.selectedVariables[variableSetId] ?? {}, [variableId]: value};
             }
 
@@ -145,7 +144,6 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
                 if (UtilsNew.isEmpty(this.resource) || variableSet.entities.includes(this.resource)) {
                     //moving OBJECT type variables at the end of the list
                     variableSet.variables.sort( (a, b) => {
-
                         return sort.indexOf(a.type) - sort.indexOf(b.type)
                     })
                     _variableSets.push({
@@ -171,6 +169,14 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
         this.selectedVariablesSerializer();
     }
 
+    addBooleanFilter(e) {
+        const {variableId, variableSetId, value} = e.target.dataset;
+        console.log(variableId, variableSetId, value)
+        this.selectedVariables[variableSetId] = {...this.selectedVariables[variableSetId] ?? {}, [variableId]: value};
+        this.selectedVariables = {...this.selectedVariables};
+        this.selectedVariablesSerializer();
+    }
+
     changeMap(variableSetId, variableId, key) {
         console.log(variableSetId, variableId, key)
         if (key) {
@@ -190,9 +196,19 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
         let content = "";
         switch (variable.type) {
             case "OBJECT":
-                content = html`<div class="col-md-12 variable-object">
-                                <label class="variable-object-title">${variable.id}</label>
-                                ${variable.variableSet.map( v => this.renderVariable(v,variableSet))}
+                content = html`
+                                ${variable?.variableSet?.length
+                                    ?  html`
+                                        <div class="col-md-12 variable-object">
+                                            <label class="variable-object-title">${variable.id}</label>
+                                            ${variable.variableSet.map( v => this.renderVariable(v,variableSet))}
+                                        </div>`
+                                    : html`
+                                        <div class="form-group col-md-3">
+                                            <label><a tooltip-title="${variable.id}" tooltip-text="${variable.description}"><i class="fa fa-info-circle" aria-hidden="true"></i></a> ${variable.id}</label>
+                                            <textarea rows="1" class="form-control" data-variable-id="${variable.id}" data-variable-set-id="${variableSet.id}" @input="${this.addInputFilter}" .value="${this.selectedVariables?.[variableSet.id]?.[variable.id] || ""}"></textarea>
+                                        </div>
+                                    `}
                             </div>`;
                 break;
             case "MAP_STRING":
@@ -202,7 +218,7 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
                             <!--<pre> ${JSON.stringify(variable)}</pre>-->
                             ${variable?.allowedKeys?.length ? html`
                                 <div class="col-md-12 map-field-wrapper">
-                                    <label><a tooltip-title="${variable.id}" tooltip-text="${variable.description}"><i class="fa fa-info-circle" aria-hidden="true"></i></a> ${variable.name}</label>
+                                    <label><a tooltip-title="${variable.id}" tooltip-text="${variable.description}"><i class="fa fa-info-circle" aria-hidden="true"></i></a> ${variable.id}</label>
                                     <select-field-filter multiple .data="${variable?.allowedKeys}" @filterChange="${e => this.changeMap(variableSet.id, variable.id, e.detail.value)}"></select-field-filter>
                                     <div class="form-inline row map-field-inputs">
                                         ${this.variableMap?.[variableSet.id]?.[variable.id]?.map(key => {
@@ -218,9 +234,9 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
                                     </div>
                                 </div>
                             ` : html`<div class="form-group col-md-3">
-                                <label><a tooltip-title="${variable.id}" tooltip-text="${variable.description}"><i class="fa fa-info-circle" aria-hidden="true"></i></a> ${variable.name}</label>
+                                <label><a tooltip-title="${variable.id}" tooltip-text="${variable.description}"><i class="fa fa-info-circle" aria-hidden="true"></i></a> ${variable.id}</label>
                                 <input type="text" class="form-control"
-                                    placeholder="${variable.name}" data-variable-id="${variable.id}" data-variable-set-id="${variableSet.id}"
+                                    placeholder="${variable.id}" data-variable-id="${variable.id}" data-variable-set-id="${variableSet.id}"
                                     pattern="${variable?.attributes?.pattern ?? null}"
                                     aria-describedby="basic-addon1" @input="${this.addInputFilter}" .value="${this.selectedVariables?.[variableSet.id]?.[variable.id] || ""}"/>
                             </div>`}
@@ -234,9 +250,9 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
             case "INTEGER":
             case "DOUBLE":
                 content = html`<div class="form-group col-md-3">
-                                <label><a tooltip-title="${variable.id}" tooltip-text="${variable.description}"><i class="fa fa-info-circle" aria-hidden="true"></i></a> ${variable.name}</label>
+                                <label><a tooltip-title="${variable.id}" tooltip-text="${variable.description}"><i class="fa fa-info-circle" aria-hidden="true"></i></a> ${variable.id}</label>
                                 <input type="text" class="form-control"
-                                    placeholder="${variable.name}" data-variable-id="${variable.id}" data-variable-set-id="${variableSet.id}"
+                                    placeholder="${variable.id}" data-variable-id="${variable.id}" data-variable-set-id="${variableSet.id}"
                                     pattern="${variable?.attributes?.pattern ?? null}"
                                     aria-describedby="basic-addon1" @input="${this.addInputFilter}" .value="${this.selectedVariables?.[variableSet.id]?.[variable.id] || ""}"/>
                             </div>`;
@@ -251,12 +267,15 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
             case "BOOLEAN":
                 content = html`
                     <div class="form-check form-check-inline col-md-3">
-                        <input id="${this._prefix}${variable.id}yes" class="form-check-input"
-                        type="radio" name="${variable.id}Options" data-value=true @input="${this.addSelectedFilter}">
-                        True
-                        <input id="${this._prefix}${variable.id}no" class="form-check-input"
-                        type="radio" name="${variable.id}Options" data-value=false @input="${this.addSelectedFilter}">
-                        False
+                        <label><a tooltip-title="${variable.id}" tooltip-text="${variable.description}"><i class="fa fa-info-circle" aria-hidden="true"></i></a> ${variable.id}</label>
+                        <div class="form-group">
+                            <input id="${this._prefix}${variable.id}yes" class="form-check-input" data-variable-id="${variable.id}" data-variable-set-id="${variableSet.id}"
+                            type="radio" name="${variable.id}Options" data-value="True" .checked="${this.selectedVariables?.[variableSet.id]?.[variable.id] === 'true'}" @input="${this.addBooleanFilter}">
+                            True
+                            <input id="${this._prefix}${variable.id}no" class="form-check-input" data-variable-id="${variable.id}" data-variable-set-id="${variableSet.id}"
+                            type="radio" name="${variable.id}Options" data-value="False" .checked="${this.selectedVariables?.[variableSet.id]?.[variable.id] === 'false'}" @input="${this.addBooleanFilter}">
+                            False
+                        </div>
                     </div>`;
                 break;
             default:

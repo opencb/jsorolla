@@ -118,8 +118,8 @@ export class NotificationElement extends LitElement {
             <div id="notifications-queue" class="col-xs-11 col-sm-4">
             ${this.queue.map( item => {
                 return html`
-                    <div class="alert animated slideInDown alert-${(item.severity || "info").toLowerCase()} ${item.dismissible ? "alert-dismissible" : ""}" data-id="${item.id}">
-                        <div class="icon"><i class="${this.iconMap[item.severity || "info"]}"></i></div>
+                    <div class="alert animated slideInDown alert-${item.severity.toLowerCase() || "info"} ${item.dismissible ? "alert-dismissible" : ""}" data-id="${item.id}">
+                        <div class="icon"><i class="${this.iconMap[item.severity.toLowerCase() || "info"]}"></i></div>
                         <div class="content">
                             <p class="title">${item.title}</p>
                             <p class="details">${item.details}</p>

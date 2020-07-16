@@ -1019,8 +1019,7 @@ export default class ClinicalInterpretationView extends LitElement {
                                                                         .assembly="${this.opencgaSession.project.organism.assembly}"
                                                                         .hashFragmentCredentials="${this.hashFragmentCredentials}"
                                                                         .consequenceTypes="${this.consequenceTypes}"
-                                                                        .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
-                                                                        style="font-size: 12px">
+                                                                        .proteinSubstitutionScores="${this.proteinSubstitutionScores}">
                                         </cellbase-variantannotation-view>
                                     </div>
         

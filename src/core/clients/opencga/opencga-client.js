@@ -317,23 +317,23 @@ export class OpenCGAClient {
                                                         } else {
                                                             study.alias = study.fqn;
                                                         }
-
-                                                        // FIXME Undo this week
-                                                        let admins = study.groups.find(g => g.id === "@admins");
-                                                        let acl = null;
-                                                        if (admins.userIds?.includes(session.user.id)) {
-                                                            acl = await _this.studies().acl(study.fqn, {});
-                                                        } else {
-                                                            acl = await _this.studies().acl(study.fqn, {member: session.user.id});
-                                                        }
-                                                        study.acl = acl.getResult(0, 0);
-
-                                                        // default study from config
-                                                        if (study.fqn === application.defaultStudy) {
-                                                            session.project = project;
-                                                            session.study = study;
-                                                        }
                                                     }
+                                                    // FIXME Undo this week
+                                                    let admins = study.groups.find(g => g.id === "@admins");
+                                                    let acl = null;
+                                                    if (admins.userIds?.includes(session.user.id)) {
+                                                        acl = await _this.studies().acl(study.fqn, {});
+                                                    } else {
+                                                        acl = await _this.studies().acl(study.fqn, {member: session.user.id});
+                                                    }
+                                                    study.acl = acl.getResult(0, 0);
+
+                                                    // default study from config
+                                                    if (study.fqn === application.defaultStudy) {
+                                                        session.project = project;
+                                                        session.study = study;
+                                                    }
+
                                                     // Keep track of the studies to fetch Disease Panels
                                                     studies.push(project.id + ":" + study.id);
                                                 }
@@ -355,13 +355,13 @@ export class OpenCGAClient {
                                                 study: study,
                                                 limit: 2000,
                                                 include: "id,name,stats,source,genes.id,genes.name,regions.id"
-                                            })
+                                            });
                                             panelPromises.push(promise);
                                         }
                                         const panelResponses = await Promise.all(panelPromises);
                                         for (let i = 0, t = 0; i < session.projects.length; i++) {
                                             for (let x = 0; x < session.projects[i].studies.length; x++, t++) {
-                                                session.projects[i].studies[x].panels = panelResponses[t].getResults()
+                                                session.projects[i].studies[x].panels = panelResponses[t].getResults();
                                             }
                                         }/*
                                         for (const project of session.projects) {

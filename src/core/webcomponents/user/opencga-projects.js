@@ -74,6 +74,14 @@ export default class OpencgaProjects extends LitElement {
     }
 
     opencgaSessionObserver() {
+        this.totalCount = {
+            variants: 0,
+            files: 0,
+            samples: 0,
+            jobs: 0,
+            individuals: 0,
+            cohorts: 0
+        };
         this.filesCount = new CountUp("files-count", 0);
         this.filesCount.start();
         this.samplesCount = new CountUp("samples-count", 0);
@@ -135,12 +143,13 @@ export default class OpencgaProjects extends LitElement {
 
                 if (entries.length) {
                     entries.forEach( ([fqn, study]) => {
-                        this.filesCount.update(this.totalCount.files += study.file.numTotalResults);
-                        this.samplesCount.update(this.totalCount.samples += study.sample.numTotalResults);
-                        this.jobsCount.update(this.totalCount.jobs += study.job.numTotalResults);
-                        this.individualsCount.update(this.totalCount.individuals += study.individual.numTotalResults);
+                        // taking the first result to get the total numbers per entity (TODO HIDE FILE Directory in quering file )
+                        this.filesCount.update(this.totalCount.files += study.file.results[0].count);
+                        this.samplesCount.update(this.totalCount.samples += study.sample.results[0].count);
+                        this.jobsCount.update(this.totalCount.jobs += study.job.results[0].count);
+                        this.individualsCount.update(this.totalCount.individuals += study.individual.results[0].count);
                         // this.variantCount.update(this.totalCount.variants += r.variants);
-                        this.cohortsCount.update(this.totalCount.cohorts += study.cohort.numTotalResults);
+                        this.cohortsCount.update(this.totalCount.cohorts += study.cohort.results[0].count);
                         console.log("STUDY",study)
                         this.data[project.id].studies.push({
                             name: fqn,
@@ -299,39 +308,6 @@ export default class OpencgaProjects extends LitElement {
 
     render() {
         return html`
-        <style>
-            .center {
-                margin: auto;
-                text-align: justify;
-            }
-            #projects .panel-container {
-                display: flex;
-                justify-content: center;
-            }
-            #projects .panel-container .panel{
-                flex-basis: 250px;
-                margin: 1em;
-                background: #f1f1f1;
-            }
-            #projects .panel-container .panel .counter {
-                font-size: 4em;
-                color: #204d74;
-            }
-            
-            #projects .panel-container .panel .counter-title {
-                margin: -20px 0 0 0;
-                font-size: 15px;
-                text-transform: uppercase;
-                letter-spacing: 2px;
-            }   
-            
-            #projects .study-title {
-                font-size: 15px;
-                text-transform: uppercase;
-                letter-spacing: 2px;
-            }     
-    
-        </style>
         <!-- TODO check if logged in -->
         <div id="projects">
              <tool-header title="Projects summary" icon="fa fa-search"></tool-header>
@@ -391,7 +367,8 @@ export default class OpencgaProjects extends LitElement {
                 <div class="tab-content">
                     ${this.data ? Object.entries(this.data).map(([id, project], i) => html`
                         <div role="tabpanel" class="tab-pane ${i === 0 ? "active" : ""}" id="${id}">
-                            <div><h3>${project.name} (${project.uuid})</h3></div>
+                            <div><h3>${project.name}</h3></div>
+                            ${project.uuid ? html`<div><label>UUID:</label> ${project.uuid}</div>` : ""}
                             ${project.description ? html`<div><label>Description:</label> ${project.description}</div>` : ""}
                             <div class="container-fluid">
                                 <div class="row">

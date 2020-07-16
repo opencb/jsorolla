@@ -325,8 +325,7 @@ export default class OpencgaTranscriptView extends LitElement {
                                                         .hashFragmentCredentials="${this.hashFragmentCredentials}"
                                                         .populationFrequencies="${this.populationFrequencies}"
                                                         .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
-                                                        .consequenceTypes="${this.consequenceTypes}"
-                                                        style="font-size: 12px">
+                                                        .consequenceTypes="${this.consequenceTypes}">
                         </cellbase-variantannotation-view>
                     </div>
                 ` : html`
