@@ -341,13 +341,13 @@ export default class VariantInterpreterQcVariantFamily extends LitElement {
                         title: "Study and Cohorts",
                         collapsed: false,
                         fields: [
-                            {
+                            /*{
                                 id: "cohort",
                                 title: "Cohort Alternate Stats",
                                 onlyCohortAll: true,
                                 tooltip: tooltips.cohort
                                 //cohorts: this.cohorts
-                            },
+                            },*/
                             {
                                 id: "file-quality",
                                 title: "Quality Filters",

@@ -617,7 +617,6 @@ export default class OpencgaVariantBrowser extends LitElement {
 
         return html`
            <tool-header title="${this._config.title}" icon="${this._config.icon}"></tool-header>
-
             <div class="row">
                 <div class="col-md-2 left-menu">
                 
@@ -714,7 +713,7 @@ export default class OpencgaVariantBrowser extends LitElement {
                             </div>
                             
                             <div id="facet-tab" class="content-tab">
-                                <opencb-facet-results  resource="variant"
+                                <opencb-facet-results  resource="VARIANT"
                                                        .opencgaSession="${this.opencgaSession}" 
                                                        .active="${this.activeTab["facet-tab"]}"
                                                       .query="${this.facetQuery}"
