@@ -125,7 +125,7 @@ export default class OpencgaLogin extends LitElement {
                         }));
                     }).finally( () => this.requestUpdate());
             } else {
-                new NotificationQueue().push("OpencgaSession is undefined", null, "ERROR");
+                new NotificationQueue().push("Error retrieving OpencgaSession", null, "ERROR");
             }
 
         }

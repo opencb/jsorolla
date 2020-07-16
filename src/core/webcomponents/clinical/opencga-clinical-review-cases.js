@@ -15,7 +15,9 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
+import {OpenCGAClient} from "../../clients/opencga/opencga-client.js";
 import UtilsNew from "../../utilsNew.js";
+import {NotificationQueue} from "../Notification.js";
 import PolymerUtils from "../PolymerUtils.js";
 import "./opencga-clinical-analysis-grid.js";
 import "./opencga-clinical-analysis-view.js";
@@ -49,14 +51,8 @@ export default class OpencgaClinicalReviewCases extends LitElement {
 
     _init() {
         this._prefix = "ocrc-" + UtilsNew.randomString(6);
-
         this._config = this.getDefaultConfig();
-    }
-
-    updated(changedProperties) {
-        if (changedProperties.has("opencgaSession") || changedProperties.has("query") || changedProperties.has("config")) {
-            this.propertyObserver();
-        }
+        this._filters = [];
     }
 
     firstUpdated(_changedProperties) {
@@ -65,10 +61,35 @@ export default class OpencgaClinicalReviewCases extends LitElement {
         this.sample = "All";
         this.family = "All";
         this.disorder = "All";
-
         this.active = true;
 
         $("select.selectpicker").selectpicker("render");
+    }
+
+    updated(changedProperties) {
+        if (changedProperties.has("opencgaSession")) {
+            this.opencgaSessionObserver();
+        }
+        if (changedProperties.has("opencgaSession") || changedProperties.has("query") || changedProperties.has("config")) {
+            this.propertyObserver();
+        }
+    }
+
+    opencgaSessionObserver() {
+        console.log("opencgaSessionObserver");
+        this.filters = this._config.filter.examples;
+
+        if (this.opencgaSession.opencgaClient instanceof OpenCGAClient && UtilsNew.isNotUndefined(this.opencgaSession.token)) {
+            this.opencgaSession.opencgaClient.users().filters(this.opencgaSession.user.id).then(restResponse => {
+                const result = restResponse.getResults();
+                if (result.length > 0) {
+                    this._filters = [...this.filters, ...result.filter(f => f.resource === "CLINICAL_ANALYSIS")];
+                } else {
+                    this._filters = [...this.filters];
+                }
+                this.requestUpdate();
+            });
+        }
     }
 
     propertyObserver() {
@@ -119,7 +140,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
         if (this.querySelector(`#${this._prefix}disorderInput`)) {
             this.querySelector(`#${this._prefix}disorderInput`).value = "";
         }
-        $(".filter-button").css("color","rgb(153, 153, 153)");
+        $(".filter-button").css("color", "rgb(153, 153, 153)");
 
         $(`#${this._prefix}-type`).selectpicker("val", "");
         $(`#${this._prefix}-priority`).selectpicker("val", "");
@@ -134,9 +155,10 @@ export default class OpencgaClinicalReviewCases extends LitElement {
     }
 
     onFilterChange(e) {
-        for (const exampleFilter of this._config.filter.examples) {
-            if (e.currentTarget.dataset.filterName === exampleFilter.name) {
-                this._query = exampleFilter.query;
+        console.log("onFilterChange", e);
+        for (const filter of this._filters) {
+            if (e.currentTarget.dataset.filterId === filter.id) {
+                this._query = filter.query;
                 this.setQueryFilters(this._query);
                 break;
             }
@@ -152,6 +174,68 @@ export default class OpencgaClinicalReviewCases extends LitElement {
 
     onEnter(e) {
         if (e.which === 13) this.updateQuery();
+    }
+
+    launchModal() {
+        $(PolymerUtils.getElementById(this._prefix + "SaveModal")).modal("show");
+    }
+
+    save() {
+        const filterName = PolymerUtils.getValue(this._prefix + "filterName");
+        const filterDescription = PolymerUtils.getValue(this._prefix + "filterDescription");
+
+        const data = {
+            id: filterName,
+            description: filterDescription,
+            resource: "CLINICAL_ANALYSIS",
+            query: this._query,
+            options: {}
+        };
+        this.opencgaSession.opencgaClient.users().filters(this.opencgaSession.user.id)
+            .then(restResponse => {
+                console.log("GET filters", restResponse);
+                const savedFilters = restResponse.getResults() || [];
+
+                console.log("savedFilters", savedFilters);
+                // updating an existing filter
+
+                //check if filterName else updateFilters
+                if (savedFilters.find(savedFilter => savedFilter.id === filterName)) {
+                    this.opencgaSession.opencgaClient.users().updateFilter(this.opencgaSession.user.id, filterName, data)
+                        .then(response => {
+                            for (const i in this._filters) {
+                                if (this._filters[i].id === filterName) {
+                                    this._filters[i] = response.response[0].result[0];
+                                }
+                            }
+                            PolymerUtils.setValue(this._prefix + "filterName", "");
+                            PolymerUtils.setValue(this._prefix + "filterDescription", "");
+                        });
+                } else {
+                    // saving a new filter
+                    this.opencgaSession.opencgaClient.users().updateFilters(this.opencgaSession.user.id, data, {action: "ADD"})
+                        .then(response => {
+
+                            this._filters = [...this._filters, data];
+                            PolymerUtils.setValue(this._prefix + "filterName", "");
+                            PolymerUtils.setValue(this._prefix + "filterDescription", "");
+                            this.requestUpdate();
+                        });
+                }
+
+            })
+            .catch(restResponse => {
+                if (restResponse.getEvents?.("ERROR")?.length) {
+                    const msg = restResponse.getEvents("ERROR").map(error => error.message).join("<br>");
+                    new NotificationQueue().push("Error saving the filter", msg, "error");
+                } else {
+                    new NotificationQueue().push("Error saving the filter", "", "error");
+                }
+                console.error(restResponse);
+            })
+            .finally(() => {
+
+            });
     }
 
     updateInputTextMenuItem(filterId, value) {
@@ -218,6 +302,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
     }
 
     setQueryFilters(query) {
+        console.log("setQueryFilters", query);
         if (UtilsNew.isNotUndefinedOrNull(query.id)) {
             PolymerUtils.setValue(this._prefix + "caseInput", query.id);
             this.updateInputTextMenuItem("case", query.id);
@@ -379,12 +464,11 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                             <!--<div class="panel-heading">Case Filters</div>-->
                             <div class="panel-body" style="padding: 10px">
                                 <div class="lhs">
-       
                                     <div class="btn-group">
                                         <p class="active-filter-label">Filters</p>
                                     </div>
         
-                                    ${~this._config.filter.sections[0].fields.findIndex( field => field.id === "case") ? html`
+                                    ${~this._config.filter.sections[0].fields.findIndex(field => field.id === "case") ? html`
                                         <!-- Case ID -->
                                         <div class="btn-group">
                                             <button type="button" class="dropdown-toggle btn btn-default filter-button" style="width:125px; color: rgb(153, 153, 153);"
@@ -403,7 +487,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                         </div>
                                     ` : null}
                                     
-                                    ${~this._config.filter.sections[0].fields.findIndex( field => field.id === "sample") ? html`
+                                    ${~this._config.filter.sections[0].fields.findIndex(field => field.id === "sample") ? html`
                                     <!-- Sample -->
                                     <div class="btn-group">
                                         <button type="button" class="dropdown-toggle btn btn-default filter-button" style="width:125px; color: rgb(153, 153, 153);"
@@ -422,7 +506,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                     </div>
                                     ` : null}
                                     
-                                    ${~this._config.filter.sections[0].fields.findIndex( field => field.id === "proband") ? html`
+                                    ${~this._config.filter.sections[0].fields.findIndex(field => field.id === "proband") ? html`
                                     <!-- Proband -->
                                     <div class="btn-group">
                                         <button type="button" class="btn btn-default dropdown-toggle filter-button" style="width:125px; color: rgb(153, 153, 153);"
@@ -440,7 +524,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                     </div>
                                     ` : null}
                                     
-                                    ${~this._config.filter.sections[0].fields.findIndex( field => field.id === "family") ? html`                                    
+                                    ${~this._config.filter.sections[0].fields.findIndex(field => field.id === "family") ? html`                                    
                                     <!-- Family -->
                                     <div class="btn-group">
                                         <button type="button" class="dropdown-toggle btn btn-default filter-button" style="width:125px; color: rgb(153, 153, 153);"
@@ -529,9 +613,9 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                     <div class="btn-group">
                                         <select class="selectpicker" data-width="105px" id="${this._prefix}-assigned" multiple
                                                 title="Assignee: All" @change="${this.updateQuery}">
-                                                ${this._studyUsers && this._studyUsers.length ? this._studyUsers.map( item => html`
+                                                ${this._studyUsers && this._studyUsers.length ? this._studyUsers.map(item => html`
                                                     <option value="${item}">${item}</option>
-                                                `) : null }
+                                                `) : null}
                                                 
                                         </select>
                                     </div>
@@ -539,7 +623,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                     
                                     <!-- Buttons -->
                                     <button type="button" class="btn btn-primary btn-sm ripple" @click="${this.updateQuery}">
-                                            <i class="fa fa-search icon-padding" aria-hidden="true"></i> Search
+                                            <i class="fa fa-search icon-padding" aria-hidden="true"></i> Filter
                                     </button>
                                 </div>
                                 
@@ -554,22 +638,17 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                         </button>
                                         <ul class="dropdown-menu">
                                             <li><a style="font-weight: bold">Saved Filters</a></li>
-                                            ${this._config.filter.examples && this._config.filter.examples.length ? this._config.filter.examples.map( item => html`
-                                                <li>
-                                                    ${item.active ? html`
-                                                        <a data-filter-name="${item.name}" style="cursor: pointer" @click="${this.onFilterChange}" class="filtersLink">&nbsp;&nbsp;${item.name}</a>
-                                                    ` : html`
-                                                        <a data-filter-name="${item.name}" style="cursor: pointer;color: green" @click="${this.onFilterChange}" class="filtersLink">&nbsp;&nbsp;${item.name}</a>
-                                                    `}
-                                                </li>
-                                            `) : null}
-                                            
-                                            ${this.checkSid(this.opencgaSession.opencgaClient._config) ? html`
+                                                ${this._filters && this._filters.length ? this._filters.map(item => html`
+                                                    <li>
+                                                        <a data-filter-id="${item.id}" style="cursor: pointer; ${item.active ? "color: green" : ""}" @click="${this.onFilterChange}" class="filtersLink">&nbsp;&nbsp;${item.id}</a>
+                                                    </li>
+                                                `) : null}
+                                            ${this.opencgaSession?.token ? html`
                                                 <li role="separator" class="divider"></li>
                                                 <li>
                                                     <a style="cursor: pointer" @click="${this.launchModal}"><i class="fa fa-floppy-o" aria-hidden="true" style="padding-right: 5px"></i> Save...</a>
                                                 </li>
-                                            ` : null }
+                                            ` : null}
                                         </ul>
                                     </div>
                                 </div>
@@ -589,7 +668,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                         </opencga-clinical-analysis-grid>
 
                         <!-- Bottom tabs with specific variant information -->
-                        ${ this.clinicalAnalysis ? html`
+                        ${this.clinicalAnalysis ? html`
                             <div>
                                 <h3>Case Study: ${this.clinicalAnalysis.id}</h3>
                                 <div>
@@ -619,13 +698,47 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                     </div>
                                 </div>
                             </div>
-                        ` : null }
+                        ` : null}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Modal -->
+        <div class="modal fade" id="${this._prefix}SaveModal" tabindex="-1" role="dialog"
+             aria-labelledby="${this._prefix}SaveModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <h4 class="modal-title" id="${this._prefix}SaveModalLabel">Filter</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group row">
+                            <label for="filterName" class="col-xs-2 col-form-label">Name</label>
+                            <div class="col-xs-10">
+                                <input class="form-control" type="text" id="${this._prefix}filterName">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="${this._prefix}filterDescription" class="col-xs-2 col-form-label">Description</label>
+                            <div class="col-xs-10">
+                                <input class="form-control" type="text" id="${this._prefix}filterDescription">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${this.save}">Save</button>
                     </div>
                 </div>
             </div>
         </div>
         `;
     }
+
+
 
 }
 

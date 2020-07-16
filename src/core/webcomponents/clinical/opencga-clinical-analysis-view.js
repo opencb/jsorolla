@@ -257,6 +257,7 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                             type: "custom",
                             display: {
                                 labelWidth: 3,
+                                visible: application.appConfig === "opencb",
                                 render: creationDate => html`${moment(creationDate, "YYYYMMDDHHmmss").format("D MMM YY")}`
                             }
                         },
@@ -266,6 +267,7 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                             type: "custom",
                             display: {
                                 labelWidth: 3,
+                                visible: application.appConfig === "opencb",
                                 render: dueDate => html`${moment(dueDate, "YYYYMMDDHHmmss").format("D MMM YY")}`
                             }
                         },
@@ -387,7 +389,7 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                                 defaultLayout: "vertical",
                                 width: 12,
                                 style: "padding-left: 0px",
-                                render: (family) => {
+                                render: family => {
                                     if (family && family.members) {
                                         let individualGridConfig = {
                                             showSelectCheckbox: false,

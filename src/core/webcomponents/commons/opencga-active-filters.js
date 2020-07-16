@@ -16,6 +16,7 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
+import {NotificationQueue} from "../Notification.js";
 import PolymerUtils from "../PolymerUtils.js";
 import {OpenCGAClient} from "../../clients/opencga/opencga-client.js";
 
@@ -238,11 +239,11 @@ export default class OpencgaActiveFilters extends LitElement {
 
             })
             .catch(restResponse => {
-
-                if (restResponse.getEvents("ERROR").length) {
-
+                if (restResponse.getEvents?.("ERROR")?.length) {
+                    const msg = restResponse.getEvents("ERROR").map(error => error.message).join("<br>")
+                    new NotificationQueue().push("Error saving the filter", msg, "error");
                 } else {
-
+                    new NotificationQueue().push("Error saving the filter", "", "error");
                 }
                 console.error(restResponse);
             })

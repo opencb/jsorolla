@@ -48,7 +48,7 @@ export default class LoadingSpinner extends LitElement {
                 display: inline-block;
                 position: relative;
                 -webkit-transform: scale(-0.45);
-                transform: scale(-0.45);    
+                transform: scaleX(-0.45) scaleY(0.45);
                 margin-top: 20px;
             }
         
