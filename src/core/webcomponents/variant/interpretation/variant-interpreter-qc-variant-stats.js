@@ -96,7 +96,7 @@ class VariantInterpreterQcVariantStats extends LitElement {
                         {
                             id: this.clinicalAnalysis.proband.samples[0].id,
                             fields: this.clinicalAnalysis.proband?.samples[0]?.qualityControl?.metrics[0]?.variantStats
-                                .map( vStats => ({id: this.clinicalAnalysis.proband.samples[0].id + ":" + vStats.id.toUpperCase(), name: vStats.id}))
+                                .map( vStats => ({id: this.clinicalAnalysis.proband.samples[0].id + ":" + vStats.id, name: vStats.id}))
                         }
                     ];
                     break;
@@ -105,7 +105,7 @@ class VariantInterpreterQcVariantStats extends LitElement {
                         {
                             id: this.clinicalAnalysis.proband.samples[0].id,
                             fields: this.clinicalAnalysis.proband?.samples[0]?.qualityControl?.metrics[0]?.variantStats
-                                .map( vStats => ({id: this.clinicalAnalysis.proband.samples[0].id + ":" + vStats.id.toUpperCase(), name: vStats.id}))
+                                .map( vStats => ({id: this.clinicalAnalysis.proband.samples[0].id + ":" + vStats.id, name: vStats.id}))
                         },
                         ...this.clinicalAnalysis?.family?.members
                             .filter(member => member.id !== this.clinicalAnalysis.proband.id && member.samples && member.samples.length > 0)
@@ -113,7 +113,7 @@ class VariantInterpreterQcVariantStats extends LitElement {
                                 {
                                     id: member.samples[0].id,
                                     fields: member.samples[0].qualityControl?.metrics[0]?.variantStats
-                                        .map( vStats => ({id: member.samples[0].id + ":" + vStats.id.toUpperCase(), name: vStats.id}))
+                                        .map( vStats => ({id: member.samples[0].id + ":" + vStats.id, name: vStats.id}))
                                 })
                             )
                     ];
@@ -121,7 +121,7 @@ class VariantInterpreterQcVariantStats extends LitElement {
                 case "CANCER":
                     this.statsSelect = this.clinicalAnalysis.proband.samples[0].qualityControl?.metrics[0]?.variantStats.map( vStats => (
                         {
-                            id: this.clinicalAnalysis.proband.samples[0].id + ":" + vStats.id.toUpperCase(),
+                            id: this.clinicalAnalysis.proband.samples[0].id + ":" + vStats.id,
                             name: vStats.id
                         }));
                     break;
@@ -132,7 +132,7 @@ class VariantInterpreterQcVariantStats extends LitElement {
         if (sampleQc?.metrics?.length > 0) {
             this.variantStats = sampleQc.metrics[0].variantStats[0];
 
-            this.selectedStat = this.clinicalAnalysis.proband.samples[0].id + ":" + this.variantStats.id.toUpperCase();
+            this.selectedStat = this.clinicalAnalysis.proband.samples[0].id + ":" + this.variantStats.id;
             if (!this.variantStats) {
                 console.error("Sample variant stats unavailable")
             }
@@ -149,12 +149,12 @@ class VariantInterpreterQcVariantStats extends LitElement {
         const individuals = this.clinicalAnalysis.type.toUpperCase() === "FAMILY" ? this.clinicalAnalysis.family.members : [this.clinicalAnalysis.proband]
         for (let member of individuals) {
             if (member?.samples?.length > 0) {
+                console.log(member.samples[0].qualityControl?.metrics[0]?.variantStats);
                 const vStat = member.samples[0].qualityControl?.metrics[0]?.variantStats.find( vStat => vStat.id === statsId);
                 if (member.samples[0].id === sampleId && vStat) {
                     this.variantStats = vStat;
                 }
             }
-
         }
         if (!this.variantStats) {
             console.error("No stats found");

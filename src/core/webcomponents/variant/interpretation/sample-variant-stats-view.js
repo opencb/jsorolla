@@ -58,18 +58,28 @@ class SampleVariantStatsView extends LitElement {
         this._sampleVariantStats = {};
 
         // Default config for Highcharts charts
-        this.defaultChartConfig = {
-            backgroundColor: {
-                // linearGradient: [0, 0, 500, 500],
-                stops: [
-                    [0, "rgb(255, 255, 255)"],
-                    [1, "rgb(240, 240, 255)"]
-                ]
+        this.defaultHighchartConfig = {
+            chart: {
+                backgroundColor: {
+                    // linearGradient: [0, 0, 500, 500],
+                    stops: [
+                        [0, "rgb(255, 255, 255)"],
+                        [1, "rgb(240, 240, 255)"]
+                    ]
+                },
+                borderWidth: 0,
+                // plotBackgroundColor: "rgba(255, 255, 255, .9)",
+                plotShadow: true,
+                plotBorderWidth: 1
             },
-            borderWidth: 0,
-            // plotBackgroundColor: "rgba(255, 255, 255, .9)",
-            plotShadow: true,
-            plotBorderWidth: 1
+            tooltip: {
+                headerFormat: "<span style=\"font-size:10px\">{point.key}</span><table>",
+                pointFormat: "<tr><td style=\"color:{series.color};padding:0\">{series.name}: </td>" +
+                    "<td style=\"padding:0\"><b>{point.y:.1f} </b></td></tr>",
+                footerFormat: "</table>",
+                shared: true,
+                useHTML: true
+            },
         };
 
         this._config = this.getDefaultConfig();
@@ -174,14 +184,24 @@ class SampleVariantStatsView extends LitElement {
                         },
                         {
                             name: "Number of Variants",
-                            field: "variantCount"
+                            field: "variantCount",
+                            type: "custom",
+                            display: {
+                                render: variantCount => {
+                                    if (variantCount > 0) {
+                                        return html`${variantCount} variants`;
+                                    } else {
+                                        return html`<span style="color: red">${variantCount} variants</span>`;
+                                    }
+                                }
+                            }
                         },
                         {
                             name: "Ti/Tv Ratio",
                             field: "tiTvRatio",
                             display: {
                                 decimals: 4,
-                                visible: (tiTvRatio) => !tiTvRatio
+                                visible: tiTvRatio => tiTvRatio !== 0
                             }
                         },
                         {
@@ -189,18 +209,23 @@ class SampleVariantStatsView extends LitElement {
                             type: "complex",
                             display: {
                                 template: "${qualityAvg} (${qualityStdDev})",
+                                visible: sampleVariantStat => sampleVariantStat?.qualityAvg !== 0
                             }
                         },
                         {
                             name: "Heterozygosity Rate",
                             field: "heterozygosityRate",
                             display: {
-                                decimals: 4
+                                decimals: 4,
+                                visible: heterozygosityRate => heterozygosityRate !== 0
                             }
                         }
                     ]
                 }, {
                     title: "Variant Stats",
+                    display: {
+                        visible: sampleVariantStat => sampleVariantStat.variantCount > 0
+                    },
                     elements: [
                         [
                             {
@@ -212,13 +237,13 @@ class SampleVariantStatsView extends LitElement {
                                     highcharts: {
                                         chart: {
                                             type: "column",
-                                            ...this.defaultChartConfig
+                                            ...this.defaultHighchartConfig.chart
                                         },
                                         title: {
                                             text: "Chromosomes"
                                         },
-                                        subtitle: {
-                                            text: "Number of variants per chromosome"
+                                        tooltip: {
+                                            ...this.defaultHighchartConfig.tooltip
                                         }
                                     }
                                 }
@@ -233,7 +258,10 @@ class SampleVariantStatsView extends LitElement {
                                     highcharts: {
                                         chart: {
                                             type: "column",
-                                            ...this.defaultChartConfig
+                                            ...this.defaultHighchartConfig.chart
+                                        },
+                                        tooltip: {
+                                            ...this.defaultHighchartConfig.tooltip
                                         }
                                     }
                                 }
@@ -268,7 +296,10 @@ class SampleVariantStatsView extends LitElement {
                                     highcharts: {
                                         chart: {
                                             type: "column",
-                                            ...this.defaultChartConfig
+                                            ...this.defaultHighchartConfig.chart
+                                        },
+                                        tooltip: {
+                                            ...this.defaultHighchartConfig.tooltip
                                         }
                                     }
                                 }
@@ -277,6 +308,9 @@ class SampleVariantStatsView extends LitElement {
                     ]
                 }, {
                     //title: "plots2",
+                    display: {
+                        visible: sampleVariantStat => sampleVariantStat.variantCount > 0
+                    },
                     elements: [
                         {
                             name: "Consequence Type",
@@ -288,7 +322,10 @@ class SampleVariantStatsView extends LitElement {
                                 highcharts: {
                                     chart: {
                                         type: "column",
-                                        ...this.defaultChartConfig
+                                        ...this.defaultHighchartConfig.chart
+                                    },
+                                    tooltip: {
+                                        ...this.defaultHighchartConfig.tooltip
                                     }
                                 }
                             }
@@ -303,9 +340,44 @@ class SampleVariantStatsView extends LitElement {
                                 highcharts: {
                                     chart: {
                                         type: "column",
-                                        ...this.defaultChartConfig
+                                        ...this.defaultHighchartConfig.chart
+                                    },
+                                    tooltip: {
+                                        ...this.defaultHighchartConfig.tooltip
                                     }
                                 }
+                            }
+                        },
+                        {
+                            name: "ClinVar Clinical Significance",
+                            field: "clinicalSignificanceCount",
+                            type: "chart",
+                            showLabel: false,
+                            display: {
+                                sort: true,
+                                highcharts: {
+                                    chart: {
+                                        type: "column",
+                                        ...this.defaultHighchartConfig.chart
+                                    },
+                                    tooltip: {
+                                        ...this.defaultHighchartConfig.tooltip
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                }, {
+                    title: "Variant Stats",
+                    display: {
+                        visible: sampleVariantStat => sampleVariantStat.variantCount === 0
+                    },
+                    elements: [
+                        {
+                            name: "Warning",
+                            type: "custom",
+                            display: {
+                                render: () => html`<span>No variants found</span>`
                             }
                         }
                     ]

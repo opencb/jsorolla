@@ -168,6 +168,9 @@ export default class VariantInterpreterQcVariantFamily extends LitElement {
                             het += this.sampleVariantStats.genotypeCount["1/2"] || 0;
                             this.sampleVariantStats.heterozygosityRate = het / aggregatedResult.count;
                             break;
+                        case "filter":
+                            this.sampleVariantStats.filterCount = values;
+                            break;
                         case "type":
                             this.sampleVariantStats.typeCount = values;
                             break;
@@ -177,8 +180,8 @@ export default class VariantInterpreterQcVariantFamily extends LitElement {
                         case "consequenceType":
                             this.sampleVariantStats.consequenceTypeCount = values;
                             break;
-                        case "filter":
-                            this.sampleVariantStats.filterCount = values;
+                        case "clinicalSignificance":
+                            this.sampleVariantStats.clinicalSignificanceCount = values;
                             break;
                     }
                 }
@@ -218,7 +221,6 @@ export default class VariantInterpreterQcVariantFamily extends LitElement {
 
     onSave(e) {
         // Search bamFile for the sample
-        let bamFile = this.clinicalAnalysis.files.find(file => file.format === "BAM" && file.samples.some(sample => sample.id === this.sample.id));
         let variantStats = {
             id: this.save.id,
             query: this.executedQuery || {},
@@ -227,14 +229,23 @@ export default class VariantInterpreterQcVariantFamily extends LitElement {
         };
 
         // Check if a metric object for that bamFileId exists
-        let metric = this.sample?.qualityControl?.metrics.find(metric => metric.bamFileId === bamFile.id);
+        let bamFile = this.clinicalAnalysis.files.find(file => file.format === "BAM" && file.samples.some(sample => sample.id === this.sample.id));
+        let metric = this.sample?.qualityControl?.metrics
+            .find(metric => {
+                if (bamFile) {
+                    return metric.bamFileId === bamFile.id
+                } else {
+                    return metric.bamFileId === ""
+                }
+            });
+        // Save the variant stats
         if (metric) {
             // Push the stats and signature in the existing metric object
             metric.variantStats.push(variantStats);
         } else {
             // create a new metric
             metric = {
-                bamFileId: bamFile.id,
+                bamFileId: bamFile ? bamFile.id : "",
                 variantStats: [variantStats],
             }
             // Check if this is the first metric object
@@ -513,19 +524,16 @@ export default class VariantInterpreterQcVariantFamily extends LitElement {
                                                         </opencga-facet-result-view>
                                                     </div>
                                                     -->
-                                                    <h3>Other Stats</h3>
-                                                    <div class="col-md-12">
-                                                        <opencga-facet-result-view .facetResult="${this.aggregationStatsResults?.[5]}"
-                                                                .config="${this.facetConfig}"
-                                                                ?active="${this.facetActive}">
-                                                        </opencga-facet-result-view>
-                                                    </div>
-                                                    <div class="col-md-12">
-                                                        <opencga-facet-result-view .facetResult="${this.aggregationStatsResults?.[6]}"
-                                                                .config="${this.facetConfig}"
-                                                                ?active="${this.facetActive}">
-                                                        </opencga-facet-result-view>
-                                                    </div>
+                                                    ${this.sampleVariantStats.variantCount !== 0 
+                                                        ? html`
+                                                            <div class="col-md-12">
+                                                                <opencga-facet-result-view .facetResult="${this.aggregationStatsResults?.[6]}"
+                                                                        .config="${this.facetConfig}"
+                                                                        ?active="${this.facetActive}">
+                                                                </opencga-facet-result-view>
+                                                            </div>` 
+                                                        : null
+                                                    }
                                                 </div>
                                             </div>
                                         `}
