@@ -110,14 +110,16 @@ export default class OpencgaTranscriptView extends LitElement {
         if (UtilsNew.isNotEmpty(this.transcript)) {
             query["annot-xref"] = this.transcript;
             this.cellbaseClient.getTranscriptClient(this.transcript, 'info', {exclude: "xrefs, exons.sequence"}, {})
-                .then(function (response) {
-                    _this.transcriptObj = response.response[0].result[0];
+                .then(response => {
+                    this.transcriptObj = response.response[0].result[0];
+                    this.requestUpdate();
                     // FIXME We need to improve how the transcript is rendered
                     // let svg = _this._createSvgTranscript(_this.transcriptObj);
                     // let querySelector = PolymerUtils.getElementById(_this._prefix + "TranscriptSvg");
                     // querySelector.appendChild(svg);
                 });
-            _this.query = query;
+            this.query = query;
+            this.requestUpdate();
         }
     }
 
@@ -254,6 +256,7 @@ export default class OpencgaTranscriptView extends LitElement {
                             <td class="transcript-summary-title">Gene</td>
                             <td><a href="#gene/${this.project.alias}/${this.study.alias}/${this.gene}">${this.gene}</a></td>
                         </tr>
+                        ${application.appConfig === "opencb" ? html`
                         <tr>
                             <td class="transcript-summary-title">Genome Browser</td>
                             <td>
@@ -262,7 +265,7 @@ export default class OpencgaTranscriptView extends LitElement {
                                     ${this.transcriptObj.chromosome}:${this.transcriptObj.start}-${this.transcriptObj.end}
                                 </a>
                             </td>
-                        </tr>
+                        </tr>` : null}
                     </table>
                 </div>
 
@@ -300,26 +303,21 @@ export default class OpencgaTranscriptView extends LitElement {
 
                 <br>
                 <br>
-                <variant-browser-grid _prefix="${this._prefix}" 
-                                      .project="${this.project}"
+                <opencga-variant-grid .project="${this.project}"
                                       .study="${this.study}"
-                                      .opencga-client="${this.opencgaClient}"
-                                      .population-frequencies="${this.populationFrequencies}"
-                                      .protein-substitution-scores="${this.proteinSubstitutionScores}"
-                                      .consequence-types="${this.consequenceTypes}"
-                                      .search="${this.query}"
+                                      .populationFrequencies="${this.populationFrequencies}"
+                                      .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
+                                      .consequenceTypes="${this.consequenceTypes}"
                                       .query="${this.query}"
                                       .variant="${this.variant}"
-                                      style="font-size: 12px"
                                       @selectvariant="${this.onSelectVariant}">
-                </variant-browser-grid>
+                </opencga-variant-grid>
 
                 ${this.checkVariant(this.variant) ? html`
                     <!-- Bottom tabs with specific variant information -->
                     <div style="padding-top: 20px; height: 400px">
                         <h3>Advanced Annotation for Variant: ${this.variant}</h3>
-                        <cellbase-variantannotation-view _prefix="${this._prefix}" 
-                                                        .data="${this.variant}"
+                        <cellbase-variantannotation-view .data="${this.variant}"
                                                         .cellbaseClient="${this.cellbaseClient}"
                                                         .assembly=${this.project.organism.assembly}
                                                         .hashFragmentCredentials="${this.hashFragmentCredentials}"

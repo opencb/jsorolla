@@ -1012,8 +1012,7 @@ export default class ClinicalInterpretationView extends LitElement {
                                 <div class="tab-content" style="height: 680px">
                                     <!-- Current Annotation Tab -->
                                     <div role="tabpanel" class="tab-pane active" id="${this._prefix}Annotation">
-                                        <cellbase-variantannotation-view _prefix="${this._prefix}"
-                                                                        mode="vertical"
+                                        <cellbase-variantannotation-view mode="vertical"
                                                                         .data="${this.variant}"
                                                                         .cellbaseClient="${this.cellbaseClient}"
                                                                         .assembly="${this.opencgaSession.project.organism.assembly}"

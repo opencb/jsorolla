@@ -111,7 +111,7 @@ export default class PedigreeView extends LitElement {
             //console.log("document.getElementById(this._prefix + \"PedigreeView\")", this.querySelector("#" + this.pedigreeId))
             const pedigree = new Pedigree(family, {selectShowSampleNames: true});
             this.svg = pedigree.pedigreeFromFamily(pedigree.pedigree, {
-                width: this._config.width,
+                width: querySelector.offsetWidth,
                 height: this._config.height
             });
             querySelector.appendChild(this.svg);
@@ -121,7 +121,7 @@ export default class PedigreeView extends LitElement {
 
     getDefaultConfig() {
         return {
-            width: 640,
+            width: 700, //this is overwritten by the container div offsetWidth
             height: 240
         }
     }

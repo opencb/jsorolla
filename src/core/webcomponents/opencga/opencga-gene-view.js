@@ -143,6 +143,7 @@ export default class OpencgaGeneView extends LitElement {
 
     onSelectVariant(e) {
         this.variant = e.detail.id;
+        this.requestUpdate();
     }
 
     render() {
@@ -213,16 +214,18 @@ export default class OpencgaGeneView extends LitElement {
                                         </td>
                                         <td>${transcript.biotype}</td>
                                         <td>
-                                            <a target="_blank"
-                                               href="http://genomemaps.org/?region=${transcript.chromosome}:${transcript.start}-${transcript.end}">
-                                                ${transcript.chromosome}:${transcript.start}-${transcript.end}
-                                            </a>
+                                            ${application.appConfig === "opencb" ? html`
+                                                <a target="_blank"
+                                                   href="http://genomemaps.org/?region=${transcript.chromosome}:${transcript.start}-${transcript.end}">
+                                                    ${transcript.chromosome}:${transcript.start}-${transcript.end}
+                                                </a>` : html`<span>${transcript.chromosome}:${transcript.start}-${transcript.end}</span>`}
                                         </td>
                                         <td>
-                                            <a target="_blank"
-                                               href="http://genomemaps.org/?region=${transcript.chromosome}:${transcript.genomicCodingStart}-${transcript.genomicCodingEnd}">
-                                                ${transcript.genomicCodingStart}-${transcript.genomicCodingEnd}
-                                            </a>
+                                            ${application.appConfig === "opencb" ? html`
+                                                <a target="_blank"
+                                                   href="http://genomemaps.org/?region=${transcript.chromosome}:${transcript.genomicCodingStart}-${transcript.genomicCodingEnd}">
+                                                    ${transcript.genomicCodingStart}-${transcript.genomicCodingEnd}
+                                                </a>` : html`<span>${transcript.chromosome}:${transcript.start}-${transcript.end}</span>`}
                                         </td>
                                         <!--<td>-->
                                         <!--${transcript.cdnaCodingStart}-${transcript.cdnaCodingEnd}-->
@@ -275,8 +278,7 @@ export default class OpencgaGeneView extends LitElement {
                                 <!-- Bottom tabs with specific variant information -->
                                 <div style="padding-top: 20px;">
                                     <h3 class="break-word">Advanced Annotation for Variant: ${this.variant}</h3>
-                                    <cellbase-variantannotation-view _prefix="${this._prefix}"
-                                                                     .data="${this.variant}"
+                                    <cellbase-variantannotation-view .data="${this.variant}"
                                                                      .cellbaseClient="${this.cellbaseClient}"
                                                                      .assembly=${this.opencgaSession.project.organism.assembly}
                                                                      .hashFragmentCredentials="${this.hashFragmentCredentials}"

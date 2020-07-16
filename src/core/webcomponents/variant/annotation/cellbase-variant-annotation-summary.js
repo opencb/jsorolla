@@ -214,12 +214,14 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
                                 <div class="form-group">
                                     <label class="col-md-3 label-title">Location</label>
                                     <span class="col-md-9">
-                                        <a target="_blank" href="http://genomemaps.org/?region=${this.variantAnnotation.chromosome}:${this.variantAnnotation.start}">
+                                        ${application.appConfig === "opencb" ? html`
+                                            <a target="_blank" href="http://genomemaps.org/?region=${this.variantAnnotation.chromosome}:${this.variantAnnotation.start}">
                                             ${this.variantAnnotation.chromosome}:${this.variantAnnotation.start}
-                                            ${this.variantAnnotation.end ? html`
-                                                <div>-${this.variantAnnotation.end}</div>
-                                            `: null}
-                                        </a>
+                                            ${this.variantAnnotation.end ? html`<div>-${this.variantAnnotation.end}</div>`: null}
+                                        </a>` : html`
+                                            ${this.variantAnnotation.chromosome}:${this.variantAnnotation.start}
+                                            ${this.variantAnnotation.end ? html`<div>-${this.variantAnnotation.end}</div>`: null}
+                                        `}
                                     </span>
                                 </div>
                                 
