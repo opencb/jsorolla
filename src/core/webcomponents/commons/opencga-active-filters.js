@@ -539,7 +539,7 @@ export default class OpencgaActiveFilters extends LitElement {
                                                         </button>
                                                         <ul class="dropdown-menu">
                                                             ${item.items.length && item.items.map(filterItem => html`
-                                                                <li class="small active-filter-button disabled" style="cursor: pointer">
+                                                                <li class="small active-filter-button" style="cursor: pointer">
                                                                     <a @click="${this.onQueryFilterDelete}" data-filter-name="${item.name}" data-filter-value="${filterItem}">
                                                                         ${filterItem} 
                                                                     </a>

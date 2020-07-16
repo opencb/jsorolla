@@ -323,16 +323,11 @@ export default class OpencgaVariantBrowser extends LitElement {
                         // "region": "Region",
                         // "gene": "Gene",
                         "ct": "Consequence Types",
-                        "annot-xref": "XRef",
                         "biotype": "Biotype",
-                        "annot-ct": "Consequence Types",
                         "alternate_frequency": "Population Frequency",
-                        "annot-functional-score": "CADD",
                         "protein_substitution": "Protein Substitution",
-                        "annot-go": "GO",
-                        "annot-hpo": "HPO"
                     },
-                    complexFields: ["genotype"],
+                    complexFields: [],
                     hiddenFields: []
                 },
                 sections: [     // sections and subsections, structure and order is respected
