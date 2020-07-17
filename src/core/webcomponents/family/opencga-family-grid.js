@@ -423,12 +423,14 @@ export default class OpencgaFamilyGrid extends LitElement {
                 field: "creationDate",
                 formatter: this.dateFormatter,
                 sortable: true,
-                halign: this._config.header.horizontalAlign
+                halign: this._config.header.horizontalAlign,
+                visible: application.appConfig === "opencb"
             },
             {
                 title: "Status",
                 field: "status.name",
-                halign: this._config.header.horizontalAlign
+                halign: this._config.header.horizontalAlign,
+                visible: application.appConfig === "opencb"
             }
         ];
 

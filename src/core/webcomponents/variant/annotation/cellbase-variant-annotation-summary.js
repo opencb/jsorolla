@@ -208,7 +208,7 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
                                 
                                 <div class="form-group">
                                     <label class="col-md-3 label-title">Alleles</label>
-                                    <span class="col-md-9">${this.variantAnnotation.reference}/${this.variantAnnotation.alternate}</span>
+                                    <span class="col-md-9 break-word">${this.variantAnnotation.reference}/${this.variantAnnotation.alternate}</span>
                                 </div>
                                 
                                 <div class="form-group">

@@ -144,12 +144,16 @@ export default class OpencgaFamilyView extends LitElement {
                             field: "creationDate",
                             type: "custom",
                             display: {
+                                visible: data => application.appConfig === "opencb",
                                 render: field => html`${UtilsNew.dateFormatter(field)}`
                             }
                         },
                         {
                             name: "Description",
-                            field: "description"
+                            field: "description",
+                            display: {
+                                visible: data => application.appConfig === "opencb"
+                            }
                         }
                     ]
                 },
