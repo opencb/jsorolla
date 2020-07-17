@@ -329,9 +329,8 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
                 }
             </style>
            
-            <button type="button" class="btn btn-default" @click="${this.showModal}"> Annotation </button>
-           
-            ${this.variableSets ? html`
+            ${this.variableSets?.length ? html`
+                <button type="button" class="btn btn-default" @click="${this.showModal}"> Annotation </button>
                 <div class="modal fade annotation-modal" id="${this._prefix}annotation-modal" role="dialog"
                  aria-labelledby="annotation-modal" data-keyboard="false">
                 <div class="modal-dialog">
@@ -367,7 +366,7 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
                     </div>
                 </div>
             </div>
-            ` : null} 
+            ` : html`<p>No variableSets defined in the study</p>`} 
         `;
     }
 
