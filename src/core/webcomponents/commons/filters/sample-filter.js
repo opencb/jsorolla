@@ -219,8 +219,8 @@ export default class SampleFilter extends LitElement {
                     ? html`<div style="padding: 5px 0px">${this._config.text}</div>` 
                     : null
                 }
-                <div style="padding: 5px 20px">
-                    <button id="${this._prefix}SampleGenotypeFilterModalButton" type="button" class="btn btn-default" @click="${this.showModal}">
+                <div class="text-center">
+                    <button id="${this._prefix}SampleGenotypeFilterModalButton" type="button" class="btn btn-default multi-line" @click="${this.showModal}">
                         Sample Genotype Filter ...
                     </button>
                 </div>
