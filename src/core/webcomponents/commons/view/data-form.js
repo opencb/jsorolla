@@ -127,7 +127,7 @@ export default class DataForm extends LitElement {
             if (this.config?.display?.errorMessage) {
                 errorMessage = this.config.display.errorMessage;
             } else {
-                errorMessage = "Error: not valid data found";
+                errorMessage = "Error: No valid data found";
             }
         }
         return html`<div><em>${errorMessage}</em></div>`;
