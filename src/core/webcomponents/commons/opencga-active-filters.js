@@ -493,29 +493,29 @@ export default class OpencgaActiveFilters extends LitElement {
                     
                         ${this.queryList ? html`
                             ${this.queryList.length === 0
-                                ? html`
+            ? html`
                                     <label>No filters selected</label>`
-                                : html`
+            : html`
                                     ${this.queryList.map(item => !this._isMultiValued(item)
-                                        ? html` 
+                ? html` 
                                             ${!item.locked
-                                                ? html`
+                    ? html`
                                                     <!-- No multi-valued filters -->
                                                     <button type="button" class="btn btn-warning btn-sm ${item.name}ActiveFilter active-filter-button ripple no-transform" data-filter-name="${item.name}" data-filter-value=""
                                                             @click="${this.onQueryFilterDelete}">
                                                     ${item.text}
                                                     </button>`
-                                                : html`
+                    : html`
                                                     <button type="button" class="btn btn-warning btn-sm ${item.name}ActiveFilter active-filter-button ripple no-transform" data-filter-name="${item.name}" data-filter-value=""
                                                              @click="${this.onQueryFilterDelete}" title="${item.message ?? ""}" disabled>
                                                         ${item.text}
                                                     </button>`
-                                            }`
-                                        : html`
+                }`
+                : html`
                                             <!-- Multi-valued filters -->
                                             <div class="btn-group">
                                                 ${item.locked
-                                                    ? html`
+                    ? html`
                                                         <button type="button" class="btn btn-warning btn-sm ${item.name}ActiveFilter active-filter-button ripple no-transform" data-filter-name="${item.name}" data-filter-value=""
                                                                 @click="${this.onQueryFilterDelete}" disabled> ${item.text} <span class="badge">${item.items.length}</span>
                                                         </button>
@@ -530,7 +530,7 @@ export default class OpencgaActiveFilters extends LitElement {
                                                                 </li>
                                                             `)}
                                                         </ul>`
-                                                    : html`
+                    : html`
                                                         <button type="button" class="btn btn-warning btn-sm ${item.name}ActiveFilter active-filter-button ripple no-transform" data-filter-name="${item.name}" data-filter-value=""
                                                                 @click="${this.onQueryFilterDelete}"> ${item.text} <span class="badge">${item.items.length}</span>
                                                         </button>
@@ -547,12 +547,12 @@ export default class OpencgaActiveFilters extends LitElement {
                                                                 </li>
                                                             `)}
                                                         </ul>`
-                                                    }
+                }
                                             </div>`
-                                        )}
+            )}
                                 `}
                             `
-                        : null}
+            : null}
                     </div> 
                         
                     <div class="rhs">
@@ -569,14 +569,18 @@ export default class OpencgaActiveFilters extends LitElement {
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-right">
                                     <li><a style="font-weight: bold">Saved Filters</a></li>
-                                    ${this._filters && this._filters.length ? this._filters.map(item => html`
-                                        <li> <!-- TODO recheck and simplify!!-->
-                                            ${!item.active
-                                                ? html`<a data-filter-id="${item.id}" style="cursor: pointer" @click="${this.onServerFilterChange}" class="filtersLink">&nbsp;&nbsp;${item.id}</a>`
-                                                : html`<a data-filter-id="${item.id}" style="cursor: pointer;color: green" @click="${this.onServerFilterChange}" class="filtersLink">&nbsp;&nbsp;${item.id}</a>
-                                            `}
-                                        </li>
-                                    `) : null}
+                                    ${this._filters && this._filters.length
+            ? this._filters.map(item => html`
+                                            ${item.separator
+                ? html`<li role="separator" class="divider"></li>`
+                : html`
+                                                    <li>
+                                                        <a data-filter-id="${item.id}" style="cursor: pointer;color: ${!item.active ? "black" : "green"}" @click="${this.onServerFilterChange}" class="filtersLink">&nbsp;&nbsp;${item.id}</a>
+                                                    </li>`
+                }`
+            )
+            : null
+        }
                                     ${this.checkSid(this.opencgaClient._config) ? html`
                                         <li role="separator" class="divider"></li>
                                         <li>

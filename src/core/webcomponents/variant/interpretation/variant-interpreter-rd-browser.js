@@ -185,6 +185,7 @@ class VariantInterpreterRdBrowser extends LitElement {
             }
         }
 
+        // Check if QC filters exist and add them to active filter
         let sampleQc = ClinicalAnalysisUtils.getProbandSampleQc(this.clinicalAnalysis);
         let _activeFilterFilters = [];
         if (sampleQc?.metrics?.length > 0) {
@@ -193,7 +194,17 @@ class VariantInterpreterRdBrowser extends LitElement {
                 _activeFilterFilters = variantStats.map(variantStat => ({id: variantStat.id, query: variantStat.query}))
             }
         }
-        this.activeFilterFilters = _activeFilterFilters.length > 0 ? _activeFilterFilters : this._config.filter.examples;
+        // If WC variant stats filters are found we add them to active filters, we do not replace them.
+        if (_activeFilterFilters.length > 0) {
+            // Concat QC filters to examples
+            if (this._config?.filter?.examples && this._config.filter.examples.length > 0) {
+                _activeFilterFilters.push({separator: true});
+                _activeFilterFilters.push(...this._config.filter.examples);
+            }
+            this.activeFilterFilters = _activeFilterFilters;
+        } else {
+            this.activeFilterFilters = this._config.filter.examples;
+        }
     }
 
     onSelectVariant(e) {
