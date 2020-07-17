@@ -786,7 +786,7 @@ class VariantInterpreterRdBrowser extends LitElement {
                                                             .cellbaseClient="${this.cellbaseClient}"
                                                             .variant="${this.variant}"
                                                             .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                            .consequenceTypes="${this.consequenceTypes}"
+                                                            .consequenceTypes="${consequenceTypes}"
                                                             .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
                                                             .config=${this._config.filter.detail}>
                                 </variant-interpreter-detail>
