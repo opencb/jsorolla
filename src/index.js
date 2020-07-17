@@ -18,8 +18,8 @@ export OpencgaFamilyBrowser from "./core/webcomponents/family/opencga-family-bro
 export OpencgaCohortBrowser from "./core/webcomponents/cohorts/opencga-cohort-browser.js";
 export OpencgaClinicalAnalysisBrowser from "./core/webcomponents/clinical/opencga-clinical-analysis-browser.js";
 export OpencgaGwasAnalysis from "./core/webcomponents/variant/analysis/opencga-gwas-analysis.js";
-export VariantRdInterpreter from "./core/webcomponents/variant/interpretation/variant-interpreter-rd-browser.js";
-export VariantCancerInterpreter from "./core/webcomponents/variant/interpretation/variant-interpreter-cancer-browser.js";
+export VariantRdInterpreter from "./core/webcomponents/variant/interpretation/variant-interpreter-browser-rd.js";
+export VariantCancerInterpreter from "./core/webcomponents/variant/interpretation/variant-interpreter-browser-cancer.js";
 
 export Utils from "./core/utils.js";
 export UtilsNew from "./core/utilsNew.js";

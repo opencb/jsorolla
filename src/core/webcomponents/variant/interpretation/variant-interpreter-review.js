@@ -440,13 +440,13 @@ export default class VariantInterpreterReview extends LitElement {
                 </div>
                 
                 <div class="content-tab-wrapper">
-                    <div id="${this._prefix}GeneralInfo" role="tabpanel" class="tab-pane active content-tab">
+                    <div id="${this._prefix}GeneralInfo" role="tabpanel" class="tab-pane active col-md-10 col-md-offset-1 content-tab">
                         <variant-interpreter-review-summary .opencgaSession="${this.opencgaSession}" 
                                                             .clinicalAnalysis="${this.clinicalAnalysis}"
                                                             .active="${this.activeTab["GeneralInfo"]}">
                         </variant-interpreter-review-summary>
                     </div>
-                    <div id="${this._prefix}PrimaryFindings" role="tabpanel" class="tab-pane content-tab">
+                    <div id="${this._prefix}PrimaryFindings" role="tabpanel" class="tab-pane col-md-12 content-tab">
                         <variant-interpreter-review-primary .opencgaSession="${this.opencgaSession}" 
                                                             .clinicalAnalysis="${this.clinicalAnalysis}"
                                                             .active="${this.activeTab["PrimaryFindings"]}">

@@ -17,8 +17,8 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import {classMap} from "/web_modules/lit-html/directives/class-map.js";
 import UtilsNew from "../../../utilsNew.js";
-import "./variant-interpreter-rd-browser.js";
-import "./variant-interpreter-cancer-browser.js";
+import "./variant-interpreter-browser-rd.js";
+import "./variant-interpreter-browser-cancer.js";
 
 
 class VariantInterpreterBrowser extends LitElement {
@@ -106,6 +106,16 @@ class VariantInterpreterBrowser extends LitElement {
         }
     }
 
+    onClinicalAnalysisUpdate (e) {
+        this.dispatchEvent(new CustomEvent("clinicalAnalysisUpdate", {
+            detail: {
+                clinicalAnalysis: e.detail.clinicalAnalysis
+            },
+            bubbles: true,
+            composed: true
+        }));
+    }
+
     render() {
         // Check Project exists
         if (!this.opencgaSession.project) {
@@ -138,25 +148,25 @@ class VariantInterpreterBrowser extends LitElement {
                     <div id="${this._prefix}VariantBrowser" role="tabpanel" class="tab-pane active col-md-12 content-tab" style="padding-top: 10px">
                         ${this.clinicalAnalysis.type.toUpperCase() === "SINGLE" || this.clinicalAnalysis.type.toUpperCase() === "FAMILY"
                             ? html`
-                                <variant-interpreter-rd-browser .opencgaSession="${this.opencgaSession}"
+                                <variant-interpreter-browser-rd .opencgaSession="${this.opencgaSession}"
                                                                 .clinicalAnalysis="${this.clinicalAnalysis}"
                                                                 .query="${this.query}"
                                                                 .cellbaseClient="${this.cellbaseClient}"
                                                                 @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}"
                                                                 @gene="${this.geneSelected}"
                                                                 @samplechange="${this.onSampleChange}">
-                                </variant-interpreter-rd-browser>`
+                                </variant-interpreter-browser-rd>`
                             : null
                         }
                         ${this.clinicalAnalysis.type.toUpperCase() === "CANCER" 
                             ? html`
-                                <variant-interpreter-cancer-browser .opencgaSession="${this.opencgaSession}"
+                                <variant-interpreter-browser-cancer .opencgaSession="${this.opencgaSession}"
                                                                     .clinicalAnalysis="${this.clinicalAnalysis}"
                                                                     .query="${this.query}"
                                                                     .cellbaseClient="${this.cellbaseClient}"
                                                                     @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}"
                                                                     @gene="${this.geneSelected}">
-                                </variant-interpreter-cancer-browser>` : 
+                                </variant-interpreter-browser-cancer>` : 
                             null
                         }
                     </div>

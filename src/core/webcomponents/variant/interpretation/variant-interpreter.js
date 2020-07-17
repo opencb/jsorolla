@@ -21,8 +21,8 @@ import "./variant-interpreter-landing.js";
 import "./variant-interpreter-qc.js";
 import "./variant-interpreter-browser.js";
 import "./variant-interpreter-report.js";
-import "./variant-interpreter-rd-browser.js";
-import "./variant-interpreter-cancer-browser.js";
+import "./variant-interpreter-browser-rd.js";
+import "./variant-interpreter-browser-cancer.js";
 import "./variant-interpreter-review.js";
 import "./variant-interpreter-interpretation.js";
 import "./opencga-variant-interpreter-genome-browser.js";
@@ -334,7 +334,8 @@ class VariantInterpreter extends LitElement {
                                                                 .clinicalAnalysis="${this.clinicalAnalysis}"
                                                                 .query="${this.interpretationSearchQuery}"
                                                                 .cellbaseClient="${this.cellbaseClient}"
-                                                                .config="${this._config}">
+                                                                .config="${this._config}" 
+                                                                @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
                                 </variant-interpreter-browser>
                             </div>
                             
