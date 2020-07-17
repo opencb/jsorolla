@@ -86,7 +86,7 @@ export default class OpencgaIndividualMendelianErrorsView extends LitElement {
             let sampleAggregation = mendelianErrorReport.sampleAggregation
                 .find(sampleAggregation => sampleAggregation.sample === this.individual.samples[0].id);
 
-            sampleAggregation.chromAggregation = sampleAggregation.chromAggregation.filter( ch => Boolean(parseInt(ch.chromosome)) || ["X", "Y", "MT"].includes(ch.chromosome))
+            sampleAggregation.chromAggregation = sampleAggregation.chromAggregation.filter( ch => !isNaN(ch.chromosome) || ["X", "Y", "MT"].includes(ch.chromosome))
             sampleAggregation.chromAggregation.sort( (a,b) => {
                 const chA = a.chromosome;
                 const chB = b.chromosome;

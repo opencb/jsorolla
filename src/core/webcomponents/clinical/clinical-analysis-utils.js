@@ -30,7 +30,7 @@ export default class ClinicalAnalysisUtils {
 
     static chromosomeFilterSorter(chromosomeCount) {
         let filtered = Object.assign({}, ...Object.entries(chromosomeCount).map( ([ch, val]) => {
-            if(Boolean(parseInt(ch)) || ["X", "Y", "MT"].includes(ch)) return {[ch]: val}
+            if(!isNaN(ch) || ["X", "Y", "MT"].includes(ch)) return {[ch]: val}
         }))
         let ordered = {};
         Object.keys(filtered).sort( (a,b) => {
