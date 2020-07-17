@@ -416,7 +416,8 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                             name: "Pedigree",
                             type: "custom",
                             display: {
-                                visible: data => data?.family?.members?.length > 2,
+                                //visible: data => data?.family?.members?.length > 2,
+                                visible: data => application.appConfig === "opencb", //TODO pedigree doesnt work with families with over 2 generations
                                 layout: "vertical",
                                 render: clinicalAnalysis => html`<pedigree-view .family="${clinicalAnalysis.family}"></pedigree-view>`
                             }

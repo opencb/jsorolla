@@ -486,6 +486,7 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                             name: "Pedigree",
                             type: "custom",
                             display: {
+                                visible: data => application.appConfig === "opencb", //TODO pedigree doesnt work with families with over 2 generations
                                 render: data => {
                                     if (data.family) {
                                         return html`<pedigree-view .family="${data.family}"></pedigree-view>`

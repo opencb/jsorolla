@@ -196,6 +196,7 @@ export default class OpencgaFamilyView extends LitElement {
                             type: "custom",
                             display: {
                                 layout: "vertical",
+                                visible: data => application.appConfig === "opencb", //TODO pedigree doesnt work with families with over 2 generations
                                 render: data => html`<pedigree-view .family="${this.family}"></pedigree-view>`
                             }
                         }

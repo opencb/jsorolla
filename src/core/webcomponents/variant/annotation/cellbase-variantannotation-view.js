@@ -210,10 +210,8 @@ export default class CellbaseVariantAnnotationView extends LitElement {
                 Consequence types Tab-->
                 <div role="tabpanel" class="tab-pane" id="${this._prefix}VariantAnnotationConsequenceTypes">
                 
-                    <cellbase-annotation-consequencetype-grid .data="${this.variantAnnotation.consequenceTypes}"
-                                                              .hashFragmentCredentials="${this.hashFragmentCredentials}"
-                                                              .consequenceTypes="${this.consequenceTypes}">
-                    </cellbase-annotation-consequencetype-grid>
+                    <variant-consequence-type-view .consequenceTypes="${this.variantAnnotation.consequenceTypes}" .hashFragmentCredentials="${this.hashFragmentCredentials}">
+                    </variant-consequence-type-view>
                 </div>
                 <!--Population frequency Tab-->
                 <div role="tabpanel" class="tab-pane" id="${this._prefix}VariantAnnotationPopulationFrequencies">
