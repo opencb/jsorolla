@@ -446,12 +446,12 @@ class VariantInterpreterBrowserRd extends LitElement {
                                 tooltip: "VCF file based FILTER and QUAL filters",
                                 showDepth: application.appConfig === "opencb"
                             },
-                            // {
-                            //     id: "cohort",
-                            //     title: "Cohort Alternate Stats",
-                            //     onlyCohortAll: true,
-                            //     // cohorts: this.cohorts
-                            // }
+                            {
+                                id: "cohort",
+                                title: "Cohort Alternate Stats",
+                                onlyCohortAll: true,
+                                // cohorts: this.cohorts
+                            }
                         ]
                     },
                     {
