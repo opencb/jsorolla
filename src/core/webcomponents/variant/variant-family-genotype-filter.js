@@ -88,6 +88,7 @@ export default class VariantFamilyGenotypeFilter extends LitElement {
         this.mode = "CUSTOM";
 
         // this._query = {};
+        this.errorState = false;
     }
 
     connectedCallback() {
@@ -268,9 +269,10 @@ export default class VariantFamilyGenotypeFilter extends LitElement {
             detail: {
                 sampleFilters: this.sampleFilters,
                 modeOfInheritance: this.modeOfInheritance,
-                mode: this.mode
+                mode: this.mode,
                 // compoundHeterozygous: compHet,
-                // missing: missing
+                // missing: missing,
+                errorState: this.errorState
             },
             bubbles: true,
             composed: true
@@ -279,40 +281,43 @@ export default class VariantFamilyGenotypeFilter extends LitElement {
 
     onModeOfInheritance(mode) {
         this.modeOfInheritance = mode;
-        const _this = this;
+
         this.opencgaSession.opencgaClient.variants().genotypesFamily(mode, {
             study: this.opencgaSession.study.fqn,
             family: this.clinicalAnalysis.family.id,
             disorder: this.clinicalAnalysis.disorder.id,
             completePenetrance: true
-        }).then(function(response) {
+        }).then( response => {
             const genotypeResults = response.response[0].result[0];
             if (UtilsNew.isNotUndefinedOrNull(genotypeResults)) {
                 const sampleToIndividualMap = {};
-                for (const member of _this.clinicalAnalysis.family.members) {
+                for (const member of this.clinicalAnalysis.family.members) {
                     if (UtilsNew.isNotEmptyArray(member.samples)) {
                         sampleToIndividualMap[member.samples[0].id] = member.id;
                     }
                 }
 
                 let countGenoypes = 0;
-                for (const sampleFilter of _this.sampleFilters) {
+                for (const sampleFilter of this.sampleFilters) {
                     // sampleFilter.genotypes = genotypeResults[sampleFilter.id];
                     sampleFilter.genotypes = genotypeResults[sampleToIndividualMap[sampleFilter.id]];
                     // console.log("genotypes", sampleFilter.genotypes);
                     countGenoypes += sampleFilter.genotypes.length;
                 }
-                // _this.renderSampleTable()
-                _this.sampleFilters = $.extend([], _this.sampleFilters);
-                _this.requestUpdate();
+                // this.renderSampleTable()
+                this.sampleFilters = $.extend([], this.sampleFilters);
+                this.requestUpdate();
+
 
                 if (countGenoypes > 0) {
-                    PolymerUtils.hide(_this._prefix + "Warning");
+                    PolymerUtils.hide(this._prefix + "Warning");
+                    this.errorState = false;
                 } else {
-                    PolymerUtils.show(_this._prefix + "Warning");
+                    PolymerUtils.show(this._prefix + "Warning");
+                    this.errorState = true;
                 }
 
-                _this.notifySampleFilterChange();
+                this.notifySampleFilterChange();
             }
         }).catch(function(response) {
             console.error(response);
@@ -358,6 +363,7 @@ export default class VariantFamilyGenotypeFilter extends LitElement {
 
     setMode(e) {
         this.mode = e.detail.value.toUpperCase();
+        this.errorState = false;
 
         if (this.mode === "CUSTOM") {
             for (const sample of this.sampleFilters) {
@@ -588,8 +594,8 @@ export default class VariantFamilyGenotypeFilter extends LitElement {
                                 
                 ${this.showModeOfInheritance ? html`
                     <div class="col-md-12" style="padding: 10px 20px">
-                        <div class="alert alert-warning" role="alert" id="${this._prefix}Warning" style="display: none;padding: 10px">
-                            <span style="font-weight: bold;font-size: 1.20em">Warning:</span>&nbsp;The selected Mode of Inheritance is not compatible with the family pedigree .
+                        <div class="alert alert-danger" role="alert" id="${this._prefix}Warning" style="display: none">
+                            <i class="fas fa-3x fa fa-exclamation-triangle align-middle"></i> The selected Mode of Inheritance is not compatible with the family pedigree.
                         </div>
                     </div>    
                 ` : null}

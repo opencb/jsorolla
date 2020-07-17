@@ -54,6 +54,7 @@ export default class SampleFilter extends LitElement {
     _init() {
         this._prefix = "sgf-" + UtilsNew.randomString(6) + "_";
         // this._query = {}; //this refer and it is used just for the 3 fields of sample-filter (sample, genotype, format)
+        this.errorState = false;
     }
 
     connectedCallback() {
@@ -136,7 +137,14 @@ export default class SampleFilter extends LitElement {
         this.query = {...this.query, ..._query};
         //this.updateClinicalQueryTable();
         //this.requestUpdate();
-        this.sampleFilterChange(_query);
+        //this.sampleFilterChange(_query);
+
+        this.errorState = e.detail.errorState;
+        this.requestUpdate();
+    }
+
+    confirm() {
+        this.sampleFilterChange(this.query);
     }
 
     sampleFilterChange(_query) {
@@ -269,7 +277,7 @@ export default class SampleFilter extends LitElement {
                             </variant-family-genotype-filter>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+                            <button type="button" class="btn btn-primary ripple" data-dismiss="modal" .disabled=${this.errorState} @click="${this.confirm}">OK</button>
                         </div>
                     </div>
                 </div>
