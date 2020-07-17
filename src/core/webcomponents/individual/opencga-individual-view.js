@@ -223,8 +223,12 @@ export default class OpencgaIndividualView extends LitElement {
                                         name: "Somatic", field: "somatic", defaultValue: "false"
                                     },
                                     {
-                                        name: "Phenotypes", field: "phenotypes", defaultValue: "-", display: {
-                                            render: data => html`${data.map(d => d.id).join(", ")}`
+                                        name: "Phenotypes",
+                                        field: "phenotypes",
+                                        type: "custom",
+                                        defaultValue: "-",
+                                        display: {
+                                            render: data => data?.length ? html`${data.map(d => d.id).join(", ")}` : "-"
                                         }
                                     }
                                 ],

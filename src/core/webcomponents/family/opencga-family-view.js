@@ -180,13 +180,20 @@ export default class OpencgaFamilyView extends LitElement {
                                         name: "Mother ID", field: "mother.id", defaultValue: "-"
                                     },
                                     {
-                                        name: "Disorders", field: "disorders", display: {
-                                            render: data => html`${data.map(d => d.id).join(", ")}`
+                                        name: "Disorders",
+                                        field: "disorders",
+                                        type: "custom",
+                                        display: {
+                                            render: data => data?.length ? html`${data.map(d => d.id).join(", ")}` : "-"
                                         }
                                     },
                                     {
-                                        name: "Phenotypes", field: "phenotypes", display: {
-                                            render: data => html`${data.map(d => d.id).join(", ")}`
+                                        name: "Phenotypes",
+                                        field: "phenotypes",
+                                        type: "custom",
+                                        defaultValue: "-",
+                                        display: {
+                                            render: data => data?.length ? html`${data.map(d => d.id).join(", ")}` : "-"
                                         }
                                     },
                                     {
