@@ -310,10 +310,8 @@ export default class VariantFamilyGenotypeFilter extends LitElement {
 
 
                 if (countGenoypes > 0) {
-                    PolymerUtils.hide(this._prefix + "Warning");
                     this.errorState = false;
                 } else {
-                    PolymerUtils.show(this._prefix + "Warning");
                     this.errorState = true;
                 }
 
@@ -592,9 +590,9 @@ export default class VariantFamilyGenotypeFilter extends LitElement {
 <!--                    <div id="${this._prefix}BasicTableMessage" style="text-align: center"><span style="font-weight: bold">No Samples selected</span></div>-->
                 </div>
                                 
-                ${this.showModeOfInheritance ? html`
+                ${this.showModeOfInheritance && this.errorState? html`
                     <div class="col-md-12" style="padding: 10px 20px">
-                        <div class="alert alert-danger" role="alert" id="${this._prefix}Warning" style="display: none">
+                        <div class="alert alert-danger" role="alert" id="${this._prefix}Warning">
                             <i class="fas fa-3x fa fa-exclamation-triangle align-middle"></i> The selected Mode of Inheritance is not compatible with the family pedigree.
                         </div>
                     </div>    
