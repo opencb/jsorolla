@@ -375,7 +375,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                 id: "disorder"
                             },
                             {
-                                id: "ttype"
+                                id: "type"
                             },
                             {
                                 id: "status"
@@ -568,8 +568,8 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                             <option value="SINGLE">Single</option>
                                             <option value="FAMILY">Family</option>
                                             <option value="CANCER">Cancer</option>
-                                            <option value="COHORT">Cohort</option>
-                                            <option value="AUTOCOMPARATIVE">Autocomparative</option>
+<!--                                            <option value="COHORT">Cohort</option>-->
+<!--                                            <option value="AUTOCOMPARATIVE">Autocomparative</option>-->
                                         </select>
                                     </div>
                                     ` : null}
