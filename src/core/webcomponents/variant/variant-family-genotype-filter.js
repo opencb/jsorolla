@@ -57,13 +57,23 @@ export default class VariantFamilyGenotypeFilter extends LitElement {
         this.sampleFilters = [];
 
         this.modeOfInheritance = "none";
-        this.modeOfInheritanceList = [
-            {id: "AUTOSOMAL_DOMINANT", name: "Autosomal Dominant"},
-            {id: "AUTOSOMAL_RECESSIVE", name: "Autosomal Recessive"},
-            {id: "X_LINKED_DOMINANT", name: "X-linked Dominant"},
-            {id: "X_LINKED_RECESSIVE", name: "X-linked Recessive"},
-            {id: "Y_LINKED", name: "Y-linked"}
-        ];
+
+        if (application.appConfig === "opencb") {
+            this.modeOfInheritanceList = [
+                {id: "AUTOSOMAL_DOMINANT", name: "Autosomal Dominant"},
+                {id: "AUTOSOMAL_RECESSIVE", name: "Autosomal Recessive"},
+                {id: "X_LINKED_DOMINANT", name: "X-linked Dominant"},
+                {id: "X_LINKED_RECESSIVE", name: "X-linked Recessive"},
+                {id: "Y_LINKED", name: "Y-linked"}
+            ];
+        } else {
+            this.modeOfInheritanceList = [
+                {id: "AUTOSOMAL_DOMINANT", name: "Autosomal Dominant"},
+                {id: "AUTOSOMAL_RECESSIVE", name: "Autosomal Recessive"},
+                {id: "Y_LINKED", name: "Y-linked"}
+            ];
+        }
+
         this.modeSelectData = [
             {id: "CUSTOM", name: "Custom", selected: true},
             {separator: true},
