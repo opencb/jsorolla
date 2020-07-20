@@ -272,6 +272,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                                 id: "cohort",
                                 title: "Cohort Alternate Stats",
                                 onlyCohortAll: true,
+                                tooltip: tooltips.cohort,
                                 cohorts: this.cohorts
                             }
                         ]
@@ -322,7 +323,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                                 id: "consequenceTypeSelect",
                                 title: "Select SO terms",
                                 tooltip: tooltips.consequenceTypeSelect
-                            },
+                            }
                         ]
                     },
                     // {

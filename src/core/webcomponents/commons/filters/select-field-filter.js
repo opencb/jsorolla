@@ -95,7 +95,7 @@ export default class SelectFieldFilter extends LitElement {
             this.selectPicker.selectpicker("val", val);
 
             //console.log("value changes")
-            //this.filterChange(); //TODO this would solve the "Recent created Analysis" bug in variant-interpreter-landing page, but would implies double fire of filterChange every time
+            //this.filterChange();
 
             //this.requestUpdate()
             //$(".selectpicker", this).selectpicker("refresh");

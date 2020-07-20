@@ -450,6 +450,7 @@ class VariantInterpreterBrowserRd extends LitElement {
                                 id: "cohort",
                                 title: "Cohort Alternate Stats",
                                 onlyCohortAll: true,
+                                tooltip: tooltips.cohort,
                                 // cohorts: this.cohorts
                             }
                         ]
@@ -492,10 +493,10 @@ class VariantInterpreterBrowserRd extends LitElement {
                         collapsed: true,
                         fields: [
                             {
-                                id: "consequenceType",
+                                id: "consequenceTypeSelect",
                                 title: "Select SO terms",
-                                tooltip: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined"
-                            },
+                                tooltip: tooltips.consequenceTypeSelect
+                            }
                             // {
                             //     id: "consequenceTypeSelect",
                             //     title: "Select SO terms",

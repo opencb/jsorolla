@@ -55,6 +55,7 @@ export default class SampleFilter extends LitElement {
         this._prefix = "sgf-" + UtilsNew.randomString(6) + "_";
         // this._query = {}; //this refer and it is used just for the 3 fields of sample-filter (sample, genotype, format)
         this.errorState = false;
+        this.predefinedFilter = false;
     }
 
     connectedCallback() {
@@ -135,6 +136,13 @@ export default class SampleFilter extends LitElement {
         }
 
         this.query = {...this.query, ..._query};
+
+        // since OK button now works as confirm button (it was used just to close the modal before) we fire the event `sampleFilterChange` automatically, just the first time.
+        if (!this.predefinedFilter) {
+            this.predefinedFilter = this.query;
+            this.sampleFilterChange(this.query);
+        }
+
         //this.updateClinicalQueryTable();
         //this.requestUpdate();
         //this.sampleFilterChange(_query);
