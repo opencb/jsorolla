@@ -52,17 +52,12 @@ export default class ConsequenceTypeSelectFilter extends LitElement {
     connectedCallback() {
         super.connectedCallback();
         this._config = {...this.getDefaultConfig(), ...this.config};
-        this.options = this._config.categories.map(item => (
+        this.options = this._config.categories.map( item => (
             item.title ? {
                 id: item.title.toUpperCase(),
-                fields: item.terms.map(term => ({id: term.name, name: `${term.name} ${term.id}`}))
-            } : {id: item.name, name: `${item.name} ${item.id}`}
-        ));
-
-    }
-
-    firstUpdated(_changedProperties) {
-
+                fields:  item.terms.map( term => ({id: term.name, name: `${term.name} ${term.id}`}))
+            } : {id: item.id, name: `${item.name} ${item.id}`}
+        ))
     }
 
     updated(_changedProperties) {
@@ -78,11 +73,12 @@ export default class ConsequenceTypeSelectFilter extends LitElement {
                 this.LofEnabled = false;
                 // uncheck checkbox
             }
+            this.requestUpdate();
         }
     }
 
     filterChange(e) {
-        e?.stopPropagation?.();
+        //e?.stopPropagation?.();
         //console.log("filterChange", e.detail.value);
         const event = new CustomEvent("filterChange", {
             detail: {
@@ -385,17 +381,7 @@ export default class ConsequenceTypeSelectFilter extends LitElement {
     render() {
         return html`
             <select-field-filter multiple liveSearch=${"true"} .data="${this.options}" .value=${this._ct} @filterChange="${this.filterChange}"></select-field-filter>            
-            <!--<select id="${this._prefix}-ct" @change="${this.filterChange}" multiple live-search="true">
-            ${this._config.categories.map(item =>
-                item.title ? html`
-                    <optgroup label="${item.title}">
-                        ${item.terms.map( f => html`<option>${f.id}</option>`) }
-                    </optgroup>
-                ` : html`<option>${item.id}</option>`
-            )}
-            </select> -->
-
-
+            
             <div class="form-group">
                 <!-- TODO magic-checkbox doesnt work in variant-interpreter-browser-rd (but it works in Variant browser). CSS debug-->
                 <input class="" type="checkbox" name="layout" id="lof" value="lof" @click="${this.toggleLof}" .checked="${this.LofEnabled}" >
