@@ -70,7 +70,7 @@ export default class PedigreeView extends LitElement {
             return;
         }
 
-        if (UtilsNew.isNotUndefined(this.svg) && document.getElementById(this.pedigreeId).hasChildNodes()) {
+        if (UtilsNew.isNotUndefined(this.svg) && document.getElementById(this.pedigreeId)?.hasChildNodes()) {
             document.getElementById(this.pedigreeId).removeChild(this.svg);
         }
 
@@ -79,7 +79,7 @@ export default class PedigreeView extends LitElement {
         const membersNew =[];
 
         if (family.members && family.members.length > 0) {
-            family.members.forEach(member => {
+            /*family.members.forEach(member => {
                 const newMember = Object.assign({}, member);
                 if (UtilsNew.isNotUndefinedOrNull(newMember.father)) {
                     const newFather = family.members.find(member => {
@@ -104,7 +104,7 @@ export default class PedigreeView extends LitElement {
                 }
                 membersNew.push(newMember);
             });
-            family.members = membersNew;
+            family.members = membersNew;*/
 
             // Render new Pedigree
             const querySelector = this.querySelector("#" + this.pedigreeId);

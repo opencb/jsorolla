@@ -3,101 +3,2098 @@
 <head>
     <meta charset="UTF-8">
     <title>Pedigree Test</title>
-
     <link rel="stylesheet" href="../../../../node_modules/qtip2/dist/jquery.qtip.min.css">
-
     <script type="text/javascript" src="../../../../node_modules/jquery/dist/jquery.min.js"></script>
     <script type="text/javascript" src="../../../../node_modules/qtip2/dist/jquery.qtip.min.js"></script>
-
-    <script type="text/javascript" src="../../svg.js"></script>
-    <script type="text/javascript" src="../pedigree.js"></script>
-
 </head>
 
-<body onload="render()">
-<script>
+<body>
 
-    let familyTest = {
-        id: 23,
-        name: "Martinez Pujalte",
-        description: "",
-        release: 1,
-        version: 2,
-        diseases: [
-            {
-                id: "HP:001233",
-                name: "Aaaa",
-                source: "HPO"
-            },
-            {
-                id: "OMIM:056789",
-                name: "Cccc",
-                source: "OMIM"
-            },
-            {
-                id: "ddddd",
-                name: "Ddddd",
-                source: ""
-            }
-        ],
-        members: [
-            {
-                name: "luis",
-                sex: "male",
-                father: "pepe",
-                mother: "mari",
-                diseases: ["OMIM:056789", "HP:001233"],
-                carrier: ["OMIM:056789"],
-                parentalConsaguinity: true,
-                multiples: {"type": "mellizo", "siblings": ["pepe"]}
-            },
-            {
-                name: "laura",
-                sex: "female",
-                father: "pepe",
-                mother: "mari",
-                diseases: [],
-                carrier: [{id: "OMIM:056789"}],
-                parentalConsaguinity: true,
-                multiples: {"type": "mellizo", "siblings": ["pepe"]}
-            },
-            {
-                name: "pepe",
-                sex: "male",
-                lifeStatus: "deceased",
-                father: undefined,
-                mother: undefined,
-                diseases: ["HP:001233"],
-                carrier: ["OMIM:056789"],
-                parentalConsaguinity: false,
-                multiples: {"type": "mellizo", "siblings": ["luis"]}
-            },
-            {
-                name: "mari",
-                sex: "female",
-                father:  undefined,
-                mother:  undefined,
-                diseases: ["ddddd"],
-                carrier: ["OMIM:056789"],
-                parentalConsaguinity: false,
-                multiples: {"type": "mellizo", "siblings": ["luis"]}
-            }
-        ],
-        annotation: [],
-        creationDate: "",
-        attributes: {}
-    };
-
-    function render() {
-        let pedigree = new Pedigree(familyTest, {selectShowSampleNames: true});
-        let svg = pedigree.pedigreeFromFamily(pedigree.pedigree);
-        document.getElementById("simpleFamilyTestDiv").appendChild(svg);
-    }
-</script>
 
 <h2>Simple family</h2>
 <div id="simpleFamilyTestDiv" style=""></div>
+<script type="module">
 
+    import Pedigree from "../pedigree.js";
+
+    let familyTest = {
+        "id": "101761",
+        "name": "101761",
+        "uuid": "b95d96e8-0168-0007-0001-593ccddc01b8",
+        "members": [{
+            "id": "112000494",
+            "annotationSets": [],
+            "name": "112000494",
+            "uuid": "7c539ce8-0168-0006-0001-b72a46e84142",
+            "father": {"id": "595652867695", "release": 0, "version": 1, "parentalConsanguinity": false},
+            "mother": {"id": "553040200211", "release": 0, "version": 1, "parentalConsanguinity": false},
+            "location": {},
+            "sex": "MALE",
+            "karyotypicSex": "UNKNOWN",
+            "ethnicity": "J",
+            "population": {"name": "", "subpopulation": "", "description": ""},
+            "dateOfBirth": "19650101",
+            "release": 1,
+            "version": 1,
+            "creationDate": "20190123200801",
+            "modificationDate": "20190204163546",
+            "lifeStatus": "ALIVE",
+            "phenotypes": [],
+            "samples": [{
+                "id": "LP3000011-DNA_D11",
+                "uuid": "7c539ce8-0168-0004-0001-c83f98dfa6b4",
+                "processing": {"product": "DNA", "preparationMethod": "EDTA", "labSampleId": "1018174323"},
+                "qualityControl": {
+                    "fileIds": [], "comments": [], "metrics": [{
+                        "variantStats": [{
+                            "id": "ALL", "description": "Stats calculated for all variants", "query": {}, "stats": {
+                                "id": "LP3000011-DNA_D11",
+                                "variantCount": 6201215,
+                                "chromosomeCount": {
+                                    "1": 484404,
+                                    "2": 489185,
+                                    "3": 407056,
+                                    "4": 426851,
+                                    "5": 355444,
+                                    "6": 387655,
+                                    "7": 353962,
+                                    "8": 306641,
+                                    "9": 262917,
+                                    "10": 293496,
+                                    "11": 296367,
+                                    "12": 289028,
+                                    "13": 220383,
+                                    "14": 195625,
+                                    "15": 180179,
+                                    "16": 203068,
+                                    "17": 186727,
+                                    "18": 167006,
+                                    "19": 165429,
+                                    "20": 143525,
+                                    "21": 103662,
+                                    "22": 89201,
+                                    "X": 166231,
+                                    "Y": 27136,
+                                    "MT": 37
+                                },
+                                "typeCount": {"INSERTION": 2350, "SNV": 5025536, "DELETION": 44629, "INDEL": 1128700},
+                                "genotypeCount": {"0/1": 4134513, "1/1": 1831458, "./1": 235244},
+                                "indelLengthCount": {
+                                    "lt5": 910963,
+                                    "lt10": 132014,
+                                    "lt15": 41461,
+                                    "lt20": 17247,
+                                    "gte20": 73994
+                                },
+                                "filterCount": {
+                                    "SC": 403178,
+                                    "QD": 445554,
+                                    "MQ": 167802,
+                                    "PASS": 4215799,
+                                    "strandBias": 194329,
+                                    "alleleBias": 917502,
+                                    "HapScore": 510172,
+                                    "Q20": 54267,
+                                    "badReads": 1114626
+                                },
+                                "tiTvRatio": 1.5338151,
+                                "qualityAvg": 1711.6913,
+                                "qualityStdDev": 1065.3124,
+                                "heterozygosityRate": 0.6667263,
+                                "mendelianErrorCount": {},
+                                "consequenceTypeCount": {
+                                    "start_retained_variant": 1,
+                                    "intergenic_variant": 2350333,
+                                    "frameshift_variant": 676,
+                                    "3_prime_UTR_variant": 60152,
+                                    "2KB_downstream_variant": 460952,
+                                    "splice_acceptor_variant": 638,
+                                    "intron_variant": 3130098,
+                                    "splice_region_variant": 7695,
+                                    "upstream_gene_variant": 626589,
+                                    "5_prime_UTR_variant": 19465,
+                                    "stop_gained": 295,
+                                    "non_coding_transcript_exon_variant": 110296,
+                                    "non_coding_transcript_variant": 1800961,
+                                    "2KB_upstream_variant": 448902,
+                                    "start_lost": 248,
+                                    "transcript_ablation": 47,
+                                    "splice_donor_variant": 679,
+                                    "NMD_transcript_variant": 663116,
+                                    "synonymous_variant": 15445,
+                                    "missense_variant": 17581,
+                                    "mature_miRNA_variant": 88,
+                                    "stop_lost": 223,
+                                    "feature_truncation": 26257,
+                                    "regulatory_region_variant": 3455189,
+                                    "downstream_gene_variant": 653106,
+                                    "stop_retained_variant": 25,
+                                    "TF_binding_site_variant": 384062,
+                                    "coding_sequence_variant": 608,
+                                    "inframe_deletion": 584,
+                                    "inframe_insertion": 258,
+                                    "incomplete_terminal_codon_variant": 8
+                                },
+                                "biotypeCount": {
+                                    "IG_V_pseudogene": 6616,
+                                    "TR_J_pseudogene": 111,
+                                    "nonsense_mediated_decay": 790359,
+                                    "IG_V_gene": 6019,
+                                    "snRNA": 45855,
+                                    "TR_V_gene": 4218,
+                                    "unitary_pseudogene": 10514,
+                                    "non_stop_decay": 4407,
+                                    "processed_pseudogene": 244701,
+                                    "miRNA": 72807,
+                                    "misc_RNA": 47320,
+                                    "sense_overlapping": 19033,
+                                    "lincRNA": 567021,
+                                    "IG_C_pseudogene": 331,
+                                    "IG_J_pseudogene": 30,
+                                    "rRNA": 13944,
+                                    "protein_coding": 2796699,
+                                    "TR_D_gene": 36,
+                                    "TR_V_pseudogene": 769,
+                                    "Mt_rRNA": 18,
+                                    "IG_D_gene": 149,
+                                    "retained_intron": 686180,
+                                    "Mt_tRNA": 37,
+                                    "3prime_overlapping_ncrna": 756,
+                                    "snoRNA": 27944,
+                                    "transcribed_processed_pseudogene": 11621,
+                                    "IG_J_gene": 162,
+                                    "transcribed_unprocessed_pseudogene": 45667,
+                                    "pseudogene": 9744,
+                                    "IG_C_gene": 1173,
+                                    "sense_intronic": 24187,
+                                    "TR_C_gene": 323,
+                                    "unprocessed_pseudogene": 89757,
+                                    "translated_processed_pseudogene": 40,
+                                    "TR_J_gene": 536,
+                                    "polymorphic_pseudogene": 4787,
+                                    "antisense": 348703,
+                                    "processed_transcript": 1173658
+                                },
+                                "clinicalSignificanceCount": {
+                                    "benign": 27,
+                                    "uncertain_significance": 8,
+                                    "likely_benign": 9
+                                }
+                            }
+                        }], "geneCoverageStats": [], "signatures": [], "fileIds": [], "comments": []
+                    }]
+                },
+                "release": 1,
+                "version": 1,
+                "creationDate": "20190123200801",
+                "modificationDate": "20200713134709",
+                "description": "Sample created by intake pipeline",
+                "somatic": false,
+                "phenotypes": [],
+                "individualId": "112000494",
+                "fileIds": ["analysis:rare_disease:112000492:1498819614:LP3000014-DNA_F12:Variations:LP3000014-DNA_F12.duprem.atomic.left.split.vcf.gz:LP3000014-DNA_F12.duprem.atomic.left.split.vcf.gz", "by_name:LP3000011-DNA_D11:HX00664152:Assembly:LP3000011-DNA_D11.bam:LP3000011-DNA_D11.bam", "by_name:LP3000011-DNA_D11:HX00664152:Assembly:LP3000011-DNA_D11.bam.bai:LP3000011-DNA_D11.bam.bai", "analysis:singlesample:LP3000011-DNA_D11:HX00664152:coverage_bigwig:24375:1:output:coverage.bw:coverage.bw", "analysis:singlesample:LP3000011-DNA_D11:HX00664152:coverage_bigwig:51654:1:output:coverage.bw:coverage.bw", "analysis:rare_disease:112000492:1498819614:LP3000014-DNA_F12:Variations:LP3000014-DNA_F12.duprem.atomic.left.split.norm2.research.vcf.gz"],
+                "status": {"name": "", "description": "", "date": ""},
+                "internal": {"status": {"name": "READY", "date": "20190123200801", "description": ""}},
+                "attributes": {
+                    "processes": [{
+                        "processDate": "20170609175855",
+                        "version": "1.4.2",
+                        "runId": 24375,
+                        "workflow": "default_1-4-1",
+                        "name": "Bertha"
+                    }, {
+                        "processDate": "20170724101627",
+                        "version": "1.7.0",
+                        "runId": 33142,
+                        "name": "Bertha",
+                        "workflow": "default-rd_1-6-0"
+                    }, {
+                        "processDate": "20170929113657",
+                        "version": "1.9.1",
+                        "runId": 51654,
+                        "workflow": "default-rd_1-6-0",
+                        "name": "Bertha"
+                    }]
+                }
+            }],
+            "parentalConsanguinity": false,
+            "status": {"name": "", "description": "", "date": ""},
+            "internal": {"status": {"name": "READY", "date": "20190123200801", "description": ""}},
+            "attributes": {"familyId": "101761"}
+        }, {
+            "id": "112000493",
+            "annotationSets": [],
+            "name": "112000493",
+            "uuid": "7c53a0d0-0168-0006-0001-04e683bcfb00",
+            "father": {"id": "431578292159", "release": 0, "version": 1, "parentalConsanguinity": false},
+            "mother": {"id": "450011364336", "release": 0, "version": 1, "parentalConsanguinity": false},
+            "location": {},
+            "sex": "FEMALE",
+            "karyotypicSex": "UNKNOWN",
+            "ethnicity": "J",
+            "population": {"name": "", "subpopulation": "", "description": ""},
+            "dateOfBirth": "19740101",
+            "release": 1,
+            "version": 1,
+            "creationDate": "20190123200802",
+            "modificationDate": "20190204163546",
+            "lifeStatus": "ALIVE",
+            "phenotypes": [],
+            "samples": [{
+                "id": "LP3000012-DNA_B10",
+                "uuid": "7c539ce8-0168-0004-0001-9d5caf3fd210",
+                "processing": {"product": "DNA", "preparationMethod": "EDTA", "labSampleId": "1018175432"},
+                "qualityControl": {
+                    "fileIds": [], "comments": [], "metrics": [{
+                        "variantStats": [{
+                            "id": "ALL", "description": "Stats calculated for all variants", "query": {}, "stats": {
+                                "id": "LP3000012-DNA_B10",
+                                "variantCount": 5994925,
+                                "chromosomeCount": {
+                                    "1": 477776,
+                                    "2": 468918,
+                                    "3": 400383,
+                                    "4": 414018,
+                                    "5": 331916,
+                                    "6": 360090,
+                                    "7": 336393,
+                                    "8": 303185,
+                                    "9": 250362,
+                                    "10": 292807,
+                                    "11": 291520,
+                                    "12": 275948,
+                                    "13": 218858,
+                                    "14": 190442,
+                                    "15": 169570,
+                                    "16": 174775,
+                                    "17": 179202,
+                                    "18": 166376,
+                                    "19": 146532,
+                                    "20": 131012,
+                                    "21": 106542,
+                                    "22": 79556,
+                                    "X": 206034,
+                                    "Y": 22671,
+                                    "MT": 39
+                                },
+                                "typeCount": {"INSERTION": 2332, "SNV": 4867442, "DELETION": 28286, "INDEL": 1096865},
+                                "genotypeCount": {"0/1": 3811102, "1/1": 1962791, "./1": 221032},
+                                "indelLengthCount": {
+                                    "lt5": 885604,
+                                    "lt10": 128097,
+                                    "lt15": 40108,
+                                    "lt20": 16643,
+                                    "gte20": 57031
+                                },
+                                "filterCount": {
+                                    "SC": 395047,
+                                    "QD": 438915,
+                                    "MQ": 166045,
+                                    "PASS": 4061922,
+                                    "strandBias": 193985,
+                                    "alleleBias": 885548,
+                                    "HapScore": 510015,
+                                    "Q20": 52014,
+                                    "badReads": 1099861
+                                },
+                                "tiTvRatio": 1.5173733,
+                                "qualityAvg": 1759.6829,
+                                "qualityStdDev": 1056.958,
+                                "heterozygosityRate": 0.6357214,
+                                "mendelianErrorCount": {},
+                                "consequenceTypeCount": {
+                                    "start_retained_variant": 1,
+                                    "intergenic_variant": 2282575,
+                                    "frameshift_variant": 633,
+                                    "3_prime_UTR_variant": 57877,
+                                    "2KB_downstream_variant": 442350,
+                                    "splice_acceptor_variant": 624,
+                                    "intron_variant": 3017354,
+                                    "splice_region_variant": 7457,
+                                    "upstream_gene_variant": 601988,
+                                    "5_prime_UTR_variant": 18600,
+                                    "stop_gained": 268,
+                                    "non_coding_transcript_exon_variant": 105878,
+                                    "non_coding_transcript_variant": 1732643,
+                                    "2KB_upstream_variant": 431107,
+                                    "start_lost": 165,
+                                    "transcript_ablation": 28,
+                                    "NMD_transcript_variant": 637159,
+                                    "splice_donor_variant": 658,
+                                    "synonymous_variant": 14697,
+                                    "missense_variant": 16797,
+                                    "mature_miRNA_variant": 76,
+                                    "stop_lost": 162,
+                                    "feature_truncation": 16788,
+                                    "regulatory_region_variant": 3320495,
+                                    "downstream_gene_variant": 627658,
+                                    "stop_retained_variant": 24,
+                                    "TF_binding_site_variant": 368672,
+                                    "coding_sequence_variant": 330,
+                                    "inframe_deletion": 417,
+                                    "inframe_insertion": 251,
+                                    "incomplete_terminal_codon_variant": 13
+                                },
+                                "biotypeCount": {
+                                    "IG_V_pseudogene": 4689,
+                                    "TR_J_pseudogene": 112,
+                                    "nonsense_mediated_decay": 758658,
+                                    "IG_V_gene": 4076,
+                                    "snRNA": 44120,
+                                    "TR_V_gene": 4470,
+                                    "unitary_pseudogene": 9965,
+                                    "non_stop_decay": 4224,
+                                    "processed_pseudogene": 237387,
+                                    "sense_overlapping": 17340,
+                                    "misc_RNA": 45690,
+                                    "miRNA": 70016,
+                                    "lincRNA": 544139,
+                                    "IG_C_pseudogene": 306,
+                                    "IG_J_pseudogene": 37,
+                                    "rRNA": 14161,
+                                    "protein_coding": 2699059,
+                                    "TR_V_pseudogene": 825,
+                                    "TR_D_gene": 40,
+                                    "Mt_rRNA": 18,
+                                    "IG_D_gene": 201,
+                                    "retained_intron": 658439,
+                                    "Mt_tRNA": 39,
+                                    "3prime_overlapping_ncrna": 617,
+                                    "snoRNA": 26954,
+                                    "transcribed_processed_pseudogene": 10954,
+                                    "IG_J_gene": 171,
+                                    "pseudogene": 9024,
+                                    "transcribed_unprocessed_pseudogene": 42165,
+                                    "IG_C_gene": 1041,
+                                    "sense_intronic": 22715,
+                                    "TR_C_gene": 486,
+                                    "unprocessed_pseudogene": 86121,
+                                    "translated_processed_pseudogene": 39,
+                                    "TR_J_gene": 568,
+                                    "polymorphic_pseudogene": 5612,
+                                    "antisense": 331774,
+                                    "processed_transcript": 1133579
+                                },
+                                "clinicalSignificanceCount": {
+                                    "benign": 11,
+                                    "uncertain_significance": 2,
+                                    "likely_benign": 7
+                                }
+                            }
+                        }], "geneCoverageStats": [], "signatures": [], "fileIds": [], "comments": []
+                    }]
+                },
+                "release": 1,
+                "version": 1,
+                "creationDate": "20190123200801",
+                "modificationDate": "20200713133056",
+                "description": "Sample created by intake pipeline",
+                "somatic": false,
+                "phenotypes": [],
+                "individualId": "112000493",
+                "fileIds": ["analysis:rare_disease:112000492:1498819614:LP3000014-DNA_F12:Variations:LP3000014-DNA_F12.duprem.atomic.left.split.vcf.gz:LP3000014-DNA_F12.duprem.atomic.left.split.vcf.gz", "by_name:LP3000012-DNA_B10:HX00713308:Assembly:LP3000012-DNA_B10.bam:LP3000012-DNA_B10.bam", "by_name:LP3000012-DNA_B10:HX00713308:Assembly:LP3000012-DNA_B10.bam.bai:LP3000012-DNA_B10.bam.bai", "analysis:singlesample:LP3000012-DNA_B10:HX00713308:coverage_bigwig:24374:1:output:coverage.bw:coverage.bw", "analysis:singlesample:LP3000012-DNA_B10:HX00713308:coverage_bigwig:51678:1:output:coverage.bw:coverage.bw", "analysis:rare_disease:112000492:1498819614:LP3000014-DNA_F12:Variations:LP3000014-DNA_F12.duprem.atomic.left.split.norm2.research.vcf.gz"],
+                "status": {"name": "", "description": "", "date": ""},
+                "internal": {"status": {"name": "READY", "date": "20190123200801", "description": ""}},
+                "attributes": {
+                    "processes": [{
+                        "processDate": "20170609175851",
+                        "version": "1.4.2",
+                        "runId": 24374,
+                        "workflow": "default_1-4-1",
+                        "name": "Bertha"
+                    }, {
+                        "processDate": "20170724103848",
+                        "version": "1.7.0",
+                        "runId": 33499,
+                        "name": "Bertha",
+                        "workflow": "default-rd_1-6-0"
+                    }, {
+                        "processDate": "20170929115948",
+                        "version": "1.9.1",
+                        "runId": 51678,
+                        "workflow": "default-rd_1-6-0",
+                        "name": "Bertha"
+                    }]
+                }
+            }],
+            "parentalConsanguinity": false,
+            "status": {"name": "", "description": "", "date": ""},
+            "internal": {"status": {"name": "READY", "date": "20190123200802", "description": ""}},
+            "attributes": {"familyId": "101761"}
+        }, {
+            "id": "112000492",
+            "annotationSets": [],
+            "name": "112000492",
+            "uuid": "7c53a0d0-0168-0006-0001-9ae082b5db88",
+            "father": {"id": "112000494", "release": 0, "version": 1, "parentalConsanguinity": false},
+            "mother": {"id": "112000493", "release": 0, "version": 1, "parentalConsanguinity": false},
+            "location": {},
+            "sex": "MALE",
+            "karyotypicSex": "UNKNOWN",
+            "ethnicity": "",
+            "population": {"name": "", "subpopulation": "", "description": ""},
+            "dateOfBirth": "20020101",
+            "release": 1,
+            "version": 1,
+            "creationDate": "20190123200802",
+            "modificationDate": "20200713081819",
+            "lifeStatus": "ALIVE",
+            "phenotypes": [
+                {
+                "id": "HP:0002072",
+                "name": "Chorea",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0001629",
+                "name": "Ventricular septal defect",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0001251",
+                "name": "Ataxia",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0001363",
+                "name": "Craniosynostosis",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0001562",
+                "name": "Oligohydramnios",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0009816",
+                "name": "Lower limb undergrowth",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0004467",
+                "name": "Preauricular pit",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0000951",
+                "name": "Abnormality of the skin",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0001010",
+                "name": "Hypopigmentation of the skin",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0002088",
+                "name": "Abnormal lung morphology",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0001396",
+                "name": "Cholestasis",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0006893",
+                "name": "HP:0006893",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "OBSERVED"
+            }, {
+                "id": "HP:0000478",
+                "name": "Abnormality of the eye",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0000085",
+                "name": "Horseshoe kidney",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0000593",
+                "name": "Abnormal anterior chamber morphology",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0000587",
+                "name": "Abnormality of the optic nerve",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0000776",
+                "name": "Congenital diaphragmatic hernia",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0000481",
+                "name": "Abnormal cornea morphology",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0000407",
+                "name": "Sensorineural hearing impairment",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0009800",
+                "name": "Maternal diabetes",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0001543",
+                "name": "Gastroschisis",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0000518",
+                "name": "Cataract",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0001249",
+                "name": "Intellectual disability",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "OBSERVED"
+            }, {
+                "id": "HP:0007018",
+                "name": "Attention deficit hyperactivity disorder",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0000750",
+                "name": "Delayed speech and language development",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "OBSERVED"
+            }, {
+                "id": "HP:0010880",
+                "name": "Increased nuchal translucency",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0001561",
+                "name": "Polyhydramnios",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0001636",
+                "name": "Tetralogy of Fallot",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0012385",
+                "name": "Camptodactyly",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0000486",
+                "name": "Strabismus",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0000107",
+                "name": "Renal cyst",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0001250",
+                "name": "Seizure",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0000639",
+                "name": "Nystagmus",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0000953",
+                "name": "Hyperpigmentation of the skin",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0001738",
+                "name": "Exocrine pancreatic insufficiency",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0000819",
+                "name": "Diabetes mellitus",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0011675",
+                "name": "Arrhythmia",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0011024",
+                "name": "Abnormality of the gastrointestinal tract",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0100258",
+                "name": "Preaxial polydactyly",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0001638",
+                "name": "Cardiomyopathy",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0001328",
+                "name": "Specific learning disability",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0010862",
+                "name": "Delayed fine motor development",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "OBSERVED"
+            }, {
+                "id": "HP:0011344",
+                "name": "Severe global developmental delay",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "OBSERVED"
+            }, {
+                "id": "HP:0002575",
+                "name": "Tracheoesophageal fistula",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0002032",
+                "name": "Esophageal atresia",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0001674",
+                "name": "Complete atrioventricular canal defect",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0002659",
+                "name": "Increased susceptibility to fractures",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0001680",
+                "name": "Coarctation of aorta",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0001508",
+                "name": "Failure to thrive",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0000405",
+                "name": "Conductive hearing impairment",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0003011",
+                "name": "Abnormality of the musculature",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0001528",
+                "name": "Hemihypertrophy",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0002910",
+                "name": "Elevated hepatic transaminase",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0002251",
+                "name": "Aganglionic megacolon",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0001197",
+                "name": "Abnormality of prenatal development or birth",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0001507",
+                "name": "Growth abnormality",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0000204",
+                "name": "Cleft upper lip",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0002652",
+                "name": "Skeletal dysplasia",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0000047",
+                "name": "Hypospadias",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0000708",
+                "name": "Behavioral abnormality",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0000028",
+                "name": "Cryptorchidism",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0100259",
+                "name": "Postaxial polydactyly",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0001290",
+                "name": "Generalized hypotonia",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0000589",
+                "name": "Coloboma",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0000768",
+                "name": "Pectus carinatum",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "OBSERVED"
+            }, {
+                "id": "HP:0012165",
+                "name": "Oligodactyly",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0008071",
+                "name": "Maternal hypertension",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0000356",
+                "name": "Abnormality of the outer ear",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0000924",
+                "name": "Abnormality of the skeletal system",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0000568",
+                "name": "Microphthalmia",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0000925",
+                "name": "Abnormality of the vertebral column",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0000795",
+                "name": "Abnormality of the urethra",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0001371",
+                "name": "Flexion contracture",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0002650",
+                "name": "Scoliosis",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0001631",
+                "name": "Atrial septal defect",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0000707",
+                "name": "Abnormality of the nervous system",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0000062",
+                "name": "Ambiguous genitalia",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0002011",
+                "name": "Morphological central nervous system abnormality",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0005306",
+                "name": "Capillary hemangioma",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0002194",
+                "name": "Delayed gross motor development",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "OBSERVED"
+            }, {
+                "id": "HP:0001762",
+                "name": "Talipes equinovarus",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0000505",
+                "name": "Visual impairment",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0000729",
+                "name": "Autistic behavior",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "OBSERVED"
+            }, {
+                "id": "HP:0011276",
+                "name": "Vascular skin abnormality",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0000359",
+                "name": "Abnormality of the inner ear",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0001539",
+                "name": "Omphalocele",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0001159",
+                "name": "Syndactyly",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0000384",
+                "name": "Preauricular skin tag",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0000175",
+                "name": "Cleft palate",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0001626",
+                "name": "Abnormality of the cardiovascular system",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0009824",
+                "name": "Upper limb undergrowth",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0010301",
+                "name": "Spinal dysraphism",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0000598",
+                "name": "Abnormality of the ear",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0000069",
+                "name": "Abnormality of the ureter",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0100603",
+                "name": "Toxemia of pregnancy",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0000119",
+                "name": "Abnormality of the genitourinary system",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0002086",
+                "name": "Abnormality of the respiratory system",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0000479",
+                "name": "Abnormal retinal morphology",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0001332",
+                "name": "Dystonia",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }, {
+                "id": "HP:0001257",
+                "name": "Spasticity",
+                "source": "hpo",
+                "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+                "status": "NOT_OBSERVED"
+            }],
+            "disorders": [{
+                "id": "Intellectual disability",
+                "name": "Neurology and neurodevelopmental disorders",
+                "source": "GelDisorder",
+                "attributes": {"diseaseSubGroup": "Neurodevelopmental disorders", "ageOfOnset": "-999.0"}
+            }],
+            "samples": [{
+                "id": "LP3000014-DNA_F12",
+                "uuid": "7c539ce8-0168-0004-0001-066bd452b730",
+                "processing": {"product": "DNA", "preparationMethod": "EDTA", "labSampleId": "1018175389"},
+                "qualityControl": {
+                    "fileIds": [], "comments": [], "metrics": [{
+                        "variantStats": [{
+                            "id": "ALL", "description": "Stats calculated for all variants", "query": {}, "stats": {
+                                "id": "LP3000014-DNA_F12",
+                                "variantCount": 5965405,
+                                "chromosomeCount": {
+                                    "1": 472694,
+                                    "2": 475753,
+                                    "3": 384746,
+                                    "4": 421963,
+                                    "5": 340518,
+                                    "6": 368514,
+                                    "7": 340803,
+                                    "8": 292409,
+                                    "9": 239235,
+                                    "10": 295720,
+                                    "11": 289893,
+                                    "12": 284993,
+                                    "13": 218626,
+                                    "14": 191987,
+                                    "15": 160855,
+                                    "16": 192983,
+                                    "17": 179198,
+                                    "18": 152958,
+                                    "19": 144269,
+                                    "20": 136763,
+                                    "21": 103881,
+                                    "22": 85789,
+                                    "X": 163577,
+                                    "Y": 27240,
+                                    "MT": 38
+                                },
+                                "typeCount": {"INSERTION": 2399, "SNV": 4845409, "DELETION": 23536, "INDEL": 1094061},
+                                "genotypeCount": {"0/1": 3778262, "1/1": 1967293, "./1": 219850},
+                                "indelLengthCount": {
+                                    "lt5": 881367,
+                                    "lt10": 128241,
+                                    "lt15": 40721,
+                                    "lt20": 16932,
+                                    "gte20": 52735
+                                },
+                                "filterCount": {
+                                    "SC": 396970,
+                                    "QD": 403514,
+                                    "MQ": 169066,
+                                    "PASS": 4063097,
+                                    "strandBias": 193457,
+                                    "alleleBias": 867093,
+                                    "HapScore": 529587,
+                                    "Q20": 41148,
+                                    "badReads": 1052317
+                                },
+                                "tiTvRatio": 1.5381125,
+                                "qualityAvg": 1846.6957,
+                                "qualityStdDev": 1000.7647,
+                                "heterozygosityRate": 0.6333622,
+                                "mendelianErrorCount": {
+                                    "1": 7117,
+                                    "2": 6387,
+                                    "3": 1075,
+                                    "4": 1095,
+                                    "5": 114,
+                                    "6": 978,
+                                    "7": 955,
+                                    "8": 75,
+                                    "9": 27,
+                                    "10": 38,
+                                    "11": 1,
+                                    "12": 1
+                                },
+                                "consequenceTypeCount": {
+                                    "start_retained_variant": 1,
+                                    "intergenic_variant": 2273205,
+                                    "frameshift_variant": 627,
+                                    "3_prime_UTR_variant": 57512,
+                                    "2KB_downstream_variant": 438691,
+                                    "splice_acceptor_variant": 603,
+                                    "intron_variant": 3002434,
+                                    "splice_region_variant": 7391,
+                                    "upstream_gene_variant": 596837,
+                                    "5_prime_UTR_variant": 18277,
+                                    "stop_gained": 265,
+                                    "non_coding_transcript_exon_variant": 105388,
+                                    "non_coding_transcript_variant": 1729641,
+                                    "2KB_upstream_variant": 426802,
+                                    "start_lost": 144,
+                                    "transcript_ablation": 22,
+                                    "splice_donor_variant": 647,
+                                    "NMD_transcript_variant": 632879,
+                                    "synonymous_variant": 14713,
+                                    "missense_variant": 16589,
+                                    "mature_miRNA_variant": 77,
+                                    "stop_lost": 144,
+                                    "feature_truncation": 13835,
+                                    "regulatory_region_variant": 3304923,
+                                    "downstream_gene_variant": 622228,
+                                    "stop_retained_variant": 26,
+                                    "TF_binding_site_variant": 368074,
+                                    "coding_sequence_variant": 253,
+                                    "inframe_deletion": 385,
+                                    "inframe_insertion": 250,
+                                    "incomplete_terminal_codon_variant": 11
+                                },
+                                "biotypeCount": {
+                                    "IG_V_pseudogene": 5831,
+                                    "TR_J_pseudogene": 99,
+                                    "nonsense_mediated_decay": 752893,
+                                    "IG_V_gene": 4923,
+                                    "snRNA": 43449,
+                                    "unitary_pseudogene": 9716,
+                                    "TR_V_gene": 4299,
+                                    "non_stop_decay": 3735,
+                                    "processed_pseudogene": 235041,
+                                    "sense_overlapping": 17181,
+                                    "miRNA": 70413,
+                                    "misc_RNA": 45252,
+                                    "lincRNA": 547114,
+                                    "IG_C_pseudogene": 315,
+                                    "IG_J_pseudogene": 37,
+                                    "rRNA": 13727,
+                                    "protein_coding": 2671083,
+                                    "TR_V_pseudogene": 770,
+                                    "TR_D_gene": 13,
+                                    "Mt_rRNA": 18,
+                                    "IG_D_gene": 185,
+                                    "retained_intron": 648584,
+                                    "Mt_tRNA": 38,
+                                    "3prime_overlapping_ncrna": 654,
+                                    "transcribed_processed_pseudogene": 11227,
+                                    "snoRNA": 25471,
+                                    "IG_J_gene": 160,
+                                    "pseudogene": 9060,
+                                    "transcribed_unprocessed_pseudogene": 45100,
+                                    "IG_C_gene": 1087,
+                                    "sense_intronic": 23344,
+                                    "TR_C_gene": 469,
+                                    "unprocessed_pseudogene": 87469,
+                                    "translated_processed_pseudogene": 32,
+                                    "TR_J_gene": 503,
+                                    "polymorphic_pseudogene": 5466,
+                                    "antisense": 332984,
+                                    "processed_transcript": 1127966
+                                },
+                                "clinicalSignificanceCount": {"benign": 3, "likely_benign": 1}
+                            }
+                        }], "geneCoverageStats": [], "signatures": [], "fileIds": [], "comments": []
+                    }]
+                },
+                "release": 1,
+                "version": 1,
+                "creationDate": "20190123200801",
+                "modificationDate": "20200713133233",
+                "description": "Sample created by intake pipeline",
+                "somatic": false,
+                "phenotypes": [],
+                "individualId": "112000492",
+                "fileIds": ["analysis:rare_disease:112000492:1498819614:LP3000014-DNA_F12:Variations:LP3000014-DNA_F12.duprem.atomic.left.split.vcf.gz:LP3000014-DNA_F12.duprem.atomic.left.split.vcf.gz", "by_name:LP3000014-DNA_F12:HX00677502:Assembly:LP3000014-DNA_F12.bam:LP3000014-DNA_F12.bam", "by_name:LP3000014-DNA_F12:HX00677502:Assembly:LP3000014-DNA_F12.bam.bai:LP3000014-DNA_F12.bam.bai", "analysis:singlesample:LP3000014-DNA_F12:HX00677502:coverage_bigwig:24373:1:output:coverage.bw:coverage.bw", "analysis:singlesample:LP3000014-DNA_F12:HX00677502:coverage_bigwig:51744:1:output:coverage.bw:coverage.bw", "analysis:rare_disease:112000492:1498819614:LP3000014-DNA_F12:Variations:LP3000014-DNA_F12.duprem.atomic.left.split.norm2.research.vcf.gz"],
+                "status": {"name": "", "description": "", "date": ""},
+                "internal": {"status": {"name": "READY", "date": "20190123200801", "description": ""}},
+                "attributes": {
+                    "processes": [{
+                        "processDate": "20170609175845",
+                        "version": "1.4.2",
+                        "runId": 24373,
+                        "workflow": "default_1-4-1",
+                        "name": "Bertha"
+                    }, {
+                        "processDate": "20170724102549",
+                        "version": "1.7.0",
+                        "runId": 33293,
+                        "name": "Bertha",
+                        "workflow": "default-rd_1-6-0"
+                    }, {
+                        "processDate": "20170929114247",
+                        "version": "1.9.1",
+                        "runId": 51744,
+                        "workflow": "default-rd_1-6-0",
+                        "name": "Bertha"
+                    }]
+                }
+            }],
+            "parentalConsanguinity": false,
+            "status": {"name": "", "description": "", "date": ""},
+            "internal": {"status": {"name": "READY", "date": "20190123200802", "description": ""}},
+            "attributes": {"familyId": "101761"}
+        }, {
+            "id": "553040200211",
+            "name": "553040200211",
+            "uuid": "b95d96e8-0168-0006-0001-eab71473a518",
+            "father": {"release": 0, "version": 0, "parentalConsanguinity": false},
+            "mother": {"release": 0, "version": 0, "parentalConsanguinity": false},
+            "location": {},
+            "sex": "FEMALE",
+            "karyotypicSex": "UNKNOWN",
+            "ethnicity": "J",
+            "population": {"name": "", "subpopulation": "", "description": ""},
+            "release": 1,
+            "version": 1,
+            "creationDate": "20190204163545",
+            "modificationDate": "20190204163545",
+            "lifeStatus": "ALIVE",
+            "phenotypes": [],
+            "disorders": [],
+            "parentalConsanguinity": false,
+            "status": {"name": "", "description": "", "date": ""},
+            "internal": {"status": {"name": "READY", "date": "20190204163545", "description": ""}},
+            "attributes": {}
+        }, {
+            "id": "595652867695",
+            "name": "595652867695",
+            "uuid": "b95d96e8-0168-0006-0001-51707fb2eee0",
+            "father": {"release": 0, "version": 0, "parentalConsanguinity": false},
+            "mother": {"release": 0, "version": 0, "parentalConsanguinity": false},
+            "location": {},
+            "sex": "MALE",
+            "karyotypicSex": "UNKNOWN",
+            "ethnicity": "J",
+            "population": {"name": "", "subpopulation": "", "description": ""},
+            "release": 1,
+            "version": 1,
+            "creationDate": "20190204163545",
+            "modificationDate": "20190204163546",
+            "lifeStatus": "ALIVE",
+            "phenotypes": [],
+            "disorders": [],
+            "parentalConsanguinity": false,
+            "status": {"name": "", "description": "", "date": ""},
+            "internal": {"status": {"name": "READY", "date": "20190204163545", "description": ""}},
+            "attributes": {}
+        }, {
+            "id": "431578292159",
+            "name": "431578292159",
+            "uuid": "b95d96e8-0168-0006-0001-e53caf489554",
+            "father": {"release": 0, "version": 0, "parentalConsanguinity": false},
+            "mother": {"release": 0, "version": 0, "parentalConsanguinity": false},
+            "location": {},
+            "sex": "MALE",
+            "karyotypicSex": "UNKNOWN",
+            "ethnicity": "J",
+            "population": {"name": "", "subpopulation": "", "description": ""},
+            "release": 1,
+            "version": 1,
+            "creationDate": "20190204163545",
+            "modificationDate": "20190204163545",
+            "lifeStatus": "ALIVE",
+            "phenotypes": [],
+            "disorders": [],
+            "parentalConsanguinity": false,
+            "status": {"name": "", "description": "", "date": ""},
+            "internal": {"status": {"name": "READY", "date": "20190204163545", "description": ""}},
+            "attributes": {}
+        }, {
+            "id": "162805079698",
+            "name": "162805079698",
+            "uuid": "b95d96e8-0168-0006-0001-bd8a82735098",
+            "father": {"id": "112000494", "release": 0, "version": 1, "parentalConsanguinity": false},
+            "mother": {"id": "112000493", "release": 0, "version": 1, "parentalConsanguinity": false},
+            "location": {},
+            "sex": "MALE",
+            "karyotypicSex": "UNKNOWN",
+            "ethnicity": "",
+            "population": {"name": "", "subpopulation": "", "description": ""},
+            "release": 1,
+            "version": 1,
+            "creationDate": "20190204163545",
+            "modificationDate": "20190204163546",
+            "lifeStatus": "ALIVE",
+            "phenotypes": [],
+            "disorders": [],
+            "parentalConsanguinity": false,
+            "status": {"name": "", "description": "", "date": ""},
+            "internal": {"status": {"name": "READY", "date": "20190204163545", "description": ""}},
+            "attributes": {}
+        }, {
+            "id": "885409123253",
+            "name": "885409123253",
+            "uuid": "b95d96e8-0168-0006-0001-6431a0aad678",
+            "father": {"id": "112000494", "release": 0, "version": 1, "parentalConsanguinity": false},
+            "mother": {"id": "112000493", "release": 0, "version": 1, "parentalConsanguinity": false},
+            "location": {},
+            "sex": "MALE",
+            "karyotypicSex": "UNKNOWN",
+            "ethnicity": "",
+            "population": {"name": "", "subpopulation": "", "description": ""},
+            "release": 1,
+            "version": 1,
+            "creationDate": "20190204163545",
+            "modificationDate": "20190204163546",
+            "lifeStatus": "ALIVE",
+            "phenotypes": [],
+            "disorders": [],
+            "parentalConsanguinity": false,
+            "status": {"name": "", "description": "", "date": ""},
+            "internal": {"status": {"name": "READY", "date": "20190204163545", "description": ""}},
+            "attributes": {}
+        }, {
+            "id": "450011364336",
+            "name": "450011364336",
+            "uuid": "b95d96e8-0168-0006-0001-1187364e1780",
+            "father": {"release": 0, "version": 0, "parentalConsanguinity": false},
+            "mother": {"release": 0, "version": 0, "parentalConsanguinity": false},
+            "location": {},
+            "sex": "FEMALE",
+            "karyotypicSex": "UNKNOWN",
+            "ethnicity": "J",
+            "population": {"name": "", "subpopulation": "", "description": ""},
+            "release": 1,
+            "version": 1,
+            "creationDate": "20190204163545",
+            "modificationDate": "20190204163546",
+            "lifeStatus": "ALIVE",
+            "phenotypes": [],
+            "disorders": [],
+            "parentalConsanguinity": false,
+            "status": {"name": "", "description": "", "date": ""},
+            "internal": {"status": {"name": "READY", "date": "20190204163545", "description": ""}},
+            "attributes": {}
+        }],
+        "phenotypes": [
+            {
+            "id": "HP:0002032",
+            "name": "Esophageal atresia",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0011024",
+            "name": "Abnormality of the gastrointestinal tract",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0100258",
+            "name": "Preaxial polydactyly",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0100259",
+            "name": "Postaxial polydactyly",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0000407",
+            "name": "Sensorineural hearing impairment",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0001738",
+            "name": "Exocrine pancreatic insufficiency",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0000924",
+            "name": "Abnormality of the skeletal system",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0011276",
+            "name": "Vascular skin abnormality",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0000925",
+            "name": "Abnormality of the vertebral column",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0000405",
+            "name": "Conductive hearing impairment",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0000768",
+            "name": "Pectus carinatum",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0000486",
+            "name": "Strabismus",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0004467",
+            "name": "Preauricular pit",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0000384",
+            "name": "Preauricular skin tag",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0001197",
+            "name": "Abnormality of prenatal development or birth",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0003011",
+            "name": "Abnormality of the musculature",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0000819",
+            "name": "Diabetes mellitus",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0001507",
+            "name": "Growth abnormality",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0001629",
+            "name": "Ventricular septal defect",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0001508",
+            "name": "Failure to thrive",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0000776",
+            "name": "Congenital diaphragmatic hernia",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0001626",
+            "name": "Abnormality of the cardiovascular system",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0005306",
+            "name": "Capillary hemangioma",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0000593",
+            "name": "Abnormal anterior chamber morphology",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0001561",
+            "name": "Polyhydramnios",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0002652",
+            "name": "Skeletal dysplasia",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0002011",
+            "name": "Morphological central nervous system abnormality",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0001562",
+            "name": "Oligohydramnios",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0002650",
+            "name": "Scoliosis",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0002251",
+            "name": "Aganglionic megacolon",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0001680",
+            "name": "Coarctation of aorta",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0000505",
+            "name": "Visual impairment",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0000589",
+            "name": "Coloboma",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0000107",
+            "name": "Renal cyst",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0000069",
+            "name": "Abnormality of the ureter",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0001674",
+            "name": "Complete atrioventricular canal defect",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0000587",
+            "name": "Abnormality of the optic nerve",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0001159",
+            "name": "Syndactyly",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0001332",
+            "name": "Dystonia",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0000085",
+            "name": "Horseshoe kidney",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0000481",
+            "name": "Abnormal cornea morphology",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0010301",
+            "name": "Spinal dysraphism",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0001290",
+            "name": "Generalized hypotonia",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0008071",
+            "name": "Maternal hypertension",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0100603",
+            "name": "Toxemia of pregnancy",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0000518",
+            "name": "Cataract",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0000639",
+            "name": "Nystagmus",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0002659",
+            "name": "Increased susceptibility to fractures",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0000359",
+            "name": "Abnormality of the inner ear",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0000479",
+            "name": "Abnormal retinal morphology",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0000119",
+            "name": "Abnormality of the genitourinary system",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0001328",
+            "name": "Specific learning disability",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0000750",
+            "name": "Delayed speech and language development",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0000478",
+            "name": "Abnormality of the eye",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0000356",
+            "name": "Abnormality of the outer ear",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0000598",
+            "name": "Abnormality of the ear",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0000175",
+            "name": "Cleft palate",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0002194",
+            "name": "Delayed gross motor development",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0002072",
+            "name": "Chorea",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0011344",
+            "name": "Severe global developmental delay",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0012165",
+            "name": "Oligodactyly",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0000729",
+            "name": "Autistic behavior",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0001539",
+            "name": "Omphalocele",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0000568",
+            "name": "Microphthalmia",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0000204",
+            "name": "Cleft upper lip",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0000047",
+            "name": "Hypospadias",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0001257",
+            "name": "Spasticity",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0007018",
+            "name": "Attention deficit hyperactivity disorder",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0001396",
+            "name": "Cholestasis",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0002088",
+            "name": "Abnormal lung morphology",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0009816",
+            "name": "Lower limb undergrowth",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0002086",
+            "name": "Abnormality of the respiratory system",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0000062",
+            "name": "Ambiguous genitalia",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0002910",
+            "name": "Elevated hepatic transaminase",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0001543",
+            "name": "Gastroschisis",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0009824",
+            "name": "Upper limb undergrowth",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0001363",
+            "name": "Craniosynostosis",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0002575",
+            "name": "Tracheoesophageal fistula",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0000708",
+            "name": "Behavioral abnormality",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0012385",
+            "name": "Camptodactyly",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0000707",
+            "name": "Abnormality of the nervous system",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0010880",
+            "name": "Increased nuchal translucency",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0001638",
+            "name": "Cardiomyopathy",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0000028",
+            "name": "Cryptorchidism",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0001636",
+            "name": "Tetralogy of Fallot",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0001631",
+            "name": "Atrial septal defect",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0001010",
+            "name": "Hypopigmentation of the skin",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0001251",
+            "name": "Ataxia",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0001250",
+            "name": "Seizure",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0001371",
+            "name": "Flexion contracture",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0010862",
+            "name": "Delayed fine motor development",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0011675",
+            "name": "Arrhythmia",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0001528",
+            "name": "Hemihypertrophy",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0000953",
+            "name": "Hyperpigmentation of the skin",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0001249",
+            "name": "Intellectual disability",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0006893",
+            "name": "HP:0006893",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0009800",
+            "name": "Maternal diabetes",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0000795",
+            "name": "Abnormality of the urethra",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0001762",
+            "name": "Talipes equinovarus",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }, {
+            "id": "HP:0000951",
+            "name": "Abnormality of the skin",
+            "source": "hpo",
+            "attributes": {"hpoBuildNumber": "OBO-Edit 2.3"},
+            "ageOfOnset": "-1",
+            "status": "UNKNOWN"
+        }],
+        "disorders": [
+            {
+            "id": "Intellectual disability",
+            "name": "Neurology and neurodevelopmental disorders",
+            "source": "GelDisorder",
+            "attributes": {"diseaseSubGroup": "Neurodevelopmental disorders", "ageOfOnset": "-999.0"}
+        }],
+        "creationDate": "20190204163545",
+        "modificationDate": "20200713081819",
+        "expectedSize": -1,
+        "description": "",
+        "release": 1,
+        "version": 1,
+        "status": {"name": "", "description": "", "date": ""},
+        "internal": {"status": {"name": "READY", "date": "20190204163545", "description": ""}},
+        "attributes": {}
+    };
+
+        let pedigree = new Pedigree(familyTest, {selectShowSampleNames: true});
+        let svg = pedigree.pedigreeFromFamily(pedigree.pedigree);
+        document.getElementById("simpleFamilyTestDiv").appendChild(svg);
+
+</script>
 <!--<h2>Complex family</h2>-->
 <!--<div id="complexFamilyTestDiv"></div>-->
 

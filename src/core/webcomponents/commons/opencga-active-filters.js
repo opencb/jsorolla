@@ -184,10 +184,12 @@ export default class OpencgaActiveFilters extends LitElement {
             // console.error("arguments changed inverted after new clients. recheck functionality. serverVersion is now ignored");
             this.opencgaClient.users().filters(this.opencgaSession.user.id).then( restResponse => {
                 const result = restResponse.getResults();
+
+                // (this.filters || []) in case comes undefined as prop
                 if (result.length > 0) {
-                    this._filters = [...this.filters, ...result.filter( f => f.resource === this.resource)];
+                    this._filters = [...(this.filters || []), ...result.filter( f => f.resource === this.resource)];
                 } else {
-                    this._filters = [...this.filters];
+                    this._filters = [...(this.filters || [])];
                 }
                 this.requestUpdate();
             });
