@@ -500,7 +500,7 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
             }
         </style>
 
-        <div class="container">
+        <div class="">
             <div class="pull-right save-button">
                 <button type="button" class="btn btn-primary ripple" @click="${this.onViewInterpretation}">Preview</button>
                 <button class="btn btn-primary ripple" @click="${this.onSaveInterpretation}">

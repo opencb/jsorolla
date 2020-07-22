@@ -119,12 +119,15 @@ class VariantInterpreterQcSummary extends LitElement {
                             type: "custom",
                             display: {
                                 render: disorder => {
-                                    let id = disorder.id;
-                                    if (disorder.id.startsWith("OMIM:")) {
-                                        id = html`<a href="https://omim.org/entry/${disorder.id.split(":")[1]}" target="_blank">${disorder.id}</a>`;
-                                    }
-                                    return html`${disorder.name || "-"} (${id})`
-                                },
+                                    if(disorder) {
+                                        let id;
+                                        if (disorder.id.startsWith("OMIM:")) {
+                                            id = html`<a href="https://omim.org/entry/${disorder.id.split(":")[1]}" target="_blank">${disorder.id}</a>`;
+                                        }
+                                        return html`${disorder.name || "-"} (${id})`
+                                    } else return "-";
+
+                                }
                             }
                         },
                         {

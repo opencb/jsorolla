@@ -190,8 +190,7 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                                         }
                                         return html`${disorder.name || "-"} (${id})`
                                     } else return "-";
-
-                                },
+                                }
                             }
                         },
                         {

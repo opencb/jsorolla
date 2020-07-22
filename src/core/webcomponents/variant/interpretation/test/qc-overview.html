@@ -75,6 +75,7 @@
     <script type="text/javascript" src="../../../../../../node_modules/tokenize2/dist/tokenize2.min.js"></script>
     <script type="text/javascript" src="../../../../../../node_modules/@svgdotjs/svg.js/dist/svg.min.js"></script>
     <script type="text/javascript" src="../../../../../../node_modules/sweetalert2/dist/sweetalert2.js"></script>
+    <script type="text/javascript" src="../../../../../../node_modules/lodash/lodash.min.js"></script>
     <!-- /build -->
 
     <!-- build:css[assets/css/vendor.css] -->
@@ -91,6 +92,7 @@
     <!-- /build -->
     <link rel="stylesheet" href="../../../../../../../../src/styles/global.css">
 
+    <script src="../../../../../../../../src/conf/config.js"></script>
     <script type="module" src="../variant-interpreter-qc-overview.js"></script>
 </head>
 
@@ -98,6 +100,7 @@
     <script type="module">
             import {LitElement, html} from "/web_modules/lit-element.js";
             import {OpenCGAClient} from "../../../../clients/opencga/opencga-client.js";
+            import "../../../../webcomponents/commons/filters/select-field-filter.js";
             import {responses} from "./clinical_analysis.js";
 
             class QcOverviewTest extends LitElement {
