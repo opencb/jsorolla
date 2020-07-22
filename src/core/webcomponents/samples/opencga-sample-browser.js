@@ -199,6 +199,13 @@ export default class OpencgaSampleBrowser extends LitElement {
                             }
                         },
                         {
+                            id: "samtools-flags-stats-view",
+                            name: "Samtools Flagstat",
+                            render: (sample, active, opencgaSession) => {
+                                return html`<samtools-flagstats-view .sample="${sample}" .opencgaSession="${opencgaSession}"></samtools-flagstats-view>`;
+                            }
+                        },
+                        {
                             id: "individual-view",
                             name: "Individual",
                             render: (sample, active, opencgaSession) => {

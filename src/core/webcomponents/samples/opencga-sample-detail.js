@@ -19,6 +19,7 @@ import UtilsNew from "../../utilsNew.js";
 import "./../commons/view/detail-tabs.js";
 import "./opencga-sample-view.js";
 import "../variant/interpretation/sample-variant-stats-view.js";
+import "../alignment/samtools-flagstats-view.js";
 
 export default class OpencgaSampleDetail extends LitElement {
 

@@ -16,8 +16,7 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../utilsNew.js";
-import "../../alignment/alignment-stats-view.js";
-// import "../../commons/view/data-form.js";
+import "../../alignment/samtools-flagstats-view.js";
 
 class VariantInterpreterQcAlignmentStats extends LitElement {
 
@@ -130,7 +129,7 @@ class VariantInterpreterQcAlignmentStats extends LitElement {
         // Alignment stats are the same for FAMILY and CANCER analysis
         return html`
             <div style="margin: 20px 10px">
-                <alignment-stats-view .opencgaSession=${this.opencgaSession} .alignmentStats="${this.alignmentStats}"></alignment-stats-view>
+                <samtools-flagstats-view .sample="${this.clinicalAnalysis.proband.samples[0]}" .opencgaSession=${this.opencgaSession}"></samtools-flagstats-view>
             </div>
         `;
     }
