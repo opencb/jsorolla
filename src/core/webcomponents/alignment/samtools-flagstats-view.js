@@ -41,7 +41,7 @@ class SamtoolsFlagstatsView extends LitElement {
             sample: {
                 type: Object
             },
-            flagsStats: {
+            flagstats: {
                 type: Array
             },
             config: {
@@ -94,8 +94,6 @@ class SamtoolsFlagstatsView extends LitElement {
 
     sampleObserver() {
         if (this.sample && this.sample.qualityControl?.metrics?.length > 0  && this.sample.qualityControl.metrics[0].samtoolsFlagstats) {
-            this.flagstats = [this.sample.qualityControl.metrics[0].samtoolsFlagstats];
-
             // Get BAM file name and add it to the table
             let bamFileName = this.sample.qualityControl.metrics[0].bamFileId || "N/A";
             if (this.sample.qualityControl.metrics[0].bamFileId?.includes(":")) {
@@ -110,6 +108,8 @@ class SamtoolsFlagstatsView extends LitElement {
                     classes: ""
                 }
             ];
+            // St flagstats array
+            this.flagstats = [this.sample.qualityControl.metrics[0].samtoolsFlagstats];
         }
     }
 
@@ -249,7 +249,7 @@ class SamtoolsFlagstatsView extends LitElement {
 
     render() {
         if (!this.flagstats || this.flagstats.length === 0) {
-            return html`<div class="alert alert-info"><i class="fas fa-3x fa-info-circle align-middle"></i> Samtools Flags stats not found.</div>`;
+            return html`<div class="alert alert-info"><i class="fas fa-3x fa-info-circle align-middle"></i> Samtools Flagstat not found.</div>`;
         }
 
         // Alignment stats are the same for FAMILY and CANCER analysis
