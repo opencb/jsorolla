@@ -365,9 +365,10 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
         // The clinical anlysisi id is in: e.target.dataset.id
     }
 
-    onDelete(e, value, row) {
-        console.log(e.target, value, row);
-        const action = e.currentTarget.dataset.action;
+    onActionClick(e, value, row) {
+        console.log(e, value, row);
+        const action = e.target.dataset.action;
+        //console.log("action", action)
         if (action === "delete") {
             Swal.fire({
                 title: "Are you sure?",
@@ -529,17 +530,28 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
             });
         }
 
-        if (this._config.showDeleteButton) {
+        if (this._config.showActions) {
             _columns.push( {
-                title: "Manage",
+                title: "Actions",
                 // field: "id",
                 // <button class='btn btn-small btn-primary ripple' data-action="edit"><i class="fas fa-edit"></i> Edit</button>
-                formatter: `<button class="btn btn-small btn-danger ripple delete-button" data-action="delete"><i class="fas fa-times"></i> Delete</button>`,
+                formatter: `
+                    <div class="dropdown ">
+                        <button class="btn btn-default btn-small ripple dropdown-toggle one-line" type="button" data-toggle="dropdown">Select action
+                        <span class="caret"></span></button>
+                        <ul class="dropdown-menu dropdown-menu-right">
+                            <li><a href="javascript: void 0" class="btn disabled force-text-left" data-action="download">Download JSON</a></li>
+                            <li><a href="javascript: void 0" class="btn disabled force-text-left" data-action="edit">Edit</a></li>
+                            <li><a href="javascript: void 0" class="btn disabled force-text-left" data-action="report">Create Report</a></li>
+                            <li><a href="javascript: void 0" class="btn disabled force-text-left" data-action="reject">Reject</a></li>
+                            <li><a href="javascript: void 0" class="btn force-text-left" data-action="delete">Delete</a></li>
+                        </ul>
+                    </div>`,
                 valign: "middle",
                 events: {
-                    "click button": this.onDelete.bind(this)
+                    "click li": this.onActionClick.bind(this)
                 },
-                visible: !this._config?.columns?.hidden?.includes("manage")
+                visible: !this._config.columns?.hidden?.includes("actions")
             });
         }
 
@@ -577,9 +589,9 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                                 _.id,
                                 _.proband.id,
                                 _.family?.id && _.family?.members.length ? `${_.family.id} (${_.family.members.length})` : "",
-                                _.disorder.id,
+                                _?.disorder?.id ?? "-",
                                 _.type,
-                                _.interpretations?.join(",") ?? "",
+                                _.interpretations?.join(",") ?? "-",
                                 _.status.name,
                                 _.priority,
                                 _.analyst.assignee,
@@ -634,7 +646,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
             detailView: false,
             detailFormatter: this.detailFormatter, // function with the detail formatter
             showSelectCheckbox: false,
-            showDeleteButton: false,
+            showActions: true,
             showToolbar: true,
             header: {
                 horizontalAlign: "center",

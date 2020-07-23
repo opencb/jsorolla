@@ -44,9 +44,9 @@ class SampleVariantStatsView extends LitElement {
             sample: {
                 type: Object
             },
-            sampleVariantStats: {
+            /*sampleVariantStats: {
                 type: Object
-            },
+            },*/
             config: {
                 type: Object
             }
@@ -55,7 +55,7 @@ class SampleVariantStatsView extends LitElement {
 
     _init() {
         this._prefix = "vcis-" + UtilsNew.randomString(6);
-        this._sampleVariantStats = {};
+        this.variantStats = {};
 
         // Default config for Highcharts charts
         this.defaultHighchartConfig = {
@@ -79,10 +79,8 @@ class SampleVariantStatsView extends LitElement {
                 footerFormat: "</table>",
                 shared: true,
                 useHTML: true
-            },
+            }
         };
-
-        this._config = this.getDefaultConfig();
     }
 
     connectedCallback() {
@@ -97,7 +95,7 @@ class SampleVariantStatsView extends LitElement {
         // }
 
         if (changedProperties.has("sampleVariantStats")) {
-            this.sampleVariantStatsObserver();
+            //this.sampleVariantStatsObserver();
         }
 
         if (changedProperties.has("sampleId")) {
@@ -117,19 +115,19 @@ class SampleVariantStatsView extends LitElement {
         }
     }
 
-    sampleVariantStatsObserver() {
+    /*sampleVariantStatsObserver() {
         this._sampleVariantStats = {
             ...this.sampleVariantStats,
             chromosomeCount: ClinicalAnalysisUtils.chromosomeFilterSorter(this.sampleVariantStats.chromosomeCount)
         }
         this.requestUpdate();
-    }
+    }*/
 
     sampleIdObserver() {
         if (this.opencgaSession && this.sampleId) {
             this.opencgaSession.opencgaClient.samples().info(this.sampleId, {study: this.opencgaSession.study.fqn})
                 .then(response => {
-                    this.sample = response.responses[0].results[0];
+                    this.sample = response.getResult(0);
                     this.getVariantStatFromSample();
                 })
                 .catch(response => {
@@ -139,21 +137,28 @@ class SampleVariantStatsView extends LitElement {
     }
 
     getVariantStatFromSample() {
+        this.statsSelect = this.sample.qualityControl.metrics[0].variantStats.map( stat => stat.id);
         if (this.sample?.qualityControl?.metrics?.length && this.sample.qualityControl.metrics[0].variantStats?.length) {
-            // By default we render the stat 'ALL' from the first metric
-            let variantStats = this.sample.qualityControl.metrics[0].variantStats.find(stat => stat.id === "ALL");
-
-            // If there is not stat 'ALL' then we take the first one
-            if (!variantStats) {
-                variantStats = this.sample.qualityControl.metrics[0].variantStats[0];
-            }
+            // By default we render the stat 'ALL' from the first metric, if there is not stat 'ALL' then we take the first one
+            let selectedStat = this.sample.qualityControl.metrics[0].variantStats.find(stat => stat.id === "ALL") ?? this.sample.qualityControl.metrics[0].variantStats[0];
             // debugger
-            this.sampleVariantStats = variantStats.stats;
+            this.statsSelected = selectedStat.id;
+            this.variantStats = selectedStat;
         } else {
+            //TODO recheck
             // Check if sample variant stats has been indexed in annotationSets
             let annotationSet = this.sample?.annotationSets?.find(annotSet => annotSet.id.toLowerCase() === "opencga_sample_variant_stats");
-            this.sampleVariantStats = annotationSet?.annotations;
+            this.variantStats = annotationSet?.annotations;
         }
+
+        if (this.variantStats.chromosomeCount) {
+            this.variantStats.chromosomeCount = ClinicalAnalysisUtils.chromosomeFilterSorter(this.variantStats.chromosomeCount)
+        }
+        this.requestUpdate();
+    }
+
+    statChange(e) {
+        this.variantStats = this.sample.qualityControl.metrics[0].variantStats.find(stat => stat.id === e.detail.value)
         this.requestUpdate();
     }
 
@@ -175,12 +180,24 @@ class SampleVariantStatsView extends LitElement {
                         // titleHeader: "h1"
                     },
                     elements: [
-                        {
+                        /*{
                             name: "Sample ID",
                             field: "id",
                             display: {
                                 style: "font-weight: bold",
                             }
+                        },*/
+                        {
+                            name: "Stats Query Filters",
+                            field: "query",
+                            type: "custom",
+                            display: {
+                                render: query => query && !UtilsNew.isEmpty(query) ? Object.entries(query).map( (k, v) => html`<span class="badge">${k}: ${v}</span>`) : "none"
+                            }
+                        },
+                        {
+                            name: "Description",
+                            field: "description"
                         },
                         {
                             name: "Number of Variants",
@@ -198,7 +215,7 @@ class SampleVariantStatsView extends LitElement {
                         },
                         {
                             name: "Ti/Tv Ratio",
-                            field: "tiTvRatio",
+                            field: "stats.tiTvRatio",
                             display: {
                                 decimals: 4,
                                 visible: tiTvRatio => tiTvRatio !== 0
@@ -209,12 +226,12 @@ class SampleVariantStatsView extends LitElement {
                             type: "complex",
                             display: {
                                 template: "${qualityAvg} (${qualityStdDev})",
-                                visible: sampleVariantStat => sampleVariantStat?.qualityAvg !== 0
+                                visible: variantStats => variantStats?.stats?.qualityAvg !== 0
                             }
                         },
                         {
                             name: "Heterozygosity Rate",
-                            field: "heterozygosityRate",
+                            field: "stats.heterozygosityRate",
                             display: {
                                 decimals: 4,
                                 visible: heterozygosityRate => heterozygosityRate !== 0
@@ -224,13 +241,13 @@ class SampleVariantStatsView extends LitElement {
                 }, {
                     title: "Variant Stats",
                     display: {
-                        visible: sampleVariantStat => sampleVariantStat.variantCount > 0
+                        visible: variantStats => variantStats?.stats?.variantCount > 0
                     },
                     elements: [
                         [
                             {
                                 name: "Chromosomes",
-                                field: "chromosomeCount",
+                                field: "stats.chromosomeCount",
                                 type: "chart",
                                 showLabel: false,
                                 display: {
@@ -250,7 +267,7 @@ class SampleVariantStatsView extends LitElement {
                             },
                             {
                                 name: "Variant Type",
-                                field: "typeCount",
+                                field: "stats.typeCount",
                                 type: "chart",
                                 showLabel: false,
                                 display: {
@@ -272,14 +289,14 @@ class SampleVariantStatsView extends LitElement {
                                 type: "custom",
                                 showLabel: false,
                                 display: {
-                                    render: data => {
+                                    render: variantStats => {
                                         return html`
                                             <div class="row">
                                                 <div class="col-md-5 col-md-offset-1">
-                                                    <simple-chart .active="${true}" type="pie" title="Genotypes" .data="${data.genotypeCount}"></simple-chart>
+                                                    <simple-chart .active="${true}" type="pie" title="Genotypes" .data="${variantStats.stats.genotypeCount}"></simple-chart>
                                                 </div>
                                                 <div class="col-md-5 col-md-offset-1">
-                                                    <simple-chart .active="${true}" type="pie" title="VCF Filter" .data="${data.filterCount}"></simple-chart>
+                                                    <simple-chart .active="${true}" type="pie" title="VCF Filter" .data="${variantStats.stats.filterCount}"></simple-chart>
                                                 </div>  
                                             </div>
                                         `;
@@ -288,7 +305,7 @@ class SampleVariantStatsView extends LitElement {
                             },
                             {
                                 name: "INDEL Size",
-                                field: "indelLengthCount",
+                                field: "stats.indelLengthCount",
                                 type: "chart",
                                 showLabel: false,
                                 display: {
@@ -309,12 +326,12 @@ class SampleVariantStatsView extends LitElement {
                 }, {
                     //title: "plots2",
                     display: {
-                        visible: sampleVariantStat => sampleVariantStat.variantCount > 0
+                        visible: variantStats => variantStats?.stats?.variantCount > 0
                     },
                     elements: [
                         {
                             name: "Consequence Type",
-                            field: "consequenceTypeCount",
+                            field: "stats.consequenceTypeCount",
                             type: "chart",
                             showLabel: false,
                             display: {
@@ -332,7 +349,7 @@ class SampleVariantStatsView extends LitElement {
                         },
                         {
                             name: "Biotype",
-                            field: "biotypeCount",
+                            field: "stats.biotypeCount",
                             type: "chart",
                             showLabel: false,
                             display: {
@@ -350,7 +367,7 @@ class SampleVariantStatsView extends LitElement {
                         },
                         {
                             name: "ClinVar Clinical Significance",
-                            field: "clinicalSignificanceCount",
+                            field: "stats.clinicalSignificanceCount",
                             type: "chart",
                             showLabel: false,
                             display: {
@@ -370,7 +387,7 @@ class SampleVariantStatsView extends LitElement {
                 }, {
                     title: "Variant Stats",
                     display: {
-                        visible: sampleVariantStat => sampleVariantStat.variantCount === 0
+                        visible: variantStats => variantStats?.stats?.variantCount === 0
                     },
                     elements: [
                         {
@@ -387,13 +404,25 @@ class SampleVariantStatsView extends LitElement {
     }
 
     render() {
-        if (!this._sampleVariantStats || !this._sampleVariantStats.id) {
+        /*if (!this._sampleVariantStats || !this._sampleVariantStats.id) {
             return html`<div class="alert alert-info"><i class="fas fa-3x fa-info-circle align-middle" style="padding-right: 10px"></i> No Variant Stats found.</div>`;
-        }
+        }*/
 
         return html`
+
+            <div style="margin: 20px 10px">
+                <div class="form-horizontal">
+                    <div class="form-group">
+                        <label class="col-md-2">Select Stat</label>
+                        <div class="col-md-4">
+                            <select-field-filter forceSelection .data="${this.statsSelect}" .value=${this.statsSelected} @filterChange="${this.statChange}"></select-field-filter>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
             <div>
-                <data-form .data=${this._sampleVariantStats} .config="${this._config}"></data-form>
+                <data-form .data=${this.variantStats} .config="${this._config}"></data-form>
             </div>
         `;
     }
