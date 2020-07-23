@@ -972,6 +972,72 @@ export default class VariantInterpreterGrid extends LitElement {
                 }
             }
         }
+        if (this._config.showActions) {
+            _columns[0].push( {
+                title: "Actions",
+                rowspan: 2,
+                formatter: `
+                    <div class="dropdown ">
+                        <button class="btn btn-default btn-small ripple dropdown-toggle one-line" type="button" data-toggle="dropdown">Select action
+                        <span class="caret"></span></button>
+                        <ul class="dropdown-menu dropdown-menu-right">
+                            <li><a href="javascript: void 0" class="btn disabled force-text-left" data-action="remove">Remove from selection</a></li>
+                            <li><a href="javascript: void 0" class="btn disabled force-text-left" data-action="download">Download</a></li>
+                            <li><a href="javascript: void 0" class="btn disabled force-text-left" data-action="edit">Edit</a></li>
+                        </ul>
+                    </div>`,
+                valign: "middle",
+                /*events: {
+                    "click li": this.onActionClick.bind(this)
+                },*/
+                visible: !this._config?.columns?.hidden?.includes("actions")
+            });
+        }
+    }
+
+    onActionClick(e, value, row) {
+        console.log(e, value, row);
+        const action = e.target.dataset.action;
+        //console.log("action", action)
+        if (action === "delete") {
+            Swal.fire({
+                title: "Are you sure?",
+                text: "You won't be able to revert this!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#d33",
+                cancelButtonColor: "#3085d6",
+                confirmButtonText: "Yes, delete it!"
+            }).then(result => {
+                if (result.value) {
+                    const clinicalAnalysisId = row.id;
+                    this.opencgaSession.opencgaClient.clinical().delete(clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
+                        .then( restResponse => {
+                            if (restResponse.getResultEvents("ERROR").length) {
+                                Swal.fire({
+                                    title: "Error",
+                                    icon: "error",
+                                    html: restResponse.getResultEvents("ERROR").map( event => event.message).join("<br>")
+                                })
+                            } else {
+                                Swal.fire(
+                                    "Deleted!",
+                                    "Clinical Analysis has been deleted.",
+                                    "success"
+                                )
+                                this.renderTable();
+                            }
+                        })
+                        .catch (restResponse => {
+                            Swal.fire(
+                                "Server Error!",
+                                "Clinical Analysis has not been correctly deleted.",
+                                "error"
+                            )
+                        })
+                }
+            })
+        }
     }
 
     // TODO fix tab jsonToTabConvert isn't working!
@@ -1073,8 +1139,8 @@ export default class VariantInterpreterGrid extends LitElement {
             showExport: false,
             detailView: true,
             showReview: false,
-
             showSelectCheckbox: true,
+            showActions: true,
             multiSelection: false,
             nucleotideGenotype: true,
             alleleStringLengthMax: 10,

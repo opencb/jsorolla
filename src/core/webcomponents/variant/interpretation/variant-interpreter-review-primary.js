@@ -548,7 +548,7 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                                                                     .config="${this._config.detail}">
                                         </variant-interpreter-detail>` 
                                     : html`
-                                        <h4 style="padding: 20px">No Selected variants</h4>`
+                                        <div class="alert alert-info"><i class="fas fa-3x fa-info-circle align-middle"></i> No Selected variants yet.</div>`
                                 }
                             </div>
                         </div>
