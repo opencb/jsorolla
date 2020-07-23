@@ -286,6 +286,8 @@ export default class OpencgaFileManager extends LitElement {
 
     render() {
         return html`
+
+            tree ${JSON.stringify(this.currentRoot,null, 1)}
             <div class="opencga-file-manager">
                 <tool-header title="${this._config.title}" icon="${this._config.icon}"></tool-header>
             
