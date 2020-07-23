@@ -17,9 +17,10 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "./../../../utilsNew.js";
 
+// TODO reorganize props multiple/forceSelection
 
 /** NOTE - Design choice: to allow deselection, the single mode (this.multiple=false), has been implemented with the multiple flag in bootstrap-select, but forcing 1 selection with data-max-options=1
- *  (this has no consequences for the developer point of view)
+ *  (this has no consequences for the developer point of view). This behaviour can be over overridden using "forceSelection" prop
  *
  *  Usage:
  * <select-field-filter .data="${["A","B","C"]}" .value=${"A"} @filterChange="${e => console.log(e)}"></select-field-filter>
@@ -61,6 +62,9 @@ export default class SelectFieldFilter extends LitElement {
                 type: Number
             },
             liveSearch: {
+                type: Boolean
+            },
+            forceSelection: {
                 type: Boolean
             },
             // the expected format is either an array of string or an array of objects {id, name}
@@ -109,7 +113,16 @@ export default class SelectFieldFilter extends LitElement {
         const selection = this.selectPicker.selectpicker("val");
         let val;
         if (selection && selection.length) {
-            val = this.multiple ? selection.join(",") : selection[0];
+            if (this.multiple) {
+                val = selection.join(",")
+            } else if (this.forceSelection) {
+                // single mode that DOESN'T allow deselection
+                // forceSelection means multiple flag in selectpicker is false, this is the only case `selection` is not an array
+                val = selection;
+            } else {
+                // single mode that allows deselection
+                val = selection[0];
+            }
         }
         //console.error("filterChange val", val)
 
@@ -129,7 +142,7 @@ export default class SelectFieldFilter extends LitElement {
             <div id="${this._prefix}-select-field-filter-wrapper" class="select-field-filter">
                 <select id="${this.elm}"
                         class="${this.elm}"
-                        multiple
+                        ?multiple=${!this.forceSelection}
                         ?disabled=${this.disabled}
                         ?required=${this.required}
                         data-live-search=${this.liveSearch ? "true" : "false"}
