@@ -539,7 +539,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                 events: {
                     "click button": this.onDelete.bind(this)
                 },
-                visible: !this._config.columns.hidden.includes("manage")
+                visible: !this._config?.columns?.hidden?.includes("manage")
             });
         }
 

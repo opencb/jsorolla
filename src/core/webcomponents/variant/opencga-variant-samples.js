@@ -79,9 +79,7 @@ export default class OpencgaVariantSamples extends LitElement {
             let fileInfo = `Filter: ${value.file.data["FILTER"]}; Qual: ${value.file.data["QUAL"]}`;
             let sampleFormat = [];
             for (let i = 0; i < value.dataKeys.length; i++) {
-                if (value.dataKeys[i].toUpperCase() !== "GT") {
-                    sampleFormat.push(`${value.dataKeys[i]}=${value.data[i]}`);
-                }
+                sampleFormat.push(`${value.dataKeys[i]}=${value.data[i]}`);
             }
             return fileInfo + "<br>" + sampleFormat.join("; ");
         } else {

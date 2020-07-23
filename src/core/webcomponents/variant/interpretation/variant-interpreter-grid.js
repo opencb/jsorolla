@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2015-2016 OpenCB
  *
@@ -518,9 +519,11 @@ export default class VariantInterpreterGrid extends LitElement {
                 const genotypeSplitRegExp = new RegExp("[/|]");
                 let sampleGT;
                 // Make sure we always render somatic sample first
+
                 if (this.field.clinicalAnalysis.type.toUpperCase() === "SINGLE" || this.field.clinicalAnalysis.type.toUpperCase() === "FAMILY") {
                     sampleGT = row.studies[0].samples[this.field.memberIdx].data[0];
                 } else {
+                    // FIXME check GT exists in sampleDataKeys to avoid issues with somatic VAF
                     if (row.studies[0].samples.length === 2) {
                         sampleGT = row.studies[0].samples[sampleIndex].data[0];
                     } else {
