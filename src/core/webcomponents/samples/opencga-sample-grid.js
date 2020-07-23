@@ -407,7 +407,7 @@ export default class OpencgaSampleGrid extends LitElement {
             detailFormatter: undefined, // function with the detail formatter
             multiSelection: false,
             showSelectCheckbox: true,
-            showToolbar: true
+            showToolbar: true,
         };
     }
 

@@ -177,7 +177,7 @@ export default class OpencgaSampleBrowser extends LitElement {
                     pageSize: 10,
                     pageList: [10, 25, 50],
                     multiSelection: false,
-                    showSelectCheckbox: false
+                    showSelectCheckbox: false,
                 },
                 detail: {
                     title: "Sample",

@@ -44,9 +44,9 @@ class SampleVariantStatsView extends LitElement {
             sample: {
                 type: Object
             },
-            /*sampleVariantStats: {
-                type: Object
-            },*/
+            // sampleVariantStats: {
+            //     type: Object
+            // },
             config: {
                 type: Object
             }
@@ -180,28 +180,16 @@ class SampleVariantStatsView extends LitElement {
                         // titleHeader: "h1"
                     },
                     elements: [
-                        /*{
+                        {
                             name: "Sample ID",
-                            field: "id",
+                            field: "stats.id",
                             display: {
                                 style: "font-weight: bold",
                             }
-                        },*/
-                        {
-                            name: "Stats Query Filters",
-                            field: "query",
-                            type: "custom",
-                            display: {
-                                render: query => query && !UtilsNew.isEmpty(query) ? Object.entries(query).map( (k, v) => html`<span class="badge">${k}: ${v}</span>`) : "none"
-                            }
-                        },
-                        {
-                            name: "Description",
-                            field: "description"
                         },
                         {
                             name: "Number of Variants",
-                            field: "variantCount",
+                            field: "stats.variantCount",
                             type: "custom",
                             display: {
                                 render: variantCount => {
@@ -236,7 +224,19 @@ class SampleVariantStatsView extends LitElement {
                                 decimals: 4,
                                 visible: heterozygosityRate => heterozygosityRate !== 0
                             }
-                        }
+                        },
+                        {
+                            name: "Stats Query Filters",
+                            field: "query",
+                            type: "custom",
+                            display: {
+                                render: query => query && !UtilsNew.isEmpty(query) ? Object.entries(query).map( (k, v) => html`<span class="badge">${k}: ${v}</span>`) : "none"
+                            }
+                        },
+                        {
+                            name: "Description",
+                            field: "description"
+                        },
                     ]
                 }, {
                     title: "Variant Stats",
@@ -413,8 +413,8 @@ class SampleVariantStatsView extends LitElement {
             <div style="margin: 20px 10px">
                 <div class="form-horizontal">
                     <div class="form-group">
-                        <label class="col-md-2">Select Stat</label>
-                        <div class="col-md-4">
+                        <label class="col-md-2">Select Variant Stat</label>
+                        <div class="col-md-2">
                             <select-field-filter forceSelection .data="${this.statsSelect}" .value=${this.statsSelected} @filterChange="${this.statChange}"></select-field-filter>
                         </div>
                     </div>
