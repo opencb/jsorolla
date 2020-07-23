@@ -430,12 +430,11 @@ class VariantInterpreterBrowserCancer extends LitElement {
                         showExport: false,
                         detailView: true,
                         showReview: false,
-
+                        showActions: false,
                         showSelectCheckbox: true,
                         multiSelection: false,
                         nucleotideGenotype: true,
                         alleleStringLengthMax: 10,
-
                         header: {
                             horizontalAlign: "center",
                             verticalAlign: "bottom"

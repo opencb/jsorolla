@@ -110,7 +110,8 @@ export default class OpencgaClinicalPortal extends LitElement {
             title: "Case Portal",
             showTitle: true,
             icon: "fas fa-window-restore",
-            showCreate: true
+            showCreate: true,
+            showActions: true
             // grid: {
             //     pageSize: 10,
             //     pageList: [10, 25, 50],

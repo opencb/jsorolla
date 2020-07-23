@@ -540,7 +540,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                         <button class="btn btn-default btn-small ripple dropdown-toggle one-line" type="button" data-toggle="dropdown">Select action
                         <span class="caret"></span></button>
                         <ul class="dropdown-menu dropdown-menu-right">
-                            <li><a href="javascript: void 0" class="btn disabled force-text-left" data-action="download">Download JSON</a></li>
+                            <li><a href="javascript: void 0" class="btn disabled force-text-left" data-action="download">Download</a></li>
                             <li><a href="javascript: void 0" class="btn disabled force-text-left" data-action="edit">Edit</a></li>
                             <li><a href="javascript: void 0" class="btn disabled force-text-left" data-action="report">Create Report</a></li>
                             <li><a href="javascript: void 0" class="btn disabled force-text-left" data-action="reject">Reject</a></li>
@@ -703,7 +703,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
         : null
 }
     
-            <div id="${this._prefix}GridTableDiv">
+            <div id="${this._prefix}GridTableDiv" class="force-overflow">
                 <table id="${this._prefix}ClinicalAnalysisGrid"></table>
             </div>
         `;
