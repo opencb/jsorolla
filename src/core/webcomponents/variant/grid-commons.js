@@ -189,7 +189,7 @@ export default class GridCommons {
             }
         }));
         let msg = "Server Error";
-        if(restResponse?.getEvents("ERROR")?.length) {
+        if(restResponse.getEvents?.("ERROR")?.length) {
             msg = restResponse.getEvents("ERROR")[0].message;
         }
         this.context.table.bootstrapTable("updateFormatText", "formatNoMatches", msg);
