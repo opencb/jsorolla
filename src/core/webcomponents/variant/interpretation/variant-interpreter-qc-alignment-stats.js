@@ -91,7 +91,7 @@ class VariantInterpreterQcAlignmentStats extends LitElement {
         if (this.clinicalAnalysis) {
             switch (this.clinicalAnalysis.type.toUpperCase()) {
                 case "SINGLE":
-                    this.samples = this.clinicalAnalysis.proband.samples[0]
+                    this.samples = [this.clinicalAnalysis.proband.samples[0]]
                     break;
                 case "FAMILY":
                     this.samples = [
