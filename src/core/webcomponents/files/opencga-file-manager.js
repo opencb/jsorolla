@@ -73,7 +73,7 @@ export default class OpencgaFileManager extends LitElement {
                 })
                 .catch(restResponse => {
                     this.currentRoot = null;
-                    if (restResponse.getEvents("ERROR").length) {
+                    if (restResponse.getEvents?.("ERROR")?.length) {
                         this.errorState = restResponse.getEvents("ERROR").map(error => error.message).join("<br>");
                     } else {
                         this.errorState = "Server Error";
@@ -92,6 +92,7 @@ export default class OpencgaFileManager extends LitElement {
 
     async fetchFolder(node) {
         try {
+            //console.log("FETCHING", node)
             if (!node.visited) {
                 const restResponse = await this.opencgaSession.opencgaClient.files().tree(node.file.id, {study: this.opencgaSession.study.fqn, maxDepth: 1,include: "id,name,path,size,format"})
                 const result = restResponse.getResult(0);
@@ -102,7 +103,7 @@ export default class OpencgaFileManager extends LitElement {
             //console.log("current root", this.currentRoot)
             this.requestUpdate();
         } catch (restResponse) {
-            if (restResponse.getEvents("ERROR").length) {
+            if (restResponse.getEvents?.("ERROR")?.length) {
                 this.errorState = restResponse.getEvents("ERROR").map(error => error.message).join("<br>");
             } else {
                 this.errorState = "Server Error";
@@ -112,19 +113,24 @@ export default class OpencgaFileManager extends LitElement {
 
     }
 
-    searchNode(nodeId, array) {
-        for (const f of array) {
-            if (f.file.id === nodeId) {
-                return f;
-            }
-            if (f.file.type.toUpperCase() === "DIRECTORY") {
-                const r = this.searchNode(nodeId, f.children || []);
+    searchNode(nodeId, baseNode) {
+        //console.log(`searching [${nodeId}]`)
+        if (nodeId === ":") {
+            return this.tree
+        }
+        if (baseNode.file.id === nodeId) {
+            return baseNode;
+        }
+        if (baseNode.file.type.toUpperCase() === "DIRECTORY") {
+            for (const f of baseNode.children) {
+                const r = this.searchNode(nodeId, f);
                 if (r) return r;
             }
         }
+
         //this happens on click on files in root dir
-        //console.error("Node not found, root node fallback", "nodeId", nodeId, array)
-        return this.tree;
+        console.error("Node not found!", nodeId);
+        //return this.tree;
     }
 
     renderFileManager(root) {
@@ -189,8 +195,8 @@ export default class OpencgaFileManager extends LitElement {
                 node.exploded = false;
                 $("." + domId + "").removeClass("exploded")
             }
-            console.log("toggle" + node.file.id);
-            console.log($("." + domId + " ul"));
+            //console.log("toggle" + node.file.id);
+            //console.log($("." + domId + " ul"));
 
         } else {
             console.error("no id!")
@@ -249,12 +255,16 @@ export default class OpencgaFileManager extends LitElement {
     }
 
     async route(id, resetFileId = true) {
-        console.log("route", id)
-        this.currentRoot = this.searchNode(id, this.tree.children);
+        //console.log("route", id)
+        this.currentRoot = this.searchNode(id, this.tree);
+        //console.log("setting currentRoute", this.currentRoot)
+
         this.currentRoot.exploded = true;
 
         if(!this.currentRoot.visited) {
             await this.fetchFolder(this.currentRoot);
+        } else {
+            console.log("node already visited" , this.currentRoot)
         }
         const domId = `tree-${id.replace(/:/g, "")}`;
         $("." + domId + "").addClass("exploded");
@@ -272,6 +282,7 @@ export default class OpencgaFileManager extends LitElement {
 
     onClickFile(id) {
         const path = id.split(":").slice(0, -1).join(":") + ":";
+        //console.log("PATH", path)
         this.fileId = id;
         this.route(path, false);
         this.requestUpdate();
@@ -285,9 +296,7 @@ export default class OpencgaFileManager extends LitElement {
     }
 
     render() {
-        return html`
-
-            tree ${JSON.stringify(this.currentRoot,null, 1)}
+        return html`           
             <div class="opencga-file-manager">
                 <tool-header title="${this._config.title}" icon="${this._config.icon}"></tool-header>
             

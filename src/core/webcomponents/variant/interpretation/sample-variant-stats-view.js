@@ -55,7 +55,7 @@ class SampleVariantStatsView extends LitElement {
 
     _init() {
         this._prefix = "vcis-" + UtilsNew.randomString(6);
-        this.variantStats = {};
+        this.variantStats = null;
 
         // Default config for Highcharts charts
         this.defaultHighchartConfig = {
@@ -404,9 +404,9 @@ class SampleVariantStatsView extends LitElement {
     }
 
     render() {
-        /*if (!this._sampleVariantStats || !this._sampleVariantStats.id) {
+        if (!this.variantStats || !this.variantStats.id) {
             return html`<div class="alert alert-info"><i class="fas fa-3x fa-info-circle align-middle" style="padding-right: 10px"></i> No Variant Stats found.</div>`;
-        }*/
+        }
 
         return html`
 
