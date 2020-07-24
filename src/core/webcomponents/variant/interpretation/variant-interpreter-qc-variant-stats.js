@@ -105,7 +105,6 @@ class VariantInterpreterQcVariantStats extends LitElement {
                         {
                             sample: this.clinicalAnalysis.proband?.samples[0],
                             role: "proband"
-
                         }
                     ];
                     // hide the sample selector (or select the samples of the proband?)

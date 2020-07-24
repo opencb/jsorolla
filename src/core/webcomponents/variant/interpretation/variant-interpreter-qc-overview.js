@@ -120,7 +120,7 @@ class VariantInterpreterQcOverview extends LitElement {
                         },
                         {
                             id: "AlignmentStats",
-                            title: "Alignment Stats",
+                            title: "Samtools Flagstats",
                             disabled: application.appConfig !== "opencb"
                         },
                         {
@@ -207,7 +207,7 @@ class VariantInterpreterQcOverview extends LitElement {
                         </div>
                         
                         <div id="${this._prefix}AlignmentStats" role="tabpanel" class="tab-pane content-tab">
-                            <h3>Alignment Stats</h3>
+                            <h3>Samtools Flagstats</h3>
                             <variant-interpreter-qc-alignment-stats .opencgaSession=${this.opencgaSession} 
                                                                     .clinicalAnalysis="${this.clinicalAnalysis}">
                             </variant-interpreter-qc-alignment-stats>                                

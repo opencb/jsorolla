@@ -60,7 +60,8 @@ class VariantInterpreterQcAlignmentStats extends LitElement {
 
     updated(changedProperties) {
         if (changedProperties.has("clinicalAnalysis")) {
-            this.setAlignmentstats();
+            // this.setAlignmentstats();
+            this.prepareSamtoolsFlgstats();
         }
 
         if (changedProperties.has("clinicalAnalysisId")) {
@@ -77,7 +78,8 @@ class VariantInterpreterQcAlignmentStats extends LitElement {
             this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
                 .then(response => {
                     this.clinicalAnalysis = response.responses[0].results[0];
-                    this.setAlignmentstats();
+                    // this.setAlignmentstats();
+                    this.prepareSamtoolsFlgstats();
                 })
                 .catch(response => {
                     console.error("An error occurred fetching clinicalAnalysis: ", response);
@@ -85,23 +87,44 @@ class VariantInterpreterQcAlignmentStats extends LitElement {
         }
     }
 
-    setAlignmentstats() {
-        if (this.clinicalAnalysis && this.clinicalAnalysis.files) {
-            let _alignmentStats = [];
-            for (let file of this.clinicalAnalysis.files) {
-                if (file.format === "BAM" && file.annotationSets) {
-                    for (let annotationSet of file.annotationSets) {
-                        if (annotationSet.id.toUpperCase() === "OPENCGA_ALIGNMENT_STATS") {
-                            _alignmentStats.push(annotationSet.annotations);
-                            break;
-                        }
-                    }
-                }
+    prepareSamtoolsFlgstats() {
+        if (this.clinicalAnalysis) {
+            switch (this.clinicalAnalysis.type.toUpperCase()) {
+                case "SINGLE":
+                    this.samples = this.clinicalAnalysis.proband.samples[0]
+                    break;
+                case "FAMILY":
+                    this.samples = [
+                        this.clinicalAnalysis.proband?.samples[0],
+                        ...this.clinicalAnalysis?.family?.members
+                            .filter(member => member.id !== this.clinicalAnalysis.proband.id && member.samples && member.samples.length > 0)
+                            .map(member => member.samples[0])
+                    ];
+                    break;
+                case "CANCER":
+                    this.samples = [this.clinicalAnalysis.proband?.samples];
+                    break;
             }
-            this.alignmentStats = _alignmentStats;
+            this.requestUpdate();
         }
-        this.requestUpdate();
     }
+    // setAlignmentstats() {
+    //     if (this.clinicalAnalysis && this.clinicalAnalysis.files) {
+    //         let _alignmentStats = [];
+    //         for (let file of this.clinicalAnalysis.files) {
+    //             if (file.format === "BAM" && file.annotationSets) {
+    //                 for (let annotationSet of file.annotationSets) {
+    //                     if (annotationSet.id.toUpperCase() === "OPENCGA_ALIGNMENT_STATS") {
+    //                         _alignmentStats.push(annotationSet.annotations);
+    //                         break;
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //         this.alignmentStats = _alignmentStats;
+    //     }
+    //     this.requestUpdate();
+    // }
 
     getDefaultConfig() {
         return {
@@ -129,7 +152,7 @@ class VariantInterpreterQcAlignmentStats extends LitElement {
         // Alignment stats are the same for FAMILY and CANCER analysis
         return html`
             <div style="margin: 20px 10px">
-                <samtools-flagstats-view .sample="${this.clinicalAnalysis.proband.samples[0]}" .opencgaSession=${this.opencgaSession}"></samtools-flagstats-view>
+                <samtools-flagstats-view .samples="${this.samples}" .opencgaSession=${this.opencgaSession}"></samtools-flagstats-view>
             </div>
         `;
     }

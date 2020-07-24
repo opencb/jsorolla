@@ -41,6 +41,9 @@ class SamtoolsFlagstatsView extends LitElement {
             sample: {
                 type: Object
             },
+            samples: {
+                type: Array
+            },
             flagstats: {
                 type: Array
             },
@@ -72,6 +75,10 @@ class SamtoolsFlagstatsView extends LitElement {
 
         if (changedProperties.has("sample")) {
             this.sampleObserver();
+        }
+
+        if (changedProperties.has("samples")) {
+            this.samplesObserver();
         }
 
         if (changedProperties.has("config")) {
@@ -110,6 +117,34 @@ class SamtoolsFlagstatsView extends LitElement {
             ];
             // St flagstats array
             this.flagstats = [this.sample.qualityControl.metrics[0].samtoolsFlagstats];
+        }
+    }
+
+    samplesObserver() {
+        if (this.samples) {
+            this._config.columns = [];
+            let _flagstats = [];
+            for (let sample of this.samples) {
+                if (sample.qualityControl?.metrics?.length > 0  && sample.qualityControl.metrics[0].samtoolsFlagstats) {
+                    _flagstats.push(sample.qualityControl.metrics[0].samtoolsFlagstats);
+
+                    // Get BAM file name and add it to the table
+                    let bamFileName = sample.qualityControl.metrics[0].bamFileId || "N/A";
+                    if (sample.qualityControl.metrics[0].bamFileId?.includes(":")) {
+                        let parts = sample.qualityControl.metrics[0].bamFileId.split(":");
+                        bamFileName = parts[parts.length - 1];
+                    }
+
+                    // Configure the table
+                    this._config.columns.push(
+                        {
+                            name: `${bamFileName}`,
+                            classes: ""
+                        });
+                }
+            }
+            // Set flagstats array
+            this.flagstats = _flagstats;
         }
     }
 
