@@ -44,9 +44,9 @@ class SampleVariantStatsView extends LitElement {
             sample: {
                 type: Object
             },
-            // sampleVariantStats: {
-            //     type: Object
-            // },
+            sampleVariantStats: {
+                type: Object
+            },
             config: {
                 type: Object
             }
@@ -95,7 +95,7 @@ class SampleVariantStatsView extends LitElement {
         // }
 
         if (changedProperties.has("sampleVariantStats")) {
-            //this.sampleVariantStatsObserver();
+            this.sampleVariantStatsObserver();
         }
 
         if (changedProperties.has("sampleId")) {
@@ -115,13 +115,16 @@ class SampleVariantStatsView extends LitElement {
         }
     }
 
-    /*sampleVariantStatsObserver() {
-        this._sampleVariantStats = {
-            ...this.sampleVariantStats,
-            chromosomeCount: ClinicalAnalysisUtils.chromosomeFilterSorter(this.sampleVariantStats.chromosomeCount)
+    sampleVariantStatsObserver() {
+        this.variantStats = {
+            stats: {
+                ...this.sampleVariantStats.stats,
+                chromosomeCount: ClinicalAnalysisUtils.chromosomeFilterSorter(this.sampleVariantStats.stats.chromosomeCount)
+            }
         }
+        this.sampleSelector = false;
         this.requestUpdate();
-    }*/
+    }
 
     sampleIdObserver() {
         if (this.opencgaSession && this.sampleId) {
@@ -154,6 +157,7 @@ class SampleVariantStatsView extends LitElement {
         if (this.variantStats.chromosomeCount) {
             this.variantStats.chromosomeCount = ClinicalAnalysisUtils.chromosomeFilterSorter(this.variantStats.chromosomeCount)
         }
+        this.sampleSelector = true;
         this.requestUpdate();
     }
 
@@ -407,20 +411,23 @@ class SampleVariantStatsView extends LitElement {
         /*if (!this._sampleVariantStats || !this._sampleVariantStats.id) {
             return html`<div class="alert alert-info"><i class="fas fa-3x fa-info-circle align-middle" style="padding-right: 10px"></i> No Variant Stats found.</div>`;
         }*/
-
         return html`
-
-            <div style="margin: 20px 10px">
-                <div class="form-horizontal">
-                    <div class="form-group">
-                        <label class="col-md-2">Select Variant Stat</label>
-                        <div class="col-md-2">
-                            <select-field-filter forceSelection .data="${this.statsSelect}" .value=${this.statsSelected} @filterChange="${this.statChange}"></select-field-filter>
+            ${this.sampleSelector 
+                ? html`
+                    <div style="margin: 20px 10px">
+                        <div class="form-horizontal">
+                            <div class="form-group">
+                                <label class="col-md-2">Select Variant Stat</label>
+                                <div class="col-md-2">
+                                    <select-field-filter forceSelection .data="${this.statsSelect}" .value=${this.statsSelected} @filterChange="${this.statChange}"></select-field-filter>
+                                </div>
+                            </div>
+                            
                         </div>
-                    </div>
-                    
-                </div>
-            </div>
+                    </div>` 
+                : null
+            }
+            
             <div>
                 <data-form .data=${this.variantStats} .config="${this._config}"></data-form>
             </div>

@@ -148,7 +148,7 @@ export default class VariantInterpreterQcVariantFamily extends LitElement {
 
                 // FIXME OpenCGA will return directly the sampleVariantStats soon
                 // Parse aggregationStatsResults and create a sampleVariantStats
-                this.sampleVariantStats = {
+                let _sampleVariantStats = {
                     id: this.sample.id
                 };
                 for (let aggregatedResult of this.aggregationStatsResults) {
@@ -158,33 +158,36 @@ export default class VariantInterpreterQcVariantFamily extends LitElement {
                     }
                     switch (aggregatedResult.name) {
                         case "chromosome":
-                            this.sampleVariantStats.variantCount = aggregatedResult.count;
-                            this.sampleVariantStats.chromosomeCount = values;
+                            _sampleVariantStats.variantCount = aggregatedResult.count;
+                            _sampleVariantStats.chromosomeCount = values;
                             break;
                         case "genotype":
-                            this.sampleVariantStats.genotypeCount = values;
-                            let het = this.sampleVariantStats.genotypeCount["0/1"];
-                            het += this.sampleVariantStats.genotypeCount["0/2"] || 0;
-                            het += this.sampleVariantStats.genotypeCount["1/2"] || 0;
-                            this.sampleVariantStats.heterozygosityRate = het / aggregatedResult.count;
+                            _sampleVariantStats.genotypeCount = values;
+                            let het = _sampleVariantStats.genotypeCount["0/1"];
+                            het += _sampleVariantStats.genotypeCount["0/2"] || 0;
+                            het += _sampleVariantStats.genotypeCount["1/2"] || 0;
+                            _sampleVariantStats.heterozygosityRate = het / aggregatedResult.count;
                             break;
                         case "filter":
-                            this.sampleVariantStats.filterCount = values;
+                            _sampleVariantStats.filterCount = values;
                             break;
                         case "type":
-                            this.sampleVariantStats.typeCount = values;
+                            _sampleVariantStats.typeCount = values;
                             break;
                         case "biotype":
-                            this.sampleVariantStats.biotypeCount = values;
+                            _sampleVariantStats.biotypeCount = values;
                             break;
                         case "consequenceType":
-                            this.sampleVariantStats.consequenceTypeCount = values;
+                            _sampleVariantStats.consequenceTypeCount = values;
                             break;
                         case "clinicalSignificance":
-                            this.sampleVariantStats.clinicalSignificanceCount = values;
+                            _sampleVariantStats.clinicalSignificanceCount = values;
                             break;
                     }
                 }
+                this.sampleVariantStats = {
+                    stats: _sampleVariantStats
+                };
                 this.requestUpdate();
             })
             .catch (restResponse => {
@@ -225,7 +228,7 @@ export default class VariantInterpreterQcVariantFamily extends LitElement {
             id: this.save.id,
             query: this.executedQuery || {},
             description: this.save.description || "",
-            stats: this.sampleVariantStats
+            stats: this.sampleVariantStats.stats
         };
 
         // Check if a metric object for that bamFileId exists
@@ -337,34 +340,34 @@ export default class VariantInterpreterQcVariantFamily extends LitElement {
                     hiddenFields: []
                 },
                 sections: [     // sections and subsections, structure and order is respected
+                    // {
+                    //     title: "Study and Cohorts",
+                    //     collapsed: false,
+                    //     fields: [
+                    //         /*{
+                    //             id: "cohort",
+                    //             title: "Cohort Alternate Stats",
+                    //             onlyCohortAll: true,
+                    //             tooltip: tooltips.cohort
+                    //             //cohorts: this.cohorts
+                    //         },*/
+                    //         {
+                    //             id: "file-quality",
+                    //             title: "Quality Filters",
+                    //             tooltip: "VCF file based FILTER and QUAL filters",
+                    //             showDepth: application.appConfig === "opencb"
+                    //         }
+                    //     ]
+                    // },
                     {
-                        title: "Study and Cohorts",
+                        title: "Filters",
                         collapsed: false,
                         fields: [
-                            /*{
-                                id: "cohort",
-                                title: "Cohort Alternate Stats",
-                                onlyCohortAll: true,
-                                tooltip: tooltips.cohort
-                                //cohorts: this.cohorts
-                            },*/
                             {
                                 id: "file-quality",
-                                title: "Quality Filters",
+                                title: "File Quality Filters",
                                 tooltip: "VCF file based FILTER and QUAL filters",
                                 showDepth: application.appConfig === "opencb"
-                            }
-                        ]
-                    },
-                    {
-                        title: "Genomic",
-                        collapsed: true,
-                        fields: [
-                            {
-                                id: "biotype",
-                                title: "Gene Biotype",
-                                biotypes: biotypes,
-                                tooltip: tooltips.biotype
                             },
                             {
                                 id: "region",
@@ -377,26 +380,25 @@ export default class VariantInterpreterQcVariantFamily extends LitElement {
                                 tooltip: tooltips.feature
                             },
                             {
+                                id: "biotype",
+                                title: "Gene Biotype",
+                                biotypes: biotypes,
+                                tooltip: tooltips.biotype
+                            },
+                            {
                                 id: "diseasePanels",
                                 title: "Disease Panels",
                                 tooltip: tooltips.diseasePanels
                             },
-
                             {
                                 id: "type",
                                 title: "Variant Type",
                                 types: ["SNV", "INDEL", "CNV", "INSERTION", "DELETION"],
                                 tooltip: tooltips.type
-                            }
-                        ]
-                    },
-                    {
-                        title: "Consequence Type",
-                        collapsed: true,
-                        fields: [
+                            },
                             {
                                 id: "consequenceTypeSelect",
-                                title: "Select SO terms",
+                                title: "Consequence Type",
                                 tooltip: tooltips.consequenceTypeSelect
                             }
                         ]
@@ -524,7 +526,7 @@ export default class VariantInterpreterQcVariantFamily extends LitElement {
                                                         </opencga-facet-result-view>
                                                     </div>
                                                     -->
-                                                    ${this.sampleVariantStats.variantCount !== 0 
+                                                    ${this.sampleVariantStats && this.sampleVariantStats?.variantCount !== 0 
                                                         ? html`
                                                             <div class="col-md-12">
                                                                 <opencga-facet-result-view .facetResult="${this.aggregationStatsResults?.[6]}"

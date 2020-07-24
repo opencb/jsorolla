@@ -892,7 +892,7 @@ export default class DataForm extends LitElement {
                                             <button type="button" class="${this.config.buttons.classes ? this.config.buttons.classes : "btn btn-primary ripple"}" data-dismiss="modal" @click="${this.onClear}">
                                                 ${this.config.buttons.cancelText ? this.config.buttons.cancelText : "Cancel"}
                                             </button>
-                                            <button type="button" class="${this.config.buttons.classes ? this.config.buttons.classes : "btn btn-primary ripple"}" @click="${this.onSubmit}">
+                                            <button type="button" class="${this.config.buttons.classes ? this.config.buttons.classes : "btn btn-primary ripple"}" data-dismiss="modal" @click="${this.onSubmit}">
                                                 ${this.config.buttons.okText ? this.config.buttons.okText : "OK"}
                                             </button>
                                         </div>`

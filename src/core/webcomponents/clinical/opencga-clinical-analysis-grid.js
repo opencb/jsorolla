@@ -280,11 +280,11 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
         }
     }
 
-    interpretationsFormatter(value, row) {
-        if (row?.interpretations) {
-            return row.interpretations.map(interpretation => `<div><span>${interpretation.id}<span></div>`).join("");
+    interpretationFormatter(value, row) {
+        if (row?.interpretation) {
+            return `<span>${row.interpretation?.primaryFindings?.length} variants {icon}</span>`;
         } else {
-            return "<span title='No interpretations available'>N/A</span>";
+            return "<span title='No interpretations available'>0 variants {icon}</span>";
         }
     }
 
@@ -342,28 +342,28 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
     //             </a>`;
     // }
 
-    interpretationFormatter(value, row) {
-        return `<div>
-                    <a href="#interpreter/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}">
-                        <i class="fas fa-user-md" aria-hidden="true"></i> Go To Interpreter 
-                    </a> 
-                </div>
-        `;
-    }
+    // interpretationFormatter(value, row) {
+    //     return `<div>
+    //                 <a href="#interpreter/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}">
+    //                     <i class="fas fa-user-md" aria-hidden="true"></i> Go To Interpreter
+    //                 </a>
+    //             </div>
+    //     `;
+    // }
 
-    reportFormatter(value, row) {
-        // return `<a style="cursor: pointer" href="#createReport" title="No report tool available yet" disabled>
-        //             <i class="fa fa-id-card" aria-hidden="true"></i> Create
-        //         </a>`;
+    // reportFormatter(value, row) {
+    //     // return `<a style="cursor: pointer" href="#createReport" title="No report tool available yet" disabled>
+    //     //             <i class="fa fa-id-card" aria-hidden="true"></i> Create
+    //     //         </a>`;
+    //
+    //     return `<button type="button" class="btn btn-sm btn-link" title="No report tool available yet" disabled>
+    //                         <i class="fa fa-id-card" aria-hidden="true"></i> Create
+    //                     </button>`;
+    // }
 
-        return `<button type="button" class="btn btn-sm btn-link" title="No report tool available yet" disabled>
-                            <i class="fa fa-id-card" aria-hidden="true"></i> Create
-                        </button>`;
-    }
-
-    reviewCaseButtonClicked(e) {
-        // The clinical anlysisi id is in: e.target.dataset.id
-    }
+    // reviewCaseButtonClicked(e) {
+    //     // The clinical anlysisi id is in: e.target.dataset.id
+    // }
 
     onActionClick(e, value, row) {
         console.log(e, value, row);
@@ -457,7 +457,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                 title: "Interpretation",
                 field: "interpretation",
                 valign: "middle",
-                formatter: this.interpretationsFormatter,
+                formatter: this.interpretationFormatter,
                 visible: !this._config.columns.hidden.includes("interpretation")
             },
             {
@@ -503,14 +503,14 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
             //     visible: this._config.showReviewCase,
             //     formatter: this.reviewCaseFormatter.bind(this)
             // },
-            {
-                title: "Interpreter",
-                eligible: false,
-                align: "center",
-                valign: "middle",
-                formatter: this.interpretationFormatter.bind(this),
-                visible: this._config.showInterpretation
-            },
+            // {
+            //     title: "Interpreter",
+            //     eligible: false,
+            //     align: "center",
+            //     valign: "middle",
+            //     formatter: this.interpretationFormatter.bind(this),
+            //     visible: this._config.showInterpretation
+            // },
             // {
             //     title: "Report",
             //     eligible: false,
