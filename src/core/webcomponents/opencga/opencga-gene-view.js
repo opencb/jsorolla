@@ -132,7 +132,7 @@ export default class OpencgaGeneView extends LitElement {
     }
 
     checkVariant(variant) {
-        return variant.split(":").length > 2;
+        return variant?.split(":").length > 2;
     }
 
     showBrowser() {
@@ -257,7 +257,7 @@ export default class OpencgaGeneView extends LitElement {
             
                     <div class="tab-content" style="height: 1024px">
                         <div role="tabpanel" class="tab-pane active" id="${this._prefix}Variants">
-                            <div class="btn-group btn-group pad15" role="group">
+                            <div class="btn-group pad15" role="group">
                                 <button id="${this._prefix}AllConsTypeButton" type="button" class="btn btn-primary ripple gene-ct-buttons active" data-value="${"all"}" @click="${this.updateQuery}">
                                     All
                                 </button>

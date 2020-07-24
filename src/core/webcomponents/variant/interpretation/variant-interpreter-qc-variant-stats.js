@@ -100,6 +100,14 @@ class VariantInterpreterQcVariantStats extends LitElement {
                         }
                     ];
                     this.statsSelect = [this.clinicalAnalysis.proband?.samples[0].id];
+
+                    this.samplesVariantStats = [
+                        {
+                            sample: this.clinicalAnalysis.proband?.samples[0],
+                            role: "proband"
+
+                        }
+                    ];
                     // hide the sample selector (or select the samples of the proband?)
                     break;
                 case "FAMILY":
@@ -125,6 +133,22 @@ class VariantInterpreterQcVariantStats extends LitElement {
                             .filter(member => member.id !== this.clinicalAnalysis.proband.id && member.samples && member.samples.length > 0)
                             .map(member => member.samples[0].id)
                     ];
+
+                    this.samplesVariantStats = [
+                        {
+                            sample: this.clinicalAnalysis.proband?.samples[0],
+                            role: "proband",
+                            active: true
+                        },
+                        ...this.clinicalAnalysis?.family?.members
+                            .filter(member => member.id !== this.clinicalAnalysis.proband.id && member.samples && member.samples.length > 0)
+                            .map(member => {
+                                return {
+                                    sample: member.samples[0],
+                                    role: this.clinicalAnalysis.family.roles[this.clinicalAnalysis.proband.id][member.id]?.toLowerCase()
+                                }
+                            })
+                    ];
                     break;
                 case "CANCER":
                     /*this.statsSelect = this.clinicalAnalysis.proband.samples[0].qualityControl?.metrics[0]?.variantStats.map( vStats => (
@@ -133,10 +157,17 @@ class VariantInterpreterQcVariantStats extends LitElement {
                             name: vStats.id
                         }));*/
                     this.statsSelect = [this.clinicalAnalysis.proband?.samples[0].id];
-
+                    this.samplesVariantStats = this.clinicalAnalysis?.proband?.samples
+                        .map(sample => {
+                            return {
+                                sample: sample,
+                                role: sample.somatic ? "tumor" : "normal"
+                            }
+                        });
                     break;
             }
             this.sampleId = this.statsSelect[0];
+            this.sample = this.samplesVariantStats[0].sample
         }
         /*let sampleQc = ClinicalAnalysisUtils.getProbandSampleQc(this.clinicalAnalysis);
         // in any case we must have at least 1 variant stat for the proband
@@ -172,6 +203,12 @@ class VariantInterpreterQcVariantStats extends LitElement {
         }*/
 
         this.sampleId = e.detail.value;
+        this.requestUpdate();
+    }
+
+    onSampleVariantStatsChange(e) {
+        let sampleId = e.currentTarget.dataset.sampleId;
+        this.sample = this.samplesVariantStats.find(e => e.sample.id === sampleId).sample;
         this.requestUpdate();
     }
 
@@ -220,9 +257,9 @@ class VariantInterpreterQcVariantStats extends LitElement {
                     margin-right: 15px;
                 }
             </style>
-            
+
+            <!--              
             <div style="margin: 20px 10px">
-<!--                <h4>Select Sample Variant Stats</h4>-->
                 <div style="margin: 20px 10px">
                     <div class="form-horizontal">
                         <div class="form-group">
@@ -235,12 +272,25 @@ class VariantInterpreterQcVariantStats extends LitElement {
                     </div>
                 </div>
             </div>
+            -->
+            
+            ${this.samplesVariantStats?.length > 1
+                ? html`
+                    <div class="btn-group" role="group" aria-label="..." style="padding-top: 15px; padding-left: 5px">
+                        ${this.samplesVariantStats.map(s => html`
+                            <button type="button" class="btn btn-default ${s.sample.id === this.sample.id ? "active" :  ""}" data-sample-id="${s.sample.id}" @click="${this.onSampleVariantStatsChange}" style="padding: 10px 20px">
+                                <span style="font-weight: bold">${s.sample.id}</span> (${s.role})
+                            </button>
+                        `)}
+                    </div>`
+                : null}
+            
             
             <div style="margin: 20px 10px;padding-top: 10px">
 <!--                <h4>Sample Variant Stats - ${this.variantStats?.stats.id}</h4>-->
                 <div>
                     <sample-variant-stats-view  .opencgaSession="${this.opencgaSession}"
-                                                .sampleId="${this.sampleId}">
+                                                .sample="${this.sample}">
                     </sample-variant-stats-view>
                 </div>
             </div>
