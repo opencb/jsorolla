@@ -454,8 +454,8 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                 visible: !this._config.columns.hidden.includes("type")
             },
             {
-                title: "Interpretations",
-                field: "interpretations",
+                title: "Interpretation",
+                field: "interpretation",
                 valign: "middle",
                 formatter: this.interpretationsFormatter,
                 visible: !this._config.columns.hidden.includes("interpretation")
@@ -504,21 +504,21 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
             //     formatter: this.reviewCaseFormatter.bind(this)
             // },
             {
-                title: "Intepreter",
+                title: "Interpreter",
                 eligible: false,
                 align: "center",
                 valign: "middle",
                 formatter: this.interpretationFormatter.bind(this),
                 visible: this._config.showInterpretation
             },
-            {
-                title: "Report",
-                eligible: false,
-                align: "center",
-                valign: "middle",
-                formatter: this.reportFormatter.bind(this),
-                visible: this._config.showReport
-            }
+            // {
+            //     title: "Report",
+            //     eligible: false,
+            //     align: "center",
+            //     valign: "middle",
+            //     formatter: this.reportFormatter.bind(this),
+            //     visible: this._config.showReport
+            // }
         ];
 
         if (this._config.showSelectCheckbox) {
@@ -530,21 +530,42 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
             });
         }
 
-        if (this._config.showActions) {
+        if (this.opencgaSession && this._config.showActions) {
             _columns.push( {
                 title: "Actions",
                 // field: "id",
                 // <button class='btn btn-small btn-primary ripple' data-action="edit"><i class="fas fa-edit"></i> Edit</button>
-                formatter: `
+                formatter: (value, row) => `
                     <div class="dropdown ">
                         <button class="btn btn-default btn-small ripple dropdown-toggle one-line" type="button" data-toggle="dropdown">Select action
-                        <span class="caret"></span></button>
+                            <span class="caret"></span>
+                        </button>
                         <ul class="dropdown-menu dropdown-menu-right">
-                            <li><a href="javascript: void 0" class="btn disabled force-text-left" data-action="download">Download</a></li>
-                            <li><a href="javascript: void 0" class="btn disabled force-text-left" data-action="edit">Edit</a></li>
-                            <li><a href="javascript: void 0" class="btn disabled force-text-left" data-action="report">Create Report</a></li>
-                            <li><a href="javascript: void 0" class="btn disabled force-text-left" data-action="reject">Reject</a></li>
-                            <li><a href="javascript: void 0" class="btn force-text-left" data-action="delete">Delete</a></li>
+                            <li>
+                                <a class="btn force-text-left" data-action="interpreter" href="#interpreter/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}">
+                                    <i class="fas fa-user-md" aria-hidden="true" style="padding-right: 5px"></i> Variant Interpreter 
+                                </a>
+                            </li> 
+                            <li>
+                                <a href="javascript: void 0" class="btn disabled force-text-left" data-action="report">
+                                    <i class="fas fa-id-card" aria-hidden="true" style="padding-right: 5px"></i> Create Report</a>
+                                </li>
+                            <li>
+                                <a href="javascript: void 0" class="btn disabled force-text-left" data-action="download">
+                                    <i class="fas fa-download" aria-hidden="true" style="padding-right: 5px"></i> Download
+                                </a>
+                            </li>
+                            <li role="separator" class="divider"></li>
+                            <li>
+                                <a href="javascript: void 0" class="btn disabled force-text-left" data-action="edit">
+                                    <i class="fas fa-edit" aria-hidden="true" style="padding-right: 5px"></i> Edit
+                                </a>
+                            </li>
+                            <li>
+                                <a href="javascript: void 0" class="btn force-text-left" data-action="delete">
+                                    <i class="fas fa-trash" aria-hidden="true" style="padding-right: 5px"></i> Delete
+                                </a>
+                            </li>
                         </ul>
                     </div>`,
                 valign: "middle",
