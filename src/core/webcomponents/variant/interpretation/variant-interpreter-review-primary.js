@@ -209,33 +209,40 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
     }
 
     onSaveInterpretation(e, obj) {
-        const id = PolymerUtils.getValue(this._prefix + "IDInterpretation");
-        const description = PolymerUtils.getValue(this._prefix + "DescriptionInterpretation");
-        const comment = PolymerUtils.getValue(this._prefix + "CommentInterpretation");
+        this.clinicalAnalysis
+        debugger
+        this.opencgaSession.opencgaClient.clinical().updateInterpretation(this.clinicalAnalysis.id, this.clinicalAnalysis.interpretation, {study: this.opencgaSession.study.fqn})
+            .then(response => {
+                debugger
+            })
+            .catch(error => console.error(error));
+        // const id = PolymerUtils.getValue(this._prefix + "IDInterpretation");
+        // const description = PolymerUtils.getValue(this._prefix + "DescriptionInterpretation");
+        // const comment = PolymerUtils.getValue(this._prefix + "CommentInterpretation");
 
-        if (UtilsNew.isNotEmpty(id)) {
-            if (/s/.test(id)) {
-                this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
-                    detail: {
-                        message: "ID must not contains blanks.",
-                        type: UtilsNew.MESSAGE_ERROR
-                    },
-                    bubbles: true,
-                    composed: true
-                }));
-            } else {
-                this.interpretation = this._createInterpretation();
-            }
-        } else {
-            this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
-                detail: {
-                    message: "ID must not be empty.",
-                    type: UtilsNew.MESSAGE_ERROR
-                },
-                bubbles: true,
-                composed: true
-            }));
-        }
+        // if (UtilsNew.isNotEmpty(id)) {
+        //     if (/s/.test(id)) {
+        //         this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
+        //             detail: {
+        //                 message: "ID must not contains blanks.",
+        //                 type: UtilsNew.MESSAGE_ERROR
+        //             },
+        //             bubbles: true,
+        //             composed: true
+        //         }));
+        //     } else {
+        //         this.interpretation = this._createInterpretation();
+        //     }
+        // } else {
+        //     this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
+        //         detail: {
+        //             message: "ID must not be empty.",
+        //             type: UtilsNew.MESSAGE_ERROR
+        //         },
+        //         bubbles: true,
+        //         composed: true
+        //     }));
+        // }
     }
 
     _createInterpretation() {

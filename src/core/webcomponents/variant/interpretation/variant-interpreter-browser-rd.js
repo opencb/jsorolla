@@ -215,11 +215,31 @@ class VariantInterpreterBrowserRd extends LitElement {
     }
 
     onCheckVariant(e) {
-        if (this.clinicalAnalysis && this.clinicalAnalysis.interpretation) {
-            this.clinicalAnalysis.modificationDate = e.detail.timestamp;
-            this.clinicalAnalysis.interpretation.modificationDate = e.detail.timestamp;
-            this.clinicalAnalysis.interpretation.primaryFindings = Array.from(e.detail.rows);
+        if (!this.clinicalAnalysis) {
+            console.error("This is an impossible error");
         }
+
+        // this.clinicalAnalysis.modificationDate = e.detail.timestamp;
+
+        // let _interpretation;
+        // if (this.clinicalAnalysis.interpretation) {
+        //     _interpretation = {primaryFindings: [], ...this.clinicalAnalysis.interpretation};
+        // } else {
+        //     _interpretation = {
+        //         primaryFindings: []
+        //     }
+        // }
+        //
+        // _interpretation.id = this.clinicalAnalysis.id;
+        // _interpretation.clinicalAnalysisId = this.clinicalAnalysis.id;
+        // // _interpretation.modificationDate = e.detail.timestamp;
+        // _interpretation.method = {name: "IVA"};
+        // _interpretation.primaryFindings = Array.from(e.detail.rows);
+
+        // for (let variant of _interpretation.primaryFindings) {
+            // delete variant["12"];
+        // }
+        // this.clinicalAnalysis.interpretation = _interpretation;
 
         this.dispatchEvent(new CustomEvent("clinicalAnalysisUpdate", {
             detail: {
