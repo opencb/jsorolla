@@ -646,7 +646,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                             ${this.opencgaSession?.token ? html`
                                                 <li role="separator" class="divider"></li>
                                                 <li>
-                                                    <a style="cursor: pointer" @click="${this.launchModal}"><i class="fa fa-floppy-o" aria-hidden="true" style="padding-right: 5px"></i> Save...</a>
+                                                    <a style="cursor: pointer" @click="${this.launchModal}"><i class="fa fa-floppy-o icon-padding" aria-hidden="true"></i> Save...</a>
                                                 </li>
                                             ` : null}
                                         </ul>

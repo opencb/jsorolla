@@ -875,7 +875,7 @@ export default class DataForm extends LitElement {
             let buttonClass = this.config.display.mode.buttonClass ? this.config.display.mode.buttonClass : "btn-primary";
             return html`
                 <button type="button" class="btn ${buttonClass}" data-toggle="modal" data-target="#${this._prefix}DataModal">
-                    <i class="${this.config.icon ? this.config.icon : "fas fa-info-circle"}" aria-hidden="true" style="padding-right: 5px"></i> ${this.config.title}
+                    <i class="${this.config.icon ? this.config.icon : "fas fa-info-circle"} icon-padding" aria-hidden="true"></i> ${this.config.title}
                 </button>
                 <div class="modal fade" id="${this._prefix}DataModal" tabindex="-1" role="dialog" aria-labelledby="${this._prefix}exampleModalLabel" aria-hidden="true">
                     <div class="modal-dialog" role="document" style="width: ${this.config.display.mode.width ? this.config.display.mode.width : 640}px">

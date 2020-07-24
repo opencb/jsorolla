@@ -281,11 +281,13 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
     }
 
     interpretationFormatter(value, row) {
-        if (row?.interpretation) {
-            return `<span>${row.interpretation?.primaryFindings?.length} variants {icon}</span>`;
-        } else {
-            return "<span title='No interpretations available'>0 variants {icon}</span>";
-        }
+        return `${row.interpretation?.primaryFindings?.length
+                    ? `<span>${row.interpretation.primaryFindings.length} variants</span>`
+                    : `<span title='No interpretations available'>0 variants</span>
+                `}
+                <a class="btn force-text-left" data-action="interpreter" title="Go to Variant Interpreter" href="#interpreter/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}">
+                    <i class="fas fa-user-md icon-padding" aria-hidden="true"></i> 
+                </a>`;
     }
 
     disorderFormatter(value, row) {
@@ -365,8 +367,8 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
     //     // The clinical anlysisi id is in: e.target.dataset.id
     // }
 
-    onActionClick(e, value, row) {
-        console.log(e, value, row);
+    onActionClick(e, _, row) {
+        console.log(e, _, row);
         const action = e.target.dataset.action;
         //console.log("action", action)
         if (action === "delete") {
@@ -382,12 +384,12 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                 if (result.value) {
                     const clinicalAnalysisId = row.id;
                     this.opencgaSession.opencgaClient.clinical().delete(clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
-                        .then( restResponse => {
+                        .then(restResponse => {
                             if (restResponse.getResultEvents("ERROR").length) {
                                 Swal.fire({
                                     title: "Error",
                                     icon: "error",
-                                    html: restResponse.getResultEvents("ERROR").map( event => event.message).join("<br>")
+                                    html: restResponse.getResultEvents("ERROR").map(event => event.message).join("<br>")
                                 })
                             } else {
                                 Swal.fire(
@@ -398,7 +400,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                                 this.renderTable();
                             }
                         })
-                        .catch (restResponse => {
+                        .catch(restResponse => {
                             Swal.fire(
                                 "Server Error!",
                                 "Clinical Analysis has not been correctly deleted.",
@@ -407,6 +409,9 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                         })
                 }
             })
+        }
+        if (action === "download") {
+            UtilsNew.downloadData([JSON.stringify(row, null, "\t")], row.id + ".json")
         }
     }
 
@@ -457,7 +462,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                 title: "Interpretation",
                 field: "interpretation",
                 valign: "middle",
-                formatter: this.interpretationFormatter,
+                formatter: this.interpretationFormatter.bind(this),
                 visible: !this._config.columns.hidden.includes("interpretation")
             },
             {
@@ -543,34 +548,34 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                         <ul class="dropdown-menu dropdown-menu-right">
                             <li>
                                 <a class="btn force-text-left" data-action="interpreter" href="#interpreter/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}">
-                                    <i class="fas fa-user-md" aria-hidden="true" style="padding-right: 5px"></i> Variant Interpreter 
+                                    <i class="fas fa-user-md icon-padding" aria-hidden="true"></i> Variant Interpreter 
                                 </a>
                             </li> 
                             <li>
                                 <a href="javascript: void 0" class="btn disabled force-text-left" data-action="report">
-                                    <i class="fas fa-id-card" aria-hidden="true" style="padding-right: 5px"></i> Create Report</a>
+                                    <i class="fas fa-id-card icon-padding" aria-hidden="true"></i> Create Report</a>
                                 </li>
                             <li>
-                                <a href="javascript: void 0" class="btn disabled force-text-left" data-action="download">
-                                    <i class="fas fa-download" aria-hidden="true" style="padding-right: 5px"></i> Download
+                                <a href="javascript: void 0" class="btn force-text-left" data-action="download">
+                                    <i class="fas fa-download icon-padding" aria-hidden="true"></i> Download
                                 </a>
                             </li>
                             <li role="separator" class="divider"></li>
                             <li>
                                 <a href="javascript: void 0" class="btn disabled force-text-left" data-action="edit">
-                                    <i class="fas fa-edit" aria-hidden="true" style="padding-right: 5px"></i> Edit
+                                    <i class="fas fa-edit icon-padding" aria-hidden="true"></i> Edit
                                 </a>
                             </li>
                             <li>
                                 <a href="javascript: void 0" class="btn force-text-left" data-action="delete">
-                                    <i class="fas fa-trash" aria-hidden="true" style="padding-right: 5px"></i> Delete
+                                    <i class="fas fa-trash icon-padding" aria-hidden="true"></i> Delete
                                 </a>
                             </li>
                         </ul>
                     </div>`,
                 valign: "middle",
                 events: {
-                    "click li": this.onActionClick.bind(this)
+                    "click a": this.onActionClick.bind(this)
                 },
                 visible: !this._config.columns?.hidden?.includes("actions")
             });

@@ -484,10 +484,10 @@ export default class OpencgaFacetResultView extends LitElement {
             ? html`
                         <div class="btn-group" style="float: right">
                             <span id="${this._prefix}HistogramChartButton" class="btn btn-primary plots active" @click="${this.renderHistogramChart}">
-                                <i class="fas fa-chart-bar" style="padding-right: 5px" title="Bar Chart" data-id="${this.facetResult.name}"></i>
+                                <i class="fas fa-chart-bar icon-padding" title="Bar Chart" data-id="${this.facetResult.name}"></i>
                             </span>
                             <span id="${this._prefix}PieChartButton" class="btn btn-primary plots" @click="${this.onPieChart}">
-                                <i class="fas fa-chart-pie" style="padding-right: 5px" title="Pie Chart" data-id="${this.facetResult.name}"></i>
+                                <i class="fas fa-chart-pie icon-padding" title="Pie Chart" data-id="${this.facetResult.name}"></i>
                             </span>
                         </div>`
             : null

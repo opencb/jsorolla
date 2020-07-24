@@ -897,7 +897,7 @@ export default class OpencgaVariantInterpretationGrid extends LitElement {
                     clinicalSignificance = re.classification.clinicalSignificance.replace("_VARIANT", "").replace("_", " ");
                 }
                 clinicalSignificanceHtml = `<span style="color: ${clinicalSignificanceCodes[re.classification.clinicalSignificance].color}">${clinicalSignificance}</span>`;
-                clinicalSignificanceTooltipText = `<div class="col-md-12" style="padding: 0px">
+                clinicalSignificanceTooltipText = `<div class="predictionTooltip-inner col-md-12" style="padding: 0px">
                                                                 <form class="form-horizontal">
                                                                     <div class="form-group" style="margin: 0px 2px">
                                                                         <label class="col-md-5">ACMG</label>
