@@ -117,6 +117,9 @@ export default class VariantInterpreterQcVariantFamily extends LitElement {
     }
 
     async onVariantFilterSearch(e) {
+
+       // TODO fix activeFilterClear and activeFilterChange!
+
         this.loading = true;
         await this.requestUpdate();
         console.log("onVariantFilterSearch", e)
@@ -201,11 +204,14 @@ export default class VariantInterpreterQcVariantFamily extends LitElement {
     }
 
     onActiveFilterChange(e) {
+        console.log("e.detail", e.detail)
         this.query = {study: this.opencgaSession.study.fqn, ...e.detail};
         this.requestUpdate();
     }
 
-    onActiveFilterClear() {
+    onActiveFilterClear(e) {
+
+        console.log("e.detail", e.detail)
         this.query = {study: this.opencgaSession.study.fqn};
         this.requestUpdate();
     }

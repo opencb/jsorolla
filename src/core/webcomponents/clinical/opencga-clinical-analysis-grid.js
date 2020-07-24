@@ -369,8 +369,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
 
     onActionClick(e, _, row) {
         console.log(e, _, row);
-        const action = e.target.dataset.action;
-        //console.log("action", action)
+        const {action} = e.target.dataset;
         if (action === "delete") {
             Swal.fire({
                 title: "Are you sure?",
@@ -541,7 +540,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                 // field: "id",
                 // <button class='btn btn-small btn-primary ripple' data-action="edit"><i class="fas fa-edit"></i> Edit</button>
                 formatter: (value, row) => `
-                    <div class="dropdown ">
+                    <div class="dropdown">
                         <button class="btn btn-default btn-small ripple dropdown-toggle one-line" type="button" data-toggle="dropdown">Select action
                             <span class="caret"></span>
                         </button>
