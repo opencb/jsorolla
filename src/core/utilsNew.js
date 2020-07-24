@@ -206,4 +206,19 @@ export default class UtilsNew {
         return "-";
     }
 
+    static downloadData(dataString, filename, mimeType = "application/json") {
+        // Build file and anchor link
+        const data = new Blob([dataString.join("\n")], {type: mimeType});
+        const file = window.URL.createObjectURL(data);
+        const a = document.createElement("a");
+        a.href = file;
+        //a.download = this.opencgaSession.study.alias + extension;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(function() {
+            document.body.removeChild(a);
+        }, 0);
+    }
+
 }

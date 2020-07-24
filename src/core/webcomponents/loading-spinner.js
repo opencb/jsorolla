@@ -47,7 +47,7 @@ export default class LoadingSpinner extends LitElement {
             .DNA_cont {
                 display: inline-block;
                 position: relative;
-                -webkit-transform: scale(-0.45);
+                -webkit-transform: scaleX(-0.45) scaleY(0.45);
                 transform: scaleX(-0.45) scaleY(0.45);
                 margin-top: 20px;
             }

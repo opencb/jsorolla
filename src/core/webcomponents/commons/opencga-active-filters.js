@@ -607,7 +607,7 @@ export default class OpencgaActiveFilters extends LitElement {
                                 </div>
                                 <div class="rhs">
                                     <button type="button" class="btn btn-primary btn-sm ripple" @click="${this.clearFacet}">
-                                        <i class="fa fa-eraser" aria-hidden="true" style="padding-right: 5px"></i> Clear
+                                        <i class="fa fa-eraser icon-padding" aria-hidden="true"></i> Clear
                                     </button>
                                 </div>
                             </div>

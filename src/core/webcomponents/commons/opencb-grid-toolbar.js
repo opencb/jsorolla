@@ -147,7 +147,7 @@ export default class OpencbGridToolbar extends LitElement {
                             ${this._config.columns.length ? html`
                                     <div class="btn-group">
                                         <button type="button" class="btn btn-default ripple btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                            <i id="${this._prefix}ColumnIcon" class="fa fa-columns" aria-hidden="true" style="padding-right: 5px"></i> Columns <span class="caret"></span>
+                                            <i id="${this._prefix}ColumnIcon" class="fa fa-columns icon-padding" aria-hidden="true"></i> Columns <span class="caret"></span>
                                         </button>
                                         <ul class="dropdown-menu btn-sm checkbox-container">
                                             ${this._config.columns.length ?
@@ -168,8 +168,7 @@ export default class OpencbGridToolbar extends LitElement {
                                         aria-haspopup="true" aria-expanded="false">
                                     <i id="${this._prefix}DownloadRefresh" class="fa fa-refresh fa-spin" aria-hidden="true"
                                        style="font-size:14px;display: none"></i>
-                                    <i id="${this._prefix}DownloadIcon" class="fa fa-download" aria-hidden="true"
-                                       style="padding-right: 5px"></i> Download <span class="caret"></span>
+                                    <i id="${this._prefix}DownloadIcon" class="fa fa-download icon-padding" aria-hidden="true"></i> Download <span class="caret"></span>
                                 </button>
                                 <ul class="dropdown-menu btn-sm">
                                     ${this._config.download.length ? this._config.download.map(item => html`
@@ -181,7 +180,7 @@ export default class OpencbGridToolbar extends LitElement {
                             <!--Share URL-->
                             ${this.showShareLink ? html`
                                 <button type="button" class="btn btn-default btn-sm" data-toggle="popover" data-placement="bottom" @click="onShareLink">
-                                    <i class="fa fa-share-alt" aria-hidden="true" style="padding-right: 5px"></i> Share
+                                    <i class="fa fa-share-alt icon-padding" aria-hidden="true"></i> Share
                                 </button>
                             ` : null }
                         </div>

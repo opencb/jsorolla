@@ -677,7 +677,7 @@ export default class VariantInterpreterGrid extends LitElement {
                 clinicalSignificanceCode = clinicalSignificanceCodes[re.classification.clinicalSignificance].code;
                 let clinicalSignificance = re.classification.clinicalSignificance.replace("_", " ");
                 clinicalSignificanceHtml = `<span style="color: ${clinicalSignificanceCodes[re.classification.clinicalSignificance].color}">${clinicalSignificance}</span>`;
-                clinicalSignificanceTooltipText = `<div class="col-md-12" style="padding: 0px">
+                clinicalSignificanceTooltipText = `<div class="col-md-12 predictionTooltip-inner" style="padding: 0px">
                                                         <form class="form-horizontal">
                                                             <div class="form-group" style="margin: 0px 2px">
                                                                 <label class="col-md-5">ACMG</label>
@@ -1199,7 +1199,7 @@ export default class VariantInterpreterGrid extends LitElement {
                                  @sharelink="${this.onShare}">
             </opencb-grid-toolbar>
     
-            <div id="${this._prefix}GridTableDiv">
+            <div id="${this._prefix}GridTableDiv" class="force-overflow">
                 <table id="${this._prefix}VariantBrowserGrid"></table>
             </div>
     
