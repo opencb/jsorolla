@@ -215,8 +215,10 @@ class VariantInterpreterBrowserRd extends LitElement {
     }
 
     onCheckVariant(e) {
-        if (!this.clinicalAnalysis) {
-            console.error("This is an impossible error");
+        if (this.clinicalAnalysis && this.clinicalAnalysis.interpretation) {
+            this.clinicalAnalysis.modificationDate = e.detail.timestamp;
+            this.clinicalAnalysis.interpretation.modificationDate = e.detail.timestamp;
+            this.clinicalAnalysis.interpretation.primaryFindings = Array.from(e.detail.rows);
         }
 
         // this.clinicalAnalysis.modificationDate = e.detail.timestamp;

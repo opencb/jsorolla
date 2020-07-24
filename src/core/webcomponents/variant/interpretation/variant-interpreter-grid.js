@@ -259,7 +259,8 @@ export default class VariantInterpreterGrid extends LitElement {
                 },
                 onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
                 onCheck: (row, $element) => {
-                    debugger
+                    delete row.checkbox;
+
                     this.checkedVariants.set(row.id, row);
                     this._timestamp = new Date().getTime();
                     this.gridCommons.onCheck(row.id, row, {rows: Array.from(this.checkedVariants.values()), timestamp: this._timestamp});
@@ -286,7 +287,6 @@ export default class VariantInterpreterGrid extends LitElement {
                 onLoadSuccess: data => {
                     for (let i = 0; i < data.rows.length; i++) {
                         if (this.checkedVariants.has(data.rows[i].id)) {
-                            debugger
                             $(this.table).bootstrapTable('check', i);
                         }
                     }
@@ -822,7 +822,7 @@ export default class VariantInterpreterGrid extends LitElement {
         });
         if (this._config.showSelectCheckbox) {
             _columns[1].push({
-                // field: null,
+                field: "checkbox",
                 checkbox: true,
                 rowspan: 1,
                 colspan: 1,
