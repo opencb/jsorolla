@@ -562,13 +562,22 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
             execute: (opencgaSession, clinicalAnalysis, params) => {
                 // Prepare the data for the REST create
                 // TODO validate data!
-                // debugger
                 let data = {...clinicalAnalysis};
-                console.log("data",data)
                 delete data._users;
+
                 data.proband = {
                     id: clinicalAnalysis.proband ? clinicalAnalysis.proband.id : null
                 };
+                data.interpretation = {
+                    id: clinicalAnalysis.id + ".1",
+                    clinicalAnalysisId: clinicalAnalysis.id,
+                    analyst: {},
+                    method: {},
+                    primaryFindings: [],
+                    secondaryFindings: [],
+                    comments: [],
+                }
+
                 if (clinicalAnalysis?.disorder?.id) {
                     data.disorder = {
                         id: clinicalAnalysis.disorder.id

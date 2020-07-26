@@ -173,7 +173,7 @@ export default class VariantInterpreterGrid extends LitElement {
 
     renderRemoteVariants() {
         if (this.clinicalAnalysis && this._timestamp && this.clinicalAnalysis.interpretation
-            && this.clinicalAnalysis.interpretation.modificationDate === this._timestamp) {
+            && this.clinicalAnalysis.interpretation.attributes.modificationDate === this._timestamp) {
             return;
         }
 

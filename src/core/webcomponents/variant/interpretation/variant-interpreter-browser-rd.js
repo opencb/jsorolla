@@ -143,7 +143,7 @@ class VariantInterpreterBrowserRd extends LitElement {
 
     /**
      * Fetch the CinicalAnalysis object from REST and trigger the observer call.
-    */
+     */
     clinicalAnalysisIdObserver() {
         if (this.opencgaSession && this.clinicalAnalysisId) {
             this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
@@ -215,15 +215,26 @@ class VariantInterpreterBrowserRd extends LitElement {
     }
 
     onCheckVariant(e) {
-        if (this.clinicalAnalysis && this.clinicalAnalysis.interpretation) {
-            this.clinicalAnalysis.modificationDate = e.detail.timestamp;
-            this.clinicalAnalysis.interpretation.modificationDate = e.detail.timestamp;
-            this.clinicalAnalysis.interpretation.primaryFindings = Array.from(e.detail.rows);
+
+        // if (this.clinicalAnalysis && this.clinicalAnalysis.interpretation) {
+        //     this.clinicalAnalysis.modificationDate = e.detail.timestamp;
+        //     this.clinicalAnalysis.interpretation.modificationDate = e.detail.timestamp;
+        //     this.clinicalAnalysis.interpretation.primaryFindings = Array.from(e.detail.rows);
+        // }
+
+        if (!this.clinicalAnalysis) {
+            console.error("It is not possible have this error")
+            return;
         }
 
-        // this.clinicalAnalysis.modificationDate = e.detail.timestamp;
+        this.clinicalAnalysis.modificationDate = e.detail.timestamp;
+        this.clinicalAnalysis.interpretation = {
+            attributes: {
+                modificationDate: e.detail.timestamp
+            }
+        };
 
-        // let _interpretation;
+        let _interpretation = {primaryFindings: [], ...this.clinicalAnalysis.interpretation};
         // if (this.clinicalAnalysis.interpretation) {
         //     _interpretation = {primaryFindings: [], ...this.clinicalAnalysis.interpretation};
         // } else {
@@ -231,17 +242,13 @@ class VariantInterpreterBrowserRd extends LitElement {
         //         primaryFindings: []
         //     }
         // }
-        //
-        // _interpretation.id = this.clinicalAnalysis.id;
-        // _interpretation.clinicalAnalysisId = this.clinicalAnalysis.id;
-        // // _interpretation.modificationDate = e.detail.timestamp;
-        // _interpretation.method = {name: "IVA"};
-        // _interpretation.primaryFindings = Array.from(e.detail.rows);
 
-        // for (let variant of _interpretation.primaryFindings) {
-            // delete variant["12"];
-        // }
-        // this.clinicalAnalysis.interpretation = _interpretation;
+        _interpretation.id = this.clinicalAnalysis.id;
+        _interpretation.clinicalAnalysisId = this.clinicalAnalysis.id;
+        _interpretation.method = {name: "IVA"};
+        _interpretation.primaryFindings = Array.from(e.detail.rows);
+
+        this.clinicalAnalysis.interpretation = _interpretation;
 
         this.dispatchEvent(new CustomEvent("clinicalAnalysisUpdate", {
             detail: {
