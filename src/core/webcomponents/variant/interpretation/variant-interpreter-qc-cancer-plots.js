@@ -83,6 +83,7 @@ export default class VariantInterpreterQcCancerPlots extends LitElement {
     }
 
     signatureQuery() {
+
         this.opencgaSession.opencgaClient.variants().queryMutationalSignature({
             study: this.opencgaSession.study.fqn,
             fitting: false,

@@ -72,6 +72,23 @@ export default class CircosView extends LitElement {
         this.circosImage = null;
         this.requestUpdate();
 
+        let query = {
+            title: "Circos",
+            tracks: [
+                {
+                    id: "snv",
+                    type: "SNV",
+                    filters: [
+                        {
+                            study: this.opencgaSession.study.fqn,
+                            fitting: false,
+                            sample: this.sampleId,
+                            ...this.query
+                        }
+                    ]
+                }
+            ]
+        }
         this.opencgaSession.opencgaClient.variants().circos({
             study: this.opencgaSession.study.fqn,
             sample: this.sampleId,
