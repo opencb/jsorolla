@@ -69,7 +69,7 @@ export default class OpencgaIndividualGrid extends LitElement {
     }
 
     firstUpdated(_changedProperties) {
-        this.table = this.querySelector("#" + this.gridId);
+        this.table = $("#" + this.gridId);
     }
 
     updated(changedProperties) {
@@ -77,8 +77,8 @@ export default class OpencgaIndividualGrid extends LitElement {
             changedProperties.has("query") ||
             changedProperties.has("config") ||
             changedProperties.has("active")) {
-            // this.propertyObserver();
-            this.renderTable();
+            this.propertyObserver();
+            //this.renderTable();
         }
     }
 
@@ -86,10 +86,10 @@ export default class OpencgaIndividualGrid extends LitElement {
         // With each property change we must updated config and create the columns again. No extra checks are needed.
         this._config = {...this.getDefaultConfig(), ...this.config};
 
-        // Config for the grid toolbar
-        // this.toolbarConfig = {
-        //     columns: this._columns[0]
-        // };
+        //Config for the grid toolbar
+        this.toolbarConfig = {
+            columns: this._getDefaultColumns()
+        };
 
         this.renderTable();
     }
@@ -250,12 +250,7 @@ export default class OpencgaIndividualGrid extends LitElement {
     }
 
     onColumnChange(e) {
-        const table = $("#" + this.gridId);
-        if (e.detail.selected) {
-            table.bootstrapTable("showColumn", e.detail.id);
-        } else {
-            table.bootstrapTable("hideColumn", e.detail.id);
-        }
+        this.gridCommons.onColumnChange(e);
     }
 
     //TODO lit-html refactor

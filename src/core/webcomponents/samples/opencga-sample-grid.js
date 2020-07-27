@@ -68,17 +68,14 @@ export default class OpencgaSampleGrid extends LitElement {
     }
 
     firstUpdated() {
-        this.table = this.querySelector("#" + this.gridId);
+        this.table = $("#" + this.gridId);
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("opencgaSession") || changedProperties.has("query")) {
-            this.renderTable();
-        }
         if (changedProperties.has("opencgaSession") ||
             changedProperties.has("query") ||
             changedProperties.has("active")) {
-            //this.propertyObserver();
+            this.propertyObserver();
         }
 
         if (changedProperties.has("config")) {
@@ -93,10 +90,10 @@ export default class OpencgaSampleGrid extends LitElement {
 
         // Config for the grid toolbar
         this.toolbarConfig = {
-            columns: this._columns[0]
+            columns: this._getDefaultColumns()
         };
 
-        //this.renderTable();
+        this.renderTable();
     }
 
     configObserver() {
@@ -248,12 +245,7 @@ export default class OpencgaSampleGrid extends LitElement {
     }
 
     onColumnChange(e) {
-        const table = $("#" + this._prefix + "SampleBrowserGrid");
-        if (e.detail.selected) {
-            table.bootstrapTable("showColumn", e.detail.id);
-        } else {
-            table.bootstrapTable("hideColumn", e.detail.id);
-        }
+        this.gridCommons.onColumnChange(e);
     }
 
     individualFormatter(value, row) {

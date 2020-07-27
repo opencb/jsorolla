@@ -72,13 +72,13 @@ export default class OpencgaJobsGrid extends LitElement {
     firstUpdated(_changedProperties) {
         this._initTableColumns();
         this.dispatchEvent(new CustomEvent("clear", {detail: {}, bubbles: true, composed: true}));
-        this.table = this.querySelector("#" + this.gridId);
+        this.table = $("#" + this.gridId);
         this.query = {};
     }
 
     updated(changedProperties) {
         if (changedProperties.has("opencgaSession") || changedProperties.has("query")) {
-            this.renderTable();
+            this.propertyObserver();
         }
         if (changedProperties.has("filters")) {
             this.onFilterUpdate();
@@ -92,8 +92,19 @@ export default class OpencgaJobsGrid extends LitElement {
         }
     }
 
+    propertyObserver() {
+        this.toolbarConfig = {
+            columns: this._initTableColumns().filter( col => col.field)
+        };
+        this.renderTable();
+    }
+
     configObserver() {
         this._config = {...this.getDefaultConfig(), ...this.config};
+    }
+
+    onColumnChange(e) {
+        this.gridCommons.onColumnChange(e);
     }
 
     renderTable() {
@@ -482,6 +493,8 @@ export default class OpencgaJobsGrid extends LitElement {
                 <opencb-grid-toolbar .from="${this.from}"
                                     .to="${this.to}"
                                     .numTotalResultsText="${this.numTotalResultsText}"
+                                    .config="${this.toolbarConfig}"
+                                    @columnChange="${this.onColumnChange}"
                                     @download="${this.onDownload}">
                 </opencb-grid-toolbar>`
             : null }

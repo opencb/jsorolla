@@ -210,4 +210,12 @@ export default class GridCommons {
         return `Showing <b>${pageFrom}</b> to <b>${pageTo}</b> of <b>${Number(totalRows).toLocaleString()}</b> records`
     }
 
+    onColumnChange(e) {
+        if (e.detail.selected) {
+            e.detail.id.split(",").forEach( id => this.context.table.bootstrapTable("showColumn", id));
+        } else {
+            e.detail.id.split(",").forEach( id => this.context.table.bootstrapTable("hideColumn", id));
+        }
+    }
+
 }

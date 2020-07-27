@@ -79,8 +79,7 @@ export default class OpencgaFamilyGrid extends LitElement {
     }
 
     firstUpdated(_changedProperties) {
-        // this.renderTable(this.active);
-        this.table = this.querySelector("#" + this.gridId);
+        this.table = $("#" + this.gridId);
     }
 
     propertyObserver() {
@@ -88,10 +87,10 @@ export default class OpencgaFamilyGrid extends LitElement {
         this._config = {...this.getDefaultConfig(), ...this.config};
         // this._columns = this._initTableColumns();
 
-        // Config for the grid toolbar
-        // this.toolbarConfig = {
-        //     columns: this._columns[0]
-        // };
+        //Config for the grid toolbar
+        this.toolbarConfig = {
+            columns: this._getDefaultColumns()
+        };
         this.renderTable();
     }
 
@@ -248,12 +247,7 @@ export default class OpencgaFamilyGrid extends LitElement {
     }
 
     onColumnChange(e) {
-        const table = $("#" + this._prefix + "FamilyBrowserGrid");
-        if (e.detail.selected) {
-            table.bootstrapTable("showColumn", e.detail.id);
-        } else {
-            table.bootstrapTable("hideColumn", e.detail.id);
-        }
+        this.gridCommons.onColumnChange(e);
     }
 
     detailFormatter(value, row) {

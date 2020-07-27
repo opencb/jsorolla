@@ -70,27 +70,6 @@ export default class OpencgaVariantGrid extends LitElement {
     _init() {
         this._prefix = "vbg-" + UtilsNew.randomString(6);
 
-        // Config for the grid toolbar
-        this.toolbarConfig = {
-            columns: [
-                {
-                    title: "Variant", field: "id"
-                },
-                {
-                    title: "dbSNP Id", field: "dbSNP"
-                },
-                {
-                    title: "Gene", field: "gene"
-                },
-                {
-                    title: "Type", field: "type"
-                },
-                {
-                    title: "Consequence Type", field: "consequenceType"
-                }
-            ]
-        };
-
         this.gridId = this._prefix + "VariantBrowserGrid";
         this.checkedVariants = new Map();
     }
@@ -109,6 +88,8 @@ export default class OpencgaVariantGrid extends LitElement {
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
         this.table = this.querySelector("#" + this.gridId);
         // this.checkedVariants = new Map();
+
+
     }
 
     updated(changedProperties) {
@@ -142,17 +123,16 @@ export default class OpencgaVariantGrid extends LitElement {
         this.samples = _samples;
 
         // Set colors
-        const colors = this.variantGridFormatter.assignColors(this.consequenceTypes, this.proteinSubstitutionScores);
-        Object.assign(this, colors);
+        this.colors = this.variantGridFormatter.assignColors(this.consequenceTypes, this.proteinSubstitutionScores);
+
+        // Config for the grid toolbar
+        this.toolbarConfig = {
+            columns: this._createDefaultColumns().flat().filter( f => !["deleteriousness","conservation","popfreq","phenotypes"].includes(f.field))
+        };
     }
 
     onColumnChange(e) {
-        const table = $("#" + this.gridId);
-        if (e.detail.selected) {
-            table.bootstrapTable("showColumn", e.detail.id);
-        } else {
-            table.bootstrapTable("hideColumn", e.detail.id);
-        }
+        this.gridCommons.onColumnChange(e);
     }
 
     renderVariants() {
@@ -192,8 +172,9 @@ export default class OpencgaVariantGrid extends LitElement {
                 showExport: _this._config.showExport,
                 detailView: _this._config.detailView,
                 detailFormatter: _this._config.detailFormatter,
+                showColumns : true,
+                showColumnsToggleAll: true,
                 formatLoadingMessage: () =>"<loading-spinner></loading-spinner>",
-
                 // this makes the opencga-variant-grid properties available in the bootstrap-table formatters
                 variantGrid: _this,
                 ajax: params => {
@@ -455,7 +436,7 @@ export default class OpencgaVariantGrid extends LitElement {
         }
 
         if (min !== 10) {
-            return "<span style=\"color: " + this.pssColor.get(description.sift) + "\" title=\"" + min + "\">" + description.sift + "</span>";
+            return "<span style=\"color: " + this.colors.pssColor.get(description.sift) + "\" title=\"" + min + "\">" + description.sift + "</span>";
         }
         return "-";
     }
@@ -493,7 +474,7 @@ export default class OpencgaVariantGrid extends LitElement {
                         return $1.toLowerCase();
                     });
             }
-            return "<span style=\"color: " + this.pssColor.get(str) + "\" title=\"" + max + "\">" + description.polyphen + "</span>";
+            return "<span style=\"color: " + this.colors.pssColor.get(str) + "\" title=\"" + max + "\">" + description.polyphen + "</span>";
         }
         return "-";
     }
@@ -730,7 +711,7 @@ export default class OpencgaVariantGrid extends LitElement {
                 },
                 {
                     title: `Conservation  <a tooltip-title='Conservation' tooltip-text="Positive PhyloP scores measure conservation which is slower evolution than expected, at sites that are predicted to be conserved. Negative PhyloP scores measure acceleration, which is faster evolution than expected, at sites that are predicted to be fast-evolving. Absolute values of phyloP scores represent -log p-values under a null hypothesis of neutral evolution. The phastCons scores represent probabilities of negative selection and range between 0 and 1. Positive GERP scores represent a substitution deficit and thus indicate that a site may be under evolutionary constraint. Negative scores indicate that a site is probably evolving neutrally. Some authors suggest that a score threshold of 2 provides high sensitivity while still strongly enriching for truly constrained sites"><i class="fa fa-info-circle" aria-hidden="true"></i></a>`,
-                    field: "Conservation",
+                    field: "conservation",
                     rowspan: 1,
                     colspan: 3,
                     align: "center"
@@ -835,8 +816,7 @@ export default class OpencgaVariantGrid extends LitElement {
         let isCohortPresent = false;
         // if (typeof this._columns !== "undefined" && typeof this.cohorts !== "undefined" && Object.keys(this.cohorts).length > 0
         //     && this.config.filter.menu.skipSubsections !== undefined && !this.config.filter.menu.skipSubsections.includes("cohort")) {
-        if (typeof this._columns !== "undefined" && typeof this.cohorts !== "undefined" && Object.keys(this.cohorts).length > 0 &&
-            typeof this.cohorts[this.opencgaSession.project.id] !== "undefined") {
+        if (this._columns && typeof Object.keys(this.cohorts)?.length > 0 && this.cohorts[this.opencgaSession.project.id]) {
             isCohortPresent = true;
             const cohortStudyIdx = 7;
             const cohortIdx = 6;
@@ -875,7 +855,7 @@ export default class OpencgaVariantGrid extends LitElement {
             // Just one column called 'Population Frequencies'
             this._columns[0].splice(popIdx, 0, {
                 title: "Population Frequencies <span class=\"popFreqInfoIcon\"><i class=\"fa fa-info-circle\" style=\"color: #337ab7\" aria-hidden=\"true\"></i></span>",
-                field: "",
+                field: "popfreq",
                 rowspan: 1,
                 colspan: this.populationFrequencies.studies.length,
                 align: "center"

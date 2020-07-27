@@ -61,7 +61,7 @@ export default class OpencgaCohortGrid extends LitElement {
     }
 
     firstUpdated(_changedProperties) {
-        this.table = this.querySelector("#" + this.gridId);
+        this.table = $("#" + this.gridId);
     }
 
     updated(changedProperties) {
@@ -328,14 +328,8 @@ export default class OpencgaCohortGrid extends LitElement {
         }
     }
 
-
     onColumnChange(e) {
-        const table = $("#" + this._prefix + "CohortBrowserGrid");
-        if (e.detail.selected) {
-            table.bootstrapTable("showColumn", e.detail.id);
-        } else {
-            table.bootstrapTable("hideColumn", e.detail.id);
-        }
+        this.gridCommons.onColumnChange(e);
     }
 
     sampleFormatter(value, row) {
@@ -406,10 +400,6 @@ export default class OpencgaCohortGrid extends LitElement {
         ];
 
         return this._columns;
-    }
-
-    _getUrlQueryParams() {
-        // TODO
     }
 
     onDownload(e) {
@@ -497,9 +487,11 @@ export default class OpencgaCohortGrid extends LitElement {
 
     render() {
         return html`
-        <opencb-grid-toolbar .from="${this.from}"
+        <opencb-grid-toolbar .config="${this.toolbarConfig}"
+                             .from="${this.from}"
                              .to="${this.to}"
                              numTotalResultsText="${this.numTotalResultsText}"
+                             @columnChange="${this.onColumnChange}"
                              @download="${this.onDownload}">
         </opencb-grid-toolbar>
 

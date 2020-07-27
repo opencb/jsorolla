@@ -66,7 +66,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
     }
 
     firstUpdated(_changedProperties) {
-        this.table = this.querySelector("#" + this.gridId);
+        this.table = $("#" + this.gridId);
     }
 
     updated(changedProperties) {
@@ -82,7 +82,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
 
         // Config for the grid toolbar
         this.toolbarConfig = {
-            columns: this._getDefaultColumns()
+            columns: this._getDefaultColumns().filter( col => col.field)
             // columns: [
             //     {
             //         field: "id", title: "Blabla", visible: true, eligible: true
@@ -223,12 +223,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
     }
 
     onColumnChange(e) {
-        const table = $("#" + this.gridId);
-        if (e.detail.selected) {
-            table.bootstrapTable("showColumn", e.detail.id);
-        } else {
-            table.bootstrapTable("hideColumn", e.detail.id);
-        }
+        this.gridCommons.onColumnChange(e);
     }
 
     /**

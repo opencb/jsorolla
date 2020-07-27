@@ -84,13 +84,13 @@ export default class VariantInterpreterGrid extends LitElement {
 
         this._config = {...this.getDefaultConfig(), ...this.config};
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
-        this.table = this.querySelector("#" + this.gridId);
+
     }
 
     firstUpdated(_changedProperties) {
         this.downloadRefreshIcon = $("#" + this._prefix + "DownloadRefresh");
         this.downloadIcon = $("#" + this._prefix + "DownloadIcon");
-        // this.table = this.querySelector("#" + this.gridId);
+        this.table = $("#" + this.gridId);
         // this.checkedVariants = new Map();
     }
 
@@ -155,12 +155,7 @@ export default class VariantInterpreterGrid extends LitElement {
     }
 
     onColumnChange(e) {
-        const table = $("#" + this._prefix + "VariantBrowserGrid");
-        if (e.detail.selected) {
-            table.bootstrapTable("showColumn", e.detail.id);
-        } else {
-            table.bootstrapTable("hideColumn", e.detail.id);
-        }
+        this.gridCommons.onColumnChange(e);
     }
 
     renderVariants() {
@@ -408,7 +403,7 @@ export default class VariantInterpreterGrid extends LitElement {
             detailHtml += "<div style='padding: 5px 50px'>";
             detailHtml += this.variantGrid.variantGridFormatter.reportedEventDetailFormatter(value, row, this.variantGrid);
             detailHtml += "</div>";
-            
+
             detailHtml += "<div style='padding: 25px 0px 5px 25px'><h4>Consequence Types</h4></div>";
             detailHtml += "<div style='padding: 5px 50px'>";
             detailHtml += this.variantGrid.variantGridFormatter.consequenceTypeDetailFormatter(value, row, this.variantGrid);
