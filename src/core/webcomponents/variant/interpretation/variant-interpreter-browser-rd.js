@@ -747,8 +747,7 @@ class VariantInterpreterBrowserRd extends LitElement {
                 <tool-header title="${this.clinicalAnalysis ? `${this._config.title} (${this.clinicalAnalysis.id})` : this._config.title}" icon="${this._config.icon}"></tool-header>
             ` : null}
 
-            <div class="row" style="padding: 5px 10px">
-
+            <div class="row">
                 <div class="col-md-2">
                     <opencga-variant-filter .opencgaSession="${this.opencgaSession}"
                                             .query="${this.query}"

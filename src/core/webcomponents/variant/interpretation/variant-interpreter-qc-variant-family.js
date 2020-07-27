@@ -61,6 +61,7 @@ export default class VariantInterpreterQcVariantFamily extends LitElement {
         this.save = {};
         this.preparedQuery = {};
         this.loading = false;
+        this.sampleVariantStats = null;
     }
 
     connectedCallback() {
@@ -480,7 +481,7 @@ export default class VariantInterpreterQcVariantFamily extends LitElement {
                                         <div id="loading">
                                             <loading-spinner></loading-spinner>
                                         </div>` 
-                                    : !this.aggregationStatsResults 
+                                    : !this.sampleVariantStats 
                                         ? html`
                                             <div class="alert alert-info" role="alert" style="margin: 0px 15px"><i class="fas fa-3x fa-info-circle align-middle"></i> Please select some filters on the left.</div>` 
                                         : html`
@@ -494,54 +495,6 @@ export default class VariantInterpreterQcVariantFamily extends LitElement {
                                                 </div>
                                                 <div class="col-md-12">
                                                     <sample-variant-stats-view .sampleVariantStats="${this.sampleVariantStats}"></sample-variant-stats-view>
-
-                                                    <!--
-                                                    <div class="col-md-6">
-                                                        <h3>Chromosome</h3>
-                                                        <opencga-facet-result-view .facetResult="${this.aggregationStatsResults?.[0]}"
-                                                                .config="${this.facetConfig}"
-                                                                ?active="${this.facetActive}">
-                                                        </opencga-facet-result-view>
-                                                    </div>
-                                                    <div class="col-md-6">
-                                                        <h3>Genotype</h3>
-                                                        <opencga-facet-result-view .facetResult="${this.aggregationStatsResults?.[1]}"
-                                                                .config="${this.facetConfig}"
-                                                                ?active="${this.facetActive}">
-                                                        </opencga-facet-result-view>
-                                                    </div>
-                                                    <div class="col-md-12">
-                                                        <h3>Type</h3>
-                                                        <opencga-facet-result-view .facetResult="${this.aggregationStatsResults?.[2]}"
-                                                                .config="${this.facetConfig}"
-                                                                ?active="${this.facetActive}">
-                                                        </opencga-facet-result-view>
-                                                    </div>
-                                                    <div class="col-md-12">
-                                                        <h3>Biotype</h3>
-                                                        <opencga-facet-result-view .facetResult="${this.aggregationStatsResults?.[3]}"
-                                                                .config="${this.facetConfig}"
-                                                                ?active="${this.facetActive}">
-                                                        </opencga-facet-result-view>
-                                                    </div>
-                                                    <div class="col-md-12">
-                                                        <h3>Consequence Type</h3>
-                                                        <opencga-facet-result-view .facetResult="${this.aggregationStatsResults?.[4]}"
-                                                                .config="${this.facetConfig}"
-                                                                ?active="${this.facetActive}">
-                                                        </opencga-facet-result-view>
-                                                    </div>
-                                                    -->
-                                                    ${this.sampleVariantStats && this.sampleVariantStats?.variantCount !== 0 
-                                                        ? html`
-                                                            <div class="col-md-12">
-                                                                <opencga-facet-result-view .facetResult="${this.aggregationStatsResults?.[6]}"
-                                                                        .config="${this.facetConfig}"
-                                                                        ?active="${this.facetActive}">
-                                                                </opencga-facet-result-view>
-                                                            </div>` 
-                                                        : null
-                                                    }
                                                 </div>
                                             </div>
                                         `}
