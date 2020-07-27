@@ -42,13 +42,7 @@ export default class OpencbGridToolbar extends LitElement {
             },
             config: {
                 type: Object
-            },
-            _prefix: {
-                type:String
             }
-            /*_config: {
-                type: Object
-            },*/
         }
     }
 
@@ -71,7 +65,6 @@ export default class OpencbGridToolbar extends LitElement {
     }
 
     onDownloadFile(e) {
-        console.log("onDownloadFile")
         this.dispatchEvent(new CustomEvent("download", {
             detail: {
                 option: e.target.dataset.downloadOption
@@ -122,16 +115,14 @@ export default class OpencbGridToolbar extends LitElement {
     render(){
         return html`
             <style>
-
                 .opencb-grid-toolbar .checkbox-container label:before {
                     margin-top: 5px;
                 }
-                
                 .opencb-grid-toolbar {
-                    margin-bottom: 10px;
+                    margin-bottom: 0px;
                 }
-                
             </style>
+            
             <div class="opencb-grid-toolbar">
                 <div class="row">
                     <div id="${this._prefix}ToolbarLeft" class="col-md-6">
@@ -186,8 +177,7 @@ export default class OpencbGridToolbar extends LitElement {
                         </div>
                     </div>
                 </div>
-            </div>
-`;
+            </div>`;
     }
 
 }

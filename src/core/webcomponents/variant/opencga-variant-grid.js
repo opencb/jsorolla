@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {html, LitElement} from "/web_modules/lit-element.js";
+import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "./../../utilsNew.js";
 import VariantGridFormatter from "./variant-grid-formatter.js";
 import GridCommons from "./grid-commons.js";
@@ -66,9 +66,8 @@ export default class OpencgaVariantGrid extends LitElement {
         };
     }
 
-
     _init() {
-        this._prefix = "vbg-" + UtilsNew.randomString(6);
+        this._prefix = UtilsNew.randomString(8);
 
         this.gridId = this._prefix + "VariantBrowserGrid";
         this.checkedVariants = new Map();
@@ -82,14 +81,9 @@ export default class OpencgaVariantGrid extends LitElement {
     }
 
     firstUpdated(_changedProperties) {
-        // this._createDefaultColumns();
-        // this.query = {};
         this._config = {...this.getDefaultConfig(), ...this.config};
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
         this.table = this.querySelector("#" + this.gridId);
-        // this.checkedVariants = new Map();
-
-
     }
 
     updated(changedProperties) {
@@ -174,30 +168,22 @@ export default class OpencgaVariantGrid extends LitElement {
                 showExport: _this._config.showExport,
                 detailView: _this._config.detailView,
                 detailFormatter: _this._config.detailFormatter,
-                showColumns : true,
-                showColumnsToggleAll: true,
+                // showColumns : false,
+                // showColumnsToggleAll: false,
                 formatLoadingMessage: () =>"<loading-spinner></loading-spinner>",
-                // this makes the opencga-variant-grid properties available in the bootstrap-table formatters
+                // this makes the opencga-variant-grid properties available in the bootstrap-table detail formatter
                 variantGrid: _this,
                 ajax: params => {
                     // TODO We must decide i this component support a porperty:  mode = {opencga | cellbase}
                     let tableOptions = $(this.table).bootstrapTable("getOptions");
                     let filters = {
                         study: this.opencgaSession.study.fqn,
-                        summary: !this.query.sample && !this.query.family,
                         limit: params.data.limit || tableOptions.pageSize,
                         skip: params.data.offset || 0,
                         count: !tableOptions.pageNumber || tableOptions.pageNumber === 1,
-                        // include: "name,path,samples,status,format,bioformat,creationDate,modificationDate,uuid",
+                        summary: !this.query.sample && !this.query.family,
                         ...this.query
                     };
-
-                    // if (!this.query.sample && !this.query.family) {
-                    //     filters.summary = true;
-                    // }
-                    // if (this._config.grid && this._config.grid.queryParams) {
-                    //     filters = {...filters, ...this._config.grid.queryParams};
-                    // }
 
                     this.opencgaSession.opencgaClient.variants().query(filters)
                         .then( res => params.success(res))
@@ -319,46 +305,6 @@ export default class OpencgaVariantGrid extends LitElement {
         });
     }
 
-    // TODO refactor using bootstrap table ajax
-    _getUrlQueryParams() {
-        // Init queryParams with default and config values plus query object
-        let queryParams = {};
-        if (UtilsNew.isNotUndefinedOrNull(this.config) && UtilsNew.isNotUndefinedOrNull(this.config.grid) &&
-            UtilsNew.isNotUndefinedOrNull(this.config.grid.queryParams)) {
-            queryParams = Object.assign({}, this.config.grid.queryParams, this.query);
-        } else {
-            queryParams = Object.assign({}, this.query);
-        }
-
-        if (UtilsNew.isEmptyArray(this.samples)) {
-            queryParams.summary = true;
-            // queryParams.exclude = "annotation.geneExpression";
-        } else {
-            queryParams.summary = false;
-            // queryParams.exclude = "annotation.geneExpression";
-        }
-
-        if (typeof this.config !== "undefined" && UtilsNew.isNotUndefinedOrNull(this.config.grid) &&
-            typeof this.config.grid.includeMissing !== "undefined" && this.config.grid.includeMissing) {
-            const keys = Object.keys(queryParams);
-            for (let i = 0; i < keys.length; i++) {
-                let val = queryParams[keys[i]];
-                if (typeof val === "string" && keys[i] !== "cohortStatsMaf" && keys[i] !== "cohortStatsAlt") {
-                    val = val.replace(/</g, "<<");
-                    // val = val.replace(/>/g, ">>");
-                    queryParams[keys[i]] = val;
-                }
-            }
-        }
-
-        return queryParams;
-    }
-
-    // showGene(geneName) {
-    //     //                this.fire('selected', {gene: geneName});
-    //     this.dispatchEvent(new CustomEvent("selected", {detail: {gene: geneName}}));
-    // }
-
     detailFormatter(value, row, a) {
         let result = "<div class='row' style='padding-bottom: 20px'>";
         let detailHtml = "";
@@ -415,57 +361,48 @@ export default class OpencgaVariantGrid extends LitElement {
         return this.variantGridFormatter.variantFormatter(value, row, this._config);
     }
 
-    // TODO refactor this to make it more clear (polyphenProteinScoreFormatter too)
     siftPproteinScoreFormatter(value, row, index) {
         let min = 10;
-        const description = {};
-        if (typeof row !== "undefined" && typeof row.annotation !== "undefined") {
-            if (typeof row.annotation !== "undefined" && typeof row.annotation.consequenceTypes !== "undefined") {
-                for (let i = 0; i < row.annotation.consequenceTypes.length; i++) {
-                    if (typeof row.annotation.consequenceTypes[i].proteinVariantAnnotation !== "undefined" &&
-                        typeof row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores !== "undefined") {
-                        for (let j = 0; j < row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores.length; j++) {
-                            if (row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].source === "sift") {
-                                if (row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].score < min) {
-                                    min = row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].score;
-                                    description.sift = row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].description;
-                                }
-                            }
+        let description = "";
+        if (row && row.annotation?.consequenceTypes?.length > 0) {
+            for (let i = 0; i < row.annotation.consequenceTypes.length; i++) {
+                if (row.annotation.consequenceTypes[i]?.proteinVariantAnnotation?.substitutionScores) {
+                    for (let j = 0; j < row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores.length; j++) {
+                        let substitutionScore = row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j];
+                        if (substitutionScore.source === "sift" && substitutionScore.score < min) {
+                            min = substitutionScore.score;
+                            description = substitutionScore.description;
                         }
                     }
                 }
             }
         }
 
-        if (min !== 10) {
-            return "<span style=\"color: " + this.pssColor.get(description.sift) + "\" title=\"" + min + "\">" + description.sift + "</span>";
+        if (min < 10) {
+            return "<span style=\"color: " + this.pssColor.get(description) + "\" title=\"" + min + "\">" + description + "</span>";
         }
         return "-";
     }
 
     polyphenProteinScoreFormatter(value, row, index) {
         let max = 0;
-        const description = {};
-        if (typeof row !== "undefined" && typeof row.annotation !== "undefined") {
-            if (typeof row.annotation !== "undefined" && typeof row.annotation.consequenceTypes !== "undefined") {
-                for (let i = 0; i < row.annotation.consequenceTypes.length; i++) {
-                    if (typeof row.annotation.consequenceTypes[i].proteinVariantAnnotation !== "undefined" &&
-                        typeof row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores !== "undefined") {
-                        for (let j = 0; j < row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores.length; j++) {
-                            if (row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].source === "polyphen") {
-                                if (row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].score >= max) {
-                                    max = row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].score;
-                                    description.polyphen = row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j].description;
-                                }
-                            }
+        let description = "";
+        if (row && row.annotation?.consequenceTypes?.length > 0) {
+            for (let i = 0; i < row.annotation.consequenceTypes.length; i++) {
+                if (row.annotation.consequenceTypes[i]?.proteinVariantAnnotation?.substitutionScores) {
+                    for (let j = 0; j < row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores.length; j++) {
+                        let substitutionScore = row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j];
+                        if (substitutionScore.source === "polyphen" && substitutionScore.score >= max) {
+                            max = substitutionScore.score;
+                            description = substitutionScore.description;
                         }
                     }
                 }
             }
         }
 
-        if (max >= 0 && UtilsNew.isNotUndefinedOrNull(description) && UtilsNew.isNotUndefinedOrNull(description.polyphen)) {
-            let str = description.polyphen;
+        if (max > 0) {
+            let str = description;
             if (str.indexOf(" ") >= 0) {
                 str = str
                     .replace(/\s(.)/g, function($1) {
@@ -476,16 +413,16 @@ export default class OpencgaVariantGrid extends LitElement {
                         return $1.toLowerCase();
                     });
             }
-            return "<span style=\"color: " + this.pssColor.get(str) + "\" title=\"" + max + "\">" + description.polyphen + "</span>";
+            return "<span style=\"color: " + this.pssColor.get(str) + "\" title=\"" + max + "\">" + description + "</span>";
         }
         return "-";
     }
 
     caddScaledFormatter(value, row, index) {
-        if (typeof row !== "undefined" && typeof row.annotation !== "undefined" && typeof row.annotation.functionalScore !== "undefined") {
-            for (let i = 0; i < row.annotation.functionalScore.length; i++) {
-                if (typeof row.annotation.functionalScore[i] !== "undefined" && row.annotation.functionalScore[i].source === "cadd_scaled" && row.type !== "INDEL") {
-                    const value = Number(row.annotation.functionalScore[i].score).toFixed(2);
+        if (row && row.type !== "INDEL" && row.annotation?.functionalScore?.length > 0) {
+            for (let functionalScore of row.annotation.functionalScore) {
+                if (functionalScore.source === "cadd_scaled") {
+                    const value = Number(functionalScore.score).toFixed(2);
                     if (value < 15) {
                         return value;
                     } else {
@@ -493,23 +430,25 @@ export default class OpencgaVariantGrid extends LitElement {
                     }
                 }
             }
+        } else {
+            return "-";
         }
-        return "-";
     }
 
     conservationFormatter(value, row, index) {
-        if (typeof row !== "undefined" && typeof row.annotation !== "undefined" && typeof row.annotation.conservation !== "undefined") {
-            for (let i = 0; i < row.annotation.conservation.length; i++) {
-                if (row.annotation.conservation[i].source === this.field) {
-                    return Number(row.annotation.conservation[i].score).toFixed(3);
+        if (row && row.annotation?.conservation?.length > 0) {
+            for (let conservation of row.annotation.conservation) {
+                if (conservation.source === this.field) {
+                    return Number(conservation.score).toFixed(3);
                 }
             }
+        } else {
+            return "-";
         }
-        return "-";
     }
 
     cohortFormatter(value, row, index) {
-        if (typeof row !== "undefined" && typeof row.studies !== "undefined" && typeof row.studies[0].stats !== "undefined") {
+        if (row && row.studies?.length > 0 && row.studies[0].stats) {
             const cohortStats = new Map();
             for (const study of row.studies) {
                 if (study.studyId === this.field.study) {
@@ -527,7 +466,7 @@ export default class OpencgaVariantGrid extends LitElement {
     }
 
     populationFrequenciesFormatter(value, row, index) {
-        if (typeof row !== "undefined" && typeof row.annotation !== "undefined" && typeof row.annotation.populationFrequencies !== "undefined") {
+        if (row && row.annotation?.populationFrequencies) {
             const popFreqMap = new Map();
             for (const popFreqIdx in row.annotation.populationFrequencies) {
                 const popFreq = row.annotation.populationFrequencies[popFreqIdx];
@@ -542,6 +481,7 @@ export default class OpencgaVariantGrid extends LitElement {
         }
     }
 
+    // TODO Nacho to review and improve this function
     sampleFormatter(value, row, index) {
         let res = "-";
 
@@ -912,27 +852,33 @@ export default class OpencgaVariantGrid extends LitElement {
     }
 
     onDownload(e) {
-        const params = this._getUrlQueryParams();
-        params.limit = 1000; // Default limit is 1000 for now
+        // const params = this._getUrlQueryParams();
+        // params.limit = 1000; // Default limit is 1000 for now
+
+        let params = {
+            study: this.opencgaSession.study.fqn,
+            limit: 1000,
+            summary: !this.query.sample && !this.query.family,
+            ...this.query
+        };
 
         this.downloadRefreshIcon.css("display", "inline-block");
         this.downloadIcon.css("display", "none");
 
-        const _this = this;
         this.opencgaSession.opencgaClient.variants().query(params)
-            .then(function(response) {
-                const result = response.response[0].result;
+            .then(response => {
+                const results = response.responses[0].results;
                 let dataString = [];
                 let mimeType = "";
                 let extension = "";
 
                 // Check if user clicked in Tab or JSON format
                 if (e.detail.option.toLowerCase() === "tab") {
-                    dataString = VariantUtils.jsonToTabConvert(result, _this.populationFrequencies.studies, _this.samples, _this._config.nucleotideGenotype);
+                    dataString = VariantUtils.jsonToTabConvert(results, this.populationFrequencies.studies, this.samples, this._config.nucleotideGenotype);
                     mimeType = "text/plain";
                     extension = ".txt";
                 } else {
-                    for (const res of result) {
+                    for (const res of results) {
                         dataString.push(JSON.stringify(res));
                     }
                     mimeType = "application/json";
@@ -944,7 +890,7 @@ export default class OpencgaVariantGrid extends LitElement {
                 const file = window.URL.createObjectURL(data);
                 const a = document.createElement("a");
                 a.href = file;
-                a.download = _this.opencgaSession.study.alias + extension;
+                a.download = this.opencgaSession.study.alias + extension;
                 document.body.appendChild(a);
                 a.click();
                 setTimeout(function() {
@@ -952,31 +898,10 @@ export default class OpencgaVariantGrid extends LitElement {
                 }, 0);
             })
             .then(function() {
-                _this.downloadRefreshIcon.css("display", "none");
-                _this.downloadIcon.css("display", "inline-block");
+                this.downloadRefreshIcon.css("display", "none");
+                this.downloadIcon.css("display", "inline-block");
             });
     }
-
-    /* onShare() {
-        let _this = this;
-        $("[data-toggle=popover]").popover({
-            content: function() {
-                let getUrlQueryParams = _this._getUrlQueryParams();
-                let query = ["limit=1000"];
-                for (let key in getUrlQueryParams.queryParams) {
-                    // Check sid has a proper value. For public projects sid is undefined. In that case, sid must be removed from the url
-                    if (key === "sid" && getUrlQueryParams.queryParams[key] === undefined) {
-                        delete getUrlQueryParams.queryParams["sid"];
-                    } else {
-                        query.push(key + "=" + getUrlQueryParams.queryParams[key]);
-                    }
-                }
-                return getUrlQueryParams.host + "?" + query.join("&");
-            }
-        }).on("show.bs.popover", function() {
-            $(this).data("bs.popover").tip().css("max-width", "none");
-        });
-    }*/
 
     getDefaultConfig() {
         return {
