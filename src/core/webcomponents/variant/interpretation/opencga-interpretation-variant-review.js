@@ -43,6 +43,7 @@ export default class OpencgaInterpretationVariantReview extends LitElement {
 
     _init(){
         this._prefix = "ovcs" + UtilsNew.randomString(6);
+        this.save = {};
     }
 
     updated(changedProperties) {
@@ -55,11 +56,66 @@ export default class OpencgaInterpretationVariantReview extends LitElement {
         // this._fetchCohortStats(e);
     }
 
+    getSaveConfig() {
+        return {
+            title: "Save",
+            icon: "fas fa-save",
+            type: "form",
+            // buttons: {
+            //     show: true,
+            //     cancelText: "Cancel",
+            //     okText: "Save",
+            // },
+            display: {
+                style: "margin: 0px 25px 0px 0px",
+                // mode: {
+                //     type: "modal",
+                //     title: "Save Variant Stats",
+                //     buttonClass: "btn btn-default ripple"
+                // },
+                labelWidth: 3,
+                labelAlign: "right",
+                defaultValue: "",
+                defaultLayout: "horizontal",
+            },
+            sections: [
+                {
+                    elements: [
+                        {
+                            name: "Tier",
+                            field: "id",
+                            type: "input-text",
+                            display: {
+                                placeholder: "Add a filter ID",
+                            }
+                        },
+                        {
+                            name: "Comment",
+                            field: "description",
+                            type: "input-text",
+                            display: {
+                                placeholder: "Add a filter description",
+                                rows: 2
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    }
+
     render() {
+        // return html`
+        //     <data-form  .data=${this.save}
+        //                 .config="${this.getSaveConfig()}"
+        //                 @fieldChange="${e => this.onSaveFieldChange(e)}" @submit="${this.onSave}">
+        //     </data-form>
+        // `;
+
         return html`
             <span>${this.variant ? this.variant.id : ""}</span>
             <div class="form-horizontal" data-toggle="validator" role="form">
-    
+
                 <div class="form-group">
                     <label class="control-label col-md-1 jso-label-title">Tier</label>
                     <div class="col-md-3">
@@ -68,7 +124,7 @@ export default class OpencgaInterpretationVariantReview extends LitElement {
                                value="">
                     </div>
                 </div>
-                
+
                 <div class="form-group">
                     <label class="control-label col-md-1 jso-label-title">Status</label>
                     <div class="col-md-3">
@@ -76,7 +132,7 @@ export default class OpencgaInterpretationVariantReview extends LitElement {
                                placeholder="Add a comment" data-field="comment">
                     </div>
                 </div>
-                
+
                 <div class="form-group">
                     <label class="control-label col-md-1 jso-label-title">Comment</label>
                     <div class="col-md-3">
@@ -85,7 +141,7 @@ export default class OpencgaInterpretationVariantReview extends LitElement {
                                   @input="${this.onInputChange}"></textarea>
                     </div>
                 </div>
-                
+
             </div>
         `;
     }

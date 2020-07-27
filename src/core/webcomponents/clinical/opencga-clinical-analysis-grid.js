@@ -281,20 +281,24 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
     }
 
     interpretationFormatter(value, row) {
-        return `${row.interpretation?.primaryFindings?.length
-                    ? `<span>${row.interpretation.primaryFindings.length} variants</span>`
-                    : `<span title='No interpretations available'>0 variants</span>
-                `}
-                <a class="btn force-text-left" data-action="interpreter" title="Go to Variant Interpreter" href="#interpreter/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}">
-                    <i class="fas fa-user-md icon-padding" aria-hidden="true"></i> 
+        return `<a class="btn force-text-left" data-action="interpreter" title="Go to Variant Interpreter" href="#interpreter/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}">
+                    ${row.interpretation?.primaryFindings?.length
+                        ? `<span>${row.interpretation.primaryFindings.length} variants</span>`
+                        : `<span>0 variants</span>`
+                    }   
+                    <i class="fas fa-lg fa-user-md" aria-hidden="true" style="padding: 0px 5px"></i> 
                 </a>`;
     }
 
     disorderFormatter(value, row) {
         if (value && value.id) {
-            let idHtml = value.id.startsWith("OMIM:") ? `<a href="https://omim.org/entry/${value.id.split(":")[1]}" target="_blank">${value.id}</a>` : `${value.id}`;
+            let idHtml = value.id.startsWith("OMIM:")
+                ? `<a href="https://omim.org/entry/${value.id.split(":")[1]}" target="_blank">${value.id}
+                        <i class="fas fa-external-link-alt" aria-hidden="true" style="padding-left: 5px"></i>
+                   </a>`
+                : `${value.id}`;
             if (value.name) {
-                return `${value.name} (${idHtml})`;
+                return `${value.name} <span style="white-space: nowrap">(${idHtml})</span>`;
             } else {
                 return `${idHtml}`;
             }

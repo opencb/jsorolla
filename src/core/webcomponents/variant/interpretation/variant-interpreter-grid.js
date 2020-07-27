@@ -1017,21 +1017,36 @@ export default class VariantInterpreterGrid extends LitElement {
                 }
             }
         }
+
         if (this._config.showActions) {
             _columns[0].push( {
                 title: "Actions",
                 rowspan: 2,
-                formatter: `
+                formatter: (value, row) => `
                     <div class="dropdown">
                         <button class="btn btn-default btn-small ripple dropdown-toggle one-line" type="button" data-toggle="dropdown">Select action
-                        <span class="caret"></span></button>
+                            <span class="caret"></span>
+                        </button>
                         <ul class="dropdown-menu dropdown-menu-right">
-                            <li><a href="javascript: void 0" class="btn disabled force-text-left" data-action="remove">Remove from selection</a></li>
-                            <li><a href="javascript: void 0" class="btn force-text-left" data-action="download">Download</a></li>
-                            <li><a href="javascript: void 0" class="btn disabled force-text-left" data-action="edit">Edit</a></li>
+                            <li>
+                                <a href="javascript: void 0" class="btn force-text-left" data-action="download">
+                                    <i class="fas fa-download icon-padding" aria-hidden="true"></i> Download
+                                </a>
+                            </li>
+                            <li role="separator" class="divider"></li>
+                            <li>
+                                <a href="javascript: void 0" class="btn force-text-left reviewButton" data-variant-id="${row.id} data-action="edit">
+                                    <i class="fas fa-edit icon-padding reviewButton" aria-hidden="true"></i> Edit
+                                </a>
+                            </li>
+                            <li>
+                                <a href="javascript: void 0" class="btn disabled force-text-left" data-action="remove">
+                                    <i class="fas fa-trash icon-padding" aria-hidden="true"></i> Remove
+                                </a>
+                            </li>
                         </ul>
                     </div>`,
-                valign: "middle",
+                align: "center",
                 events: {
                     "click a": this.onActionClick.bind(this)
                 },
@@ -1207,10 +1222,10 @@ export default class VariantInterpreterGrid extends LitElement {
             <div id="${this._prefix}GridTableDiv" class="force-overflow">
                 <table id="${this._prefix}VariantBrowserGrid"></table>
             </div>
-    
+            
             <div class="modal fade" id="${this._prefix}ReviewSampleModal" data-backdrop="static" data-keyboard="false" tabindex="-1"
                  role="dialog" aria-hidden="true" style="padding-top:0; overflow-y: visible">
-                <div class="modal-dialog" style="width: 1280px">
+                <div class="modal-dialog" style="width: 1024px">
                     <div class="modal-content">
                         <div class="modal-header" style="padding: 5px 15px">
                             <h3>Review Variant</h3>
