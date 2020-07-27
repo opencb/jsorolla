@@ -152,10 +152,12 @@ class VariantInterpreterBrowserCancer extends LitElement {
 
     updateActiveFilterFilters() {
         if (!this.query?.sample) {
-            if (!this.query) {
-                this.query = {};
+
+            this.query = {
+                ...this.query,
+                sample: this.clinicalAnalysis.proband.samples[0].id + ":0/1,1/1,0/2,1/2"
             }
-            this.query.sample = this.clinicalAnalysis.proband.samples[0].id + ":0/1,1/1,0/2,1/2";
+            this.predefinedFilter = {...this.query};
         }
 
         let sampleQc = ClinicalAnalysisUtils.getProbandSampleQc(this.clinicalAnalysis);
@@ -568,7 +570,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
              ${this._config.showTitle ? html`
                 <tool-header title="${this.clinicalAnalysis ? `${this._config.title} (${this.clinicalAnalysis.id})` : this._config.title}" icon="${this._config.icon}"></tool-header>
             ` : null}
-                         
+             
             <div class="row">
                 <div class="col-md-2">
                     <opencga-variant-filter .opencgaSession="${this.opencgaSession}"
@@ -576,7 +578,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                                             .clinicalAnalysis="${this.clinicalAnalysis}"
                                             .cellbaseClient="${this.cellbaseClient}"
                                             .populationFrequencies="${this.populationFrequencies}"
-                                            .consequenceTypes="${this.consequenceTypes}"
+                                            .consequenceTypes="${consequenceTypes}"
                                             .config="${this._config.filter}"
                                             @queryChange="${this.onVariantFilterChange}"
                                             @querySearch="${this.onVariantFilterSearch}"
@@ -599,13 +601,13 @@ class VariantInterpreterBrowserCancer extends LitElement {
                 
                     <div id="${this._prefix}MainContent">
                         <div id="${this._prefix}ActiveFilters">
-                            <opencga-active-filters .opencgaSession="${this.opencgaSession}"
+                            <opencga-active-filters resource="VARIANT"
+                                                    .opencgaSession="${this.opencgaSession}"
                                                     .clinicalAnalysis="${this.clinicalAnalysis}"
                                                     .defaultStudy="${this.opencgaSession.study.fqn}"
                                                     .query="${this.preparedQuery}"
                                                     .refresh="${this.executedQuery}"
                                                     .filters="${this.activeFilterFilters}"
-                                                    resource="VARIANT"
                                                     .alias="${this._config.activeFilterAlias}"
                                                     .config="${this._config.filter.activeFilters}"
                                                     @activeFilterChange="${this.onActiveFilterChange}"
@@ -618,7 +620,6 @@ class VariantInterpreterBrowserCancer extends LitElement {
                                 <variant-interpreter-grid .opencgaSession="${this.opencgaSession}"
                                                           .clinicalAnalysis="${this.clinicalAnalysis}"
                                                           .query="${this.executedQuery}"
-                                                          .refresh="${this.executedQuery}"
                                                           .consequenceTypes="${consequenceTypes}"
                                                           .populationFrequencies="${populationFrequencies}"
                                                           .proteinSubstitutionScores="${this.proteinSubstitutionScores}"

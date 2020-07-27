@@ -182,7 +182,7 @@ export default class OpencgaIndividualView extends LitElement {
                             field: "internal.status",
                             type: "custom",
                             display: {
-                                render: field => html`${field.name} (${UtilsNew.dateFormatter(field.date)})`
+                                render: field => field ? html`${field.name} (${UtilsNew.dateFormatter(field.date)})` : "-"
                             }
                         },
                         {
@@ -190,7 +190,7 @@ export default class OpencgaIndividualView extends LitElement {
                             field: "creationDate",
                             type: "custom",
                             display: {
-                                render: field => html`${UtilsNew.dateFormatter(field)}`
+                                render: field => field ? html`${UtilsNew.dateFormatter(field)}` : "-"
                             }
                         },
                         {
@@ -198,7 +198,7 @@ export default class OpencgaIndividualView extends LitElement {
                             field: "modificationDate",
                             type: "custom",
                             display: {
-                                render: field => field ? html`${UtilsNew.dateFormatter(field)}` : ""
+                                render: field => field ? html`${UtilsNew.dateFormatter(field)}` : "-"
                             }
                         },
                         {

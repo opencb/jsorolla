@@ -408,7 +408,7 @@ class SampleVariantStatsView extends LitElement {
     }
 
     render() {
-        if (!this.variantStats || !this.variantStats.id) {
+        if (!this.variantStats?.stats?.id) {
             return html`<div class="alert alert-info"><i class="fas fa-3x fa-info-circle align-middle" style="padding-right: 10px"></i> No Variant Stats found.</div>`;
         }
 
@@ -428,7 +428,6 @@ class SampleVariantStatsView extends LitElement {
                     </div>` 
                 : null
             }
-            
             <div>
                 <data-form .data=${this.variantStats} .config="${this._config}"></data-form>
             </div>
