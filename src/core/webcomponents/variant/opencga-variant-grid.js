@@ -123,7 +123,9 @@ export default class OpencgaVariantGrid extends LitElement {
         this.samples = _samples;
 
         // Set colors
-        this.colors = this.variantGridFormatter.assignColors(this.consequenceTypes, this.proteinSubstitutionScores);
+        const colors = this.variantGridFormatter.assignColors(this.consequenceTypes, this.proteinSubstitutionScores);
+        // TODO proper fix
+        Object.assign(this, colors);
 
         // Config for the grid toolbar
         this.toolbarConfig = {
@@ -436,7 +438,7 @@ export default class OpencgaVariantGrid extends LitElement {
         }
 
         if (min !== 10) {
-            return "<span style=\"color: " + this.colors.pssColor.get(description.sift) + "\" title=\"" + min + "\">" + description.sift + "</span>";
+            return "<span style=\"color: " + this.pssColor.get(description.sift) + "\" title=\"" + min + "\">" + description.sift + "</span>";
         }
         return "-";
     }
@@ -474,7 +476,7 @@ export default class OpencgaVariantGrid extends LitElement {
                         return $1.toLowerCase();
                     });
             }
-            return "<span style=\"color: " + this.colors.pssColor.get(str) + "\" title=\"" + max + "\">" + description.polyphen + "</span>";
+            return "<span style=\"color: " + this.pssColor.get(str) + "\" title=\"" + max + "\">" + description.polyphen + "</span>";
         }
         return "-";
     }
