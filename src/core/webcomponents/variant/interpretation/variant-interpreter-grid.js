@@ -396,12 +396,19 @@ export default class VariantInterpreterGrid extends LitElement {
     detailFormatter(value, row, a) {
         let result = "<div class='row' style='padding-bottom: 20px'>";
         let detailHtml = "";
-        if (typeof row !== "undefined" && typeof row.annotation !== "undefined") {
-            detailHtml = "<div style='padding: 10px 0px 5px 25px'><h4>Clinical Mutation Evidence</h4></div>";
+        if (row && row.annotation) {
+            if (this.variantGrid.clinicalAnalysis.type.toUpperCase() === "FAMILY") {
+                detailHtml = "<div style='padding: 10px 0px 5px 25px'><h4>Variant Allele Frequency</h4></div>";
+                detailHtml += "<div style='padding: 5px 50px'>";
+                detailHtml += this.variantGrid.variantGridFormatter.variantAlleleFrequencyDetailFormatter(value, row, this.variantGrid);
+                detailHtml += "</div>";
+            }
+
+            detailHtml += "<div style='padding: 10px 0px 5px 25px'><h4>Clinical Mutation Evidence</h4></div>";
             detailHtml += "<div style='padding: 5px 50px'>";
             detailHtml += this.variantGrid.variantGridFormatter.reportedEventDetailFormatter(value, row, this.variantGrid);
             detailHtml += "</div>";
-
+            
             detailHtml += "<div style='padding: 25px 0px 5px 25px'><h4>Consequence Types</h4></div>";
             detailHtml += "<div style='padding: 5px 50px'>";
             detailHtml += this.variantGrid.variantGridFormatter.consequenceTypeDetailFormatter(value, row, this.variantGrid);
@@ -477,25 +484,35 @@ export default class VariantInterpreterGrid extends LitElement {
                 let sampleIndex = row.studies[0].samples[0].sampleId === this.field.sampleId ? 0 : 1;
 
                 // First, get and check info fields QUAL, FILTER; and format fields DP, AD and GQ
-                let qual = "-";
                 let filter = "-";
+                let qual = "-";
+                let originalCall = "";
                 let mutationColor = "black";
                 const sampleFormat = row.studies[0].samples[sampleIndex].data;
 
                 // INFO fields
+                const infoFields = [];
                 if (row.studies[0].files) {
                     let fileIdx = row.studies[0].samples[sampleIndex].fileIndex;
                     let file = row.studies[0].files[fileIdx];
 
                     if (file && file.data) {
+                        filter = file.data.FILTER;
                         qual = Number(file.data.QUAL).toFixed(2);
-                        if (qual < this.field.quality.qual) {
+                        originalCall = file.call?.variantId ? file.call.variantId : `${row.chromosome}:${row.position}:${row.reference}:${row.alternate}`;
+
+                        if (filter !== "PASS" || qual < this.field.quality.qual) {
                             mutationColor = "silver";
                         }
 
-                        filter = file.data.FILTER;
-                        if (filter !== "PASS") {
-                            mutationColor = "silver";
+                        for (let key of Object.keys(file.data)) {
+                            if (key !== "FILTER" && key !== "QUAL") {
+                                const html = `<div class="form-group" style="margin: 0px 2px">
+                                                <label class="col-md-5">${key}</label>
+                                                <div class="col-md-7">${file.data[key]}</div>
+                                              </div>`;
+                                infoFields.push(html);
+                            }
                         }
                     } else {
                         // This can happen when no ref/ref calls are loaded
@@ -507,13 +524,23 @@ export default class VariantInterpreterGrid extends LitElement {
                 const formatFields = [];
                 for (const formatField in row.studies[0].sampleDataKeys) {
                     // GT fields is treated separately
-                    if (row.studies[0].sampleDataKeys[formatField] !== "GT") {
+                    // if (row.studies[0].sampleDataKeys[formatField] !== "GT") {
                         const html = `<div class="form-group" style="margin: 0px 2px">
                                             <label class="col-md-5">${row.studies[0].sampleDataKeys[formatField]}</label>
                                             <div class="col-md-7">${sampleFormat[formatField]}</div>
                                         </div>`;
                         formatFields.push(html);
-                    }
+                    // }
+                }
+
+                // SECONDARY ALTERNATES fields
+                const secondaryAlternates = [];
+                for (const v of row.studies[0].secondaryAlternates) {
+                    const html = `<div class="form-group" style="margin: 0px 2px">
+                                    <label class="col-md-5">${v.chromosome}:${v.start}-${v.end}</label>
+                                    <div class="col-md-7">${v.reference}/${v.alternate} ${v.type}</div>
+                                  </div>`;
+                    secondaryAlternates.push(html);
                 }
 
                 // Second, prepare the visual representation of genotypes
@@ -569,31 +596,41 @@ export default class VariantInterpreterGrid extends LitElement {
 
                 // Third, prepare the tooltip information
                 const tooltipText = `<div class="col-md-12 zygosity-formatter" style="padding: 0px">
-                                                <form class="form-horizontal">
-                                                    <div class="form-group" style="margin: 0px 2px">
-                                                        <label class="col-md-5">GT</label>
-                                                        <div class="col-md-7">${sampleGT}</div>
-                                                    </div>
-                                                    <div class="form-group" style="margin: 0px 2px">
-                                                        <label class="col-md-5">QUAL</label>
-                                                        <div class="col-md-7">${qual}</div>
-                                                    </div>
-                                                    <div class="form-group" style="margin: 0px 2px">
-                                                        <label class="col-md-5">FILTER</label>
-                                                        <div class="col-md-7">${filter}</div>
-                                                    </div>
-                                                    ${formatFields.join("")}
-                                                </form>
-                                           </div>`;
+                                        <form class="form-horizontal">
+                                            <div class="form-group" style="margin: 0px 2px">
+                                                <label class="col-md-12" style="color: darkgray;padding: 10px 0px 5px 0px">SAMPLE DATA</label>
+                                            </div>
+                                            ${formatFields.join("")}
+                                            <div class="form-group" style="margin: 0px 2px">
+                                                <label class="col-md-12" style="color: darkgray;padding: 10px 0px 5px 0px">FILE INFO</label>
+                                            </div>
+                                            <div class="form-group" style="margin: 0px 2px">
+                                                <label class="col-md-5">FILTER</label>
+                                                <div class="col-md-7">${filter}</div>
+                                            </div>
+                                            <div class="form-group" style="margin: 0px 2px">
+                                                <label class="col-md-5">QUAL</label>
+                                                <div class="col-md-7">${qual}</div>
+                                            </div>
+                                            <div class="form-group" style="margin: 0px 2px">
+                                                <label class="col-md-5">VCF call</label>
+                                                <div class="col-md-7">${originalCall}</div>
+                                            </div>
+                                            ${infoFields.join("")}
+                                            <div class="form-group" style="margin: 0px 2px">
+                                                <label class="col-md-12" style="color: darkgray;padding: 10px 0px 5px 0px">SECONDARY ALTERNATES</label>
+                                            </div>
+                                            ${secondaryAlternates.join("")}
+                                        </form>
+                                     </div>`;
 
                 // Last, put everything together and display
                 resultHtml = `<div class='zygositySampleTooltip' data-tooltip-text='${tooltipText}' style="width: 70px" align="center">
-                                        <svg viewBox="0 0 70 30" xmlns="http://www.w3.org/2000/svg">
-                                            <circle cx="20" cy="15" r="${leftRadio}" style="stroke: black;fill: ${left}"/>
-                                            <circle cx="50" cy="15" r="${rightRadio}" style="stroke: black;fill: ${right}"/>
-                                        </svg>
-                                      </div>
-                                `;
+                                <svg viewBox="0 0 70 30" xmlns="http://www.w3.org/2000/svg">
+                                    <circle cx="20" cy="15" r="${leftRadio}" style="stroke: black;fill: ${left}"/>
+                                    <circle cx="50" cy="15" r="${rightRadio}" style="stroke: black;fill: ${right}"/>
+                                </svg>
+                              </div>`;
             }
         }
 

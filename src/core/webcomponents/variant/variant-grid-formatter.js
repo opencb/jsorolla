@@ -736,15 +736,113 @@ export default class VariantGridFormatter {
     }
 
     /*
+    * File attributes formatters
+    */
+    variantAlleleFrequencyDetailFormatter(value, row, variantGrid) {
+        let fileAttrHtml = "";
+        if (row && row.studies?.length > 0) {
+            fileAttrHtml = `<table class="table table-hover table-no-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th rowspan="2" style="padding: 0px 10px"><span style="white-space: nowrap">Sample ID</span></th>
+                                            <th rowspan="2" style="padding: 0px 10px">VCF Call</th>
+                                            <th rowspan="2" style="padding: 0px 10px">Genotype</th>
+                                            <th rowspan="1" colspan="2" style="text-align:center;padding: 0px 10px">Reference</th>
+                                            <th rowspan="1" colspan="2" style="text-align:center;padding: 0px 10px">Alternate</th>
+                                            <th rowspan="2" style="padding: 0px 10px">Secondary Alternate</th>
+                                            <th rowspan="2" style="padding: 0px 10px">Other</th>
+                                        </tr>
+                                        <tr>
+                                            <th rowspan="1" style="padding: 0px 10px">Allele</th>
+                                            <th rowspan="1" style="padding: 0px 10px">Frequency</th>
+                                            <th rowspan="1" style="padding: 0px 10px">Allele</th>
+                                            <th rowspan="1" style="padding: 0px 10px">Frequency</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>`;
+
+            const study = row.studies[0];
+            for (let sample of study.samples) {
+                let file = study.files?.length > sample.fileIndex ? study.files[sample.fileIndex] : null;
+
+                let referenceFreq;
+                let alternateFreq;
+                let secondaryAlternate = "-";
+                let secondaryAlternateFreq;
+                let originalCall;
+
+                if (file) {
+                    let split;
+                    if (file.data.AF) {
+                        split = file.data.AF.split(",");
+                    } else {
+                        if (file.data.AD) {
+                            split = file.data.AD.split(",");
+                        } else {
+                            let afIdx = study.sampleDataKeys.findIndex(e => e === "AF" || e === "AD");
+                            split = sample.data[afIdx]?.split(",");
+                        }
+                    }
+                    if (split?.length > 0) {
+                        referenceFreq = split[0];
+                        alternateFreq = split[1];
+                        if (split > 1) {
+                            secondaryAlternateFreq = split[2];
+                        }
+                    }
+                }
+
+                if (file.call?.variantId) {
+                    originalCall = file.call.variantId.replace("<", "&lt;").replace(">", "&gt;");
+                    if (originalCall.includes(",")) {
+                        secondaryAlternate = originalCall.split(",")[1];
+                    }
+                } else {
+                    originalCall = `${row.chromosome}:${row.position}:${row.reference}:${row.alternate}`;
+                }
+
+                let format = [];
+                for (let i = 0; i < study.sampleDataKeys.length; i++) {
+                    format.push(study.sampleDataKeys[i] + ": " + sample.data[i]);
+                }
+
+                let genotypeColor = "black";
+                if (sample.data[0] === "0/1" || sample.data[0] === "0|1" && sample.data[0] === "1|0") {
+                    genotypeColor = "darkorange";
+                } else {
+                    if (sample.data[0] === "1/1" || sample.data[0] === "1|1") {
+                        genotypeColor = "red";
+                    }
+                }
+                let sampleIdColor = variantGrid?.clinicalAnalysis?.proband?.samples[0]?.id === sample.sampleId ? "darkred" : "black";
+                fileAttrHtml += `<tr class="detail-view-row">
+                                    <td><span style="font-weight: bold; color: ${sampleIdColor}">${sample.sampleId}</span></td>
+                                    <td><span style="white-space: nowrap">${originalCall}</span></td>
+                                    <td><span style="color: ${genotypeColor}">${sample.data[0]}</span></td>
+                                    <td>${row.reference}</td>
+                                    <td>${referenceFreq}</td>
+                                    <td>${row.alternate}</td>
+                                    <td>${alternateFreq}</td>
+                                    <td>${secondaryAlternate}</td>
+                                    <td>${format.join("; ")}</td>
+                                 </tr>`;
+            }
+
+            fileAttrHtml += `</tbody></table>`;
+        }
+        return fileAttrHtml;
+    }
+
+    /*
      * Reported Variant formatters
      */
     reportedEventDetailFormatter(value, row, variantGrid) {
         if (typeof row !== "undefined" && UtilsNew.isNotEmptyArray(row.evidences)) {
 
-            let selectColumnHtml = "";
-            if (variantGrid._config.showSelectCheckbox) {
-                selectColumnHtml = "<th rowspan=\"2\">Select</th>";
-            }
+            // let selectColumnHtml = "";
+            // if (variantGrid._config.showSelectCheckbox) {
+            //     selectColumnHtml = "<th rowspan=\"2\">Select</th>";
+            // }
 
             let ctHtml = `<table id="ConsqTypeTable" class="table table-hover table-no-bordered">
                                 <thead>
@@ -758,7 +856,6 @@ export default class VariantGridFormatter {
                                         <th rowspan="2">Role in Cancer</th>
                                         <th rowspan="2">Actionable</th>
                                         <th rowspan="1" colspan="3" style="text-align: center">Classification</th>
-                                        ${selectColumnHtml}
                                     </tr>
                                     <tr>
                                         <th rowspan="1">ACMG</th>
@@ -951,14 +1048,14 @@ export default class VariantGridFormatter {
                     }
                 }
 
-                let checboxHtml = "";
-                if (variantGrid._config.showSelectCheckbox) {
-                    let checked = "";
-                    if (transcriptFlagChecked && tier !== "-") {
-                        checked = "checked";
-                    }
-                    checboxHtml = `<td><input type="checkbox" ${checked}></td>`;
-                }
+                // let checboxHtml = "";
+                // if (variantGrid._config.showSelectCheckbox) {
+                //     let checked = "";
+                //     if (transcriptFlagChecked && tier !== "-") {
+                //         checked = "checked";
+                //     }
+                //     checboxHtml = `<td><input type="checkbox" ${checked}></td>`;
+                // }
 
 
                 // Create the table row
@@ -974,7 +1071,6 @@ export default class VariantGridFormatter {
                             <td>${acmg}</td>
                             <td>${tier}</td>
                             <td>${clinicalSignificance}</td>
-                            ${checboxHtml}
                            </tr>`;
             }
             ctHtml += "</tbody></table>";
