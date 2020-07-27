@@ -247,7 +247,7 @@ class VariantInterpreterBrowserRd extends LitElement {
         _interpretation.clinicalAnalysisId = this.clinicalAnalysis.id;
         _interpretation.method = {name: "IVA"};
         _interpretation.primaryFindings = Array.from(e.detail.rows);
-
+debugger
         this.clinicalAnalysis.interpretation = _interpretation;
 
         this.dispatchEvent(new CustomEvent("clinicalAnalysisUpdate", {
