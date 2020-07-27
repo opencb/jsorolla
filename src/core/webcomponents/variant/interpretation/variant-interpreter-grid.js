@@ -625,12 +625,33 @@ export default class VariantInterpreterGrid extends LitElement {
                                      </div>`;
 
                 // Last, put everything together and display
-                resultHtml = `<div class='zygositySampleTooltip' data-tooltip-text='${tooltipText}' style="width: 70px" align="center">
-                                <svg viewBox="0 0 70 30" xmlns="http://www.w3.org/2000/svg">
-                                    <circle cx="20" cy="15" r="${leftRadio}" style="stroke: black;fill: ${left}"/>
-                                    <circle cx="50" cy="15" r="${rightRadio}" style="stroke: black;fill: ${right}"/>
-                                </svg>
-                              </div>`;
+                if (this.field.clinicalAnalysis.type.toUpperCase() !== "CANCER") {
+                    resultHtml = `<div class='zygositySampleTooltip' data-tooltip-text='${tooltipText}' style="width: 70px" align="center">
+                                    <svg viewBox="0 0 70 30" xmlns="http://www.w3.org/2000/svg">
+                                        <circle cx="20" cy="15" r="${leftRadio}" style="stroke: black;fill: ${left}"/>
+                                        <circle cx="50" cy="15" r="${rightRadio}" style="stroke: black;fill: ${right}"/>
+                                    </svg>
+                                  </div>`;
+                } else {
+                    let afIndex = row.studies[0].sampleDataKeys.findIndex(e => e === "AF");
+                    let af = sampleFormat[afIndex];
+                    let altFreqs = af.split(",");
+                    let rects = "";
+                    let totalFreq = 0;
+                    for (let altFreq of altFreqs) {
+                        let freq = Number.parseFloat(altFreq);
+                        totalFreq += freq;
+                        rects += `<rect y="40" width="20" height="${freq * 40}" style="fill: darkred"/>`;
+                    }
+                    if (totalFreq < 1) {
+                        rects += `<rect y="${totalFreq * 40}" width="20" height="${(1 - totalFreq) * 40}" style="fill: darkorange"/>`;
+                    }
+                    resultHtml = `<div class='zygositySampleTooltip' data-tooltip-text='${tooltipText}' style="width: 70px" align="center">
+                                    <svg xmlns="http://www.w3.org/2000/svg">
+                                        ${rects}
+                                    </svg>
+                                  </div>`;
+                }
             }
         }
 
@@ -989,7 +1010,7 @@ export default class VariantInterpreterGrid extends LitElement {
             // Add sample columns
             if (this.clinicalAnalysis.proband && this.clinicalAnalysis.proband.samples) {
                 _columns[0].splice(5, 0, {
-                    title: `Sample Genotypes (${this.clinicalAnalysis.proband.id})`,
+                    title: `Sample Genotypes`,
                     rowspan: 1,
                     colspan: this.clinicalAnalysis.proband.samples.length,
                     align: "center"

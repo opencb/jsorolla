@@ -151,6 +151,13 @@ class VariantInterpreterBrowserCancer extends LitElement {
     }
 
     updateActiveFilterFilters() {
+        if (!this.query?.sample) {
+            if (!this.query) {
+                this.query = {};
+            }
+            this.query.sample = this.clinicalAnalysis.proband.samples[0].id + ":0/1,1/1,0/2,1/2";
+        }
+
         let sampleQc = ClinicalAnalysisUtils.getProbandSampleQc(this.clinicalAnalysis);
         let _activeFilterFilters = [];
         if (sampleQc?.metrics?.length > 0) {
@@ -159,7 +166,19 @@ class VariantInterpreterBrowserCancer extends LitElement {
                 _activeFilterFilters = variantStats.map(variantStat => ({id: variantStat.id, query: variantStat.query}))
             }
         }
-        this.activeFilterFilters = _activeFilterFilters && _activeFilterFilters.length > 0 ? _activeFilterFilters : this._config.filter.examples;
+
+        // this.activeFilterFilters = _activeFilterFilters && _activeFilterFilters.length > 0 ? _activeFilterFilters : this._config.filter.examples;
+        // If WC variant stats filters are found we add them to active filters, we do not replace them.
+        if (_activeFilterFilters.length > 0) {
+            // Concat QC filters to examples
+            if (this._config?.filter?.examples && this._config.filter.examples.length > 0) {
+                _activeFilterFilters.push({separator: true});
+                _activeFilterFilters.push(...this._config.filter.examples);
+            }
+            this.activeFilterFilters = _activeFilterFilters;
+        } else {
+            this.activeFilterFilters = this._config.filter.examples;
+        }
     }
 
     onSelectVariant(e) {
@@ -260,7 +279,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                 },
                 sections: [     // sections and subsections, structure and order is respected
                     {
-                        title: "Study and Cohorts",
+                        title: "Sample",
                         collapsed: false,
                         fields: [
                             // {
@@ -269,11 +288,17 @@ class VariantInterpreterBrowserCancer extends LitElement {
                             //     tooltip: tooltips.study
                             // },
                             {
+                                id: "file-quality",
+                                title: "Quality Filters",
+                                tooltip: "VCF file based FILTER and QUAL filters",
+                                showDepth: application.appConfig === "opencb"
+                            },
+                            {
                                 id: "cohort",
                                 title: "Cohort Alternate Stats",
                                 onlyCohortAll: true,
                                 tooltip: tooltips.cohort,
-                                cohorts: this.cohorts
+                                // cohorts: this.cohorts
                             }
                         ]
                     },
@@ -305,7 +330,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                             {
                                 id: "type",
                                 title: "Variant Type",
-                                types: ["SNV", "INDEL", "CNV", "INSERTION", "DELETION", "MNV"],
+                                types: ["SNV", "INDEL", "CNV", "INSERTION", "DELETION"],
                                 tooltip: tooltips.type
                             }
                         ]
@@ -358,11 +383,11 @@ class VariantInterpreterBrowserCancer extends LitElement {
                                 title: "ClinVar Accessions",
                                 tooltip: tooltips.clinvar
                             },
-                            {
-                                id: "fullTextSearch",
-                                title: "Full-text search on HPO, ClinVar, protein domains or keywords. Some OMIM and Orphanet IDs are also supported",
-                                tooltip: tooltips.fullTextSearch
-                            }
+                            // {
+                            //     id: "fullTextSearch",
+                            //     title: "Full-text search on HPO, ClinVar, protein domains or keywords. Some OMIM and Orphanet IDs are also supported",
+                            //     tooltip: tooltips.fullTextSearch
+                            // }
                         ]
                     },
                     {
@@ -403,13 +428,6 @@ class VariantInterpreterBrowserCancer extends LitElement {
                         }
                     },
                     {
-                        id: "Example OR11",
-                        query: {
-                            gene: "OR11H1",
-                            conservation: "phylop<=0.001"
-                        }
-                    },
-                    {
                         id: "Full Example",
                         query: {
                             "xref": "BRCA1,TP53",
@@ -425,8 +443,8 @@ class VariantInterpreterBrowserCancer extends LitElement {
                 result: {
                     grid: {
                         pagination: true,
-                        pageSize: 5,
-                        pageList: [5, 10, 25, 50],
+                        pageSize: 10,
+                        pageList: [10, 25, 50],
                         showExport: false,
                         detailView: true,
                         showReview: false,
@@ -589,8 +607,6 @@ class VariantInterpreterBrowserCancer extends LitElement {
                                                     .filters="${this.activeFilterFilters}"
                                                     resource="VARIANT"
                                                     .alias="${this._config.activeFilterAlias}"
-                                                    .genotypeSamples="${this.genotypeSamples}"
-                                                    .modeInheritance="${this.modeInheritance}"
                                                     .config="${this._config.filter.activeFilters}"
                                                     @activeFilterChange="${this.onActiveFilterChange}"
                                                     @activeFilterClear="${this.onActiveFilterClear}">
@@ -602,6 +618,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                                 <variant-interpreter-grid .opencgaSession="${this.opencgaSession}"
                                                           .clinicalAnalysis="${this.clinicalAnalysis}"
                                                           .query="${this.executedQuery}"
+                                                          .refresh="${this.executedQuery}"
                                                           .consequenceTypes="${consequenceTypes}"
                                                           .populationFrequencies="${populationFrequencies}"
                                                           .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
