@@ -242,8 +242,8 @@ export default class OpencgaVariantInterpreterGenomeBrowser extends LitElement {
             return;
         }
         let roleToProband = {};
-        if (UtilsNew.isNotUndefinedOrNull(clinicalAnalysis.roleToProband)) {
-            roleToProband = clinicalAnalysis.roleToProband;
+        if (clinicalAnalysis.family?.roles) {
+            roleToProband = clinicalAnalysis.family.roles[clinicalAnalysis.proband.id];
         }
 
         let samplesToIndividual = {};

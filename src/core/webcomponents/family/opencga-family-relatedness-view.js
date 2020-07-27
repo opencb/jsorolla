@@ -132,15 +132,6 @@ export default class OpencgaFamilyRelatednessView extends LitElement {
 
     renderTable() {
         if (this.family?.qualityControl?.relatedness?.length > 0) {
-            // Prepare roles
-            let roles = {};
-            for (let member of this.family.members) {
-                roles[member.id + "-" + member.father?.id] = "FATHER";
-                roles[member.id + "-" + member.mother?.id] = "MOTHER";
-                roles[member.father?.id + "-" + member.mother?.id] = "SPOUSE";
-                roles[member.mother?.id + "-" + member.father?.id] = "HUSBAND";
-            }
-
             let relatedness = this.family.qualityControl.relatedness[0];
             return html`
                 <table class="table table-hover table-no-bordered text-center">
@@ -159,7 +150,7 @@ export default class OpencgaFamilyRelatednessView extends LitElement {
                     </thead>
                     <tbody>
                         ${relatedness.scores.map(score => {
-                            let role = roles[score.sampleId1 + "-" + score.sampleId2];
+                            let role = this.family.roles[score.sampleId1][score.sampleId2];
                             return html`
                                 <tr>
                                     <td>

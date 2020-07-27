@@ -189,7 +189,7 @@ export default class VariantFamilyGenotypeFilter extends LitElement {
                         affected: this.clinicalAnalysis.disorder && individual?.disorders?.length ? individual.disorders.some(disorder => disorder.id === this.clinicalAnalysis.disorder.id) : false,
                         sex: individual.sex,
                         karyotypicSex: individual.karyotypicSex,
-                        role: this.clinicalAnalysis.roleToProband[individual.id],
+                        role: this.clinicalAnalysis.family.roles[this.clinicalAnalysis.proband.id][individual.id] || "PROBAND",
                         // father: fatherId,
                         // mother: motherId,
                         genotypes: (UtilsNew.isNotUndefinedOrNull(_sampleFiltersMap[sample.id])) ? _sampleFiltersMap[sample.id].genotypes : this._config.defaultGenotypes,

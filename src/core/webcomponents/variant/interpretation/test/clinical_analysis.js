@@ -3167,6 +3167,23 @@ export const responses = [
         "annotationSets" : [ ],
         "name" : "Corpas",
         "uuid" : "8b5d56b8-0170-0007-0001-5ad13cc22fe8",
+        "roles" : {
+          "ISDBM322015" : {
+            "ISDBM322016" : "FATHER",
+            "ISDBM322017" : "SISTER",
+            "ISDBM322018" : "MOTHER"
+          },
+          "ISDBM322017" : {
+            "ISDBM322016" : "FATHER",
+            "ISDBM322015" : "BROTHER",
+            "ISDBM322018" : "MOTHER"
+          },
+          "ISDBM322016" : {
+            "ISDBM322015" : "SON",
+            "ISDBM322017" : "DAUGHTER",
+            "ISDBM322018" : "SPOUSE"
+          },
+        },
         "members" : [ {
           "uid" : 0,
           "id" : "ISDBM322015",
@@ -5919,55 +5936,57 @@ export const responses = [
           "attributes" : { }
         } ],
         "qualityControl" : {
-          "relatedness": {
-            "method": "Plink/IBD",
-            "scores": [
-              {
-                "sampleId1": "ISDBM322015",
-                "sampleId2": "ISDBM322016",
-                "inferredRelationship": "FATHER",
-                "values": {
-                  "z0": 1,
-                  "z1": 0,
-                  "z2": 0,
-                  "PiHat": 0,
+          "relatedness": [
+            {
+              "method": "Plink/IBD",
+              "scores": [
+                {
+                  "sampleId1": "ISDBM322015",
+                  "sampleId2": "ISDBM322016",
+                  "inferredRelationship": "FATHER",
+                  "values": {
+                    "z0": 1,
+                    "z1": 0,
+                    "z2": 0,
+                    "PiHat": 0,
+                  }
+                },
+                {
+                  "sampleId1": "ISDBM322015",
+                  "sampleId2": "ISDBM322018",
+                  "inferredRelationship": "MOTHER",
+                  "values": {
+                    "z0": 0.1,
+                    "z1": 0.9,
+                    "z2": 0,
+                    "PiHat": 0,
+                  }
+                },
+                {
+                  "sampleId1": "ISDBM322016",
+                  "sampleId2": "ISDBM322018",
+                  "inferredRelationship": "COUSIN",
+                  "values": {
+                    "z0": 0.98,
+                    "z1": 0.02,
+                    "z2": 0,
+                    "PiHat": 0,
+                  }
+                },
+                {
+                  "sampleId1": "ISDBM322015",
+                  "sampleId2": "ISDBM322017",
+                  "inferredRelationship": "SISTER",
+                  "values": {
+                    "z0": 0.5,
+                    "z1": 0.5,
+                    "z2": 0,
+                    "PiHat": 0,
+                  }
                 }
-              },
-              {
-                "sampleId1": "ISDBM322015",
-                "sampleId2": "ISDBM322018",
-                "inferredRelationship": "MOTHER",
-                "values": {
-                  "z0": 0.1,
-                  "z1": 0.9,
-                  "z2": 0,
-                  "PiHat": 0,
-                }
-              },
-              {
-                "sampleId1": "ISDBM322016",
-                "sampleId2": "ISDBM322018",
-                "inferredRelationship": "COUSIN",
-                "values": {
-                  "z0": 0.98,
-                  "z1": 0.02,
-                  "z2": 0,
-                  "PiHat": 0,
-                }
-              },
-              {
-                "sampleId1": "ISDBM322015",
-                "sampleId2": "ISDBM322017",
-                "inferredRelationship": "SISTER",
-                "values": {
-                  "z0": 0.5,
-                  "z1": 0.5,
-                  "z2": 0,
-                  "PiHat": 0,
-                }
-              }
-            ]
-          }
+              ]
+            }
+          ]
         },
         "phenotypes" : [ {
           "id" : "HP:00005456",
@@ -6017,12 +6036,7 @@ export const responses = [
         },
         "attributes" : { }
       },
-      "roleToProband" : {
-        "ISDBM322015" : "PROBAND",
-        "ISDBM322016" : "FATHER",
-        "ISDBM322017" : "SISTER",
-        "ISDBM322018" : "MOTHER"
-      },
+
       "qualityControl" : {
         "quality" : "UNKNOWN",
         "variant" : {
