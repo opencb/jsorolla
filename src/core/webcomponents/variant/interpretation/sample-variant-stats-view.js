@@ -140,7 +140,7 @@ class SampleVariantStatsView extends LitElement {
     }
 
     getVariantStatFromSample() {
-        this.statsSelect = this.sample.qualityControl?.metrics[0]?.variantStats.map( stat => stat.id);
+        this.statsSelect = this.sample?.qualityControl?.metrics[0].variantStats.map( stat => stat.id) ?? [];
         if (this.sample?.qualityControl?.metrics?.length && this.sample.qualityControl.metrics[0].variantStats?.length) {
             // By default we render the stat 'ALL' from the first metric, if there is not stat 'ALL' then we take the first one
             let selectedStat = this.sample.qualityControl.metrics[0].variantStats.find(stat => stat.id === "ALL") ?? this.sample.qualityControl.metrics[0].variantStats[0];

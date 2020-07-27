@@ -128,8 +128,7 @@ export default class OpencgaFileManager extends LitElement {
             }
         }
 
-        //this happens on click on files in root dir
-        console.error("Node not found!", nodeId);
+        //console.error("Node not found!", nodeId);
         //return this.tree;
     }
 
