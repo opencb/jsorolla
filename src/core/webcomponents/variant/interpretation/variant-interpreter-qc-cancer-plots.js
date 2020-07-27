@@ -153,7 +153,7 @@ export default class VariantInterpreterQcCancerPlots extends LitElement {
                             </div>
                             <div class="col-md-5">
                                 <div style="margin-bottom: 20px">
-                                    <h2>Signature</h2>
+                                    <h2>Genomic Context (Signature)</h2>
                                     <signature-view .signature="${this.signature}" .active="${this.active}"></signature-view>
                                             <!--<img width="480" src="https://cancer.sanger.ac.uk/signatures_v2/Signature-3.png">-->
                                 </div>

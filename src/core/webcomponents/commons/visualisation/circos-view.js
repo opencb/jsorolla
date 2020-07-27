@@ -82,6 +82,7 @@ export default class CircosView extends LitElement {
                         {
                             study: this.opencgaSession.study.fqn,
                             fitting: false,
+                            density: "LOW",
                             sample: this.sampleId,
                             ...this.query
                         }
@@ -89,17 +90,21 @@ export default class CircosView extends LitElement {
                 }
             ]
         }
-        this.opencgaSession.opencgaClient.variants().circos({
-            study: this.opencgaSession.study.fqn,
-            sample: this.sampleId,
-            density: "LOW",
-            ...this.query
-        }).then( restResult => {
-            document.getElementById(this._prefix + "CircosMessage").style["display"] = "none";
-            this.circosImage = "data:image/png;base64, " + restResult.getResult(0);
-        }).catch( restResponse => {
-            console.error(restResponse);
-        }).finally( () => {
+        // {
+        //     study: this.opencgaSession.study.fqn,
+        //         sample: this.sampleId,
+        //     density: "LOW",
+        // ...this.query
+        // }
+        this.opencgaSession.opencgaClient.variants().runCircos(query, {study: this.opencgaSession.study.fqn})
+            .then( restResult => {
+                document.getElementById(this._prefix + "CircosMessage").style["display"] = "none";
+                this.circosImage = "data:image/png;base64, " + restResult.getResult(0);
+            })
+            .catch( restResponse => {
+                console.error(restResponse);
+            })
+            .finally( () => {
             this.requestUpdate();
         })
     }
