@@ -568,15 +568,15 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                 data.proband = {
                     id: clinicalAnalysis.proband ? clinicalAnalysis.proband.id : null
                 };
-                data.interpretation = {
-                    id: clinicalAnalysis.id + ".1",
-                    clinicalAnalysisId: clinicalAnalysis.id,
-                    analyst: {},
-                    method: {},
-                    primaryFindings: [],
-                    secondaryFindings: [],
-                    comments: [],
-                }
+                // data.interpretation = {
+                //     id: clinicalAnalysis.id + ".1",
+                //     clinicalAnalysisId: clinicalAnalysis.id,
+                //     analyst: {},
+                //     method: {},
+                //     primaryFindings: [],
+                //     secondaryFindings: [],
+                //     comments: [],
+                // }
 
                 if (clinicalAnalysis?.disorder?.id) {
                     data.disorder = {

@@ -379,8 +379,20 @@ export default class VariantInterpreterQcVariantCancer extends LitElement {
                     hiddenFields: []
                 },
                 sections: [     // sections and subsections, structure and order is respected
+                    // {
+                    //     title: "Sample",
+                    //     collapsed: false,
+                    //     fields: [
+                    //         {
+                    //             id: "file-quality",
+                    //             title: "Quality Filter",
+                    //             tooltip: "VCF file based FILTER and QUAL filters",
+                    //             showDepth: application.appConfig === "opencb"
+                    //         }
+                    //     ]
+                    // },
                     {
-                        title: "Sample",
+                        title: "Filters",
                         collapsed: false,
                         fields: [
                             {
@@ -388,13 +400,7 @@ export default class VariantInterpreterQcVariantCancer extends LitElement {
                                 title: "Quality Filter",
                                 tooltip: "VCF file based FILTER and QUAL filters",
                                 showDepth: application.appConfig === "opencb"
-                            }
-                        ]
-                    },
-                    {
-                        title: "Genomic",
-                        collapsed: true,
-                        fields: [
+                            },
                             {
                                 id: "region",
                                 title: "Genomic Location",
@@ -422,19 +428,24 @@ export default class VariantInterpreterQcVariantCancer extends LitElement {
                                 biotypes: types,
                                 tooltip: tooltips.type
                             },
-                        ]
-                    },
-                    {
-                        title: "Consequence Type",
-                        collapsed: true,
-                        fields: [
                             {
                                 id: "consequenceTypeSelect",
                                 title: "Select SO terms",
                                 tooltip: tooltips.consequenceTypeSelect
                             }
                         ]
-                    }
+                    },
+                    // {
+                    //     title: "Consequence Type",
+                    //     collapsed: true,
+                    //     fields: [
+                    //         {
+                    //             id: "consequenceTypeSelect",
+                    //             title: "Select SO terms",
+                    //             tooltip: tooltips.consequenceTypeSelect
+                    //         }
+                    //     ]
+                    // }
                 ],
                 examples: [
                     {
