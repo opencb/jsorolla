@@ -123,7 +123,7 @@ export default class OpencgaVariantGrid extends LitElement {
 
         // Config for the grid toolbar
         this.toolbarConfig = {
-            columns: this._createDefaultColumns().flat().filter( f => !["deleteriousness","conservation","popfreq","phenotypes"].includes(f.field))
+            columns: this._createDefaultColumns().flat().filter(f => !["deleteriousness", "conservation", "popfreq", "phenotypes"].includes(f.field))
         };
     }
 
@@ -170,7 +170,7 @@ export default class OpencgaVariantGrid extends LitElement {
                 detailFormatter: _this._config.detailFormatter,
                 // showColumns : false,
                 // showColumnsToggleAll: false,
-                formatLoadingMessage: () =>"<loading-spinner></loading-spinner>",
+                formatLoadingMessage: () => "<loading-spinner></loading-spinner>",
                 // this makes the opencga-variant-grid properties available in the bootstrap-table detail formatter
                 variantGrid: _this,
                 ajax: params => {
@@ -186,8 +186,8 @@ export default class OpencgaVariantGrid extends LitElement {
                     };
 
                     this.opencgaSession.opencgaClient.variants().query(filters)
-                        .then( res => params.success(res))
-                        .catch( e => {
+                        .then(res => params.success(res))
+                        .catch(e => {
                             console.error(e);
                             params.error(e);
                         });
@@ -202,7 +202,7 @@ export default class OpencgaVariantGrid extends LitElement {
                     return result.response;
                 },
                 onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
-                onDblClickRow: function(row, element, field) {
+                onDblClickRow: function (row, element, field) {
                     // We detail view is active we expand the row automatically.
                     // FIXME: Note that we use a CSS class way of knowing if the row is expand or collapse, this is not ideal but works.
                     if (_this._config.detailView) {
@@ -240,7 +240,7 @@ export default class OpencgaVariantGrid extends LitElement {
                 onLoadSuccess: data => {
                     for (let i = 0; i < data.rows.length; i++) {
                         if (this.checkedVariants.has(data.rows[i].id)) {
-                            $(this.table).bootstrapTable('check', i);
+                            $(this.table).bootstrapTable("check", i);
                         }
                     }
                     this.gridCommons.onLoadSuccess(data, 2);
@@ -250,11 +250,11 @@ export default class OpencgaVariantGrid extends LitElement {
                     this.from = (page - 1) * size + 1;
                     this.to = page * size;
                 },
-                onPostBody: function(data) {
+                onPostBody: function (data) {
                     $("span.sampleGenotype").qtip({
                         content: {
                             title: "More info",
-                            text: function(event, api) {
+                            text: function (event, api) {
                                 return $(this).attr("data-text");
                             }
                         },
@@ -297,7 +297,7 @@ export default class OpencgaVariantGrid extends LitElement {
         $("#" + this.gridId).bootstrapTable({
             data: this.data,
             columns: this.cols,
-            onClickRow: function(row, $element) {
+            onClickRow: function (row, $element) {
                 _this.variant = row.chromosome + ":" + row.start + ":" + row.reference + ":" + row.alternate;
                 $(".success").removeClass("success");
                 $($element).addClass("success");
@@ -405,11 +405,11 @@ export default class OpencgaVariantGrid extends LitElement {
             let str = description;
             if (str.indexOf(" ") >= 0) {
                 str = str
-                    .replace(/\s(.)/g, function($1) {
+                    .replace(/\s(.)/g, function ($1) {
                         return $1.toUpperCase();
                     })
                     .replace(/\s/g, "")
-                    .replace(/^(.)/, function($1) {
+                    .replace(/^(.)/, function ($1) {
                         return $1.toLowerCase();
                     });
             }
@@ -893,11 +893,11 @@ export default class OpencgaVariantGrid extends LitElement {
                 a.download = this.opencgaSession.study.alias + extension;
                 document.body.appendChild(a);
                 a.click();
-                setTimeout(function() {
+                setTimeout(function () {
                     document.body.removeChild(a);
                 }, 0);
             })
-            .then(function() {
+            .then(function () {
                 this.downloadRefreshIcon.css("display", "none");
                 this.downloadIcon.css("display", "inline-block");
             });

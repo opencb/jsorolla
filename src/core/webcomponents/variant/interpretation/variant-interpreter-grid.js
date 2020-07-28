@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2015-2016 OpenCB
  *
@@ -199,7 +198,7 @@ export default class VariantInterpreterGrid extends LitElement {
                 showExport: _this._config.showExport,
                 detailView: _this._config.detailView,
                 detailFormatter: _this.detailFormatter,
-                formatLoadingMessage: () =>"<div><loading-spinner></loading-spinner></div>",
+                formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
 
                 // this makes the opencga-interpreted-variant-grid properties available in the bootstrap-table formatters
                 variantGrid: _this,
@@ -236,7 +235,7 @@ export default class VariantInterpreterGrid extends LitElement {
                             // debugger
                             params.success(res);
                         })
-                        .catch( e => {
+                        .catch(e => {
                             console.error(e);
                             params.error(e);
                         });
@@ -282,7 +281,7 @@ export default class VariantInterpreterGrid extends LitElement {
                 onLoadSuccess: data => {
                     for (let i = 0; i < data.rows.length; i++) {
                         if (this.checkedVariants.has(data.rows[i].id)) {
-                            $(this.table).bootstrapTable('check', i);
+                            $(this.table).bootstrapTable("check", i);
                         }
                     }
                     this.gridCommons.onLoadSuccess(data, 2);
@@ -292,7 +291,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     this.from = (page - 1) * size + 1;
                     this.to = page * size;
                 },
-                onPostBody: function(data) {
+                onPostBody: function (data) {
                     _this._onPostBody();
                 }
             });
@@ -325,17 +324,17 @@ export default class VariantInterpreterGrid extends LitElement {
             showExport: _this._config.showExport,
             detailView: _this._config.detailView,
             detailFormatter: _this.detailFormatter,
-            formatLoadingMessage: () =>"<div><loading-spinner></loading-spinner></div>",
+            formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
 
             // this makes the opencga-interpreted-variant-grid properties available in the bootstrap-table formatters
             variantGrid: _this,
 
             onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
-            onPageChange: function(page, size) {
+            onPageChange: function (page, size) {
                 // _this.from = (page - 1) * size + 1;
                 // _this.to = page * size;
             },
-            onPostBody: function(data) {
+            onPostBody: function (data) {
                 // We call onLoadSuccess to select first row
                 _this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 2);
                 _this._onPostBody();
@@ -359,8 +358,15 @@ export default class VariantInterpreterGrid extends LitElement {
             this.variantGridFormatter.addPopulationFrequenciesTooltip("table.populationFrequenciesTable", this.populationFrequencies);
             this.variantGridFormatter.addPopulationFrequenciesInfoTooltip("span.pop-preq-info-icon", this.populationFrequencies);
             const predictionTooltipContent = "<span style='font-weight: bold'>Prediction</span> column shows the Clinical Significance prediction and Tier following the ACMG guide recommendations";
-            this.variantGridFormatter.addTooltip("span.interpretation-info-icon", "Interpretation", predictionTooltipContent, {position: {my: "top right"}, style: {classes: "qtip-rounded qtip-shadow qtip-custom-class"}});
-            this.variantGridFormatter.addTooltip("div.predictionTooltip", "Classification", "", {position: {my: "top right"}, style: {classes: "qtip-rounded qtip-shadow qtip-custom-class"}, width: "360px"});
+            this.variantGridFormatter.addTooltip("span.interpretation-info-icon", "Interpretation", predictionTooltipContent, {
+                position: {my: "top right"},
+                style: {classes: "qtip-rounded qtip-shadow qtip-custom-class"}
+            });
+            this.variantGridFormatter.addTooltip("div.predictionTooltip", "Classification", "", {
+                position: {my: "top right"},
+                style: {classes: "qtip-rounded qtip-shadow qtip-custom-class"},
+                width: "360px"
+            });
         }
     }
 
@@ -476,7 +482,7 @@ export default class VariantInterpreterGrid extends LitElement {
 
         if (UtilsNew.isNotEmptyArray(row.studies)) {
             if (UtilsNew.isNotUndefinedOrNull(row.studies[0].samples)) {
-                let sampleIndex = row.studies[0].samples[0].sampleId === this.field.sampleId ? 0 : 1;
+                let sampleIndex = row.studies[0].samples.findIndex(s => s.sampleId === this.field.sampleId);
 
                 // First, get and check info fields QUAL, FILTER; and format fields DP, AD and GQ
                 let filter = "-";
@@ -520,11 +526,11 @@ export default class VariantInterpreterGrid extends LitElement {
                 for (const formatField in row.studies[0].sampleDataKeys) {
                     // GT fields is treated separately
                     // if (row.studies[0].sampleDataKeys[formatField] !== "GT") {
-                        const html = `<div class="form-group" style="margin: 0px 2px">
+                    const html = `<div class="form-group" style="margin: 0px 2px">
                                             <label class="col-md-5">${row.studies[0].sampleDataKeys[formatField]}</label>
                                             <div class="col-md-7">${sampleFormat[formatField]}</div>
                                         </div>`;
-                        formatFields.push(html);
+                    formatFields.push(html);
                     // }
                 }
 
@@ -872,7 +878,7 @@ export default class VariantInterpreterGrid extends LitElement {
                 rowspan: 1,
                 colspan: this._config.showSelectCheckbox ? 2 : 1,
                 halign: "center"
-        });
+            });
         if (this._config.showSelectCheckbox) {
             _columns[1].push({
                 field: "checkbox",
@@ -1035,7 +1041,7 @@ export default class VariantInterpreterGrid extends LitElement {
         }
 
         if (this._config.showActions) {
-            _columns[0].push( {
+            _columns[0].push({
                 title: "Actions",
                 rowspan: 2,
                 formatter: (value, row) => `
@@ -1075,13 +1081,13 @@ export default class VariantInterpreterGrid extends LitElement {
         console.log(e, value, row);
         const {action} = e.target.dataset;
         if (action === "download") {
-            UtilsNew.downloadData([JSON.stringify(row, null, "\t")], row.id + ".json")
+            UtilsNew.downloadData([JSON.stringify(row, null, "\t")], row.id + ".json");
         }
     }
 
     // TODO fix tab jsonToTabConvert isn't working!
     onDownload(e) {
-        console.log("onDownload interpreter-grid")
+        console.log("onDownload interpreter-grid");
         //this.downloadRefreshIcon.css("display", "inline-block");
         //this.downloadIcon.css("display", "none");
 
@@ -1117,7 +1123,7 @@ export default class VariantInterpreterGrid extends LitElement {
                 // Check if user clicked in Tab or JSON format
                 if (e.detail.option.toLowerCase() === "tab") {
                     dataString = VariantUtils.jsonToTabConvert(result, this.populationFrequencies.studies, this.samples, this._config.nucleotideGenotype);
-                    console.log("dataString", dataString)
+                    console.log("dataString", dataString);
                     mimeType = "text/plain";
                     extension = ".txt";
                 } else {
@@ -1136,15 +1142,13 @@ export default class VariantInterpreterGrid extends LitElement {
                 a.download = this.opencgaSession.study.alias + extension;
                 document.body.appendChild(a);
                 a.click();
-                setTimeout(function() {
+                setTimeout(function () {
                     document.body.removeChild(a);
                 }, 0);
 
 
-
-
             })
-            .catch( e => {
+            .catch(e => {
                 console.error(e);
             });
     }
@@ -1152,7 +1156,7 @@ export default class VariantInterpreterGrid extends LitElement {
     onShare() {
         const _this = this;
         $("[data-toggle=popover]").popover({
-            content: function() {
+            content: function () {
                 const getUrlQueryParams = _this._getUrlQueryParams();
                 const query = ["limit=1000"];
                 for (const key in getUrlQueryParams.queryParams) {
@@ -1165,7 +1169,7 @@ export default class VariantInterpreterGrid extends LitElement {
                 }
                 return getUrlQueryParams.host + "?" + query.join("&");
             }
-        }).on("show.bs.popover", function() {
+        }).on("show.bs.popover", function () {
             $(this).data("bs.popover").tip().css("max-width", "none");
         });
     }
@@ -1197,7 +1201,7 @@ export default class VariantInterpreterGrid extends LitElement {
         };
     }
 
-    showLoading(){
+    showLoading() {
         $("#" + this.gridId).bootstrapTable("showLoading");
     }
 

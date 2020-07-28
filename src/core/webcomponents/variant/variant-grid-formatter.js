@@ -49,7 +49,7 @@ export default class VariantGridFormatter {
             result = {
                 consequenceTypeToColor: consequenceTypeToColor,
                 consequenceTypeToImpact: consequenceTypeToImpact
-            }
+            };
         }
 
         if (typeof proteinSubstitutionScores !== "undefined") {
@@ -400,7 +400,7 @@ export default class VariantGridFormatter {
                                 <tbody>`;
 
             // Sort and group CTs by Gene name
-            row.annotation.consequenceTypes.sort(function(a, b) {
+            row.annotation.consequenceTypes.sort(function (a, b) {
                 if (a.geneName === "" && b.geneName !== "") {
                     return 1;
                 }
@@ -466,7 +466,7 @@ export default class VariantGridFormatter {
         $("#" + div).qtip({
             content: {
                 title: "Cohort Stats",
-                text: function(event, api) {
+                text: function (event, api) {
                     return `One coloured square is shown for each cohort. Frequencies are coded with colours which classify values 
                             into 'very rare', 'rare', 'average', 'common' or 'missing', see 
                             <a href="http://www.dialogues-cns.com/wp-content/uploads/2015/03/DialoguesClinNeurosci-17-69-g001.jpg" target="_blank">
@@ -477,7 +477,7 @@ export default class VariantGridFormatter {
                             <div><span><i class="fa fa-square" style="color: ${populationFrequencies.style.rare}" aria-hidden="true"></i> Rare:  freq < 0.005</span></div>
                             <div><span><i class="fa fa-square" style="color: ${populationFrequencies.style.average}" aria-hidden="true"></i> Average:  freq < 0.05</span></div>
                             <div><span><i class="fa fa-square" style="color: ${populationFrequencies.style.common}" aria-hidden="true"></i> Common:  freq >= 0.05</span></div>
-                            <div><span><i class="fa fa-square" style="color: black" aria-hidden="true"></i> Not observed</span></div>`
+                            <div><span><i class="fa fa-square" style="color: black" aria-hidden="true"></i> Not observed</span></div>`;
                 },
             },
             position: {target: "mouse", adjust: {x: 2, y: 2, mouse: false}},
@@ -521,7 +521,7 @@ export default class VariantGridFormatter {
         $(selector).qtip({
             content: {
                 title: "Population Frequencies",
-                text: function(event, api) {
+                text: function (event, api) {
                     return `One coloured square is shown for each population. Frequencies are coded with colours which classify values 
                             into 'very rare', 'rare', 'average', 'common' or 'missing', see 
                             <a href="https://www.nature.com/scitable/topicpage/multifactorial-inheritance-and-genetic-disease-919" target="_blank">
@@ -532,7 +532,7 @@ export default class VariantGridFormatter {
                             <div><span><i class="fa fa-square" style="color: ${populationFrequencies.style.rare}" aria-hidden="true"></i> Rare:  freq < 0.005</span></div>
                             <div><span><i class="fa fa-square" style="color: ${populationFrequencies.style.average}" aria-hidden="true"></i> Average:  freq < 0.05</span></div>
                             <div><span><i class="fa fa-square" style="color: ${populationFrequencies.style.common}" aria-hidden="true"></i> Common:  freq >= 0.05</span></div>
-                            <div><span><i class="fa fa-square" style="color: black" aria-hidden="true"></i> Not observed</span></div>`
+                            <div><span><i class="fa fa-square" style="color: black" aria-hidden="true"></i> Not observed</span></div>`;
                 },
             },
             position: {target: "mouse", adjust: {x: 2, y: 2, mouse: false}},
@@ -584,7 +584,7 @@ export default class VariantGridFormatter {
             content: {
                 title: "Population Frequencies",
                 text: function (event, api) {
-                    let popFreqs = $(this).attr('data-pop-freq').split(",");
+                    let popFreqs = $(this).attr("data-pop-freq").split(",");
                     let html = "";
                     for (let popFreq of popFreqs) {
                         let arr = popFreq.split("::");
@@ -677,9 +677,9 @@ export default class VariantGridFormatter {
                     if (code !== "NP") {
                         if (typeof clinicalSignificanceVisited[code] === "undefined") {
                             if (code === "BB" || code === "LB") {
-                                results.push(`<span style="color: ${color}" title="${tooltip}">${code}</span>`)
+                                results.push(`<span style="color: ${color}" title="${tooltip}">${code}</span>`);
                             } else {
-                                results.push(`<span style="color: ${color}" title="${tooltip}">${code}</span>`)
+                                results.push(`<span style="color: ${color}" title="${tooltip}">${code}</span>`);
                             }
                             clinicalSignificanceVisited[code] = true;
                         }
@@ -688,7 +688,7 @@ export default class VariantGridFormatter {
 
                 // This can only be shown if nothing else exists
                 if (results.length === 0) {
-                    results.push(`<span style="color: grey" title="ClinVar submissions without an interpretation of clinical significance">NP</span>`)
+                    results.push(`<span style="color: grey" title="ClinVar submissions without an interpretation of clinical significance">NP</span>`);
                 }
                 return results.join("<br>");
             } else {
@@ -705,7 +705,7 @@ export default class VariantGridFormatter {
                     return `<span data-toggle="tooltip" data-placement="bottom" title="${tooltip.join(", ")}"><i class='fa fa-check' style='color: green'></i></span>`;
 
                 } else {
-                    console.error("Wrong clinical source : " + this.field)
+                    console.error("Wrong clinical source : " + this.field);
                 }
             }
         }
@@ -716,7 +716,7 @@ export default class VariantGridFormatter {
         $("#" + div).qtip({
             content: {
                 title: "Phenotypes",
-                text: function(event, api) {
+                text: function (event, api) {
                     return `<div>
                                 <span style="font-weight: bold">ClinVar</span> is a freely accessible, public archive of reports of the relationships among human variations 
                                 and phenotypes, with supporting evidence.
@@ -725,7 +725,7 @@ export default class VariantGridFormatter {
                                 <span style="font-weight: bold">COSMIC</span> is the world's largest and most comprehensive resource for exploring the impact of somatic mutations in human cancer.
                             </div>
 
-                           `
+                           `;
                 },
             },
             position: {target: "mouse", adjust: {x: 2, y: 2, mouse: false}},
@@ -754,9 +754,9 @@ export default class VariantGridFormatter {
                                         </tr>
                                         <tr>
                                             <th rowspan="1" style="padding: 0px 10px">Allele</th>
-                                            <th rowspan="1" style="padding: 0px 10px">Frequency</th>
+                                            <th rowspan="1" style="padding: 0px 10px"><span style="white-space: nowrap">Frequency (Depth)</span></th>
                                             <th rowspan="1" style="padding: 0px 10px">Allele</th>
-                                            <th rowspan="1" style="padding: 0px 10px">Frequency</th>
+                                            <th rowspan="1" style="padding: 0px 10px"><span style="white-space: nowrap">Frequency (Depth)</span></th>
                                         </tr>
                                     </thead>
                                     <tbody>`;
@@ -765,37 +765,53 @@ export default class VariantGridFormatter {
             for (let sample of study.samples) {
                 let file = study.files?.length > sample.fileIndex ? study.files[sample.fileIndex] : null;
 
-                let referenceFreq;
-                let alternateFreq;
+                let referenceFreq, referenceCount;
+                let alternateFreq, alternateCount;
                 let secondaryAlternate = "-";
                 let secondaryAlternateFreq;
                 let originalCall;
 
-                if (file) {
-                    let split;
-                    if (file.data.AF) {
-                        split = file.data.AF.split(",");
-                    } else {
-                        if (file.data.AD) {
-                            split = file.data.AD.split(",");
-                        } else {
-                            let afIdx = study.sampleDataKeys.findIndex(e => e === "AF" || e === "AD");
-                            split = sample.data[afIdx]?.split(",");
-                        }
+                let ad, af, dp;
+                // Get DP value
+                let dpIdx = study.sampleDataKeys.findIndex(e => e === "DP");
+                if (dpIdx !== -1) {
+                    dp = Number.parseInt(sample.data[dpIdx]);
+                } else {
+                    dp = file.data.DP ? Number.parseInt(file.data.DP) : null;
+                }
+
+                // Sample format can contain AD or AF
+                let adIdx = study.sampleDataKeys.findIndex(e => e === "AD");
+                if (adIdx !== -1) {
+                    ad = sample.data[adIdx]?.split(",");
+                    referenceCount = Number.parseInt(ad[0]);
+                    alternateCount = Number.parseInt(ad[1]);
+                    if (ad > 1) {
+                        secondaryAlternateFreq = ad[2];
                     }
-                    if (split?.length > 0) {
-                        referenceFreq = split[0];
-                        alternateFreq = split[1];
-                        if (split > 1) {
-                            secondaryAlternateFreq = split[2];
+                    if (dp) {
+                        referenceFreq = referenceCount !== 0 && referenceCount !== dp ? Number.parseFloat(referenceCount / dp).toFixed(3) : referenceCount / dp;
+                        alternateFreq = alternateCount !== 0 && alternateCount !== dp ? Number.parseFloat(alternateCount / dp).toFixed(3) : alternateCount / dp;
+                    }
+                } else {
+                    let afIdx = study.sampleDataKeys.findIndex(e => e === "AF");
+                    if (afIdx !== -1) {
+                        af = sample.data[afIdx]?.split(",");
+                        referenceFreq = af[0];
+                        alternateFreq = af[1];
+                        if (af > 1) {
+                            secondaryAlternateFreq = af[2];
                         }
+                        referenceCount = "NA";
+                        alternateCount = "NA";
                     }
                 }
 
                 if (file.call?.variantId) {
                     originalCall = file.call.variantId.replace("<", "&lt;").replace(">", "&gt;");
                     if (originalCall.includes(",")) {
-                        secondaryAlternate = originalCall.split(",")[1];
+                        let split = originalCall.split(",");
+                        secondaryAlternate = split[1] !== "&lt;NON_REF&gt;" ? split[1] : "none";
                     }
                 } else {
                     originalCall = `${row.chromosome}:${row.position}:${row.reference}:${row.alternate}`;
@@ -820,9 +836,9 @@ export default class VariantGridFormatter {
                                     <td><span style="white-space: nowrap">${originalCall}</span></td>
                                     <td><span style="color: ${genotypeColor}">${sample.data[0]}</span></td>
                                     <td>${row.reference}</td>
-                                    <td>${referenceFreq}</td>
+                                    <td>${referenceFreq} (${referenceCount})</td>
                                     <td>${row.alternate}</td>
-                                    <td>${alternateFreq}</td>
+                                    <td>${alternateFreq} (${alternateCount})</td>
                                     <td>${secondaryAlternate}</td>
                                     <td>${format.join("; ")}</td>
                                  </tr>`;
@@ -866,7 +882,7 @@ export default class VariantGridFormatter {
                                 <tbody>`;
 
             // Sort by Tier level
-            row.evidences.sort(function(a, b) {
+            row.evidences.sort(function (a, b) {
                 if (a.tier === null || b.tier !== null) {
                     return 1;
                 }
@@ -923,7 +939,6 @@ export default class VariantGridFormatter {
                                 </a>
                             </div>`;
                 }
-
 
 
                 let transcriptId = "-";
@@ -1088,7 +1103,7 @@ export default class VariantGridFormatter {
                     if (UtilsNew.isNotEmpty(content)) {
                         return content;
                     } else {
-                        return $(this).attr('data-tooltip-text');
+                        return $(this).attr("data-tooltip-text");
                     }
                 }
             },
