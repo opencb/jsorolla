@@ -17,10 +17,11 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../utilsNew.js";
 import "./variant-interpreter-qc-summary.js";
+import "./variant-interpreter-qc-variant-stats.js";
 import "./variant-interpreter-qc-inferred-sex.js";
 import "./variant-interpreter-qc-relatedness.js";
 import "./variant-interpreter-qc-mendelian-errors.js";
-import "./variant-interpreter-qc-variant-stats.js";
+import "./variant-interpreter-qc-signature.js";
 import "./variant-interpreter-qc-alignment-stats.js";
 import "./variant-interpreter-qc-gene-coverage-stats.js";
 
@@ -93,46 +94,88 @@ class VariantInterpreterQcOverview extends LitElement {
     }
 
     getDefaultConfig() {
-        return {
-            title: "Quality Control Overview",
-            sections: [
-                {
-                    fields: [
-                        {
-                            id: "Summary",
-                            title: "Summary"
-                        },
-                        {
-                            id: "VariantStats",
-                            title: "Variant Stats"
-                        },
-                        {
-                            id: "InferredSex",
-                            title: "Sex Inference"
-                        },
-                        {
-                            id: "MendelianErrors",
-                            title: "Mendelian Errors"
-                        },
-                        {
-                            id: "Relatedness",
-                            title: "Relatedness"
-                        },
-                        {
-                            id: "AlignmentStats",
-                            title: "Samtools Flagstats",
-                            disabled: application.appConfig !== "opencb"
-                        },
-                        {
-                            id: "GeneCoverageStats",
-                            title: "Gene Coverage Stats",
-                            disabled: application.appConfig !== "opencb"
-                        }
-                    ]
-                }
-            ]
-
+        if (!this.clinicalAnalysis) {
+            return;
         }
+
+        if (this.clinicalAnalysis.type.toUpperCase() !== "CANCER") {
+            return {
+                title: "Quality Control Overview",
+                sections: [
+                    {
+                        fields: [
+                            {
+                                id: "Summary",
+                                title: "Summary"
+                            },
+                            {
+                                id: "VariantStats",
+                                title: "Variant Stats"
+                            },
+                            {
+                                id: "InferredSex",
+                                title: "Sex Inference"
+                            },
+                            {
+                                id: "MendelianErrors",
+                                title: "Mendelian Errors"
+                            },
+                            {
+                                id: "Relatedness",
+                                title: "Relatedness"
+                            },
+                            {
+                                id: "AlignmentStats",
+                                title: "Samtools Flagstats",
+                                disabled: application.appConfig !== "opencb"
+                            },
+                            {
+                                id: "GeneCoverageStats",
+                                title: "Gene Coverage Stats",
+                                disabled: application.appConfig !== "opencb"
+                            }
+                        ]
+                    }
+                ]
+            }
+        } else {
+            return {
+                title: "Quality Control Overview",
+                sections: [
+                    {
+                        fields: [
+                            {
+                                id: "Summary",
+                                title: "Summary"
+                            },
+                            {
+                                id: "VariantStats",
+                                title: "Variant Stats"
+                            },
+                            {
+                                id: "InferredSex",
+                                title: "Sex Inference"
+                            },
+                            {
+                                id: "GenomicContext",
+                                title: "Genomic Context (Signature)"
+                            },
+                            {
+                                id: "AlignmentStats",
+                                title: "Samtools Flagstats",
+                                disabled: application.appConfig !== "opencb"
+                            },
+                            {
+                                id: "GeneCoverageStats",
+                                title: "Gene Coverage Stats",
+                                disabled: application.appConfig !== "opencb"
+                            }
+                        ]
+                    }
+                ]
+            }
+        }
+
     }
 
     onSideNavClick(e) {
@@ -169,6 +212,7 @@ class VariantInterpreterQcOverview extends LitElement {
                           data-id="${field.id}" @click="${this.onSideNavClick}">${field.title}</button>`
                     })}
                 </div>
+                
                 <div class="col-md-10">
                     <div class="content-tab-wrapper interpreter-content-tab" style="margin: 0px 10px">
                         <div id="${this._prefix}Summary" role="tabpanel" class="tab-pane content-tab active">
@@ -204,6 +248,13 @@ class VariantInterpreterQcOverview extends LitElement {
                             <variant-interpreter-qc-relatedness     .opencgaSession=${this.opencgaSession} 
                                                                     .clinicalAnalysis="${this.clinicalAnalysis}">
                             </variant-interpreter-qc-relatedness>
+                        </div>
+                        
+                        <div id="${this._prefix}GenomicContext" role="tabpanel" class="tab-pane content-tab">
+                            <h3>Genomic Context (Signature)</h3>
+                            <variant-interpreter-qc-signature     .opencgaSession=${this.opencgaSession} 
+                                                                  .clinicalAnalysis="${this.clinicalAnalysis}">
+                            </variant-interpreter-qc-signature>
                         </div>
                         
                         <div id="${this._prefix}AlignmentStats" role="tabpanel" class="tab-pane content-tab">
