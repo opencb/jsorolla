@@ -642,13 +642,14 @@ export default class VariantInterpreterGrid extends LitElement {
                     for (let altFreq of altFreqs) {
                         let freq = Number.parseFloat(altFreq);
                         totalFreq += freq;
-                        rects += `<rect y="40" width="20" height="${freq * 40}" style="fill: darkred"/>`;
+                        rects += `<rect x="20" y="5" width="20" height="${freq * 40}" style="fill: darkred"/>`;
                     }
                     if (totalFreq < 1) {
-                        rects += `<rect y="${totalFreq * 40}" width="20" height="${(1 - totalFreq) * 40}" style="fill: darkorange"/>`;
+                        rects += `<rect x="20" y="${totalFreq * 40 + 5}" width="20" height="${(1 - totalFreq) * 40}" style="fill: darkorange"/>`;
                     }
-                    resultHtml = `<div class='zygositySampleTooltip' data-tooltip-text='${tooltipText}' style="width: 70px" align="center">
-                                    <svg xmlns="http://www.w3.org/2000/svg">
+                    // style="width: 50px; height: 50px"
+                    resultHtml = `<div class='zygositySampleTooltip' data-tooltip-text='${tooltipText}' style="width: 50px" align="center">
+                                    <svg viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg">
                                         ${rects}
                                     </svg>
                                   </div>`;
