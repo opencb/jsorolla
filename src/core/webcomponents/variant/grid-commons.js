@@ -211,6 +211,7 @@ export default class GridCommons {
     }
 
     onColumnChange(e) {
+        //console.log("e.detail.id.split(\",\")", e.detail.id.split(","))
         if (e.detail.selected) {
             e.detail.id.split(",").forEach( id => this.context.table.bootstrapTable("showColumn", id));
         } else {

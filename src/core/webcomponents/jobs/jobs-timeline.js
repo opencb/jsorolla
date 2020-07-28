@@ -132,12 +132,9 @@ export default class JobsTimeline extends LitElement {
             console.log("CHILDS", this.draw)
             console.log("first", this.draw.first())
         }
-
-        debugger
-        console.log("timestampMinMax", this.timestampMin, this.timestampMax);
+        //console.log("timestampMinMax", this.timestampMin, this.timestampMax);
 
         this._config.board.width = this._config.board.width || this.querySelector("#svg-timeline").clientWidth - 200;
-
         this.tick = Math.round(this._config.board.width / this._config.ticks);
         this.dateTick = Math.round((this.timestampMax - this.timestampMin) / this._config.ticks);
 
