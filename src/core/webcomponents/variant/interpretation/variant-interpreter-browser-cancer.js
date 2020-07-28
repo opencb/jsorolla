@@ -578,7 +578,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                                             .clinicalAnalysis="${this.clinicalAnalysis}"
                                             .cellbaseClient="${this.cellbaseClient}"
                                             .populationFrequencies="${this.populationFrequencies}"
-                                            .consequenceTypes="${consequenceTypes}"
+                                            .consequenceTypes="${this.consequenceTypes}"
                                             .config="${this._config.filter}"
                                             @queryChange="${this.onVariantFilterChange}"
                                             @querySearch="${this.onVariantFilterSearch}"

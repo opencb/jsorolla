@@ -150,6 +150,11 @@ export default class OpencgaVariantGrid extends LitElement {
         if (this.opencgaSession && this.opencgaSession.project && this.opencgaSession.study) {
             this._columns = this._createDefaultColumns();
 
+            // Config for the grid toolbar
+            this.toolbarConfig = {
+                columns: this._createDefaultColumns().flat().filter(f => !["deleteriousness", "cohorts", "conservation", "popfreq", "phenotypes"].includes(f.field))
+            };
+
             const _this = this;
             this.table = $("#" + this.gridId);
             this.table.bootstrapTable("destroy");
@@ -437,18 +442,19 @@ export default class OpencgaVariantGrid extends LitElement {
     }
 
     cohortFormatter(value, row, index) {
+        //console.error(this)
         if (row && row.studies?.length > 0 && row.studies[0].stats) {
             const cohortStats = new Map();
             for (const study of row.studies) {
-                if (study.studyId === this.field.study) {
+                if (study.studyId === this.meta.study) {
                     for (const cohortStat of study.stats) {
                         cohortStats.set(cohortStat.cohortId, Number(cohortStat.altAlleleFreq).toFixed(4));
                     }
                     break;
                 }
             }
-            return this.field.context.variantGridFormatter.createCohortStatsTable(this.field.cohorts, cohortStats,
-                this.field.context.populationFrequencies.style);
+            return this.meta.context.variantGridFormatter.createCohortStatsTable(this.meta.cohorts, cohortStats,
+                this.meta.context.populationFrequencies.style);
         } else {
             return "-";
         }
@@ -459,12 +465,12 @@ export default class OpencgaVariantGrid extends LitElement {
             const popFreqMap = new Map();
             for (const popFreqIdx in row.annotation.populationFrequencies) {
                 const popFreq = row.annotation.populationFrequencies[popFreqIdx];
-                if (this.field.study === popFreq.study) { // && this.field.populationMap[popFreq.population] === true
+                if (this.meta.study === popFreq.study) { // && this.meta.populationMap[popFreq.population] === true
                     popFreqMap.set(popFreq.population, Number(popFreq.altAlleleFreq).toFixed(4));
                 }
             }
-            return this.field.context.variantGridFormatter.createPopulationFrequenciesTable(this.field.populations,
-                popFreqMap, this.field.context.populationFrequencies.style);
+            return this.meta.context.variantGridFormatter.createPopulationFrequenciesTable(this.meta.populations,
+                popFreqMap, this.meta.context.populationFrequencies.style);
         } else {
             return "-";
         }
@@ -766,7 +772,8 @@ export default class OpencgaVariantGrid extends LitElement {
             for (let i = 0; i < cohortStudies.length; i++) {
                 this._columns[1].splice(i + cohortIdx, 0, {
                     title: cohortStudies[i],
-                    field: {
+                    field: `${cohortStudies[i]}`,
+                    meta: {
                         study: cohortStudies[i],
                         cohorts: this.cohorts[this.opencgaSession.project.id][cohortStudies[i]],
                         colors: this.populationFrequencies.style,
@@ -803,7 +810,8 @@ export default class OpencgaVariantGrid extends LitElement {
 
                 this._columns[1].splice(j + subPopIdx, 0, {
                     title: this.populationFrequencies.studies[j].title,
-                    field: {
+                    field: this.populationFrequencies.studies[j].id,
+                    meta: {
                         study: this.populationFrequencies.studies[j].id,
                         populations: populations,
                         populationMap: populationMap,
