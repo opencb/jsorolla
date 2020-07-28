@@ -379,7 +379,7 @@ export default class OpencgaVariantGrid extends LitElement {
         }
 
         if (min < 10) {
-            return "<span style=\"color: " + this.pssColor.get(description) + "\" title=\"" + min + "\">" + description + "</span>";
+            return `<span style="color: ${this.pssColor.get(description)}" title=${min}>${description}</span>`;
         }
         return "-";
     }
@@ -402,18 +402,7 @@ export default class OpencgaVariantGrid extends LitElement {
         }
 
         if (max > 0) {
-            let str = description;
-            if (str.indexOf(" ") >= 0) {
-                str = str
-                    .replace(/\s(.)/g, function ($1) {
-                        return $1.toUpperCase();
-                    })
-                    .replace(/\s/g, "")
-                    .replace(/^(.)/, function ($1) {
-                        return $1.toLowerCase();
-                    });
-            }
-            return "<span style=\"color: " + this.pssColor.get(str) + "\" title=\"" + max + "\">" + description + "</span>";
+            return `<span style="color: ${this.pssColor.get(description)}" title=${max}>${description}</span>`;
         }
         return "-";
     }
