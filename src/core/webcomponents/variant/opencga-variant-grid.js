@@ -772,7 +772,7 @@ export default class OpencgaVariantGrid extends LitElement {
             for (let i = 0; i < cohortStudies.length; i++) {
                 this._columns[1].splice(i + cohortIdx, 0, {
                     title: cohortStudies[i],
-                    field: `${cohortStudies[i]}`,
+                    field: cohortStudies[i],
                     meta: {
                         study: cohortStudies[i],
                         cohorts: this.cohorts[this.opencgaSession.project.id][cohortStudies[i]],
@@ -782,7 +782,8 @@ export default class OpencgaVariantGrid extends LitElement {
                     rowspan: 1,
                     colspan: 1,
                     formatter: this.cohortFormatter,
-                    align: "center"
+                    align: "center",
+                    eligible: false
                 });
             }
         }
