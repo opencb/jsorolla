@@ -77,8 +77,8 @@ class CohortVariantStats extends LitElement {
                 formatLoadingMessage: () =>"<loading-spinner></loading-spinner>",
 
                 onLoadError: function(status, res) {
-                    console(status);
-                    console(res);
+                    console.log(status);
+                    console.log(res);
                     console.trace();
                 }
             });

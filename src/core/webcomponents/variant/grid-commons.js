@@ -133,6 +133,7 @@ export default class GridCommons {
         this.context.dispatchEvent(new CustomEvent("checkrow", {
             detail: {
                 rows: Array.from(this.checkedRows.values()),
+                checked: false,
                 ...others
             }
         }));
@@ -143,6 +144,7 @@ export default class GridCommons {
         if (data.rows && data.rows.length > 0) {
 
             let table = $("#" + this.gridId);
+            console.error("context", table)
             for (let i = 0; i < data.rows.length; i++) {
                 if (this.checkedRows.has(data.rows[i].id)) {
                     table.bootstrapTable('check', i);
@@ -169,18 +171,6 @@ export default class GridCommons {
             }));
         }
         UtilsNew.initTooltip(this.context);
-        /*$("a[tooltip-title]", this.context).each(function() {
-            $(this).qtip({
-                content: {
-                    title: $(this).attr("tooltip-title"),
-                    text: $(this).attr("tooltip-text")
-                },
-                position: {target: "mouse", adjust: {x: 2, y: 2, mouse: false}},
-                style: {width: true, classes: "qtip-light qtip-rounded qtip-shadow qtip-custom-class"},
-                show: {delay: 200},
-                hide: {fixed: true, delay: 300}
-            });
-        });*/
     }
 
     onLoadError(e, restResponse) {
