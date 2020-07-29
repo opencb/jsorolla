@@ -648,25 +648,49 @@ export default class VariantInterpreterGrid extends LitElement {
                                     </svg>
                                   </div>`;
                 } else {
-                    let afIndex = row.studies[0].sampleDataKeys.findIndex(e => e === "AF");
-                    let af = sampleFormat[afIndex];
-                    let altFreqs = af.split(",");
-                    let rects = "";
-                    let totalFreq = 0;
-                    for (let altFreq of altFreqs) {
-                        let freq = Number.parseFloat(altFreq);
-                        totalFreq += freq;
-                        rects += `<rect x="20" y="5" width="20" height="${freq * 40}" style="fill: darkred"/>`;
+                    let af, ad, dp;
+                    let afIndex, adIndex, dpIndex;
+                    let altFreqs = [];
+                    dpIndex = row.studies[0].sampleDataKeys.findIndex(e => e === "DP");
+                    if (dpIndex !== -1) {
+                        dp = sampleFormat[dpIndex];
                     }
-                    if (totalFreq < 1) {
-                        rects += `<rect x="20" y="${totalFreq * 40 + 5}" width="20" height="${(1 - totalFreq) * 40}" style="fill: darkorange"/>`;
+
+                    adIndex = row.studies[0].sampleDataKeys.findIndex(e => e === "AD");
+                    if (adIndex !== -1) {
+                        ad = sampleFormat[adIndex];
+                        let adCounts = ad.split(",");
                     }
-                    // style="width: 50px; height: 50px"
-                    resultHtml = `<div class='zygositySampleTooltip' data-tooltip-text='${tooltipText}' style="width: 50px" align="center">
+
+                    afIndex = row.studies[0].sampleDataKeys.findIndex(e => e === "AF");
+                    if (afIndex !== -1) {
+                        af = sampleFormat[afIndex];
+                        debugger
+                        altFreqs = af.split(",");
+                        let rects = "";
+                        let totalFreq = 0;
+                        for (let altFreq of altFreqs) {
+                            let freq = Number.parseFloat(altFreq);
+                            totalFreq += freq;
+                            rects += `<rect x="20" y="5" width="20" height="${freq * 40}" style="fill: darkred"/>`;
+                        }
+                        if (totalFreq < 1) {
+                            rects += `<rect x="20" y="${totalFreq * 40 + 5}" width="20" height="${(1 - totalFreq) * 40}" style="fill: darkorange"/>`;
+                        }
+                        // style="width: 50px; height: 50px"
+                        resultHtml = `<div class='zygositySampleTooltip' data-tooltip-text='${tooltipText}' style="width: 50px" align="center">
                                     <svg viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg">
                                         ${rects}
                                     </svg>
                                   </div>`;
+                    } else {
+                        resultHtml = `<div class='zygositySampleTooltip' data-tooltip-text='${tooltipText}' style="width: 70px" align="center">
+                                    <svg viewBox="0 0 70 30" xmlns="http://www.w3.org/2000/svg">
+                                        <circle cx="20" cy="15" r="${leftRadio}" style="stroke: black;fill: ${left}"/>
+                                        <circle cx="50" cy="15" r="${rightRadio}" style="stroke: black;fill: ${right}"/>
+                                    </svg>
+                                  </div>`;
+                    }
                 }
             }
         }
