@@ -209,8 +209,8 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
     }
 
     onSaveInterpretation(e, obj) {
-        this.clinicalAnalysis
-        debugger
+        // this.clinicalAnalysis
+        // debugger
         this.opencgaSession.opencgaClient.clinical().updateInterpretation(this.clinicalAnalysis.id, this.clinicalAnalysis.interpretation, {study: this.opencgaSession.study.fqn})
             .then(response => {
                 debugger

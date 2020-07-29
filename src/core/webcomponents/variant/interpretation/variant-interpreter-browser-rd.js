@@ -93,6 +93,7 @@ class VariantInterpreterBrowserRd extends LitElement {
 
         this.activeFilterFilters = [];
 
+        // this.notSavedvVriants = [];
         this.predefinedFilter = false; // flag that hides the warning message in active-filter for predefined samples value
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
@@ -174,7 +175,7 @@ class VariantInterpreterBrowserRd extends LitElement {
                 let sampleGenotypes = [];
                 for (let member of this.clinicalAnalysis.family.members) {
                     if (member.samples && member.samples.length > 0) {
-                        sampleGenotypes.push(member.samples[0].id + ":0/1,1/1")
+                        sampleGenotypes.push(member.samples[0].id + ":0/1,1/1");
                     }
                 }
                 if (!this.query) {
@@ -191,7 +192,7 @@ class VariantInterpreterBrowserRd extends LitElement {
         if (sampleQc?.metrics?.length > 0) {
             let variantStats = sampleQc.metrics[0].variantStats;
             if (variantStats && variantStats.length > 0) {
-                _activeFilterFilters = variantStats.map(variantStat => ({id: variantStat.id, query: variantStat.query}))
+                _activeFilterFilters = variantStats.map(variantStat => ({id: variantStat.id, query: variantStat.query}));
             }
         }
         // If WC variant stats filters are found we add them to active filters, we do not replace them.
@@ -215,15 +216,15 @@ class VariantInterpreterBrowserRd extends LitElement {
     }
 
     onCheckVariant(e) {
-
-        // if (this.clinicalAnalysis && this.clinicalAnalysis.interpretation) {
-        //     this.clinicalAnalysis.modificationDate = e.detail.timestamp;
-        //     this.clinicalAnalysis.interpretation.modificationDate = e.detail.timestamp;
-        //     this.clinicalAnalysis.interpretation.primaryFindings = Array.from(e.detail.rows);
+        // let checkedVariants = e.detail.rows;
+        // for (let checkedVariant of checkedVariants) {
+        //     if (!this.clinicalAnalysis.interpretation.primaryFindings.some(e => e.id === checkedVariant.id)) {
+        //         this.notSavedvVriants.push(checkedVariant);
+        //     }
         // }
 
         if (!this.clinicalAnalysis) {
-            console.error("It is not possible have this error")
+            console.error("It is not possible have this error");
             return;
         }
 
@@ -234,34 +235,67 @@ class VariantInterpreterBrowserRd extends LitElement {
             }
         };
 
+        this.clinicalAnalysis.interpretation.primaryFindings = Array.from(e.detail.rows);
+
+        // let _interpretation = {primaryFindings: [], ...this.clinicalAnalysis.interpretation};
+        // _interpretation.clinicalAnalysisId = this.clinicalAnalysis.id;
+        // _interpretation.methods = [{name: "IVA"}];
+        // _interpretation.primaryFindings = Array.from(e.detail.rows);
+        //
+        // this.clinicalAnalysis.interpretation = _interpretation;
+        //
+        // this.dispatchEvent(new CustomEvent("clinicalAnalysisUpdate", {
+        //     detail: {
+        //         clinicalAnalysis: this.clinicalAnalysis
+        //     },
+        //     bubbles: true,
+        //     composed: true
+        // }));
+    }
+
+    onResetVariants(e) {
+        let alreadySaved = this.clinicalAnalysis.interpretation.primaryFindings.filter(e => e.attributes.creationDate);
+        // debugger
+        this.clinicalAnalysis.interpretation.primaryFindings = alreadySaved;
+        this.requestUpdate();
+    }
+
+    onSaveVariants(e) {
+        if (!this.clinicalAnalysis) {
+            console.error("It is not possible have this error");
+            return;
+        }
+
         let _interpretation = {primaryFindings: [], ...this.clinicalAnalysis.interpretation};
-        // if (this.clinicalAnalysis.interpretation) {
-        //     _interpretation = {primaryFindings: [], ...this.clinicalAnalysis.interpretation};
-        // } else {
-        //     _interpretation = {
-        //         primaryFindings: []
-        //     }
-        // }
-
-        _interpretation.id = this.clinicalAnalysis.id;
         _interpretation.clinicalAnalysisId = this.clinicalAnalysis.id;
-        _interpretation.method = {name: "IVA"};
-        _interpretation.primaryFindings = Array.from(e.detail.rows);
-debugger
-        this.clinicalAnalysis.interpretation = _interpretation;
+        _interpretation.methods = [{name: "IVA"}];
+        _interpretation.primaryFindings = this.clinicalAnalysis.interpretation.primaryFindings;
+        for (let variant of _interpretation.primaryFindings) {
+            if (!variant.attributes.creationDate) {
+                variant.attributes.creationDate = new Date().getTime();
+            }
+        }
 
-        this.dispatchEvent(new CustomEvent("clinicalAnalysisUpdate", {
-            detail: {
-                clinicalAnalysis: this.clinicalAnalysis
-            },
-            bubbles: true,
-            composed: true
-        }));
+        this.clinicalAnalysis.interpretation = _interpretation;
+debugger
+        this.opencgaSession.opencgaClient.clinical().updateInterpretation(this.clinicalAnalysis.id, this.clinicalAnalysis.interpretation, {study: this.opencgaSession.study.fqn})
+            .then(response => {
+                this.dispatchEvent(new CustomEvent("clinicalAnalysisUpdate", {
+                    detail: {
+                        clinicalAnalysis: this.clinicalAnalysis
+                    },
+                    bubbles: true,
+                    composed: true
+                }));
+            })
+            .catch(error => console.error(error));
+
+        // this.notSavedvVriants = [];
     }
 
     onSampleChange(e) {
         const _samples = e.detail.samples;
-        this.samples =_samples.slice();
+        this.samples = _samples.slice();
         this.dispatchEvent(new CustomEvent("samplechange", {detail: e.detail, bubbles: true, composed: true}));
         // this._initGenotypeSamples(this.samples);
     }
@@ -683,8 +717,7 @@ debugger
                     ]
                 }
             },
-            aggregation: {
-            }
+            aggregation: {}
         };
     }
 
@@ -715,11 +748,6 @@ debugger
                 .prioritization-variant-tab-title {
                     font-size: 115%;
                     font-weight: bold;
-                }
-    
-                .icon-padding {
-                    padding-left: 4px;
-                    padding-right: 8px;
                 }
     
                 .form-section-title {
@@ -763,20 +791,21 @@ debugger
                 </div> <!-- Close col-md-2 -->
                 
                 <div class="col-md-10">
-                    <div class="btn-toolbar " role="toolbar" aria-label="..." style="padding-bottom: 60px">
-                        <!-- Left buttons -->
-                        <div class="btn-group" role="group" aria-label="..." >
-                            <!--<button id="${this._prefix}InteractiveButton" type="button" class="btn btn-success variant-interpretation-view-buttons active ripple" data-view="Interactive" @click="${this.onChangeView}">
-                                <i class="fa fa-filter icon-padding" aria-hidden="true" data-view="Interactive" @click="${this.onChangeView}"></i>Table Result
-                            </button>
-                            
-                             <button id="${this._prefix}SummaryReportButton" type="button" class="btn btn-success variant-interpretation-view-buttons ripple" data-view="SummaryReport" @click="${this.onChangeView}">
-                                <i class="fas fa-random icon-padding" aria-hidden="true" data-view="SummaryReport" @click="${this.onChangeView}"></i>Summary Report
-                            </button>
-                            -->
+                    
+                    <!-- TODO Move to the right -->
+                    <div>
+                        <div class="btn-toolbar" role="toolbar" aria-label="toolbar" style="margin-bottom: 20px">
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-primary ripple" @click="${this.onResetVariants}" title="This will remove not saved variants">
+                                    <i class="fas fa-eraser icon-padding" aria-hidden="true"></i> Reset
+                                </button>
+                                <button type="button" class="btn btn-primary ripple" @click="${this.onSaveVariants}" title="Save variants in the server">
+                                    <i class="fas fa-save icon-padding" aria-hidden="true"></i> Save
+                                </button>
+                            </div>
                         </div>
-                    </div>  <!-- Close toolbar -->
-    
+                    </div>
+                    
                     <div id="${this._prefix}MainContent">
                         <div id="${this._prefix}ActiveFilters">
                             <opencga-active-filters resource="VARIANT"

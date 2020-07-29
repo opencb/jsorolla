@@ -102,6 +102,7 @@ export default class GridCommons {
 
     onCheckAll(rows, others) {
         for (let row of rows) {
+            delete row.checkbox;
             this.checkedRows.set(row.id, row);
         }
         this.context.dispatchEvent(new CustomEvent("checkrow", {

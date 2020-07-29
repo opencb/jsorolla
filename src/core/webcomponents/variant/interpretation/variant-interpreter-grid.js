@@ -128,6 +128,19 @@ export default class VariantInterpreterGrid extends LitElement {
                 this.clinicalAnalysis.interpretation = {};
             }
 
+            if (this.clinicalAnalysis?.interpretation?.primaryFindings.length > 0) {
+                if (!this.checkedVariants) {
+                    this.checkedVariants = new Map();
+                }
+                debugger
+                for (let variant of this.clinicalAnalysis.interpretation.primaryFindings) {
+                    this.checkedVariants.set(variant.id, variant);
+                }
+            } else {
+                this.checkedVariants.clear();
+            }
+            this.gridCommons.checkedRows = this.checkedVariants;
+
             // if (this.clinicalAnalysis.type.toUpperCase() === "FAMILY") {
             //     if (!this.query?.sample) {
             //         let sampleGenotypes = [];
@@ -253,30 +266,29 @@ export default class VariantInterpreterGrid extends LitElement {
                 },
                 onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
                 onCheck: (row, $element) => {
-                    delete row.checkbox;
-
-                    this.checkedVariants.set(row.id, row);
+                    // delete row.checkbox;
+                    // this.checkedVariants.set(row.id, row);
                     this._timestamp = new Date().getTime();
-                    this.gridCommons.onCheck(row.id, row, {rows: Array.from(this.checkedVariants.values()), timestamp: this._timestamp});
+                    this.gridCommons.onCheck(row.id, row, {timestamp: this._timestamp});
                 },
                 onCheckAll: rows => {
-                    for (let row of rows) {
-                        this.checkedVariants.set(row.id, row);
-                    }
+                    // for (let row of rows) {
+                    //     this.checkedVariants.set(row.id, row);
+                    // }
                     this._timestamp = new Date().getTime();
-                    this.gridCommons.onCheckAll(rows, {rows: Array.from(this.checkedVariants.values()), timestamp: this._timestamp});
+                    this.gridCommons.onCheckAll(rows, {timestamp: this._timestamp});
                 },
                 onUncheck: (row, $element) => {
-                    this.checkedVariants.delete(row.id);
+                    // this.checkedVariants.delete(row.id);
                     this._timestamp = new Date().getTime();
-                    this.gridCommons.onUncheck(row.id, row, {rows: Array.from(this.checkedVariants.values()), timestamp: this._timestamp});
+                    this.gridCommons.onUncheck(row.id, row, {timestamp: this._timestamp});
                 },
                 onUncheckAll: rows => {
-                    for (let row of rows) {
-                        this.checkedVariants.delete(row.id);
-                    }
+                    // for (let row of rows) {
+                    //     this.checkedVariants.delete(row.id);
+                    // }
                     this._timestamp = new Date().getTime();
-                    this.gridCommons.onCheckAll(rows, {rows: Array.from(this.checkedVariants.values()), timestamp: this._timestamp});
+                    this.gridCommons.onUncheckAll(rows, {timestamp: this._timestamp});
                 },
                 onLoadSuccess: data => {
                     for (let i = 0; i < data.rows.length; i++) {
@@ -321,6 +333,8 @@ export default class VariantInterpreterGrid extends LitElement {
             pagination: _this._config.pagination,
             pageSize: _this._config.pageSize,
             pageList: _this._config.pageList,
+            paginationVAlign: "both",
+            formatShowingRows: this.gridCommons.formatShowingRows,
             showExport: _this._config.showExport,
             detailView: _this._config.detailView,
             detailFormatter: _this.detailFormatter,
