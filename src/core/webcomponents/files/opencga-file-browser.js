@@ -124,14 +124,14 @@ export default class OpencgaFileBrowser extends LitElement {
                                 type: "string",
                                 placeholder: "HG01879, HG01880, HG01881...",
                                 description: ""
-                            },
+                            },/*
                             {
                                 id: "path",
                                 name: "Path",
                                 type: "string",
                                 placeholder: "genomes/resources/files/...",
                                 description: ""
-                            },
+                            },*/
                             {
                                 id: "directory",
                                 name: "Directory",
@@ -150,7 +150,8 @@ export default class OpencgaFileBrowser extends LitElement {
                             {
                                 id: "bioformat",
                                 name: "Bioformat",
-                                type: "string",
+                                type: "category",
+                                allowedValues: ["MICROARRAY_EXPRESSION_ONECHANNEL_AGILENT", "MICROARRAY_EXPRESSION_ONECHANNEL_AFFYMETRIX", "MICROARRAY_EXPRESSION_ONECHANNEL_GENEPIX", "MICROARRAY_EXPRESSION_TWOCHANNELS_AGILENT", "MICROARRAY_EXPRESSION_TWOCHANNELS_GENEPIX", "DATAMATRIX_EXPRESSION", "IDLIST", "IDLIST_RANKED", "ANNOTATION_GENEVSANNOTATION", "OTHER_NEWICK", "OTHER_BLAST", "OTHER_INTERACTION", "OTHER_GENOTYPE", "OTHER_PLINK", "OTHER_VCF", "OTHER_PED", "VARIANT", "ALIGNMENT", "COVERAGE", "SEQUENCE", "PEDIGREE", "REFERENCE_GENOME", "NONE", "UNKNOWN"],
                                 placeholder: "ALIGNMENT,VARIANT...",
                                 description: ""
                             },

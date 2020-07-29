@@ -132,7 +132,7 @@ export default class VariantInterpreterGrid extends LitElement {
                 if (!this.checkedVariants) {
                     this.checkedVariants = new Map();
                 }
-                debugger
+                //debugger
                 for (let variant of this.clinicalAnalysis.interpretation.primaryFindings) {
                     this.checkedVariants.set(variant.id, variant);
                 }
@@ -181,6 +181,7 @@ export default class VariantInterpreterGrid extends LitElement {
     renderRemoteVariants() {
         if (this.clinicalAnalysis && this._timestamp && this.clinicalAnalysis.interpretation
             && this.clinicalAnalysis.interpretation.attributes.modificationDate === this._timestamp) {
+            console.warn("grid refresh suppressed", this.clinicalAnalysis.interpretation)
             return;
         }
 
@@ -245,11 +246,12 @@ export default class VariantInterpreterGrid extends LitElement {
                     // }
                     this.opencgaSession.opencgaClient.clinical().queryVariant(filters)
                         .then(res => {
-                            // debugger
+                            //debugger
                             params.success(res);
                         })
                         .catch(e => {
                             console.error(e);
+                            console.trace()
                             params.error(e);
                         });
                 },

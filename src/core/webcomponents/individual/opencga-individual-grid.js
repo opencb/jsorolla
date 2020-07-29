@@ -600,10 +600,7 @@ export default class OpencgaIndividualGrid extends LitElement {
         return html`
             ${this._config.showToolbar 
                 ? html`
-                    <opencb-grid-toolbar .from="${this.from}"
-                                         .to="${this.to}"
-                                         .numTotalResultsText="${this.numTotalResultsText}"
-                                         .config="${this.toolbarConfig}"
+                    <opencb-grid-toolbar .config="${this.toolbarConfig}"
                                          @download="${this.onDownload}"
                                          @columnChange="${this.onColumnChange}">
                     </opencb-grid-toolbar>` 

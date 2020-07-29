@@ -144,7 +144,6 @@ export default class GridCommons {
         if (data.rows && data.rows.length > 0) {
 
             let table = $("#" + this.gridId);
-            console.error("context", table)
             for (let i = 0; i < data.rows.length; i++) {
                 if (this.checkedRows.has(data.rows[i].id)) {
                     table.bootstrapTable('check', i);

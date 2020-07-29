@@ -488,9 +488,6 @@ export default class OpencgaCohortGrid extends LitElement {
     render() {
         return html`
         <opencb-grid-toolbar .config="${this.toolbarConfig}"
-                             .from="${this.from}"
-                             .to="${this.to}"
-                             numTotalResultsText="${this.numTotalResultsText}"
                              @columnChange="${this.onColumnChange}"
                              @download="${this.onDownload}">
         </opencb-grid-toolbar>

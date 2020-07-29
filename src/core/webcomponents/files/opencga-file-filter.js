@@ -175,10 +175,10 @@ export default class OpencgaFileFilter extends LitElement {
                 break;
             case "path":
             case "directory":
-            case "bioformat":
                 content = html`<text-field-filter placeholder="${subsection.placeholder}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></text-field-filter>`;
                 break;
             case "format":
+            case "bioformat":
             case "internal.index.status.name":
                 content = html`<select-field-filter multiple .value="${this.preparedQuery[subsection.id]}" .data="${subsection.allowedValues}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></select-field-filter>`;
                 break;

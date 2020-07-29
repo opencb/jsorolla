@@ -490,10 +490,7 @@ export default class OpencgaJobsGrid extends LitElement {
     render() {
         return html`
             ${this._config.showToolbar ? html`
-                <opencb-grid-toolbar .from="${this.from}"
-                                    .to="${this.to}"
-                                    .numTotalResultsText="${this.numTotalResultsText}"
-                                    .config="${this.toolbarConfig}"
+                <opencb-grid-toolbar .config="${this.toolbarConfig}"
                                     @columnChange="${this.onColumnChange}"
                                     @download="${this.onDownload}">
                 </opencb-grid-toolbar>`

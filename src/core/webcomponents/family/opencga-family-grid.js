@@ -556,10 +556,7 @@ export default class OpencgaFamilyGrid extends LitElement {
                 }
             </style>
     
-            <opencb-grid-toolbar .from="${this.from}"
-                                 .to="${this.to}"
-                                 .numTotalResultsText="${this.numTotalResultsText}"
-                                 .config="${this.toolbarConfig}"
+            <opencb-grid-toolbar .config="${this.toolbarConfig}"
                                  @columnChange="${this.onColumnChange}"
                                  @download="${this.onDownload}">
             </opencb-grid-toolbar>

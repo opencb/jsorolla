@@ -71,13 +71,20 @@ export default class OpencgaFileGrid extends LitElement {
 
     updated(changedProperties) {
         if (changedProperties.has("opencgaSession") || changedProperties.has("query")) {
-            this.renderTable();
+            this.propertyObserver();
         }
 
         if (changedProperties.has("config")) {
             this._config = Object.assign(this.getDefaultConfig(), this.config);
             this.requestUpdate();
         }
+    }
+
+    propertyObserver() {
+        this.toolbarConfig = {
+            columns: this._getDefaultColumns()
+        };
+        this.renderTable();
     }
 
     renderTable() {
@@ -220,6 +227,10 @@ export default class OpencgaFileGrid extends LitElement {
     //     return `${u ? (t*b).toFixed(1) : bytes} ${u}${!si && u ? "i":""}B`;
     // }
 
+    onColumnChange(e) {
+        this.gridCommons.onColumnChange(e);
+    }
+
     pathFormatter(value, row) {
         return "/" + row.path.replace(row.name, "");
     }
@@ -237,7 +248,8 @@ export default class OpencgaFileGrid extends LitElement {
             },
             {
                 title: "Path",
-                formatter: this.pathFormatter,
+                field: "path",
+                formatter: this.pathFormatter
             },
             {
                 title: "Size",
@@ -370,11 +382,9 @@ export default class OpencgaFileGrid extends LitElement {
 
     render() {
         return html`
-            <opencb-grid-toolbar .from="${this.from}"
-                                .to="${this.to}"
-                                .numTotalResultsText="${this.numTotalResultsText}"
-                                @columnChange="${this.onColumnChange}"
-                                @download="${this.onDownload}">
+            <opencb-grid-toolbar  .config="${this.toolbarConfig}"
+                                  @columnChange="${this.onColumnChange}"
+                                  @download="${this.onDownload}">
             </opencb-grid-toolbar>
             <div id="${this._prefix}GridTableDiv">
                 <table id="${this._prefix}FileBrowserGrid">

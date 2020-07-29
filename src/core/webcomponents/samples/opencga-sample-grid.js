@@ -396,20 +396,17 @@ export default class OpencgaSampleGrid extends LitElement {
             pageList: [10, 25, 50],
             showExport: false,
             detailView: false,
-            detailFormatter: undefined, // function with the detail formatter
+            detailFormatter: null, // function with the detail formatter
             multiSelection: false,
             showSelectCheckbox: true,
-            showToolbar: true,
+            showToolbar: true
         };
     }
 
     render() {
         return html`
             ${this._config.showToolbar ? html`
-                <opencb-grid-toolbar .from="${this.from}"
-                                     .to="${this.to}"
-                                     .numTotalResultsText="${this.numTotalResultsText}"
-                                     .config="${this.toolbarConfig}"
+                <opencb-grid-toolbar .config="${this.toolbarConfig}"
                                      @columnChange="${this.onColumnChange}"
                                      @download="${this.onDownload}">
                 </opencb-grid-toolbar>`

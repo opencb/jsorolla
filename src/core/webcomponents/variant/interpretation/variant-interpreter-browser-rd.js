@@ -257,6 +257,8 @@ class VariantInterpreterBrowserRd extends LitElement {
         let alreadySaved = this.clinicalAnalysis.interpretation.primaryFindings.filter(e => e.attributes.creationDate);
         // debugger
         this.clinicalAnalysis.interpretation.primaryFindings = alreadySaved;
+        console.error("primaryFindings", this.clinicalAnalysis.interpretation.primaryFindings)
+        this.clinicalAnalysis = {...this.clinicalAnalysis}
         this.requestUpdate();
     }
 
@@ -266,20 +268,26 @@ class VariantInterpreterBrowserRd extends LitElement {
             return;
         }
 
-        let _interpretation = {primaryFindings: [], ...this.clinicalAnalysis.interpretation};
-        _interpretation.clinicalAnalysisId = this.clinicalAnalysis.id;
-        _interpretation.methods = [{name: "IVA"}];
+        let _interpretation = {
+            primaryFindings: [],
+            ...this.clinicalAnalysis.interpretation,
+            clinicalAnalysisId: this.clinicalAnalysis.id,
+            methods: [{name: "IVA"}]
+        };
         _interpretation.primaryFindings = this.clinicalAnalysis.interpretation.primaryFindings;
         for (let variant of _interpretation.primaryFindings) {
             if (!variant.attributes.creationDate) {
                 variant.attributes.creationDate = new Date().getTime();
             }
         }
-
         this.clinicalAnalysis.interpretation = _interpretation;
-debugger
         this.opencgaSession.opencgaClient.clinical().updateInterpretation(this.clinicalAnalysis.id, this.clinicalAnalysis.interpretation, {study: this.opencgaSession.study.fqn})
-            .then(response => {
+            .then(restResponse => {
+                Swal.fire(
+                    "Interpretation saved",
+                    "Primary findings have been saved.",
+                    "success"
+                )
                 this.dispatchEvent(new CustomEvent("clinicalAnalysisUpdate", {
                     detail: {
                         clinicalAnalysis: this.clinicalAnalysis
@@ -288,7 +296,16 @@ debugger
                     composed: true
                 }));
             })
-            .catch(error => console.error(error));
+            .catch(restResponse => {
+                console.error(restResponse)
+                //optional chaining is to make sure the response is a restResponse instance
+                const msg = restResponse?.getResultEvents?.("ERROR")?.map(event => event.message).join("<br>") ?? "Server Error";
+                Swal.fire({
+                    title: "Error",
+                    icon: "error",
+                    html: msg
+                })
+            });
 
         // this.notSavedvVriants = [];
     }
@@ -800,7 +817,7 @@ debugger
                                     <i class="fas fa-eraser icon-padding" aria-hidden="true"></i> Reset
                                 </button>
                                 <button type="button" class="btn btn-primary ripple" @click="${this.onSaveVariants}" title="Save variants in the server">
-                                    <i class="fas fa-save icon-padding" aria-hidden="true"></i> Save
+                                    <i class="fas fa-save icon-padding" aria-hidden="true"></i> Save ${this.clinicalAnalysis.interpretation?.primaryFindings?.length ?? ""}
                                 </button>
                             </div>
                         </div>
