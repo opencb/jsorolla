@@ -253,6 +253,13 @@ class VariantInterpreterBrowserRd extends LitElement {
         // }));
     }
 
+    onViewVariants(e) {
+        let variantIds = this.clinicalAnalysis.interpretation.primaryFindings.map(e => e.id);
+        this.preparedQuery = {...this.preparedQuery, id: variantIds.join(",")};
+        this.executedQuery = {...this.executedQuery, id: variantIds.join(",")};
+        this.requestUpdate();
+    }
+
     onResetVariants(e) {
         let alreadySaved = this.clinicalAnalysis.interpretation.primaryFindings.filter(e => e.attributes.creationDate);
         // debugger
@@ -685,6 +692,9 @@ class VariantInterpreterBrowserRd extends LitElement {
                     <div>
                         <div class="btn-toolbar" role="toolbar" aria-label="toolbar" style="margin-bottom: 20px">
                             <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-primary ripple" @click="${this.onViewVariants}" title="This will remove not saved variants">
+                                    <i class="fas fa-eye icon-padding" aria-hidden="true"></i> View
+                                </button>
                                 <button type="button" class="btn btn-primary ripple" @click="${this.onResetVariants}" title="This will remove not saved variants">
                                     <i class="fas fa-eraser icon-padding" aria-hidden="true"></i> Reset
                                 </button>
