@@ -237,47 +237,27 @@ export default class VariantInterpreterGrid extends LitElement {
                 },
                 responseHandler: response => {
                     const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
-                    // this.from = result.from || this.from;
-                    // this.to = result.to || this.to;
-                    // this.numTotalResultsText = result.numTotalResultsText;
-                    // this.approximateCountResult = result.approximateCountResult;
-                    // this.requestUpdate();
                     return result.response;
                 },
                 onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
-                onCheck: (row, $element) => {
-                    // delete row.checkbox;
-                    // this.checkedVariants.set(row.id, row);
-                    debugger
-                    this._timestamp = new Date().getTime();
-                    this.gridCommons.onCheck(row.id, row, {timestamp: this._timestamp});
-                },
-                onCheckAll: rows => {
-                    // for (let row of rows) {
-                    //     this.checkedVariants.set(row.id, row);
-                    // }
-                    this._timestamp = new Date().getTime();
-                    this.gridCommons.onCheckAll(rows, {timestamp: this._timestamp});
-                },
-                onUncheck: (row, $element) => {
-                    // this.checkedVariants.delete(row.id);
-                    this._timestamp = new Date().getTime();
-                    this.gridCommons.onUncheck(row.id, row, {timestamp: this._timestamp});
-                },
-                onUncheckAll: rows => {
-                    // for (let row of rows) {
-                    //     this.checkedVariants.delete(row.id);
-                    // }
-                    this._timestamp = new Date().getTime();
-                    this.gridCommons.onUncheckAll(rows, {timestamp: this._timestamp});
-                },
+                // onCheck: (row, $element) => {
+                //     debugger
+                //     this._timestamp = new Date().getTime();
+                //     this.gridCommons.onCheck(row.id, row, {timestamp: this._timestamp});
+                // },
+                // onCheckAll: rows => {
+                //     this._timestamp = new Date().getTime();
+                //     this.gridCommons.onCheckAll(rows, {timestamp: this._timestamp});
+                // },
+                // onUncheck: (row, $element) => {
+                //     this._timestamp = new Date().getTime();
+                //     this.gridCommons.onUncheck(row.id, row, {timestamp: this._timestamp});
+                // },
+                // onUncheckAll: rows => {
+                //     this._timestamp = new Date().getTime();
+                //     this.gridCommons.onUncheckAll(rows, {timestamp: this._timestamp});
+                // },
                 onLoadSuccess: data => {
-                    // for (let i = 0; i < data.rows.length; i++) {
-                    //     if (this.checkedVariants.has(data.rows[i].id)) {
-                    //         $(this.table).bootstrapTable("check", i);
-                    //     }
-                    // }
-
                     // We keep the table rows as global variable, needed to fetch the variant object when checked
                     this._rows = data.rows;
                     this.gridCommons.onLoadSuccess(data, 2);
@@ -341,18 +321,6 @@ export default class VariantInterpreterGrid extends LitElement {
     }
 
     _onPostBody() {
-        // Add review button listener
-        /*const reviewButtons = document.querySelectorAll(".reviewButton");
-        for (let i = 0; i < reviewButtons.length; i++) {
-            reviewButtons[i].addEventListener("click", this.onReviewClick.bind(this));
-        }*/
-
-        // Add check button listener
-        /*const checkButtons = document.querySelectorAll(".Check");
-        for (let i = 0; i < checkButtons.length; i++) {
-            checkButtons[i].addEventListener("click", this.onCheck.bind(this));
-        }*/
-
         // Add tooltips
         if (this.variantGridFormatter) {
             // TODO remove the following lines and use UtilsNew.initTooltip
@@ -808,9 +776,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     ${clinicalSignificanceHtml}
                 </div>`;
     }
-
-
-
+    
     checkFormatter(value, row, index) {
         let checked = "";
         if (this.checkedVariants && this.checkedVariants.has(row.id)) {

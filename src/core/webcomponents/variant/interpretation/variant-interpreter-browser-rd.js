@@ -287,7 +287,7 @@ class VariantInterpreterBrowserRd extends LitElement {
 
         _interpretation.primaryFindings = JSON.parse(JSON.stringify(this.clinicalAnalysis.interpretation.primaryFindings));
         for (let variant of _interpretation.primaryFindings) {
-            delete variant.checkbox;
+            // delete variant.checkbox;
             if (!variant.attributes.creationDate) {
                 variant.attributes.creationDate = new Date().getTime();
             }

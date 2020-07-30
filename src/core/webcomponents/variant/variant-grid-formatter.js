@@ -1094,7 +1094,6 @@ export default class VariantGridFormatter {
         return "-";
     }
 
-
     addTooltip(selector, title, content, config) {
         $(selector).qtip({
             content: {
