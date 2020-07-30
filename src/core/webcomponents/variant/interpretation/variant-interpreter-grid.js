@@ -128,10 +128,8 @@ export default class VariantInterpreterGrid extends LitElement {
                 this.clinicalAnalysis.interpretation = {};
             }
 
+            this.checkedVariants = new Map();
             if (this.clinicalAnalysis?.interpretation?.primaryFindings.length > 0) {
-                if (!this.checkedVariants) {
-                    this.checkedVariants = new Map();
-                }
                 for (let variant of this.clinicalAnalysis.interpretation.primaryFindings) {
                     this.checkedVariants.set(variant.id, variant);
                 }
@@ -937,7 +935,7 @@ export default class VariantInterpreterGrid extends LitElement {
 
         if (this._config.showSelectCheckbox) {
             _columns[1].push({
-                title: "Select <a class='btn'>BTN</a> <input class=\"check-variant\" type=\"checkbox\" data-variant-id=\"${row.id}\" ${checked}>",
+                title: "Select",
                 // field: "checkbox",
                 // checkbox: true,
                 rowspan: 1,
