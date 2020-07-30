@@ -1289,11 +1289,6 @@ export default class OpencgaVariantInterpretationGrid extends LitElement {
             .qtip-custom-class .qtip-content {
                 font-size: 12px;
             }
-            
-            /*quickfix for loading-spinner in bootstrap table*/ 
-            .fixed-table-body{
-                min-height: 20vh;
-            }
         </style>
 
         <opencb-grid-toolbar .from="${this.from}"

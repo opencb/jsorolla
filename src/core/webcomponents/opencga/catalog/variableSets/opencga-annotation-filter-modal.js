@@ -80,8 +80,8 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
             const variables = this.selectedVariablesText.split(";");
             await this.requestUpdate();
             for (let v of variables) {
-                let [, variableSetId, variableId, value] = [...v.matchAll(/(\w+):(\w+\.?\w+)=(\w+)/g)][0];
-                this.selectedVariables[variableSetId] = {...this.selectedVariables[variableSetId] ?? {}, [variableId]: value};
+                let [, variableSetId, variableId, operator, value] = [...v.matchAll(/(\w+):(\w+\.?\w+)(<=?|>=?|=)(\w+)/g)][0];
+                this.selectedVariables[variableSetId] = {...this.selectedVariables[variableSetId] ?? {}, [variableId]: {operator, value}};
             }
 
         }
@@ -97,7 +97,12 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
     selectedVariablesSerializer() {
         let selected = [];
         for (let [variableSetId, variables] of Object.entries(this.selectedVariables)) {
-            selected.push(Object.entries(variables).map( ([variableId, value]) => `${variableSetId}:${variableId}=${value}`).join(";"));
+            //value is not defined iff an operator (<=, >=, ...) has been selected before setting the value. In that case we filter out that entry.
+            const singleVariableSetvariables = Object.entries(variables)
+                .filter(([, {value}]) => Boolean(value))
+                .map(([variableId, {operator, value}]) => `${variableSetId}:${variableId}${operator}${value}`)
+                .join(";")
+            selected.push(singleVariableSetvariables);
         }
         const event = new CustomEvent("annotationChange", {
             detail: {
@@ -134,7 +139,6 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
     }
 
     async _updateVariableSets(study) {
-
         const sort = ["TEXT", "STRING", "NUMERIC", "INTEGER", "DOUBLE", "CATEGORICAL", "BOOLEAN", "OBJECT", "MAP_STRING", "MAP_DOUBLE", "MAP_INTEGER"];
         if (typeof study.variableSets === "undefined") {
             this.variableSets = [];
@@ -142,7 +146,6 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
             const _variableSets = [];
             for (const variableSet of study.variableSets) {
                 if (UtilsNew.isEmpty(this.resource) || variableSet.entities.includes(this.resource)) {
-                    //moving OBJECT type variables at the end of the list
                     variableSet.variables.sort( (a, b) => {
                         return sort.indexOf(a.type) - sort.indexOf(b.type)
                     })
@@ -157,11 +160,44 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
         this.requestUpdate();
     }
 
-    addInputFilter(e) {
+    changeOperator(e) {
         const {variableId, variableSetId} = e.target.dataset;
+        const operator = e.target.value;
+        // TODO remove this line and use the this.selectedVariables[variableSetId][variableId].operator in addNumericFilter
+        $(`.annotation-modal input[type=text][data-variable-id="${variableId}"][data-variable-set-id="${variableSetId}"]`).attr("data-operator", e.target.value);
+        if (this.selectedVariables[variableSetId][variableId]) {
+            this.selectedVariables[variableSetId][variableId] = {...this.selectedVariables[variableSetId][variableId], operator};
+        } else {
+            // the value hasn't been set yet
+            this.selectedVariables[variableSetId] = {...this.selectedVariables[variableSetId] ?? {}, [variableId]: {operator}};
+        }
+        this.selectedVariables = {...this.selectedVariables};
+        this.selectedVariablesSerializer();
+
+    }
+
+    addNumericFilter(e) {
+        const {variableId, variableSetId, operator = ""} = e.target.dataset; // numericOperator is defined only for INTEGER and DOUBLE types
+
         const value = e.target.value.trim();
         if (value) {
-            this.selectedVariables[variableSetId] = {...this.selectedVariables[variableSetId] ?? {}, [variableId]: value};
+            /*if (this.selectedVariables[variableSetId][variableId].operator) {
+               // TODO continue
+            }*/
+            this.selectedVariables[variableSetId] = {...this.selectedVariables[variableSetId] ?? {}, [variableId]: {value, operator}};
+        } else {
+            delete this.selectedVariables[variableSetId][variableId];
+        }
+        this.selectedVariables = {...this.selectedVariables};
+        this.selectedVariablesSerializer();
+    }
+
+    addInputFilter(e) {
+        const {variableId, variableSetId} = e.target.dataset;
+
+        const value = e.target.value.trim();
+        if (value) {
+            this.selectedVariables[variableSetId] = {...this.selectedVariables[variableSetId] ?? {}, [variableId]: {value, operator: "="}};
         } else {
             delete this.selectedVariables[variableSetId][variableId];
         }
@@ -172,7 +208,7 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
     addBooleanFilter(e) {
         const {variableId, variableSetId, value} = e.target.dataset;
         console.log(variableId, variableSetId, value)
-        this.selectedVariables[variableSetId] = {...this.selectedVariables[variableSetId] ?? {}, [variableId]: value};
+        this.selectedVariables[variableSetId] = {...this.selectedVariables[variableSetId] ?? {}, [variableId]: {value, operator: "="}};
         this.selectedVariables = {...this.selectedVariables};
         this.selectedVariablesSerializer();
     }
@@ -192,7 +228,7 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
     }
 
     renderVariable(variable, variableSet) {
-        console.log("going to render", variable, "of", variableSet.id)
+        //console.log("going to render", variable, "of", variableSet.id)
         let content = "";
         switch (variable.type) {
             case "OBJECT":
@@ -206,56 +242,109 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
                                     : html`
                                         <div class="form-group col-md-3">
                                             <label><a tooltip-title="${variable.id}" tooltip-text="${variable.description}"><i class="fa fa-info-circle" aria-hidden="true"></i></a> ${variable.id}</label>
-                                            <textarea rows="1" class="form-control" data-variable-id="${variable.id}" data-variable-set-id="${variableSet.id}" @input="${this.addInputFilter}" .value="${this.selectedVariables?.[variableSet.id]?.[variable.id] || ""}"></textarea>
+                                            <textarea rows="1" class="form-control" data-variable-id="${variable.id}" data-variable-set-id="${variableSet.id}" @input="${this.addInputFilter}" .value="${this.selectedVariables?.[variableSet.id]?.[variable.id]?.value || ""}"></textarea>
                                         </div>
                                     `}
                             </div>`;
                 break;
             case "MAP_STRING":
+                // copy of MAP_INTEGER without operator select
+                content = html`
+                    <!--<pre> ${JSON.stringify(variable)}</pre>-->
+                    ${variable?.allowedKeys?.length ? html`
+                        <div class="col-md-12 map-field-wrapper">
+                            <label><a tooltip-title="${variable.id}" tooltip-text="${variable.description}"><i class="fa fa-info-circle" aria-hidden="true"></i></a> ${variable.id}</label>
+                            <select-field-filter multiple .data="${variable?.allowedKeys}" value=${this.variableMap?.[variableSet.id]?.[variable.id] ?? []} @filterChange="${e => this.changeMap(variableSet.id, variable.id, e.detail.value)}"></select-field-filter>
+                            <div class="form-inline row map-field-inputs">
+                                ${this.variableMap?.[variableSet.id]?.[variable.id]?.map(key => {
+                                    return html`
+                                            <div class="form-group col-md-3">
+                                                <label> ${key} </label>
+                                                <input type="text" class="form-control map-field-input" placeholder="${key}" data-variable-id="${variable.id + "." + key}" data-variable-set-id="${variableSet.id}"
+                                            @input="${this.addInputFilter}" .value="${this.selectedVariables?.[variableSet.id]?.[variable.id]?.value || ""}"/>
+                                            </div>
+                                        `
+                                })
+                                }
+                            </div>
+                        </div>
+                    ` : html`<div class="form-group col-md-3">
+                        <label><a tooltip-title="${variable.id}" tooltip-text="${variable.description}"><i class="fa fa-info-circle" aria-hidden="true"></i></a> ${variable.id}</label>
+                        <input type="text" class="form-control"
+                            placeholder="${variable.id}" data-variable-id="${variable.id}" data-variable-set-id="${variableSet.id}"
+                            pattern="${variable?.attributes?.pattern ?? null}"
+                            aria-describedby="basic-addon1" @input="${this.addInputFilter}" .value="${this.selectedVariables?.[variableSet.id]?.[variable.id]?.value || ""}"/>
+                    </div>`}
+                    `;
+                break;
             case "MAP_DOUBLE":
             case "MAP_INTEGER":
                 content = html`
-                            <!--<pre> ${JSON.stringify(variable)}</pre>-->
-                            ${variable?.allowedKeys?.length ? html`
-                                <div class="col-md-12 map-field-wrapper">
-                                    <label><a tooltip-title="${variable.id}" tooltip-text="${variable.description}"><i class="fa fa-info-circle" aria-hidden="true"></i></a> ${variable.id}</label>
-                                    <select-field-filter multiple .data="${variable?.allowedKeys}" @filterChange="${e => this.changeMap(variableSet.id, variable.id, e.detail.value)}"></select-field-filter>
-                                    <div class="form-inline row map-field-inputs">
-                                        ${this.variableMap?.[variableSet.id]?.[variable.id]?.map(key => {
-                                            return html`
-                                                <div class="form-group col-md-3">
-                                                    <label> ${key} </label>
-                                                    <input type="text" class="form-control map-field-input" placeholder="${key}" data-variable-id="${variable.id + "." + key}" data-variable-set-id="${variableSet.id}"
-                                                @input="${this.addInputFilter}" .value="${this.selectedVariables?.[variableSet.id]?.[variable.id] || ""}"/>
-                                                </div>
-                                            `
-                                        })
-                                        }
-                                    </div>
-                                </div>
-                            ` : html`<div class="form-group col-md-3">
-                                <label><a tooltip-title="${variable.id}" tooltip-text="${variable.description}"><i class="fa fa-info-circle" aria-hidden="true"></i></a> ${variable.id}</label>
-                                <input type="text" class="form-control"
-                                    placeholder="${variable.id}" data-variable-id="${variable.id}" data-variable-set-id="${variableSet.id}"
-                                    pattern="${variable?.attributes?.pattern ?? null}"
-                                    aria-describedby="basic-addon1" @input="${this.addInputFilter}" .value="${this.selectedVariables?.[variableSet.id]?.[variable.id] || ""}"/>
-                            </div>`}
-                            
-                                
-                            `;
+                    <!--<pre> ${JSON.stringify(variable)}</pre>-->
+                    ${variable?.allowedKeys?.length ? html`
+                        <div class="col-md-12 map-field-wrapper">
+                            <label>type ${variable.type} <a tooltip-title="${variable.id}" tooltip-text="${variable.description}"><i class="fa fa-info-circle" aria-hidden="true"></i></a> ${variable.id}</label>
+                            <select-field-filter multiple .data="${variable?.allowedKeys}" value=${this.variableMap?.[variableSet.id]?.[variable.id] ?? []} @filterChange="${e => this.changeMap(variableSet.id, variable.id, e.detail.value)}"></select-field-filter>
+                            <div class="row map-field-inputs">
+                                ${this.variableMap?.[variableSet.id]?.[variable.id]?.map(key => {
+                                    return html`
+                                        <div class="form-group col-md-3">
+                                            <label> ${key} </label>
+                                            <div class="form-inline numeric-variable">
+                                                <select class="form-control input-sm operator-select" data-variable-id="${variable.id + "." + key}" data-variable-set-id="${variableSet.id}" @change="${this.changeOperator}">
+                                                    <option value="=">=</option>
+                                                    <option value="<">&lt;</option>
+                                                    <option value="<=">&le;</option>
+                                                    <option value=">" selected>&gt;</option>
+                                                    <option value=">=">&ge;</option>
+                                                </select>
+                                                <input type="text" class="form-control map-field-input num-value" placeholder="${key}" data-variable-id="${variable.id + "." + key}" data-variable-set-id="${variableSet.id}" data-operator=">"
+                                            @input="${this.addNumericFilter}" .value="${this.selectedVariables?.[variableSet.id]?.[variable.id]?.value || ""}"/>
+                                            </div>
+                                        </div>
+                                    `
+                                })
+                                }
+                            </div>
+                        </div>
+                    ` : html`<div class="form-group col-md-3">
+                        <label><a tooltip-title="${variable.id}" tooltip-text="${variable.description}"><i class="fa fa-info-circle" aria-hidden="true"></i></a> ${variable.id}</label>
+                        <input type="text" class="form-control"
+                            placeholder="${variable.id}" data-variable-id="${variable.id}" data-variable-set-id="${variableSet.id}"
+                            pattern="${variable?.attributes?.pattern ?? null}"
+                            aria-describedby="basic-addon1" @input="${this.addInputFilter}" .value="${this.selectedVariables?.[variableSet.id]?.[variable.id]?.value || ""}"/>
+                    </div>`}
+                    
+                        
+                    `;
                 break;
             case "TEXT":
             case "STRING":
-            case "NUMERIC":
-            case "INTEGER":
-            case "DOUBLE":
                 content = html`<div class="form-group col-md-3">
                                 <label><a tooltip-title="${variable.id}" tooltip-text="${variable.description}"><i class="fa fa-info-circle" aria-hidden="true"></i></a> ${variable.id}</label>
                                 <input type="text" class="form-control"
                                     placeholder="${variable.id}" data-variable-id="${variable.id}" data-variable-set-id="${variableSet.id}"
                                     pattern="${variable?.attributes?.pattern ?? null}"
-                                    aria-describedby="basic-addon1" @input="${this.addInputFilter}" .value="${this.selectedVariables?.[variableSet.id]?.[variable.id] || ""}"/>
+                                    aria-describedby="basic-addon1" @input="${this.addInputFilter}" .value="${this.selectedVariables?.[variableSet.id]?.[variable.id]?.value || ""}"/>
                             </div>`;
+                break;
+            case "NUMERIC":
+            case "INTEGER":
+            case "DOUBLE":
+                content = html` <div class="form-group col-md-3">
+                                    <label><a tooltip-title="${variable.id}" tooltip-text="${variable.description}"><i class="fa fa-info-circle" aria-hidden="true"></i></a> ${variable.id}</label>
+                                    <div class="form-inline numeric-variable">
+                                        <select class="form-control input-sm operator-select" data-variable-id="${variable.id}" data-variable-set-id="${variableSet.id}" @change="${this.changeOperator}">
+                                            <option value="=">=</option>
+                                            <option value="<">&lt;</option>
+                                            <option value="<=">&le;</option>
+                                            <option value=">" selected>&gt;</option>
+                                            <option value=">=">&ge;</option>
+                                        </select>
+                                        <input type="text" class="form-control map-field-input num-value" placeholder="${variable.id}" pattern="${variable?.attributes?.pattern ?? null}" data-variable-id="${variable.id}" data-variable-set-id="${variableSet.id}" data-operator=">"
+                                    @input="${this.addNumericFilter}" .value="${this.selectedVariables?.[variableSet.id]?.[variable.id]?.value || ""}"/>
+                                    </div>
+                                </div>`;
                 break;
             case "CATEGORICAL":
                 content = html`<select id="${this._prefix}-categorical-selector" class="selectpicker ${variable.id}" multiple @change="${this.addCategoricalFilter}" data-variable-set-id="${variableSet.id}" data-width="100%">
@@ -270,10 +359,10 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
                         <label><a tooltip-title="${variable.id}" tooltip-text="${variable.description}"><i class="fa fa-info-circle" aria-hidden="true"></i></a> ${variable.id}</label>
                         <div class="form-group">
                             <input id="${this._prefix}${variable.id}yes" class="form-check-input" data-variable-id="${variable.id}" data-variable-set-id="${variableSet.id}"
-                            type="radio" name="${variable.id}Options" data-value="True" .checked="${this.selectedVariables?.[variableSet.id]?.[variable.id] === 'true'}" @input="${this.addBooleanFilter}">
+                            type="radio" name="${variable.id}Options" data-value="True" .checked="${this.selectedVariables?.[variableSet.id]?.[variable.id]?.value === 'true'}" @input="${this.addBooleanFilter}">
                             True
                             <input id="${this._prefix}${variable.id}no" class="form-check-input" data-variable-id="${variable.id}" data-variable-set-id="${variableSet.id}"
-                            type="radio" name="${variable.id}Options" data-value="False" .checked="${this.selectedVariables?.[variableSet.id]?.[variable.id] === 'false'}" @input="${this.addBooleanFilter}">
+                            type="radio" name="${variable.id}Options" data-value="False" .checked="${this.selectedVariables?.[variableSet.id]?.[variable.id]?.value === 'false'}" @input="${this.addBooleanFilter}">
                             False
                         </div>
                     </div>`;
@@ -326,6 +415,13 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
                 
                 .variable-set-description {
                     margin: 5px 0 20px 0;
+                }
+                
+                .numeric-variable .operator-select {
+                    width: 20% !important;
+                }
+                .numeric-variable .num-value {
+                    width: 78% !important;
                 }
             </style>
            

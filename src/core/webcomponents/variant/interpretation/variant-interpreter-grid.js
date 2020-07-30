@@ -342,16 +342,16 @@ export default class VariantInterpreterGrid extends LitElement {
 
     _onPostBody() {
         // Add review button listener
-        const reviewButtons = document.querySelectorAll(".reviewButton");
+        /*const reviewButtons = document.querySelectorAll(".reviewButton");
         for (let i = 0; i < reviewButtons.length; i++) {
             reviewButtons[i].addEventListener("click", this.onReviewClick.bind(this));
-        }
+        }*/
 
         // Add check button listener
-        const checkButtons = document.querySelectorAll(".Check");
+        /*const checkButtons = document.querySelectorAll(".Check");
         for (let i = 0; i < checkButtons.length; i++) {
             checkButtons[i].addEventListener("click", this.onCheck.bind(this));
-        }
+        }*/
 
         // Add tooltips
         if (this.variantGridFormatter) {
@@ -816,8 +816,7 @@ export default class VariantInterpreterGrid extends LitElement {
         if (this.checkedVariants && this.checkedVariants.has(row.id)) {
             checked = "checked";
         }
-
-        return `<input class="Check" type="checkbox" aria-label="..." data-variant-id="${row.id}" ${checked}>`;
+        return `<input class="Check check-variant" type="checkbox" data-variant-id="${row.id}" ${checked}>`;
     }
 
     reviewFormatter(value, row, index) {
@@ -938,13 +937,16 @@ export default class VariantInterpreterGrid extends LitElement {
 
         if (this._config.showSelectCheckbox) {
             _columns[1].push({
-                title: "Select",
+                title: "Select <a class='btn'>BTN</a> <input class=\"check-variant\" type=\"checkbox\" data-variant-id=\"${row.id}\" ${checked}>",
                 // field: "checkbox",
                 // checkbox: true,
                 rowspan: 1,
                 colspan: 1,
                 formatter: this.checkFormatter.bind(this),
-                align: "center"
+                align: "center",
+                events: {
+                    "click input": this.onCheck.bind(this)
+                }
             });
         }
 
@@ -961,7 +963,10 @@ export default class VariantInterpreterGrid extends LitElement {
                 rowspan: 2,
                 colspan: 1,
                 formatter: this.reviewFormatter.bind(this),
-                align: "center"
+                align: "center",
+                events: {
+                    "click button": this.onReviewClick.bind(this)
+                }
             });
         }
 
@@ -1142,6 +1147,10 @@ export default class VariantInterpreterGrid extends LitElement {
         if (action === "download") {
             UtilsNew.downloadData([JSON.stringify(row, null, "\t")], row.id + ".json");
         }
+/*        if (action === "") {
+            this.onReviewClick(e)
+        }*/
+
     }
 
     // TODO fix tab jsonToTabConvert isn't working!
@@ -1283,9 +1292,13 @@ export default class VariantInterpreterGrid extends LitElement {
                     font-size: 12px;
                 }
                 
-                /*quickfix for loading-spinner in bootstrap table*/ 
+                /*quickfix for loading-spinner in bootstrap table
                 .fixed-table-body{
                     min-height: 20vh;
+                }*/ 
+                
+                .check-variant {
+                    transform: scale(1.5);
                 }
             </style>
     

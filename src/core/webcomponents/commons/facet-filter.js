@@ -177,7 +177,7 @@ export default class FacetFilter extends LitElement {
     }
 
     onNestedFacetValueChange(e) {
-        this.selectedFacet[e.target.dataset.parentFacet].nested.value = e.target.value;
+        this.selectedFacet[e.target.dataset.parentFacet].nested.value = e.target.value || e.detail.value; //e.detail.value handles <select-field-filter> change events, in which e.target.value is an empty string
         this.selectedFacet = {...this.selectedFacet};
         this.requestUpdate();
     }
@@ -308,7 +308,7 @@ export default class FacetFilter extends LitElement {
             case "category":
                 return html`
                     <div class="col-md-12">
-                        <select-field-filter ?multiple="${!!facet.multiple}" .data="${facet.values}" .value="${facet.defaultValue ? facet.defaultValue : ""}" id="${facet.id}_NestedSelect" data-parent-facet="${parent}" @filterChange="${this.onNestedFacetValueChange}"></select-field-filter>
+                        <select-field-filter ?multiple="${!!facet.multiple}" .data="${facet.allowedValues}" .value="${facet.defaultValue ? facet.defaultValue : ""}" id="${facet.id}_NestedSelect" data-parent-facet="${parent}" @filterChange="${this.onNestedFacetValueChange}"></select-field-filter>
                     </div>
                 `;
             case "number":
