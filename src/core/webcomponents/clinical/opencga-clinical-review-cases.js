@@ -400,8 +400,8 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                 ]
             },
             grid: {
-                pageSize: 5,
-                pageList: [5, 10, 25],
+                pageSize: 10,
+                pageList: [10, 25, 50],
                 detailView: false,
                 multiSelection: false,
                 showActions: true

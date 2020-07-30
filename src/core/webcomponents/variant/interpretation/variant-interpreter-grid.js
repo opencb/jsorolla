@@ -132,30 +132,13 @@ export default class VariantInterpreterGrid extends LitElement {
                 if (!this.checkedVariants) {
                     this.checkedVariants = new Map();
                 }
-                //debugger
                 for (let variant of this.clinicalAnalysis.interpretation.primaryFindings) {
                     this.checkedVariants.set(variant.id, variant);
                 }
             } else {
                 this.checkedVariants.clear();
             }
-            this.gridCommons.checkedRows = this.checkedVariants;
-
-            // if (this.clinicalAnalysis.type.toUpperCase() === "FAMILY") {
-            //     if (!this.query?.sample) {
-            //         let sampleGenotypes = [];
-            //         for (let member of this.clinicalAnalysis.family.members) {
-            //             if (member.samples && member.samples.length > 0) {
-            //                 sampleGenotypes.push(member.samples[0].id + ":0/1,1/1")
-            //             }
-            //         }
-            //         if (!this.query) {
-            //             this.query = {};
-            //         }
-            //         this.query.sample = sampleGenotypes.join(";");
-            //         this.requestUpdate();
-            //     }
-            // }
+            // this.gridCommons.checkedRows = this.checkedVariants;
 
             if (this.clinicalAnalysis.type.toUpperCase() === "CANCER") {
                 if (this.clinicalAnalysis.proband && this.clinicalAnalysis.proband.samples
@@ -241,12 +224,9 @@ export default class VariantInterpreterGrid extends LitElement {
                         includeSampleId: "true",
                         ...this.query
                     };
-                    // if (this.clinicalAnalysis.type.toUpperCase() === "SINGLE") {
-                    //     filters.sample = this.clinicalAnalysis.proband.samples[0].id;
-                    // }
+
                     this.opencgaSession.opencgaClient.clinical().queryVariant(filters)
                         .then(res => {
-                            //debugger
                             params.success(res);
                         })
                         .catch(e => {
@@ -256,20 +236,19 @@ export default class VariantInterpreterGrid extends LitElement {
                         });
                 },
                 responseHandler: response => {
-                    // debugger
                     const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
-                    // debugger
-                    this.from = result.from || this.from;
-                    this.to = result.to || this.to;
-                    this.numTotalResultsText = result.numTotalResultsText;
-                    this.approximateCountResult = result.approximateCountResult;
-                    this.requestUpdate();
+                    // this.from = result.from || this.from;
+                    // this.to = result.to || this.to;
+                    // this.numTotalResultsText = result.numTotalResultsText;
+                    // this.approximateCountResult = result.approximateCountResult;
+                    // this.requestUpdate();
                     return result.response;
                 },
                 onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
                 onCheck: (row, $element) => {
                     // delete row.checkbox;
                     // this.checkedVariants.set(row.id, row);
+                    debugger
                     this._timestamp = new Date().getTime();
                     this.gridCommons.onCheck(row.id, row, {timestamp: this._timestamp});
                 },
@@ -293,11 +272,14 @@ export default class VariantInterpreterGrid extends LitElement {
                     this.gridCommons.onUncheckAll(rows, {timestamp: this._timestamp});
                 },
                 onLoadSuccess: data => {
-                    for (let i = 0; i < data.rows.length; i++) {
-                        if (this.checkedVariants.has(data.rows[i].id)) {
-                            $(this.table).bootstrapTable("check", i);
-                        }
-                    }
+                    // for (let i = 0; i < data.rows.length; i++) {
+                    //     if (this.checkedVariants.has(data.rows[i].id)) {
+                    //         $(this.table).bootstrapTable("check", i);
+                    //     }
+                    // }
+
+                    // We keep the table rows as global variable, needed to fetch the variant object when checked
+                    this._rows = data.rows;
                     this.gridCommons.onLoadSuccess(data, 2);
                 },
                 onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse),
@@ -365,6 +347,12 @@ export default class VariantInterpreterGrid extends LitElement {
             reviewButtons[i].addEventListener("click", this.onReviewClick.bind(this));
         }
 
+        // Add check button listener
+        const checkButtons = document.querySelectorAll(".Check");
+        for (let i = 0; i < checkButtons.length; i++) {
+            checkButtons[i].addEventListener("click", this.onCheck.bind(this));
+        }
+
         // Add tooltips
         if (this.variantGridFormatter) {
             // TODO remove the following lines and use UtilsNew.initTooltip
@@ -384,6 +372,26 @@ export default class VariantInterpreterGrid extends LitElement {
                 width: "360px"
             });
         }
+    }
+
+    onCheck(e) {
+        let variantId = e.currentTarget.dataset.variantId;
+        let variant = this._rows.find(e => e.id === variantId);
+
+        if (e.currentTarget.checked) {
+            this.checkedVariants.set(variantId, variant);
+        } else {
+            this.checkedVariants.delete(variantId);
+        }
+
+        this.dispatchEvent(new CustomEvent("checkrow", {
+            detail: {
+                id: variantId,
+                row: variant,
+                checked: e.currentTarget.checked,
+                rows: Array.from(this.checkedVariants.values())
+            }
+        }));
     }
 
     onReviewClick(e) {
@@ -801,9 +809,16 @@ export default class VariantInterpreterGrid extends LitElement {
                 </div>`;
     }
 
-    // checkFormatter(value, row, index) {
-    //
-    // }
+
+
+    checkFormatter(value, row, index) {
+        let checked = "";
+        if (this.checkedVariants && this.checkedVariants.has(row.id)) {
+            checked = "checked";
+        }
+
+        return `<input class="Check" type="checkbox" aria-label="..." data-variant-id="${row.id}" ${checked}>`;
+    }
 
     reviewFormatter(value, row, index) {
         return `<button class="btn btn-link reviewButton" data-variant-id="${row.id}">
@@ -920,13 +935,16 @@ export default class VariantInterpreterGrid extends LitElement {
                 colspan: this._config.showSelectCheckbox ? 2 : 1,
                 halign: "center"
             });
+
         if (this._config.showSelectCheckbox) {
             _columns[1].push({
-                field: "checkbox",
-                checkbox: true,
+                title: "Select",
+                // field: "checkbox",
+                // checkbox: true,
                 rowspan: 1,
                 colspan: 1,
-                // formatter: this.checkFormatter.bind(this),
+                formatter: this.checkFormatter.bind(this),
+                align: "center"
             });
         }
 

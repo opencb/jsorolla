@@ -87,7 +87,7 @@ export default class GridCommons {
     }
 
     onCheck(rowId, row, others) {
-        delete row.checkbox;
+        // delete row.checkbox;
         this.checkedRows.set(rowId, row);
         this.context.dispatchEvent(new CustomEvent("checkrow", {
             detail: {
@@ -102,7 +102,7 @@ export default class GridCommons {
 
     onCheckAll(rows, others) {
         for (let row of rows) {
-            delete row.checkbox;
+            // delete row.checkbox;
             this.checkedRows.set(row.id, row);
         }
         this.context.dispatchEvent(new CustomEvent("checkrow", {
@@ -142,11 +142,13 @@ export default class GridCommons {
     onLoadSuccess(data, firstRowIndex = 2, idField) {
         // TODO the event `selectrow` with null values is fired in case of empty result and in case of error both. Create a common method.
         if (data.rows && data.rows.length > 0) {
-
             let table = $("#" + this.gridId);
-            for (let i = 0; i < data.rows.length; i++) {
-                if (this.checkedRows.has(data.rows[i].id)) {
-                    table.bootstrapTable('check', i);
+
+            if (this.checkedRows && this.checkedRows.size > 0) {
+                for (let i = 0; i < data.rows.length; i++) {
+                    if (this.checkedRows.has(data.rows[i].id)) {
+                        table.bootstrapTable('check', i);
+                    }
                 }
             }
 

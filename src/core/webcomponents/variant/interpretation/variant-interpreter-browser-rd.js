@@ -257,8 +257,8 @@ class VariantInterpreterBrowserRd extends LitElement {
         let alreadySaved = this.clinicalAnalysis.interpretation.primaryFindings.filter(e => e.attributes.creationDate);
         // debugger
         this.clinicalAnalysis.interpretation.primaryFindings = alreadySaved;
-        console.error("primaryFindings", this.clinicalAnalysis.interpretation.primaryFindings)
-        this.clinicalAnalysis = {...this.clinicalAnalysis}
+        console.error("primaryFindings", this.clinicalAnalysis.interpretation.primaryFindings);
+        this.clinicalAnalysis = {...this.clinicalAnalysis};
         this.requestUpdate();
     }
 
@@ -274,20 +274,27 @@ class VariantInterpreterBrowserRd extends LitElement {
             clinicalAnalysisId: this.clinicalAnalysis.id,
             methods: [{name: "IVA"}]
         };
-        _interpretation.primaryFindings = this.clinicalAnalysis.interpretation.primaryFindings;
+
+        _interpretation.primaryFindings = JSON.parse(JSON.stringify(this.clinicalAnalysis.interpretation.primaryFindings));
         for (let variant of _interpretation.primaryFindings) {
+            delete variant.checkbox;
             if (!variant.attributes.creationDate) {
                 variant.attributes.creationDate = new Date().getTime();
             }
         }
         this.clinicalAnalysis.interpretation = _interpretation;
-        this.opencgaSession.opencgaClient.clinical().updateInterpretation(this.clinicalAnalysis.id, this.clinicalAnalysis.interpretation, {study: this.opencgaSession.study.fqn})
+        this.opencgaSession.opencgaClient.clinical().updateInterpretation(this.clinicalAnalysis.id, this.clinicalAnalysis.interpretation,
+            {
+                study: this.opencgaSession.study.fqn,
+                primaryFindingsAction: "SET",
+                secondaryFindingsAction: "SET",
+            })
             .then(restResponse => {
                 Swal.fire(
-                    "Interpretation saved",
+                    "Interpretation Saved",
                     "Primary findings have been saved.",
                     "success"
-                )
+                );
                 this.dispatchEvent(new CustomEvent("clinicalAnalysisUpdate", {
                     detail: {
                         clinicalAnalysis: this.clinicalAnalysis
@@ -297,17 +304,15 @@ class VariantInterpreterBrowserRd extends LitElement {
                 }));
             })
             .catch(restResponse => {
-                console.error(restResponse)
+                console.error(restResponse);
                 //optional chaining is to make sure the response is a restResponse instance
                 const msg = restResponse?.getResultEvents?.("ERROR")?.map(event => event.message).join("<br>") ?? "Server Error";
                 Swal.fire({
                     title: "Error",
                     icon: "error",
                     html: msg
-                })
+                });
             });
-
-        // this.notSavedvVriants = [];
     }
 
     onSampleChange(e) {
@@ -316,134 +321,6 @@ class VariantInterpreterBrowserRd extends LitElement {
         this.dispatchEvent(new CustomEvent("samplechange", {detail: e.detail, bubbles: true, composed: true}));
         // this._initGenotypeSamples(this.samples);
     }
-
-    // onChangeView(e) {
-    //     e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
-    //     this._changeView(e.target.dataset.view);
-    // }
-
-    // _backToSelectAnalysis(e) {
-    //     this.dispatchEvent(new CustomEvent("backtoselectanalysis", {detail: {idTab: "PrioritizationButton"}}));
-    // }
-    //
-    // _goToReport(e) {
-    //     this.dispatchEvent(new CustomEvent("gotoreport", {detail: {interpretation: this.interpretation}}));
-    // }
-    //
-    // triggerBeacon(e) {
-    //     this.variantToBeacon = this.variant.id;
-    // }
-
-    // onViewInterpretation(e) {
-    //     this.interpretationView = this._createInterpretation();
-    // }
-
-    // onSaveInterpretation(e, obj) {
-    //     const id = PolymerUtils.getValue(this._prefix + "IDInterpretation");
-    //     const description = PolymerUtils.getValue(this._prefix + "DescriptionInterpretation");
-    //     const comment = PolymerUtils.getValue(this._prefix + "CommentInterpretation");
-    //
-    //     if (UtilsNew.isNotEmpty(id)) {
-    //         if (/\s/.test(id)) {
-    //             this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
-    //                 detail: {
-    //                     message: "ID must not contains blanks.",
-    //                     type: UtilsNew.MESSAGE_ERROR
-    //                 },
-    //                 bubbles: true,
-    //                 composed: true
-    //             }));
-    //         } else {
-    //             this.interpretation = this._createInterpretation();
-    //         }
-    //     } else {
-    //         this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
-    //             detail: {
-    //                 message: "ID must not be empty.",
-    //                 type: UtilsNew.MESSAGE_ERROR
-    //             },
-    //             bubbles: true,
-    //             composed: true
-    //         }));
-    //     }
-    // }
-
-    // _createInterpretation() {
-    //     try {
-    //         const userId = this.opencgaSession.opencgaClient._config.userId;
-    //         const interpretation = {};
-    //         interpretation.id = this.clinicalAnalysis.id + "-" + this.clinicalAnalysis.interpretations.length + 1;
-    //         interpretation.clinicalAnalysisId = this.clinicalAnalysis.id;
-    //         // interpretation.description = PolymerUtils.getValue(this._prefix + "DescriptionInterpretation");
-    //         interpretation.software = {
-    //             name: "IVA",
-    //             version: "1.0.1",
-    //             repository: "https://github.com/opencb/iva",
-    //             commit: "",
-    //             website: "",
-    //             params: {}
-    //         };
-    //         interpretation.analyst = {
-    //             name: userId,
-    //             email: "",
-    //             company: ""
-    //         };
-    //         interpretation.dependencies = [
-    //             {
-    //                 name: "CellBase", repository: "https://github.com/opencb/cellbase", version: this.cellbaseVersion
-    //             }
-    //         ];
-    //         interpretation.filters = this.query;
-    //         //                interpretation.creationDate = Date();
-    //         // interpretation.comments = [{
-    //         //     author: userId,
-    //         //     type: "comment",
-    //         //     text: PolymerUtils.getValue(this._prefix + "CommentInterpretation"),
-    //         //     date: moment(new Date(), "YYYYMMDDHHmmss").format('D MMM YY')
-    //         // }];
-    //
-    //         // Remove 'stateCheckbox' from the variant list. When we receive the list from the grid, we are getting
-    //         // an additional field that should not be present in a reported variant.
-    //         // let allCheckedVariants = [].concat(this.checkedVariants).concat(this.checkedCompHetVariants).concat(this.checkedDeNovoVariants);
-    //         const reportedVariants = [];
-    //         for (const i in this.checkedVariants) {
-    //             const variant = Object.assign({}, this.checkedVariants[i]);
-    //             delete variant["stateCheckBox"];
-    //             reportedVariants.push(variant);
-    //         }
-    //         if (UtilsNew.isNotEmptyArray(this.checkedCompHetVariants)) {
-    //             for (const i in this.checkedCompHetVariants) {
-    //                 const variant = Object.assign({}, this.checkedCompHetVariants[i]);
-    //                 delete variant["stateCheckBox"];
-    //                 reportedVariants.push(variant);
-    //             }
-    //         }
-    //         if (UtilsNew.isNotEmptyArray(this.checkedDeNovoVariants)) {
-    //             for (const i in this.checkedDeNovoVariants) {
-    //                 const variant = Object.assign({}, this.checkedDeNovoVariants[i]);
-    //                 delete variant["stateCheckBox"];
-    //                 reportedVariants.push(variant);
-    //             }
-    //         }
-    //
-    //         interpretation.primaryFindings = reportedVariants;
-    //         interpretation.attributes = {};
-    //         // interpretation.creationDate = moment(new Date(), "YYYYMMDDHHmmss").format('D MMM YY');
-    //
-    //         this.interpretation = interpretation;
-    //
-    //         this.requestUpdate();
-    //     } catch (err) {
-    //         this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
-    //             detail: {
-    //                 message: err,
-    //                 type: UtilsNew.MESSAGE_ERROR
-    //             },
-    //             bubbles: true,
-    //             composed: true
-    //         }));
-    //     }
-    // }
 
     onChangeView(e) {
         e.preventDefault();
@@ -616,11 +493,6 @@ class VariantInterpreterBrowserRd extends LitElement {
                                 title: "ClinVar Accessions",
                                 tooltip: tooltips.clinvar
                             },
-                            // {
-                            //     id: "fullTextSearch",
-                            //     title: "Full-text search on HPO, ClinVar, protein domains or keywords. Some OMIM and Orphanet IDs are also supported",
-                            //     tooltip: tooltips.fullTextSearch
-                            // }
                         ]
                     },
                     {
