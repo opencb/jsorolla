@@ -113,6 +113,7 @@ export default class OpencgaLogin extends LitElement {
                     })
                     .catch( response => {
                         // response isn't necessarily a restResponse instance
+                        console.error(response);
                         this.errorState = {title: "Login error", message: "Please check your credentials."};
                         this.dispatchEvent(new CustomEvent(_this.notifyEventMessage, {
                             detail: {

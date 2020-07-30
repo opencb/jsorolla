@@ -93,10 +93,10 @@ class VariantInterpreterBrowserRd extends LitElement {
 
         this.activeFilterFilters = [];
 
-        // this.notSavedvVriants = [];
         this.predefinedFilter = false; // flag that hides the warning message in active-filter for predefined samples value
         this._config = {...this.getDefaultConfig(), ...this.config};
-        this.notSavedFindinds = 0;
+        this.notSavedVariantIds = 0;
+        this.removedVariantIds = 0;
     }
 
     connectedCallback() {
@@ -207,6 +207,10 @@ class VariantInterpreterBrowserRd extends LitElement {
         } else {
             this.activeFilterFilters = this._config.filter.examples;
         }
+
+        if (this.clinicalAnalysis?.interpretation?.primaryFindings?.length) {
+            this.savedVariants = this.clinicalAnalysis?.interpretation?.primaryFindings?.map(v => v.id);
+        }
     }
 
     onSelectVariant(e) {
@@ -238,7 +242,12 @@ class VariantInterpreterBrowserRd extends LitElement {
 
         this.clinicalAnalysis.interpretation.primaryFindings = Array.from(e.detail.rows);
 
-        this.notSavedFindinds = this.clinicalAnalysis?.interpretation?.primaryFindings?.filter(e => !e.attributes.creationDate)?.length ?? 0;
+        //this.notSavedVariants = this.clinicalAnalysis?.interpretation?.primaryFindings?.filter(e => !e.attributes.creationDate)?.length ?? 0;
+        this.currentSelection = e.detail?.rows?.map( v => v.id) ?? [];
+
+        this.notSavedVariantIds = this.currentSelection.filter(v => !~this.savedVariants.indexOf(v)).length;
+        this.removedVariantIds = this.savedVariants.filter(v => !~this.currentSelection.indexOf(v)).length;
+        this.requestUpdate();
 
         // let _interpretation = {primaryFindings: [], ...this.clinicalAnalysis.interpretation};
         // _interpretation.clinicalAnalysisId = this.clinicalAnalysis.id;
@@ -693,17 +702,22 @@ class VariantInterpreterBrowserRd extends LitElement {
                     <div>
                         <div class="btn-toolbar" role="toolbar" aria-label="toolbar" style="margin-bottom: 20px">
                             <div class="pull-right" role="group">
-                                <button type="button" class="btn btn-default ripple" @click="${this.onViewVariants}" title="This will remove not saved variants">
+                                <button type="button" class="btn btn-default ripple" @click="${this.onViewVariants}" title="This shows saved variants">
                                     <i class="fas fa-eye icon-padding" aria-hidden="true"></i> View
                                 </button>
-                                <button type="button" class="btn btn-default ripple" @click="${this.onResetVariants}" title="This will remove not saved variants">
+                                <button type="button" class="btn btn-default ripple" @click="${this.onResetVariants}" title="This removes not saved variants">
                                     <i class="fas fa-eraser icon-padding" aria-hidden="true"></i> Reset
                                 </button>
                                 <button type="button" class="btn btn-default ripple" @click="${this.onSaveVariants}" title="Save variants in the server">
-                                    <i class="fas fa-save icon-padding" aria-hidden="true"></i> Save ${this.notSavedFindinds ? html`<span class="badge">${this.notSavedFindinds}</span>` : ""}
+                                    <i class="fas fa-save icon-padding" aria-hidden="true"></i> Save
                                 </button>
                             </div>
                         </div>
+                        ${this.notSavedVariantIds || this.removedVariantIds ? html`
+                            <div class="alert alert-warning" role="alert" id="${this._prefix}SaveWarning">
+                                <span><strong>Warning!</strong></span>&nbsp;&nbsp;Primary findings have changed:
+                                ${this.notSavedVariantIds ? html`${this.notSavedVariantIds} variant${this.notSavedVariantIds > 1 ? "s have": " has"} been added` : null}${this.removedVariantIds ? html`${this.notSavedVariantIds ? " and " : null}${this.removedVariantIds} variant${this.removedVariantIds > 1 ? "s have": " has"} been removed` : null}. Please click on <strong> Save </strong> to make the results persistent.
+                        </div>` : null}
                     </div>
                     
                     <div id="${this._prefix}MainContent">
