@@ -337,15 +337,15 @@ export default class OpencgaFamilyGrid extends LitElement {
                 halign: this._config.header.horizontalAlign
             },
             {
-                title: "Phenotypes",
-                field: "phenotypes",
-                formatter: this.catalogGridFormatter.phenotypesFormatter,
-                halign: this._config.header.horizontalAlign
-            },
-            {
                 title: "Disorders",
                 field: "disorders",
                 formatter: disorders => disorders.map(disorder => this.catalogGridFormatter.disorderFormatter(disorder)).join("<br>"),
+                halign: this._config.header.horizontalAlign
+            },
+            {
+                title: "Phenotypes",
+                field: "phenotypes",
+                formatter: this.catalogGridFormatter.phenotypesFormatter,
                 halign: this._config.header.horizontalAlign
             },
             {
