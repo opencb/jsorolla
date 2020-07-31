@@ -1277,15 +1277,6 @@ export default class OpencgaVariantInterpretationGrid extends LitElement {
             .variant-link-dropdown:hover .dropdown-menu {
                 display: block;
             }
-
-            .detail-view :hover {
-                background-color: white;
-            }
-
-            .detail-view-row :hover {
-                background-color: #f5f5f5;
-            }
-
             .qtip-custom-class .qtip-content {
                 font-size: 12px;
             }

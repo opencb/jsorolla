@@ -940,15 +940,7 @@ export default class OpencgaVariantGrid extends LitElement {
                 span.orangeText {
                     color: orange;
                 }
-    
-                .detail-view :hover {
-                    background-color: white;
-                }
-    
-                .detail-view-row :hover {
-                    background-color: #f5f5f5;
-                }
-    
+        
                 .variant-link-dropdown:hover .dropdown-menu {
                     display: block;
                 }

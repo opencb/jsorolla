@@ -58,6 +58,7 @@ export default class IndividualIdAutocomplete extends LitElement {
 
     getDefaultConfig() {
         return {
+            addButton: false,
             fields: item => ({
                 name: item.id
             }),

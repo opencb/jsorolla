@@ -478,14 +478,6 @@ export default class OpencgaFamilyGrid extends LitElement {
     render() {
         return html`
             <style>
-                .detail-view :hover {
-                    background-color: white;
-                }
-    
-                .detail-view-row :hover {
-                    background-color: #f5f5f5;
-                }
-    
                 .cursor-pointer {
                     cursor: pointer;
                 }
