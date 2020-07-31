@@ -15,8 +15,9 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import GridCommons from "../variant/grid-commons.js";
 import UtilsNew from "../../utilsNew.js";
+import GridCommons from "../variant/grid-commons.js";
+import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import PolymerUtils from "../PolymerUtils.js";
 
 
@@ -73,11 +74,12 @@ export default class OpencgaCohortGrid extends LitElement {
         }
     }
 
-
-
     propertyObserver() {
         // With each property change we must updated config and create the columns again. No extra checks are needed.
         this._config = Object.assign(this.getDefaultConfig(), this.config);
+
+        this.catalogGridFormatter = new CatalogGridFormatter(this.opencgaSession);
+
         this._columns = this._initTableColumns();
 
         // Config for the grid toolbar
@@ -99,9 +101,6 @@ export default class OpencgaCohortGrid extends LitElement {
         this.cohorts = [];
         let filters = {...this.query};
 
-        this.from = 1;
-        this.to = 10;
-
         if (this.opencgaClient && this.opencgaSession.study && this.opencgaSession.study.fqn) {
 
             filters.study = this.opencgaSession.study.fqn;
@@ -119,13 +118,6 @@ export default class OpencgaCohortGrid extends LitElement {
             } else {
                 this._cohorts = [];
             }
-
-            // Check that HTTP protocol is present and complete the URL
-/*            let opencgaHostUrl = this.opencgaClient.getConfig().host;
-            if (!opencgaHostUrl.startsWith("http://") && !opencgaHostUrl.startsWith("https://")) {
-                opencgaHostUrl = "http://" + opencgaHostUrl;
-            }
-            opencgaHostUrl += "/webservices/rest/v1/cohorts/search";*/
 
             this.table = $("#" + this.gridId);
 
@@ -146,7 +138,7 @@ export default class OpencgaCohortGrid extends LitElement {
                 showExport: _this._config.showExport,
                 detailView: _this._config.detailView,
                 detailFormatter: _this._config.detailFormatter,
-                formatLoadingMessage: () =>"<div><loading-spinner></loading-spinner></div>",
+                formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
                 ajax: params => {
                     let _filters = {
                         //study: this.opencgaSession.study.fqn,
@@ -158,23 +150,18 @@ export default class OpencgaCohortGrid extends LitElement {
                         ...filters
                     };
                     this.opencgaSession.opencgaClient.cohorts().search(_filters)
-                        .then( res => params.success(res))
-                        .catch( e => {
+                        .then(res => params.success(res))
+                        .catch(e => {
                             console.error(e);
-                            params.error(e)
+                            params.error(e);
                         });
                 },
                 responseHandler: response => {
                     const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
-                    this.from = result.from || this.from;
-                    this.to = result.to || this.to;
-                    this.numTotalResultsText = result.numTotalResultsText || this.numTotalResultsText;
-                    this.approximateCountResult = result.approximateCountResult;
-                    this.requestUpdate();
                     return result.response;
                 },
                 onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
-                onDblClickRow: function(row, element, field) {
+                onDblClickRow: function (row, element, field) {
                     // We detail view is active we expand the row automatically.
                     // FIXME: Note that we use a CSS class way of knowing if the row is expand or collapse, this is not ideal but works.
                     if (_this._config.detailView) {
@@ -185,129 +172,22 @@ export default class OpencgaCohortGrid extends LitElement {
                         }
                     }
                 },
-                onCheck: function(row, element) {
-                    // check cohort is not already selected
-                    for (const i in _this._cohorts) {
-                        if (_this._cohorts[i].id === row.id) {
-                            return;
-                        }
-                    }
-
-                    // we add cohorts to selected cohorts
-                    // _this.push("_cohorts", row);
-                    // _this.set('cohorts', _this._cohorts.slice());
-                    _this._cohorts.push(row);
-                    _this.cohorts = _this._cohorts.slice();
-
-                    // We detail view is active we expand the row automatically
-                    if (_this._config.detailView) {
-                        $(PolymerUtils.getElementById(_this._prefix + "CohortBrowserGrid")).bootstrapTable("expandRow", element[0].dataset.index);
-                    }
-
-                    // We only activate the row when checking
-                    if (_this._config.detailView) {
-                        $(".success").removeClass("success");
-                    }
-                    $(element[0].parentElement.parentElement).addClass("success");
-
-                    // If exist on single nested sample we must check it
-                    if (row.samples.length === 1) {
-                        const checkbox = PolymerUtils.getElementById(_this._prefix + row.samples[0].id + "Checkbox");
-                        if (UtilsNew.isNotUndefinedOrNull(checkbox)) {
-                            checkbox.checked = true;
-                        }
-                    }
-
-                    _this._onSelectCohort(row, true);
+                onCheck: (row, $element) => {
+                    this.gridCommons.onCheck(row.id, row);
                 },
-                onUncheck: function(row, elem) {
-                    let cohortToDeleteIdx = -1;
-                    for (const i in _this.cohorts) {
-                        if (_this.cohorts[i].id === row.id) {
-                            cohortToDeleteIdx = i;
-                            break;
-                        }
-                    }
-
-                    if (cohortToDeleteIdx === -1) {
-                        return;
-                    }
-
-                    // _this.splice('_cohorts', cohortToDeleteIdx, 1);
-                    // _this.set('cohorts', _this._cohorts.slice());
-                    _this._cohorts.splice(cohortToDeleteIdx, 1);
-                    _this.cohorts = _this._cohorts.slice();
-
-                    // We detail view is active we expand the row automatically
-                    if (_this._config.detailView) {
-                        $(PolymerUtils.getElementById(_this._prefix + "CohortBrowserGrid")).bootstrapTable("collapseRow", elem[0].dataset.index);
-                    }
-
-                    // We must uncheck nested checked samples
-                    if (row.samples.length > 0) {
-                        for (const sample of row.samples) {
-                            const checkbox = PolymerUtils.getElementById(_this._prefix + sample.id + "Checkbox");
-                            if (UtilsNew.isNotUndefinedOrNull(checkbox)) {
-                                checkbox.checked = false;
-                            }
-                        }
-                    }
-
-                    _this._onSelectCohort(row, false);
+                onCheckAll: rows => {
+                    this.gridCommons.onCheckAll(rows);
                 },
-                onCheckAll: function(rows) {
-                    const newCohorts = _this._cohorts.slice();
-                    // check cohort is not already selected
-                    rows.forEach(cohort => {
-                        const existsNewSelected = _this._cohorts.some(cohortSelected => {
-                            return cohortSelected.id === cohort.id;
-                        });
-
-                        if (!existsNewSelected) {
-                            newCohorts.push(cohort);
-                        }
-                    });
-
-                    // we add cohorts to selected cohorts
-                    _this._cohorts = newCohorts;
-                    // _this.set('cohorts', newCohorts.slice());
-                    _this.cohorts = newCohorts.slice();
-
-                    // We must uncheck nested checked samples
-                    for (const row of rows) {
-                        if (row.samples.length === 1) {
-                            const checkbox = PolymerUtils.getElementById(_this._prefix + row.samples[0].id + "Checkbox");
-                            if (UtilsNew.isNotUndefinedOrNull(checkbox)) {
-                                checkbox.checked = true;
-                            }
-                        }
-                    }
+                onUncheck: (row, $element) => {
+                    this.gridCommons.onUncheck(row.id, row);
                 },
-                onUncheckAll: function(rows) {
-                    // check cohort is not already selected
-                    rows.forEach(cohort => {
-                        _this._cohorts = _this._cohorts.filter(cohortSelected => {
-                            return cohortSelected.id !== cohort.id;
-                        });
-                    });
-
-                    // we add cohorts to selected cohorts
-                    //                            _this.push("_cohorts", row);
-                    _this.cohorts = _this._cohorts.slice();
-
-                    // We must uncheck nested checked samples
-                    for (const row of rows) {
-                        for (const sample of row.samples) {
-                            const checkbox = PolymerUtils.getElementById(_this._prefix + sample.id + "Checkbox");
-                            if (UtilsNew.isNotUndefinedOrNull(checkbox)) {
-                                checkbox.checked = false;
-                            }
-                        }
-                    }
+                onUncheckAll: rows => {
+                    this.gridCommons.onUncheckAll(rows);
                 },
-                onLoadSuccess: data => this.gridCommons.onLoadSuccess(data, 1),
+                onLoadSuccess: data => {
+                    this.gridCommons.onLoadSuccess(data, 1);
+                },
                 onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse),
-                onPageChange: (page, size) => this.gridCommons.onPageChange(page, size)
             });
         } else {
             // Delete table
@@ -337,17 +217,6 @@ export default class OpencgaCohortGrid extends LitElement {
             return row.samples.length;
         } else {
             return 0;
-        }
-    }
-
-    dateFormatter(value, row) {
-        const pattern = /^(\d\d\d\d)(\d\d)(\d\d)/;
-        const matches = pattern.exec(value);
-        if (matches) {
-            const [year, month, day] = [matches[1], matches[2] - 1, matches[3]];
-            return year + "-" + month + "-" + day;
-        } else {
-            return "Invalid date: '" + value + "'";
         }
     }
 
@@ -382,15 +251,14 @@ export default class OpencgaCohortGrid extends LitElement {
                 {
                     title: "Date",
                     field: "creationDate",
-                    formatter: this.dateFormatter,
-                    sortable: true,
+                    formatter: this.catalogGridFormatter.dateFormatter,
                     halign: this._config.header.horizontalAlign
                 },
-                {
-                    title: "Status",
-                    field: "status.name",
-                    halign: this._config.header.horizontalAlign
-                },
+                // {
+                //     title: "Status",
+                //     field: "status.name",
+                //     halign: this._config.header.horizontalAlign
+                // },
                 {
                     title: "Type",
                     field: "type",
@@ -415,9 +283,9 @@ export default class OpencgaCohortGrid extends LitElement {
             include: "id,creationDate,status,type,samples"
         };
         this.opencgaSession.opencgaClient.cohorts().search(params)
-            .then( response => {
+            .then(response => {
                 const result = response.response[0].result;
-                console.log(result)
+                console.log(result);
                 let dataString = [];
                 let mimeType = "";
                 let extension = "";
@@ -426,9 +294,9 @@ export default class OpencgaCohortGrid extends LitElement {
                     if (e.detail.option.toLowerCase() === "tab") {
                         dataString = [
                             ["Cohort", "#Samples", "Date", "Status", "Type"].join("\t"),
-                            ...result.map( _ => [
+                            ...result.map(_ => [
                                 _.id,
-                                _.samples ? _.samples.map( _ => `${_.id}`).join(",") : "",
+                                _.samples ? _.samples.map(_ => `${_.id}`).join(",") : "",
                                 _.creationDate,
                                 _.status.name,
                                 _.type
@@ -452,14 +320,14 @@ export default class OpencgaCohortGrid extends LitElement {
                     a.download = this.opencgaSession.study.alias + extension;
                     document.body.appendChild(a);
                     a.click();
-                    setTimeout(function() {
+                    setTimeout(function () {
                         document.body.removeChild(a);
                     }, 0);
                 } else {
                     console.error("Error in result format");
                 }
             })
-            .then(function() {
+            .then(function () {
                 //this.downloadRefreshIcon.css("display", "none");
                 //this.downloadIcon.css("display", "inline-block");
             });
@@ -493,8 +361,7 @@ export default class OpencgaCohortGrid extends LitElement {
         </opencb-grid-toolbar>
 
         <div id="${this._prefix}GridTableDiv">
-            <table id="${this._prefix}CohortBrowserGrid">
-            </table>
+            <table id="${this._prefix}CohortBrowserGrid"></table>
         </div>
         `;
     }

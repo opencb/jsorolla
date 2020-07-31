@@ -17,6 +17,7 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
 import GridCommons from "../variant/grid-commons.js";
+import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import "../commons/opencb-grid-toolbar.js";
 import "../loading-spinner.js";
 
@@ -93,6 +94,8 @@ export default class OpencgaJobsGrid extends LitElement {
     }
 
     propertyObserver() {
+        this.catalogGridFormatter = new CatalogGridFormatter(this.opencgaSession);
+
         this.toolbarConfig = {
             columns: this._initTableColumns().filter( col => col.field)
         };
@@ -109,8 +112,6 @@ export default class OpencgaJobsGrid extends LitElement {
 
     renderTable() {
         this.jobs = [];
-        this.from = 1;
-        this.to = 10;
 
         if (UtilsNew.isNotUndefined(this.opencgaSession.opencgaClient) &&
             UtilsNew.isNotUndefined(this.opencgaSession.study) &&
@@ -166,25 +167,36 @@ export default class OpencgaJobsGrid extends LitElement {
                 },
                 responseHandler: response => {
                     const result = this.gridCommons.responseHandler(response, this.table.bootstrapTable("getOptions"));
-                    this.from = result.from || this.from;
-                    this.to = result.to || this.to;
-                    this.numTotalResultsText = result.numTotalResultsText || this.numTotalResultsText;
-                    this.approximateCountResult = result.approximateCountResult;
-                    this.requestUpdate();
                     return result.response;
                 },
                 onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
-                onCheck: (row, $element) => this.gridCommons.onCheck(row.id, row),
-                onCheckAll: rows => this.gridCommons.onCheckAll(rows),
-                onUncheck: (row, $element) => this.gridCommons.onUncheck(row.id, row),
-                onUncheckAll: rows => this.gridCommons.onUncheckAll(rows),
-                onLoadSuccess: data => this.gridCommons.onLoadSuccess(data, 1),
+                onDblClickRow: (row, element, field) => {
+                    // We detail view is active we expand the row automatically.
+                    // FIXME: Note that we use a CSS class way of knowing if the row is expand or collapse, this is not ideal but works.
+                    if (this._config.detailView) {
+                        if (element[0].innerHTML.includes("icon-plus")) {
+                            this.table.bootstrapTable("expandRow", element[0].dataset.index);
+                        } else {
+                            this.table.bootstrapTable("collapseRow", element[0].dataset.index);
+                        }
+                    }
+                },
+                onCheck: (row, $element) => {
+                    this.gridCommons.onCheck(row.id, row);
+                },
+                onCheckAll: rows => {
+                    this.gridCommons.onCheckAll(rows);
+                },
+                onUncheck: (row, $element) => {
+                    this.gridCommons.onUncheck(row.id, row);
+                },
+                onUncheckAll: rows => {
+                    this.gridCommons.onUncheckAll(rows);
+                },
+                onLoadSuccess: data => {
+                    this.gridCommons.onLoadSuccess(data, 1);
+                },
                 onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse),
-                onPageChange: (page, size) => {
-                    const result = this.gridCommons.onPageChange(page, size);
-                    this.from = result.from || this.from;
-                    this.to = result.to || this.to;
-                }
             });
         } else {
             // Delete table
@@ -255,14 +267,19 @@ export default class OpencgaJobsGrid extends LitElement {
                 field: "internal.status.name",
                 formatter: status => UtilsNew.jobStatusFormatter(status)
             },
-            {
-                title: "Creation",
-                field: "creationDate",
-                formatter: this.creationDateFormatter
-            },
+
             {
                 title: "Priority",
                 field: "priority"
+            },
+            {
+                title: "Depends on",
+                field: "dependsOn",
+                formatter: v => v.length > 0 ?
+                    `<div class="tooltip-div">
+                            <a tooltip-title="Dependencies" tooltip-text="${v.map(job => `<p>${job.id}</p>`).join("<br>")}"> ${v.length} job${v.length > 1 ? "s" : ""}</a>
+                    </div>
+                    ` : "-"
             },
             {
                 title: "Tags",
@@ -296,18 +313,14 @@ export default class OpencgaJobsGrid extends LitElement {
                     : "-"
             },
             {
-                title: "Depends on",
-                field: "dependsOn",
-                formatter: v => v.length > 0 ?
-                    `<div class="tooltip-div">
-                            <a tooltip-title="Dependencies" tooltip-text="${v.map(job => `<p>${job.id}</p>`).join("<br>")}"> ${v.length} job${v.length > 1 ? "s" : ""}</a>
-                    </div>
-                    ` : "-"
+                title: "Creation Date",
+                field: "creationDate",
+                formatter: this.catalogGridFormatter.dateFormatter
             },
-            {
-                title: "Visited",
-                field: "visited"
-            }
+            // {
+            //     title: "Visited",
+            //     field: "visited"
+            // }
         ];
 
         return this._columns;
@@ -399,11 +412,6 @@ export default class OpencgaJobsGrid extends LitElement {
 
         result += detailHtml + "</div>";
         return result;
-    }
-
-    creationDateFormatter(date) {
-        //return moment(date, "YYYYMMDDHHmmss").format("D MMM YYYY, h:mm:ss a")
-        return `<a tooltip-title="Creation date"  tooltip-text="${moment(date, "YYYYMMDDHHmmss").format("D MMM YYYY, h:mm:ss a")}"> ${moment(date, "YYYYMMDDHHmmss").fromNow()} </a>`
     }
 
     onDownload(e) {

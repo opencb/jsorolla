@@ -15,8 +15,9 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import GridCommons from "../variant/grid-commons.js";
 import UtilsNew from "../../utilsNew.js";
+import GridCommons from "../variant/grid-commons.js";
+import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import "../commons/opencb-grid-toolbar.js";
 import "../loading-spinner.js";
 
@@ -81,6 +82,8 @@ export default class OpencgaFileGrid extends LitElement {
     }
 
     propertyObserver() {
+        this.catalogGridFormatter = new CatalogGridFormatter(this.opencgaSession);
+
         this.toolbarConfig = {
             columns: this._getDefaultColumns()
         };
@@ -98,9 +101,6 @@ export default class OpencgaFileGrid extends LitElement {
     }
 
     renderRemoteTable() {
-        this.from = 1;
-        this.to = this._config.pageSize || 10;
-
         if (this.opencgaSession.opencgaClient && this.opencgaSession.study && this.opencgaSession.study.fqn) {
             this.table = $("#" + this.gridId);
             this.table.bootstrapTable("destroy");
@@ -138,11 +138,6 @@ export default class OpencgaFileGrid extends LitElement {
                 },
                 responseHandler: response => {
                     const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
-                    this.from = result.from || this.from;
-                    this.to = result.to || this.to;
-                    this.numTotalResultsText = result.numTotalResultsText || this.numTotalResultsText;
-                    this.approximateCountResult = result.approximateCountResult;
-                    this.requestUpdate();
                     return result.response;
                 },
                 onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
@@ -173,11 +168,6 @@ export default class OpencgaFileGrid extends LitElement {
                     this.gridCommons.onLoadSuccess(data, 1);
                 },
                 onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse),
-                onPageChange: (page, size) => {
-                    const result = this.gridCommons.onPageChange(page, size);
-                    this.from = result.from || this.from;
-                    this.to = result.to || this.to;
-                },
                 onPostBody: (data) => {
                     // Add tooltips?
                 }
@@ -220,24 +210,8 @@ export default class OpencgaFileGrid extends LitElement {
         });
     }
 
-    // sizeFormatter(bytes) {
-    //     const si = true; // international system of units
-    //     let u, b=bytes, t= si ? 1000 : 1024;
-    //     ["", si?"k":"K", ..."MGTPEZY"].find(x=> (u=x, b/=t, b**2<1));
-    //     return `${u ? (t*b).toFixed(1) : bytes} ${u}${!si && u ? "i":""}B`;
-    // }
-
     onColumnChange(e) {
         this.gridCommons.onColumnChange(e);
-    }
-
-    pathFormatter(value, row) {
-        return "/" + row.path.replace(row.name, "");
-    }
-
-    creationDateFormatter(date) {
-        //return moment(date, "YYYYMMDDHHmmss").format("D MMM YYYY, h:mm:ss a")
-        return `<a tooltip-title="Creation date"  tooltip-text="${moment(date, "YYYYMMDDHHmmss").format("D MMM YYYY, h:mm:ss a")}"> ${moment(date, "YYYYMMDDHHmmss").fromNow()} </a>`
     }
 
     _getDefaultColumns() {
@@ -247,9 +221,9 @@ export default class OpencgaFileGrid extends LitElement {
                 field: "name"
             },
             {
-                title: "Path",
+                title: "Directory",
                 field: "path",
-                formatter: this.pathFormatter
+                formatter: (value, row) =>  "/" + row.path.replace(row.name, "")
             },
             {
                 title: "Size",
@@ -264,18 +238,18 @@ export default class OpencgaFileGrid extends LitElement {
                 title: "Bioformat",
                 field: "bioformat"
             },
-            {
-                title: "Creation date",
-                field: "creationDate",
-                formatter: this.creationDateFormatter
-            },
-            {
-                title: "Status",
-                field: "internal.status.name"
-            },
+            // {
+            //     title: "Status",
+            //     field: "internal.status.name"
+            // },
             {
                 title: "Index",
                 field: "internal.index.status.name"
+            },
+            {
+                title: "Creation date",
+                field: "creationDate",
+                formatter: this.catalogGridFormatter.dateFormatter
             },
             {
                 title: "Manage",
@@ -387,8 +361,7 @@ export default class OpencgaFileGrid extends LitElement {
                                   @download="${this.onDownload}">
             </opencb-grid-toolbar>
             <div id="${this._prefix}GridTableDiv">
-                <table id="${this._prefix}FileBrowserGrid">
-                </table>
+                <table id="${this._prefix}FileBrowserGrid"></table>
             </div>
         `;
     }

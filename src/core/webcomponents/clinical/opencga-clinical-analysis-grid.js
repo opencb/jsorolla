@@ -17,6 +17,7 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
 import GridCommons from "../variant/grid-commons.js";
+import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import "../commons/opencb-grid-toolbar.js";
 
 
@@ -78,7 +79,8 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
     propertyObserver() {
         // With each property change we must updated config and create the columns again. No extra checks are needed.
         this._config = Object.assign({}, this.getDefaultConfig(), this.config);
-        // this._columns = this._getDefaultColumns();
+
+        this.catalogGridFormatter = new CatalogGridFormatter(this.opencgaSession);
 
         // Config for the grid toolbar
         this.toolbarConfig = {
@@ -94,15 +96,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
         this.requestUpdate();
     }
 
-    renderTable(active) {
-        // if (!active) {
-        //     return;
-        // }
-
-        // Initialise the counters
-        this.from = 1;
-        this.to = this._config.pageSize;
-
+    renderTable() {
         if (this.opencgaSession.opencgaClient && this.opencgaSession.study && this.opencgaSession.study.fqn) {
             this.table = $("#" + this.gridId);
             this.table.bootstrapTable("destroy");
@@ -144,11 +138,6 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                 },
                 responseHandler: response => {
                     const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
-                    this.from = result.from || this.from;
-                    this.to = result.to || this.to;
-                    this.numTotalResultsText = result.numTotalResultsText || this.numTotalResultsText;
-                    this.approximateCountResult = result.approximateCountResult;
-                    this.requestUpdate();
                     return result.response;
                 },
                 onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
@@ -179,12 +168,6 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                     this.gridCommons.onLoadSuccess(data, 1);
                 },
                 onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse),
-                onPageChange: (page, size) => {
-                    const result = this.gridCommons.onPageChange(page, size);
-                    this.from = result.from || this.from;
-                    this.to = result.to || this.to;
-                },
-
                 onPostBody: function(data) {
                     // Add qtip2 tooltips to Interpretation genotypes
                     $("div.interpretation-tooltip").qtip({
@@ -285,23 +268,6 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                 </a>`;
     }
 
-    disorderFormatter(value, row) {
-        if (value && value.id) {
-            let idHtml = value.id.startsWith("OMIM:")
-                ? `<a href="https://omim.org/entry/${value.id.split(":")[1]}" target="_blank">${value.id}
-                        <i class="fas fa-external-link-alt" aria-hidden="true" style="padding-left: 5px"></i>
-                   </a>`
-                : `${value.id}`;
-            if (value.name) {
-                return `${value.name} <span style="white-space: nowrap">(${idHtml})</span>`;
-            } else {
-                return `${idHtml}`;
-            }
-        } else {
-            return "-";
-        }
-    }
-
     priorityFormatter(value) {
         if (UtilsNew.isEmpty(value)) {
             return "<span>-</span>";
@@ -325,13 +291,6 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                     return "<span>-</span>";
             }
         }
-    }
-
-    dateFormatter(value, row) {
-        if (UtilsNew.isUndefinedOrNull(value)) {
-            return "-";
-        }
-        return moment(value, "YYYYMMDDHHmmss").format("D MMM YYYY");
     }
 
     // reviewCaseFormatter(value, row) {
@@ -447,7 +406,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                 title: "Disorder",
                 field: "disorder",
                 valign: "middle",
-                formatter: this.disorderFormatter,
+                formatter: this.catalogGridFormatter.disorderFormatter,
                 visible: !this._config.columns.hidden.includes("disorderId")
             },
             {
@@ -486,18 +445,18 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                 visible: !this._config.columns.hidden.includes("assignedTo")
             },
             {
-                title: "Creation Date",
-                field: "creationDate",
-                valign: "middle",
-                formatter: this.dateFormatter,
-                visible: !this._config.columns.hidden.includes("creationDate")
-            },
-            {
                 title: "Due Date",
                 field: "dueDate",
                 valign: "middle",
-                formatter: this.dateFormatter,
+                formatter: this.catalogGridFormatter.dateFormatter,
                 visible: !this._config.columns.hidden.includes("dueDate")
+            },
+            {
+                title: "Creation Date",
+                field: "creationDate",
+                valign: "middle",
+                formatter: this.catalogGridFormatter.dateFormatter,
+                visible: !this._config.columns.hidden.includes("creationDate")
             },
             // {
             //     title: 'Review',
@@ -715,17 +674,13 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
             </style>
     
             ${this._config.showToolbar 
-        ? html`
-                    <opencb-grid-toolbar .from="${this.from}"
-                                        .to="${this.to}"
-                                        .numTotalResultsText="${this.numTotalResultsText}"
-                                        .config="${this.toolbarConfig}"
-                                        @columnChange="${this.onColumnChange}"
-                                        @download="${this.onDownload}"
-                                        @sharelink="${this.onShare}">
+                ? html`
+                    <opencb-grid-toolbar    .config="${this.toolbarConfig}"
+                                            @columnChange="${this.onColumnChange}"
+                                            @download="${this.onDownload}">
                     </opencb-grid-toolbar>` 
-        : null
-}
+                : null
+            }
     
             <div id="${this._prefix}GridTableDiv" class="force-overflow">
                 <table id="${this._prefix}ClinicalAnalysisGrid"></table>

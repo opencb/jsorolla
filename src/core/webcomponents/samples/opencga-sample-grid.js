@@ -15,8 +15,9 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import GridCommons from "../variant/grid-commons.js";
 import UtilsNew from "../../utilsNew.js";
+import GridCommons from "../variant/grid-commons.js";
+import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import CatalogUIUtils from "../commons/CatalogUIUtils.js";
 import "../commons/opencb-grid-toolbar.js";
 
@@ -88,6 +89,8 @@ export default class OpencgaSampleGrid extends LitElement {
         //this._config = Object.assign(this.getDefaultConfig(), this.config);
         //this._columns = this._initTableColumns();
 
+        this.catalogGridFormatter = new CatalogGridFormatter(this.opencgaSession);
+
         // Config for the grid toolbar
         this.toolbarConfig = {
             columns: this._getDefaultColumns()
@@ -111,10 +114,6 @@ export default class OpencgaSampleGrid extends LitElement {
     }
 
     renderRemoteTable() {
-        // Initialise row counters
-        this.from = 1;
-        this.to = this._config.pageSize;
-
         if (this.opencgaSession.opencgaClient && this.opencgaSession.study && this.opencgaSession.study.fqn) {
             const filters = {...this.query};
             //TODO fix and replicate this in all browsers (the current filter is not "filters", it is actually built in the ajax() function in bootstrapTable)
@@ -141,7 +140,7 @@ export default class OpencgaSampleGrid extends LitElement {
                 detailView: this._config.detailView,
                 detailFormatter: this._config.detailFormatter,
                 gridContext: this,
-                formatLoadingMessage: () =>"<div><loading-spinner></loading-spinner></div>",
+                formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
                 ajax: params => {
                     const _filters = {
                         study: this.opencgaSession.study.fqn,
@@ -154,19 +153,14 @@ export default class OpencgaSampleGrid extends LitElement {
                     // Store the current filters
                     this.lastFilters = {..._filters};
                     this.opencgaSession.opencgaClient.samples().search(_filters)
-                        .then( res => params.success(res))
-                        .catch( e => {
+                        .then(res => params.success(res))
+                        .catch(e => {
                             console.error(e);
                             params.error(e);
                         });
                 },
                 responseHandler: response => {
                     const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
-                    this.from = result.from || this.from;
-                    this.to = result.to || this.to;
-                    this.numTotalResultsText = result.numTotalResultsText || this.numTotalResultsText;
-                    this.approximateCountResult = result.approximateCountResult;
-                    this.requestUpdate();
                     return result.response;
                 },
                 onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
@@ -197,11 +191,6 @@ export default class OpencgaSampleGrid extends LitElement {
                     this.gridCommons.onLoadSuccess(data, 1);
                 },
                 onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse),
-                onPageChange: (page, size) => {
-                    const result = this.gridCommons.onPageChange(page, size);
-                    this.from = result.from || this.from;
-                    this.to = result.to || this.to;
-                },
                 onPostBody: (data) => {
                     // Add tooltips?
                 }
@@ -229,7 +218,7 @@ export default class OpencgaSampleGrid extends LitElement {
             showExport: this._config.showExport,
             detailView: this._config.detailView,
             detailFormatter: this.detailFormatter,
-            formatLoadingMessage: () =>"<div><loading-spinner></loading-spinner></div>",
+            formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
 
             onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
             onPageChange: (page, size) => {
@@ -264,10 +253,6 @@ export default class OpencgaSampleGrid extends LitElement {
             : "-";
     }
 
-    dateFormatter(value, row) {
-        return moment(value, "YYYYMMDDHHmmss").format("D MMM YYYY");
-    }
-
     cellTypeFormatter(value, row) {
         return (row.somatic) ? "Somatic" : "Germline";
     }
@@ -275,41 +260,41 @@ export default class OpencgaSampleGrid extends LitElement {
     _getDefaultColumns() {
 
         let _columns = [
-                {
-                    title: "Sample ID",
-                    field: "id"
-                },
-                {
-                    title: "Individual ID",
-                    formatter: this.individualFormatter
-                },
-                {
-                    title: "Files",
-                    field: "fileIds",
-                    formatter: this.fileFormatter
-                },
-                {
-                    title: "Collection Method",
-                    field: "collection.method"
-                },
-                {
-                    title: "Preparation Method",
-                    field: "processing.preparationMethod"
-                },
-                {
-                    title: "Cell Line",
-                    formatter: this.cellTypeFormatter
-                },
-                {
-                    title: "Creation Date",
-                    field: "creationDate",
-                    formatter: this.dateFormatter
-                },
-                {
-                    title: "Status",
-                    field: "internal.status",
-                    formatter: field => `${field.name} (${UtilsNew.dateFormatter(field.date)})`
-                }
+            {
+                title: "Sample ID",
+                field: "id"
+            },
+            {
+                title: "Individual ID",
+                formatter: this.individualFormatter
+            },
+            {
+                title: "Files",
+                field: "fileIds",
+                formatter: this.fileFormatter
+            },
+            {
+                title: "Collection Method",
+                field: "collection.method"
+            },
+            {
+                title: "Preparation Method",
+                field: "processing.preparationMethod"
+            },
+            {
+                title: "Cell Line",
+                formatter: this.cellTypeFormatter
+            },
+            {
+                title: "Creation Date",
+                field: "creationDate",
+                formatter: this.catalogGridFormatter.dateFormatter
+            },
+            // {
+            //     title: "Status",
+            //     field: "internal.status",
+            //     formatter: field => `${field.name} (${UtilsNew.dateFormatter(field.date)})`
+            // }
         ];
 
         if (this._config.showSelectCheckbox) {
@@ -347,7 +332,7 @@ export default class OpencgaSampleGrid extends LitElement {
                     if (e.detail.option.toLowerCase() === "tab") {
                         dataString = [
                             ["Sample ID", "Individual ID", "Source", "Collection Method", "Preparation Method", "Cell Line", "Creation Date", "Status"].join("\t"),
-                            ...result.map( _ => [
+                            ...result.map(_ => [
                                 _.id,
                                 _.attributes?.OPENCGA_INDIVIDUAL?.id ?? "",
                                 _.source,
@@ -376,14 +361,14 @@ export default class OpencgaSampleGrid extends LitElement {
                     a.download = this.opencgaSession.study.alias + extension;
                     document.body.appendChild(a);
                     a.click();
-                    setTimeout(function() {
+                    setTimeout(function () {
                         document.body.removeChild(a);
                     }, 0);
                 } else {
                     console.error("Error in result format");
                 }
             })
-            .then(function() {
+            .then(function () {
                 // this.downloadRefreshIcon.css("display", "none");
                 // this.downloadIcon.css("display", "inline-block");
             });
@@ -410,7 +395,7 @@ export default class OpencgaSampleGrid extends LitElement {
                                      @columnChange="${this.onColumnChange}"
                                      @download="${this.onDownload}">
                 </opencb-grid-toolbar>`
-            :  null}
+            : null}
     
             <div id="${this._prefix}GridTableDiv">
                 <table id="${this._prefix}SampleBrowserGrid"></table>

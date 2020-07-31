@@ -15,8 +15,9 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import GridCommons from "../variant/grid-commons.js";
 import UtilsNew from "../../utilsNew.js";
+import GridCommons from "../variant/grid-commons.js";
+import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import CatalogUIUtils from "../commons/CatalogUIUtils.js";
 import "./opencga-family-filter.js";
 import "../commons/opencb-grid-toolbar.js";
@@ -85,7 +86,8 @@ export default class OpencgaFamilyGrid extends LitElement {
     propertyObserver() {
         // With each property change we must updated config and create the columns again. No extra checks are needed.
         this._config = {...this.getDefaultConfig(), ...this.config};
-        // this._columns = this._initTableColumns();
+
+        this.catalogGridFormatter = new CatalogGridFormatter(this.opencgaSession);
 
         //Config for the grid toolbar
         this.toolbarConfig = {
@@ -103,22 +105,9 @@ export default class OpencgaFamilyGrid extends LitElement {
         }
     }
 
-    renderRemoteTable(active) {
-        // if (!active) {
-        //     return;
-        // }
-        // Initialise the counters
-        this.from = 1;
-        this.to = this._config.pageSize;
-
+    renderRemoteTable() {
         if (this.opencgaSession.opencgaClient && this.opencgaSession.study && this.opencgaSession.study.fqn) {
             const filters = {...this.query};
-
-            // // Abort destroying and creating again the grid. The filters have not changed
-            // if (UtilsNew.isNotUndefinedOrNull(this.lastFilters) &&
-            //     JSON.stringify(this.lastFilters) === JSON.stringify(filters)) {
-            //     return;
-            // }
 
             // Store the current filters
             this.lastFilters = {...filters};
@@ -162,11 +151,6 @@ export default class OpencgaFamilyGrid extends LitElement {
                 },
                 responseHandler: response => {
                     const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
-                    this.from = result.from || this.from;
-                    this.to = result.to || this.to;
-                    this.numTotalResultsText = result.numTotalResultsText || this.numTotalResultsText;
-                    this.approximateCountResult = result.approximateCountResult;
-                    this.requestUpdate();
                     return result.response;
                 },
                 onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
@@ -197,11 +181,6 @@ export default class OpencgaFamilyGrid extends LitElement {
                     this.gridCommons.onLoadSuccess(data, 1);
                 },
                 onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse),
-                onPageChange: (page, size) => {
-                    const result = this.gridCommons.onPageChange(page, size);
-                    this.from = result.from || this.from;
-                    this.to = result.to || this.to;
-                },
                 onPostBody: (data) => {
                     // Add tooltips
                     this.catalogUiUtils.addTooltip("div.phenotypesTooltip", "Phenotypes");
@@ -335,44 +314,8 @@ export default class OpencgaFamilyGrid extends LitElement {
         }
     }
 
-    disordersFormatter(value, row) {
-        if (UtilsNew.isNotEmpty(value)) {
-            let disordersHtml = "<div>";
-            for (const disorder of value) {
-                disordersHtml += `<span>${disorder.id}</span><br>`;
-            }
-            disordersHtml += "</div>";
-            return disordersHtml;
-        } else {
-            return "-";
-        }
-    }
-
-    phenotypesFormatter(value, row) {
-        if (value && value.length) {
-            const tooltip = value.map( phenotype => {
-                return `
-                    <div>
-                        ${phenotype.source && phenotype.source.toUpperCase() === "HPO" ? `
-                            <span><a target="_blank" href="https://hpo.jax.org/app/browse/term/${phenotype.id}">${phenotype.id} </a>(${phenotype.status})</span>
-                        ` : `<span>${phenotype.id} (${phenotype.status})</span>`}
-                    </div>`
-            }).join("")
-            return `<a tooltip-title="Phenotypes" tooltip-text='${tooltip}'> ${value.length} term${value.length > 1 ? "s": ""} found </a>`;
-        } else {
-            return "-";
-        }
-    }
-
     customAnnotationFormatter(value, row) {
         // debugger
-    }
-
-    dateFormatter(value, row) {
-        if (UtilsNew.isUndefinedOrNull(value)) {
-            return "-";
-        }
-        return moment(value, "YYYYMMDDHHmmss").format("D MMM YYYY");
     }
 
     _getDefaultColumns() {
@@ -394,15 +337,15 @@ export default class OpencgaFamilyGrid extends LitElement {
                 halign: this._config.header.horizontalAlign
             },
             {
-                title: "Disorders",
-                field: "disorders",
-                formatter: this.disordersFormatter.bind(this),
+                title: "Phenotypes",
+                field: "phenotypes",
+                formatter: this.catalogGridFormatter.phenotypesFormatter,
                 halign: this._config.header.horizontalAlign
             },
             {
-                title: "Phenotypes",
-                field: "phenotypes",
-                formatter: this.phenotypesFormatter.bind(this),
+                title: "Disorders",
+                field: "disorders",
+                formatter: disorders => disorders.map(disorder => this.catalogGridFormatter.disorderFormatter(disorder)).join("<br>"),
                 halign: this._config.header.horizontalAlign
             },
             {
@@ -415,17 +358,17 @@ export default class OpencgaFamilyGrid extends LitElement {
             {
                 title: "Creation Date",
                 field: "creationDate",
-                formatter: this.dateFormatter,
+                formatter: this.catalogGridFormatter.dateFormatter,
                 sortable: true,
                 halign: this._config.header.horizontalAlign,
                 visible: application.appConfig === "opencb"
             },
-            {
-                title: "Status",
-                field: "status.name",
-                halign: this._config.header.horizontalAlign,
-                visible: application.appConfig === "opencb"
-            }
+            // {
+            //     title: "Status",
+            //     field: "status.name",
+            //     halign: this._config.header.horizontalAlign,
+            //     visible: application.appConfig === "opencb"
+            // }
         ];
 
         if (this._config.showSelectCheckbox) {

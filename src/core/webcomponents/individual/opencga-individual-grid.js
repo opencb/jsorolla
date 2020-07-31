@@ -15,8 +15,9 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import GridCommons from "../variant/grid-commons.js";
 import UtilsNew from "../../utilsNew.js";
+import GridCommons from "../variant/grid-commons.js";
+import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import CatalogUIUtils from "../commons/CatalogUIUtils.js";
 import "../commons/opencb-grid-toolbar.js";
 
@@ -86,6 +87,8 @@ export default class OpencgaIndividualGrid extends LitElement {
         // With each property change we must updated config and create the columns again. No extra checks are needed.
         this._config = {...this.getDefaultConfig(), ...this.config};
 
+        this.catalogGridFormatter = new CatalogGridFormatter(this.opencgaSession);
+
         //Config for the grid toolbar
         this.toolbarConfig = {
             columns: this._getDefaultColumns()
@@ -105,13 +108,9 @@ export default class OpencgaIndividualGrid extends LitElement {
     }
 
     renderRemoteTable() {
-        // if (!this.active) {
-        //     return;
-        // }
-
         // Initialise row counters
-        this.from = 1;
-        this.to = this._config.pageSize;
+        // this.from = 1;
+        // this.to = this._config.pageSize;
 
         if (this.opencgaSession.opencgaClient && this.opencgaSession.study && this.opencgaSession.study.fqn) {
             const filters = {...this.query};
@@ -165,11 +164,11 @@ export default class OpencgaIndividualGrid extends LitElement {
                 },
                 responseHandler: response => {
                     const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
-                    this.from = result.from || this.from;
-                    this.to = result.to || this.to;
-                    this.numTotalResultsText = result.numTotalResultsText || this.numTotalResultsText;
-                    this.approximateCountResult = result.approximateCountResult;
-                    this.requestUpdate();
+                    // this.from = result.from || this.from;
+                    // this.to = result.to || this.to;
+                    // this.numTotalResultsText = result.numTotalResultsText || this.numTotalResultsText;
+                    // this.approximateCountResult = result.approximateCountResult;
+                    // this.requestUpdate();
                     return result.response;
                 },
                 onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
@@ -200,11 +199,11 @@ export default class OpencgaIndividualGrid extends LitElement {
                     this.gridCommons.onLoadSuccess(data, 1);
                 },
                 onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse),
-                onPageChange: (page, size) => {
-                    const result = this.gridCommons.onPageChange(page, size);
-                    this.from = result.from || this.from;
-                    this.to = result.to || this.to;
-                },
+                // onPageChange: (page, size) => {
+                //     const result = this.gridCommons.onPageChange(page, size);
+                //     this.from = result.from || this.from;
+                //     this.to = result.to || this.to;
+                // },
                 onPostBody: (data) => {
                     // Add tooltips
                 }
@@ -349,39 +348,6 @@ export default class OpencgaIndividualGrid extends LitElement {
         }
     }
 
-    disordersFormatter(value, row) {
-        if (value) {
-            let disordersHtml = "<div>";
-            for (const disorder of value) {
-                if (disorder.id.startsWith("OMIM")) {
-                    disordersHtml += `<span><a href="https://omim.org/entry/${disorder.id.replace("OMIM:", "")}" target="_blank">${disorder.id}</a></span>`;
-                } else {
-                    disordersHtml += `<span>${disorder.id}</span>`;
-                }
-            }
-            disordersHtml += "</div>";
-            return disordersHtml;
-        } else {
-            return "-";
-        }
-    }
-
-    phenotypesFormatter(value, row) {
-        if (value && value.length) {
-            const tooltip = value.map( phenotype => {
-                return `
-                    <div>
-                        ${phenotype.source && phenotype.source.toUpperCase() === "HPO" ? `
-                            <span><a target="_blank" href="https://hpo.jax.org/app/browse/term/${phenotype.id}">${phenotype.id} </a>(${phenotype.status})</span>
-                        ` : `<span>${phenotype.id} (${phenotype.status})</span>`}
-                    </div>`
-            }).join("")
-            return `<a tooltip-title="Phenotypes" tooltip-text='${tooltip}'> ${value.length} term${value.length > 1 ? "s": ""} found </a>`;
-        } else {
-            return "-";
-        }
-    }
-
     samplesFormatter(value, row) {
         if (UtilsNew.isNotEmptyArray(row.samples)) {
             let samples = "<div>";
@@ -397,13 +363,6 @@ export default class OpencgaIndividualGrid extends LitElement {
 
     customAnnotationFormatter(value, row) {
         // debugger
-    }
-
-    dateFormatter(value, row) {
-        if (UtilsNew.isNotUndefinedOrNull(value)) {
-            return moment(value, "YYYYMMDDHHmmss").format("D MMM YYYY");
-        }
-        return "-";
     }
 
     _getDefaultColumns() {
@@ -439,13 +398,13 @@ export default class OpencgaIndividualGrid extends LitElement {
             {
                 title: "Phenotypes",
                 field: "phenotypes",
-                formatter: this.phenotypesFormatter.bind(this),
+                formatter: this.catalogGridFormatter.phenotypesFormatter,
                 halign: this._config.header.horizontalAlign
             },
             {
                 title: "Disorders",
                 field: "disorders",
-                formatter: this.disordersFormatter.bind(this),
+                formatter: disorders => disorders.map(disorder => this.catalogGridFormatter.disorderFormatter(disorder)).join("<br>"),
                 halign: this._config.header.horizontalAlign
             },
             {
@@ -471,22 +430,22 @@ export default class OpencgaIndividualGrid extends LitElement {
                 title: "Date of Birth",
                 field: "dateOfBirth",
                 sortable: true,
-                formatter: this.dateFormatter,
+                formatter: this.catalogGridFormatter.dateFormatter,
                 halign: this._config.header.horizontalAlign
             },
             {
                 title: "Creation Date",
                 field: "creationDate",
                 sortable: true,
-                formatter: this.dateFormatter,
+                formatter: this.catalogGridFormatter.dateFormatter,
                 halign: this._config.header.horizontalAlign
             },
-            {
-                title: "Status",
-                field: "internal.status",
-                formatter: field => `${field.name} (${UtilsNew.dateFormatter(field.date)})`,
-                halign: this._config.header.horizontalAlign
-            }
+            // {
+            //     title: "Status",
+            //     field: "internal.status",
+            //     formatter: field => `${field.name} (${UtilsNew.dateFormatter(field.date)})`,
+            //     halign: this._config.header.horizontalAlign
+            // }
         ];
 
         if (this._config.showSelectCheckbox) {
