@@ -91,7 +91,6 @@ class VariantInterpreterQcSignature extends LitElement {
             let somaticSample = this.clinicalAnalysis.proband.samples.find(s => s.somatic);
             if (somaticSample) {
                 this.signature = somaticSample.qualityControl?.metrics[0]?.signatures[0];
-                debugger
             }
         }
         this.requestUpdate();

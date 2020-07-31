@@ -162,7 +162,7 @@ export default class VariantInterpreterGrid extends LitElement {
     renderRemoteVariants() {
         if (this.clinicalAnalysis && this._timestamp && this.clinicalAnalysis.interpretation
             && this.clinicalAnalysis.interpretation.attributes.modificationDate === this._timestamp) {
-            console.warn("grid refresh suppressed", this.clinicalAnalysis.interpretation)
+            console.warn("grid refresh suppressed", this.clinicalAnalysis.interpretation);
             return;
         }
 
@@ -229,7 +229,7 @@ export default class VariantInterpreterGrid extends LitElement {
                         })
                         .catch(e => {
                             console.error(e);
-                            console.trace()
+                            console.trace();
                             params.error(e);
                         });
                 },
@@ -481,47 +481,49 @@ export default class VariantInterpreterGrid extends LitElement {
                 let mutationColor = "black";
                 const sampleFormat = row.studies[0].samples[sampleIndex].data;
 
-                // INFO fields
-                const infoFields = [];
+                let file;
                 if (row.studies[0].files) {
                     let fileIdx = row.studies[0].samples[sampleIndex].fileIndex;
-                    let file = row.studies[0].files[fileIdx];
+                    file = row.studies[0].files[fileIdx];
+                }
 
-                    if (file && file.data) {
-                        filter = file.data.FILTER;
-                        qual = Number(file.data.QUAL).toFixed(2);
-                        originalCall = file.call?.variantId ? file.call.variantId : `${row.chromosome}:${row.position}:${row.reference}:${row.alternate}`;
+                // INFO fields
+                const infoFields = [];
+                if (file && file.data) {
+                    filter = file.data.FILTER;
+                    qual = Number(file.data.QUAL).toFixed(2);
+                    originalCall = file.call?.variantId ? file.call.variantId : `${row.chromosome}:${row.position}:${row.reference}:${row.alternate}`;
 
-                        if (filter !== "PASS" || qual < this.field.quality.qual) {
-                            mutationColor = "silver";
-                        }
-
-                        for (let key of Object.keys(file.data)) {
-                            if (key !== "FILTER" && key !== "QUAL") {
-                                const html = `<div class="form-group" style="margin: 0px 2px">
-                                                <label class="col-md-5">${key}</label>
-                                                <div class="col-md-7">${file.data[key]}</div>
-                                              </div>`;
-                                infoFields.push(html);
-                            }
-                        }
-                    } else {
-                        // This can happen when no ref/ref calls are loaded
-                        console.warn("file is undefined");
+                    if (filter !== "PASS" || qual < this.field.quality.qual) {
+                        mutationColor = "silver";
                     }
+
+                    for (let key of Object.keys(file.data)) {
+                        if (key !== "FILTER" && key !== "QUAL") {
+                            const html = `<div class="form-group" style="margin: 0px 2px">
+                                            <label class="col-md-5">${key}</label>
+                                            <div class="col-md-7">${file.data[key]}</div>
+                                          </div>`;
+                            infoFields.push(html);
+                        }
+                    }
+                } else {
+                    // This can happen when no ref/ref calls are loaded
+                    console.warn("file is undefined");
                 }
 
                 // FORMAT fields
                 const formatFields = [];
                 for (const formatField in row.studies[0].sampleDataKeys) {
                     // GT fields is treated separately
-                    // if (row.studies[0].sampleDataKeys[formatField] !== "GT") {
+                    let key = row.studies[0].sampleDataKeys[formatField];
+                    key = key !== "GT" ? key : `${key} (${row.reference}/${row.alternate})`;
+                    let value = sampleFormat[formatField];
                     const html = `<div class="form-group" style="margin: 0px 2px">
-                                            <label class="col-md-5">${row.studies[0].sampleDataKeys[formatField]}</label>
-                                            <div class="col-md-7">${sampleFormat[formatField]}</div>
-                                        </div>`;
+                                                <label class="col-md-5">${key}</label>
+                                                <div class="col-md-7">${value}</div>
+                                            </div>`;
                     formatFields.push(html);
-                    // }
                 }
 
                 // SECONDARY ALTERNATES fields
@@ -626,47 +628,94 @@ export default class VariantInterpreterGrid extends LitElement {
                 } else {
                     let af, ad, dp;
                     let afIndex, adIndex, dpIndex;
-                    let altFreqs = [];
+                    let refFreq, altFreq;
+                    // let altFreqs = [];
+
+                    // Find and get the DP
                     dpIndex = row.studies[0].sampleDataKeys.findIndex(e => e === "DP");
-                    if (dpIndex !== -1) {
-                        dp = sampleFormat[dpIndex];
+                    if (dpIndex === -1) {
+                        dp = file ? file.DP : null;
+                    } else {
+                        dp = Number.parseInt(sampleFormat[dpIndex]);
                     }
 
+                    // Get Allele Frequencies
                     adIndex = row.studies[0].sampleDataKeys.findIndex(e => e === "AD");
-                    if (adIndex !== -1) {
+                    if (adIndex !== -1 && dp >= 0) {
                         ad = sampleFormat[adIndex];
                         let adCounts = ad.split(",");
+                        refFreq = Number.parseInt(adCounts[0]) / dp;
+                        altFreq = Number.parseInt(adCounts[1]) / dp;
+                    } else {
+                        // In cancer data AF has just one single value for the ALT
+                        afIndex = row.studies[0].sampleDataKeys.findIndex(e => e === "AF");
+                        if (afIndex !== -1) {
+                            af = Number.parseFloat(sampleFormat[afIndex]);
+                            refFreq = 1 - af;
+                            altFreq = af;
+                        }
                     }
 
-                    afIndex = row.studies[0].sampleDataKeys.findIndex(e => e === "AF");
-                    if (afIndex !== -1) {
-                        af = sampleFormat[afIndex];
-                        debugger
-                        altFreqs = af.split(",");
-                        let rects = "";
-                        let totalFreq = 0;
-                        for (let altFreq of altFreqs) {
-                            let freq = Number.parseFloat(altFreq);
-                            totalFreq += freq;
-                            rects += `<rect x="20" y="5" width="20" height="${freq * 40}" style="fill: darkred"/>`;
-                        }
-                        if (totalFreq < 1) {
-                            rects += `<rect x="20" y="${totalFreq * 40 + 5}" width="20" height="${(1 - totalFreq) * 40}" style="fill: darkorange"/>`;
-                        }
-                        // style="width: 50px; height: 50px"
-                        resultHtml = `<div class='zygositySampleTooltip' data-tooltip-text='${tooltipText}' style="width: 50px" align="center">
-                                    <svg viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg">
-                                        ${rects}
-                                    </svg>
-                                  </div>`;
+                    if (refFreq >= 0 && altFreq >= 0) {
+                        let refWidth = Math.max(80 * refFreq, 1);
+                        let refColor = refFreq !== 0 ? "blue" : "black";
+                        let altWidth = 80 - refWidth;
+                        let altColor = altFreq !== 0 ? "red" : "black";
+                        let opacity = file.data.FILTER === "PASS" ? 100 : 50;
+                        resultHtml = `<div class="zygositySampleTooltip" data-tooltip-text='${tooltipText}' align="center">
+                                        <table style="width: 80px">
+                                            <tr>
+                                                <td style="width: ${refWidth}px; background-color: ${refColor}; border-right: 1px solid white; opacity: ${opacity}%">&nbsp;</td>
+                                                <td style="width: ${altWidth}px; background-color: ${altColor}; border-right: 1px solid white; opacity: ${opacity}%">&nbsp;</td>
+                                            </tr>
+                                    `;
+                        resultHtml += `</table></div>`;
                     } else {
+                        // Just in case we cannot render freqs, this should never happen.
                         resultHtml = `<div class='zygositySampleTooltip' data-tooltip-text='${tooltipText}' style="width: 70px" align="center">
-                                    <svg viewBox="0 0 70 30" xmlns="http://www.w3.org/2000/svg">
-                                        <circle cx="20" cy="15" r="${leftRadio}" style="stroke: black;fill: ${left}"/>
-                                        <circle cx="50" cy="15" r="${rightRadio}" style="stroke: black;fill: ${right}"/>
-                                    </svg>
-                                  </div>`;
+                                        <svg viewBox="0 0 70 30" xmlns="http://www.w3.org/2000/svg">
+                                            <circle cx="20" cy="15" r="${leftRadio}" style="stroke: black;fill: ${left}"/>
+                                            <circle cx="50" cy="15" r="${rightRadio}" style="stroke: black;fill: ${right}"/>
+                                        </svg>
+                                      </div>`;
                     }
+
+                    // afIndex = row.studies[0].sampleDataKeys.findIndex(e => e === "AF");
+                    // if (afIndex !== -1) {
+                    //     af = sampleFormat[afIndex];
+                    //     debugger
+                    //     altFreqs = af.split(",");
+                    //     let rects = "";
+                    //     let totalFreq = 0;
+                    //     for (let altFreq of altFreqs) {
+                    //         let freq = Number.parseFloat(altFreq);
+                    //         totalFreq += freq;
+                    //         rects += `<rect x="20" y="5" width="20" height="${freq * 40}" style="fill: darkred"/>`;
+                    //     }
+                    //     if (totalFreq < 1) {
+                    //         rects += `<rect x="20" y="${totalFreq * 40 + 5}" width="20" height="${(1 - totalFreq) * 40}" style="fill: darkorange"/>`;
+                    //     }
+                    //
+                    //     // style="width: 50px; height: 50px"
+                    //     resultHtml = `<div class='zygositySampleTooltip' data-tooltip-text='${tooltipText}' style="width: 50px" align="center">
+                    //                 <svg viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg">
+                    //                     ${rects}
+                    //                 </svg>
+                    //               </div>`;
+                    //
+                    //     let refWidth = Math.max(80 * (1 - totalFreq), 1);
+                    //     // let refColor =
+                    //     // let altWidth = 20 * Number.parseFloat(altFreqs[0]);
+                    //     let altWidth = 80 - refWidth;
+                    //     debugger
+                    //     resultHtml = `<div class="zygositySampleTooltip" data-tooltip-text='${tooltipText}' align="center">
+                    //                     <table style="width: 80px">
+                    //                         <tr>
+                    //                             <td style="width: ${refWidth}px; background-color: blue; border-right: 1px solid white;">&nbsp;</td>
+                    //                             <td style="width: ${altWidth}px; background-color: red; border-right: 1px solid white;">&nbsp;</td>
+                    //                         </tr>
+                    //                 `;
+                    //     resultHtml += `</table></div>`;
                 }
             }
         }
@@ -774,7 +823,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     ${clinicalSignificanceHtml}
                 </div>`;
     }
-    
+
     checkFormatter(value, row, index) {
         let checked = "";
         if (this.checkedVariants && this.checkedVariants.has(row.id)) {
@@ -831,7 +880,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     halign: "center"
                 },
                 {
-                    title: "Variant Stats <span class='pop-preq-info-icon'><i class='fa fa-info-circle' style='color: #337ab7' aria-hidden='true'></i></span>",
+                    title: "Variant Allele Frequency <span class='pop-preq-info-icon'><i class='fa fa-info-circle' style='color: #337ab7' aria-hidden='true'></i></span>",
                     field: "frequencies",
                     rowspan: 1,
                     colspan: 1,
@@ -1111,9 +1160,9 @@ export default class VariantInterpreterGrid extends LitElement {
         if (action === "download") {
             UtilsNew.downloadData([JSON.stringify(row, null, "\t")], row.id + ".json");
         }
-/*        if (action === "") {
-            this.onReviewClick(e)
-        }*/
+        /*        if (action === "") {
+                    this.onReviewClick(e)
+                }*/
 
     }
 
