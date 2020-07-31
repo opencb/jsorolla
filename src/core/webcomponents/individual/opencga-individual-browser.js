@@ -229,40 +229,7 @@ export default class OpencgaIndividualBrowser extends LitElement {
                     multiSelection: true
                 },
                 detail: {
-                    title: "Individual",
-                    showTitle: true,
-                    items: [
-                        {
-                            id: "individual-view",
-                            name: "Overview",
-                            active: true,
-                            render: (individual, active, opencgaSession) => {
-                                return html`<opencga-individual-view .individual="${individual}" .opencgaSession="${opencgaSession}"></opencga-individual-view>`;
-                            }
-                        },
-                        {
-                            id: "individual-inferred-sex",
-                            name: "Inferred Sex",
-                            render: (individual, active, opencgaSession) => {
-                                return html`<opencga-individual-inferred-sex-view .individual="${individual}" .opencgaSession="${opencgaSession}"></opencga-individual-inferred-sex-view>`;
-                            }
-                        },
-                        {
-                            id: "individual-mendelian-error",
-                            name: "Mendelian Error",
-                            render: (individual, active, opencgaSession) => {
-                                return html`<opencga-individual-mendelian-errors-view .individual="${individual}" .opencgaSession="${opencgaSession}"></opencga-individual-mendelian-errors-view>`;
-                            }
-                        },
-                        {
-                            id: "json-view",
-                            name: "JSON Data",
-                            mode: "development",
-                            render: (individual, active, opencgaSession) => {
-                                return html`<json-viewer .data="${individual}"></json-viewer>`;
-                            }
-                        }
-                    ]
+                    /* configuration in opencga-individual-detail */
                 }
             },
             aggregation: {

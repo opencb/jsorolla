@@ -774,7 +774,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     ${clinicalSignificanceHtml}
                 </div>`;
     }
-    
+
     checkFormatter(value, row, index) {
         let checked = "";
         if (this.checkedVariants && this.checkedVariants.has(row.id)) {
@@ -1243,23 +1243,10 @@ export default class VariantInterpreterGrid extends LitElement {
                 .variant-link-dropdown:hover .dropdown-menu {
                     display: block;
                 }
-    
-                .detail-view :hover {
-                    background-color: white;
-                }
-    
-                .detail-view-row :hover {
-                    background-color: #f5f5f5;
-                }
-    
+                
                 .qtip-custom-class .qtip-content {
                     font-size: 12px;
                 }
-                
-                /*quickfix for loading-spinner in bootstrap table
-                .fixed-table-body{
-                    min-height: 20vh;
-                }*/ 
                 
                 .check-variant {
                     transform: scale(1.5);
