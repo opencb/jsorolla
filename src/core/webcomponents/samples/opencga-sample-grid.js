@@ -147,7 +147,7 @@ export default class OpencgaSampleGrid extends LitElement {
                         limit: params.data.limit,
                         skip: params.data.offset || 0,
                         count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
-                        //include: "id,phenotypes,internal,individualId,creationDate",
+                        exclude: "qualityControl",
                         ...filters
                     };
                     // Store the current filters
@@ -237,26 +237,6 @@ export default class OpencgaSampleGrid extends LitElement {
         this.gridCommons.onColumnChange(e);
     }
 
-    individualFormatter(value, row) {
-        return row?.individualId ?? "-";
-    }
-
-    fileFormatter(values, row) {
-        return values?.length
-            ? values
-                .filter(fileId => fileId.endsWith("vcf") || fileId.endsWith("vcf.gz") || fileId.endsWith("bam"))
-                .map(fileId => {
-                    let fields = fileId.split(":");
-                    return fields[fields.length - 1];
-                })
-                .join("<br>")
-            : "-";
-    }
-
-    cellTypeFormatter(value, row) {
-        return (row.somatic) ? "Somatic" : "Germline";
-    }
-
     _getDefaultColumns() {
 
         let _columns = [
@@ -266,12 +246,12 @@ export default class OpencgaSampleGrid extends LitElement {
             },
             {
                 title: "Individual ID",
-                formatter: this.individualFormatter
+                formatter: (value, row) => row?.individualId ?? "-"
             },
             {
-                title: "Files",
+                title: "Files (VCF, BAM)",
                 field: "fileIds",
-                formatter: this.fileFormatter
+                formatter: fileIds => this.catalogGridFormatter.fileFormatter(fileIds, ["vcf", "vcf.gz", "bam"])
             },
             {
                 title: "Collection Method",
@@ -283,7 +263,7 @@ export default class OpencgaSampleGrid extends LitElement {
             },
             {
                 title: "Cell Line",
-                formatter: this.cellTypeFormatter
+                formatter: (value, row) => row.somatic ? "Somatic" : "Germline"
             },
             {
                 title: "Creation Date",

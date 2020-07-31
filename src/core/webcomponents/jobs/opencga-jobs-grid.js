@@ -97,7 +97,7 @@ export default class OpencgaJobsGrid extends LitElement {
         this.catalogGridFormatter = new CatalogGridFormatter(this.opencgaSession);
 
         this.toolbarConfig = {
-            columns: this._initTableColumns().filter( col => col.field)
+            columns: this._initTableColumns().filter(col => col.field)
         };
         this.renderTable();
     }
@@ -145,7 +145,7 @@ export default class OpencgaJobsGrid extends LitElement {
                 sortName: "Creation",
                 sortOrder: "asc",
                 order: "AAA",
-                formatLoadingMessage: () =>"<div><loading-spinner></loading-spinner></div>",
+                formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
                 ajax: params => {
                     const filters = {
                         study: this.opencgaSession.study.fqn,
@@ -155,12 +155,12 @@ export default class OpencgaJobsGrid extends LitElement {
                         order: -1,
                         limit: params.data.limit || this.table.bootstrapTable("getOptions").pageSize,
                         skip: params.data.offset || 0,
-                        include: "id,userId,tool,priority,tags,creationDate,visited,dependsOn,outDir,internal,execution,params,input",
+                        include: "id,userId,tool,priority,tags,creationDate,visited,dependsOn,outDir,internal,execution,params,input,output",
                         ...this.query
                     };
                     this.opencgaSession.opencgaClient.jobs().search(filters)
-                        .then( res => params.success(res))
-                        .catch( e => {
+                        .then(res => params.success(res))
+                        .catch(e => {
                             console.error(e);
                             params.error(e);
                         });
@@ -282,17 +282,25 @@ export default class OpencgaJobsGrid extends LitElement {
                     ` : "-"
             },
             {
-                title: "Tags",
-                field: "tags",
-                formatter: v => v && v.length ? v.map( tag => `<span class="badge badge-secondary">${tag}</span>`).join(" ") : "-"
+                title: "Output Files",
+                field: "output",
+                formatter: (value) => {
+                    let fileIds = value?.map(file => file.name);
+                    return this.catalogGridFormatter.fileFormatter(fileIds);
+                }
             },
+            // {
+            //     title: "Tags",
+            //     field: "tags",
+            //     formatter: v => v && v.length ? v.map( tag => `<span class="badge badge-secondary">${tag}</span>`).join(" ") : "-"
+            // },
             {
                 title: "Running time",
                 field: "execution",
                 formatter: execution => {
                     const pad2 = int => int.toString().padStart(2, "0");
                     if (execution?.start) {
-                        const duration = moment.duration((execution.end ? execution.end : moment().valueOf()) - execution.start)
+                        const duration = moment.duration((execution.end ? execution.end : moment().valueOf()) - execution.start);
                         const [seconds, minutes, hours] = [duration.seconds(), duration.minutes(), duration.hours()];
                         if (hours > 0) {
                             return `${pad2(hours)}:${pad2(minutes)}:${pad2(seconds)}`;
@@ -434,7 +442,7 @@ export default class OpencgaJobsGrid extends LitElement {
                     if (e.detail.option.toLowerCase() === "tab") {
                         dataString = [
                             ["Id", "Tool", "Priority", "Tags", "Creation date", "Status", "Visited"].join("\t"),
-                            ...result.map( _ => [
+                            ...result.map(_ => [
                                 _.id,
                                 _.tool.id,
                                 _.priority,
@@ -461,14 +469,14 @@ export default class OpencgaJobsGrid extends LitElement {
                     a.download = this.opencgaSession.study.alias + "[" + new Date().toISOString() + "]" + extension;
                     document.body.appendChild(a);
                     a.click();
-                    setTimeout(function() {
+                    setTimeout(function () {
                         document.body.removeChild(a);
                     }, 0);
                 } else {
                     console.error("Error in result format");
                 }
             })
-            .then(function() {
+            .then(function () {
                 // this.downloadRefreshIcon.css("display", "none");
                 // this.downloadIcon.css("display", "inline-block");
             });
@@ -502,7 +510,7 @@ export default class OpencgaJobsGrid extends LitElement {
                                     @columnChange="${this.onColumnChange}"
                                     @download="${this.onDownload}">
                 </opencb-grid-toolbar>`
-            : null }
+            : null}
             <div>
                 <table id="${this.gridId}"></table>
             </div>

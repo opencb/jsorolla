@@ -59,6 +59,39 @@ export default class CatalogGridFormatter {
         }
     }
 
+    fileFormatter(fileIds, extensions) {
+        if (fileIds && fileIds.length > 0) {
+            let results = [];
+            for (let fileId of fileIds) {
+                if (extensions && extensions.length > 0) {
+                    for (let extension of extensions) {
+                        if (fileId.endsWith(extension)) {
+                            let fields = fileId.split(":");
+                            results.push(fields[fields.length - 1]);
+                            break
+                        }
+                    }
+                } else {
+                    let fields = fileId.split(":");
+                    results.push(fields[fields.length - 1]);
+                }
+            }
+            return results.join("<br>")
+        } else {
+            return "-";
+        }
+        // return values?.length
+        //     ? values
+        //         // .filter(fileId => fileId.endsWith("vcf") || fileId.endsWith("vcf.gz") || fileId.endsWith("bam"))
+        //         .filter(fileId => fileId.endsWith("vcf") || fileId.endsWith("vcf.gz") || fileId.endsWith("bam"))
+        //         .map(fileId => {
+        //             let fields = fileId.split(":");
+        //             return fields[fields.length - 1];
+        //         })
+        //         .join("<br>")
+        //     : "-";
+    }
+
     dateFormatter(value, row) {
         if (value) {
             return moment(value, "YYYYMMDDHHmmss").format("D MMM YYYY");

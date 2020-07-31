@@ -173,30 +173,6 @@ export default class OpencgaSampleView extends LitElement {
                             field: "description"
                         }
                     ]
-                },
-                {
-                    title: "Phenotypes",
-                    elements: [
-                        {
-                            name: "List of phenotypes",
-                            field: "phenotypes",
-                            type: "table",
-                            display: {
-                                columns: [
-                                    {
-                                        name: "ID", field: "id"
-                                    },
-                                    {
-                                        name: "Name", field: "name"
-                                    },
-                                    {
-                                        name: "Source", field: "source"
-                                    }
-                                ],
-                                defaultValue: "No phenotypes found"
-                            }
-                        }
-                    ]
                 }
             ]
         };
