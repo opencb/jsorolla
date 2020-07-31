@@ -105,21 +105,23 @@ export default class OpencgaTranscriptView extends LitElement {
             }
         }
 
-        let query = {};
-        let _this = this;
         if (UtilsNew.isNotEmpty(this.transcript)) {
-            query["annot-xref"] = this.transcript;
-            this.cellbaseClient.getTranscriptClient(this.transcript, 'info', {exclude: "xrefs, exons.sequence"}, {})
-                .then(response => {
-                    this.transcriptObj = response.response[0].result[0];
+            this.query = {
+                "annot-xref": this.transcript
+            };
+            //this.requestUpdate();
+            this.cellbaseClient.getTranscriptClient(this.transcript, "info", {exclude: "xrefs, exons.sequence"}, {})
+                .then(restResponse => {
+                    this.transcriptObj = restResponse.getResult(0);
                     this.requestUpdate();
                     // FIXME We need to improve how the transcript is rendered
                     // let svg = _this._createSvgTranscript(_this.transcriptObj);
                     // let querySelector = PolymerUtils.getElementById(_this._prefix + "TranscriptSvg");
                     // querySelector.appendChild(svg);
-                });
-            this.query = query;
-            this.requestUpdate();
+                }).catch(e => {
+                    console.error(e);
+            });
+
         }
     }
 
@@ -303,14 +305,16 @@ export default class OpencgaTranscriptView extends LitElement {
 
                 <br>
                 <br>
-                <opencga-variant-grid .project="${this.project}"
-                                      .study="${this.study}"
+                <opencga-variant-grid .opencgaSession="${this.opencgaSession}"
+                                      .query="${this.query}"
                                       .populationFrequencies="${this.populationFrequencies}"
                                       .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
                                       .consequenceTypes="${this.consequenceTypes}"
-                                      .query="${this.query}"
-                                      .variant="${this.variant}"
-                                      @selectvariant="${this.onSelectVariant}">
+                                      
+                                      .config="${this.config}"
+                                                  
+                                                  
+                                      @selectrow="${this.onSelectVariant}">
                 </opencga-variant-grid>
 
                 ${this.checkVariant(this.variant) ? html`
@@ -334,15 +338,17 @@ export default class OpencgaTranscriptView extends LitElement {
                 `}
             </div>
 
-            <div role="tabpanel" class="tab-pane" id="${this._prefix}Protein">
-                <variant-protein-view .opencgaClient="${this.opencgaClient}"
-                                      .cellbaseClient="${this.cellbaseClient}"
-                                      .project="${this.project}"
-                                      .study="${this.study}"
-                                      .ids="${this.transcriptObj.id}"
-                                      .config="${this.config.protein}">
-                </variant-protein-view>
-            </div>
+            ${false ? html`
+                <div role="tabpanel" class="tab-pane" id="${this._prefix}Protein">
+                    <variant-protein-view .opencgaClient="${this.opencgaClient}"
+                                          .cellbaseClient="${this.cellbaseClient}"
+                                          .project="${this.project}"
+                                          .study="${this.study}"
+                                          .ids="${this.transcriptObj.id}"
+                                          .config="${this.config.protein}">
+                    </variant-protein-view>
+                </div>
+            ` : null}
         </div>
         `;
     }

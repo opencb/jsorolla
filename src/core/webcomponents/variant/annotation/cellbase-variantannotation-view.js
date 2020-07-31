@@ -196,7 +196,7 @@ export default class CellbaseVariantAnnotationView extends LitElement {
                 ` : null}
 
     ${this.variantAnnotation ? html`
-        <div id="${this._prefix}Div" class="col-xs-10">
+        <div id="${this._prefix}Div" class="">
             <div class="tab-content">
                 <!--Summary Tab-->
                 <div role="tabpanel" class="tab-pane active" id="${this._prefix}VariantAnnotationSummary">
@@ -209,9 +209,7 @@ export default class CellbaseVariantAnnotationView extends LitElement {
                 <!--TODO there is no such component
                 Consequence types Tab-->
                 <div role="tabpanel" class="tab-pane" id="${this._prefix}VariantAnnotationConsequenceTypes">
-                
-                    <variant-consequence-type-view .consequenceTypes="${this.variantAnnotation.consequenceTypes}" .hashFragmentCredentials="${this.hashFragmentCredentials}">
-                    </variant-consequence-type-view>
+                    <variant-consequence-type-view  .consequenceTypes="${this.variantAnnotation.consequenceTypes}" .active="${true}"></variant-consequence-type-view>
                 </div>
                 <!--Population frequency Tab-->
                 <div role="tabpanel" class="tab-pane" id="${this._prefix}VariantAnnotationPopulationFrequencies">

@@ -82,6 +82,7 @@ export default class FeatureFilter extends LitElement {
 
     getDefaultConfig() {
         return {
+            addButton: false,
             fields: item => ({
                 name: item.name
             }),

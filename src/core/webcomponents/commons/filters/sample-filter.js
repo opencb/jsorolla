@@ -215,13 +215,6 @@ export default class SampleFilter extends LitElement {
         }
 
         return html`
-            <style>
-                .sample-genotype-table .badge {
-                    background-color: #b9b9b9;
-                    margin: 0 4px 2px 0;
-                }
-            </style>
-            
             <div>
                 ${this._config.text 
                     ? html`<div style="padding: 5px 0px">${this._config.text}</div>` 
@@ -258,7 +251,7 @@ export default class SampleFilter extends LitElement {
                                                     <span style="color: ${this.clinicalAnalysis.proband && individual.id === this.clinicalAnalysis.proband.id ? "darkred" : "black"}">${individual.samples[0].id}</span>
                                                 </td>
                                                 <td>
-                                                    ${this.sampleGenotypeMap[individual.samples[0].id] ? this.sampleGenotypeMap[individual.samples[0].id].map(gt => html`<span class="badge">${gt}</span>`) : "any"}
+                                                    ${this.sampleGenotypeMap[individual.samples[0].id] ? this.sampleGenotypeMap[individual.samples[0].id].map(gt => html`<span class="badge badge-info">${gt}</span>`) : "any"}
                                                 </td>
                                             </tr>
                                         `;

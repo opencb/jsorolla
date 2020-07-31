@@ -58,6 +58,7 @@ export default class JobsIdAutocomplete extends LitElement {
 
     getDefaultConfig() {
         return {
+            addButton: false,
             searchOn: "id",
             fields: item => ({
                 name: item.id

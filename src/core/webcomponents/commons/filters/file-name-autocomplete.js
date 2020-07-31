@@ -59,6 +59,7 @@ export default class FileNameAutocomplete extends LitElement {
 
     getDefaultConfig() {
         return {
+            addButton: false,
             // template: item => item.id + "<p class=\"dropdown-item-extra\"><label>Individual ID</label>" + (item.attributes && item.attributes.OPENCGA_INDIVIDUAL ? item.attributes.OPENCGA_INDIVIDUAL.id : "") + "</p>",
             placeholder: "eg. samples.tsv, phenotypes.vcf...",
             fields: item => ({

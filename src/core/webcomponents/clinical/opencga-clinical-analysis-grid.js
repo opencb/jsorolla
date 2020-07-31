@@ -272,21 +272,15 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
         if (UtilsNew.isEmpty(value)) {
             return "<span>-</span>";
         } else {
-            const styles = ["color: white", "border-radius: 5px", "padding: 3px", "width: 65px", "display: block",
-                "margin: auto"];
             switch (value) {
                 case "URGENT":
-                    styles.push("background: #ef6363", "border: 1px solid red");
-                    return "<span style='color: #ef6363; font-weight: bold'>Urgent</span>";
+                    return "<span class='badge badge-danger'>Urgent</span>";
                 case "HIGH":
-                    styles.push("background: #ffb42b", "border: 1px solid orange");
-                    return "<span style='color: #ffb42b; font-weight: bold'>High</span>";
+                    return "<span class='badge badge-warning'>High</span>";
                 case "MEDIUM":
-                    styles.push("background: #237afb", "border: 1px solid blue");
-                    return "<span style='color: #237afb; font-weight: bold'>Medium</span>";
+                    return "<span class='badge'>Medium</span>";
                 case "LOW":
-                    styles.push("background: #1bb31b", "border: 1px solid green");
-                    return "<span style='color: #1bb31b; font-weight: bold'>Low</span>";
+                    return "<span class='badge badge-light'>Low</span>";
                 default:
                     return "<span>-</span>";
             }

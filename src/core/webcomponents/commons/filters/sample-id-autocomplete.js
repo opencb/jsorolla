@@ -58,6 +58,7 @@ export default class SampleIdAutocomplete extends LitElement {
 
     getDefaultConfig() {
         return {
+            addButton: false,
             fields: item => ({
                 name: item.id,
                 "Individual ID": item?.attributes?.OPENCGA_INDIVIDUAL?.id

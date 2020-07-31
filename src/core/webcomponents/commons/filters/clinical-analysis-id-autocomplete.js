@@ -58,6 +58,7 @@ export default class CohortIdAutocomplete extends LitElement {
 
     getDefaultConfig() {
         return {
+            addButton: false,
             fields: item => ({
                 name: item.id
             }),

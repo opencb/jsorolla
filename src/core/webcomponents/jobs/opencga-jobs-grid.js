@@ -295,20 +295,13 @@ export default class OpencgaJobsGrid extends LitElement {
             //     formatter: v => v && v.length ? v.map( tag => `<span class="badge badge-secondary">${tag}</span>`).join(" ") : "-"
             // },
             {
-                title: "Running time",
+                title: "Runtime",
                 field: "execution",
                 formatter: execution => {
-                    const pad2 = int => int.toString().padStart(2, "0");
                     if (execution?.start) {
                         const duration = moment.duration((execution.end ? execution.end : moment().valueOf()) - execution.start);
-                        const [seconds, minutes, hours] = [duration.seconds(), duration.minutes(), duration.hours()];
-                        if (hours > 0) {
-                            return `${pad2(hours)}:${pad2(minutes)}:${pad2(seconds)}`;
-                        }
-                        if (minutes > 0) {
-                            return `${pad2(minutes)}:${pad2(seconds)}`;
-                        }
-                        return `00:${pad2(seconds)}`;
+                        const f = moment.utc(duration.asMilliseconds()).format("HH:mm:ss")
+                        return `<a tooltip-title="Runtime"  tooltip-text="${f}"> ${duration.humanize()} </a>`
                     }
                 }
 

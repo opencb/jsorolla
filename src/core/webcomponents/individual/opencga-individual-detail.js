@@ -107,7 +107,7 @@ export default class OpencgaIndividualDetail extends LitElement {
                         }
                         return html`
                             <p class="alert"> <i class="fas fa-info-circle align-middle"></i> Clinical Analysis in which the individual is the proband.</p>
-                            <opencga-clinical-analysis-grid .config=${config} .query="${{proband: individual.id}}" .opencgaSession="${opencgaSession}"></opencga-clinical-analysis-grid>`;
+                            <opencga-clinical-analysis-grid .config=${config} .query="${{"family.members": individual.id}}" .opencgaSession="${opencgaSession}"></opencga-clinical-analysis-grid>`;
                     }
                 },
                 {

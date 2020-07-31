@@ -75,13 +75,12 @@ export default class OpencgaVariantGrid extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
-
         this.downloadRefreshIcon = $("#" + this._prefix + "DownloadRefresh");
         this.downloadIcon = $("#" + this._prefix + "DownloadIcon");
+        this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
     firstUpdated(_changedProperties) {
-        this._config = {...this.getDefaultConfig(), ...this.config};
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
         this.table = this.querySelector("#" + this.gridId);
     }
@@ -925,10 +924,6 @@ export default class OpencgaVariantGrid extends LitElement {
     render() {
         return html`
             <style>
-                #opencga-variant-grid {
-                    font-size: 12px;
-                }
-                
                 span.redText, span.orangeText {
                     margin-left: 0;
                 }
@@ -951,10 +946,7 @@ export default class OpencgaVariantGrid extends LitElement {
             </style>
             
             <div>
-                <opencb-grid-toolbar    .from="${this.from}"
-                                        .to="${this.to}"
-                                        .numTotalResultsText="${this.numTotalResultsText}"
-                                        .config="${this.toolbarConfig}"
+                <opencb-grid-toolbar    .config="${this.toolbarConfig}"
                                         @columnChange="${this.onColumnChange}"
                                         @download="${this.onDownload}"
                                         @sharelink="${this.onShare}">

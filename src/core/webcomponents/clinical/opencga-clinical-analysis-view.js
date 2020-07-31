@@ -18,6 +18,7 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
 import "../commons/view/data-form.js";
 import "../commons/view/pedigree-view.js";
+import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 
 
 export default class OpencgaClinicalAnalysisView extends LitElement {
@@ -57,6 +58,7 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
         super.connectedCallback();
 
         this._config = {...this.getDefaultConfig(), ...this.config};
+        this.catalogGridFormatter = new CatalogGridFormatter(this.opencgaSession);
     }
 
     updated(changedProperties) {
@@ -182,15 +184,7 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                             type: "custom",
                             display: {
                                 labelWidth: 3,
-                                render: disorder => {
-                                    if(disorder) {
-                                        let id;
-                                        if (disorder.id.startsWith("OMIM:")) {
-                                            id = html`<a href="https://omim.org/entry/${disorder.id.split(":")[1]}" target="_blank">${disorder.id}</a>`;
-                                        }
-                                        return html`${disorder.name || "-"} (${id})`
-                                    } else return "-";
-                                }
+                                render: disorder => UtilsNew.renderHTML(this.catalogGridFormatter.disorderFormatter(disorder))
                             }
                         },
                         {
@@ -211,7 +205,7 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                                 labelWidth: 3,
                                 contentLayout: "horizontal",
                                 render: field => {
-                                    return html`<span class="badge">${field}</span>`
+                                    return html`<span class="badge badge-secondary">${field}</span>`
                                 }
                             }
                         },

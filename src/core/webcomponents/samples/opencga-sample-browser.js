@@ -123,14 +123,13 @@ export default class OpencgaSampleBrowser extends LitElement {
                                 description: ""
                             },
                             {
-                                id: "individual",
+                                id: "individualId",
                                 name: "Individual ID",
                                 placeholder: "LP-1234, LP-4567...",
-                                description: "",
-                                showList: false
+                                description: ""
                             },
                             {
-                                id: "file",
+                                id: "fileIds",
                                 name: "File Name",
                                 placeholder: "file.vcf, ...",
                                 description: ""

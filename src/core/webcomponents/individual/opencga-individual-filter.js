@@ -207,7 +207,7 @@ export default class OpencgaIndividualFilter extends LitElement {
                 </div>
             ` : null}
 
-        <div class="panel-group" id="${this._prefix}Accordion" role="tablist" aria-multiselectable="true" style="padding-top: 20px">
+        <div class="panel-group" id="${this._prefix}Accordion" role="tablist" aria-multiselectable="true">
 
             <!-- Individual field attributes -->
                 <div class="">            
