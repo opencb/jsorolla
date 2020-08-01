@@ -141,11 +141,11 @@ export default class OpencgaIndividualGrid extends LitElement {
                 detailView: this._config.detailView,
                 detailFormatter: this._config.detailFormatter,
                 gridContext: this,
-                formatLoadingMessage: () =>"<div><loading-spinner></loading-spinner></div>",
+                formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
 
                 ajax: params => {
-                    console.log("params")
-                    console.log(params)
+                    console.log("params");
+                    console.log(params);
                     const _filters = {
                         study: this.opencgaSession.study.fqn,
                         limit: params.data.limit,
@@ -156,8 +156,8 @@ export default class OpencgaIndividualGrid extends LitElement {
                     // Store the current filters
                     this.lastFilters = {..._filters};
                     this.opencgaSession.opencgaClient.individuals().search(_filters)
-                        .then( res => params.success(res))
-                        .catch( e => {
+                        .then(res => params.success(res))
+                        .catch(e => {
                             console.error(e);
                             params.error(e);
                         });
@@ -233,7 +233,7 @@ export default class OpencgaIndividualGrid extends LitElement {
             detailFormatter: this.detailFormatter,
 
             gridContext: this,
-            formatLoadingMessage: () =>"<div><loading-spinner></loading-spinner></div>",
+            formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
 
             onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
             onPageChange: (page, size) => {
@@ -367,8 +367,8 @@ export default class OpencgaIndividualGrid extends LitElement {
 
     _getDefaultColumns() {
         // Check column visibility
-        const customAnnotationVisible = (UtilsNew.isNotUndefinedOrNull(this._config.customAnnotations) &&
-            UtilsNew.isNotEmptyArray(this._config.customAnnotations.fields));
+        // const customAnnotationVisible = (UtilsNew.isNotUndefinedOrNull(this._config.customAnnotations) &&
+        //     UtilsNew.isNotEmptyArray(this._config.customAnnotations.fields));
 
         let _columns = [
             {
@@ -419,13 +419,13 @@ export default class OpencgaIndividualGrid extends LitElement {
                 field: "lifeStatus",
                 halign: this._config.header.horizontalAlign
             },
-            {
-                title: "Custom Annotations",
-                field: "customAnnotation",
-                formatter: this.customAnnotationFormatter,
-                visible: customAnnotationVisible,
-                halign: this._config.header.horizontalAlign
-            },
+            // {
+            //     title: "Custom Annotations",
+            //     field: "customAnnotation",
+            //     formatter: this.customAnnotationFormatter,
+            //     visible: customAnnotationVisible,
+            //     halign: this._config.header.horizontalAlign
+            // },
             {
                 title: "Date of Birth",
                 field: "dateOfBirth",
@@ -462,73 +462,30 @@ export default class OpencgaIndividualGrid extends LitElement {
     }
 
     onDownload(e) {
-        // let urlQueryParams = this._getUrlQueryParams();
-        // let params = urlQueryParams.queryParams;
-        // console.log(this.opencgaSession);
-        const params = {
+        const query = {
             ...this.query,
             study: this.opencgaSession.study.fqn,
-            limit: 1000,
             skip: 0,
-            includeIndividual: true,
+            limit: 1000,
             count: false
-
         };
 
-        this.opencgaSession.opencgaClient.individuals().search(params)
+        this.opencgaSession.opencgaClient.individuals().search(query)
             .then(response => {
-                const result = response.response[0].result;
-                console.log(result);
-                let dataString = [];
-                let mimeType = "";
-                let extension = "";
-                if (result) {
+                const results = response.responses[0].results;
+                if (results) {
                     // Check if user clicked in Tab or JSON format
-                    if (e.detail.option.toLowerCase() === "tab") {
-                        dataString = [
-                            ["Individual", "Samples", "Sex", "Father", "Mother", "Disorders", "Phenotypes", "Life Status", "Date of Birth", "Creation Date", "Status"].join("\t"),
-                            ...result.map( _ => [
-                                _.id,
-                                _.samples ? _.samples.map( _ => _.id).join(",") : "",
-                                _.sex,
-                                _.father.id,
-                                _.mother.id,
-                                _.disorders ? _.disorders.map( _ => _.id).join(",") : "",
-                                _.phenotypes ? _.phenotypes.map( _ => _.id).join(",") : "",
-                                _.lifeStatus,
-                                _.dateOfBirth,
-                                _.creationDate,
-                                _.status.name
-                            ].join("\t"))];
-                        // console.log(dataString);
-                        mimeType = "text/plain";
-                        extension = ".txt";
+                    if (e.detail.option.toUpperCase() === "TAB") {
+                        let fields = ["id", "samples.id", "father.id", "mother.id", "disorders.id", "phenotypes.id", "sex", "lifeStatus", "dateOfBirth", "creationDate"];
+                        let data = UtilsNew.toTableString(results, fields);
+                        UtilsNew.downloadData(data, this.opencgaSession.study.id + ".txt", "text/plain");
                     } else {
-                        for (const res of result) {
-                            dataString.push(JSON.stringify(res, null, "\t"));
-                        }
-                        mimeType = "application/json";
-                        extension = ".json";
+                        let json = results.map(res => JSON.stringify(res, null, "\t"));
+                        UtilsNew.downloadData(json, this.opencgaSession.study.id + ".json", "application/json");
                     }
-
-                    // Build file and anchor link
-                    const data = new Blob([dataString.join("\n")], {type: mimeType});
-                    const file = window.URL.createObjectURL(data);
-                    const a = document.createElement("a");
-                    a.href = file;
-                    a.download = this.opencgaSession.study.alias + extension;
-                    document.body.appendChild(a);
-                    a.click();
-                    setTimeout(function() {
-                        document.body.removeChild(a);
-                    }, 0);
                 } else {
                     console.error("Error in result format");
                 }
-            })
-            .then(function() {
-                // this.downloadRefreshIcon.css("display", "none");
-                // this.downloadIcon.css("display", "inline-block");
             });
     }
 
@@ -557,14 +514,14 @@ export default class OpencgaIndividualGrid extends LitElement {
 
     render() {
         return html`
-            ${this._config.showToolbar 
-                ? html`
+            ${this._config.showToolbar
+            ? html`
                     <opencb-grid-toolbar .config="${this.toolbarConfig}"
                                          @download="${this.onDownload}"
                                          @columnChange="${this.onColumnChange}">
-                    </opencb-grid-toolbar>` 
-                : null
-            }
+                    </opencb-grid-toolbar>`
+            : null
+        }
     
             <div id="${this._prefix}GridTableDiv">
                 <table id="${this._prefix}IndividualBrowserGrid"></table>

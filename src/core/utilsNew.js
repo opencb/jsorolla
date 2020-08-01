@@ -206,13 +206,78 @@ export default class UtilsNew {
         return "-";
     }
 
-    static downloadData(dataString, filename, mimeType = "application/json") {
+
+
+    /*
+     * This function creates a table (rows and columns) a given Object or array of Objects using the fields provided.
+     * Id fields is not defined or empty then it uses the Object keys. Fields can contain arrays and nested arrays.
+     */
+    static toTableString(objects, fields) {
+        let table = [];
+        if (objects) {
+            // Make sure objects is an array
+            if (!Array.isArray(objects)) {
+                objects = [objects];
+            }
+
+            // Use Object keys as default
+            if (!fields || fields.length === 0) {
+                fields = Object.keys(objects[0]);
+            }
+
+            // Print headers and get the rows and columns
+            table.push(fields);
+            for (let object of objects) {
+                let row = [];
+                for (let field of fields) {
+                    let value;
+                    let subfields = field.split(".");
+                    // Check if subfields are arrays, eg. samples.id
+                    if (subfields.length > 1) {
+                        // Get the last subfield which is an array
+                        for (let i = 0; i < subfields.length - 1; i++) {
+                            value = subfields.slice(0, i + 1).reduce((res, prop) => res?.[prop], object);
+                            if (!Array.isArray(value)) {
+                                break
+                            }
+                        }
+                        // Check if any subfield was an array
+                        if (Array.isArray(value)) {
+                            value = value.map(val => val[subfields[subfields.length - 1]]).join(",");
+                        } else {
+                            value = subfields.reduce((res, prop) => res?.[prop], object);
+                        }
+                    } else {
+                        value = subfields.reduce((res, prop) => res?.[prop], object);
+                    }
+                    row.push(value);
+                }
+                table.push(row);
+            }
+        }
+        return table;
+    }
+
+    /*
+     * Download data in the browser.
+     * data can be a string, and arrays of string or an array of arrays
+     */
+    static downloadData(data, filename, mimeType = "application/json") {
+        // data can be a string, and arrays of string or an array of arrays
+        let dataString = data;
+        if (Array.isArray(data)) {
+            if (Array.isArray(data[0])) {
+                dataString = data.map(row => row.join("\t")).join("\n");
+            } else {
+                dataString = data.join("\n");
+            }
+        }
+
         // Build file and anchor link
-        const data = new Blob([dataString.join("\n")], {type: mimeType});
-        const file = window.URL.createObjectURL(data);
+        const blob = new Blob([dataString], {type: mimeType});
+        const file = window.URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = file;
-        //a.download = this.opencgaSession.study.alias + extension;
         a.download = filename;
         document.body.appendChild(a);
         a.click();
@@ -220,5 +285,4 @@ export default class UtilsNew {
             document.body.removeChild(a);
         }, 0);
     }
-
 }

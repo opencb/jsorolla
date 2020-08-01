@@ -27,16 +27,16 @@ export default class CatalogGridFormatter {
     }
 
     phenotypesFormatter(value, row) {
-        if (value && value.length) {
-            const tooltip = value.map( phenotype => {
+        if (value && value.length > 0) {
+            const tooltip = value.map(phenotype => {
                 return `
                     <div>
-                        ${phenotype.source && phenotype.source.toUpperCase() === "HPO" ? `
-                            <span><a target="_blank" href="https://hpo.jax.org/app/browse/term/${phenotype.id}">${phenotype.id} </a>(${phenotype.status})</span>
-                        ` : `<span>${phenotype.id} (${phenotype.status})</span>`}
-                    </div>`
-            }).join("")
-            return `<a tooltip-title="Phenotypes" tooltip-text='${tooltip}'> ${value.length} term${value.length > 1 ? "s": ""} found </a>`;
+                        ${phenotype.source && phenotype.source.toUpperCase() === "HPO"
+                    ? `<span><a target="_blank" href="https://hpo.jax.org/app/browse/term/${phenotype.id}">${phenotype.id} - ${phenotype.name} </a>(${phenotype.status})</span>`
+                    : `<span>${phenotype.id} (${phenotype.status})</span>`}
+                    </div>`;
+            }).join("");
+            return `<a tooltip-title="Phenotypes" tooltip-text='${tooltip}'> ${value.length} term${value.length > 1 ? "s" : ""} found</a>`;
         } else {
             return "-";
         }
@@ -68,7 +68,7 @@ export default class CatalogGridFormatter {
                         if (fileId.endsWith(extension)) {
                             let fields = fileId.split(":");
                             results.push(fields[fields.length - 1]);
-                            break
+                            break;
                         }
                     }
                 } else {
@@ -76,7 +76,7 @@ export default class CatalogGridFormatter {
                     results.push(fields[fields.length - 1]);
                 }
             }
-            return results.join("<br>")
+            return results.join("<br>");
         } else {
             return "-";
         }

@@ -92,7 +92,7 @@ export default class CatalogUIUtils {
             },
             style: {
                 classes: (config !== undefined && config.style !== undefined && config.style.classes !== undefined) ? config.style.classes : "qtip-light qtip-rounded qtip-shadow qtip-custom-class",
-                width: "320px",
+                width: "480px",
             },
             show: {
                 delay: 250
