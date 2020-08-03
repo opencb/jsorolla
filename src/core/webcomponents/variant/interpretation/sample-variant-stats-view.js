@@ -121,7 +121,7 @@ class SampleVariantStatsView extends LitElement {
                 ...this.sampleVariantStats.stats,
                 chromosomeCount: ClinicalAnalysisUtils.chromosomeFilterSorter(this.sampleVariantStats.stats.chromosomeCount)
             }
-        }
+        };
         this.sampleSelector = false;
         this.requestUpdate();
     }
@@ -140,7 +140,7 @@ class SampleVariantStatsView extends LitElement {
     }
 
     getVariantStatFromSample() {
-        this.statsSelect = this.sample?.qualityControl?.metrics[0].variantStats.map( stat => stat.id) ?? [];
+        this.statsSelect = this.sample?.qualityControl?.metrics[0].variantStats.map(stat => stat.id) ?? [];
         if (this.sample?.qualityControl?.metrics?.length && this.sample.qualityControl.metrics[0].variantStats?.length) {
             // By default we render the stat 'ALL' from the first metric, if there is not stat 'ALL' then we take the first one
             let selectedStat = this.sample.qualityControl.metrics[0].variantStats.find(stat => stat.id === "ALL") ?? this.sample.qualityControl.metrics[0].variantStats[0];
@@ -155,14 +155,14 @@ class SampleVariantStatsView extends LitElement {
         }
 
         if (this.variantStats?.chromosomeCount) {
-            this.variantStats.chromosomeCount = ClinicalAnalysisUtils.chromosomeFilterSorter(this.variantStats.chromosomeCount)
+            this.variantStats.chromosomeCount = ClinicalAnalysisUtils.chromosomeFilterSorter(this.variantStats.chromosomeCount);
         }
         this.sampleSelector = true;
         this.requestUpdate();
     }
 
     statChange(e) {
-        this.variantStats = this.sample.qualityControl.metrics[0].variantStats.find(stat => stat.id === e.detail.value)
+        this.variantStats = this.sample.qualityControl.metrics[0].variantStats.find(stat => stat.id === e.detail.value);
         this.requestUpdate();
     }
 
@@ -234,7 +234,9 @@ class SampleVariantStatsView extends LitElement {
                             field: "query",
                             type: "custom",
                             display: {
-                                render: query => query && !UtilsNew.isEmpty(query) ? Object.entries(query).map( (k, v) => html`<span class="badge">${k}: ${v}</span>`) : "none"
+                                render: query => query && !UtilsNew.isEmpty(query)
+                                    ? Object.entries(query).map((k, v) => html`<span class="badge">${k}: ${v}</span>`)
+                                    : "none"
                             }
                         },
                         {
@@ -413,19 +415,18 @@ class SampleVariantStatsView extends LitElement {
         }
 
         return html`
-            ${this.sampleSelector 
+            ${this.sampleSelector
                 ? html`
-                    <div style="margin: 20px 10px">
-                        <div class="form-horizontal">
-                            <div class="form-group">
-                                <label class="col-md-2">Select Variant Stat</label>
-                                <div class="col-md-2">
-                                    <select-field-filter forceSelection .data="${this.statsSelect}" .value=${this.statsSelected} @filterChange="${this.statChange}"></select-field-filter>
+                            <div style="margin: 20px 10px">
+                                <div class="form-horizontal">
+                                    <div class="form-group">
+                                        <label class="col-md-2">Select Variant Stat</label>
+                                        <div class="col-md-2">
+                                            <select-field-filter forceSelection .data="${this.statsSelect}" .value=${this.statsSelected} @filterChange="${this.statChange}"></select-field-filter>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                            
-                        </div>
-                    </div>` 
+                            </div>`
                 : null
             }
             <div>

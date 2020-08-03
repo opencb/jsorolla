@@ -35,9 +35,9 @@ export default class SignatureView extends LitElement {
             signature: {
                 type: Object
             },
-            active: {
-                type: Boolean
-            },
+            // active: {
+            //     type: Boolean
+            // },
             mode: {
                 type: String // view | plot
             },
@@ -48,8 +48,7 @@ export default class SignatureView extends LitElement {
     }
 
     _init(){
-        this._prefix = "sf-" + UtilsNew.randomString(6) + "_";
-        this.signature = {};
+        this._prefix = UtilsNew.randomString(8);
     }
 
     connectedCallback() {
@@ -60,15 +59,21 @@ export default class SignatureView extends LitElement {
 
     updated(changedProperties) {
         //loading spinner is shown in case this.signature is undefined or null
-        if ((changedProperties.has("signature") || changedProperties.has("active")) && this.active && this.signature) {
+        debugger
+        // if ((changedProperties.has("signature") || changedProperties.has("active")) && this.active && this.signature) {
+        //     this.signatureObserver();
+        // }
+
+        if (changedProperties.has("signature")) {
             this.signatureObserver();
         }
     }
 
     signatureObserver() {
-        if (this.signature.errorState) {
+        if (this.signature?.errorState) {
             return;
         }
+
         const counts = this.signature.counts;
         const categories = counts.map(point => point?.context)
         const data = counts.map(point => point?.total)
@@ -142,7 +147,7 @@ export default class SignatureView extends LitElement {
             }
         };
 
-        $("#signature-plot").highcharts({
+        $(`#${this._prefix}SignaturePlot`).highcharts({
             title: "title",
             chart: {
                 height: this._config.height, // use plain CSS to avoid resize when <loading-spinner> is visible
@@ -198,12 +203,11 @@ export default class SignatureView extends LitElement {
         return html`
             <div style="height: ${this._config.height}px">
                 ${this.signature?.errorState ? html`<div class="alert alert-danger">${this.signature.errorState}</div>`
-                    : this.signature ? html` <div id="signature-plot"></div>`
+                    : this.signature ? html` <div id="${this._prefix}SignaturePlot"></div>`
                     : html`<loading-spinner></loading-spinner>`
                 }
             </div>
             <!-- list of files -->`
-
     }
 
 }

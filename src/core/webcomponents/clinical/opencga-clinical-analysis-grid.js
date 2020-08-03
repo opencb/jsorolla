@@ -234,14 +234,13 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
     }
 
     analysisIdFormatter(value, row) {
-        const html = `<span style="font-size: 1.1em">
-                                ${value}
-                            </span>
-                `;
-        // <a style="cursor: pointer" class="btn btn-link" href="#reviewCase">
-        //         ${value} <i class="fa fa-search" aria-hidden="true" style="padding-left: 5px"></i>
-        //         </a>
-        return html;
+        if (value) {
+            return `<a title="Go to Variant Interpreter" href="#interpreter/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}">
+                        <span>${value}</span>
+                    </a>`;
+        } else {
+            return "-";
+        }
     }
 
     probandFormatter(value, row) {
@@ -371,7 +370,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
             {
                 title: "Analysis ID",
                 field: "id",
-                formatter: this.analysisIdFormatter,
+                formatter: this.analysisIdFormatter.bind(this),
                 valign: "middle",
                 visible: !this._config.columns.hidden.includes("id")
             },

@@ -72,7 +72,10 @@ export default class OpencgaSampleDetail extends LitElement {
     sampleIdObserver() {
         if (this.opencgaSession) {
             if (this.sampleId) {
-                this.opencgaSession.opencgaClient.samples().info(this.sampleId, {study: this.opencgaSession.study.fqn, includeIndividual: true})
+                this.opencgaSession.opencgaClient.samples().info(this.sampleId, {
+                    study: this.opencgaSession.study.fqn,
+                    includeIndividual: true
+                })
                     .then(response => {
                         this.sample = response.getResult(0);
                     })
@@ -124,9 +127,9 @@ export default class OpencgaSampleDetail extends LitElement {
     }
 
     render() {
-            return this.opencgaSession && this.sample ?
-                html`
-                    <detail-tabs .data="${this.sample}" .config="${this._config}" .opencgaSession="${this.opencgaSession}"></detail-tabs>
+        return this.opencgaSession && this.sample ?
+            html`
+                <detail-tabs .data="${this.sample}" .config="${this._config}" .opencgaSession="${this.opencgaSession}"></detail-tabs>
                 ` : null;
     }
 }

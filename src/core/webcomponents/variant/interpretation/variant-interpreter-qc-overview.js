@@ -137,7 +137,7 @@ class VariantInterpreterQcOverview extends LitElement {
                         ]
                     }
                 ]
-            }
+            };
         } else {
             return {
                 title: "Quality Control Overview",
@@ -151,10 +151,6 @@ class VariantInterpreterQcOverview extends LitElement {
                             {
                                 id: "VariantStats",
                                 title: "Variant Stats"
-                            },
-                            {
-                                id: "InferredSex",
-                                title: "Sex Inference"
                             },
                             {
                                 id: "GenomicContext",
@@ -173,9 +169,8 @@ class VariantInterpreterQcOverview extends LitElement {
                         ]
                     }
                 ]
-            }
+            };
         }
-
     }
 
     onSideNavClick(e) {
@@ -207,9 +202,12 @@ class VariantInterpreterQcOverview extends LitElement {
             <tool-header title="${this._config.title}" class="bg-white" icon="${this._config.icon}"></tool-header>
             <div class="row variant-interpreter-overview" style="padding: 10px 15px">
                 <div class="col-md-2 list-group interpreter-side-nav side-tabs side-nav">
-                    ${this._config.sections[0].fields.filter( field => !field.disabled).map ( (field, i) => {
-                        return html`<button type="button" class="list-group-item ${i === 0 ? "active" : ""}" 
-                          data-id="${field.id}" @click="${this.onSideNavClick}">${field.title}</button>`
+                    ${this._config.sections[0].fields.filter(field => !field.disabled).map((field, i) => {
+                        return html`<button type="button" 
+                                        class="list-group-item ${i === 0 ? "active" : ""}" 
+                                        data-id="${field.id}" 
+                                        @click="${this.onSideNavClick}">${field.title}
+                                    </button>`;
                     })}
                 </div>
                 

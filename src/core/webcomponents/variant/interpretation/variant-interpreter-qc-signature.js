@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../utilsNew.js";
-import "../../family/opencga-family-relatedness-view.js";
+import "../../samples/sample-qc-signature-view.js";
 
 class VariantInterpreterQcSignature extends LitElement {
 
@@ -88,10 +88,10 @@ class VariantInterpreterQcSignature extends LitElement {
 
     prepareSignatures() {
         if (this.clinicalAnalysis) {
-            let somaticSample = this.clinicalAnalysis.proband.samples.find(s => s.somatic);
-            if (somaticSample) {
-                this.signature = somaticSample.qualityControl?.metrics[0]?.signatures[0];
-            }
+            this.somaticSample = this.clinicalAnalysis.proband.samples.find(s => s.somatic);
+            // if (somaticSample) {
+            //     this.signature = somaticSample.qualityControl?.metrics[0]?.signatures[0];
+            // }
         }
         this.requestUpdate();
     }
@@ -117,18 +117,17 @@ class VariantInterpreterQcSignature extends LitElement {
                         <h3><i class="fas fa-lock"></i> No Case found</h3>
                     </div>`;
         }
-        if (!this.signature) {
-            return html`
-                    <div>
-                        <h4 style="padding: 20px"><i class="fas fa-lock"></i> No signature found</h4>
-                    </div>`;
-        }
-
+        // if (!this.signature) {
+        //     return html`
+        //             <div>
+        //                 <h4 style="padding: 20px"><i class="fas fa-lock"></i>No signature found</h4>
+        //             </div>`;
+        // }
+// debugger
+        // <signature-view .signature="${this.signature}"></signature-view>
         return html`
             <div style="margin: 20px 10px">
-                <signature-view .opencgaSession="${this.opencgaSession}" 
-                                .signature="${this.signature}">
-                </signature-view>
+                <sample-qc-signature-view .sample="${this.somaticSample}" .opencgaSession="${this.opencgaSession}"></sample-qc-signature-view>
             </div>
         `;
     }
