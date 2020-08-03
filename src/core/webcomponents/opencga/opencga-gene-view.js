@@ -105,7 +105,7 @@ export default class OpencgaGeneView extends LitElement {
                 study: this.opencgaSession.study.fqn
             };
             const _this = this;
-            this.cellbaseClient.getGeneClient(this.gene, "info", {exclude: "annotation"}, {})
+            this.cellbaseClient.getGeneClient(this.gene, "info", {exclude: "annotation", assembly: this.opencgaSession.project.organism.assembly}, {})
                 .then(function(response) {
                     _this.geneObj = response.getResult(0);
                     _this.requestUpdate();
@@ -213,7 +213,7 @@ export default class OpencgaGeneView extends LitElement {
                                         <td>${transcript.name}</td>
                                         <td>
                                             ${application.appConfig === "opencb" ? html`
-                                                <a href="#transcript/${this.project.alias}/${this.study.alias}/${transcript.id}">${transcript.id}</a>
+                                                <a href="#transcript/${this.opencgaSession.project.alias}/${this.opencgaSession.study.alias}/${transcript.id}">${transcript.id}</a>
                                             ` : html`
                                                 <a href="http://www.ensembl.org/Multi/Search/Results?q=${transcript.id};site=ensembl;page=1;facet_feature_type=Transcript" target="_blank">${transcript.id}</a>
                                             `}
