@@ -34,18 +34,18 @@ export default class OpencgaTranscriptView extends LitElement {
 
     static get properties() {
         return {
+            opencgaSession: {
+                type: Object
+            },
             cellbaseClient: {
                 type: Object
             },
-            opencgaClient: {
-                type: Object
-            },
-            project: {
+            /*project: {
                 type: Object
             },
             study: {
                 type: Object
-            },
+            },*/
             transcript: {
                 type: String
             },
@@ -72,28 +72,29 @@ export default class OpencgaTranscriptView extends LitElement {
 
     _init(){
         this._prefix = "transcript" + UtilsNew.randomString(6);
-        this.variant = "";
+        this.variantId = "";
         this.transcriptObj = {};
+        this.query = {};
     }
 
     updated(changedProperties) {
         if(changedProperties.has("transcript")) {
             this.transcriptChanged();
         }
-        if(changedProperties.has("project") || changedProperties.has("study")) {
+        /*if(changedProperties.has("project") || changedProperties.has("study")) {
             this.projectStudyObtained();
-        }
+        }*/
     }
 
-    projectStudyObtained(project, study) {
-        if (UtilsNew.isNotUndefined(this.project) && UtilsNew.isNotEmpty(this.project.alias)
-            && UtilsNew.isNotUndefined(this.study) && UtilsNew.isNotEmpty(this.study.alias)) {
+    /*projectStudyObtained(project, study) {
+        if (UtilsNew.isNotUndefined(this.opencgaSession.project) && UtilsNew.isNotEmpty(this.opencgaSession.project.alias) &&
+            UtilsNew.isNotUndefined(this.opencgaSession.study) && UtilsNew.isNotEmpty(this.opencgaSession.study.alias)) {
             this.hashFragmentCredentials = {
-                project: this.project.alias,
-                study: this.study.alias
-            }
+                project: this.opencgaSession.project.alias,
+                study: this.opencgaSession.study.alias
+            };
         }
-    }
+    }*/
 
     transcriptChanged() {
         // Remove the previously added SVG
@@ -109,7 +110,7 @@ export default class OpencgaTranscriptView extends LitElement {
             this.query = {
                 "annot-xref": this.transcript
             };
-            //this.requestUpdate();
+            this.requestUpdate();
             this.cellbaseClient.getTranscriptClient(this.transcript, "info", {exclude: "xrefs, exons.sequence"}, {})
                 .then(restResponse => {
                     this.transcriptObj = restResponse.getResult(0);
@@ -120,7 +121,7 @@ export default class OpencgaTranscriptView extends LitElement {
                     // querySelector.appendChild(svg);
                 }).catch(e => {
                     console.error(e);
-            });
+                });
 
         }
     }
@@ -128,90 +129,35 @@ export default class OpencgaTranscriptView extends LitElement {
     updateQuery(e) {
         PolymerUtils.removeClass(".transcript-ct-buttons", "active");
         PolymerUtils.addClass(e.target.id, "active");
-        let query = this.query;
-        switch (e.target.innerText) {
-        case "Missense":
-            query["ct"] = "missense_variant";
-            break;
-        case "LoF":
-            query["ct"] = this.consequenceTypes.lof.join(",");
-            break;
-        default:
-            if (UtilsNew.isNotUndefined(query["ct"])) {
-                delete query["ct"];
-            }
-            break;
+        const query = this.query;
+        switch (e.target.dataset.value) {
+            case "missense":
+                query.ct = "missense_variant";
+                break;
+            case "lof":
+                query.ct = this.consequenceTypes.lof.join(",");
+                break;
+            default:
+                delete query.ct;
+                break;
         }
-        this.query = Object.assign({}, query);
+        this.query = {...query};
+        this.requestUpdate();
     }
 
     checkVariant(variant) {
-        return variant.split(':').length > 2;
+        return variant?.split(":").length > 2;
     }
 
     showBrowser() {
-        let hash = window.location.hash.split('/');
-        let newHash = '#browser/' + hash[1] + '/' + hash[2];
+        const hash = window.location.hash.split("/");
+        const newHash = "#browser/" + hash[1] + "/" + hash[2];
         window.location.hash = newHash;
     }
 
     onSelectVariant(e) {
-        this.variant = e.detail.id;
-    }
-
-    _createSvgTranscript(transcriptObject) {
-        let length = transcriptObject.end - transcriptObject.start;
-        let svg = SVG.create('svg', {
-            width: length + 40,
-            height: 140,
-            viewBox: "0 0 " + (length + 40) + " " + 140,
-            style: "fill: white"
-        });
-        SVG.addChild(svg, 'rect', {width: length + 40, height: 140, style: "fill: white;stroke: black"});
-
-        let center = (140) / 2;
-        SVG.addChild(svg, 'line', {
-            x1: 20,
-            y1: center,
-            x2: length,
-            y2: center,
-            style: "stroke: red"
-        });
-
-        let exons = transcriptObject.exons;
-        let gExons = SVG.create('g', {});
-        for (let i = 0; i < exons.length; i++) {
-            let exon = SVG.addChild(gExons, 'rect', {
-                x: 20 + (exons[i].start - transcriptObject.start),
-                y: center - 7,
-                rx: 2,
-                ry: 2,
-                width: exons[i].end - exons[i].start,
-                height: 15,
-                style: "fill: lightblue"
-            });
-            $(exon).qtip({
-                content: {
-                    title: exons[i].id,
-                    text: "<b>ID</b>: " + exons[i].id + "<br>"
-                        + "<b>Chromosome</b>: " + exons[i].chromosome + "<br>"
-                        + "<b>Start</b>: " + exons[i].start + "<br>"
-                        + "<b>End</b>: " + exons[i].end + "<br>"
-                        + "<b>Strand</b>: " + exons[i].strand
-                },
-                position: {viewport: $(window), target: "mouse", adjust: {x: 25, y: 15}},
-                style: {width: true, classes: ' ui-tooltip ui-tooltip-shadow'},
-                show: {delay: 250},
-                hide: {delay: 200}
-            })
-        }
-        svg.appendChild(gExons);
-
-        let lollipop = new Lollipop();
-        let ruleSVG = lollipop._createSvgRuleBar(length, {ratio: 1});
-        svg.appendChild(ruleSVG);
-
-        return svg;
+        this.variantId = e.detail.id;
+        this.requestUpdate();
     }
 
     render() {
@@ -291,51 +237,48 @@ export default class OpencgaTranscriptView extends LitElement {
 
         <div class="tab-content" style="height: 1024px">
             <div role="tabpanel" class="tab-pane active" id="${this._prefix}Variants">
-                <div class="btn-group btn-group" role="group" aria-label="..." style="padding: 15px;float: right">
-                    <button id="${this._prefix}AllConsTypeButton" type="button" class="btn btn-default btn-warning transcript-ct-buttons active" @click="${this.updateQuery}">
-                        All
-                    </button>
-                    <button id="${this._prefix}MissenseConsTypeButton" type="button" class="btn btn-default btn-warning transcript-ct-buttons" @click="${this.updateQuery}">
-                        Missense
-                    </button>
-                    <button id="${this._prefix}LoFConsTypeButton" type="button" class="btn btn-default btn-warning transcript-ct-buttons" @click="${this.updateQuery}">
-                        LoF
-                    </button>
-                </div>
-
+                    <div class="btn-group pad15" role="group">
+                        <button id="${this._prefix}AllConsTypeButton" type="button" class="btn btn-primary ripple gene-ct-buttons active" data-value="${"all"}" @click="${this.updateQuery}">
+                            All
+                        </button>
+                        <button id="${this._prefix}MissenseConsTypeButton" type="button" class="btn btn-primary ripple gene-ct-buttons" data-value="${"missense"}" @click="${this.updateQuery}">
+                            Missense
+                        </button>
+                        <button id="${this._prefix}LoFConsTypeButton" type="button" class="btn btn-primary ripple gene-ct-buttons" data-value="${"lof"}" @click="${this.updateQuery}">
+                            LoF
+                        </button>
+                    </div>
                 <br>
                 <br>
+                
                 <opencga-variant-grid .opencgaSession="${this.opencgaSession}"
-                                      .query="${this.query}"
-                                      .populationFrequencies="${this.populationFrequencies}"
-                                      .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
-                                      .consequenceTypes="${this.consequenceTypes}"
-                                      
-                                      .config="${this.config}"
-                                                  
-                                                  
-                                      @selectrow="${this.onSelectVariant}">
+                                                  .query="${this.query}"
+                                                  .populationFrequencies="${this.populationFrequencies}"
+                                                  .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
+                                                  .consequenceTypes="${this.consequenceTypes}"
+                                                  .config="${this.config}"
+                                                  @selectrow="${this.onSelectVariant}">
                 </opencga-variant-grid>
 
-                ${this.checkVariant(this.variant) ? html`
+                ${this.checkVariant(this.variantId) ? html`
                     <!-- Bottom tabs with specific variant information -->
-                    <div style="padding-top: 20px; height: 400px">
-                        <h3>Advanced Annotation for Variant: ${this.variant}</h3>
-                        <cellbase-variantannotation-view .data="${this.variant}"
-                                                        .cellbaseClient="${this.cellbaseClient}"
-                                                        .assembly=${this.project.organism.assembly}
-                                                        .hashFragmentCredentials="${this.hashFragmentCredentials}"
-                                                        .populationFrequencies="${this.populationFrequencies}"
-                                                        .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
-                                                        .consequenceTypes="${this.consequenceTypes}">
-                        </cellbase-variantannotation-view>
+                        <opencga-variant-detail-view    .opencgaSession="${this.opencgaSession}" 
+                                                    .cellbaseClient="${this.cellbaseClient}"
+                                                    .variantId="${this.variantId}"
+                                                    .config="${this._config?.filter?.detail}">
+                        </opencga-variant-detail-view>
+                        <!--
+                        <h3 class="break-word">Advanced Annotation for Variant: ${this.variantId}</h3>
+                        <cellbase-variantannotation-view .data="${this.variantId}"
+                                                         .cellbaseClient="${this.cellbaseClient}"
+                                                         .assembly=${this.opencgaSession.project.organism.assembly}
+                                                         .hashFragmentCredentials="${this.hashFragmentCredentials}"
+                                                         .populationFrequencies="${this.populationFrequencies}"
+                                                         .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
+                                                         .consequenceTypes="${this.consequenceTypes}">
+                        </cellbase-variantannotation-view> -->
                     </div>
-                ` : html`
-                <div>
-                    <br>
-                    <h3>Please select a variant to view variant's detailed annotation</h3>
-                </div>
-                `}
+                ` : null}
             </div>
 
             ${false ? html`
@@ -352,6 +295,7 @@ export default class OpencgaTranscriptView extends LitElement {
         </div>
         `;
     }
+
 }
 
 customElements.define("opencga-transcript-view", OpencgaTranscriptView);

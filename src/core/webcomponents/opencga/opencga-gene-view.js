@@ -19,6 +19,7 @@ import UtilsNew from "../../utilsNew.js";
 import PolymerUtils from "../PolymerUtils.js";
 import "../variant/opencga-variant-grid.js";
 import "../variant/variant-protein-view.js";
+import "../variant/opencga-variant-detail-view.js";
 
 
 export default class OpencgaGeneView extends LitElement {
@@ -64,30 +65,30 @@ export default class OpencgaGeneView extends LitElement {
             summary: {
                 type: Boolean
             },
-            project: {
+            /*project: {
                 type: Object
             },
             study: {
                 type: Object
-            }
+            }*/
         };
     }
 
     _init() {
         this._prefix = "geneView" + UtilsNew.randomString(6) + "_";
-        this.variant = "";
+        this.variantId = "";
     }
 
     updated(changedProperties) {
         if (changedProperties.has("opencgaSession") || changedProperties.has("gene")) {
             this.geneChanged();
         }
-        if (changedProperties.has("project") || changedProperties.has("study")) {
+        /*if (changedProperties.has("project") || changedProperties.has("study")) {
             this.projectStudyObtained();
-        }
+        }*/
     }
 
-    projectStudyObtained(project, study) {
+    /*projectStudyObtained(project, study) {
         if (UtilsNew.isNotUndefined(this.opencgaSession.project) && UtilsNew.isNotEmpty(this.opencgaSession.project.alias) &&
             UtilsNew.isNotUndefined(this.opencgaSession.study) && UtilsNew.isNotEmpty(this.opencgaSession.study.alias)) {
             this.hashFragmentCredentials = {
@@ -95,7 +96,7 @@ export default class OpencgaGeneView extends LitElement {
                 study: this.opencgaSession.study.alias
             };
         }
-    }
+    }*/
 
     geneChanged(neo, old) {
         if (UtilsNew.isNotEmpty(this.gene)) {
@@ -117,15 +118,15 @@ export default class OpencgaGeneView extends LitElement {
         PolymerUtils.addClass(e.target.id, "active");
         const query = this.query;
         switch (e.target.dataset.value) {
-        case "missense":
-            query.ct = "missense_variant";
-            break;
-        case "lof":
-            query.ct = this.consequenceTypes.lof.join(",");
-            break;
-        default:
-            delete query.ct;
-            break;
+            case "missense":
+                query.ct = "missense_variant";
+                break;
+            case "lof":
+                query.ct = this.consequenceTypes.lof.join(",");
+                break;
+            default:
+                delete query.ct;
+                break;
         }
         this.query = {...query};
         this.requestUpdate();
@@ -142,7 +143,7 @@ export default class OpencgaGeneView extends LitElement {
     }
 
     onSelectVariant(e) {
-        this.variant = e.detail.id;
+        this.variantId = e.detail.id;
         this.requestUpdate();
     }
 
@@ -281,28 +282,24 @@ export default class OpencgaGeneView extends LitElement {
                                                   @selectrow="${this.onSelectVariant}">
                             </opencga-variant-grid>
             
-                            ${this.checkVariant(this.variant) ? html`
+                            ${this.checkVariant(this.variantId) ? html`
                                 <!-- Bottom tabs with specific variant information -->
-                                <div style="padding-top: 20px;">
-                                    <h3 class="break-word">Advanced Annotation for Variant: ${this.variant}</h3>
-                                    <cellbase-variantannotation-view .data="${this.variant}"
+                                    <opencga-variant-detail-view    .opencgaSession="${this.opencgaSession}" 
+                                                                .cellbaseClient="${this.cellbaseClient}"
+                                                                .variantId="${this.variantId}"
+                                                                .config="${this._config?.filter?.detail}">
+                                    </opencga-variant-detail-view>
+                                    <!--
+                                    <h3 class="break-word">Advanced Annotation for Variant: ${this.variantId}</h3>
+                                    <cellbase-variantannotation-view .data="${this.variantId}"
                                                                      .cellbaseClient="${this.cellbaseClient}"
                                                                      .assembly=${this.opencgaSession.project.organism.assembly}
                                                                      .hashFragmentCredentials="${this.hashFragmentCredentials}"
                                                                      .populationFrequencies="${this.populationFrequencies}"
                                                                      .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
                                                                      .consequenceTypes="${this.consequenceTypes}">
-                                    </cellbase-variantannotation-view>
-                                </div>
-                            ` : html`
-                                <div>
-                                    <br>
-                                    <h3>Please select a variant to view the detailed annotation</h3>
-                                </div>
-                            `}
-                            
-            
-                            
+                                    </cellbase-variantannotation-view> -->
+                            ` : null}
                         </div>
             
                         <div role="tabpanel" class="tab-pane" id="${this._prefix}Protein">

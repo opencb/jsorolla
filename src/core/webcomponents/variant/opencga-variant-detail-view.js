@@ -23,6 +23,7 @@ import "./annotation/variant-annotation-clinical-view.js";
 import "./opencga-variant-cohort-stats.js";
 import "./opencga-variant-samples.js";
 
+
 export default class OpenCGAVariantDetailView extends LitElement {
 
     constructor() {
@@ -58,8 +59,6 @@ export default class OpenCGAVariantDetailView extends LitElement {
 
     _init() {
         this._prefix = "ovdv-" + UtilsNew.randomString(6);
-        // FIXME in case of region as a prop (with value = this.query.region from variant-filter) in case opencga-active-filter deletes a region filter this component is not updated.
-        // A temp solution is to add query as prop and watch for its edits in updated() [this.region as prop is not used anymore].
         this.detailActiveTabs = {};
         this._config = this.getDefaultConfig();
     }
@@ -109,11 +108,55 @@ export default class OpenCGAVariantDetailView extends LitElement {
 
     _changeBottomTab(e) {
         let _activeTabs = {};
-        for (let detail of this._config.detail) {
+        for (let detail of this._config.views) {
             _activeTabs[detail.id] = (detail.id === e.currentTarget.dataset.id);
         }
         this.detailActiveTabs = _activeTabs;
         this.requestUpdate();
+    }
+
+    getDefaultConfig() {
+        return {
+            title: "Selected Variant",
+            views: [
+                {
+                    id: "annotationSummary",
+                    title: "Summary",
+                    active: true
+                },
+                {
+                    id: "annotationConsType",
+                    title: "Consequence Type",
+                },
+                {
+                    id: "annotationPropFreq",
+                    title: "Population Frequencies"
+                },
+                {
+                    id: "annotationClinical",
+                    title: "Clinical"
+                },
+                {
+                    id: "cohortStats",
+                    title: "Cohort Variant Stats",
+                    onlyCohortAll: true,
+                    tooltip: tooltips.cohort
+                    //cohorts: this.cohorts
+                },
+                {
+                    id: "samples",
+                    title: "Samples"
+                },
+                {
+                    id: "beacon",
+                    title: "Beacon"
+                },
+                // {
+                //     id: "network",
+                //     title: "Reactome Pathways"
+                // },
+            ]
+        };
     }
 
     render() {
@@ -123,11 +166,11 @@ export default class OpenCGAVariantDetailView extends LitElement {
 
         return html`
                     <div style="padding-top: 20px">
-                                <h3>Variant: ${this.variant.id}</h3>
+                                <h3 class="break-word">Variant: ${this.variant.id}</h3>
                                 <div style="padding-top: 20px">
                                     <!-- Dynamically create the Detail Tabs from Browser config -->
                                     <ul id="${this._prefix}ViewTabs" class="nav nav-tabs" role="tablist">
-                                        ${this._config.detail.length && this._config.detail.map(item => html`
+                                        ${this._config.views.length ? this._config.views.map(item => html`
                                             ${item.active ? html`
                                                  <li role="presentation" class="active">
                                                     <a href="#${this._prefix}${item.id}" role="tab" data-toggle="tab" data-id="${item.id}"
@@ -139,7 +182,7 @@ export default class OpenCGAVariantDetailView extends LitElement {
                                                        class="browser-variant-tab-title" @click="${this._changeBottomTab}">${item.title}</a>
                                                 </li>
                                             `}
-                                        `)}
+                                        `) : null}
                                     </ul>
             
                                     <div class="tab-content" style="height: 680px">
@@ -254,62 +297,6 @@ export default class OpenCGAVariantDetailView extends LitElement {
                 `;
     }
 
-    getDefaultConfig() {
-        return {
-            title: "",
-            filter: {
-                menu: []
-            },
-            detail: [
-                // {
-                //     id: "annotation",
-                //     component: "cellbase-variantannotation-view",
-                //     title: "Advanced Annotation",
-                //     active: true
-                // },
-                {
-                    id: "annotationSummary",
-                    title: "Summary",
-                    active: true
-                },
-                {
-                    id: "annotationConsType",
-                    title: "Consequence Types",
-                },
-                {
-                    id: "annotationPropFreq",
-                    title: "Population Frequencies"
-                },
-                {
-                    id: "annotationClinical",
-                    title: "Clinical Info"
-                },
-                {
-                    id: "cohortStats",
-                    title: "Cohort Stats"
-                },
-                {
-                    id: "samples",
-                    title: "Samples"
-                },
-                {
-                    id: "beacon",
-                    component: "variant-beacon-network",
-                    title: "Beacon"
-                    // Uncomment and edit Beacon hosts to change default hosts
-                    // hosts: [
-                    //     "brca-exchange", "cell_lines", "cosmic", "wtsi", "wgs", "ncbi", "ebi", "ega", "broad", "gigascience", "ucsc",
-                    //     "lovd", "hgmd", "icgc", "sahgp"
-                    // ]
-                },
-                // {
-                //     id: "network",
-                //     component: "reactome-variant-network",
-                //     title: "Reactome Pathways"
-                // }
-            ]
-        };
-    }
 }
 
 customElements.define("opencga-variant-detail-view", OpenCGAVariantDetailView);

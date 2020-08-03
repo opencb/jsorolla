@@ -23,7 +23,11 @@ import "./annotation/variant-annotation-clinical-view.js";
 import "./opencga-variant-cohort-stats.js";
 import "./opencga-variant-samples.js";
 
-// TODO complete
+/**
+ * @deprecated
+ */
+
+
 export default class OpencgaVariantDetail extends LitElement {
 
     constructor() {
@@ -59,8 +63,6 @@ export default class OpencgaVariantDetail extends LitElement {
 
     _init() {
         this._prefix = "ovdv-" + UtilsNew.randomString(6);
-        // FIXME in case of region as a prop (with value = this.query.region from variant-filter) in case opencga-active-filter deletes a region filter this component is not updated.
-        // A temp solution is to add query as prop and watch for its edits in updated() [this.region as prop is not used anymore].
         this._config = this.getDefaultConfig();
     }
 
