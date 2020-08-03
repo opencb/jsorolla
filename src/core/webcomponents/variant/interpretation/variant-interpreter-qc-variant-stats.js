@@ -278,7 +278,7 @@ class VariantInterpreterQcVariantStats extends LitElement {
                     <div class="btn-group" role="group" aria-label="..." style="padding-top: 15px; padding-left: 5px">
                         ${this.samplesVariantStats.map(s => html`
                             <button type="button" class="btn btn-default ${s.sample.id === this.sample.id ? "active" :  ""}" data-sample-id="${s.sample.id}" @click="${this.onSampleVariantStatsChange}" style="padding: 10px 20px">
-                                <span style="font-weight: bold">${s.sample.id}</span> (${s.role})
+                                <span style="font-weight: bold">${s.sample.id} </span> <span class="text-muted"> ${s.role}</span>
                             </button>
                         `)}
                     </div>`

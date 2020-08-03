@@ -118,7 +118,7 @@ export default class UtilsNew {
     static randomString(length) {
         let result = "";
         const _length = length || 6;
-        const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
         for (let i = 0; i < _length; i++ ) {
             result += characters.charAt(Math.floor(Math.random() * characters.length));
         }
