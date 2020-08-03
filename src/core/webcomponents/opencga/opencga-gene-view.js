@@ -197,11 +197,11 @@ export default class OpencgaGeneView extends LitElement {
                             <table class="table table-bordered" width="100%">
                                 <thead style="background-color: #eeeeee">
                                 <tr>
-                                    <th>Name</th>
                                     <th>Ensembl ID</th>
-                                    <th>Biotype</th>
+                                    <th>Name</th>
                                     <th>Location</th>
-                                    <th>Coding</th>
+                                    <th>Biotype</th>
+<!--                                    <th>Coding</th>-->
                                     <!--<th>cDNA</th>-->
                                     <!--<th>CDS Length</th>-->
                                     <th>Flags</th>
@@ -210,7 +210,6 @@ export default class OpencgaGeneView extends LitElement {
                                 <tbody>
                                 ${this.geneObj.transcripts && this.geneObj.transcripts.length ? this.geneObj.transcripts.map( transcript => html`
                                     <tr>
-                                        <td>${transcript.name}</td>
                                         <td>
                                             ${application.appConfig === "opencb" ? html`
                                                 <a href="#transcript/${this.project.alias}/${this.study.alias}/${transcript.id}">${transcript.id}</a>
@@ -218,7 +217,7 @@ export default class OpencgaGeneView extends LitElement {
                                                 <a href="http://www.ensembl.org/Multi/Search/Results?q=${transcript.id};site=ensembl;page=1;facet_feature_type=Transcript" target="_blank">${transcript.id}</a>
                                             `}
                                         </td>
-                                        <td>${transcript.biotype}</td>
+                                        <td>${transcript.name}</td>
                                         <td>
                                             ${application.appConfig === "opencb" ? html`
                                                 <a target="_blank"
@@ -226,6 +225,8 @@ export default class OpencgaGeneView extends LitElement {
                                                     ${transcript.chromosome}:${transcript.start}-${transcript.end}
                                                 </a>` : html`<span>${transcript.chromosome}:${transcript.start}-${transcript.end}</span>`}
                                         </td>
+                                        <td>${transcript.biotype}</td>
+                                        <!--
                                         <td>
                                             ${application.appConfig === "opencb" ? html`
                                                 <a target="_blank"
@@ -233,11 +234,11 @@ export default class OpencgaGeneView extends LitElement {
                                                     ${transcript.genomicCodingStart}-${transcript.genomicCodingEnd}
                                                 </a>` : html`<span>${transcript.chromosome}:${transcript.start}-${transcript.end}</span>`}
                                         </td>
-                                        <!--<td>-->
+                                        -->
                                         <!--${transcript.cdnaCodingStart}-${transcript.cdnaCodingEnd}-->
                                         <!--</td>-->
                                         <!--<td>${transcript.cdsLength}</td>-->
-                                        <td>${transcript.annotationFlags}</td>
+                                        <td>${transcript.annotationFlags?.join(", ")}</td>
                                     </tr>
                                 `) : null }
                                 </tbody>
