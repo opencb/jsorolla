@@ -202,7 +202,7 @@ export default class OpencgaTranscriptView extends LitElement {
                         </tr>
                         <tr>
                             <td class="transcript-summary-title">Gene</td>
-                            <td><a href="#gene/${this.project.alias}/${this.study.alias}/${this.gene}">${this.gene}</a></td>
+                            <td><a href="#gene/${this.opencgaSession.project.alias}/${this.opencgaSession.study.alias}/${this.gene}">${this.gene}</a></td>
                         </tr>
                         ${application.appConfig === "opencb" ? html`
                         <tr>

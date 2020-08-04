@@ -368,7 +368,7 @@ export default class OpencgaProjects extends LitElement {
 
 
     renderTable(project, resource) {
-        console.log(project)
+        //console.log(project)
         //debugger
         return html`
             <table class="table table-hover table-no-bordered">
@@ -472,6 +472,101 @@ export default class OpencgaProjects extends LitElement {
             this._studies = studySummaries;
         }*/
 
+    getProjectConfig() {
+        return {
+            title: "Summary",
+            icon: "",
+            display: {
+                collapsable: true,
+                showTitle: false,
+                labelWidth: 2,
+                defaultValue: "-"
+            },
+            sections: [
+                {
+                    title: "",
+                    collapsed: false,
+                    elements: [
+                        {
+                            name: "Project id",
+                            field: "id"
+                        },
+                        {
+                            name: "UUID",
+                            field: "uuid"
+                        },
+                        {
+                            name: "Description",
+                            field: "description"
+                        },
+                        {
+                            name: "Orgamism",
+                            field: "organism",
+                            type: "custom",
+                            display: {
+                                render: organism => html`${organism.scientificName} - ${organism.assembly}`
+                            }
+                        },
+                        {
+                            name: "Creation Date",
+                            field: "creationDate",
+                            type: "custom", // this is not needed. feels right though
+                            display: {
+                                render: creationDate => html`${moment(creationDate, "YYYYMMDDHHmmss").format("D MMM YY")}`
+                            }
+                        },
+                        {
+                            name: "Status",
+                            field: "user.internal.status",
+                            type: "custom",
+                            display: {
+                                render: field => `${field?.name} (${UtilsNew.dateFormatter(field?.date)})`
+                            }
+                        },
+                        {
+                            name: "Studies",
+                            field: "studies",
+                            type: "custom",
+                            display: {
+                                render: studies => {
+                                    return studies.map( study => study.name).join(", ")
+                                }
+                            }
+                        }
+                        /*{
+                            name: "Project and studies",
+                            field: "projects",
+                            type: "table",
+                            display: {
+                                columns: [
+                                    {
+                                        name: "Id",
+                                        field: "id"
+                                    },
+                                    {
+                                        name: "Name",
+                                        field: "name"
+                                    },
+                                    {
+                                        name: "Studies",
+                                        field: "studies",
+                                        type: "custom",
+                                        display: {
+                                            render: studies => {
+                                                return studies.map( study => study.name).join(", ")
+                                            }
+                                        }
+                                    }
+                                ]
+                            }
+                        }*/
+                    ]
+                }
+
+            ]
+        };
+    }
+
     render() {
         return html`
         <style>
@@ -571,10 +666,7 @@ export default class OpencgaProjects extends LitElement {
                             
                             <div class="row">
                                 <div class="col-md-10 col-md-offset-1">
-                                    <h3>Project <span class="inverse">${projectId}</span></h3>
-                                    <div>${project.uuid}</div>
-                                    ${project.description ? html`<div><label>Description:</label> ${project.description}</div>` : ""}
-                                
+                                    <h3>Project <span class="inverse">${projectId}</span></h3>                               
                                     <div class="col-md-2 list-group projects-side-nav side-tabs side-nav">
                                         <button type="button" class="list-group-item active" 
                                               data-project-id="${project.id}" data-menu-item-id="Summary" @click="${this.onSideNavClick}">Summary</button>
@@ -593,6 +685,7 @@ export default class OpencgaProjects extends LitElement {
                                         <div class="content-tab-wrapper projects-content-tab ${project.id}">
                                             <div id="${this._prefix}${project.id}Summary" role="tabpanel" class="tab-pane content-tab active">
                                                 <h3>Summary</h3>
+                                                <data-form .data=${project} .config="${this.getProjectConfig()}"></data-form>
                                             </div>
                                             <div id="${this._prefix}${project.id}Variants" role="tabpanel" class="tab-pane content-tab">
                                                 <h3>Variants</h3>
