@@ -355,7 +355,7 @@ export default class DataView extends LitElement {
                 }
             }
         }
-        return html`<simple-plot .active="${true}" type="${element.display.chart}" title="${element.name}" .data="${data}"></simple-plot>`;
+        return html`<simple-chart .active="${true}" type="${element.display.chart}" title="${element.name}" .data="${data}"></simple-chart>`;
     }
 
     _createJsonElement(element) {

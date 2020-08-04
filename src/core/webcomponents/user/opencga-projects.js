@@ -19,7 +19,7 @@ import {RestResponse} from "../../clients/rest-response.js";
 import UtilsNew from "../../utilsNew.js";
 import "../tool-header.js";
 import {CountUp} from "/node_modules/countup.js/dist/countUp.min.js";
-
+import "../simple-chart.js";
 
 export default class OpencgaProjects extends LitElement {
 
@@ -61,24 +61,26 @@ export default class OpencgaProjects extends LitElement {
 
         this.charts = {
             variant: [],
-            file: ["format"],
+            file: ["format", "bioformat"],
             sample: [],
             individual: [],
             cohort: []
         };
+        this.chartData = {};
+
         this.tableRows = {
             variant: {},
-            file: {format: [{id: "VCF", name: "VCF files" }, {id: "PLAIN", name: "PLAIN files"}, {id: "BAI", name: "BAI files"}, {id: "BAM", name: "BAM files"}], bioformat: [{id: "ALIGNMENT", name: "ALIGNMENT"}, {id: "VARIANT", name: "VARIANT"}, {id: "NONE", name: "NONE"}]},
+            file: {format: [{id: "VCF", name: "VCF files"}, {id: "PLAIN", name: "PLAIN files"}, {id: "BAI", name: "BAI files"}, {id: "BAM", name: "BAM files"}], bioformat: [{id: "ALIGNMENT", name: "ALIGNMENT"}, {id: "VARIANT", name: "VARIANT"}, {id: "NONE", name: "NONE"}]},
             sample: {somatic: [{id: "false", name: "Somatic: false"}]},
             individual: {lifeStatus: [
                 {id: "ALIVE", name: "ALIVE"},
-                    {id: "ABORTED", name: "ABORTED"},
-                    {id: "DECEASED", name: "DECEASED"},
-                    {id: "UNBORN", name: "UNBORN"},
-                    {id: "STILLBORN", name: "STILLBORN"},
-                    {id: "MISCARRIAGE", name: "MISCARRIAGE"},
-                    {id: "UNKNOWN", name: "UNKNOWN"}
-                ],ethnicity: []},
+                {id: "ABORTED", name: "ABORTED"},
+                {id: "DECEASED", name: "DECEASED"},
+                {id: "UNBORN", name: "UNBORN"},
+                {id: "STILLBORN", name: "STILLBORN"},
+                {id: "MISCARRIAGE", name: "MISCARRIAGE"},
+                {id: "UNKNOWN", name: "UNKNOWN"}
+            ],ethnicity: []},
             cohort: {}
         };
     }
@@ -134,156 +136,6 @@ export default class OpencgaProjects extends LitElement {
         this.requestUpdate();
     }
 
-    /*
-    loadHighcharts() {
-
-        const colors = Highcharts.getOptions().colors;
-
-        //                    let categories = ['MSIE', 'Firefox', 'Chrome', 'Safari', 'Opera'];
-        const categories = this.projects.map(element => {
-            return element.name;
-        });
-        const data = [];
-        const _this = this;
-        const total = 0;
-        const numberOfStudies = this.projects.reduce((total, element) => {
-            return total + element.studies.length;
-        }, 0);
-
-        this.projects.forEach((element, index) => {
-            const studies = element.studies.map(study => {
-                return study.name;
-            });
-            const creationDate = element.studies.map(study => {
-                return study.creationDate;
-            });
-
-            const projectPercent = studies.length * 100 / numberOfStudies;
-            data.push({
-                y: projectPercent,
-                color: colors[index],
-                drilldown: {
-                    name: element.name,
-                    categories: studies,
-                    color: colors[0],
-                    data: element.studies.map(study => {
-                        return projectPercent / studies.length;
-                    }),
-                    creationDate: creationDate
-                }
-            });
-        });
-        const browserData = [];
-        const versionsData = [];
-        let i;
-        let j;
-        const dataLen = categories.length;
-        let drillDataLen;
-        let brightness;
-
-
-        // Build the data arrays
-        for (i = 0; i < dataLen; i += 1) {
-
-            // add browser data
-            browserData.push({
-                name: categories[i],
-                y: data[i].y,
-                color: data[i].color
-            });
-
-            // add version data
-            drillDataLen = data[i].drilldown.data.length;
-            for (j = 0; j < drillDataLen; j += 1) {
-                brightness = 0.2 - (j / drillDataLen) / 5;
-                versionsData.push({
-                    name: data[i].drilldown.categories[j],
-                    y: data[i].drilldown.data[j],
-                    color: Highcharts.Color(data[i].color).brighten(brightness).get(),
-                    creationDate: data[i].drilldown.creationDate[j]
-                });
-            }
-        }
-
-        // Create the chart
-        Highcharts.chart("containerChart", {
-            chart: {
-                type: "pie"
-            },
-            title: {
-                text: "Iva Projects"
-            },
-            subtitle: {
-                text: "<a href=\"https://github.com/opencb\">OpenCB</a>"
-            },
-            yAxis: {
-                title: {
-                    text: "Total percent market share"
-                }
-            },
-            plotOptions: {
-                pie: {
-                    shadow: false,
-                    center: ["50%", "50%"],
-                    size: 100
-                }
-            },
-            tooltip: {
-                valueSuffix: "%",
-                formatter: function() {
-                    let s = "<b>" + this.key + "</b>";
-
-                    s += "<br/>" + this.percentage.toFixed(2) + "%";
-                    if (UtilsNew.isNotUndefinedOrNull(this.point.creationDate)) {
-                        s += "<br/>" + moment(this.point.creationDate, "YYYYMMDDHHmmss").format("HH:mm:ss MMM/D/YY");
-                    }
-                    return s;
-                },
-                footerFormat: true
-
-            },
-            series: [{
-                name: "Browsddders",
-                data: browserData,
-                size: "60%",
-                dataLabels: {
-                    formatter: function() {
-                        return this.y > 5 ? this.point.name : null;
-                    },
-                    color: "#ffffff",
-                    distance: -30
-                }
-            }, {
-                name: "Versions",
-                data: versionsData,
-                size: "80%",
-                innerSize: "60%",
-                dataLabels: {
-                    formatter: function() {
-                        // display only if larger than 1
-                        return this.y > 1 ? "<b>" + this.point.name + "</b> ": null;
-                    }
-                },
-                id: "versions"
-            }],
-            responsive: {
-                rules: [{
-                    condition: {
-                        maxWidth: 800
-                    },
-                    chartOptions: {
-                        series: [{
-                            id: "versions",
-                            dataLabels: {
-                                enabled: false
-                            }
-                        }]
-                    }
-                }]
-            }
-        });
-    }*/
-
     async facetQuery() {
         // this.clearPlots();
         console.log("this.opencgaSession", this.opencgaSession);
@@ -302,6 +154,7 @@ export default class OpencgaProjects extends LitElement {
                 ...project,
                 stats: {}
             };
+            this.chartData[project.id] = {};
             for (let study of project.studies) {
                 try {
                     const catalogStudyResponse = await this.opencgaSession.opencgaClient.studies().aggregationStats(study.fqn, {
@@ -326,22 +179,20 @@ export default class OpencgaProjects extends LitElement {
 
                     this.data[project.id].stats[study.fqn] = {
                         file: {
-                            numTotalResults: stats.file.numTotalResults,
                             results: stats.file.results
                         },
                         sample: {
-                            numTotalResults: stats.sample.numTotalResults,
                             results: stats.sample.results
                         },
                         individual: {
-                            numTotalResults: stats.individual.numTotalResults,
                             results: stats.individual.results
                         },
                         cohort: {
-                            numTotalResults: stats.cohort.numTotalResults,
                             results: stats.cohort.results
                         }
                     }
+
+
                 }
                 catch (e) {
                     console.error(e)
@@ -349,6 +200,8 @@ export default class OpencgaProjects extends LitElement {
 
                 }
             }
+
+
 
             let response = await this.opencgaSession.opencgaClient.variants().aggregationStats({project: project.id, fields: "studies"})
 
@@ -360,7 +213,51 @@ export default class OpencgaProjects extends LitElement {
             const r = response.getResult(0).results ? response.getResult(0).results[0] : response.getResult(0);
             this.variantsCount.update(this.totalCount.variants += r.count);
 
+            this.chartData[project.id] = {};
+            /*for (let entity in this.charts) {
+                let charts = this.charts[entity];
+                charts.forEach( field => {
+
+                    console.error("stats", Object.values(this.data[project.id].stats).map( study => study))
+                    let studiesData = Object.entries(this.data[project.id].stats).map( study => study)
+                    console.error(this.data[project.id].stats)
+
+                })
+            }*/
+            for (let entity in this.charts) {
+                let charts = this.charts[entity];
+                this.chartData[project.id][entity] = [];
+                charts.forEach(field => {
+
+                    // Object.values(STATS) contains the map of the entities for each study. I pick the first element as they are expected to be the same
+                    const categories = Object.values(this.data[project.id].stats)[0][entity].results.find(result => result.name === field).buckets.map( _ => _.value);
+
+                    // building chart data
+                    // I need the structure project->entity->field to plot-> aggregated data for all the studies
+                    let data = {}
+                    Object.entries(this.data[project.id].stats).forEach( ([studyFqn, entitiesMap]) => {
+                        data[studyFqn] = entitiesMap[entity].results.find(result => result.name === field).buckets.map( _ => _.count)
+                        //let categories = entitiesMap[entity].results.find(result => result.name === field).buckets.map( _ => _.value)
+                        //console.log("studiesData", data, categories)
+                    })
+                    this.chartData[project.id][entity].push({
+                        name: field,
+                        data: data,
+                        config: {
+                            xAxis: {
+                                categories: categories
+                            }
+                        }
+                    })
+                    console.log(this.chartData)
+                })
+            }
+
+
         }
+
+
+        console.log(this.chartData)
         await this.requestUpdate();
 
         this.querySelector("#loading").style.display = "none";
@@ -371,6 +268,7 @@ export default class OpencgaProjects extends LitElement {
         //console.log(project)
         //debugger
         return html`
+            <div class="v-space"></div>
             <table class="table table-hover table-no-bordered">
                 <thead>
                     <tr>
@@ -692,11 +590,10 @@ export default class OpencgaProjects extends LitElement {
                                             </div>
                                             <div id="${this._prefix}${project.id}Files" role="tabpanel" class="tab-pane content-tab">
                                                 <h3>Files</h3>
-                                                <div class="row">${Object.entries(project.stats).map( ([fqn, data]) => html`
-                                                    <div class="col-md-6">
-                                                        <opencga-facet-result-view .facetResult="${data["file"]?.results.find( r => r.name === "format")}"></opencga-facet-result-view>
-                                                    </div>
-                                                `) }
+                                                <div class="row">
+                                                    ${this.chartData[project.id]["file"].map( chart => html`
+                                                        <div class="col-md-6"><simple-chart .active="${true}" type="column" title="${chart.name}" .config=${chart.config} .data="${chart.data}"></simple-chart></div>
+                                                    `)}
                                                 </div>
                                                 ${this.renderTable(project.stats, "file")}
                                             </div>
@@ -725,47 +622,11 @@ export default class OpencgaProjects extends LitElement {
                 </div>
                 <div id="facetChart"></div>
                 <div id="containerChart"></div>
-                <div>
-                    <!--<br>-->
-                    <table class="table" style="display: none">
-                        <thead class="thead-inverse">
-                        <tr>
-                            <th colspan="5">Project</th>
-                            <th>Study</th>
-                            <th>Date</th>
-                            <th>Files</th>
-                            <th>Samples</th>
-                            <!--<th>Jobs</th>-->
-                            <!--<th>Individuals</th>-->
-                        </tr>
-                        </thead>
-                        <tbody>
-                        ${this._studies && this._studies.length ? this._studies.map(summaries => html`
-                            <tr>
-                                <td rowspan="${summaries.rowspan}" colspan="5">
-                                    ${summaries.name}
-                                   
-                                </td>
-                            </tr>
-                            ${summaries.studies && summaries.studies.length ? summaries.studies.map(item => html`
-                                <tr>
-                                    <td>${item.name}</td>
-                                    <td>${item.creationDate}</td>
-                                    <td>${item.files}</td>
-                                    <td>${item.samples}</td>
-                                    <!--<td>{{item.jobs}}</td>-->
-                                    <!--<td>{{item.individuals}}</td>-->
-                                </tr>
-                            `) : null}
-                        `) : null}
-
-                        </tbody>
-                    </table>
-                </div>
             </div>
         </div>
         `;
     }
+
 }
 
 customElements.define("opencga-projects", OpencgaProjects);

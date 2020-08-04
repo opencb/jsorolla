@@ -240,15 +240,6 @@ export default class OpencgaFacetResultView extends LitElement {
         let params;
         if (!this.facetResult?.start) {
             const field = this.facetResult;
-            // let fields = field.name.split("-");
-            // let title = [];
-            // if (fields.length > 1) {
-            //     for (let name of fields) {
-            //         title.push(this.fieldNamesMap[name]);
-            //     }
-            // } else {
-            //     title.push(this.fieldNamesMap[field.name]);
-            // }
             const obj = {
                 title: field.name,
                 name: field.name,
