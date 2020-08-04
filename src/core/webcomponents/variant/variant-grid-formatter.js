@@ -15,6 +15,7 @@
  */
 
 import UtilsNew from "../../utilsNew.js";
+import BioinfoUtils from "../../bioinfo-utils.js";
 
 
 //TODO urgent review of the whole class
@@ -220,9 +221,14 @@ export default class VariantGridFormatter {
                     let tooltipText = `${geneViewMenuLink}
                                        ${genomeBrowserMenuLink}
                                        <div class="dropdown-header" style="padding-left: 10px">External Links</div>
-                                       <div style="padding: 5px"><a target="_blank" href="http://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=${geneName}">Ensembl</a></div>
-                                       <div style="padding: 5px"><a target="_blank" href="https://cancer.sanger.ac.uk/cosmic/gene/analysis?ln=${geneName}">COSMIC</a></div>
-                                       <div style="padding: 5px"><a target="_blank" href="https://www.uniprot.org/uniprot/?sort=score&query=${geneName}">UniProt</a></div>`;
+                                       <div style="padding: 5px">
+                                            <a target="_blank" href="${BioinfoUtils.getEnsemblLink(geneName, "gene", this.opencgaSession.project.organism.assembly)}">Ensembl</a>
+                                       </div>
+                                       <div style="padding: 5px">
+                                            <a target="_blank" href="${BioinfoUtils.getCosmicLink(geneName, this.opencgaSession.project.organism.assembly)}">COSMIC</a>
+                                       </div>
+                                       <div style="padding: 5px">
+                                            <a target="_blank" href="${BioinfoUtils.getUniprotLink(geneName)}">UniProt</a></div>`;
 
                     // If query.ct exists
                     if (geneToSo) {
@@ -419,8 +425,8 @@ export default class VariantGridFormatter {
             for (let ct of row.annotation.consequenceTypes) {
                 // Prepare data info for columns
                 let geneName = ct.geneName ? `<a href="https://www.genenames.org/tools/search/#!/all?query=${ct.geneName}" target="_blank">${ct.geneName}</a>` : "-";
-                let geneId = ct.ensemblGeneId ? `<a href="http://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=${ct.ensemblGeneId}" target="_blank">${ct.ensemblGeneId}</a>` : "-";
-                let transcriptId = ct.ensemblTranscriptId ? `<a href="http://www.ensembl.org/Homo_sapiens/Transcript/Idhistory?t=${ct.ensemblTranscriptId}" target="_blank">${ct.ensemblTranscriptId}</a>` : "-";
+                let geneId = ct.ensemblGeneId ? `<a href="${BioinfoUtils.getEnsemblLink(ct.ensemblGeneId, "gene", this.opencgaSession.project.organism.assembly)}" target="_blank">${ct.ensemblGeneId}</a>` : "-";
+                let transcriptId = ct.ensemblTranscriptId ? `<a href="${BioinfoUtils.getEnsemblLink(ct.ensemblTranscriptId, "transcript", this.opencgaSession.project.organism.assembly)}" target="_blank">${ct.ensemblTranscriptId}</a>` : "-";
 
                 let transcriptAnnotationFlags = "-";
                 if (ct.ensemblTranscriptId) {

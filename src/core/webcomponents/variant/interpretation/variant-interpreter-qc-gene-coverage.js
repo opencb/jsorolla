@@ -162,7 +162,7 @@ class VariantInterpreterQcGeneCoverage extends LitElement {
                 </div>
             ` : null}
             
-            <tool-header title="Gene Coverage Stats - ${this.clinicalAnalysis.proband.id}" class="bg-white"></tool-header>
+            
             <div style="padding: 0px 15px">
                 <gene-coverage-browser  .opencgaSession="${this.opencgaSession}"
                                         .clinicalAnalysis="${this.clinicalAnalysis}"

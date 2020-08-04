@@ -17,7 +17,7 @@
 export default class ClinicalAnalysisUtils {
 
     static getProbandQc(clinicalAnalysis) {
-        return  clinicalAnalysis?.proband?.qualityControl;
+        return clinicalAnalysis?.proband?.qualityControl;
     }
 
     static getProbandSampleQc(clinicalAnalysis, sampleIdx = 0) {
@@ -29,18 +29,18 @@ export default class ClinicalAnalysisUtils {
     }
 
     static chromosomeFilterSorter(chromosomeCount) {
-        let filtered = Object.assign({}, ...Object.entries(chromosomeCount).map( ([ch, val]) => {
-            if(!isNaN(ch) || ["X", "Y", "MT"].includes(ch)) return {[ch]: val}
-        }))
+        let filtered = Object.assign({}, ...Object.entries(chromosomeCount).map(([ch, val]) => {
+            if (!isNaN(ch) || ["X", "Y", "MT"].includes(ch)) return {[ch]: val};
+        }));
         let ordered = {};
-        Object.keys(filtered).sort( (a,b) => {
+        Object.keys(filtered).sort((a, b) => {
             const chA = a;
             const chB = b;
-            const A = Boolean(parseInt(chA))
-            const B = Boolean(parseInt(chB))
-            if(A && !B) return -1;
-            if(!A && B) return 1;
-            if(!A && !B) return chA.length < chB.length ? -1 : chA < chB ? -1 : 1
+            const A = Boolean(parseInt(chA));
+            const B = Boolean(parseInt(chB));
+            if (A && !B) return -1;
+            if (!A && B) return 1;
+            if (!A && !B) return chA.length < chB.length ? -1 : chA < chB ? -1 : 1;
             return chA - chB;
         }).forEach(k => ordered[k] = filtered[k]);
         return ordered;

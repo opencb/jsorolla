@@ -199,7 +199,7 @@ class VariantInterpreterQcOverview extends LitElement {
         }
 
         return html`
-            <tool-header title="${this._config.title}" class="bg-white" icon="${this._config.icon}"></tool-header>
+            <!--<tool-header title="${this._config.title}" class="bg-white" icon="${this._config.icon}"></tool-header>-->
             <div class="row variant-interpreter-overview" style="padding: 10px 15px">
                 <div class="col-md-2 list-group interpreter-side-nav side-tabs side-nav">
                     ${this._config.sections[0].fields.filter(field => !field.disabled).map((field, i) => {

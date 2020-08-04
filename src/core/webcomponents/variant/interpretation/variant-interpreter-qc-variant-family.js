@@ -347,25 +347,6 @@ export default class VariantInterpreterQcVariantFamily extends LitElement {
                     hiddenFields: []
                 },
                 sections: [     // sections and subsections, structure and order is respected
-                    // {
-                    //     title: "Study and Cohorts",
-                    //     collapsed: false,
-                    //     fields: [
-                    //         /*{
-                    //             id: "cohort",
-                    //             title: "Cohort Alternate Stats",
-                    //             onlyCohortAll: true,
-                    //             tooltip: tooltips.cohort
-                    //             //cohorts: this.cohorts
-                    //         },*/
-                    //         {
-                    //             id: "file-quality",
-                    //             title: "Quality Filters",
-                    //             tooltip: "VCF file based FILTER and QUAL filters",
-                    //             showDepth: application.appConfig === "opencb"
-                    //         }
-                    //     ]
-                    // },
                     {
                         title: "Filters",
                         collapsed: false,
