@@ -146,7 +146,7 @@ export default class SelectFieldFilter extends LitElement {
                         ?disabled=${this.disabled}
                         ?required=${this.required}
                         data-live-search=${this.liveSearch ? "true" : "false"}
-                        title="${this.placeholder ? this.placeholder : "Select an option"}"
+                        title="${this.placeholder ?? this.multiple ? "Select option(s)" : "Select an option"}"
                         data-max-options="${!this.multiple ? 1 : this.maxOptions ? this.maxOptions : false}" 
                         @change="${this.filterChange}" data-width="100%">
                     ${this.data?.map(opt => html`
