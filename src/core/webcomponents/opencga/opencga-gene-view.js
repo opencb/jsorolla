@@ -162,25 +162,25 @@ export default class OpencgaGeneView extends LitElement {
                     <div class="row" style="padding: 5px 0px 25px 0px">
                         <div class="col-md-4">
                             <h3 class="section-title">Summary</h3>
-                            <table width="100%">
+                            <table class="table row">
                                 <tr>
-                                    <td class="gene-summary-title" width="20%">Name</td>
-                                    <td width="80%">${this.geneObj.name} (${this.geneObj.id})</td>
+                                    <th class="gene-summary-title col-sm-4">Name</th>
+                                    <td>${this.geneObj.name} (${this.geneObj.id})</td>
                                 </tr>
                                 <tr>
-                                    <td class="gene-summary-title" width="20%">Biotype</td>
-                                    <td width="80%">${this.geneObj.biotype}</td>
+                                    <th class="gene-summary-title col-sm-4">Biotype</th>
+                                    <td>${this.geneObj.biotype}</td>
                                 </tr>
                                 <tr>
-                                    <td class="gene-summary-title" width="20%">Description</td>
-                                    <td width="80%">${this.geneObj.description}</td>
+                                    <th class="gene-summary-title col-sm-4">Description</th>
+                                    <td>${this.geneObj.description}</td>
                                 </tr>
                                 <tr>
-                                    <td class="gene-summary-title">Location</td>
+                                    <th class="gene-summary-title col-sm-4">Location</th>
                                     <td>${this.geneObj.chromosome}:${this.geneObj.start}-${this.geneObj.end} (${this.geneObj.strand})</td>
                                 </tr>
                                 <tr>
-                                    <td class="gene-summary-title">Genome Browser</td>
+                                    <th class="gene-summary-title col-sm-4">Genome Browser</th>
                                     <td>
                                         ${application.appConfig === "opencb" ? html`
                                             <a target="_blank" href="http://genomemaps.org/?region=${this.geneObj.chromosome}:${this.geneObj.start}-${this.geneObj.end}">

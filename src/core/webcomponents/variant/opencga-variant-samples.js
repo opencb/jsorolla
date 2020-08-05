@@ -17,6 +17,7 @@
 import {html, LitElement} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
 import "../loading-spinner.js";
+import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import GridCommons from "./grid-commons.js";
 
 export default class OpencgaVariantSamples extends LitElement {
@@ -54,6 +55,10 @@ export default class OpencgaVariantSamples extends LitElement {
     }
 
     updated(changedProperties) {
+        if (changedProperties.has("opencgaSession")) {
+            this.catalogGridFormatter = new CatalogGridFormatter(this.opencgaSession);
+        }
+
         if ((changedProperties.has("variantId") || changedProperties.has("active")) && this.active) {
             this.renderTable();
         }
@@ -62,6 +67,7 @@ export default class OpencgaVariantSamples extends LitElement {
     firstUpdated(_changedProperties) {
         this.table = this.querySelector("#" + this.gridId);
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
+
     }
 
     genoypeFormatter(value, row, index) {
@@ -285,19 +291,20 @@ export default class OpencgaVariantSamples extends LitElement {
                     halign: "center"
                 },
                 {
-                    title: "Phenotypes",
-                    field: "attributes.OPENCGA_INDIVIDUAL.phenotypes",
-                    colspan: 1,
-                    rowspan: 1,
-                    formatter: this.phenotypesFormatter,
-                    halign: "center"
-                },
-                {
                     title: "Disorders",
                     field: "attributes.OPENCGA_INDIVIDUAL.disorders",
                     colspan: 1,
                     rowspan: 1,
-                    formatter: this.disorderFormatter,
+                    formatter: disorders => disorders.map(disorder => this.catalogGridFormatter.disorderFormatter(disorder)).join("<br>"),
+                    halign: "center"
+                },
+                {
+                    title: "Phenotypes",
+                    field: "attributes.OPENCGA_INDIVIDUAL.phenotypes",
+                    colspan: 1,
+                    rowspan: 1,
+                    formatter: this.catalogGridFormatter.phenotypesFormatter,
+                    //formatter: r => JSON.stringify(r),
                     halign: "center"
                 }
             ]

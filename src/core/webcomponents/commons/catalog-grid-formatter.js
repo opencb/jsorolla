@@ -30,11 +30,11 @@ export default class CatalogGridFormatter {
         if (value && value.length > 0) {
             const tooltip = value.map(phenotype => {
                 return `
-                    <div>
+                    <p>
                         ${phenotype.source && phenotype.source.toUpperCase() === "HPO"
                     ? `<span><a target="_blank" href="https://hpo.jax.org/app/browse/term/${phenotype.id}">${phenotype.id} - ${phenotype.name} </a>(${phenotype.status})</span>`
                     : `<span>${phenotype.id} (${phenotype.status})</span>`}
-                    </div>`;
+                    </p>`;
             }).join("");
             return `<a tooltip-title="Phenotypes" tooltip-text='${tooltip}'> ${value.length} term${value.length > 1 ? "s" : ""} found</a>`;
         } else {

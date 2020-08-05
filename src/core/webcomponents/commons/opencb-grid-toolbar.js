@@ -119,7 +119,7 @@ export default class OpencbGridToolbar extends LitElement {
                     margin-top: 5px;
                 }
                 .opencb-grid-toolbar {
-                    margin-bottom: 0px;
+                    margin-bottom: 10px;
                 }
             </style>
             

@@ -249,7 +249,7 @@ export default class OpencgaProjects extends LitElement {
                             }
                         }
                     })
-                    console.log(this.chartData)
+                    //console.log(this.chartData)
                 })
             }
 
@@ -273,7 +273,7 @@ export default class OpencgaProjects extends LitElement {
                 <thead>
                     <tr>
                         <th></th>
-                        ${Object.entries(project).map( ([fqn,_]) => html`<th>${fqn}</th>`)}
+                        ${Object.entries(project).map( ([fqn, _]) => html`<th>${fqn}</th>`)}
                     </tr>
                 </thead>
                 <tbody>
