@@ -402,7 +402,7 @@ class OpencgaVariantClinical extends LitElement {
             render() {
                 return html`
                 <template>
-        <style include="jso-styles">
+        <style>
             /* From http://code-chunk.com/chunks/543df4c394758/bootstrap-arrow-shaped-buttons */
             .analysis-button.btn-arrow-right,
             .analysis-button.btn-arrow-left {

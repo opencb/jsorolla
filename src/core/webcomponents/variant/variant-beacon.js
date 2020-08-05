@@ -200,7 +200,10 @@ export default class VariantBeacon extends LitElement {
                         <div class="col-md-12">
                                 <h3>Beacon Network</h3>
                                 <div>
-                                    <variant-beacon-network .variant="${this.variant}" .clear="${this.clear}" .config="${this._config}"></variant-beacon-network>
+                                    <variant-beacon-network .variant="${this.variant}" 
+                                                            .assembly="${this.opencgaSession.project.organism.assembly}"
+                                                            .config="${this._config}">
+                                    </variant-beacon-network>
                                 </div>
                         </div>
                     </div>

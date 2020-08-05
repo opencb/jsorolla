@@ -640,7 +640,7 @@ export default class ClinicalInterpretationView extends LitElement {
 
     render() {
         return html`
-            <style include="jso-styles">
+            <style>
                 .clinical-bottom-tab-title {
                     font-size: 115%;
                     font-weight: bold;
@@ -706,14 +706,10 @@ export default class ClinicalInterpretationView extends LitElement {
                                                             <div class="form-group" style="margin: 0px 2px">
                                                                 <label class="col-md-4">Phenotypes:</label>
                                                                 <span class="col-md-8">
-                                                                        <template is="dom-repeat"
-                                                                                  items="${this.interpretation.clinicalAnalysis.subjects[0].samples[0].phenotypes}">
-                                                                            <span>${this.item.name} (<a
-                                                                                    href="http://compbio.charite.de/hpoweb/showterm?id=${this.item.id}"
-                                                                                    target="_blank">${this.item.id}</a>)</span>
-                                                                            <br>
-                                                                        </template>
-                                                                    </span>
+                                                                    ${this.interpretation.clinicalAnalysis.subjects[0].samples[0].phenotypes.map( phenotype => html`
+                                                                        <span>${phenotype.name} (<a href="http://compbio.charite.de/hpoweb/showterm?id=${phenotype.id}" target="_blank">${phenotype.id}</a>)</span>
+                                                                    `) }
+                                                                </span>
                                                             </div>
                                                             <!--<div class="form-group" style="margin: 0px 2px">-->
                                                             <!--<label class="col-md-4">Description:</label>-->
@@ -1065,7 +1061,8 @@ export default class ClinicalInterpretationView extends LitElement {
                                         </a>
                                         <br>
                                         <br>
-                                        <variant-beacon-network .clear="${this.variant}" .variant="${this.variantToBeacon}"></variant-beacon-network>
+                                        <variant-beacon-network .variant="${this.variantToBeacon}" 
+                                                                .assembly="${this.opencgaSession.project.organism.assembly}"></variant-beacon-network>
                                     </div>
         
                                     <!-- Genome Browser -->

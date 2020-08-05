@@ -262,7 +262,8 @@ export default class OpenCGAVariantDetailView extends LitElement {
                                         <!-- Beacon Network Tab -->
                                         <div id="${this._prefix}beacon" role="tabpanel" class="tab-pane">
                                             <div style="width: 90%;padding-top: 8px">
-                                                <variant-beacon-network variant="${this.variant.id}"
+                                                <variant-beacon-network .variant="${this.variant.id}"
+                                                                        .assembly="${this.opencgaSession.project.organism.assembly}"
                                                                         .config="${this.beaconConfig}">
                                                 </variant-beacon-network>
                                             </div>

@@ -38,7 +38,10 @@ export default class VariantBeaconNetwork extends LitElement {
             variant: {
                 type: String
             },
-            clear: {
+            /*clear: {
+                type: String
+            },*/
+            assembly: {
                 type: String
             },
             config: {
@@ -83,12 +86,9 @@ export default class VariantBeaconNetwork extends LitElement {
             $(".beacon-loading-spinner", this).css("display", "block");
             //$("#" + this._prefix + "spinGif").show();
             // url to search : https://beacon-network.org/api/responses?allele=C&beacon=[cosmic]&chrom=1&pos=99999&ref=GRCh37
-            // TODO: Assembly is hardcoded for now. It has to be taken care in the future
-
-            const _this = this;
             for (let i = 0; i < this._config.hosts.length; i++) {
                 // Beacon network uses zero-based numbering hence (position-1) is used in the url.
-                const url = `https://beacon-network.org/api/responses?allele=${alternate}&beacon=[${this._config.hosts[i]}]&chrom=${chromosome}&pos=${(position - 1)}&ref=GRCh37`;
+                const url = `https://beacon-network.org/api/responses?allele=${alternate}&beacon=[${this._config.hosts[i]}]&chrom=${chromosome}&pos=${(position - 1)}&ref=${this.assembly}`;
                 fetch(url)
                     .then( async res => {
                         if (res.ok) {
