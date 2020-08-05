@@ -108,10 +108,6 @@ export default class OpencgaIndividualGrid extends LitElement {
     }
 
     renderRemoteTable() {
-        // Initialise row counters
-        // this.from = 1;
-        // this.to = this._config.pageSize;
-
         if (this.opencgaSession.opencgaClient && this.opencgaSession.study && this.opencgaSession.study.fqn) {
             const filters = {...this.query};
             // filters.study = this.opencgaSession.study.fqn;
@@ -186,11 +182,6 @@ export default class OpencgaIndividualGrid extends LitElement {
                 },
                 responseHandler: response => {
                     const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
-                    // this.from = result.from || this.from;
-                    // this.to = result.to || this.to;
-                    // this.numTotalResultsText = result.numTotalResultsText || this.numTotalResultsText;
-                    // this.approximateCountResult = result.approximateCountResult;
-                    // this.requestUpdate();
                     return result.response;
                 },
                 onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
@@ -221,11 +212,6 @@ export default class OpencgaIndividualGrid extends LitElement {
                     this.gridCommons.onLoadSuccess(data, 1);
                 },
                 onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse),
-                // onPageChange: (page, size) => {
-                //     const result = this.gridCommons.onPageChange(page, size);
-                //     this.from = result.from || this.from;
-                //     this.to = result.to || this.to;
-                // },
                 onPostBody: (data) => {
                     // Add tooltips
                 }
@@ -554,13 +540,13 @@ export default class OpencgaIndividualGrid extends LitElement {
     render() {
         return html`
             ${this._config.showToolbar
-            ? html`
-                    <opencb-grid-toolbar .config="${this.toolbarConfig}"
-                                         @download="${this.onDownload}"
-                                         @columnChange="${this.onColumnChange}">
+                ? html`
+                    <opencb-grid-toolbar    .config="${this.toolbarConfig}"
+                                            @download="${this.onDownload}"
+                                            @columnChange="${this.onColumnChange}">
                     </opencb-grid-toolbar>`
-            : null
-        }
+                : null
+            }
     
             <div id="${this._prefix}GridTableDiv">
                 <table id="${this._prefix}IndividualBrowserGrid"></table>
