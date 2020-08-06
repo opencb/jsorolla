@@ -1,5 +1,5 @@
-/**
- * Copyright 2015-2019 OpenCB
+/*
+ * Copyright 2015-2016 OpenCB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,14 +15,14 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../../utilsNew.js";
-import "./variant-interpreter-qc-cancer-plots.js";
-import "../opencga-variant-filter.js";
-import "../../commons/opencga-active-filters.js";
-import "../../commons/view/signature-view.js";
-import "../../loading-spinner.js";
+import UtilsNew from "../../utilsNew.js";
+import "./sample-cancer-variant-stats-plots.js";
+import "../variant/opencga-variant-filter.js";
+import "../commons/opencga-active-filters.js";
+import "../commons/view/signature-view.js";
+import "../loading-spinner.js";
 
-export default class VariantInterpreterQcVariantCancer extends LitElement {
+export default class SampleCancerVariantStatsBrowser extends LitElement {
 
     constructor() {
         super();
@@ -39,10 +39,16 @@ export default class VariantInterpreterQcVariantCancer extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            clinicalAnalysisId: {
+            // clinicalAnalysisId: {
+            //     type: String
+            // },
+            // clinicalAnalysis: {
+            //     type: Object
+            // },
+            sampleId: {
                 type: String
             },
-            clinicalAnalysis: {
+            sample: {
                 type: Object
             },
             query: {
@@ -58,7 +64,7 @@ export default class VariantInterpreterQcVariantCancer extends LitElement {
     }
 
     _init(){
-        this._prefix = "sf-" + UtilsNew.randomString(6);
+        this._prefix = UtilsNew.randomString(8);
 
         this.save = {};
         this.settings = {
@@ -74,13 +80,8 @@ export default class VariantInterpreterQcVariantCancer extends LitElement {
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("clinicalAnalysis")) {
-            // Select the somatic sample
-            this.sample = this.clinicalAnalysis.proband.samples.find(sample => sample.somatic);
-        }
-
-        if (changedProperties.has("clinicalAnalysisId")) {
-            this.clinicalAnalysisIdObserver();
+        if (changedProperties.has("sampleId")) {
+            this.sampleIdObserver();
         }
 
         if (changedProperties.has("query")) {
@@ -100,17 +101,15 @@ export default class VariantInterpreterQcVariantCancer extends LitElement {
         this.requestUpdate();
     }
 
-    clinicalAnalysisIdObserver() {
-        if (this.opencgaSession && this.clinicalAnalysisId) {
-            this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
+    sampleIdObserver() {
+        if (this.opencgaSession && this.sampleId) {
+            this.opencgaSession.opencgaClient.samples().info(this.sampleId, {study: this.opencgaSession.study.fqn})
                 .then(response => {
-                    this.clinicalAnalysis = response.responses[0].results[0];
-                    // Select the somatic sample
-                    this.sample = this.clinicalAnalysis.proband.samples.find(sample => sample.somatic);
-                    this.requestUpdate();
+                    this.sample = response.getResult(0);
+                    this.getVariantStatFromSample();
                 })
                 .catch(response => {
-                    console.error("An error occurred fetching clinicalAnalysis: ", response);
+                    console.error("An error occurred fetching sample: ", response);
                 });
         }
     }
@@ -220,7 +219,8 @@ export default class VariantInterpreterQcVariantCancer extends LitElement {
 
     onSave(e) {
         // Search bamFile for the sample
-        let bamFile = this.clinicalAnalysis.files.find(file => file.format === "BAM" && file.samples.some(sample => sample.id === this.sample.id));
+        // let bamFile = this.clinicalAnalysis.files.find(file => file.format === "BAM" && file.samples.some(sample => sample.id === this.sample.id));
+        let bamFileId = this.sample.fileIds.find(fileId => fileId.endsWith(".bam"));
         let variantStats = {
             id: this.save.id,
             query: this.executedQuery || {},
@@ -229,7 +229,7 @@ export default class VariantInterpreterQcVariantCancer extends LitElement {
         };
 
         // Check if a metric object for that bamFileId exists
-        let metric = this.sample?.qualityControl?.metrics.find(metric => metric.bamFileId === bamFile.id);
+        let metric = this.sample?.qualityControl?.metrics.find(metric => metric.bamFileId === bamFileId);
         if (metric) {
             // Push the stats and signature in the existing metric object
             metric.variantStats.push(variantStats);
@@ -237,7 +237,7 @@ export default class VariantInterpreterQcVariantCancer extends LitElement {
         } else {
             // create a new metric
             metric = {
-                bamFileId: bamFile.id,
+                bamFileId: bamFileId,
                 variantStats: [variantStats],
                 signatures: [this.signature]
             }
@@ -379,18 +379,6 @@ export default class VariantInterpreterQcVariantCancer extends LitElement {
                     hiddenFields: []
                 },
                 sections: [     // sections and subsections, structure and order is respected
-                    // {
-                    //     title: "Sample",
-                    //     collapsed: false,
-                    //     fields: [
-                    //         {
-                    //             id: "file-quality",
-                    //             title: "Quality Filter",
-                    //             tooltip: "VCF file based FILTER and QUAL filters",
-                    //             showDepth: application.appConfig === "opencb"
-                    //         }
-                    //     ]
-                    // },
                     {
                         title: "Filters",
                         collapsed: false,
@@ -435,17 +423,6 @@ export default class VariantInterpreterQcVariantCancer extends LitElement {
                             }
                         ]
                     },
-                    // {
-                    //     title: "Consequence Type",
-                    //     collapsed: true,
-                    //     fields: [
-                    //         {
-                    //             id: "consequenceTypeSelect",
-                    //             title: "Select SO terms",
-                    //             tooltip: tooltips.consequenceTypeSelect
-                    //         }
-                    //     ]
-                    // }
                 ],
                 examples: [
                     {
@@ -511,13 +488,13 @@ export default class VariantInterpreterQcVariantCancer extends LitElement {
                         </div>
                        
                         <div class="col-md-12" style="padding: 0px 15px"> 
-                            <variant-interpreter-qc-cancer-plots    .opencgaSession="${this.opencgaSession}"
+                            <sample-cancer-variant-stats-plots    .opencgaSession="${this.opencgaSession}"
                                                                     .query="${this.executedQuery}"
                                                                     .sampleId="${this.sample?.id}"
                                                                     .active="${this.active}"
                                                                     @changeSignature="${this.onChangeSignature}"
                                                                     @changeAggregationStatsResults="${this.onChangeAggregationStatsResults}">
-                            </variant-interpreter-qc-cancer-plots>
+                            </sample-cancer-variant-stats-plots>
                         </div>
                     </div>
                 </div>
@@ -527,4 +504,4 @@ export default class VariantInterpreterQcVariantCancer extends LitElement {
 
 }
 
-customElements.define("variant-interpreter-qc-variant-cancer", VariantInterpreterQcVariantCancer);
+customElements.define("sample-cancer-variant-stats-browser", SampleCancerVariantStatsBrowser);

@@ -198,17 +198,17 @@ class VariantInterpreterQc extends LitElement {
                     
                     <div id="${this._prefix}SampleVariantStats" role="tabpanel" class="tab-pane col-md-10 col-md-offset-1 content-tab">
                         <tool-header title="Sample Variant Stats - ${this.clinicalAnalysis.proband.id}" class="bg-white"></tool-header>
-                        <variant-interpreter-qc-variant-family .opencgaSession="${this.opencgaSession}" 
-                                                                .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                                .active="${this.activeTab["VariantQc"]}">
-                        </variant-interpreter-qc-variant-family>
+                        <sample-variant-stats-browser .opencgaSession="${this.opencgaSession}" 
+                                                      .sample="${this.clinicalAnalysis.proband.samples[0]}"
+                                                      .active="${this.activeTab["VariantQc"]}">
+                        </sample-variant-stats-browser>
                     </div>
                     <div id="${this._prefix}VariantQcCancer" role="tabpanel" class="tab-pane col-md-10 col-md-offset-1 content-tab">
                         <tool-header title="Cancer QC Plots - ${this.clinicalAnalysis.proband.id}" class="bg-white"></tool-header>
-                        <variant-interpreter-qc-variant-cancer .opencgaSession="${this.opencgaSession}" 
-                                                                .clinicalAnalysis="${this.clinicalAnalysis}"
+                        <sample-cancer-variant-stats-browser  .opencgaSession="${this.opencgaSession}" 
+                                                                .sample="${this.clinicalAnalysis.proband.samples[0]}"
                                                                 .active="${this.activeTab["VariantQc"]}">
-                        </variant-interpreter-qc-variant-cancer>
+                        </sample-cancer-variant-stats-browser>
                     </div>
                     
                     <!--

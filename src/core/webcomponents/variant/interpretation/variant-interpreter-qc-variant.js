@@ -16,8 +16,8 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../utilsNew.js";
-import "./variant-interpreter-qc-variant-family.js";
-import "./variant-interpreter-qc-variant-cancer.js";
+import "../../samples/sample-variant-stats-browser.js";
+import "../../samples/sample-cancer-variant-stats-browser.js";
 import "../../simple-chart.js";
 import "../../commons/view/data-form.js";
 
@@ -110,9 +110,9 @@ class VariantInterpreterQcVariant extends LitElement {
                 <div class="">
                     <tool-header title="RD Variant Stats - ${this.clinicalAnalysis.proband.id}" class="bg-white"></tool-header>
                     <div style="padding: 0px 15px">
-                        <variant-interpreter-qc-variant-family  .clinicalAnalysis="${this.clinicalAnalysis}"
+                        <sample-variant-stats-browser  .clinicalAnalysis="${this.clinicalAnalysis}"
                                                                 .opencgaSession="${this.opencgaSession}" >
-                        </variant-interpreter-qc-variant-family>
+                        </sample-variant-stats-browser>
                     </div>
                 </div>
             `;
@@ -123,10 +123,10 @@ class VariantInterpreterQcVariant extends LitElement {
                 <div class="">
                     <tool-header title="RD Variant Stats - ${this.clinicalAnalysis.proband.id}" class="bg-white"></tool-header>
                     <div  style="padding: 0px 15px">
-                        <variant-interpreter-qc-variant-cancer  .clinicalAnalysis="${this.clinicalAnalysis}" 
+                        <sample-cancer-variant-stats-browser  .clinicalAnalysis="${this.clinicalAnalysis}" 
                                                                 .opencgaSession="${this.opencgaSession}" 
                                                                 ?active="${this.active}">
-                        </variant-interpreter-qc-variant-cancer>
+                        </sample-cancer-variant-stats-browser>
                     </div>
                 </div>
             `;

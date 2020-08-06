@@ -1,5 +1,5 @@
-/**
- * Copyright 2015-2019 OpenCB
+/*
+ * Copyright 2015-2016 OpenCB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,15 +15,15 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../../utilsNew.js";
+import UtilsNew from "../../utilsNew.js";
 //import Circos from "./test/circos.js";
-import "../opencga-variant-filter.js";
-import "../../commons/opencga-active-filters.js";
-import "../../commons/visualisation/circos-view.js";
-import "../../commons/view/signature-view.js";
-import "../../loading-spinner.js";
+import "../variant/opencga-variant-filter.js";
+import "../commons/opencga-active-filters.js";
+import "../commons/visualisation/circos-view.js";
+import "../commons/view/signature-view.js";
+import "../loading-spinner.js";
 
-export default class VariantInterpreterQcCancerPlots extends LitElement {
+export default class SampleCancerVariantStatsPlots extends LitElement {
 
     constructor() {
         super();
@@ -40,14 +40,14 @@ export default class VariantInterpreterQcCancerPlots extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            query: {
-                type: Object
-            },
             sampleId: {
                 type: String
             },
             active: {
                 type: Boolean
+            },
+            query: {
+                type: Object
             },
             config: {
                 type: Object
@@ -56,7 +56,7 @@ export default class VariantInterpreterQcCancerPlots extends LitElement {
     }
 
     _init(){
-        this._prefix = "sf-" + UtilsNew.randomString(6);
+        this._prefix = UtilsNew.randomString(8);
 
         this.preparedQuery = {};
         //this.base64 = "data:image/png;base64, " + Circos.base64;
@@ -83,7 +83,6 @@ export default class VariantInterpreterQcCancerPlots extends LitElement {
     }
 
     signatureQuery() {
-
         this.opencgaSession.opencgaClient.variants().queryMutationalSignature({
             study: this.opencgaSession.study.fqn,
             fitting: false,
@@ -110,7 +109,7 @@ export default class VariantInterpreterQcCancerPlots extends LitElement {
     statsQuery() {
         let params = {
             study: this.opencgaSession.study.fqn,
-            fields: "chromosome;genotype;type;biotype;consequenceType;clinicalSignificance;depth",
+            fields: "type",
             sample: this.sampleId,
             ...this.query
         };
@@ -163,7 +162,7 @@ export default class VariantInterpreterQcCancerPlots extends LitElement {
                                     <div class="">
                                         <h3>Type</h3>
                                         <opencga-facet-result-view  .title="Type" .xAxisTitle="types" .showButtons=${false} 
-                                                                    .facetResult="${this.aggregationStatsResults?.[1]}"
+                                                                    .facetResult="${this.aggregationStatsResults?.[0]}"
                                                                     .config="${this.facetConfig}"
                                                                     ?active="${true}">
                                         </opencga-facet-result-view>
@@ -171,7 +170,7 @@ export default class VariantInterpreterQcCancerPlots extends LitElement {
                                 </div>
                             </div>
                         </div>
-                        
+                        <!--
                         <div class="col-md-12">
                             <h2>Other Sample Stats</h2>
                             <div class="">
@@ -203,6 +202,7 @@ export default class VariantInterpreterQcCancerPlots extends LitElement {
                                 </opencga-facet-result-view>
                             </div>
                         </div>
+                        -->
                     </div>                            
                 </div>
             </div>
@@ -210,4 +210,4 @@ export default class VariantInterpreterQcCancerPlots extends LitElement {
     }
 }
 
-customElements.define("variant-interpreter-qc-cancer-plots", VariantInterpreterQcCancerPlots);
+customElements.define("sample-cancer-variant-stats-plots", SampleCancerVariantStatsPlots);

@@ -15,10 +15,10 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../../utilsNew.js";
-import "../../simple-chart.js";
-import "../../commons/view/data-form.js";
-import ClinicalAnalysisUtils from "../../clinical/clinical-analysis-utils.js";
+import UtilsNew from "../../utilsNew.js";
+import "../simple-chart.js";
+import "../commons/view/data-form.js";
+import ClinicalAnalysisUtils from "../clinical/clinical-analysis-utils.js";
 
 class SampleVariantStatsView extends LitElement {
 
@@ -54,7 +54,7 @@ class SampleVariantStatsView extends LitElement {
     }
 
     _init() {
-        this._prefix = "vcis-" + UtilsNew.randomString(6);
+        this._prefix = UtilsNew.randomString(8);
         this.variantStats = null;
 
         // Default config for Highcharts charts
@@ -90,10 +90,6 @@ class SampleVariantStatsView extends LitElement {
     }
 
     updated(changedProperties) {
-        // if (changedProperties.has("opencgaSession")) {
-        //     this.opencgaSessionObserver();
-        // }
-
         if (changedProperties.has("sampleVariantStats")) {
             this.sampleVariantStatsObserver();
         }
@@ -110,7 +106,6 @@ class SampleVariantStatsView extends LitElement {
             // this._config = {...this.getDefaultConfig(), ...this.config};
             this._config = this.getDefaultConfig();
             _.merge(this._config, this.config);
-            // debugger
             this.requestUpdate();
         }
     }
@@ -134,7 +129,7 @@ class SampleVariantStatsView extends LitElement {
                     this.getVariantStatFromSample();
                 })
                 .catch(response => {
-                    console.error("An error occurred fetching clinicalAnalysis: ", response);
+                    console.error("An error occurred fetching sample: ", response);
                 });
         }
     }
@@ -144,11 +139,10 @@ class SampleVariantStatsView extends LitElement {
         if (this.sample?.qualityControl?.metrics?.length && this.sample.qualityControl.metrics[0].variantStats?.length) {
             // By default we render the stat 'ALL' from the first metric, if there is not stat 'ALL' then we take the first one
             let selectedStat = this.sample.qualityControl.metrics[0].variantStats.find(stat => stat.id === "ALL") ?? this.sample.qualityControl.metrics[0].variantStats[0];
-            // debugger
             this.statsSelected = selectedStat.id;
             this.variantStats = selectedStat;
         } else {
-            //TODO recheck
+            // TODO recheck
             // Check if sample variant stats has been indexed in annotationSets
             let annotationSet = this.sample?.annotationSets?.find(annotSet => annotSet.id.toLowerCase() === "opencga_sample_variant_stats");
             this.variantStats = annotationSet?.annotations;
@@ -417,16 +411,16 @@ class SampleVariantStatsView extends LitElement {
         return html`
             ${this.sampleSelector
                 ? html`
-                            <div style="margin: 20px 10px">
-                                <div class="form-horizontal">
-                                    <div class="form-group">
-                                        <label class="col-md-2">Select Variant Stat</label>
-                                        <div class="col-md-2">
-                                            <select-field-filter forceSelection .data="${this.statsSelect}" .value=${this.statsSelected} @filterChange="${this.statChange}"></select-field-filter>
-                                        </div>
-                                    </div>
+                    <div style="margin: 20px 10px">
+                        <div class="form-horizontal">
+                            <div class="form-group">
+                                <label class="col-md-2">Select Variant Stat</label>
+                                <div class="col-md-2">
+                                    <select-field-filter forceSelection .data="${this.statsSelect}" .value=${this.statsSelected} @filterChange="${this.statChange}"></select-field-filter>
                                 </div>
-                            </div>`
+                            </div>
+                        </div>
+                    </div>`
                 : null
             }
             <div>

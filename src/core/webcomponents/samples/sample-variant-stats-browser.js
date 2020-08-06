@@ -1,5 +1,5 @@
-/**
- * Copyright 2015-2019 OpenCB
+/*
+ * Copyright 2015-2016 OpenCB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,12 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../../utilsNew.js";
-import "../opencga-variant-filter.js";
-import "../../commons/opencga-active-filters.js";
-import "../../loading-spinner.js";
+import UtilsNew from "../../utilsNew.js";
+import "../variant/opencga-variant-filter.js";
+import "../commons/opencga-active-filters.js";
+import "../loading-spinner.js";
 
-export default class VariantInterpreterQcVariantFamily extends LitElement {
+export default class SampleVariantStatsBrowser extends LitElement {
 
     constructor() {
         super();
@@ -37,10 +37,10 @@ export default class VariantInterpreterQcVariantFamily extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            clinicalAnalysisId: {
+            sampleId: {
                 type: String
             },
-            clinicalAnalysis: {
+            sample: {
                 type: Object
             },
             query: {
@@ -49,14 +49,11 @@ export default class VariantInterpreterQcVariantFamily extends LitElement {
             config: {
                 type: Object
             },
-            // active: {
-            //     type: Boolean
-            // }
-        }
+        };
     }
 
-    _init(){
-        this._prefix = "sf-" + UtilsNew.randomString(6);
+    _init() {
+        this._prefix = UtilsNew.randomString(8);
 
         this.save = {};
         this.preparedQuery = {};
@@ -71,13 +68,8 @@ export default class VariantInterpreterQcVariantFamily extends LitElement {
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("clinicalAnalysis")) {
-            // There must be just one sample
-            this.sample = this.clinicalAnalysis.proband.samples[0];
-        }
-
-        if (changedProperties.has("clinicalAnalysisId")) {
-            this.clinicalAnalysisIdObserver();
+        if (changedProperties.has("sampleId")) {
+            this.sampleIdObserver();
         }
 
         if (changedProperties.has("query")) {
@@ -97,17 +89,15 @@ export default class VariantInterpreterQcVariantFamily extends LitElement {
         this.requestUpdate();
     }
 
-    clinicalAnalysisIdObserver() {
-        if (this.opencgaSession && this.clinicalAnalysisId) {
-            this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
+    sampleIdObserver() {
+        if (this.opencgaSession && this.sampleId) {
+            this.opencgaSession.opencgaClient.samples().info(this.sampleId, {study: this.opencgaSession.study.fqn})
                 .then(response => {
-                    this.clinicalAnalysis = response.responses[0].results[0];
-                    // There must be just one sample
-                    this.sample = this.clinicalAnalysis.proband.samples[0];
-                    this.requestUpdate();
+                    this.sample = response.getResult(0);
+                    this.getVariantStatFromSample();
                 })
                 .catch(response => {
-                    console.error("An error occurred fetching clinicalAnalysis: ", response);
+                    console.error("An error occurred fetching sample: ", response);
                 });
         }
     }
@@ -118,12 +108,9 @@ export default class VariantInterpreterQcVariantFamily extends LitElement {
     }
 
     async onVariantFilterSearch(e) {
-
-       // TODO fix activeFilterClear and activeFilterChange!
-
+        // TODO fix activeFilterClear and activeFilterChange!
         this.loading = true;
         await this.requestUpdate();
-        console.log("onVariantFilterSearch", e)
         //this.preparedQuery = this._prepareQuery(e.detail.query); //TODO check if we need to process e.detail.query
         this.query = {...e.detail.query};
 
@@ -194,29 +181,24 @@ export default class VariantInterpreterQcVariantFamily extends LitElement {
                 };
                 this.requestUpdate();
             })
-            .catch (restResponse => {
-                console.log(restResponse)
+            .catch(restResponse => {
+                console.log(restResponse);
             })
-            .finally( () => {
+            .finally(() => {
                 this.loading = false;
                 this.requestUpdate();
-            })
-
+            });
     }
 
     onActiveFilterChange(e) {
-        console.log("e.detail", e.detail)
         this.query = {study: this.opencgaSession.study.fqn, ...e.detail};
         this.requestUpdate();
     }
 
     onActiveFilterClear(e) {
-
-        console.log("e.detail", e.detail)
         this.query = {study: this.opencgaSession.study.fqn};
         this.requestUpdate();
     }
-
 
     onSaveFieldChange(e) {
         switch (e.detail.param) {
@@ -239,13 +221,13 @@ export default class VariantInterpreterQcVariantFamily extends LitElement {
         };
 
         // Check if a metric object for that bamFileId exists
-        let bamFile = this.clinicalAnalysis.files.find(file => file.format === "BAM" && file.samples.some(sample => sample.id === this.sample.id));
+        let bamFileId = this.sample.fileIds.find(fileId => fileId.endsWith(".bam"));
         let metric = this.sample?.qualityControl?.metrics
             .find(metric => {
-                if (bamFile) {
-                    return metric.bamFileId === bamFile.id
+                if (bamFileId) {
+                    return metric.bamFileId === bamFileId;
                 } else {
-                    return metric.bamFileId === ""
+                    return metric.bamFileId === "";
                 }
             });
         // Save the variant stats
@@ -255,9 +237,9 @@ export default class VariantInterpreterQcVariantFamily extends LitElement {
         } else {
             // create a new metric
             metric = {
-                bamFileId: bamFile ? bamFile.id : "",
+                bamFileId: bamFileId ? bamFileId : "",
                 variantStats: [variantStats],
-            }
+            };
             // Check if this is the first metric object
             if (this.sample?.qualityControl?.metrics) {
                 this.sample.qualityControl.metrics.push(metric);
@@ -269,16 +251,15 @@ export default class VariantInterpreterQcVariantFamily extends LitElement {
         }
 
         this.opencgaSession.opencgaClient.samples().update(this.sample.id, {qualityControl: this.sample.qualityControl}, {study: this.opencgaSession.study.fqn})
-            .then( restResponse => {
+            .then(restResponse => {
                 console.log(restResponse);
-                // this.opencgaSession.opencgaClient.
             })
-            .catch( restResponse => {
+            .catch(restResponse => {
                 console.error(restResponse);
             })
-            .finally( () => {
+            .finally(() => {
                 this.requestUpdate();
-            })
+            });
     }
 
     getSaveConfig() {
@@ -326,7 +307,7 @@ export default class VariantInterpreterQcVariantFamily extends LitElement {
                     ]
                 }
             ]
-        }
+        };
     }
 
     getDefaultConfig() {
@@ -418,10 +399,9 @@ export default class VariantInterpreterQcVariantFamily extends LitElement {
                 result: {
                     grid: {}
                 },
-                detail: {
-                }
+                detail: {}
             }
-        }
+        };
     }
 
     render() {
@@ -457,14 +437,14 @@ export default class VariantInterpreterQcVariantFamily extends LitElement {
                       
                         <div class="main-view">
                             <div class="row">
-                                ${this.loading 
+                                ${this.loading
                                     ? html`
                                         <div id="loading">
                                             <loading-spinner></loading-spinner>
-                                        </div>` 
-                                    : !this.sampleVariantStats 
+                                        </div>`
+                                    : !this.sampleVariantStats
                                         ? html`
-                                            <div class="alert alert-info" role="alert" style="margin: 0px 15px"><i class="fas fa-3x fa-info-circle align-middle"></i> Please select some filters on the left.</div>` 
+                                            <div class="alert alert-info" role="alert" style="margin: 0px 15px"><i class="fas fa-3x fa-info-circle align-middle"></i> Please select some filters on the left.</div>`
                                         : html`
                                             <div style="padding: 0px 15px">
                                                 <div class="col-md-12">
@@ -477,8 +457,8 @@ export default class VariantInterpreterQcVariantFamily extends LitElement {
                                                 <div class="col-md-12">
                                                     <sample-variant-stats-view .sampleVariantStats="${this.sampleVariantStats}"></sample-variant-stats-view>
                                                 </div>
-                                            </div>
-                                        `}
+                                            </div>`
+                                }
                             </div>                            
                         </div>
                     </div>
@@ -489,4 +469,4 @@ export default class VariantInterpreterQcVariantFamily extends LitElement {
 
 }
 
-customElements.define("variant-interpreter-qc-variant-family", VariantInterpreterQcVariantFamily);
+customElements.define("sample-variant-stats-browser", SampleVariantStatsBrowser);

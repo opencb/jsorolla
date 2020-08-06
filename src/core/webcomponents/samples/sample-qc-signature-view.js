@@ -215,7 +215,7 @@ class SampleQcSignatureView extends LitElement {
                             <div style="margin: 20px 10px">
                                 <div class="form-horizontal">
                                     <div class="form-group">
-                                        <label class="col-md-2">Select Siganture</label>
+                                        <label class="col-md-2">Select Signature</label>
                                         <div class="col-md-2">
                                             <select-field-filter forceSelection .data="${this.signatureSelect}" .value=${this.signatureSelected} @filterChange="${this.signatureChange}"></select-field-filter>
                                         </div>
