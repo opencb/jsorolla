@@ -324,7 +324,10 @@ export default class OpencgaVariantSamples extends LitElement {
                     field: "attributes.OPENCGA_INDIVIDUAL.disorders",
                     colspan: 1,
                     rowspan: 1,
-                    formatter: disorders => disorders.map(disorder => this.catalogGridFormatter.disorderFormatter(disorder)).join("<br>"),
+                    formatter: disorders => {
+                        let result = disorders.map(disorder => this.catalogGridFormatter.disorderFormatter(disorder)).join("<br>");
+                        return result ? result : "-";
+                    },
                     halign: "center"
                 },
                 {

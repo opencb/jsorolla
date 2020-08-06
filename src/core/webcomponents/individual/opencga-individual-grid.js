@@ -407,7 +407,10 @@ export default class OpencgaIndividualGrid extends LitElement {
             {
                 title: "Disorders",
                 field: "disorders",
-                formatter: disorders => disorders.map(disorder => this.catalogGridFormatter.disorderFormatter(disorder)).join("<br>"),
+                formatter: disorders => {
+                    let result = disorders.map(disorder => this.catalogGridFormatter.disorderFormatter(disorder)).join("<br>");
+                    return result ? result : "-";
+                },
                 halign: this._config.header.horizontalAlign
             },
             {
