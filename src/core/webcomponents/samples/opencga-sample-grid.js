@@ -153,7 +153,30 @@ export default class OpencgaSampleGrid extends LitElement {
                     // Store the current filters
                     this.lastFilters = {..._filters};
                     this.opencgaSession.opencgaClient.samples().search(_filters)
-                        .then(res => params.success(res))
+                        .then(sampleResponse => {
+                            // Fetch clinical analysis to display the Case ID
+                            let individualIds = sampleResponse.responses[0].results.map(sample => sample.individualId).join(",");
+                            this.opencgaSession.opencgaClient.clinical().search(
+                                {
+                                    proband: individualIds,
+                                    study: this.opencgaSession.study.fqn,
+                                    exclude: "proband.samples,family,interpretation,files"
+                                })
+                                .then(caseResponse => {
+                                    // We store the Case ID in the individual attribute
+                                    // Note clinical search results are not sorted
+                                    // FIXME at the moment we only search by proband
+                                    let map = caseResponse.responses[0].results.reduce((map, obj) => (map[obj.proband.id] = obj, map), {});
+                                    for (let sample of sampleResponse.responses[0].results) {
+                                        sample.attributes.OPENCGA_CLINICAL_ANALYSIS = map[sample.individualId];
+                                    }
+                                    params.success(sampleResponse);
+                                })
+                                .catch(e => {
+                                    console.error(e);
+                                    params.error(e);
+                                });
+                        })
                         .catch(e => {
                             console.error(e);
                             params.error(e);
@@ -252,6 +275,11 @@ export default class OpencgaSampleGrid extends LitElement {
                 title: "Files (VCF, BAM)",
                 field: "fileIds",
                 formatter: fileIds => this.catalogGridFormatter.fileFormatter(fileIds, ["vcf", "vcf.gz", "bam"])
+            },
+            {
+                title: "Case ID",
+                field: "attributes.OPENCGA_CLINICAL_ANALYSIS",
+                formatter: (value, row) => this.catalogGridFormatter.caseFormatter(value, row, row.individualId, this.opencgaSession),
             },
             {
                 title: "Collection Method",

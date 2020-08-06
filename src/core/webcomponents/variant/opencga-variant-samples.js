@@ -112,15 +112,15 @@ export default class OpencgaVariantSamples extends LitElement {
 
     phenotypesFormatter(value, row) {
         if (value && value.length) {
-            const tooltip = value.map( phenotype => {
+            const tooltip = value.map(phenotype => {
                 return `
                     <div>
                         ${phenotype.source && phenotype.source.toUpperCase() === "HPO" ? `
                             <span><a target="_blank" href="https://hpo.jax.org/app/browse/term/${phenotype.id}">${phenotype.id} </a>(${phenotype.status})</span>
                         ` : `<span>${phenotype.id} (${phenotype.status})</span>`}
-                    </div>`
-            }).join("")
-            return `<a tooltip-title="Phenotypes" tooltip-text='${tooltip}'> ${value.length} term${value.length > 1 ? "s": ""} found </a>`;
+                    </div>`;
+            }).join("");
+            return `<a tooltip-title="Phenotypes" tooltip-text='${tooltip}'> ${value.length} term${value.length > 1 ? "s" : ""} found </a>`;
         } else {
             return "-";
         }
@@ -128,7 +128,7 @@ export default class OpencgaVariantSamples extends LitElement {
 
     disorderFormatter(value, row, index) {
         if (value && value.length) {
-            return value.map( disorder => `<p>${disorder.id}</p>`).join("");
+            return value.map(disorder => `<p>${disorder.id}</p>`).join("");
         } else {
             return "-";
         }
@@ -139,9 +139,6 @@ export default class OpencgaVariantSamples extends LitElement {
             return;
         }
 
-        this.from = 1;
-        this.to = this.config.pageSize;
-
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
@@ -149,37 +146,40 @@ export default class OpencgaVariantSamples extends LitElement {
             sidePagination: "server",
             columns: this.getColumns(),
             formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+
             ajax: params => {
                 let tableOptions = this.table.bootstrapTable("getOptions");
-                let limit = tableOptions.pageSize || 10;
-                let skip = tableOptions.pageNumber ? tableOptions.pageNumber * limit - limit : 0;
+                // let limit = tableOptions.pageSize || 10;
+                // let skip = tableOptions.pageNumber ? tableOptions.pageNumber * limit - limit : 0;
                 let query = {
                     variant: this.variantId,
                     study: this.opencgaSession.study.fqn,
+                    limit: params.data.limit || tableOptions.pageSize,
+                    skip: params.data.offset || 0,
+                    count: !tableOptions.pageNumber || tableOptions.pageNumber === 1,
                     genotype: "0/1,1/1,0/2,1/2,2/2",
-                    skip: skip,
-                    limit: limit
+                    // skip: skip,
+                    // limit: limit
                 };
 
-                let _this = this;
                 this.opencgaSession.opencgaClient.variants().querySample(query)
-                    .then(function(response) {
+                    .then(response => {
                         let result = response.responses[0].results[0];
 
                         // Get the total number of samples
                         // TODO count only the genotypes filtered
                         // _this.numSamples = result.studies[0].samples.length;
-                        _this.numSamples = 0;
+                        this.numSamples = 0;
                         let stats = result.studies[0].stats;
                         for (let stat of stats) {
                             if (stat.cohortId === "ALL") {
                                 for (let gt of Object.keys(stat.genotypeCount)) {
                                     if (gt !== "0/0" && gt !== "./.") {
-                                        _this.numSamples += stat.genotypeCount[gt];
+                                        this.numSamples += stat.genotypeCount[gt];
                                     }
                                 }
-                                // _this.numSamples = stat.genotypeCount["0/1"] + stat.genotypeCount["1/1"]
-                                // _this.numSamples = stat.sampleCount - stat.genotypeCount["0/0"]
+                                // this.numSamples = stat.genotypeCount["0/1"] + stat.genotypeCount["1/1"]
+                                // this.numSamples = stat.sampleCount - stat.genotypeCount["0/0"]
                                 break;
                             }
                         }
@@ -199,17 +199,38 @@ export default class OpencgaVariantSamples extends LitElement {
                                 };
                             }
 
-                            _this.opencgaSession.opencgaClient.samples().info(sampleIds.join(","),
+                            this.opencgaSession.opencgaClient.samples().info(sampleIds.join(","),
                                 {
-                                    study: _this.opencgaSession.study.fqn,
+                                    study: this.opencgaSession.study.fqn,
                                     includeIndividual: true
                                 })
-                                .then(function(resp) {
+                                .then(resp => {
                                     let samples = resp.responses[0].results;
                                     for (let sample of samples) {
                                         sample.attributes.OPENCGA_VARIANT = variantSampleInfo[sample.id];
                                     }
-                                    params.success(samples);
+
+                                    // Fetch clinical analysis to display the Case ID
+                                    this.opencgaSession.opencgaClient.clinical().search(
+                                        {
+                                            proband: samples.map(sample => sample.individualId).join(","),
+                                            study: this.opencgaSession.study.fqn,
+                                            exclude: "proband.samples,family,interpretation,files"
+                                        })
+                                        .then(caseResponse => {
+                                            // We store the Case ID in the individual attribute
+                                            // Note clinical search results are not sorted
+                                            // FIXME at the moment we only search by proband
+                                            let map = caseResponse.responses[0].results.reduce((map, obj) => (map[obj.proband.id] = obj, map), {});
+                                            for (let sample of samples) {
+                                                sample.attributes.OPENCGA_CLINICAL_ANALYSIS = map[sample.individualId];
+                                            }
+                                            params.success(samples);
+                                        })
+                                        .catch(e => {
+                                            console.error(e);
+                                            params.error(e);
+                                        });
                                 })
                                 .catch(e => {
                                     console.error(e);
@@ -221,11 +242,11 @@ export default class OpencgaVariantSamples extends LitElement {
                     });
             },
             responseHandler: response => {
-                let tableOptions = $(this.table).bootstrapTable("getOptions");
-                this.from = tableOptions.pageNumber * tableOptions.pageSize - tableOptions.pageSize + 1;
-                this.to = Math.min(tableOptions.pageNumber * tableOptions.pageSize, this.numSamples);
-                this.numTotalResultsText = this.numSamples;
-                this.requestUpdate();
+                // let tableOptions = $(this.table).bootstrapTable("getOptions");
+                // this.from = tableOptions.pageNumber * tableOptions.pageSize - tableOptions.pageSize + 1;
+                // this.to = Math.min(tableOptions.pageNumber * tableOptions.pageSize, this.numSamples);
+                // this.numTotalResultsText = this.numSamples;
+                // this.requestUpdate();
                 return {
                     total: this.numSamples,
                     rows: response
@@ -269,9 +290,17 @@ export default class OpencgaVariantSamples extends LitElement {
                     title: "Individual",
                     rowspan: 1,
                     colspan: 4,
-                    formatter: this.variantFormatter,
+                    // formatter: this.variantFormatter,
                     halign: "center"
-                }
+                },
+                {
+                    title: "Case ID",
+                    field: "attributes.OPENCGA_CLINICAL_ANALYSIS",
+                    rowspan: 2,
+                    colspan: 1,
+                    formatter: (value, row) => this.catalogGridFormatter.caseFormatter(value, row, row.individualId, this.opencgaSession),
+                    halign: "center"
+                },
             ],
             [
                 {
@@ -304,7 +333,6 @@ export default class OpencgaVariantSamples extends LitElement {
                     colspan: 1,
                     rowspan: 1,
                     formatter: this.catalogGridFormatter.phenotypesFormatter,
-                    //formatter: r => JSON.stringify(r),
                     halign: "center"
                 }
             ]
@@ -350,18 +378,18 @@ export default class OpencgaVariantSamples extends LitElement {
             }
 
             const header = ["Sample ID", "Genotype", "Variant Data", "Individual ID", "Individual Sex", "Phenotypes", "Disorders"];
-            const rows = samples.map( sample => {
-                return  [
+            const rows = samples.map(sample => {
+                return [
                     sample.id,
                     sample?.attributes?.OPENCGA_VARIANT?.data[0] ?? "-",
                     this.variantFormatter(sample?.attributes?.OPENCGA_VARIANT),
                     sample.individualId,
                     this.sexFormatter(sample?.attributes?.OPENCGA_INDIVIDUAL),
-                    sample?.attributes?.OPENCGA_INDIVIDUAL?.phenotypes?.map( p => p.id) ?? "-",
-                    sample?.attributes?.OPENCGA_INDIVIDUAL?.disorders?.map( d => d.id) ?? "-"
+                    sample?.attributes?.OPENCGA_INDIVIDUAL?.phenotypes?.map(p => p.id) ?? "-",
+                    sample?.attributes?.OPENCGA_INDIVIDUAL?.disorders?.map(d => d.id) ?? "-"
                 ].join("\t");
 
-            })
+            });
             let dataString, mimeType, extension;
             if (e.detail.option.toLowerCase() === "tab") {
                 dataString = [
@@ -384,10 +412,9 @@ export default class OpencgaVariantSamples extends LitElement {
             a.download = this.opencgaSession.study.alias + extension;
             document.body.appendChild(a);
             a.click();
-            setTimeout(function() {
+            setTimeout(function () {
                 document.body.removeChild(a);
             }, 0);
-
 
 
         } catch (e) {
@@ -408,14 +435,12 @@ export default class OpencgaVariantSamples extends LitElement {
     render() {
         return html`
             <div style="padding: 20px">
-                <opencb-grid-toolbar .from="${this.from}"
-                                     .to="${this.to}"
-                                     .numTotalResultsText="${this.numTotalResultsText}"
-                                     .config="${this.toolbarConfig}"
+                <opencb-grid-toolbar .config="${this.toolbarConfig}"
                                      @columnChange="${this.onColumnChange}"
                                      @download="${this.onDownload}"
                                      @sharelink="${this.onShare}">
                 </opencb-grid-toolbar>
+                
                 <div>
                     <table id="${this._prefix}SampleTable"></table>
                 </div>

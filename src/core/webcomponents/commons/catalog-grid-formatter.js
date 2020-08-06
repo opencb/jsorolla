@@ -99,6 +99,18 @@ export default class CatalogGridFormatter {
         return "-";
     }
 
+    caseFormatter(value, row, individualId, opencgaSession) {
+        if (value && value.id) {
+            return `
+                <a href="#interpreter/${opencgaSession.project.id}/${opencgaSession.study.id}/${value.id}">
+                    ${value.id} ${value.proband.id === individualId ? "(proband)" : ""}
+                </a>
+            `;
+        } else {
+            return "-";
+        }
+    }
+
     addTooltip(selector, title, content, config) {
         $(selector).qtip({
             content: {

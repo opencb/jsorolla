@@ -165,15 +165,16 @@ export default class OpencgaIndividualGrid extends LitElement {
                                     // We store the Case ID in the individual attribute
                                     // Note clinical search results are not sorted
                                     // FIXME at the moment we only search by proband
-                                    let map = caseResponse.responses[0].results.reduce((map, obj) => (map[obj.proband.id] = obj.id, map), {});
+                                    let map = caseResponse.responses[0].results.reduce((map, obj) => (map[obj.proband.id] = obj, map), {});
                                     for (let individual of individualResponse.responses[0].results) {
-                                        individual.attributes.OPENCGA_CLINICAL_ANALYSIS_ID = map[individual.id];
+                                        individual.attributes.OPENCGA_CLINICAL_ANALYSIS = map[individual.id];
                                     }
                                     params.success(individualResponse);
-                                }).catch(e => {
-                                console.error(e);
-                                params.error(e);
-                            });
+                                })
+                                .catch(e => {
+                                    console.error(e);
+                                    params.error(e);
+                                });
                         })
                         .catch(e => {
                             console.error(e);
@@ -332,18 +333,6 @@ export default class OpencgaIndividualGrid extends LitElement {
         return result;
     }
 
-    caseFormatter(value, row) {
-        if (value && value.OPENCGA_CLINICAL_ANALYSIS_ID) {
-            return `
-                <a href="#interpreter/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${value.OPENCGA_CLINICAL_ANALYSIS_ID}">
-                    ${value.OPENCGA_CLINICAL_ANALYSIS_ID} 
-                </a>
-            `;
-        } else {
-            return "-";
-        }
-    }
-
     sexFormatter(value, row) {
         let sexHtml = `<span>${row.sex}</span>`;
         if (UtilsNew.isNotEmpty(row.karyotypicSex)) {
@@ -429,8 +418,8 @@ export default class OpencgaIndividualGrid extends LitElement {
             },
             {
                 title: "Case ID",
-                field: "attributes",
-                formatter: this.caseFormatter.bind(this),
+                field: "attributes.OPENCGA_CLINICAL_ANALYSIS",
+                formatter: (value, row) => this.catalogGridFormatter.caseFormatter(value, row, row.id, this.opencgaSession),
                 halign: this._config.header.horizontalAlign
             },
             {
@@ -540,13 +529,13 @@ export default class OpencgaIndividualGrid extends LitElement {
     render() {
         return html`
             ${this._config.showToolbar
-                ? html`
+            ? html`
                     <opencb-grid-toolbar    .config="${this.toolbarConfig}"
                                             @download="${this.onDownload}"
                                             @columnChange="${this.onColumnChange}">
                     </opencb-grid-toolbar>`
-                : null
-            }
+            : null
+        }
     
             <div id="${this._prefix}GridTableDiv">
                 <table id="${this._prefix}IndividualBrowserGrid"></table>
