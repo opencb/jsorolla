@@ -31,20 +31,17 @@
 <script type="module">
     import family from "./resources/101761.js";
 
+    let individualsPool = JSON.parse(JSON.stringify(family));
     console.log(family)
-
-    console.log(getSpouse(family[0]))
 
     function getNode(id) {
         return family.find( i => i.id === id)
     }
 
-    function getParent(node) {
-        console.log(node)
+    function getParents(node) {
         return node.father.id && node.mother.id ? [node.father.id, node.mother.id] : null
     }
     function getChildren(node) {
-        console.log(node)
         const role = node.sex === "MALE"? "father" : "mother";
         return family.filter( i => i[role].id === node.id)
     }
@@ -53,30 +50,51 @@
         const children = getChildren(node);
         const spouseRole = node.sex === "MALE"? "mother" : "father";
         const spouses = [...new Set(children.map( i => i[spouseRole].id))]
-        if (spouses.length > 1) console.error("More than 1 spouse")
+        if (spouses.length > 1) console.error("More than 1 spouse");
         return getNode(spouses[0]);
     }
 
-    function getLevel(id) {
+    /*function getLevel(id) {
         for (let row = 0; x < DATA.length; row++ ) {
             for (let col = 0; col < row.length; col++ ) {
                 if (id === DATA[row][col]) return row;
             }
         } console.error("node level not found");
+    }*/
+
+
+    function hasParentInPool(node, array) {
+        const [father, mother] = [array.find( i => i.id === node.father.id), array.find( i => i.id === node.mother.id)];
+        return father && mother;
     }
 
-    let DATA = [[]]; //init root level
-    for(let i of family) {
-        const spouse = getSpouse(i)
-        if (!getParent(i) && (!spouse || (spouse && !getParent(spouse)))) {
-            console.log("root node", i)
-            DATA[0].push(i);
-            if (DATA[1]) DATA[1].push(...getChildren(i));
-            else DATA[1] = getChildren(i);
+    function removeNodes(ids, array) {
+        return array.filter( el => !ids.includes(el.id));
+    }
+
+    let generations = []; //init root level
+    let generationCnt = 0;
+    while (individualsPool.length) {
+        let generationNodes = [];
+        for (let i = 0; i < individualsPool.length; i++ ){
+            const node = individualsPool[i];
+            const spouse = getSpouse(node); //NOTE getSpouse() search in the original family, not in the pool
+            if (!hasParentInPool(node, individualsPool) && (!spouse || (spouse && !hasParentInPool(spouse, individualsPool)))) {
+                generationNodes.push({
+                    ...node,
+                    children: getChildren(node)
+                });
+            }
         }
+        generations[generationCnt] = {
+            id: generationCnt,
+            individuals: generationNodes
+        };
+        generationCnt++;
+        individualsPool = removeNodes(generationNodes.map(_ => _.id), individualsPool);
     }
 
-    console.log(DATA)
+    console.log(generations)
 
 </script>
 
