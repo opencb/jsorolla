@@ -37,6 +37,11 @@ import "../commons/filters/protein-substitution-score-filter.js";
 import "../commons/filters/sample-filter.js";
 import "../commons/filters/study-filter.js";
 import "../commons/filters/variant-type-filter.js";
+import "../commons/filters/caveman-caller-filter.js";
+import "../commons/filters/strelka-caller-filter.js";
+import "../commons/filters/pindel-caller-filter.js";
+import "../commons/filters/ascat-caller-filter.js";
+import "../commons/filters/canvas-caller-filter.js";
 
 
 export default class OpencgaVariantFilter extends LitElement {
@@ -467,6 +472,21 @@ export default class OpencgaVariantFilter extends LitElement {
                 break;
             case "fullTextSearch":
                 content = html`<fulltext-search-accessions-filter .traits="${this.preparedQuery.traits}" @filterChange="${e => this.onFilterChange("traits", e.detail.value)}"></fulltext-search-accessions-filter>`;
+                break;
+            case "caveman-caller":
+                content = html`<caveman-caller-filter .traits="${this.preparedQuery.traits}" @filterChange="${e => this.onFilterChange("traits", e.detail.value)}"></caveman-caller-filter>`;
+                break;
+            case "strelka-caller":
+                content = html`<strelka-caller-filter .traits="${this.preparedQuery.traits}" @filterChange="${e => this.onFilterChange("traits", e.detail.value)}"></strelka-caller-filter>`;
+                break;
+            case "pindel-caller":
+                content = html`<pindel-caller-filter .traits="${this.preparedQuery.traits}" @filterChange="${e => this.onFilterChange("traits", e.detail.value)}"></pindel-caller-filter>`;
+                break;
+            case "ascat-caller":
+                content = html`<ascat-caller-filter .traits="${this.preparedQuery.traits}" @filterChange="${e => this.onFilterChange("traits", e.detail.value)}"></ascat-caller-filter>`;
+                break;
+            case "canvas-caller":
+                content = html`<canvas-caller-filter .traits="${this.preparedQuery.traits}" @filterChange="${e => this.onFilterChange("traits", e.detail.value)}"></canvas-caller-filter>`;
                 break;
             default:
                 console.error("Filter component not found");

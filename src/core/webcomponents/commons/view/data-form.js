@@ -249,11 +249,12 @@ export default class DataForm extends LitElement {
 
         // Section 'elements' array has just one dimension
         if (!Array.isArray(section.elements[0])) {
-            const sectionWidth = section?.display?.width ? section?.display?.width : "12";
+            // const sectionWidth = section?.display?.width ? `col-md-${section?.display?.width}` : "col-md-12";
+            const sectionWidth = section?.display?.width ? `col-md-${section?.display?.width}` : "";
             return html`
                 <div class="row" style="margin: 15px 0px">
                     ${section.title ? this._getTitleHeader(titleHeader, section.title, sectionTitleClass, sectionTitleStyle) : null}
-                    <div class="col-md-${sectionWidth}">    
+                    <div class="${sectionWidth}">    
                         <div class="">
                             ${section.elements.map(element => this._createElement(element))}
                         </div>
@@ -322,6 +323,9 @@ export default class DataForm extends LitElement {
                 case "input-date":
                     content = this._createInputDateElement(element);
                     break;
+                case "checkbox":
+                    content = this._createCheckboxElement(element);
+                    break;
                 case "select":
                     content = this._createInputSelectElement(element);
                     break;
@@ -373,14 +377,15 @@ export default class DataForm extends LitElement {
                     </div>
                 `;
             } else {
-                const sectionWidth = element?.display?.width ? element.display.width : "12";
+                // const sectionWidth = element?.display?.width ? `col-md-${element.display.width}` : "col-md-12";
+                const sectionWidth = element?.display?.width ? `col-md-${element.display.width}` : "";
                 return html`
                     <div class="form-group col-md-12">
-                        <div class="col-md-${sectionWidth}">
-                        <label class="control-label">${title}</label>
-                        <div>
-                            ${content}
-                        </div>
+                        <div class="${sectionWidth}">
+                            <label class="control-label">${title}</label>
+                            <div>
+                                ${content}
+                            </div>
                         </div>
                     </div>
                 `;
@@ -481,6 +486,18 @@ export default class DataForm extends LitElement {
         //         </div>
         //     </div>
         // `;
+    }
+
+    _createCheckboxElement(element) {
+        let disabled = this._getBooleanValue(element.display?.disabled, false);
+
+        return html`
+            <div class="">
+                <input type="checkbox" class="${this._prefix}FilterCheckbox" 
+                        @change="${e => this.onFilterChange(element.field, e.detail.value)}" .checked="${this.filter === "PASS"}" style="margin-right: 5px">
+                <span>Include only <span style="font-weight: bold;">PASS</span> variants</span>
+            </div>
+        `;
     }
 
     /**

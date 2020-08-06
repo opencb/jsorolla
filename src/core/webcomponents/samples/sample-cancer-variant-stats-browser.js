@@ -380,7 +380,7 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                 },
                 sections: [     // sections and subsections, structure and order is respected
                     {
-                        title: "Filters",
+                        title: "Genomic Filters",
                         collapsed: false,
                         fields: [
                             {
@@ -423,6 +423,48 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                             }
                         ]
                     },
+                    {
+                        title: "SNV Filters",
+                        collapsed: false,
+                        fields: [
+                            {
+                                id: "caveman-caller",
+                                title: "Caveman Filters",
+                            },
+                            {
+                                id: "strelka-caller",
+                                title: "Strelka Filters",
+                            },
+                        ]
+                    },
+                    {
+                        title: "INDEL Filters",
+                        collapsed: false,
+                        fields: [
+                            {
+                                id: "pindel-caller",
+                                title: "Pindel Filters",
+                            },
+                            {
+                                id: "strelka-caller",
+                                title: "Strelka Filters",
+                            },
+                        ]
+                    },
+                    {
+                        title: "CNV Filters",
+                        collapsed: false,
+                        fields: [
+                            {
+                                id: "ascat-caller",
+                                title: "Ascat Filters",
+                            },
+                            {
+                                id: "canvas-caller",
+                                title: "Canvas Filters",
+                            },
+                        ]
+                    }
                 ],
                 examples: [
                     {
