@@ -1,0 +1,85 @@
+<!--
+  ~ Copyright 2015-2016 OpenCB
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+
+    <meta charset="utf-8">
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- This is configured below in the onLoad() function -->
+    <title></title>
+</head>
+
+<body>
+<script type="module">
+    import family from "./resources/101761.js";
+
+    console.log(family)
+
+    console.log(getSpouse(family[0]))
+
+    function getNode(id) {
+        return family.find( i => i.id === id)
+    }
+
+    function getParent(node) {
+        console.log(node)
+        return node.father.id && node.mother.id ? [node.father.id, node.mother.id] : null
+    }
+    function getChildren(node) {
+        console.log(node)
+        const role = node.sex === "MALE"? "father" : "mother";
+        return family.filter( i => i[role].id === node.id)
+    }
+
+    function getSpouse(node) {
+        const children = getChildren(node);
+        const spouseRole = node.sex === "MALE"? "mother" : "father";
+        const spouses = [...new Set(children.map( i => i[spouseRole].id))]
+        if (spouses.length > 1) console.error("More than 1 spouse")
+        return getNode(spouses[0]);
+    }
+
+    function getLevel(id) {
+        for (let row = 0; x < DATA.length; row++ ) {
+            for (let col = 0; col < row.length; col++ ) {
+                if (id === DATA[row][col]) return row;
+            }
+        } console.error("node level not found");
+    }
+
+    let DATA = [[]]; //init root level
+    for(let i of family) {
+        const spouse = getSpouse(i)
+        if (!getParent(i) && (!spouse || (spouse && !getParent(spouse)))) {
+            console.log("root node", i)
+            DATA[0].push(i);
+            if (DATA[1]) DATA[1].push(...getChildren(i));
+            else DATA[1] = getChildren(i);
+        }
+    }
+
+    console.log(DATA)
+
+</script>
+
+
+</body>
+</html>

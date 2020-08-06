@@ -553,18 +553,17 @@ export default class OpencgaProjects extends LitElement {
             <div class="detail-tabs">
                 <ul class="nav nav-tabs nav-center tablist" role="tablist">
                     ${this.data ? Object.entries(this.data).map(([projectId, project], i) => html`
-                        <li role="presentation" class="${i === 0 ? "active" : ""}"><a href="#${projectId}" @click="${e => console.log(e)}" aria-controls="profile" role="tab" data-toggle="tab">${projectId}</a></li>
+                        <li role="presentation" class="${i === 0 ? "active" : ""}"><a href="#${projectId}" @click="${e => console.log(e)}" aria-controls="profile" role="tab" data-toggle="tab">${project.name}</a></li>
                     `) : null}
                 </ul>
                 <pre id="errors" class="alert alert-warning" role="alert" style="display: ${this.errors ? "block" : "none"}">${this.errors}</pre>      
                 <div class="tab-content">
                 
                     ${this.data ? Object.entries(this.data).map(([projectId, project], i) => html`
-                        <div role="tabpanel" class="tab-pane ${i === 0 ? "active" : ""}" id="${projectId}">
-                            
+                        <div role="tabpanel" class="project-tab tab-pane ${i === 0 ? "active" : ""}" id="${projectId}">
                             <div class="row">
                                 <div class="col-md-10 col-md-offset-1">
-                                    <h3>Project <span class="inverse">${projectId}</span></h3>                               
+                                    <h3 class="project-name">Project <span class="inverse">${projectId}</span></h3>                               
                                     <div class="col-md-2 list-group projects-side-nav side-tabs side-nav">
                                         <button type="button" class="list-group-item active" 
                                               data-project-id="${project.id}" data-menu-item-id="Summary" @click="${this.onSideNavClick}">Summary</button>
