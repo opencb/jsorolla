@@ -441,13 +441,13 @@ export default class DataForm extends LitElement {
 
     _createInputNumberElement(element) {
         let value = this.getValue(element.field) || this._getDefaultValue(element);
-        let disabled = this._getBooleanValue(element.display.disabled, false);
+        let disabled = this._getBooleanValue(element?.display?.disabled, false);
         let width = this._getWidth(element);
         const [min = "", max = ""] = element.allowedValues || [];
 
         return html`
             <div class="">
-                <input type="number" min=${min} max=${max} step="0.01" placeholder="${element.display.placeholder || ""}" ?disabled=${disabled} ?required=${element.required} class="form-control input-sm"
+                <input type="number" min=${min} max=${max} step="0.01" placeholder="${element.display?.placeholder || ""}" ?disabled=${disabled} ?required=${element.required} class="form-control input-sm"
                         value="${value || ""}" @input="${e => this.onFilterChange(element.field, e.target.value)}">
             </div>
         `;

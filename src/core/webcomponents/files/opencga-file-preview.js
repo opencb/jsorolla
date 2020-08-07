@@ -74,13 +74,16 @@ export default class OpencgaFilePreview extends LitElement {
     configObserver() {
     }
 
-    fileObserver() {
+    async fileObserver() {
         const params = {
             study: this.opencgaSession.study.fqn,
             includeIndividual: true,
             lines: 200
         };
+        this.content = null;
         this.title = "";
+        this.contentType = null;
+        await this.requestUpdate();
         switch (this.file.format) {
             case "PLAIN":
             case "VCF":
@@ -193,9 +196,7 @@ export default class OpencgaFilePreview extends LitElement {
                         <pre class="cmd">${this.content}</pre>` : null}
                     ${this.contentType === "image" ? html`
                         <img class="img-thumbnail" id="thumbnail" />` : null}
-                    ${this.contentType === "json" ? html`
-                        <json-viewer .data="${this.content}"></json-viewer>'
-                    ` : null}
+                    ${this.contentType === "json" ? html`<json-viewer .data="${this.content}"></json-viewer>` : null}
                 </div>
             </div>
         ` : null }

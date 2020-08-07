@@ -29,7 +29,7 @@
 
 <body>
 <script type="module">
-    import family from "./resources/101761.js";
+    import family from "./resources/familyData.js";
 
     let individualsPool = JSON.parse(JSON.stringify(family));
     console.log(family)
@@ -41,17 +41,18 @@
     function getParents(node) {
         return node.father.id && node.mother.id ? [node.father.id, node.mother.id] : null
     }
+
     function getChildren(node) {
         const role = node.sex === "MALE"? "father" : "mother";
         return family.filter( i => i[role].id === node.id)
     }
 
-    function getSpouse(node) {
+    function getPartners(node) {
         const children = getChildren(node);
-        const spouseRole = node.sex === "MALE"? "mother" : "father";
-        const spouses = [...new Set(children.map( i => i[spouseRole].id))]
-        if (spouses.length > 1) console.error("More than 1 spouse");
-        return getNode(spouses[0]);
+        const partnerRole = node.sex === "MALE"? "mother" : "father";
+        const partners = [...new Set(children.map( i => i[partnerRole].id))]
+        if (partners.length > 1) console.error("More than 1 partner!");
+        return getNode(partners[0]); //TODO at the moment we support just 1 partner at a time. Be responsible.
     }
 
     /*function getLevel(id) {
@@ -72,23 +73,37 @@
         return array.filter( el => !ids.includes(el.id));
     }
 
+    function sortGeneration(array) {
+        // TODO DONE partners must be close to each other
+        // TODO sort within children ( haveSameParent(a,b) function ).
+        // TODO sort within children in case some of them have partners
+        return [...array].sort( (a, b) => {
+            console.log(a.id, b.id, a?.partner?.id, b?.partner?.id)
+            if (a.id === b?.partner?.id) {
+                return a.sex === "MALE" ? -1 : 1;
+            }
+            return a.id - b.id
+        })
+    }
+
     let generations = []; //init root level
     let generationCnt = 0;
     while (individualsPool.length) {
         let generationNodes = [];
         for (let i = 0; i < individualsPool.length; i++ ){
             const node = individualsPool[i];
-            const spouse = getSpouse(node); //NOTE getSpouse() search in the original family, not in the pool
-            if (!hasParentInPool(node, individualsPool) && (!spouse || (spouse && !hasParentInPool(spouse, individualsPool)))) {
+            const partner = getPartners(node); //NOTE getPartners() search in the original family, not in the pool. At the moment we use just the first partner
+            if (!hasParentInPool(node, individualsPool) && (!partner || (partner && !hasParentInPool(partner, individualsPool)))) {
                 generationNodes.push({
                     ...node,
+                    partner: {id: partner?.id},
                     children: getChildren(node)
                 });
             }
         }
         generations[generationCnt] = {
             id: generationCnt,
-            individuals: generationNodes
+            individuals: sortGeneration(generationNodes)
         };
         generationCnt++;
         individualsPool = removeNodes(generationNodes.map(_ => _.id), individualsPool);

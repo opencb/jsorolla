@@ -117,7 +117,7 @@ export default class CavemanCallerFilter extends LitElement {
                         },
                         {
                             name: "CLPM",
-                            type: "input-text",
+                            type: "input-number",
                             defaultValue: "",
                         },
                         {
