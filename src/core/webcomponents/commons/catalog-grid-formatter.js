@@ -99,11 +99,11 @@ export default class CatalogGridFormatter {
         return "-";
     }
 
-    caseFormatter(value, row, individualId, opencgaSession) {
-        if (value && value.id) {
+    caseFormatter(clinicalAnalysis, row, individualId, opencgaSession) {
+        if (clinicalAnalysis && clinicalAnalysis.id) {
             return `
-                <a href="#interpreter/${opencgaSession.project.id}/${opencgaSession.study.id}/${value.id}">
-                    ${value.id} ${value.proband.id === individualId ? "(proband)" : ""}
+                <a href="#interpreter/${opencgaSession.project.id}/${opencgaSession.study.id}/${clinicalAnalysis.id}">
+                    ${clinicalAnalysis.id} ${clinicalAnalysis.proband.id === individualId ? "(proband)" : ""}
                 </a>
             `;
         } else {
