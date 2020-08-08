@@ -55,7 +55,7 @@ export default class OpencgaSampleGrid extends LitElement {
     }
 
     _init() {
-        this._prefix = "VarSampleGrid" + UtilsNew.randomString(6);
+        this._prefix = UtilsNew.randomString(8);
 
         this.catalogUiUtils = new CatalogUIUtils();
         this.gridId = this._prefix + "SampleBrowserGrid";
@@ -80,7 +80,7 @@ export default class OpencgaSampleGrid extends LitElement {
         }
 
         if (changedProperties.has("config")) {
-            this.configObserver();
+            this._config = {...this.getDefaultConfig(), ...this.config};
         }
     }
 
@@ -99,10 +99,6 @@ export default class OpencgaSampleGrid extends LitElement {
         this.renderTable();
     }
 
-    configObserver() {
-        this._config = {...this.getDefaultConfig(), ...this.config};
-    }
-
     renderTable() {
         // If this.samples is provided as property we render the array directly
         if (this.samples && this.samples.length > 0) {
@@ -114,7 +110,7 @@ export default class OpencgaSampleGrid extends LitElement {
     }
 
     renderRemoteTable() {
-        if (this.opencgaSession.opencgaClient && this.opencgaSession.study && this.opencgaSession.study.fqn) {
+        if (this.opencgaSession.opencgaClient && this.opencgaSession.study) {
             const filters = {...this.query};
             //TODO fix and replicate this in all browsers (the current filter is not "filters", it is actually built in the ajax() function in bootstrapTable)
             if (UtilsNew.isNotUndefinedOrNull(this.lastFilters) &&
@@ -147,7 +143,7 @@ export default class OpencgaSampleGrid extends LitElement {
                         limit: params.data.limit,
                         skip: params.data.offset || 0,
                         count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
-                        exclude: "qualityControl",
+                        exclude: "qualityControl,annotationSets",
                         ...filters
                     };
                     // Store the current filters
@@ -222,9 +218,9 @@ export default class OpencgaSampleGrid extends LitElement {
     }
 
     renderLocalTable() {
-        this.from = 1;
-        this.to = Math.min(this.samples.length, this._config.pageSize);
-        this.numTotalResultsText = this.samples.length.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        // this.from = 1;
+        // this.to = Math.min(this.samples.length, this._config.pageSize);
+        // this.numTotalResultsText = this.samples.length.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
@@ -244,11 +240,11 @@ export default class OpencgaSampleGrid extends LitElement {
             formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
 
             onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
-            onPageChange: (page, size) => {
-                const result = this.gridCommons.onPageChange(page, size);
-                this.from = result.from || this.from;
-                this.to = result.to || this.to;
-            },
+            // onPageChange: (page, size) => {
+            //     const result = this.gridCommons.onPageChange(page, size);
+            //     this.from = result.from || this.from;
+            //     this.to = result.to || this.to;
+            // },
             onPostBody: (data) => {
                 // We call onLoadSuccess to select first row
                 this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 1);
@@ -260,8 +256,20 @@ export default class OpencgaSampleGrid extends LitElement {
         this.gridCommons.onColumnChange(e);
     }
 
-    _getDefaultColumns() {
+    onActionClick(e, _, row) {
+        const {action} = e.target.dataset;
 
+        if (action === "download") {
+            UtilsNew.downloadData([JSON.stringify(row, null, "\t")], row.id + ".json");
+        }
+
+        if (action === "qualityControl") {
+            alert("Not implemented yet");
+            // UtilsNew.downloadData([JSON.stringify(row, null, "\t")], row.id + ".json");
+        }
+    }
+
+    _getDefaultColumns() {
         let _columns = [
             {
                 title: "Sample ID",
@@ -298,11 +306,6 @@ export default class OpencgaSampleGrid extends LitElement {
                 field: "creationDate",
                 formatter: this.catalogGridFormatter.dateFormatter
             },
-            // {
-            //     title: "Status",
-            //     field: "internal.status",
-            //     formatter: field => `${field.name} (${UtilsNew.dateFormatter(field.date)})`
-            // }
         ];
 
         if (this._config.showSelectCheckbox) {
@@ -315,6 +318,66 @@ export default class OpencgaSampleGrid extends LitElement {
             });
         }
 
+        if (this.opencgaSession && this._config.showActions) {
+            _columns.push({
+                title: "Actions",
+                formatter: (value, row) => `
+                    <div class="dropdown">
+                        <button class="btn btn-default btn-small ripple dropdown-toggle one-line" type="button" data-toggle="dropdown">Select action
+                            <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-right">
+                            <li>
+                                <a data-action="download" href="javascript: void 0" class="btn force-text-left">
+                                    <i class="fas fa-download icon-padding" aria-hidden="true"></i> Download
+                                </a>
+                            </li>
+                            <li role="separator" class="divider"></li>
+                            <li>
+                                <a data-action="variantStats" class="btn force-text-left" 
+                                        href="#sampleVariantStatsBrowser/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}">
+                                    <i class="fas fa-user icon-padding" aria-hidden="true"></i> Variant Stats Browser 
+                                </a>
+                            </li>
+                            <li>
+                                <a data-action="cancerVariantStats" class="btn force-text-left ${row.somatic ? "" : "disabled"}" 
+                                        href="#sampleCancerVariantStatsBrowser/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}">
+                                    <i class="fas fa-user icon-padding" aria-hidden="true"></i> Cancer Variant Plots 
+                                </a>
+                            </li>
+                            <li>
+                                <a data-action="qualityControl" class="btn force-text-left ${row.qualityControl?.metrics && row.qualityControl.metrics.length === 0 ? "" : "disabled"}" 
+                                        title="${row.qualityControl?.metrics && row.qualityControl.metrics.length === 0 ? "Launch a job to calculate Quality Control stats" : "Quality Control stats already calculated"}">
+                                    <i class="fas fa-rocket icon-padding" aria-hidden="true"></i> Calculate Quality Control 
+                                </a>
+                            </li>
+                            <li>
+                                <a data-action="interpreter" class="btn force-text-left ${row.attributes.OPENCGA_CLINICAL_ANALYSIS ? "" : "disabled"}" 
+                                        href="#interpreter/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.attributes.OPENCGA_CLINICAL_ANALYSIS?.id}">
+                                    <i class="fas fa-user-md icon-padding" aria-hidden="true"></i> Variant Interpreter 
+                                </a>
+                            </li>
+                            <li role="separator" class="divider"></li>
+                            <li>
+                                <a data-action="edit" href="javascript: void 0" class="btn force-text-left disabled">
+                                    <i class="fas fa-edit icon-padding" aria-hidden="true"></i> Edit
+                                </a>
+                            </li>
+                            <li>
+                                <a data-action="delete" href="javascript: void 0" class="btn force-text-left disabled">
+                                    <i class="fas fa-trash icon-padding" aria-hidden="true"></i> Delete
+                                </a>
+                            </li>
+                        </ul>
+                    </div>`,
+                // valign: "middle",
+                events: {
+                    "click a": this.onActionClick.bind(this)
+                },
+                visible: !this._config.columns?.hidden?.includes("actions")
+            });
+        }
+
         return _columns;
     }
 
@@ -323,62 +386,29 @@ export default class OpencgaSampleGrid extends LitElement {
             ...this.query,
             limit: 1000,
             skip: 0,
-            includeIndividual: true,
             count: false,
-            include: "id,source,collection,processing,creationDate,status,type,version,release,individual.id,status"
+            exclude: "qualityControl,annotationSets",
         };
 
         this.opencgaSession.opencgaClient.samples().search(params)
             .then(response => {
-                const result = response.response[0].result;
-                console.log(result);
-                let dataString = [];
-                let mimeType = "";
-                let extension = "";
-                if (result) {
+                const results = response.responses[0].results;
+                if (results) {
                     // Check if user clicked in Tab or JSON format
-                    if (e.detail.option.toLowerCase() === "tab") {
-                        dataString = [
-                            ["Sample ID", "Individual ID", "Source", "Collection Method", "Preparation Method", "Cell Line", "Creation Date", "Status"].join("\t"),
-                            ...result.map(_ => [
-                                _.id,
-                                _.attributes?.OPENCGA_INDIVIDUAL?.id ?? "",
-                                _.source,
-                                _.collection?.method ?? "",
-                                _.processing?.preparationMethod ?? "",
-                                _.somatic ? "Somatic" : "Germline",
-                                _.creationDate,
-                                _.internal?.status?.name ?? ""
-                            ].join("\t"))];
-                        // console.log(dataString);
-                        mimeType = "text/plain";
-                        extension = ".txt";
+                    if (e.detail.option.toUpperCase() === "TAB") {
+                        let fields = ["id", "individualId", "fileIds", "collection.method", "processing.preparationMethod", "somatic", "creationDate"];
+                        let data = UtilsNew.toTableString(results, fields);
+                        UtilsNew.downloadData(data, "samples_" + this.opencgaSession.study.id + ".txt", "text/plain");
                     } else {
-                        for (const res of result) {
-                            dataString.push(JSON.stringify(res, null, "\t"));
-                        }
-                        mimeType = "application/json";
-                        extension = ".json";
+                        let json = results.map(res => JSON.stringify(res, null, "\t"));
+                        UtilsNew.downloadData(json, this.opencgaSession.study.id + ".json", "application/json");
                     }
-
-                    // Build file and anchor link
-                    const data = new Blob([dataString.join("\n")], {type: mimeType});
-                    const file = window.URL.createObjectURL(data);
-                    const a = document.createElement("a");
-                    a.href = file;
-                    a.download = this.opencgaSession.study.alias + extension;
-                    document.body.appendChild(a);
-                    a.click();
-                    setTimeout(function () {
-                        document.body.removeChild(a);
-                    }, 0);
                 } else {
                     console.error("Error in result format");
                 }
             })
-            .then(function () {
-                // this.downloadRefreshIcon.css("display", "none");
-                // this.downloadIcon.css("display", "inline-block");
+            .catch(e => {
+                console.error(e);
             });
     }
 
@@ -392,18 +422,21 @@ export default class OpencgaSampleGrid extends LitElement {
             detailFormatter: null, // function with the detail formatter
             multiSelection: false,
             showSelectCheckbox: true,
-            showToolbar: true
+            showToolbar: true,
+            showActions: true,
         };
     }
 
     render() {
         return html`
-            ${this._config.showToolbar ? html`
-                <opencb-grid-toolbar .config="${this.toolbarConfig}"
-                                     @columnChange="${this.onColumnChange}"
-                                     @download="${this.onDownload}">
-                </opencb-grid-toolbar>`
-            : null}
+            ${this._config.showToolbar
+                ? html`
+                    <opencb-grid-toolbar    .config="${this.toolbarConfig}"
+                                            @columnChange="${this.onColumnChange}"
+                                            @download="${this.onDownload}">
+                    </opencb-grid-toolbar>`
+                : null
+            }
     
             <div id="${this._prefix}GridTableDiv">
                 <table id="${this._prefix}SampleBrowserGrid"></table>

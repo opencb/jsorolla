@@ -312,17 +312,17 @@ export default class SampleVariantStatsBrowser extends LitElement {
 
     getDefaultConfig() {
         return {
-            title: "",
+            title: "Sample Variant Stats",
             icon: "fas fa-search",
             searchButtonText: "Search",
+            showTitle: true,
+            titleClass: "",
+            titleIcon: "fas fa-user",
             filter: {
                 title: "Filter",
                 activeFilters: {
                     alias: {
-                        // Example:
-                        // "region": "Region",
-                        // "gene": "Gene",
-                        "ct": "Consequence Types"
+                        ct: "Consequence Types"
                     },
                     complexFields: ["genotype"],
                     hiddenFields: []
@@ -375,24 +375,17 @@ export default class SampleVariantStatsBrowser extends LitElement {
                 ],
                 examples: [
                     {
-                        id: "Example BRCA2",
+                        id: "Example missense",
                         active: false,
                         query: {
-                            gene: "BRCA2",
                             ct: "missense_variant"
                         }
                     },
                     {
-                        id: "Full Example",
+                        id: "INDEL LoF",
                         query: {
-                            "region": "1,2,3,4,5",
-                            "xref": "BRCA1,TP53",
-                            "biotype": "protein_coding",
-                            "type": "SNV,INDEL",
-                            "ct": "lof",
-                            "populationFrequencyAlt": "1kG_phase3:ALL<0.1,GNOMAD_GENOMES:ALL<0.1",
-                            "protein_substitution": "sift>5,polyphen>4",
-                            "conservation": "phylop>1;phastCons>2;gerp<=3"
+                            type: "INDEL",
+                            ct: "lof",
                         }
                     }
                 ],
@@ -406,7 +399,11 @@ export default class SampleVariantStatsBrowser extends LitElement {
 
     render() {
         return html`
-            <div class="row">
+            ${this.sample && this._config.showTitle
+                ? html`<tool-header title="${this._config.title} - ${this.sample.id}" icon="${this._config.titleIcon}" class="${this._config.titleClass}"></tool-header>`
+                : null
+            }
+            <div class="row">                
                 <div class="col-md-3 left-menu">
                     <opencga-variant-filter .opencgaSession=${this.opencgaSession}
                                             .query="${this.query}"
@@ -444,7 +441,9 @@ export default class SampleVariantStatsBrowser extends LitElement {
                                         </div>`
                                     : !this.sampleVariantStats
                                         ? html`
-                                            <div class="alert alert-info" role="alert" style="margin: 0px 15px"><i class="fas fa-3x fa-info-circle align-middle"></i> Please select some filters on the left.</div>`
+                                            <div class="alert alert-info" role="alert" style="margin: 0px 15px">
+                                                <i class="fas fa-3x fa-info-circle align-middle"></i> Please select some filters on the left.
+                                            </div>`
                                         : html`
                                             <div style="padding: 0px 15px">
                                                 <div class="col-md-12">

@@ -200,14 +200,16 @@ class VariantInterpreterQc extends LitElement {
                         <tool-header title="Sample Variant Stats - ${this.clinicalAnalysis.proband.id}" class="bg-white"></tool-header>
                         <sample-variant-stats-browser .opencgaSession="${this.opencgaSession}" 
                                                       .sample="${this.clinicalAnalysis.proband.samples[0]}"
-                                                      .active="${this.activeTab["VariantQc"]}">
+                                                      .active="${this.activeTab["VariantQc"]}"
+                                                      .config="${{showTitle: false}}">
                         </sample-variant-stats-browser>
                     </div>
                     <div id="${this._prefix}VariantQcCancer" role="tabpanel" class="tab-pane col-md-10 col-md-offset-1 content-tab">
                         <tool-header title="Cancer QC Plots - ${this.clinicalAnalysis.proband.id}" class="bg-white"></tool-header>
-                        <sample-cancer-variant-stats-browser  .opencgaSession="${this.opencgaSession}" 
+                        <sample-cancer-variant-stats-browser    .opencgaSession="${this.opencgaSession}" 
                                                                 .sample="${this.clinicalAnalysis.proband.samples[0]}"
-                                                                .active="${this.activeTab["VariantQc"]}">
+                                                                .active="${this.activeTab["VariantQc"]}" 
+                                                                .config="${{showTitle: false}}">
                         </sample-cancer-variant-stats-browser>
                     </div>
                     

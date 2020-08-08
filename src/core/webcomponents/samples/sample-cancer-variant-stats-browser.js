@@ -39,12 +39,6 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            // clinicalAnalysisId: {
-            //     type: String
-            // },
-            // clinicalAnalysis: {
-            //     type: Object
-            // },
             sampleId: {
                 type: String
             },
@@ -106,7 +100,8 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
             this.opencgaSession.opencgaClient.samples().info(this.sampleId, {study: this.opencgaSession.study.fqn})
                 .then(response => {
                     this.sample = response.getResult(0);
-                    this.getVariantStatFromSample();
+                    // this.getVariantStatFromSample();
+                    this.requestUpdate();
                 })
                 .catch(response => {
                     console.error("An error occurred fetching sample: ", response);
@@ -363,17 +358,17 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
 
     getDefaultConfig() {
         return {
-            title: "",
+            title: "Cancer Variant Plots",
             icon: "fas fa-search",
             searchButtonText: "Search",
+            showTitle: true,
+            titleClass: "",
+            titleIcon: "fas fa-user",
             filter: {
                 title: "Filter",
                 activeFilters: {
                     alias: {
-                        // Example:
-                        // "region": "Region",
-                        // "gene": "Gene",
-                        "ct": "Consequence Types"
+                        ct: "Consequence Types"
                     },
                     complexFields: ["genotype"],
                     hiddenFields: []
@@ -486,7 +481,15 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
     }
 
     render() {
+        if (!this.opencgaSession) {
+            return;
+        }
+
         return html`
+            ${this.sample && this._config.showTitle
+                ? html`<tool-header title="${this._config.title} - ${this.sample.id}" icon="${this._config.titleIcon}" class="${this._config.titleClass}"></tool-header>`
+                : null
+            }
             <div class="row">
                 <div class="col-md-3 left-menu">
                     <opencga-variant-filter .opencgaSession=${this.opencgaSession}
@@ -529,14 +532,21 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                             </div>
                         </div>
                        
-                        <div class="col-md-12" style="padding: 0px 15px"> 
-                            <sample-cancer-variant-stats-plots    .opencgaSession="${this.opencgaSession}"
-                                                                    .query="${this.executedQuery}"
-                                                                    .sampleId="${this.sample?.id}"
-                                                                    .active="${this.active}"
-                                                                    @changeSignature="${this.onChangeSignature}"
-                                                                    @changeAggregationStatsResults="${this.onChangeAggregationStatsResults}">
-                            </sample-cancer-variant-stats-plots>
+                        <div class="col-md-12" style="padding: 0px 15px">
+                            ${this.executedQuery 
+                                ? html`
+                                    <sample-cancer-variant-stats-plots      .opencgaSession="${this.opencgaSession}"
+                                                                            .query="${this.executedQuery}"
+                                                                            .sampleId="${this.sample?.id}"
+                                                                            .active="${this.active}"
+                                                                            @changeSignature="${this.onChangeSignature}"
+                                                                            @changeAggregationStatsResults="${this.onChangeAggregationStatsResults}">
+                                    </sample-cancer-variant-stats-plots>` 
+                                : html`
+                                    <div class="alert alert-info" role="alert" style="margin: 0px 15px">
+                                        <i class="fas fa-3x fa-info-circle align-middle"></i> Please select some filters on the left.
+                                    </div>`
+                            }
                         </div>
                     </div>
                 </div>

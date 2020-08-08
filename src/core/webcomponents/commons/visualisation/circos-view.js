@@ -51,18 +51,21 @@ export default class CircosView extends LitElement {
     }
 
     _init(){
-        this._prefix = "circos-" + UtilsNew.randomString(6);
+        this._prefix = UtilsNew.randomString(8);
         this._config = this.getDefaultConfig();
     }
 
     updated(changedProperties) {
-        if ((changedProperties.has("query") || changedProperties.has("active")) && this.active) {
+        // if ((changedProperties.has("query") || changedProperties.has("active")) && this.active) {
+        //     this.queryObserver();
+        // }
+
+        if (changedProperties.has("query")) {
             this.queryObserver();
         }
 
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
-            this.requestUpdate();
         }
     }
 
@@ -78,24 +81,16 @@ export default class CircosView extends LitElement {
                 {
                     id: "snv",
                     type: "SNV",
-                    filters: [
-                        {
-                            study: this.opencgaSession.study.fqn,
-                            fitting: false,
-                            density: "LOW",
-                            sample: this.sampleId,
-                            ...this.query
-                        }
-                    ]
+                    query: {
+                        study: this.opencgaSession.study.fqn,
+                        fitting: false,
+                        density: "LOW",
+                        sample: this.sampleId,
+                        ...this.query
+                    }
                 }
             ]
         }
-        // {
-        //     study: this.opencgaSession.study.fqn,
-        //         sample: this.sampleId,
-        //     density: "LOW",
-        // ...this.query
-        // }
         this.opencgaSession.opencgaClient.variants().runCircos(query, {study: this.opencgaSession.study.fqn})
             .then( restResult => {
                 document.getElementById(this._prefix + "CircosMessage").style["display"] = "none";
