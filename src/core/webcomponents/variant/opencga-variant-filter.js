@@ -521,7 +521,7 @@ export default class OpencgaVariantFilter extends LitElement {
                 </div>
                 ` : null}
     
-                <div class="panel-group" id="${this._prefix}Accordion" role="tablist" aria-multiselectable="true" style="padding-top: 5px">
+                <div class="panel-group" id="${this._prefix}Accordion" role="tablist" aria-multiselectable="true">
                     <div id="FilterMenu">
                     ${this._renderFilterMenu()}
                     </div>

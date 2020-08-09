@@ -61,4 +61,58 @@ export default class ClinicalAnalysisUtils {
         })
         return filtered;
     }*/
+
+    static updateInterpretatoin(clinicalAnalysis, opencgaSession, callback) {
+        if (!clinicalAnalysis) {
+            console.error("It is not possible have this error");
+            return;
+        }
+
+        let _interpretation = {
+            primaryFindings: [],
+            ...clinicalAnalysis.interpretation,
+            clinicalAnalysisId: clinicalAnalysis.id,
+            methods: [{name: "IVA"}]
+        };
+
+        _interpretation.primaryFindings = JSON.parse(JSON.stringify(clinicalAnalysis.interpretation.primaryFindings));
+        for (let variant of _interpretation.primaryFindings) {
+            // delete variant.checkbox;
+            if (!variant.attributes.creationDate) {
+                variant.attributes.creationDate = new Date().getTime();
+            }
+        }
+        clinicalAnalysis.interpretation = _interpretation;
+        opencgaSession.opencgaClient.clinical().updateInterpretation(clinicalAnalysis.id, clinicalAnalysis.interpretation,
+            {
+                study: opencgaSession.study.fqn,
+                primaryFindingsAction: "SET",
+                secondaryFindingsAction: "SET",
+            })
+            .then(restResponse => {
+                Swal.fire(
+                    "Interpretation Saved",
+                    "Primary findings have been saved.",
+                    "success"
+                );
+                callback(clinicalAnalysis);
+                // this.dispatchEvent(new CustomEvent("clinicalAnalysisUpdate", {
+                //     detail: {
+                //         clinicalAnalysis: clinicalAnalysis
+                //     },
+                //     bubbles: true,
+                //     composed: true
+                // }));
+            })
+            .catch(restResponse => {
+                console.error(restResponse);
+                //optional chaining is to make sure the response is a restResponse instance
+                const msg = restResponse?.getResultEvents?.("ERROR")?.map(event => event.message).join("<br>") ?? "Server Error";
+                Swal.fire({
+                    title: "Error",
+                    icon: "error",
+                    html: msg
+                });
+            });
+    }
 }

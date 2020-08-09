@@ -86,10 +86,12 @@ class VariantInterpreterBrowserCancer extends LitElement {
         this.reportedVariants = [];
 
         this.query = {};
-        this._config = {...this.getDefaultConfig(), ...this.config};
 
         this.predefinedFilter = false;
 
+        this.notSavedVariantIds = 0;
+        this.removedVariantIds = 0;
+        this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
     connectedCallback() {
@@ -191,19 +193,52 @@ class VariantInterpreterBrowserCancer extends LitElement {
     }
 
     onCheckVariant(e) {
-        if (this.clinicalAnalysis && this.clinicalAnalysis.interpretation) {
-            this.clinicalAnalysis.modificationDate = e.detail.timestamp;
-            this.clinicalAnalysis.interpretation.modificationDate = e.detail.timestamp;
-            this.clinicalAnalysis.interpretation.primaryFindings = Array.from(e.detail.rows);
+        if (!this.clinicalAnalysis) {
+            console.error("It is not possible have this error");
+            return;
         }
 
-        this.dispatchEvent(new CustomEvent("clinicalAnalysisUpdate", {
+        this.clinicalAnalysis.modificationDate = e.detail.timestamp;
+        this.clinicalAnalysis.interpretation = {
+            attributes: {
+                modificationDate: e.detail.timestamp
+            }
+        };
+
+        this.clinicalAnalysis.interpretation.primaryFindings = Array.from(e.detail.rows);
+
+        this.currentSelection = e.detail?.rows?.map(v => v.id) ?? [];
+
+        this.notSavedVariantIds = this.currentSelection.filter(v => !~this.savedVariants.indexOf(v)).length;
+        this.removedVariantIds = this.savedVariants.filter(v => !~this.currentSelection.indexOf(v)).length;
+        this.requestUpdate();
+    }
+
+    onViewVariants(e) {
+        let variantIds = this.clinicalAnalysis.interpretation.primaryFindings.map(e => e.id);
+        this.preparedQuery = {...this.preparedQuery, id: variantIds.join(",")};
+        this.executedQuery = {...this.executedQuery, id: variantIds.join(",")};
+        this.requestUpdate();
+    }
+
+    onResetVariants(e) {
+        let alreadySaved = this.clinicalAnalysis.interpretation.primaryFindings.filter(e => e.attributes.creationDate);
+        // debugger
+        this.clinicalAnalysis.interpretation.primaryFindings = alreadySaved;
+        console.error("primaryFindings", this.clinicalAnalysis.interpretation.primaryFindings);
+        this.clinicalAnalysis = {...this.clinicalAnalysis};
+        this.requestUpdate();
+    }
+
+    onSaveVariants(e) {
+        let f = clinicalAnalysis => this.dispatchEvent(new CustomEvent("clinicalAnalysisUpdate", {
             detail: {
-                clinicalAnalysis: this.clinicalAnalysis
+                clinicalAnalysis: clinicalAnalysis
             },
             bubbles: true,
             composed: true
         }));
+        ClinicalAnalysisUtils.updateInterpretatoin(this.clinicalAnalysis, this.opencgaSession, f);
     }
 
     onSampleChange(e) {
@@ -587,17 +622,26 @@ class VariantInterpreterBrowserCancer extends LitElement {
                 </div> <!-- Close col-md-2 -->
                 
                 <div class="col-md-10">
-                    <div class="btn-toolbar " role="toolbar" aria-label="..." style="padding-bottom: 20px">
-                        <!-- Left buttons -->
-                        <div class="btn-group" role="group" aria-label="...">
-                            <!--<button id="${this._prefix}TableResultButton" type="button" class="btn btn-success variant-interpretation-view-buttons active ripple" data-view="TableResult" @click="${this.onChangeView}">
-                                <i class="fa fa-filter icon-padding" aria-hidden="true" data-view="TableResult" @click="${this.onChangeView}"></i>Table Result
-                            </button>
-                            <button id="${this._prefix}SummaryReportButton" type="button" class="btn btn-success variant-interpretation-view-buttons ripple" data-view="SummaryReport" @click="${this.onChangeView}">
-                                <i class="fas fa-random icon-padding" aria-hidden="true" data-view="SummaryReport" @click="${this.onChangeView}"></i>Summary Stats
-                            </button>-->
+                    <div>
+                        <div class="btn-toolbar" role="toolbar" aria-label="toolbar" style="margin-bottom: 20px">
+                            <div class="pull-right" role="group">
+                                <button type="button" class="btn btn-default ripple" @click="${this.onViewVariants}" title="This shows saved variants">
+                                    <i class="fas fa-eye icon-padding" aria-hidden="true"></i> View
+                                </button>
+                                <button type="button" class="btn btn-default ripple" @click="${this.onResetVariants}" title="This removes not saved variants">
+                                    <i class="fas fa-eraser icon-padding" aria-hidden="true"></i> Reset
+                                </button>
+                                <button type="button" class="btn btn-default ripple" @click="${this.onSaveVariants}" title="Save variants in the server">
+                                    <i class="fas fa-save icon-padding" aria-hidden="true"></i> Save
+                                </button>
+                            </div>
                         </div>
-                    </div>  <!-- Close toolbar -->
+                        ${this.notSavedVariantIds || this.removedVariantIds ? html`
+                            <div class="alert alert-warning" role="alert" id="${this._prefix}SaveWarning">
+                                <span><strong>Warning!</strong></span>&nbsp;&nbsp;Primary findings have changed:
+                                ${this.notSavedVariantIds ? html`${this.notSavedVariantIds} variant${this.notSavedVariantIds > 1 ? "s have": " has"} been added` : null}${this.removedVariantIds ? html`${this.notSavedVariantIds ? " and " : null}${this.removedVariantIds} variant${this.removedVariantIds > 1 ? "s have": " has"} been removed` : null}. Please click on <strong> Save </strong> to make the results persistent.
+                        </div>` : null}
+                    </div>
                 
                     <div id="${this._prefix}MainContent">
                         <div id="${this._prefix}ActiveFilters">
@@ -615,7 +659,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                             </opencga-active-filters>
                         </div>
                         
-                        <div class="main-view" style="padding-top: 5px">
+                        <div class="main-view">
                             <div id="${this._prefix}TableResult" class="variant-interpretation-content active">
                                 <variant-interpreter-grid .opencgaSession="${this.opencgaSession}"
                                                           .clinicalAnalysis="${this.clinicalAnalysis}"

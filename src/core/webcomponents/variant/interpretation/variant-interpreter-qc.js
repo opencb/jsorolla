@@ -18,7 +18,6 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import {classMap} from "/web_modules/lit-html/directives/class-map.js";
 import UtilsNew from "../../../utilsNew.js";
 import "./variant-interpreter-qc-overview.js";
-import "./variant-interpreter-qc-variant.js";
 import "./variant-interpreter-qc-alignment.js";
 import "./variant-interpreter-qc-gene-coverage.js";
 
@@ -131,12 +130,7 @@ class VariantInterpreterQc extends LitElement {
                             <a href="javascript: void 0" role="tab" data-id="Overview" @click="${this._changeTab}" class="tab-title">Overview
                             </a>
                         </li>
-                        <!--
-                        <li role="presentation" class="content-pills ${classMap({active: this.activeTab["VariantQc"]})}">
-                            <a href="javascript: void 0" role="tab" data-id="VariantQc" @click="${this._changeTab}" class="tab-title">Variant Aggregation Stats
-                            </a>
-                        </li>
-                        -->
+                        
                         ${this.clinicalAnalysis.type.toUpperCase() === "CANCER" 
                             ? html`
                                 <li role="presentation" class="content-pills ${classMap({active: this.activeTab["VariantQcCancer"]})}">
@@ -145,20 +139,26 @@ class VariantInterpreterQc extends LitElement {
                                 </li>` 
                             : null
                         }
+                        
                         <li role="presentation" class="content-pills ${classMap({active: this.activeTab["SampleVariantStats"]})}">
                             <a href="javascript: void 0" role="tab" data-id="SampleVariantStats" @click="${this._changeTab}" class="tab-title">Sample Variant Stats
                             </a>
                         </li>
+                        
                         <!--<li role="presentation" class="content-pills ${classMap({active: this.activeTab["AlignmentQc"]})}">
                             <a href="javascript: void 0" role="tab" data-id="AlignmentQc" @click="${this._changeTab}" class="tab-title">Alignment
                             </a>
                         </li>-->
-                        ${application.appConfig === "opencb" ? html`
-                            <li role="presentation" class="content-pills ${classMap({active: this.activeTab["GeneCoverage"]})}">
-                                <a href="javascript: void 0" role="tab" data-id="GeneCoverage" @click="${this._changeTab}" class="tab-title">Gene Coverage Stats
-                                </a>
-                            </li>
-                        ` : null}
+                        
+                        ${application.appConfig === "opencb" 
+                            ? html`
+                                <li role="presentation" class="content-pills ${classMap({active: this.activeTab["GeneCoverage"]})}">
+                                    <a href="javascript: void 0" role="tab" data-id="GeneCoverage" @click="${this._changeTab}" class="tab-title">Gene Coverage Stats
+                                    </a>
+                                </li>` 
+                            : null
+                        }
+                        
                         <!-- 
                         ${this.clinicalAnalysis.type.toUpperCase() === "FAMILY" ? html`
                             <li role="presentation" class="content-pills ${classMap({active: this.activeTab["Upd"]})}">
@@ -172,10 +172,6 @@ class VariantInterpreterQc extends LitElement {
                             </a>
                         </li>
                         -->
-                        <!--<li role="presentation" class="content-pills help-pill ${classMap({active: this.activeTab["help"]})}">
-                            <a href="javascript: void 0" role="tab" data-id="Help" @click="${this._changeTab}" class="tab-title"><i class="fas fa-question-circle"></i> Help
-                            </a>
-                        </li>-->
                     </ul>
                 </div>
                 
@@ -187,23 +183,7 @@ class VariantInterpreterQc extends LitElement {
                                                          .active="${this.activeTab["Overview"]}">
                         </variant-interpreter-qc-overview>
                     </div>
-                    <!--
-                    <div id="${this._prefix}VariantQc" role="tabpanel" class="tab-pane col-md-10 col-md-offset-1 content-tab">
-                        <variant-interpreter-qc-variant .opencgaSession="${this.opencgaSession}" 
-                                                        .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                        .active="${this.activeTab["VariantQc"]}">
-                        </variant-interpreter-qc-variant>
-                    </div>
-                    -->
-                    
-                    <div id="${this._prefix}SampleVariantStats" role="tabpanel" class="tab-pane col-md-10 col-md-offset-1 content-tab">
-                        <tool-header title="Sample Variant Stats - ${this.clinicalAnalysis.proband.id}" class="bg-white"></tool-header>
-                        <sample-variant-stats-browser .opencgaSession="${this.opencgaSession}" 
-                                                      .sample="${this.clinicalAnalysis.proband.samples[0]}"
-                                                      .active="${this.activeTab["VariantQc"]}"
-                                                      .config="${{showTitle: false}}">
-                        </sample-variant-stats-browser>
-                    </div>
+                     
                     <div id="${this._prefix}VariantQcCancer" role="tabpanel" class="tab-pane col-md-10 col-md-offset-1 content-tab">
                         <tool-header title="Cancer QC Plots - ${this.clinicalAnalysis.proband.id}" class="bg-white"></tool-header>
                         <sample-cancer-variant-stats-browser    .opencgaSession="${this.opencgaSession}" 
@@ -213,6 +193,15 @@ class VariantInterpreterQc extends LitElement {
                         </sample-cancer-variant-stats-browser>
                     </div>
                     
+                    <div id="${this._prefix}SampleVariantStats" role="tabpanel" class="tab-pane col-md-10 col-md-offset-1 content-tab">
+                        <tool-header title="Sample Variant Stats - ${this.clinicalAnalysis.proband.id}" class="bg-white"></tool-header>
+                        <sample-variant-stats-browser .opencgaSession="${this.opencgaSession}" 
+                                                      .sample="${this.clinicalAnalysis.proband.samples[0]}"
+                                                      .active="${this.activeTab["VariantQc"]}"
+                                                      .config="${{showTitle: false}}">
+                        </sample-variant-stats-browser>
+                    </div>
+                   
                     <!--
                     <div id="${this._prefix}AlignmentQc" role="tabpanel" class="tab-pane container content-tab">
                         <variant-interpreter-qc-alignment   .opencgaSession="${this.opencgaSession}" 
@@ -221,6 +210,7 @@ class VariantInterpreterQc extends LitElement {
                         </variant-interpreter-qc-alignment>
                     </div>
                     -->
+                    
                     <div id="${this._prefix}GeneCoverage" role="tabpanel" class="tab-pane col-md-10 col-md-offset-1 content-tab">
                         <tool-header title="Gene Coverage Stats - ${this.clinicalAnalysis.proband.id}" class="bg-white"></tool-header>
                         <variant-interpreter-qc-gene-coverage   .opencgaSession="${this.opencgaSession}" 
@@ -229,6 +219,7 @@ class VariantInterpreterQc extends LitElement {
                                                                 .active="${this.activeTab["Coverage"]}">
                         </variant-interpreter-qc-gene-coverage>
                     </div>
+                    
                     ${this.clinicalAnalysis.type.toUpperCase() === "FAMILY"
                         ? html`
                             <div id="${this._prefix}Upd" role="tabpanel" class="tab-pane content-tab">

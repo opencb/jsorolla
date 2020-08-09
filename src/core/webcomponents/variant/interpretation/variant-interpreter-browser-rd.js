@@ -94,9 +94,10 @@ class VariantInterpreterBrowserRd extends LitElement {
         this.activeFilterFilters = [];
 
         this.predefinedFilter = false; // flag that hides the warning message in active-filter for predefined samples value
-        this._config = {...this.getDefaultConfig(), ...this.config};
+
         this.notSavedVariantIds = 0;
         this.removedVariantIds = 0;
+        this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
     connectedCallback() {
@@ -243,7 +244,7 @@ class VariantInterpreterBrowserRd extends LitElement {
         this.clinicalAnalysis.interpretation.primaryFindings = Array.from(e.detail.rows);
 
         //this.notSavedVariants = this.clinicalAnalysis?.interpretation?.primaryFindings?.filter(e => !e.attributes.creationDate)?.length ?? 0;
-        this.currentSelection = e.detail?.rows?.map( v => v.id) ?? [];
+        this.currentSelection = e.detail?.rows?.map(v => v.id) ?? [];
 
         this.notSavedVariantIds = this.currentSelection.filter(v => !~this.savedVariants.indexOf(v)).length;
         this.removedVariantIds = this.savedVariants.filter(v => !~this.currentSelection.indexOf(v)).length;
@@ -282,56 +283,65 @@ class VariantInterpreterBrowserRd extends LitElement {
     }
 
     onSaveVariants(e) {
-        if (!this.clinicalAnalysis) {
-            console.error("It is not possible have this error");
-            return;
-        }
+        let f = clinicalAnalysis => this.dispatchEvent(new CustomEvent("clinicalAnalysisUpdate", {
+            detail: {
+                clinicalAnalysis: clinicalAnalysis
+            },
+            bubbles: true,
+            composed: true
+        }));
+        ClinicalAnalysisUtils.updateInterpretatoin(this.clinicalAnalysis, this.opencgaSession, f);
 
-        let _interpretation = {
-            primaryFindings: [],
-            ...this.clinicalAnalysis.interpretation,
-            clinicalAnalysisId: this.clinicalAnalysis.id,
-            methods: [{name: "IVA"}]
-        };
-
-        _interpretation.primaryFindings = JSON.parse(JSON.stringify(this.clinicalAnalysis.interpretation.primaryFindings));
-        for (let variant of _interpretation.primaryFindings) {
-            // delete variant.checkbox;
-            if (!variant.attributes.creationDate) {
-                variant.attributes.creationDate = new Date().getTime();
-            }
-        }
-        this.clinicalAnalysis.interpretation = _interpretation;
-        this.opencgaSession.opencgaClient.clinical().updateInterpretation(this.clinicalAnalysis.id, this.clinicalAnalysis.interpretation,
-            {
-                study: this.opencgaSession.study.fqn,
-                primaryFindingsAction: "SET",
-                secondaryFindingsAction: "SET",
-            })
-            .then(restResponse => {
-                Swal.fire(
-                    "Interpretation Saved",
-                    "Primary findings have been saved.",
-                    "success"
-                );
-                this.dispatchEvent(new CustomEvent("clinicalAnalysisUpdate", {
-                    detail: {
-                        clinicalAnalysis: this.clinicalAnalysis
-                    },
-                    bubbles: true,
-                    composed: true
-                }));
-            })
-            .catch(restResponse => {
-                console.error(restResponse);
-                //optional chaining is to make sure the response is a restResponse instance
-                const msg = restResponse?.getResultEvents?.("ERROR")?.map(event => event.message).join("<br>") ?? "Server Error";
-                Swal.fire({
-                    title: "Error",
-                    icon: "error",
-                    html: msg
-                });
-            });
+        // if (!this.clinicalAnalysis) {
+        //     console.error("It is not possible have this error");
+        //     return;
+        // }
+        //
+        // let _interpretation = {
+        //     primaryFindings: [],
+        //     ...this.clinicalAnalysis.interpretation,
+        //     clinicalAnalysisId: this.clinicalAnalysis.id,
+        //     methods: [{name: "IVA"}]
+        // };
+        //
+        // _interpretation.primaryFindings = JSON.parse(JSON.stringify(this.clinicalAnalysis.interpretation.primaryFindings));
+        // for (let variant of _interpretation.primaryFindings) {
+        //     // delete variant.checkbox;
+        //     if (!variant.attributes.creationDate) {
+        //         variant.attributes.creationDate = new Date().getTime();
+        //     }
+        // }
+        // this.clinicalAnalysis.interpretation = _interpretation;
+        // this.opencgaSession.opencgaClient.clinical().updateInterpretation(this.clinicalAnalysis.id, this.clinicalAnalysis.interpretation,
+        //     {
+        //         study: this.opencgaSession.study.fqn,
+        //         primaryFindingsAction: "SET",
+        //         secondaryFindingsAction: "SET",
+        //     })
+        //     .then(restResponse => {
+        //         Swal.fire(
+        //             "Interpretation Saved",
+        //             "Primary findings have been saved.",
+        //             "success"
+        //         );
+        //         this.dispatchEvent(new CustomEvent("clinicalAnalysisUpdate", {
+        //             detail: {
+        //                 clinicalAnalysis: this.clinicalAnalysis
+        //             },
+        //             bubbles: true,
+        //             composed: true
+        //         }));
+        //     })
+        //     .catch(restResponse => {
+        //         console.error(restResponse);
+        //         //optional chaining is to make sure the response is a restResponse instance
+        //         const msg = restResponse?.getResultEvents?.("ERROR")?.map(event => event.message).join("<br>") ?? "Server Error";
+        //         Swal.fire({
+        //             title: "Error",
+        //             icon: "error",
+        //             html: msg
+        //         });
+        //     });
     }
 
     onSampleChange(e) {
@@ -713,11 +723,14 @@ class VariantInterpreterBrowserRd extends LitElement {
                                 </button>
                             </div>
                         </div>
-                        ${this.notSavedVariantIds || this.removedVariantIds ? html`
-                            <div class="alert alert-warning" role="alert" id="${this._prefix}SaveWarning">
-                                <span><strong>Warning!</strong></span>&nbsp;&nbsp;Primary findings have changed:
-                                ${this.notSavedVariantIds ? html`${this.notSavedVariantIds} variant${this.notSavedVariantIds > 1 ? "s have": " has"} been added` : null}${this.removedVariantIds ? html`${this.notSavedVariantIds ? " and " : null}${this.removedVariantIds} variant${this.removedVariantIds > 1 ? "s have": " has"} been removed` : null}. Please click on <strong> Save </strong> to make the results persistent.
-                        </div>` : null}
+                        ${this.notSavedVariantIds || this.removedVariantIds 
+                            ? html`
+                                <div class="alert alert-warning" role="alert" id="${this._prefix}SaveWarning">
+                                    <span><strong>Warning!</strong></span>&nbsp;&nbsp;Primary findings have changed:
+                                    ${this.notSavedVariantIds ? html`${this.notSavedVariantIds} variant${this.notSavedVariantIds > 1 ? "s have" : " has"} been added` : null}${this.removedVariantIds ? html`${this.notSavedVariantIds ? " and " : null}${this.removedVariantIds} variant${this.removedVariantIds > 1 ? "s have" : " has"} been removed` : null}. Please click on <strong> Save </strong> to make the results persistent.
+                                </div>` 
+                            : null
+                        }
                     </div>
                     
                     <div id="${this._prefix}MainContent">
@@ -739,7 +752,7 @@ class VariantInterpreterBrowserRd extends LitElement {
                         </div>
                             
                         <!-- SEARCH TABLE RESULT -->
-                        <div class="main-view" style="padding-top: 5px">
+                        <div class="main-view">
                             <div id="${this._prefix}Interactive" class="variant-interpretation-content">
                                 <variant-interpreter-grid .opencgaSession="${this.opencgaSession}"
                                                           .clinicalAnalysis="${this.clinicalAnalysis}"

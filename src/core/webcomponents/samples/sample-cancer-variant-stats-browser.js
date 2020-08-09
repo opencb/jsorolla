@@ -273,7 +273,7 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                 mode: {
                     type: "modal",
                     title: "Display Settings",
-                    buttonClass: "btn btn-default"
+                    buttonClass: "btn btn-default ripple"
                 },
                 labelWidth: 4,
                 labelAlign: "right",
@@ -323,7 +323,7 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                 mode: {
                     type: "modal",
                     title: "Save Variant Stats",
-                    buttonClass: "btn btn-default"
+                    buttonClass: "btn btn-default ripple"
                 },
                 labelWidth: 3,
                 labelAlign: "right",
@@ -506,8 +506,25 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                 </div>
 
                 <div class="col-md-9">
-                    <div class="row">
-                        <div class="col-md-12">
+                    <div>
+                        <div class="btn-toolbar" role="toolbar" aria-label="toolbar" style="margin-bottom: 20px">
+                            <div class="pull-right" role="group">
+                                <data-form  .data=${this.settings} 
+                                            .config="${this.getSettingsConfig()}" 
+                                            @fieldChange="${e => this.onSettingsFieldChange(e)}" 
+                                            @submit="${this.onSettingsOk}">
+                                </data-form>
+                                <data-form  .data=${this.save} 
+                                            .config="${this.getSaveConfig()}" 
+                                            @fieldChange="${e => this.onSaveFieldChange(e)}" 
+                                            @submit="${this.onSave}">
+                                </data-form>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="${this._prefix}MainContent">    
+                        <div id="${this._prefix}ActiveFilters">
                             <opencga-active-filters resource="VARIANT"
                                                     .opencgaSession="${this.opencgaSession}"
                                                     .defaultStudy="${this.opencgaSession.study.fqn}"
@@ -520,28 +537,19 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                                                     @activeFilterClear="${this.onActiveFilterClear}">
                             </opencga-active-filters>
                         </div>
-                       
-                        <div class="col-md-12">
-                            <div style="padding: 5px 25px;float: right">
-                                <data-form  .data=${this.settings} .config="${this.getSettingsConfig()}" 
-                                            @fieldChange="${e => this.onSettingsFieldChange(e)}" @submit="${this.onSettingsOk}">
-                                </data-form>
-                                <data-form  .data=${this.save} .config="${this.getSaveConfig()}" 
-                                            @fieldChange="${e => this.onSaveFieldChange(e)}" @submit="${this.onSave}">
-                                </data-form>
-                            </div>
-                        </div>
-                       
-                        <div class="col-md-12" style="padding: 0px 15px">
+
+                        <div class="main-view">
                             ${this.executedQuery 
                                 ? html`
-                                    <sample-cancer-variant-stats-plots      .opencgaSession="${this.opencgaSession}"
-                                                                            .query="${this.executedQuery}"
-                                                                            .sampleId="${this.sample?.id}"
-                                                                            .active="${this.active}"
-                                                                            @changeSignature="${this.onChangeSignature}"
-                                                                            @changeAggregationStatsResults="${this.onChangeAggregationStatsResults}">
-                                    </sample-cancer-variant-stats-plots>` 
+                                    <div class="" style="padding: 0px 15px">
+                                        <sample-cancer-variant-stats-plots      .opencgaSession="${this.opencgaSession}"
+                                                                                .query="${this.executedQuery}"
+                                                                                .sampleId="${this.sample?.id}"
+                                                                                .active="${this.active}"
+                                                                                @changeSignature="${this.onChangeSignature}"
+                                                                                @changeAggregationStatsResults="${this.onChangeAggregationStatsResults}">
+                                        </sample-cancer-variant-stats-plots>
+                                    </div>` 
                                 : html`
                                     <div class="alert alert-info" role="alert" style="margin: 0px 15px">
                                         <i class="fas fa-3x fa-info-circle align-middle"></i> Please select some filters on the left.

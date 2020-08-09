@@ -398,6 +398,10 @@ export default class SampleVariantStatsBrowser extends LitElement {
     }
 
     render() {
+        if (!this.opencgaSession) {
+            return;
+        }
+
         return html`
             ${this.sample && this._config.showTitle
                 ? html`<tool-header title="${this._config.title} - ${this.sample.id}" icon="${this._config.titleIcon}" class="${this._config.titleClass}"></tool-header>`
@@ -420,6 +424,17 @@ export default class SampleVariantStatsBrowser extends LitElement {
 
                 <div class="col-md-9">
                     <div>
+                        <div class="btn-toolbar" role="toolbar" aria-label="toolbar" style="margin-bottom: 20px">
+                            <div class="pull-right" role="group">
+                                <data-form  .data=${this.save} 
+                                            .config="${this.getSaveConfig()}" 
+                                            @fieldChange="${e => this.onSaveFieldChange(e)}" 
+                                            @submit="${this.onSave}">
+                                </data-form>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
                         <opencga-active-filters resource="VARIANT"
                                                 .opencgaSession="${this.opencgaSession}"
                                                 .defaultStudy="${this.opencgaSession.study.fqn}"
@@ -433,32 +448,21 @@ export default class SampleVariantStatsBrowser extends LitElement {
                         </opencga-active-filters>
                       
                         <div class="main-view">
-                            <div class="row">
-                                ${this.loading
+                            ${this.loading
+                                ? html`
+                                    <div id="loading">
+                                        <loading-spinner></loading-spinner>
+                                    </div>`
+                                : this.sampleVariantStats
                                     ? html`
-                                        <div id="loading">
-                                            <loading-spinner></loading-spinner>
+                                        <div style="padding: 0px 15px">
+                                            <sample-variant-stats-view .sampleVariantStats="${this.sampleVariantStats}"></sample-variant-stats-view>
                                         </div>`
-                                    : !this.sampleVariantStats
-                                        ? html`
-                                            <div class="alert alert-info" role="alert" style="margin: 0px 15px">
-                                                <i class="fas fa-3x fa-info-circle align-middle"></i> Please select some filters on the left.
-                                            </div>`
-                                        : html`
-                                            <div style="padding: 0px 15px">
-                                                <div class="col-md-12">
-                                                    <div class="pull-right">
-                                                        <data-form  .data=${this.save} .config="${this.getSaveConfig()}" 
-                                                                    @fieldChange="${e => this.onSaveFieldChange(e)}" @submit="${this.onSave}">
-                                                        </data-form>
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-12">
-                                                    <sample-variant-stats-view .sampleVariantStats="${this.sampleVariantStats}"></sample-variant-stats-view>
-                                                </div>
-                                            </div>`
-                                }
-                            </div>                            
+                                    : html`
+                                        <div class="alert alert-info" role="alert" style="margin: 0px 15px">
+                                            <i class="fas fa-3x fa-info-circle align-middle"></i> Please select some filters on the left.
+                                        </div>`
+                            }
                         </div>
                     </div>
                 </div>
