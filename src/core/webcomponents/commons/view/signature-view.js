@@ -59,7 +59,7 @@ export default class SignatureView extends LitElement {
 
     updated(changedProperties) {
         //loading spinner is shown in case this.signature is undefined or null
-        debugger
+        // debugger
         // if ((changedProperties.has("signature") || changedProperties.has("active")) && this.active && this.signature) {
         //     this.signatureObserver();
         // }
@@ -70,7 +70,7 @@ export default class SignatureView extends LitElement {
     }
 
     signatureObserver() {
-        if (this.signature?.errorState) {
+        if (!this.signature || this.signature?.errorState) {
             return;
         }
 
