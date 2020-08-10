@@ -85,6 +85,7 @@ export default class OpencgaPlinkAnalysis extends LitElement {
                                 id: "tpedFile",
                                 title: "Select tped file",
                                 type: "FILE_FILTER",
+                                addButton: true,
                                 showList: true,
                                 fileUpload: true
                             },
@@ -92,6 +93,7 @@ export default class OpencgaPlinkAnalysis extends LitElement {
                                 id: "tfamFile",
                                 title: "Select tfam file",
                                 type: "FILE_FILTER",
+                                addButton: true,
                                 showList: true,
                                 fileUpload: true
                             },
@@ -99,6 +101,7 @@ export default class OpencgaPlinkAnalysis extends LitElement {
                                 id: "covarFile",
                                 title: "Select covar file",
                                 type: "FILE_FILTER",
+                                addButton: true,
                                 showList: true,
                                 fileUpload: true
                             }

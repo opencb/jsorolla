@@ -85,6 +85,7 @@ export default class OpencgaSampleQcAnalysis extends LitElement {
                                 id: "sample",
                                 title: "Select samples",
                                 type: "SAMPLE_FILTER",
+                                addButton: true,
                                 showList: true,
                                 fileUpload: true
                             }
@@ -146,6 +147,7 @@ export default class OpencgaSampleQcAnalysis extends LitElement {
                                 id: "fastaFile",
                                 title: "Fasta file",
                                 type: "FILE_FILTER",
+                                addButton: true,
                                 showList: true,
                                 fileUpload: true
                             },
@@ -153,6 +155,7 @@ export default class OpencgaSampleQcAnalysis extends LitElement {
                                 id: "baitFile",
                                 title: "Bait file",
                                 type: "FILE_FILTER",
+                                addButton: true,
                                 showList: true,
                                 fileUpload: true
                             },
@@ -160,6 +163,7 @@ export default class OpencgaSampleQcAnalysis extends LitElement {
                                 id: "targetFile",
                                 title: "Target file",
                                 type: "FILE_FILTER",
+                                addButton: true,
                                 showList: true,
                                 fileUpload: true
                             }
