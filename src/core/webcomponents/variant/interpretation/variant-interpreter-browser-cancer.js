@@ -87,7 +87,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
 
         this.query = {};
 
-        this.predefinedFilter = false;
+        this.predefinedFilter = false; // flag that hides the warning message in active-filter for predefined samples value
 
         this.notSavedVariantIds = 0;
         this.removedVariantIds = 0;
@@ -183,6 +183,10 @@ class VariantInterpreterBrowserCancer extends LitElement {
         } else {
             this.activeFilterFilters = this._config.filter.examples;
         }
+
+        if (this.clinicalAnalysis?.interpretation?.primaryFindings?.length) {
+            this.savedVariants = this.clinicalAnalysis?.interpretation?.primaryFindings?.map(v => v.id);
+        }
     }
 
     onSelectVariant(e) {
@@ -209,6 +213,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
 
         this.currentSelection = e.detail?.rows?.map(v => v.id) ?? [];
 
+        //the following counters keep track of the current variant selection compared to the one saved on the server
         this.notSavedVariantIds = this.currentSelection.filter(v => !~this.savedVariants.indexOf(v)).length;
         this.removedVariantIds = this.savedVariants.filter(v => !~this.currentSelection.indexOf(v)).length;
         this.requestUpdate();
@@ -243,7 +248,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
 
     onSampleChange(e) {
         const _samples = e.detail.samples;
-        this.samples =_samples.slice();
+        this.samples = _samples.slice();
         this.dispatchEvent(new CustomEvent("samplechange", {detail: e.detail, bubbles: true, composed: true}));
         // this._initGenotypeSamples(this.samples);
     }
@@ -312,7 +317,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                     },
                     complexFields: ["sample", "genotype"],
                     hiddenFields: [],
-                    lockedFields: [{id:"sample"}]
+                    lockedFields: [{id: "sample"}]
                 },
                 sections: [     // sections and subsections, structure and order is respected
                     {
@@ -602,10 +607,10 @@ class VariantInterpreterBrowserCancer extends LitElement {
                 }
             </style>
 
-             ${this._config.showTitle ? html`
+            ${this._config.showTitle ? html`
                 <tool-header title="${this.clinicalAnalysis ? `${this._config.title} (${this.clinicalAnalysis.id})` : this._config.title}" icon="${this._config.icon}"></tool-header>
             ` : null}
-             
+
             <div class="row">
                 <div class="col-md-2">
                     <opencga-variant-filter .opencgaSession="${this.opencgaSession}"
@@ -636,11 +641,14 @@ class VariantInterpreterBrowserCancer extends LitElement {
                                 </button>
                             </div>
                         </div>
-                        ${this.notSavedVariantIds || this.removedVariantIds ? html`
-                            <div class="alert alert-warning" role="alert" id="${this._prefix}SaveWarning">
-                                <span><strong>Warning!</strong></span>&nbsp;&nbsp;Primary findings have changed:
-                                ${this.notSavedVariantIds ? html`${this.notSavedVariantIds} variant${this.notSavedVariantIds > 1 ? "s have": " has"} been added` : null}${this.removedVariantIds ? html`${this.notSavedVariantIds ? " and " : null}${this.removedVariantIds} variant${this.removedVariantIds > 1 ? "s have": " has"} been removed` : null}. Please click on <strong> Save </strong> to make the results persistent.
-                        </div>` : null}
+                        ${this.notSavedVariantIds || this.removedVariantIds
+                            ? html`
+                                <div class="alert alert-warning" role="alert" id="${this._prefix}SaveWarning">
+                                    <span><strong>Warning!</strong></span>&nbsp;&nbsp;Primary findings have changed:
+                                    ${this.notSavedVariantIds ? html`${this.notSavedVariantIds} variant${this.notSavedVariantIds > 1 ? "s have" : " has"} been added` : null}${this.removedVariantIds ? html`${this.notSavedVariantIds ? " and " : null}${this.removedVariantIds} variant${this.removedVariantIds > 1 ? "s have" : " has"} been removed` : null}. Please click on <strong> Save </strong> to make the results persistent.
+                                </div>`
+                            : null
+                        }
                     </div>
                 
                     <div id="${this._prefix}MainContent">

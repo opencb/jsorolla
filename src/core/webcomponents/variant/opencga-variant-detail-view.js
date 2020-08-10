@@ -264,7 +264,8 @@ export default class OpenCGAVariantDetailView extends LitElement {
                                             <div style="width: 90%;padding-top: 8px">
                                                 <variant-beacon-network .variant="${this.variant.id}"
                                                                         .assembly="${this.opencgaSession.project.organism.assembly}"
-                                                                        .config="${this.beaconConfig}">
+                                                                        .config="${this.beaconConfig}"
+                                                                        .active="${this.detailActiveTabs.beacon}">
                                                 </variant-beacon-network>
                                             </div>
                                         </div>

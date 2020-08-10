@@ -150,9 +150,18 @@ export default class OpencgaTranscriptView extends LitElement {
     }
 
     showBrowser() {
+        this.notifySearch({xref: this.geneId})
         const hash = window.location.hash.split("/");
         const newHash = "#browser/" + hash[1] + "/" + hash[2];
         window.location.hash = newHash;
+    }
+
+    notifySearch(query) {
+        this.dispatchEvent(new CustomEvent("querySearch", {
+            detail: {
+                query: query
+            }
+        }));
     }
 
     onSelectVariant(e) {

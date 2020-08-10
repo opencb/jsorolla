@@ -243,9 +243,9 @@ class VariantInterpreterBrowserRd extends LitElement {
 
         this.clinicalAnalysis.interpretation.primaryFindings = Array.from(e.detail.rows);
 
-        //this.notSavedVariants = this.clinicalAnalysis?.interpretation?.primaryFindings?.filter(e => !e.attributes.creationDate)?.length ?? 0;
         this.currentSelection = e.detail?.rows?.map(v => v.id) ?? [];
 
+        //the following counters keep track of the current variant selection compared to the one saved on the server
         this.notSavedVariantIds = this.currentSelection.filter(v => !~this.savedVariants.indexOf(v)).length;
         this.removedVariantIds = this.savedVariants.filter(v => !~this.currentSelection.indexOf(v)).length;
         this.requestUpdate();
@@ -635,7 +635,8 @@ class VariantInterpreterBrowserRd extends LitElement {
                     ]
                 }
             },
-            aggregation: {}
+            aggregation: {
+            }
         };
     }
 
@@ -667,7 +668,7 @@ class VariantInterpreterBrowserRd extends LitElement {
                     font-size: 115%;
                     font-weight: bold;
                 }
-    
+                
                 .form-section-title {
                     padding: 5px 0px;
                     width: 95%;
@@ -675,7 +676,7 @@ class VariantInterpreterBrowserRd extends LitElement {
                     border-bottom-style: solid;
                     border-bottom-color: #ddd
                 }
-    
+                
                 #clinicalAnalysisIdText {
                     padding: 10px;
                 }
@@ -688,7 +689,7 @@ class VariantInterpreterBrowserRd extends LitElement {
                     margin: 20px 0;
                 }
             </style>
-            
+
             ${this._config.showTitle ? html`
                 <tool-header title="${this.clinicalAnalysis ? `${this._config.title} (${this.clinicalAnalysis.id})` : this._config.title}" icon="${this._config.icon}"></tool-header>
             ` : null}

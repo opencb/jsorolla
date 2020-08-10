@@ -859,8 +859,8 @@ export default class OpencgaVariantGrid extends LitElement {
             ...this.query
         };
 
-        this.downloadRefreshIcon.css("display", "inline-block");
-        this.downloadIcon.css("display", "none");
+        //this.downloadRefreshIcon.css("display", "inline-block");
+        //this.downloadIcon.css("display", "none");
 
         this.opencgaSession.opencgaClient.variants().query(params)
             .then(response => {
@@ -895,8 +895,8 @@ export default class OpencgaVariantGrid extends LitElement {
                 }, 0);
             })
             .then(function () {
-                this.downloadRefreshIcon.css("display", "none");
-                this.downloadIcon.css("display", "inline-block");
+                //this.downloadRefreshIcon.css("display", "none");
+                //this.downloadIcon.css("display", "inline-block");
             });
     }
 

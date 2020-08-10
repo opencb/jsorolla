@@ -16,9 +16,7 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
-import PolymerUtils from "../PolymerUtils.js";
 
-// TODO: Assembly is hardcoded for now. It has to be taken care in the future
 
 export default class VariantBeaconNetwork extends LitElement {
 
@@ -38,9 +36,9 @@ export default class VariantBeaconNetwork extends LitElement {
             variant: {
                 type: String
             },
-            /*clear: {
-                type: String
-            },*/
+            active: {
+                type: Boolean
+            },
             assembly: {
                 type: String
             },
@@ -61,7 +59,7 @@ export default class VariantBeaconNetwork extends LitElement {
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("variant")) {
+        if (changedProperties.has("variant") || changedProperties.has("active")) {
             this.variantObserver();
         }
         if (changedProperties.has("config")) {
@@ -78,6 +76,10 @@ export default class VariantBeaconNetwork extends LitElement {
         $(".host", this).removeClass("false");
         $(".host", this).removeClass("true");
         $(".beaconResponse").empty();
+
+        if (this.variant && this.active) {
+            this.searchBeaconNetwork();
+        }
     }
 
     async searchBeaconNetwork() {
@@ -94,9 +96,9 @@ export default class VariantBeaconNetwork extends LitElement {
                         if (res.ok) {
                             const response = await res.json();
                             for (const r of response) {
-                                console.log(r);
+                                //console.log(r);
                                 const host = this.querySelector("." + this._prefix + this._config.hosts[i]);
-                                console.log("host", host)
+                                //console.log("host", host)
                                 if (host) {
                                     host.querySelector(".beacon-loading-spinner").style.display = "none";
                                 }
@@ -159,7 +161,7 @@ export default class VariantBeaconNetwork extends LitElement {
             <div>
                 <p>Beacon Network is a search engine across the world's public beacons. You can find it here <a href="https://beacon-network.org">beacon-network.org</a>.</p>
                 <br>
-                <button class="btn btn-primary ripple" type="button" @click="${this.searchBeaconNetwork}">Search Beacon Network</button>
+                <button class="btn btn-primary ripple" type="button" @click="${this.searchBeaconNetwork}"><i class="fas fa-sync-alt icon-padding"></i> Rerun Beacon Network query</button>
             </div>
             ${this._config.hosts && this._config.hosts.length && this._config.hosts.map(item => html`
                 <div class="beacon-square host ${this._prefix}${item} shadow-sm">

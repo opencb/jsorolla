@@ -44,7 +44,7 @@ export default class OpencgaGeneView extends LitElement {
             opencgaClient: {
                 type: Object
             },
-            gene: {
+            geneId: {
                 type: String
             },
             populationFrequencies: {
@@ -99,16 +99,15 @@ export default class OpencgaGeneView extends LitElement {
     }*/
 
     geneChanged(neo, old) {
-        if (UtilsNew.isNotEmpty(this.gene)) {
+        if (UtilsNew.isNotEmpty(this.geneId)) {
             this.query = {
-                gene: this.gene,
+                gene: this.geneId,
                 study: this.opencgaSession.study.fqn
             };
-            const _this = this;
-            this.cellbaseClient.getGeneClient(this.gene, "info", {exclude: "annotation", assembly: this.opencgaSession.project.organism.assembly}, {})
-                .then(function(response) {
-                    _this.geneObj = response.getResult(0);
-                    _this.requestUpdate();
+            this.cellbaseClient.getGeneClient(this.geneId, "info", {exclude: "annotation", assembly: this.opencgaSession.project.organism.assembly}, {})
+                .then(restResponse => {
+                    this.gene = restResponse.getResult(0);
+                    this.requestUpdate();
                 });
         }
     }
@@ -137,9 +136,18 @@ export default class OpencgaGeneView extends LitElement {
     }
 
     showBrowser() {
+        this.notifySearch({xref: this.geneId})
         const hash = window.location.hash.split("/");
         const newHash = "#browser/" + hash[1] + "/" + hash[2];
         window.location.hash = newHash;
+    }
+
+    notifySearch(query) {
+        this.dispatchEvent(new CustomEvent("querySearch", {
+            detail: {
+                query: query
+            }
+        }));
     }
 
     onSelectVariant(e) {
@@ -148,16 +156,16 @@ export default class OpencgaGeneView extends LitElement {
     }
 
     render() {
-        return this.geneObj ? html`
-        <tool-header title="${`Gene <span class="inverse"> ${this.geneObj.name} </span>` }" icon="gene-view.svg"></tool-header>
+        return this.gene ? html`
+        <tool-header title="${`Gene <span class="inverse"> ${this.gene.name} </span>` }" icon="gene-view.svg"></tool-header>
         <div class="container-fluid">
             <div class="row">
                 <div class="col-md-10 col-md-offset-1">
-                    <!--<div style="float: right;padding: 10px 5px 10px 5px">
+                    <div style="float: right;padding: 10px 5px 10px 5px">
                         <button type="button" class="btn btn-primary" @click="${this.showBrowser}">
                             <i class="fa fa-hand-o-left" aria-hidden="true"></i> Variant Browser
                         </button>
-                    </div>-->
+                    </div>
         
                     <div class="row" style="padding: 5px 0px 25px 0px">
                         <div class="col-md-4">
@@ -165,28 +173,28 @@ export default class OpencgaGeneView extends LitElement {
                             <table class="table row">
                                 <tr>
                                     <th class="gene-summary-title col-sm-4">Name</th>
-                                    <td>${this.geneObj.name} (${this.geneObj.id})</td>
+                                    <td>${this.gene.name} (${this.gene.id})</td>
                                 </tr>
                                 <tr>
                                     <th class="gene-summary-title col-sm-4">Biotype</th>
-                                    <td>${this.geneObj.biotype}</td>
+                                    <td>${this.gene.biotype}</td>
                                 </tr>
                                 <tr>
                                     <th class="gene-summary-title col-sm-4">Description</th>
-                                    <td>${this.geneObj.description}</td>
+                                    <td>${this.gene.description}</td>
                                 </tr>
                                 <tr>
                                     <th class="gene-summary-title col-sm-4">Location</th>
-                                    <td>${this.geneObj.chromosome}:${this.geneObj.start}-${this.geneObj.end} (${this.geneObj.strand})</td>
+                                    <td>${this.gene.chromosome}:${this.gene.start}-${this.gene.end} (${this.gene.strand})</td>
                                 </tr>
                                 <tr>
                                     <th class="gene-summary-title col-sm-4">Genome Browser</th>
                                     <td>
                                         ${application.appConfig === "opencb" ? html`
-                                            <a target="_blank" href="http://genomemaps.org/?region=${this.geneObj.chromosome}:${this.geneObj.start}-${this.geneObj.end}">
-                                            ${this.geneObj.chromosome}:${this.geneObj.start}-${this.geneObj.end}
+                                            <a target="_blank" href="http://genomemaps.org/?region=${this.gene.chromosome}:${this.gene.start}-${this.gene.end}">
+                                            ${this.gene.chromosome}:${this.gene.start}-${this.gene.end}
                                             </a>
-                                        ` : html`${this.geneObj.chromosome}:${this.geneObj.start}-${this.geneObj.end}`}
+                                        ` : html`${this.gene.chromosome}:${this.gene.start}-${this.gene.end}`}
                                     </td>
                                 </tr>
                             </table>
@@ -208,7 +216,7 @@ export default class OpencgaGeneView extends LitElement {
                                 </tr>
                                 </thead>
                                 <tbody>
-                                ${this.geneObj.transcripts && this.geneObj.transcripts.length ? this.geneObj.transcripts.map( transcript => html`
+                                ${this.gene.transcripts && this.gene.transcripts.length ? this.gene.transcripts.map( transcript => html`
                                     <tr>
                                         <td>
                                             ${application.appConfig === "opencb" ? html`
