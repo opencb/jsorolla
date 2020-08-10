@@ -19,6 +19,12 @@ export default [
         "mother": {},
         "sex": "MALE",
         "age": "57"
+    },{
+        "id": "7",
+        "father": {id: "1"},
+        "mother": {id: "2"},
+        "sex": "MALE",
+        "age": "50"
     },
     {
         "id": "5",
@@ -34,13 +40,7 @@ export default [
         "sex": "MALE",
         "age": "50"
     },
-    {
-        "id": "7",
-        "father": {id: "1"},
-        "mother": {id: "2"},
-        "sex": "MALE",
-        "age": "50"
-    },
+
     {
         "id": "8",
         "father": {id: "3"},

@@ -75,6 +75,7 @@ export default class VariantBeaconNetwork extends LitElement {
         $(".beacon-loading-spinner", this).css("display", "none");
         $(".host", this).removeClass("false");
         $(".host", this).removeClass("true");
+        $(".host", this).removeClass("null");
         $(".beaconResponse").empty();
 
         if (this.variant && this.active) {
@@ -105,7 +106,8 @@ export default class VariantBeaconNetwork extends LitElement {
                                 host.classList.add(r.response || "false");
                                 if (r.response === null) {
                                     // null from server
-                                    host.querySelector(".beaconResponse").innerHTML = `false (${r.response})`;
+                                    host.querySelector(".beaconResponse").innerHTML = `NULL`;
+                                    host.classList.add("null");
                                 } else {
                                     host.querySelector(".beaconResponse").innerHTML = r.response;
                                 }
@@ -138,18 +140,18 @@ export default class VariantBeaconNetwork extends LitElement {
             display: inline-flex;
             justify-content: center;
             align-items: center;
-            background: aliceblue;
+            background: #fff;
             margin: 10px 10px 10px 0;
             flex-flow: column;
             transition: all .7s ease-in-out;
         }
         
         .beacon-square.false {
-            background: #cfffc7;
+            background: #e8e8e8;
         }
         
         .beacon-square.true {
-            background: #ff3030;
+            background: #b7ff30;
         }
         
         #variant-beacon-network .beacon-loading-spinner {
@@ -161,7 +163,7 @@ export default class VariantBeaconNetwork extends LitElement {
             <div>
                 <p>Beacon Network is a search engine across the world's public beacons. You can find it here <a href="https://beacon-network.org">beacon-network.org</a>.</p>
                 <br>
-                <button class="btn btn-primary ripple" type="button" @click="${this.searchBeaconNetwork}"><i class="fas fa-sync-alt icon-padding"></i> Rerun Beacon Network query</button>
+                <button class="btn btn-primary ripple" type="button" @click="${this.variantObserver}"><i class="fas fa-sync-alt icon-padding"></i> Rerun Beacon Network query</button>
             </div>
             ${this._config.hosts && this._config.hosts.length && this._config.hosts.map(item => html`
                 <div class="beacon-square host ${this._prefix}${item} shadow-sm">

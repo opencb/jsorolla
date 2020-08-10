@@ -43,7 +43,7 @@
     }
 
     function getParents(node) {
-        return node.father.id && node.mother.id ? [node.father.id, node.mother.id] : null
+        return node.father.id || node.mother.id ? [node.father.id, node.mother.id] : null
     }
 
     function getChildren(node) {
@@ -101,18 +101,71 @@
         });
     }
 
-    //TODO re-evaluate this fn
-    function sortChildren(array) {
-        let parents = array.map(n => getParents(n)).filter(Boolean)
-
-        if (!parents.length) return array; // root generation
-        // TODO sort array by same parent
-        // TODO NOTE not both parents are necessarily in the previous generation!
-        console.log(parents.flat())
-        return array
+    /**
+     * Count the parents in common between the nodes a and b
+     * @param a
+     * @param b
+     * @return The number of common parents
+     */
+    function haveSameParents(a, b) {
+        //console.log([...new Set(getParents(a))], [...new Set(getParents(b))])
+        const parentsA = getParents(a).filter(Boolean);
+        const parentsB = getParents(b).filter(Boolean);
+        const commonParents = parentsA.filter( n => ~parentsB.indexOf(n))
+        return commonParents.length
     }
 
+    //TODO re-evaluate this fn
+    function sortChildren(array, previousGeneration) {
+        if (!previousGeneration) return array; // root generation
+        // TODO NOTE not both parents are necessarily in the previous generation!
+
+        // criteria
+        // - partners close to each other
+        // - node with common parents
+        // - node with 1 parent in common
+        // - age?
+
+        //console.log(parents.flat())
+
+        let unsorted = [...array];
+        let sorted = [];
+        while(unsorted.length) {
+            // TODO nodes from same parents must be close to each other
+            const node = unsorted[0];
+            let partners = getPartners(node).map(_ => _.id);
+            sorted.push(...sortBySexAndAge([node, ...getPartners(node)]));
+            unsorted = removeNodes([node.id, ...partners], unsorted)
+        }
+        return sorted;
+
+        /*
+        let l = [...array].sort( (a,b) => {
+            let partners = getPartners(a).map(_ => _.id);
+            // a and b are partners
+            if (partners.includes(b.id)) {
+                const sameParent = haveSameParents(a, b)
+                if (sameParent > 0) {
+                    return a.age - b.age
+                }
+            } else {
+            // a and b are not partners
+
+            }
+        })*/
+    }
+
+
+    /**
+     * Sort the array by partner (partners close to each other), then sex (male first) then age (older first)
+     * @param {Array} array
+     * @return {Array} sorted
+     */
     function sortRootGeneration(array) {
+        // criteria
+        // 1. partners close to each other
+        // 2. sort by sex
+        // 3. sort by age
         let unsorted = [...array];
         let sorted = [];
         while(unsorted.length) {
@@ -125,14 +178,21 @@
         return sorted;
     }
 
+
+    /**
+     * The following code builds the final data-structure.
+    *  The algorithm follow a simple rule to split the nodes in generations:
+    *  a node is in the root generation iff it and its partners have't parents.
+    *  If we use a pool of individuals in which we delete nodes as soon as we add them in the final structure,
+    *  the rule is valid for all generations.
+    **/
     let generations = []; //init root level
     let generationCnt = 0;
 
     // sortRootGeneration() sorts by the root generation criterion only (older-male first).
-    // We preprocess the whole pool to make sure the root generation nodes are at the first positions, and they are already sorted.
+    // We here preprocess the whole pool to make sure the root generation nodes are at the first positions, and they are already sorted.
+    // This is also useful for the sorting of the subsequent generations, partners must be close to each other in any case.
     individualsPool = sortRootGeneration(individualsPool);
-
-    //console.log("sortGeneration", individualsPool)
 
     while (individualsPool.length) {
         //console.log("generationCnt", generationCnt)
@@ -151,14 +211,13 @@
         }
         generations[generationCnt] = {
             id: generationCnt,
-            individuals: generationNodes // TODO sort by children criterion (=> the position of the parents in the previous generations, and then by age DESC)
+            individuals: sortChildren(generationNodes, generations[generationCnt-1]) // TODO sort by children criterion (=> the position of the parents in the previous generations, and then by age DESC)
         };
         generationCnt++;
         individualsPool = removeNodes(generationNodes.map(_ => _.id), individualsPool);
     }
 
     console.log(generations)
-
 </script>
 
 

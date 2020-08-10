@@ -66,23 +66,42 @@ export default class OpencgaProjects extends LitElement {
             individual: [],
             cohort: []
         };
-        this.chartData = {};
 
         this.tableRows = {
             variant: {},
-            file: {format: [{id: "VCF", name: "VCF files"}, {id: "PLAIN", name: "PLAIN files"}, {id: "BAI", name: "BAI files"}, {id: "BAM", name: "BAM files"}], bioformat: [{id: "ALIGNMENT", name: "ALIGNMENT"}, {id: "VARIANT", name: "VARIANT"}, {id: "NONE", name: "NONE"}]},
-            sample: {somatic: [{id: "false", name: "Somatic: false"}]},
-            individual: {lifeStatus: [
-                {id: "ALIVE", name: "ALIVE"},
-                {id: "ABORTED", name: "ABORTED"},
-                {id: "DECEASED", name: "DECEASED"},
-                {id: "UNBORN", name: "UNBORN"},
-                {id: "STILLBORN", name: "STILLBORN"},
-                {id: "MISCARRIAGE", name: "MISCARRIAGE"},
-                {id: "UNKNOWN", name: "UNKNOWN"}
-            ],ethnicity: []},
+            file: {
+                format: [
+                    {id: "VCF", name: "VCF files"},
+                    {id: "PLAIN", name: "PLAIN files"},
+                    {id: "BAI", name: "BAI files"},
+                    {id: "BAM", name: "BAM files"}
+                ],
+                bioformat: [
+                    {id: "ALIGNMENT", name: "ALIGNMENT"},
+                    {id: "VARIANT", name: "VARIANT"},
+                    {id: "NONE", name: "NONE"}
+                ]
+            },
+            sample: {
+                somatic: [
+                    {id: "false", name: "Somatic: false"}
+                ]
+            },
+            individual: {
+                lifeStatus: [
+                    {id: "ALIVE", name: "ALIVE"},
+                    {id: "ABORTED", name: "ABORTED"},
+                    {id: "DECEASED", name: "DECEASED"},
+                    {id: "UNBORN", name: "UNBORN"},
+                    {id: "STILLBORN", name: "STILLBORN"},
+                    {id: "MISCARRIAGE", name: "MISCARRIAGE"},
+                    {id: "UNKNOWN", name: "UNKNOWN"}
+                ],
+                ethnicity: []},
             cohort: {}
         };
+
+        this.chartData = {};
     }
 
     firstUpdated(_changedProperties) {
