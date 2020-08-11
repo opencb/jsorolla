@@ -83,6 +83,7 @@ export default class OpencgaIndividualMendelianErrorAnalysis extends LitElement 
                                 id: "family",
                                 title: "Select family",
                                 type: "FAMILY_FILTER",
+                                addButton: true,
                                 showList: true,
                                 fileUpload: true
                             },
@@ -90,6 +91,7 @@ export default class OpencgaIndividualMendelianErrorAnalysis extends LitElement 
                                 id: "individual",
                                 title: "Select individual",
                                 type: "INDIVIDUAL_FILTER",
+                                addButton: true,
                                 showList: true,
                                 fileUpload: true
                             },
@@ -97,6 +99,7 @@ export default class OpencgaIndividualMendelianErrorAnalysis extends LitElement 
                                 id: "sample",
                                 title: "Select sample",
                                 type: "SAMPLE_FILTER",
+                                addButton: true,
                                 showList: true,
                                 fileUpload: true
                             }

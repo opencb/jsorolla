@@ -90,6 +90,7 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
         return {
             title: "Summary",
             icon: "",
+            hiddenFields: OpencgaClinicalAnalysisViewSettings.hiddenFields,
             display: {
                 collapsable: true,
                 showTitle: false,
@@ -191,7 +192,7 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                             name: "Analysis Type",
                             field: "type",
                             display: {
-                                visible: application.appConfig === "opencb",
+                                visible: !this._config?.hiddenFields?.includes("type"),
                                 // width: 9,
                                 labelWidth: 3,
                             }
@@ -201,7 +202,7 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                             field: "flags",
                             type: "list",
                             display: {
-                                visible: application.appConfig === "opencb",
+                                visible: !this._config?.hiddenFields?.includes("flags"),
                                 labelWidth: 3,
                                 contentLayout: "horizontal",
                                 render: field => {
@@ -213,7 +214,7 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                             name: "Status",
                             field: "status.name",
                             display: {
-                                visible: application.appConfig === "opencb",
+                                visible: !this._config?.hiddenFields?.includes("status.name"),
                                 labelWidth: 3,
                             }
                         },
@@ -221,7 +222,7 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                             name: "Description",
                             field: "description",
                             display: {
-                                visible: application.appConfig === "opencb",
+                                visible: !this._config?.hiddenFields?.includes("description"),
                                 labelWidth: 3,
                                 errorMessage: "-"
                             }
@@ -231,7 +232,7 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                             field: "priority",
                             type: "custom",
                             display: {
-                                visible: application.appConfig === "opencb",
+                                visible: !this._config?.hiddenFields?.includes("priority"),
                                 labelWidth: 3,
                                 render: clinicalAnalysis => {
                                     let colors = {"URGENT": "red", "HIGH": "darkorange"};
@@ -243,7 +244,7 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                             name: "Assigned To",
                             field: "analyst.assignee",
                             display: {
-                                visible: application.appConfig === "opencb",
+                                visible: !this._config?.hiddenFields?.includes("analyst.assignee"),
                                 labelWidth: 3,
                             }
                         },
@@ -253,7 +254,7 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                             type: "custom",
                             display: {
                                 labelWidth: 3,
-                                visible: application.appConfig === "opencb",
+                                visible: !this._config?.hiddenFields?.includes("creationDate"),
                                 render: creationDate => html`${moment(creationDate, "YYYYMMDDHHmmss").format("D MMM YY")}`
                             }
                         },
@@ -263,7 +264,7 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                             type: "custom",
                             display: {
                                 labelWidth: 3,
-                                visible: application.appConfig === "opencb",
+                                visible: !this._config?.hiddenFields?.includes("dueDate"),
                                 render: dueDate => html`${moment(dueDate, "YYYYMMDDHHmmss").format("D MMM YY")}`
                             }
                         },
@@ -412,8 +413,8 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                             name: "Pedigree",
                             type: "custom",
                             display: {
-                                //visible: data => data?.family?.members?.length > 2,
-                                visible: data => application.appConfig === "opencb", //TODO pedigree doesnt work with families with over 2 generations
+                                //TODO at the moment pedigree doesn't work with families with over 2 generations
+                                visible: !this._config?.hiddenFields?.includes("pedigree"),
                                 layout: "vertical",
                                 render: clinicalAnalysis => html`<pedigree-view .family="${clinicalAnalysis.family}"></pedigree-view>`
                             }

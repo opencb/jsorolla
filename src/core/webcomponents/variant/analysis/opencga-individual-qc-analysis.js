@@ -85,6 +85,7 @@ export default class OpencgaIndividualQcAnalysis extends LitElement {
                                 id: "individual",
                                 title: "Select individuals",
                                 type: "INDIVIDUAL_FILTER",
+                                addButton: true,
                                 showList: true,
                                 fileUpload: true
                             },
@@ -92,6 +93,7 @@ export default class OpencgaIndividualQcAnalysis extends LitElement {
                                 id: "sample",
                                 title: "Select sample",
                                 type: "SAMPLE_FILTER",
+                                addButton: true,
                                 showList: true,
                                 fileUpload: true
                             }

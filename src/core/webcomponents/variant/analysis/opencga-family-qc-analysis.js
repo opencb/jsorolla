@@ -85,6 +85,7 @@ export default class OpencgaFamilyQcAnalysis extends LitElement {
                                 id: "family",
                                 title: "Select family",
                                 type: "FAMILY_FILTER",
+                                addButton: true,
                                 showList: true,
                                 fileUpload: true
                             }

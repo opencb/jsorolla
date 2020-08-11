@@ -83,6 +83,7 @@ export default class OpencgaInferredSexAnalysis extends LitElement {
                                 id: "sample",
                                 title: "Select samples",
                                 type: "SAMPLE_FILTER",
+                                addButton: true,
                                 showList: true,
                                 fileUpload: true
                                 // colspan: 6
@@ -91,6 +92,7 @@ export default class OpencgaInferredSexAnalysis extends LitElement {
                                 id: "individual",
                                 title: "Select Individual",
                                 type: "INDIVIDUAL_FILTER",
+                                addButton: true,
                                 showList: true,
                                 fileUpload: true
                                 // colspan: 6

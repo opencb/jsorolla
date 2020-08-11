@@ -83,6 +83,7 @@ export default class OpencgaSampleVariantStatsAnalysis extends LitElement {
                                 id: "sample",
                                 title: "Select samples",
                                 type: "SAMPLE_FILTER",
+                                addButton: true,
                                 showList: true,
                                 fileUpload: true
                             },
@@ -90,6 +91,7 @@ export default class OpencgaSampleVariantStatsAnalysis extends LitElement {
                                 id: "family",
                                 title: "Select family",
                                 type: "FAMILY_FILTER",
+                                addButton: true,
                                 showList: true,
                                 fileUpload: true
                             }

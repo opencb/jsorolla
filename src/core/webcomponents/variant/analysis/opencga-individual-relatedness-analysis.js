@@ -83,6 +83,7 @@ export default class OpencgaIndividualRelatednessAnalysis extends LitElement {
                                 id: "individuals",
                                 title: "Select individuals",
                                 type: "INDIVIDUAL_FILTER",
+                                addButton: true,
                                 showList: true,
                                 fileUpload: true
                             },
@@ -90,6 +91,7 @@ export default class OpencgaIndividualRelatednessAnalysis extends LitElement {
                                 id: "samples",
                                 title: "Select samples",
                                 type: "SAMPLE_FILTER",
+                                addButton: true,
                                 showList: true,
                                 fileUpload: true
                             }

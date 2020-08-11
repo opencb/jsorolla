@@ -1,19 +1,5 @@
 export default [
     {
-        "id": "1",
-        "father": {},
-        "mother": {},
-        "sex": "MALE",
-        "age": "57"
-    },
-    {
-        "id": "2",
-        "father": {},
-        "mother": {},
-        "sex": "FEMALE",
-        "age": "61"
-    },
-    {
         "id": "3",
         "father": {},
         "mother": {},
@@ -25,6 +11,19 @@ export default [
         "father": {},
         "mother": {},
         "sex": "FEMALE",
+        "age": "50"
+    },
+    {
+        "id": "1",
+        "father": {},
+        "mother": {},
+        "sex": "MALE",
+        "age": "57"
+    },{
+        "id": "7",
+        "father": {id: "1"},
+        "mother": {id: "2"},
+        "sex": "MALE",
         "age": "50"
     },
     {
@@ -41,13 +40,7 @@ export default [
         "sex": "MALE",
         "age": "50"
     },
-    {
-        "id": "7",
-        "father": {id: "1"},
-        "mother": {id: "2"},
-        "sex": "MALE",
-        "age": "50"
-    },
+
     {
         "id": "8",
         "father": {id: "3"},
@@ -110,6 +103,13 @@ export default [
         "mother": {id: "8"},
         "sex": "MALE",
         "age": "50"
+    },
+    {
+        "id": "2",
+        "father": {},
+        "mother": {},
+        "sex": "FEMALE",
+        "age": "61"
     },
     {
         "id": "17",

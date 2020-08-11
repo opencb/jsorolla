@@ -83,6 +83,7 @@ export default class OpencgaGwasAnalysis extends LitElement {
                                 id: "caseCohort",
                                 title: "Select cohort",
                                 type: "COHORT_FILTER",
+                                addButton: true,
                                 showList: true,
                                 fileUpload: true
                             },
@@ -106,6 +107,7 @@ export default class OpencgaGwasAnalysis extends LitElement {
                                 id: "controlCohort",
                                 title: "Select cohort",
                                 type: "COHORT_FILTER",
+                                addButton: true,
                                 showList: true,
                                 fileUpload: true
                                 // colspan: 6

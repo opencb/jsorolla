@@ -83,6 +83,7 @@ export default class OpencgaKnockoutAnalysis extends LitElement {
                                 id: "sample",
                                 title: "Select samples",
                                 type: "SAMPLE_FILTER",
+                                addButton: true,
                                 showList: true,
                                 fileUpload: true
                             },
@@ -95,7 +96,9 @@ export default class OpencgaKnockoutAnalysis extends LitElement {
                                 id: "panel",
                                 title: "Select panel",
                                 type: "DISEASE_PANEL_FILTER",
-                                showList: true
+                                addButton: true,
+                                showList: true,
+                                fileUpload: true
                             }
                         ]
                     },

@@ -85,6 +85,7 @@ export default class OpencgaGatkAnalysis extends LitElement {
                                 id: "fastaFile",
                                 title: "Select fasta file",
                                 type: "FILE_FILTER",
+                                addButton: true,
                                 showList: true,
                                 fileUpload: true
                             },
@@ -92,6 +93,7 @@ export default class OpencgaGatkAnalysis extends LitElement {
                                 id: "bamFile",
                                 title: "Select bam file",
                                 type: "FILE_FILTER",
+                                addButton: true,
                                 showList: true,
                                 fileUpload: true
                             }

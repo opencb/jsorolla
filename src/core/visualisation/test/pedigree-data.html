@@ -33,7 +33,7 @@
 
     let individualsPool = JSON.parse(JSON.stringify(family));
 
-    //shuffle the pool
+    //shuffle the pool as a first check to make sure there are no bug depending on the input order
     individualsPool.sort(() => .5 - Math.random());
 
     console.log(individualsPool)
@@ -43,7 +43,7 @@
     }
 
     function getParents(node) {
-        return node.father.id && node.mother.id ? [node.father.id, node.mother.id] : null
+        return node.father.id || node.mother.id ? [node.father.id, node.mother.id] : null
     }
 
     function getChildren(node) {
@@ -54,9 +54,9 @@
     function getPartners(node) {
         const children = getChildren(node);
         const partnerRole = node.sex === "MALE"? "mother" : "father";
-        const partners = [...new Set(children.map( i => i[partnerRole].id).filter(Boolean))] //filter(Boolean) filters out undefined values: in case of `node` has children with no known partner
-        if (partners.length > 1) console.error(node.id, "has more than 1 partner!", partners);
-        return getNode(partners[0]); //TODO at the moment we support just 1 partner at a time. Be responsible.
+        const partners = [...new Set(children.map( i => i[partnerRole].id).filter(Boolean))] //filter(Boolean) filters out undefined values: in case of `node` has children with unknown partner
+        if (partners.length > 1) console.warn(node.id, "has more than 1 partner!", partners);
+        return partners.map(getNode);
     }
 
     /*function getLevel(id) {
@@ -77,46 +77,141 @@
         return array.filter( el => !ids.includes(el.id));
     }
 
-    function sortGeneration(array) {
-        // TODO DONE partners must be close to each other
-        // TODO sort within children ( haveSameParent(a,b) function ).
-        // TODO sort within children in case some of them have partners
-        let unsorted = [...array];
-        let sorted = [];
-        // TODO use a generation-specific pool
-        /*for (let x = 0; x < unsorted.length; x++) {
-            for (let y = x; x < unsorted.length; y++) {
-
+    function sortBySexAndAge(array) {
+        return [...array].sort( (a,b) => {
+            if (a.sex === "MALE" && b.sex === "MALE") {
+                //older first
+                return b.age - a.age;
             }
-        }*/
-        return [...array].sort( (a, b) => {
-            //console.log(a.id, b.id, a?.partner?.id, b?.partner?.id)
+            // MALE first and then FEMALE (on sex string length)
+            return a.sex.length - b.sex.length;
+        });
+    }
+
+    function sortByAge(array) {
+        //older first
+        return [...array].sort((a,b) => b.age - a.age);
+    }
+
+    function sortByPartner(array) {
+        return [...array].sort((a,b) => {
             if (a.id === b?.partner?.id) {
                 return a.sex === "MALE" ? -1 : 1;
             }
-            return a.id - b.id
-        })
+        });
     }
 
+    /**
+     * Count the parents in common between the nodes a and b
+     * @param a
+     * @param b
+     * @return The number of common parents
+     */
+    function haveSameParents(a, b) {
+        //console.log([...new Set(getParents(a))], [...new Set(getParents(b))])
+        const parentsA = getParents(a).filter(Boolean);
+        const parentsB = getParents(b).filter(Boolean);
+        const commonParents = parentsA.filter( n => ~parentsB.indexOf(n))
+        return commonParents.length
+    }
+
+    //TODO re-evaluate this fn
+    function sortChildren(array, previousGeneration) {
+        if (!previousGeneration) return array; // root generation
+        // TODO NOTE not both parents are necessarily in the previous generation!
+
+        // criteria
+        // - partners close to each other
+        // - node with common parents
+        // - node with 1 parent in common
+        // - age?
+
+        //console.log(parents.flat())
+
+        let unsorted = [...array];
+        let sorted = [];
+        while(unsorted.length) {
+            // TODO nodes from same parents must be close to each other
+            const node = unsorted[0];
+            let partners = getPartners(node).map(_ => _.id);
+            sorted.push(...sortBySexAndAge([node, ...getPartners(node)]));
+            unsorted = removeNodes([node.id, ...partners], unsorted)
+        }
+        return sorted;
+
+        /*
+        let l = [...array].sort( (a,b) => {
+            let partners = getPartners(a).map(_ => _.id);
+            // a and b are partners
+            if (partners.includes(b.id)) {
+                const sameParent = haveSameParents(a, b)
+                if (sameParent > 0) {
+                    return a.age - b.age
+                }
+            } else {
+            // a and b are not partners
+
+            }
+        })*/
+    }
+
+
+    /**
+     * Sort the array by partner (partners close to each other), then sex (male first) then age (older first)
+     * @param {Array} array
+     * @return {Array} sorted
+     */
+    function sortRootGeneration(array) {
+        // criteria
+        // 1. partners close to each other
+        // 2. sort by sex
+        // 3. sort by age
+        let unsorted = [...array];
+        let sorted = [];
+        while(unsorted.length) {
+            const node = unsorted[0];
+            // add to sorted array the node `node` and its partners, sorted by Sex and then Age
+            sorted.push(...sortBySexAndAge([node, ...getPartners(node)]));
+            // remove the nodes from the unsorted pool
+            unsorted = removeNodes([node, ...getPartners(node)].map( node => node.id), unsorted);
+        }
+        return sorted;
+    }
+
+
+    /**
+     * The following code builds the final data-structure.
+    *  The algorithm follow a simple rule to split the nodes in generations:
+    *  a node is in the root generation iff it and its partners have't parents.
+    *  If we use a pool of individuals in which we delete nodes as soon as we add them in the final structure,
+    *  the rule is valid for all generations.
+    **/
     let generations = []; //init root level
     let generationCnt = 0;
+
+    // sortRootGeneration() sorts by the root generation criterion only (older-male first).
+    // We here preprocess the whole pool to make sure the root generation nodes are at the first positions, and they are already sorted.
+    // This is also useful for the sorting of the subsequent generations, partners must be close to each other in any case.
+    individualsPool = sortRootGeneration(individualsPool);
+
     while (individualsPool.length) {
-        console.log("generationCnt", generationCnt)
+        //console.log("generationCnt", generationCnt)
         let generationNodes = [];
         for (let i = 0; i < individualsPool.length; i++ ){
             const node = individualsPool[i];
-            const partner = getPartners(node); //NOTE getPartners() search in the original family, not in the pool. At the moment we use just the first partner
-            if (!hasParentInPool(node, individualsPool) && (!partner || (partner && !hasParentInPool(partner, individualsPool)))) {
+            const partners = getPartners(node); //NOTE getPartners() search in the original family, not in the pool.
+            const hasSomePartnerInPool = partners.some( n => hasParentInPool(n, individualsPool))
+            if (!hasParentInPool(node, individualsPool) && (!partners.length || !hasSomePartnerInPool)) {
                 generationNodes.push({
                     ...node,
-                    partner: {id: partner?.id},
-                    children: getChildren(node)
+                    partners: partners.map( p => ({id: p.id})),
+                    children: sortByAge(getChildren(node))
                 });
             }
         }
         generations[generationCnt] = {
             id: generationCnt,
-            individuals: sortGeneration(generationNodes)
+            individuals: sortChildren(generationNodes, generations[generationCnt-1]) // TODO sort by children criterion (=> the position of the parents in the previous generations, and then by age DESC)
         };
         generationCnt++;
         individualsPool = removeNodes(generationNodes.map(_ => _.id), individualsPool);
