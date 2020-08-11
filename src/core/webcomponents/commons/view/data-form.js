@@ -494,7 +494,7 @@ export default class DataForm extends LitElement {
         return html`
             <div class="">
                 <input type="checkbox" class="${this._prefix}FilterCheckbox" 
-                        @change="${e => this.onFilterChange(element.field, e.detail.value)}" .checked="${this.filter === "PASS"}" style="margin-right: 5px">
+                        @click="${e => this.onFilterChange(element.field, e.currentTarget.checked)}" .checked="${this.filter === "PASS"}" style="margin-right: 5px">
                 <span>Include only <span style="font-weight: bold;">PASS</span> variants</span>
             </div>
         `;

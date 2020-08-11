@@ -20,7 +20,7 @@ import UtilsNew from "../../../utilsNew.js";
 import "../view/data-form.js";
 
 
-export default class AscatCallerFilter extends LitElement {
+export default class BrassCallerFilter extends LitElement {
 
     constructor() {
         super();
@@ -35,7 +35,10 @@ export default class AscatCallerFilter extends LitElement {
 
     static get properties() {
         return {
-            query: {
+            cellbaseClient: {
+                type: Object
+            },
+            region: {
                 type: String
             },
             config: {
@@ -47,9 +50,9 @@ export default class AscatCallerFilter extends LitElement {
     _init() {
         this._prefix = UtilsNew.randomString(8);
         this.separator = ",";
+        this._config = this.getDefaultConfig();
 
         this.filter = {};
-        this._config = this.getDefaultConfig();
     }
 
     connectedCallback() {
@@ -58,16 +61,29 @@ export default class AscatCallerFilter extends LitElement {
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
+    updated(_changedProperties) {
+        // "this.region" are automatically reflected on the template, we don't needto watch it
+        /*if (_changedProperties.has("region")) {
+            if (this.region) {
+                this.querySelector("#" + this._prefix + "LocationTextarea").value = this.region;
+            } else {
+                this.querySelector("#" + this._prefix + "LocationTextarea").value = "";
+            }
+        }*/
+    }
+
     filterChange(e) {
-        if (e.detail.value) {
-            this.filter[e.detail.param] = e.detail.value;
-        } else {
-            delete this.filter[e.detail.param];
-        }
+        // Process the textarea: remove newline chars, empty chars, leading/trailing commas
+        const _region = e.target.value.trim()
+            .replace(/\r?\n/g, this.separator)
+            .replace(/\s/g, "")
+            .split(this.separator)
+            .filter(Boolean)
+            .join(this.separator);
 
         const event = new CustomEvent("filterChange", {
             detail: {
-                value: this.filter
+                value: _region
             },
             bubbles: true,
             composed: true
@@ -93,8 +109,26 @@ export default class AscatCallerFilter extends LitElement {
                     collapsed: false,
                     elements: [
                         {
-                            name: "Segment Size",
-                            field: "segmentSize",
+                            name: "Assembly Score",
+                            field: "assembly_score",
+                            type: "input-number",
+                            defaultValue: "",
+                        },
+                        {
+                            name: "Size",
+                            field: "size",
+                            type: "input-number",
+                            defaultValue: "",
+                        },
+                        {
+                            name: "Type",
+                            field: "type",
+                            type: "select",
+                            allowedValues: ["inversion", "translocation", "tandem duplication", "deletion"],
+                        },
+                        {
+                            name: "Readpair Count",
+                            field: "readpair count",
                             type: "input-number",
                             defaultValue: "",
                         },
@@ -106,9 +140,9 @@ export default class AscatCallerFilter extends LitElement {
 
     render() {
         return html`
-            <data-form .data=${this.filter} .config="${this._config}" @fieldChange="${this.filterChange}"></data-form>
+            <data-form .data=${this.filter} .config="${this._config}"></data-form>
         `;
     }
 }
 
-customElements.define("ascat-caller-filter", AscatCallerFilter);
+customElements.define("brass-caller-filter", BrassCallerFilter);

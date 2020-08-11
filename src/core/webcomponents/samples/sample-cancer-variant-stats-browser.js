@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "/web_modules/lit-element.js";
+import {html, LitElement} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
 import "./sample-cancer-variant-stats-plots.js";
 import "../variant/opencga-variant-filter.js";
@@ -65,6 +65,8 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
             density: "MEDIUM",
             format: "SVG"
         };
+
+        this.queries = {};
     }
 
     connectedCallback() {
@@ -76,6 +78,10 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
     updated(changedProperties) {
         if (changedProperties.has("sampleId")) {
             this.sampleIdObserver();
+        }
+
+        if (changedProperties.has("sample")) {
+            this.sampleObserver();
         }
 
         if (changedProperties.has("query")) {
@@ -101,6 +107,32 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                 .then(response => {
                     this.sample = response.getResult(0);
                     // this.getVariantStatFromSample();
+                    this.sampleObserver();
+                })
+                .catch(response => {
+                    console.error("An error occurred fetching sample: ", response);
+                });
+        }
+    }
+
+    sampleObserver() {
+        if (this.opencgaSession && this.sample) {
+            let vcfIds = this.sample.fileIds?.filter(fileId => fileId.endsWith(".vcf") || fileId.endsWith(".vcf.gz")).join(",");
+            this.opencgaSession.opencgaClient.files().info(vcfIds, {study: this.opencgaSession.study.fqn})
+                .then(fileResponse => {
+                    this.files = fileResponse.response[0].results;
+
+                    // Prepare a map from caller to File
+                    this.callerToFile = {};
+                    for (let file of this.files) {
+                        if (file.software?.name) {
+                            let softwareName = file.software.name.toLowerCase();
+                            this.callerToFile = {
+                                [softwareName]: file
+                            };
+                        }
+                    }
+
                     this.requestUpdate();
                 })
                 .catch(response => {
@@ -117,6 +149,10 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
     onVariantFilterSearch(e) {
         this.preparedQuery = e.detail.query;
         this.executedQuery = e.detail.query;
+
+        this.queries;
+        debugger
+
         this.requestUpdate();
     }
 
@@ -356,6 +392,18 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
         }
     }
 
+    onFilterChange(type, caller, value) {
+        if (value) {
+            if (!this.queries[type]) {
+                this.queries[type] = {};
+            }
+            this.queries[type][caller] = Object.entries(value.detail.value).map(([k, v]) => k + "=" + v).join(";");
+        } else {
+            delete this.queries[type][caller];
+        }
+        // debugger
+    }
+
     getDefaultConfig() {
         return {
             title: "Cancer Variant Plots",
@@ -424,39 +472,61 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                         fields: [
                             {
                                 id: "caveman-caller",
-                                title: "Caveman Filters",
+                                title: "Caveman",
+                                render: (eventHandler, query) => html`<caveman-caller-filter @filterChange="${e => this.onFilterChange("SNV", "caveman", e)}"></caveman-caller-filter>`
                             },
                             {
                                 id: "strelka-caller",
-                                title: "Strelka Filters",
+                                title: "Strelka",
+                                render: (eventHandler, query) => html`<strelka-caller-filter @filterChange="${e => this.onFilterChange("SNV", "strelka", e)}"></strelka-caller-filter>`
                             },
                         ]
                     },
                     {
                         title: "INDEL Filters",
-                        collapsed: false,
+                        collapsed: true,
                         fields: [
                             {
                                 id: "pindel-caller",
-                                title: "Pindel Filters",
+                                title: "Pindel",
+                                render: (eventHandler, query) => html`<pindel-caller-filter @filterChange="${e => this.onFilterChange("INDEL", "pindel", e)}"></pindel-caller-filter>`
                             },
                             {
                                 id: "strelka-caller",
-                                title: "Strelka Filters",
+                                title: "Strelka",
+                                render: (eventHandler, query) => html`<strelka-caller-filter @filterChange="${e => this.onFilterChange("INDEL", "strelka", e)}"></strelka-caller-filter>`
                             },
                         ]
                     },
                     {
                         title: "CNV Filters",
-                        collapsed: false,
+                        collapsed: true,
                         fields: [
                             {
                                 id: "ascat-caller",
-                                title: "Ascat Filters",
+                                title: "Ascat",
+                                render: (eventHandler, query) => html`<ascat-caller-filter @filterChange="${e => this.onFilterChange("CNV", "ascat", e)}"></ascat-caller-filter>`
                             },
                             {
                                 id: "canvas-caller",
-                                title: "Canvas Filters",
+                                title: "Canvas",
+                                render: (eventHandler, query) => html`<canvas-caller-filter @filterChange="${e => this.onFilterChange("CNV", "canvas", e)}"></canvas-caller-filter>`
+                            },
+                        ]
+                    },
+                    {
+                        title: "Rearrangement Filters",
+                        collapsed: true,
+                        fields: [
+                            {
+                                id: "brass-caller",
+                                title: "Brass",
+                                render: (eventHandler, query) => html`<brass-caller-filter @filterChange="${e => this.onFilterChange("REARRANGEMENT", "brass", e)}"></brass-caller-filter>`
+                            },
+                            {
+                                id: "manta-caller",
+                                title: "Manta",
+                                render: (eventHandler, query) => html`<manta-caller-filter @filterChange="${e => this.onFilterChange("REARRANGEMENT", "manta", e)}"></manta-caller-filter>`
                             },
                         ]
                     }

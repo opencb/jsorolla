@@ -35,10 +35,7 @@ export default class PindelCallerFilter extends LitElement {
 
     static get properties() {
         return {
-            cellbaseClient: {
-                type: Object
-            },
-            region: {
+            query: {
                 type: String
             },
             config: {
@@ -50,9 +47,9 @@ export default class PindelCallerFilter extends LitElement {
     _init() {
         this._prefix = UtilsNew.randomString(8);
         this.separator = ",";
-        this._config = this.getDefaultConfig();
 
         this.filter = {};
+        this._config = this.getDefaultConfig();
     }
 
     connectedCallback() {
@@ -61,29 +58,20 @@ export default class PindelCallerFilter extends LitElement {
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
-    updated(_changedProperties) {
-        // "this.region" are automatically reflected on the template, we don't needto watch it
-        /*if (_changedProperties.has("region")) {
-            if (this.region) {
-                this.querySelector("#" + this._prefix + "LocationTextarea").value = this.region;
-            } else {
-                this.querySelector("#" + this._prefix + "LocationTextarea").value = "";
-            }
-        }*/
-    }
-
     filterChange(e) {
-        // Process the textarea: remove newline chars, empty chars, leading/trailing commas
-        const _region = e.target.value.trim()
-            .replace(/\r?\n/g, this.separator)
-            .replace(/\s/g, "")
-            .split(this.separator)
-            .filter(Boolean)
-            .join(this.separator);
+        if (e.detail.value) {
+            if (e.detail.param === "filter") {
+                this.filter["filter"] = "PASS";
+            } else {
+                this.filter[e.detail.param] = e.detail.value;
+            }
+        } else {
+            delete this.filter[e.detail.param];
+        }
 
         const event = new CustomEvent("filterChange", {
             detail: {
-                value: _region
+                value: this.filter
             },
             bubbles: true,
             composed: true
@@ -109,21 +97,20 @@ export default class PindelCallerFilter extends LitElement {
                     collapsed: false,
                     elements: [
                         {
-                            name: "Filter Pass",
+                            name: "PASS",
+                            field: "filter",
                             type: "checkbox",
-                            display: {
-                                // render: data => html`<span style="font-weight: bold">${data.id}</span> (UUID: ${data.uuid})`
-                            }
                         },
                         {
                             name: "QUAL",
-                            type: "input-text",
+                            field: "QUAL",
+                            type: "input-number",
                             defaultValue: "",
                         },
                         {
                             name: "REP",
-                            // field: "father.id",
-                            type: "input-text",
+                            field: "REP",
+                            type: "input-number",
                             defaultValue: "",
                         },
                     ]
@@ -134,7 +121,7 @@ export default class PindelCallerFilter extends LitElement {
 
     render() {
         return html`
-            <data-form .data=${this.filter} .config="${this._config}"></data-form>
+            <data-form .data=${this.filter} .config="${this._config}" @fieldChange="${this.filterChange}"></data-form>
         `;
     }
 }

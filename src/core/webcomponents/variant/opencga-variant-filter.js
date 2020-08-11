@@ -42,6 +42,8 @@ import "../commons/filters/strelka-caller-filter.js";
 import "../commons/filters/pindel-caller-filter.js";
 import "../commons/filters/ascat-caller-filter.js";
 import "../commons/filters/canvas-caller-filter.js";
+import "../commons/filters/brass-caller-filter.js";
+import "../commons/filters/manta-caller-filter.js";
 
 
 export default class OpencgaVariantFilter extends LitElement {
@@ -233,10 +235,11 @@ export default class OpencgaVariantFilter extends LitElement {
      * @param value the new value of the property
      */
     onFilterChange(key, value) {
+        debugger
         /* Some filters may return more than parameter, in this case key and value are objects with all the keys and filters
              - key: an object mapping filter name with the one returned
              - value: and object with the filter
-            Example: REST accepts filter and qual while fitler returns FILTER and QUALITY
+            Example: REST accepts filter and qual while filter returns FILTER and QUALITY
              - key: {filter: "FILTER", qual: "QUALITY"}
              - value: {FILTER: "pass", QUALITY: "25"}
          */
@@ -379,9 +382,9 @@ export default class OpencgaVariantFilter extends LitElement {
                         <div id="${this._prefix}${id}" class="panel-collapse collapse ${collapsed}" role="tabpanel" aria-labelledby="${this._prefix}${id}Heading">
                             <div class="panel-body">
                                 ${section.fields && section.fields.length && section.fields.map(field => html`
-                                    ${this.config.skipSubsections && this.config.skipSubsections.length && !!~this.config.skipSubsections.indexOf(field.id) 
-                                        ? null 
-                                        : this._createSubSection(field)}
+                                    ${this.config.skipSubsections && this.config.skipSubsections.length && !!~this.config.skipSubsections.indexOf(field.id)
+            ? null
+            : this._createSubSection(field)}
                                 `)}
                              </div>
                         </div>
@@ -393,103 +396,114 @@ export default class OpencgaVariantFilter extends LitElement {
         // ConsequenceType needs horizontal scroll
         const ctScroll = (subsection.id === "consequenceType") ? "browser-ct-scroll" : "";
 
+        // We allow to pass the
         let content = "";
-        switch (subsection.id) {
-            case "study":
-                if (this.opencgaSession.project.studies.length > 1) {
-                    content = html`<study-filter .opencgaSession="${this.opencgaSession}" @filterChange="${e => this.onFilterChange("study", e.detail.value)}"></study-filter>`;
-                }
-                break;
-            case "cohort":   //._cohorts="${this._cohorts}"
-                content = html`<cohort-stats-filter .opencgaSession="${this.opencgaSession}" 
+        if (subsection.render) {
+            content = subsection.render(this.onFilterChange, this.preparedQuery, this.opencgaSession);
+        } else {
+            switch (subsection.id) {
+                case "study":
+                    if (this.opencgaSession.project.studies.length > 1) {
+                        content = html`<study-filter .opencgaSession="${this.opencgaSession}" @filterChange="${e => this.onFilterChange("study", e.detail.value)}"></study-filter>`;
+                    }
+                    break;
+                case "cohort":   //._cohorts="${this._cohorts}"
+                    content = html`<cohort-stats-filter .opencgaSession="${this.opencgaSession}" 
                                     .cohorts="${subsection.cohorts}" .onlyCohortAll=${subsection.onlyCohortAll} .cohortStatsAlt="${this.preparedQuery.cohortStatsAlt}" 
                                     @filterChange="${e => this.onFilterChange("cohortStatsAlt", e.detail.value)}">
                                </cohort-stats-filter>`;
-                break;
-            case "sample":
-                content = html`<sample-filter .opencgaSession="${this.opencgaSession}" .clinicalAnalysis="${this.clinicalAnalysis}" .query="${this.preparedQuery}" @sampleFilterChange="${e => this.onSampleFilterChange(e.detail.value)}"></sample-filter>`;
-                break;
-            case "file-quality":
-                // content = html`<file-qual-filter .qual="${this.preparedQuery.qual}" @filterChange="${e => this.onFilterChange("qual", e.detail.value)}"></file-qual-filter>`;
-                let depth;
-                if (this.preparedQuery?.sampleData) {
-                    let sampleDataFilters = this.preparedQuery.sampleData.split(";");
-                    depth = sampleDataFilters.find(filter => filter.startsWith("DP")).split(">=")[1];
-                }
-                content = html`<file-quality-filter .filter="${this.preparedQuery.filter}" .depth="${depth}" .qual="${this.preparedQuery.qual}" 
+                    break;
+                case "sample":
+                    content = html`<sample-filter .opencgaSession="${this.opencgaSession}" .clinicalAnalysis="${this.clinicalAnalysis}" .query="${this.preparedQuery}" @sampleFilterChange="${e => this.onSampleFilterChange(e.detail.value)}"></sample-filter>`;
+                    break;
+                case "file-quality":
+                    // content = html`<file-qual-filter .qual="${this.preparedQuery.qual}" @filterChange="${e => this.onFilterChange("qual", e.detail.value)}"></file-qual-filter>`;
+                    let depth;
+                    if (this.preparedQuery?.sampleData) {
+                        let sampleDataFilters = this.preparedQuery.sampleData.split(";");
+                        depth = sampleDataFilters.find(filter => filter.startsWith("DP")).split(">=")[1];
+                    }
+                    content = html`<file-quality-filter .filter="${this.preparedQuery.filter}" .depth="${depth}" .qual="${this.preparedQuery.qual}" 
                                     @filterChange="${e => this.onFilterChange({filter: "filter", sampleData: "sampleData", qual: "qual"}, e.detail.value)}" .config="${subsection}" >
                                </file-quality-filter>
                             `;
-                break;
-            case "region":
-                content = html`<region-filter .cellbaseClient="${this.cellbaseClient}" .region="${this.preparedQuery.region}" 
+                    break;
+                case "region":
+                    content = html`<region-filter .cellbaseClient="${this.cellbaseClient}" .region="${this.preparedQuery.region}" 
                                            @filterChange="${e => this.onFilterChange("region", e.detail.value)}"></region-filter>`;
-                break;
-            case "feature":
-                content = html`<feature-filter .cellbaseClient="${this.cellbaseClient}" .query=${this.preparedQuery}
+                    break;
+                case "feature":
+                    content = html`<feature-filter .cellbaseClient="${this.cellbaseClient}" .query=${this.preparedQuery}
                                             @filterChange="${e => this.onFilterChange("xref", e.detail.value)}"></feature-filter>`;
-                break;
-            case "diseasePanels":
-                content = html`<disease-filter .opencgaSession="${this.opencgaSession}" .config="${this.config}" 
+                    break;
+                case "diseasePanels":
+                    content = html`<disease-filter .opencgaSession="${this.opencgaSession}" .config="${this.config}" 
                                     .diseasePanels="${this.opencgaSession.study.panels}" .panel="${this.preparedQuery.panel}" 
                                 @filterChange="${e => this.onFilterChange("panel", e.detail.value)}"></disease-filter>`;
-                break;
-            case "biotype":
-                content = html`<biotype-filter .config="${this.config}" .biotype=${this.preparedQuery.biotype} @filterChange="${e => this.onFilterChange("biotype", e.detail.value)}"></biotype-filter>`;
-                break;
-            case "type":
-                content = html`<variant-type-filter .config="${this.config}" .type="${this.preparedQuery.type}" .cellbaseClient="${this.cellbaseClient}" @filterChange="${e => this.onFilterChange("type", e.detail.value)}"></variant-type-filter>`;
-                break;
-            case "populationFrequency":
-                content = html`<population-frequency-filter .populationFrequencies="${populationFrequencies}" ?showSetAll="${subsection.showSetAll}" .populationFrequencyAlt="${this.preparedQuery.populationFrequencyAlt}" @filterChange="${e => this.onFilterChange("populationFrequencyAlt", e.detail.value)}"></population-frequency-filter>`;
-                break;
-            case "consequenceType":
-                content = html`<consequence-type-filter .consequenceTypes="${this.consequenceTypes}" .ct="${this.preparedQuery.ct}"  @filterChange="${e => this.onFilterChange("ct", e.detail.value)}"></consequence-type-filter>`;
-                break;
-            case "consequenceTypeSelect":
-                content = html`<consequence-type-select-filter .ct="${this.preparedQuery.ct}" .config="${this.consequenceTypes}" @filterChange="${e => this.onFilterChange("ct", e.detail.value)}"></consequence-type-select-filter>`;
-                break;
-            case "proteinSubstitutionScore":
-                content = html`<protein-substitution-score-filter .protein_substitution="${this.preparedQuery.protein_substitution}" @filterChange="${e => this.onFilterChange("protein_substitution", e.detail.value)}"></protein-substitution-score-filter>`;
-                break;
-            case "cadd":
-                if (this.opencgaSession.project.organism.assembly.toLowerCase() === "grch38") {
-                    return "";
-                }
-                content = html`<cadd-filter .annot-functional-score="${this.preparedQuery["annot-functional-score"]}" @filterChange="${e => this.onFilterChange("annot-functional-score", e.detail.value)}"></cadd-filter>`;
-                break;
-            case "conservation":
-                content = html`<conservation-filter .conservation="${this.preparedQuery.conservation}" @filterChange="${e => this.onFilterChange("conservation", e.detail.value)}"></conservation-filter>`;
-                break;
-            case "go":
-                content = html`<go-accessions-filter .go="${this.preparedQuery.go}" @ontologyModalOpen="${this.onOntologyModalOpen}" @filterChange="${e => this.onFilterChange("go", e.detail.value)}"></go-accessions-filter>`;
-                break;
-            case "hpo":
-                content = html`<hpo-accessions-filter .annot-hpo="${this.preparedQuery["annot-hpo"]}" @ontologyModalOpen="${this.onOntologyModalOpen}" @filterChange="${e => this.onFilterChange("annot-hpo", e.detail.value)}"></hpo-accessions-filter>`;
-                break;
-            case "clinvar":
-                content = html`<clinvar-accessions-filter .clinvar="${this.preparedQuery.clinvar}" .clinicalSignificance="${this.preparedQuery.clinicalSignificance}" @filterChange="${e => this.onFilterChange({clinvar: "clinvar", clinicalSignificance: "clinicalSignificance"}, e.detail.value)}"></clinvar-accessions-filter>`;
-                break;
-            case "fullTextSearch":
-                content = html`<fulltext-search-accessions-filter .traits="${this.preparedQuery.traits}" @filterChange="${e => this.onFilterChange("traits", e.detail.value)}"></fulltext-search-accessions-filter>`;
-                break;
-            case "caveman-caller":
-                content = html`<caveman-caller-filter .traits="${this.preparedQuery.traits}" @filterChange="${e => this.onFilterChange("traits", e.detail.value)}"></caveman-caller-filter>`;
-                break;
-            case "strelka-caller":
-                content = html`<strelka-caller-filter .traits="${this.preparedQuery.traits}" @filterChange="${e => this.onFilterChange("traits", e.detail.value)}"></strelka-caller-filter>`;
-                break;
-            case "pindel-caller":
-                content = html`<pindel-caller-filter .traits="${this.preparedQuery.traits}" @filterChange="${e => this.onFilterChange("traits", e.detail.value)}"></pindel-caller-filter>`;
-                break;
-            case "ascat-caller":
-                content = html`<ascat-caller-filter .traits="${this.preparedQuery.traits}" @filterChange="${e => this.onFilterChange("traits", e.detail.value)}"></ascat-caller-filter>`;
-                break;
-            case "canvas-caller":
-                content = html`<canvas-caller-filter .traits="${this.preparedQuery.traits}" @filterChange="${e => this.onFilterChange("traits", e.detail.value)}"></canvas-caller-filter>`;
-                break;
-            default:
-                console.error("Filter component not found");
+                    break;
+                case "biotype":
+                    content = html`<biotype-filter .config="${this.config}" .biotype=${this.preparedQuery.biotype} @filterChange="${e => this.onFilterChange("biotype", e.detail.value)}"></biotype-filter>`;
+                    break;
+                case "type":
+                    content = html`<variant-type-filter .config="${this.config}" .type="${this.preparedQuery.type}" .cellbaseClient="${this.cellbaseClient}" @filterChange="${e => this.onFilterChange("type", e.detail.value)}"></variant-type-filter>`;
+                    break;
+                case "populationFrequency":
+                    content = html`<population-frequency-filter .populationFrequencies="${populationFrequencies}" ?showSetAll="${subsection.showSetAll}" .populationFrequencyAlt="${this.preparedQuery.populationFrequencyAlt}" @filterChange="${e => this.onFilterChange("populationFrequencyAlt", e.detail.value)}"></population-frequency-filter>`;
+                    break;
+                case "consequenceType":
+                    content = html`<consequence-type-filter .consequenceTypes="${this.consequenceTypes}" .ct="${this.preparedQuery.ct}"  @filterChange="${e => this.onFilterChange("ct", e.detail.value)}"></consequence-type-filter>`;
+                    break;
+                case "consequenceTypeSelect":
+                    content = html`<consequence-type-select-filter .ct="${this.preparedQuery.ct}" .config="${this.consequenceTypes}" @filterChange="${e => this.onFilterChange("ct", e.detail.value)}"></consequence-type-select-filter>`;
+                    break;
+                case "proteinSubstitutionScore":
+                    content = html`<protein-substitution-score-filter .protein_substitution="${this.preparedQuery.protein_substitution}" @filterChange="${e => this.onFilterChange("protein_substitution", e.detail.value)}"></protein-substitution-score-filter>`;
+                    break;
+                case "cadd":
+                    if (this.opencgaSession.project.organism.assembly.toLowerCase() === "grch38") {
+                        return "";
+                    }
+                    content = html`<cadd-filter .annot-functional-score="${this.preparedQuery["annot-functional-score"]}" @filterChange="${e => this.onFilterChange("annot-functional-score", e.detail.value)}"></cadd-filter>`;
+                    break;
+                case "conservation":
+                    content = html`<conservation-filter .conservation="${this.preparedQuery.conservation}" @filterChange="${e => this.onFilterChange("conservation", e.detail.value)}"></conservation-filter>`;
+                    break;
+                case "go":
+                    content = html`<go-accessions-filter .go="${this.preparedQuery.go}" @ontologyModalOpen="${this.onOntologyModalOpen}" @filterChange="${e => this.onFilterChange("go", e.detail.value)}"></go-accessions-filter>`;
+                    break;
+                case "hpo":
+                    content = html`<hpo-accessions-filter .annot-hpo="${this.preparedQuery["annot-hpo"]}" @ontologyModalOpen="${this.onOntologyModalOpen}" @filterChange="${e => this.onFilterChange("annot-hpo", e.detail.value)}"></hpo-accessions-filter>`;
+                    break;
+                case "clinvar":
+                    content = html`<clinvar-accessions-filter .clinvar="${this.preparedQuery.clinvar}" .clinicalSignificance="${this.preparedQuery.clinicalSignificance}" @filterChange="${e => this.onFilterChange({clinvar: "clinvar", clinicalSignificance: "clinicalSignificance"}, e.detail.value)}"></clinvar-accessions-filter>`;
+                    break;
+                case "fullTextSearch":
+                    content = html`<fulltext-search-accessions-filter .traits="${this.preparedQuery.traits}" @filterChange="${e => this.onFilterChange("traits", e.detail.value)}"></fulltext-search-accessions-filter>`;
+                    break;
+                // case "caveman-caller":
+                //     content = html`<caveman-caller-filter .traits="${this.preparedQuery.traits}" @filterChange="${e => this.onFilterChange("caveman", e.detail.value)}"></caveman-caller-filter>`;
+                //     break;
+                // case "strelka-caller":
+                //     content = html`<strelka-caller-filter .traits="${this.preparedQuery.traits}" @filterChange="${e => this.onFilterChange("strelka", e.detail.value)}"></strelka-caller-filter>`;
+                //     break;
+                // case "pindel-caller":
+                //     content = html`<pindel-caller-filter .traits="${this.preparedQuery.traits}" @filterChange="${e => this.onFilterChange("pindel", e.detail.value)}"></pindel-caller-filter>`;
+                //     break;
+                // case "ascat-caller":
+                //     content = html`<ascat-caller-filter .traits="${this.preparedQuery.traits}" @filterChange="${e => this.onFilterChange("ascat", e.detail.value)}"></ascat-caller-filter>`;
+                //     break;
+                // case "canvas-caller":
+                //     content = html`<canvas-caller-filter .traits="${this.preparedQuery.traits}" @filterChange="${e => this.onFilterChange("traits", e.detail.value)}"></canvas-caller-filter>`;
+                //     break;
+                // case "brass-caller":
+                //     content = html`<brass-caller-filter .traits="${this.preparedQuery.traits}" @filterChange="${e => this.onFilterChange("traits", e.detail.value)}"></brass-caller-filter>`;
+                //     break;
+                // case "manta-caller":
+                //     content = html`<manta-caller-filter .traits="${this.preparedQuery.traits}" @filterChange="${e => this.onFilterChange("traits", e.detail.value)}"></manta-caller-filter>`;
+                //     break;
+                default:
+                    console.error("Filter component not found");
+            }
         }
 
         // In some rare cases the filter might empty, for instance study-filter is empty if ONLY on study exist in that study.
