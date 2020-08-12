@@ -117,8 +117,8 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
 
     sampleObserver() {
         if (this.opencgaSession && this.sample) {
-            let vcfIds = this.sample.fileIds?.filter(fileId => fileId.endsWith(".vcf") || fileId.endsWith(".vcf.gz")).join(",");
-            this.opencgaSession.opencgaClient.files().info(vcfIds, {study: this.opencgaSession.study.fqn})
+            // let vcfIds = this.sample.fileIds?.filter(fileId => fileId.endsWith(".vcf") || fileId.endsWith(".vcf.gz")).join(",");
+            this.opencgaSession.opencgaClient.files().search({samples: this.sample.id, study: this.opencgaSession.study.fqn})
                 .then(fileResponse => {
                     this.files = fileResponse.response[0].results;
 
@@ -127,12 +127,9 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                     for (let file of this.files) {
                         if (file.software?.name) {
                             let softwareName = file.software.name.toLowerCase();
-                            this.callerToFile = {
-                                [softwareName]: file
-                            };
+                            this.callerToFile[softwareName] = file;
                         }
                     }
-
                     this.requestUpdate();
                 })
                 .catch(response => {
@@ -150,7 +147,20 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
         this.preparedQuery = e.detail.query;
         this.executedQuery = e.detail.query;
 
+        this._queries = {};
         this.queries;
+        let types = ["SNV", "INDEL", "CNV", "REARRANGEMENT"];
+        for (let type of types) {
+            if (this.queries[type]) {
+                for (let key of Object.keys(this.queries[type])) {
+                    if (this.callerToFile[key]) {
+                        let fileId = this.callerToFile[key].id;
+                        let fileFilter = this.queries[type][key];
+                        this._queries[type] = fileId + ":" + fileFilter;
+                    }
+                }
+            }
+        }
         debugger
 
         this.requestUpdate();
@@ -614,6 +624,7 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                                     <div class="" style="padding: 0px 15px">
                                         <sample-cancer-variant-stats-plots      .opencgaSession="${this.opencgaSession}"
                                                                                 .query="${this.executedQuery}"
+                                                                                .queries="${this._queries}"
                                                                                 .sampleId="${this.sample?.id}"
                                                                                 .active="${this.active}"
                                                                                 @changeSignature="${this.onChangeSignature}"

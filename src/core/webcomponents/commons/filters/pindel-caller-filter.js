@@ -63,7 +63,7 @@ export default class PindelCallerFilter extends LitElement {
             if (e.detail.param === "filter") {
                 this.filter["filter"] = "PASS";
             } else {
-                this.filter[e.detail.param] = e.detail.value;
+                this.filter[e.detail.param] = ">=" + e.detail.value;
             }
         } else {
             delete this.filter[e.detail.param];

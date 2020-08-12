@@ -71,9 +71,9 @@ class VariantInterpreterQc extends LitElement {
         if (changedProperties.has("clinicalAnalysisId")) {
             this.clinicalAnalysisIdObserver();
         }
-        // if (changedProperties.has("clinicalAnalysis")) {
-        //     this.clinicalAnalysisObserver();
-        // }
+        if (changedProperties.has("clinicalAnalysis")) {
+            this.clinicalAnalysisObserver();
+        }
     }
 
     clinicalAnalysisIdObserver() {
@@ -81,12 +81,24 @@ class VariantInterpreterQc extends LitElement {
             this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
                 .then(response => {
                     this.clinicalAnalysis = response.responses[0].results[0];
-                    this.requestUpdate();
+                    this.clinicalAnalysisObserver();
+                    // this.requestUpdate();
                 })
                 .catch(response => {
                     console.error("An error occurred fetching clinicalAnalysis: ", response);
                 });
         }
+    }
+
+    clinicalAnalysisObserver() {
+        if (this.clinicalAnalysis && this.clinicalAnalysis.proband?.samples) {
+            if (this.clinicalAnalysis.type.toUpperCase() === "CANCER") {
+                this.sample = this.clinicalAnalysis.proband.samples.find(elem => elem.somatic);
+            } else {
+                this.sample = this.clinicalAnalysis.proband.samples[0];
+            }
+        }
+        this.requestUpdate();
     }
 
     _changeTab(e) {
@@ -187,7 +199,7 @@ class VariantInterpreterQc extends LitElement {
                     <div id="${this._prefix}VariantQcCancer" role="tabpanel" class="tab-pane col-md-10 col-md-offset-1 content-tab">
                         <tool-header title="Cancer QC Plots - ${this.clinicalAnalysis.proband.id}" class="bg-white"></tool-header>
                         <sample-cancer-variant-stats-browser    .opencgaSession="${this.opencgaSession}" 
-                                                                .sample="${this.clinicalAnalysis.proband.samples[0]}"
+                                                                .sample="${this.sample}"
                                                                 .active="${this.activeTab["VariantQc"]}" 
                                                                 .config="${{showTitle: false}}">
                         </sample-cancer-variant-stats-browser>
@@ -196,7 +208,7 @@ class VariantInterpreterQc extends LitElement {
                     <div id="${this._prefix}SampleVariantStats" role="tabpanel" class="tab-pane col-md-10 col-md-offset-1 content-tab">
                         <tool-header title="Sample Variant Stats - ${this.clinicalAnalysis.proband.id}" class="bg-white"></tool-header>
                         <sample-variant-stats-browser .opencgaSession="${this.opencgaSession}" 
-                                                      .sample="${this.clinicalAnalysis.proband.samples[0]}"
+                                                      .sample="${this.sample}"
                                                       .active="${this.activeTab["VariantQc"]}"
                                                       .config="${{showTitle: false}}">
                         </sample-variant-stats-browser>

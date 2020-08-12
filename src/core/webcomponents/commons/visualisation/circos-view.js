@@ -38,6 +38,9 @@ export default class CircosView extends LitElement {
             query: {
                 type: Object
             },
+            queries: {
+                type: Object
+            },
             sampleId: {
                 type: String
             },
@@ -86,7 +89,20 @@ export default class CircosView extends LitElement {
                         fitting: false,
                         density: "LOW",
                         sample: this.sampleId,
-                        ...this.query
+                        filter: "PASS",
+                        // ...this.queries["SNV"]
+                    }
+                },
+                {
+                    id: "indel",
+                    type: "INDEL",
+                    query: {
+                        study: this.opencgaSession.study.fqn,
+                        fitting: false,
+                        density: "LOW",
+                        sample: this.sampleId,
+                        // filter: "PASS",
+                        ...this.queries["INDEL"]
                     }
                 }
             ]
