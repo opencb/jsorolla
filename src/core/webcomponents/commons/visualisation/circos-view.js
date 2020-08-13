@@ -86,8 +86,6 @@ export default class CircosView extends LitElement {
                     type: "SNV",
                     query: {
                         study: this.opencgaSession.study.fqn,
-                        fitting: false,
-                        density: "LOW",
                         sample: this.sampleId,
                         filter: "PASS",
                         // ...this.queries["SNV"]
@@ -98,12 +96,18 @@ export default class CircosView extends LitElement {
                     type: "INDEL",
                     query: {
                         study: this.opencgaSession.study.fqn,
-                        fitting: false,
-                        density: "LOW",
                         sample: this.sampleId,
-                        // filter: "PASS",
-                        ...this.queries["INDEL"]
+                        filter: "PASS",
+                        // ...this.queries["INDEL"]
                     }
+                },
+                {
+                    id: "cnv1",
+                    type: "COPY-NUMBER"
+                },
+                {
+                    id: "rearr1",
+                    type: "REARRANGEMENT"
                 }
             ]
         }

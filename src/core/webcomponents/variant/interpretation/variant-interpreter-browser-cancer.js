@@ -154,10 +154,12 @@ class VariantInterpreterBrowserCancer extends LitElement {
 
     updateActiveFilterFilters() {
         if (!this.query?.sample) {
-
+            // let sampleId = this.clinicalAnalysis.proband.samples.find(sample => sample.somatic).id;
+            let sampleIds = this.clinicalAnalysis.proband.samples.map(sample => sample.id).join(",");
             this.query = {
                 ...this.query,
-                sample: this.clinicalAnalysis.proband.samples[0].id + ":0/1,1/1,0/2,1/2"
+                // sample: sampleId + ":0/1,1/1,0/2,1/2"
+                sample: sampleIds
             }
             this.predefinedFilter = {...this.query};
         }

@@ -121,7 +121,7 @@ class VariantInterpreterQcSummary extends LitElement {
                                 render: disorder => {
                                     if(disorder) {
                                         let id;
-                                        if (disorder.id.startsWith("OMIM:")) {
+                                        if (disorder.id?.startsWith("OMIM:")) {
                                             id = html`<a href="https://omim.org/entry/${disorder.id.split(":")[1]}" target="_blank">${disorder.id}</a>`;
                                         }
                                         return html`${disorder.name || "-"} (${id})`

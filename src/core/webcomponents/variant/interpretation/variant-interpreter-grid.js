@@ -129,7 +129,7 @@ export default class VariantInterpreterGrid extends LitElement {
             }
 
             this.checkedVariants = new Map();
-            if (this.clinicalAnalysis?.interpretation?.primaryFindings.length > 0) {
+            if (this.clinicalAnalysis?.interpretation?.primaryFindings?.length > 0) {
                 for (let variant of this.clinicalAnalysis.interpretation.primaryFindings) {
                     this.checkedVariants.set(variant.id, variant);
                 }
@@ -225,6 +225,7 @@ export default class VariantInterpreterGrid extends LitElement {
 
                     this.opencgaSession.opencgaClient.clinical().queryVariant(filters)
                         .then(res => {
+                            console.log(res)
                             params.success(res);
                         })
                         .catch(e => {
@@ -483,8 +484,10 @@ export default class VariantInterpreterGrid extends LitElement {
 
                 let file;
                 if (row.studies[0].files) {
-                    let fileIdx = row.studies[0].samples[sampleIndex].fileIndex;
-                    file = row.studies[0].files[fileIdx];
+                    let fileIdx = row.studies[0].samples[sampleIndex]?.fileIndex;
+                    if (fileIdx) {
+                        file = row.studies[0].files[fileIdx];
+                    }
                 }
 
                 // INFO fields
@@ -661,7 +664,7 @@ export default class VariantInterpreterGrid extends LitElement {
                         let refColor = refFreq !== 0 ? "blue" : "black";
                         let altWidth = 80 - refWidth;
                         let altColor = altFreq !== 0 ? "red" : "black";
-                        let opacity = file.data.FILTER === "PASS" ? 100 : 50;
+                        let opacity = file?.data?.FILTER === "PASS" ? 100 : 50;
                         resultHtml = `<div class="zygositySampleTooltip" data-tooltip-text='${tooltipText}' align="center">
                                         <table style="width: 80px">
                                             <tr>

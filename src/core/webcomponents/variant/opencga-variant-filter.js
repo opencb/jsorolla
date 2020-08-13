@@ -360,6 +360,23 @@ export default class OpencgaVariantFilter extends LitElement {
         $("#" + this._prefix + "vcfFilterSelect").selectpicker("val", []);
     }
 
+    isFilterVisible(filter) {
+        // FIXME  Maybe we should keep this:   && this.config?.skipSubsections?.length && !!~this.config.skipSubsections.indexOf(field.id)
+        let visible = true;
+        if (typeof filter.visible !== "undefined" && filter.visible !== null) {
+            if (typeof filter.visible === "boolean") {
+                visible = filter.visible;
+            } else {
+                if (typeof filter.visible === "function") {
+                    visible = filter.visible();
+                } else {
+                    console.error(`Field 'visible' not boolean or function: ${typeof filter.visible}`);
+                }
+            }
+        }
+        return visible;
+    }
+
     _renderFilterMenu() {
         return this.config.sections && this.config.sections.length && this.config.sections.map(section => this._createSection(section));
     }
@@ -381,13 +398,14 @@ export default class OpencgaVariantFilter extends LitElement {
                         <div id="${this._prefix}${id}" class="panel-collapse collapse ${collapsed}" role="tabpanel" aria-labelledby="${this._prefix}${id}Heading">
                             <div class="panel-body">
                                 ${section.fields && section.fields.length && section.fields.map(field => html`
-                                    ${this.config.skipSubsections && this.config.skipSubsections.length && !!~this.config.skipSubsections.indexOf(field.id)
-            ? null
-            : this._createSubSection(field)}
+                                    ${this.isFilterVisible(field)
+                                        ? this._createSubSection(field)
+                                        : null
+                                    }
                                 `)}
-                             </div>
-                        </div>
-                    </div>
+                            </div>
+                       </div>
+                   </div>
                 `;
     }
 

@@ -48,7 +48,9 @@ export default class PindelCallerFilter extends LitElement {
         this._prefix = UtilsNew.randomString(8);
         this.separator = ",";
 
-        this.filter = {};
+        this.filter = {
+            filter: "PASS",
+        };
         this._config = this.getDefaultConfig();
     }
 

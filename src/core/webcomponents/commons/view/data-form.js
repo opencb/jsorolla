@@ -440,7 +440,7 @@ export default class DataForm extends LitElement {
     }
 
     _createInputNumberElement(element) {
-        let value = this.getValue(element.field) || this._getDefaultValue(element);
+        let value = this.getValue(element.field) ?? this._getDefaultValue(element);
         let disabled = this._getBooleanValue(element?.display?.disabled, false);
         let width = this._getWidth(element);
         const [min = "", max = ""] = element.allowedValues || [];
@@ -448,7 +448,7 @@ export default class DataForm extends LitElement {
         return html`
             <div class="">
                 <input type="number" min=${min} max=${max} step="0.01" placeholder="${element.display?.placeholder || ""}" ?disabled=${disabled} ?required=${element.required} class="form-control input-sm"
-                        value="${value || ""}" @input="${e => this.onFilterChange(element.field, e.target.value)}">
+                        value="${value !== undefined ? value : ""}" @input="${e => this.onFilterChange(element.field, e.target.value)}">
             </div>
         `;
     }
@@ -489,12 +489,12 @@ export default class DataForm extends LitElement {
     }
 
     _createCheckboxElement(element) {
-        let disabled = this._getBooleanValue(element.display?.disabled, false);
-
+        // let checked = element.display?.checked ? "checked" : "";
+        let value = this.getValue(element.field) || this._getDefaultValue(element);
         return html`
             <div class="">
                 <input type="checkbox" class="${this._prefix}FilterCheckbox" 
-                        @click="${e => this.onFilterChange(element.field, e.currentTarget.checked)}" .checked="${this.filter === "PASS"}" style="margin-right: 5px">
+                        @click="${e => this.onFilterChange(element.field, e.currentTarget.checked)}" ?checked="${value === "PASS"}" style="margin-right: 5px">
                 <span>Include only <span style="font-weight: bold;">PASS</span> variants</span>
             </div>
         `;

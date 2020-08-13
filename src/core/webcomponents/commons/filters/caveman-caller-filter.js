@@ -48,7 +48,11 @@ export default class CavemanCallerFilter extends LitElement {
         this._prefix = UtilsNew.randomString(8);
         // this.separator = ",";
 
-        this.filter = {};
+        this.filter = {
+            filter: "PASS",
+            CLPM: 0,
+            ASMD: 140
+        };
         this._config = this.getDefaultConfig();
     }
 
@@ -60,10 +64,16 @@ export default class CavemanCallerFilter extends LitElement {
 
     filterChange(e) {
         if (e.detail.value) {
-            if (e.detail.param === "filter") {
-                this.filter["filter"] = "PASS";
-            } else {
-                this.filter[e.detail.param] = ">=" + e.detail.value;
+            switch (e.detail.param) {
+                case "filter":
+                    this.filter["filter"] = "PASS";
+                    break;
+                case "CLPM":
+                    this.filter["CLPM"] = "=" + e.detail.value;
+                    break;
+                case "ASMD":
+                    this.filter["ASMD"] = ">=" + e.detail.value;
+                    break;
             }
         } else {
             delete this.filter[e.detail.param];
@@ -103,13 +113,13 @@ export default class CavemanCallerFilter extends LitElement {
                         },
                         {
                             name: "CLPM",
-                            field: "clpm",
+                            field: "CLPM",
                             type: "input-number",
                             defaultValue: "",
                         },
                         {
                             name: "ASMD",
-                            field: "asmd",
+                            field: "ASMD",
                             type: "input-number",
                             defaultValue: "",
                         },

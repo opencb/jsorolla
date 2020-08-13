@@ -411,7 +411,6 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
         } else {
             delete this.queries[type][caller];
         }
-        // debugger
     }
 
     getDefaultConfig() {
@@ -453,22 +452,17 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                                 tooltip: tooltips.feature
                             },
                             {
-                                id: "diseasePanels",
-                                title: "Disease Panels",
-                                tooltip: tooltips.diseasePanels
-                            },
-                            {
                                 id: "biotype",
                                 title: "Gene Biotype",
                                 biotypes: biotypes,
                                 tooltip: tooltips.biotype
                             },
-                            {
-                                id: "type",
-                                title: "Variant Type",
-                                biotypes: types,
-                                tooltip: tooltips.type
-                            },
+                            // {
+                            //     id: "type",
+                            //     title: "Variant Type",
+                            //     biotypes: types,
+                            //     tooltip: tooltips.type
+                            // },
                             {
                                 id: "consequenceTypeSelect",
                                 title: "Select SO terms",
@@ -483,12 +477,18 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                             {
                                 id: "caveman-caller",
                                 title: "Caveman",
-                                render: (eventHandler, query) => html`<caveman-caller-filter @filterChange="${e => this.onFilterChange("SNV", "caveman", e)}"></caveman-caller-filter>`
+                                render: (eventHandler, query) => html`<caveman-caller-filter @filterChange="${e => this.onFilterChange("SNV", "caveman", e)}"></caveman-caller-filter>`,
+                                visible: () => this.callerToFile
+                                    ? typeof this.callerToFile["caveman"] !== "undefined" || this.callerToFile["caveman"] != null
+                                    : false
                             },
                             {
                                 id: "strelka-caller",
                                 title: "Strelka",
-                                render: (eventHandler, query) => html`<strelka-caller-filter @filterChange="${e => this.onFilterChange("SNV", "strelka", e)}"></strelka-caller-filter>`
+                                render: (eventHandler, query) => html`<strelka-caller-filter @filterChange="${e => this.onFilterChange("SNV", "strelka", e)}"></strelka-caller-filter>`,
+                                visible: () => this.callerToFile
+                                    ? typeof this.callerToFile["strelka"] !== "undefined" || this.callerToFile["strelka"] != null
+                                    : false
                             },
                         ]
                     },
@@ -499,12 +499,18 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                             {
                                 id: "pindel-caller",
                                 title: "Pindel",
-                                render: (eventHandler, query) => html`<pindel-caller-filter @filterChange="${e => this.onFilterChange("INDEL", "pindel", e)}"></pindel-caller-filter>`
+                                render: (eventHandler, query) => html`<pindel-caller-filter @filterChange="${e => this.onFilterChange("INDEL", "pindel", e)}"></pindel-caller-filter>`,
+                                visible: () => this.callerToFile
+                                    ? typeof this.callerToFile["pindel"] !== "undefined" || this.callerToFile["pindel"] != null
+                                    : false
                             },
                             {
                                 id: "strelka-caller",
                                 title: "Strelka",
-                                render: (eventHandler, query) => html`<strelka-caller-filter @filterChange="${e => this.onFilterChange("INDEL", "strelka", e)}"></strelka-caller-filter>`
+                                render: (eventHandler, query) => html`<strelka-caller-filter @filterChange="${e => this.onFilterChange("INDEL", "strelka", e)}"></strelka-caller-filter>`,
+                                visible: () => this.callerToFile
+                                    ? typeof this.callerToFile["strelka"] !== "undefined" || this.callerToFile["strelka"] != null
+                                    : false
                             },
                         ]
                     },
@@ -515,12 +521,18 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                             {
                                 id: "ascat-caller",
                                 title: "Ascat",
-                                render: (eventHandler, query) => html`<ascat-caller-filter @filterChange="${e => this.onFilterChange("CNV", "ascat", e)}"></ascat-caller-filter>`
+                                render: (eventHandler, query) => html`<ascat-caller-filter @filterChange="${e => this.onFilterChange("CNV", "ascat", e)}"></ascat-caller-filter>`,
+                                visible: () => this.callerToFile
+                                    ? typeof this.callerToFile["ascat"] !== "undefined" || this.callerToFile["ascat"] != null
+                                    : false
                             },
                             {
                                 id: "canvas-caller",
                                 title: "Canvas",
-                                render: (eventHandler, query) => html`<canvas-caller-filter @filterChange="${e => this.onFilterChange("CNV", "canvas", e)}"></canvas-caller-filter>`
+                                render: (eventHandler, query) => html`<canvas-caller-filter @filterChange="${e => this.onFilterChange("CNV", "canvas", e)}"></canvas-caller-filter>`,
+                                visible:() => this.callerToFile
+                                    ? typeof this.callerToFile["canvas"] !== "undefined" || this.callerToFile["canvas"] != null
+                                    : false
                             },
                         ]
                     },
@@ -531,12 +543,18 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                             {
                                 id: "brass-caller",
                                 title: "Brass",
-                                render: (eventHandler, query) => html`<brass-caller-filter @filterChange="${e => this.onFilterChange("REARRANGEMENT", "brass", e)}"></brass-caller-filter>`
+                                render: (eventHandler, query) => html`<brass-caller-filter @filterChange="${e => this.onFilterChange("REARRANGEMENT", "brass", e)}"></brass-caller-filter>`,
+                                visible: () => this.callerToFile
+                                    ? typeof this.callerToFile["brass"] !== "undefined" || this.callerToFile["brass"] != null
+                                    : false
                             },
                             {
                                 id: "manta-caller",
                                 title: "Manta",
-                                render: (eventHandler, query) => html`<manta-caller-filter @filterChange="${e => this.onFilterChange("REARRANGEMENT", "manta", e)}"></manta-caller-filter>`
+                                render: (eventHandler, query) => html`<manta-caller-filter @filterChange="${e => this.onFilterChange("REARRANGEMENT", "manta", e)}"></manta-caller-filter>`,
+                                visible: () => this.callerToFile
+                                    ? typeof this.callerToFile["manta"] !== "undefined" || this.callerToFile["manta"] != null
+                                    : false
                             },
                         ]
                     }
