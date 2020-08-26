@@ -37,19 +37,13 @@ import "../commons/filters/protein-substitution-score-filter.js";
 import "../commons/filters/sample-filter.js";
 import "../commons/filters/study-filter.js";
 import "../commons/filters/variant-type-filter.js";
-import "../commons/filters/caveman-caller-filter.js";
-import "../commons/filters/strelka-caller-filter.js";
-import "../commons/filters/pindel-caller-filter.js";
-import "../commons/filters/ascat-caller-filter.js";
-import "../commons/filters/canvas-caller-filter.js";
-import "../commons/filters/brass-caller-filter.js";
-import "../commons/filters/manta-caller-filter.js";
 
 
 export default class OpencgaVariantFilter extends LitElement {
 
     constructor() {
         super();
+        
         this._init();
     }
 
@@ -84,9 +78,6 @@ export default class OpencgaVariantFilter extends LitElement {
             config: {
                 type: Object
             }
-            // samples: {
-            //     type: Array
-            // }
         };
     }
 
@@ -114,12 +105,12 @@ export default class OpencgaVariantFilter extends LitElement {
         // Ctrl+Enter to fire the Search
         // TODO FIXME since it relies on keyup/keydown events it will work on input fields only.
         let isCtrl = false;
-        $(this).keyup(function(e) {
+        $(this).keyup(function (e) {
             if (e.which === 17) {
                 isCtrl = false;
             }
         });
-        $(this).keydown(function(e) {
+        $(this).keydown(function (e) {
             if (e.which === 17) {
                 isCtrl = true;
             }
@@ -133,19 +124,9 @@ export default class OpencgaVariantFilter extends LitElement {
 
     firstUpdated() {
         // Render filter menu and add event and tooltips
-        // this now returns html
-        // this._renderFilterMenu();
-
-        //this._addAllTooltips();
         UtilsNew.initTooltip(this);
 
         this._initialised = true;
-
-        //this.opencgaSessionObserver();
-        // this.queryObserver();
-        // this.setQueryFilters();
-        // this.clinicalObserver();
-
     }
 
     updated(changedProperties) {
@@ -158,9 +139,6 @@ export default class OpencgaVariantFilter extends LitElement {
         if (changedProperties.has("query")) {
             this.queryObserver();
         }
-        // if (changedProperties.has("samples")) {
-        // this.samplesObserver();
-        // }
     }
 
     opencgaSessionObserver() {
@@ -302,6 +280,7 @@ export default class OpencgaVariantFilter extends LitElement {
             return;
         }
     }
+
     /**
      * @deprecated
      */
@@ -386,35 +365,37 @@ export default class OpencgaVariantFilter extends LitElement {
         const collapsed = section.collapsed ? "" : "in";
 
         return html`
-                    <div class="panel panel-default filter-section shadow-sm">
-                        <div class="panel-heading" role="tab" id="${this._prefix}${id}Heading">
-                            <h4 class="panel-title">
-                                <a class="collapsed" role="button" data-toggle="collapse" data-parent="#${this._prefix}Accordion"
-                                    href="#${this._prefix}${id}" aria-expanded="true" aria-controls="${this._prefix}${id}">
-                                    ${section.title}
-                                </a>
-                            </h4>
-                        </div>
-                        <div id="${this._prefix}${id}" class="panel-collapse collapse ${collapsed}" role="tabpanel" aria-labelledby="${this._prefix}${id}Heading">
-                            <div class="panel-body">
-                                ${section.fields && section.fields.length && section.fields.map(field => html`
-                                    ${this.isFilterVisible(field)
-                                        ? this._createSubSection(field)
-                                        : null
-                                    }
-                                `)}
-                            </div>
-                       </div>
-                   </div>
-                `;
+            <div class="panel panel-default filter-section shadow-sm">
+                <div class="panel-heading" role="tab" id="${this._prefix}${id}Heading">
+                    <h4 class="panel-title">
+                        <a class="collapsed" role="button" data-toggle="collapse" data-parent="#${this._prefix}Accordion"
+                            href="#${this._prefix}${id}" aria-expanded="true" aria-controls="${this._prefix}${id}">
+                            ${section.title}
+                        </a>
+                    </h4>
+                </div>
+                <div id="${this._prefix}${id}" class="panel-collapse collapse ${collapsed}" role="tabpanel" aria-labelledby="${this._prefix}${id}Heading">
+                    <div class="panel-body">
+                        ${section.fields && section.fields.length && section.fields.map(field => html`
+                            ${this.isFilterVisible(field)
+                                ? this._createSubSection(field)
+                                : null
+                            }`
+                        )}
+                    </div>
+                </div>
+            </div>
+        `;
     }
 
     _createSubSection(subsection) {
+        // TODO is this still needed?
         // ConsequenceType needs horizontal scroll
         const ctScroll = (subsection.id === "consequenceType") ? "browser-ct-scroll" : "";
 
-        // We allow to pass the
         let content = "";
+
+        // We allow to pass a render function
         if (subsection.render) {
             content = subsection.render(this.onFilterChange, this.preparedQuery, this.opencgaSession);
         } else {
@@ -441,7 +422,11 @@ export default class OpencgaVariantFilter extends LitElement {
                         depth = sampleDataFilters.find(filter => filter.startsWith("DP")).split(">=")[1];
                     }
                     content = html`<file-quality-filter .filter="${this.preparedQuery.filter}" .depth="${depth}" .qual="${this.preparedQuery.qual}" 
-                                    @filterChange="${e => this.onFilterChange({filter: "filter", sampleData: "sampleData", qual: "qual"}, e.detail.value)}" .config="${subsection}" >
+                                    @filterChange="${e => this.onFilterChange({
+                        filter: "filter",
+                        sampleData: "sampleData",
+                        qual: "qual"
+                    }, e.detail.value)}" .config="${subsection}" >
                                </file-quality-filter>
                             `;
                     break;
@@ -492,32 +477,14 @@ export default class OpencgaVariantFilter extends LitElement {
                     content = html`<hpo-accessions-filter .annot-hpo="${this.preparedQuery["annot-hpo"]}" @ontologyModalOpen="${this.onOntologyModalOpen}" @filterChange="${e => this.onFilterChange("annot-hpo", e.detail.value)}"></hpo-accessions-filter>`;
                     break;
                 case "clinvar":
-                    content = html`<clinvar-accessions-filter .clinvar="${this.preparedQuery.clinvar}" .clinicalSignificance="${this.preparedQuery.clinicalSignificance}" @filterChange="${e => this.onFilterChange({clinvar: "clinvar", clinicalSignificance: "clinicalSignificance"}, e.detail.value)}"></clinvar-accessions-filter>`;
+                    content = html`<clinvar-accessions-filter .clinvar="${this.preparedQuery.clinvar}" .clinicalSignificance="${this.preparedQuery.clinicalSignificance}" @filterChange="${e => this.onFilterChange({
+                        clinvar: "clinvar",
+                        clinicalSignificance: "clinicalSignificance"
+                    }, e.detail.value)}"></clinvar-accessions-filter>`;
                     break;
                 case "fullTextSearch":
                     content = html`<fulltext-search-accessions-filter .traits="${this.preparedQuery.traits}" @filterChange="${e => this.onFilterChange("traits", e.detail.value)}"></fulltext-search-accessions-filter>`;
                     break;
-                // case "caveman-caller":
-                //     content = html`<caveman-caller-filter .traits="${this.preparedQuery.traits}" @filterChange="${e => this.onFilterChange("caveman", e.detail.value)}"></caveman-caller-filter>`;
-                //     break;
-                // case "strelka-caller":
-                //     content = html`<strelka-caller-filter .traits="${this.preparedQuery.traits}" @filterChange="${e => this.onFilterChange("strelka", e.detail.value)}"></strelka-caller-filter>`;
-                //     break;
-                // case "pindel-caller":
-                //     content = html`<pindel-caller-filter .traits="${this.preparedQuery.traits}" @filterChange="${e => this.onFilterChange("pindel", e.detail.value)}"></pindel-caller-filter>`;
-                //     break;
-                // case "ascat-caller":
-                //     content = html`<ascat-caller-filter .traits="${this.preparedQuery.traits}" @filterChange="${e => this.onFilterChange("ascat", e.detail.value)}"></ascat-caller-filter>`;
-                //     break;
-                // case "canvas-caller":
-                //     content = html`<canvas-caller-filter .traits="${this.preparedQuery.traits}" @filterChange="${e => this.onFilterChange("traits", e.detail.value)}"></canvas-caller-filter>`;
-                //     break;
-                // case "brass-caller":
-                //     content = html`<brass-caller-filter .traits="${this.preparedQuery.traits}" @filterChange="${e => this.onFilterChange("traits", e.detail.value)}"></brass-caller-filter>`;
-                //     break;
-                // case "manta-caller":
-                //     content = html`<manta-caller-filter .traits="${this.preparedQuery.traits}" @filterChange="${e => this.onFilterChange("traits", e.detail.value)}"></manta-caller-filter>`;
-                //     break;
                 default:
                     console.error("Filter component not found");
             }
@@ -544,21 +511,23 @@ export default class OpencgaVariantFilter extends LitElement {
     render() {
         return html`
             <div>
-                ${this.searchButton ? html`
-                <div class="search-button-wrapper">
-                    <button type="button" class="btn btn-primary ripple" @click="${this.onSearch}">
-                        <i class="fa fa-search" aria-hidden="true"></i> ${this.config.searchButtonText || "Search"}
-                    </button>
-                </div>
-                ` : null}
+                ${this.searchButton 
+                    ? html`
+                        <div class="search-button-wrapper">
+                            <button type="button" class="btn btn-primary ripple" @click="${this.onSearch}">
+                                <i class="fa fa-search" aria-hidden="true"></i> ${this.config.searchButtonText || "Search"}
+                            </button>
+                        </div>` 
+                    : null
+                }
     
                 <div class="panel-group" id="${this._prefix}Accordion" role="tablist" aria-multiselectable="true">
                     <div id="FilterMenu">
-                    ${this._renderFilterMenu()}
+                        ${this._renderFilterMenu()}
                     </div>
                 </div>
             </div>
-            `;
+        `;
     }
 
 }

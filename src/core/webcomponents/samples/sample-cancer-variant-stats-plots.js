@@ -92,7 +92,7 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
             study: this.opencgaSession.study.fqn,
             fitting: false,
             sample: this.sampleId,
-            // ...this.query
+            ...this.query,
             ...this.queries["SNV"]
         }).then( restResult => {
             this.signature = restResult.getResult(0).signature;

@@ -20,6 +20,13 @@ import "./sample-cancer-variant-stats-plots.js";
 import "../variant/opencga-variant-filter.js";
 import "../commons/opencga-active-filters.js";
 import "../commons/view/signature-view.js";
+import "../commons/filters/caveman-caller-filter.js";
+import "../commons/filters/strelka-caller-filter.js";
+import "../commons/filters/pindel-caller-filter.js";
+import "../commons/filters/ascat-caller-filter.js";
+import "../commons/filters/canvas-caller-filter.js";
+import "../commons/filters/brass-caller-filter.js";
+import "../commons/filters/manta-caller-filter.js";
 import "../loading-spinner.js";
 
 export default class SampleCancerVariantStatsBrowser extends LitElement {
@@ -106,7 +113,6 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
             this.opencgaSession.opencgaClient.samples().info(this.sampleId, {study: this.opencgaSession.study.fqn})
                 .then(response => {
                     this.sample = response.getResult(0);
-                    // this.getVariantStatFromSample();
                     this.sampleObserver();
                 })
                 .catch(response => {
@@ -148,15 +154,19 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
         this.executedQuery = e.detail.query;
 
         this._queries = {};
-        this.queries;
         let types = ["SNV", "INDEL", "CNV", "REARRANGEMENT"];
         for (let type of types) {
             if (this.queries[type]) {
-                for (let key of Object.keys(this.queries[type])) {
-                    if (this.callerToFile[key]) {
-                        let fileId = this.callerToFile[key].id;
-                        let fileFilter = this.queries[type][key];
-                        this._queries[type] = fileId + ":" + fileFilter;
+                this._queries[type] = {
+                    fileData: ""
+                };
+                for (let caller of Object.keys(this.queries[type])) {
+                    if (this.callerToFile[caller]) {
+                        let fileId = this.callerToFile[caller].name;
+                        let fileFilter = this.queries[type][caller];
+                        // this._queries[type].fileData += fileId + ":" + fileFilter;
+                        let fileData = fileId + ":" + fileFilter;
+                        this._queries[type].fileData += this._queries[type].fileData ? "," + fileData : fileData
                     }
                 }
             }
@@ -407,7 +417,7 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
             if (!this.queries[type]) {
                 this.queries[type] = {};
             }
-            this.queries[type][caller] = Object.entries(value.detail.value).map(([k, v]) => k + "=" + v).join(";");
+            this.queries[type][caller] = Object.entries(value.detail.value).map(([k, v]) => k + v).join(";");
         } else {
             delete this.queries[type][caller];
         }
@@ -435,12 +445,12 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                         title: "Genomic Filters",
                         collapsed: false,
                         fields: [
-                            {
-                                id: "file-quality",
-                                title: "Quality Filter",
-                                tooltip: "VCF file based FILTER and QUAL filters",
-                                showDepth: application.appConfig === "opencb"
-                            },
+                            // {
+                            //     id: "file-quality",
+                            //     title: "Quality Filter",
+                            //     tooltip: "VCF file based FILTER and QUAL filters",
+                            //     showDepth: application.appConfig === "opencb"
+                            // },
                             {
                                 id: "region",
                                 title: "Genomic Location",
@@ -457,12 +467,6 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                                 biotypes: biotypes,
                                 tooltip: tooltips.biotype
                             },
-                            // {
-                            //     id: "type",
-                            //     title: "Variant Type",
-                            //     biotypes: types,
-                            //     tooltip: tooltips.type
-                            // },
                             {
                                 id: "consequenceTypeSelect",
                                 title: "Select SO terms",

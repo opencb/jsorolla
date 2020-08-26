@@ -80,6 +80,11 @@ export default class CircosView extends LitElement {
 
         let query = {
             title: "Circos",
+            density: "LOW",
+            query: {
+                sample: this.sampleId,
+                ...this.query
+            },
             tracks: [
                 {
                     id: "snv",
@@ -87,8 +92,9 @@ export default class CircosView extends LitElement {
                     query: {
                         study: this.opencgaSession.study.fqn,
                         sample: this.sampleId,
-                        filter: "PASS",
-                        // ...this.queries["SNV"]
+                        type: "SNV",
+                        // filter: "PASS",
+                        ...this.queries["SNV"]
                     }
                 },
                 {
@@ -97,8 +103,9 @@ export default class CircosView extends LitElement {
                     query: {
                         study: this.opencgaSession.study.fqn,
                         sample: this.sampleId,
+                        type: "INDEL",
                         filter: "PASS",
-                        // ...this.queries["INDEL"]
+                        ...this.queries["INDEL"]
                     }
                 },
                 {
@@ -111,6 +118,8 @@ export default class CircosView extends LitElement {
                 }
             ]
         }
+        debugger
+
         this.opencgaSession.opencgaClient.variants().runCircos(query, {study: this.opencgaSession.study.fqn})
             .then( restResult => {
                 document.getElementById(this._prefix + "CircosMessage").style["display"] = "none";

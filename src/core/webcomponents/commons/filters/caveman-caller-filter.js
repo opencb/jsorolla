@@ -48,10 +48,15 @@ export default class CavemanCallerFilter extends LitElement {
         this._prefix = UtilsNew.randomString(8);
         // this.separator = ",";
 
+        this._filter = {
+            FILTER: "PASS",
+            // CLPM: "=" + 0,
+            // ASMD: ">=" + 140
+        };
         this.filter = {
-            filter: "PASS",
-            CLPM: 0,
-            ASMD: 140
+            FILTER: "=PASS",
+            // CLPM: "=" + 0,
+            // ASMD: ">=" + 140
         };
         this._config = this.getDefaultConfig();
     }
@@ -60,25 +65,30 @@ export default class CavemanCallerFilter extends LitElement {
         super.connectedCallback();
 
         this._config = {...this.getDefaultConfig(), ...this.config};
+        this.notify();
     }
 
     filterChange(e) {
         if (e.detail.value) {
             switch (e.detail.param) {
-                case "filter":
-                    this.filter["filter"] = "PASS";
+                case "FILTER":
+                    this.filter[e.detail.param] = "=PASS";
                     break;
                 case "CLPM":
-                    this.filter["CLPM"] = "=" + e.detail.value;
+                    this.filter[e.detail.param] = "=" + e.detail.value;
                     break;
                 case "ASMD":
-                    this.filter["ASMD"] = ">=" + e.detail.value;
+                    this.filter[e.detail.param] = ">=" + e.detail.value;
                     break;
             }
         } else {
             delete this.filter[e.detail.param];
         }
 
+        this.notify();
+    }
+
+    notify() {
         const event = new CustomEvent("filterChange", {
             detail: {
                 value: this.filter
@@ -108,7 +118,7 @@ export default class CavemanCallerFilter extends LitElement {
                     elements: [
                         {
                             name: "PASS",
-                            field: "filter",
+                            field: "FILTER",
                             type: "checkbox",
                         },
                         {
@@ -131,7 +141,7 @@ export default class CavemanCallerFilter extends LitElement {
 
     render() {
         return html`
-            <data-form .data=${this.filter} .config="${this._config}" @fieldChange="${this.filterChange}"></data-form>
+            <data-form .data=${this._filter} .config="${this._config}" @fieldChange="${this.filterChange}"></data-form>
         `;
     }
 }
