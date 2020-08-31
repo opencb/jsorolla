@@ -325,7 +325,7 @@ export default class VariantInterpreterGrid extends LitElement {
             // TODO remove the following lines and use UtilsNew.initTooltip
             this.variantGridFormatter.addTooltip("div.variant-tooltip", "Links");
             this.variantGridFormatter.addTooltip("span.gene-tooltip", "Links");
-            this.variantGridFormatter.addTooltip("div.zygositySampleTooltip", "File metrics", "", {style: {classes: "qtip-rounded qtip-shadow qtip-custom-class"}});
+            this.variantGridFormatter.addTooltip("div.zygositySampleTooltip", "Variant Call Information", "", {style: {classes: "qtip-rounded qtip-shadow qtip-custom-class"}});
             this.variantGridFormatter.addPopulationFrequenciesTooltip("table.populationFrequenciesTable", this.populationFrequencies);
             this.variantGridFormatter.addPopulationFrequenciesInfoTooltip("span.pop-preq-info-icon", this.populationFrequencies);
             const predictionTooltipContent = "<span style='font-weight: bold'>Prediction</span> column shows the Clinical Significance prediction and Tier following the ACMG guide recommendations";
@@ -471,21 +471,31 @@ export default class VariantInterpreterGrid extends LitElement {
     zygosityFormatter(value, row, index) {
         let resultHtml = "";
 
-        if (UtilsNew.isNotEmptyArray(row.studies)) {
-            if (UtilsNew.isNotUndefinedOrNull(row.studies[0].samples)) {
-                let sampleIndex = row.studies[0].samples.findIndex(s => s.sampleId === this.field.sampleId);
+        if (row.studies?.length > 0 && row.studies[0].samples?.length > 0) {
+            const sampleId = this.field.sampleId;
+            const sampleIndex = row.studies[0].samples.findIndex(s => s.sampleId === sampleId);
 
-                // First, get and check info fields QUAL, FILTER; and format fields DP, AD and GQ
+            let sampleEntries = [row.studies[0].samples[sampleIndex]];
+
+            // Check if there are any DISCREPANCY issue for this sample and add it to the calls to be displayed
+            if (row.studies[0]?.issues?.length > 0) {
+                const sampleIssues = row.studies[0].issues.filter(e => e.sample.sampleId === sampleId && e.type === "DISCREPANCY");
+                sampleEntries = sampleEntries.concat(sampleIssues.map(e => e.sample));
+            }
+
+            for (let sampleEntry of sampleEntries) {
+                // FIRST, get and check info fields QUAL, FILTER; and format fields DP, AD and GQ
                 let filter = "-";
                 let qual = "-";
                 let originalCall = "";
                 let mutationColor = "black";
-                const sampleFormat = row.studies[0].samples[sampleIndex].data;
+                let noCallColor = "rgba(255, 0, 0, 0.5)";
+                const sampleFormat = sampleEntry.data;
 
                 let file;
                 if (row.studies[0].files) {
-                    let fileIdx = row.studies[0].samples[sampleIndex]?.fileIndex;
-                    if (fileIdx) {
+                    let fileIdx = sampleEntry?.fileIndex ?? 0;
+                    if (fileIdx >= 0) {
                         file = row.studies[0].files[fileIdx];
                     }
                 }
@@ -503,7 +513,7 @@ export default class VariantInterpreterGrid extends LitElement {
 
                     for (let key of Object.keys(file.data)) {
                         if (key !== "FILTER" && key !== "QUAL") {
-                            const html = `<div class="form-group" style="margin: 0px 2px">
+                            const html = `<div class="form-group" style="margin: 2px 2px">
                                             <label class="col-md-5">${key}</label>
                                             <div class="col-md-7">${file.data[key]}</div>
                                           </div>`;
@@ -520,9 +530,9 @@ export default class VariantInterpreterGrid extends LitElement {
                 for (const formatField in row.studies[0].sampleDataKeys) {
                     // GT fields is treated separately
                     let key = row.studies[0].sampleDataKeys[formatField];
-                    key = key !== "GT" ? key : `${key} (${row.reference}/${row.alternate})`;
-                    let value = sampleFormat[formatField];
-                    const html = `<div class="form-group" style="margin: 0px 2px">
+                    key = key !== "GT" ? key : `${key} (${row.reference || "-"}/${row.alternate || "-"})`;
+                    let value = sampleFormat[formatField] ? sampleFormat[formatField] : "-";
+                    const html = `<div class="form-group" style="margin: 2px 2px">
                                                 <label class="col-md-5">${key}</label>
                                                 <div class="col-md-7">${value}</div>
                                             </div>`;
@@ -532,14 +542,59 @@ export default class VariantInterpreterGrid extends LitElement {
                 // SECONDARY ALTERNATES fields
                 const secondaryAlternates = [];
                 for (const v of row.studies[0].secondaryAlternates) {
-                    const html = `<div class="form-group" style="margin: 0px 2px">
+                    const html = `<div class="form-group" style="margin: 2px 2px">
                                     <label class="col-md-5">${v.chromosome}:${v.start}-${v.end}</label>
                                     <div class="col-md-7">${v.reference}/${v.alternate} ${v.type}</div>
                                   </div>`;
                     secondaryAlternates.push(html);
                 }
 
-                // Second, prepare the visual representation of genotypes
+                const tooltipText = `<div class="" style="padding: 5px">
+                                        <form class="form-horizontal">
+                                            <div class="form-group" style="margin: 2px 2px">
+                                                <label class="col-md-12" style="color: darkgray;padding: 10px 0px 5px 0px">SUMMARY</label>
+                                            </div>
+                                            <div class="form-group" style="margin: 2px 2px">
+                                                <label class="col-md-5">Sample ID</label>
+                                                <div class="col-md-7">${sampleId ? sampleId : "-"}</div>
+                                            </div>
+                                            <div class="form-group" style="margin: 2px 2px">
+                                                <label class="col-md-5">File Name</label>
+                                                <div class="col-md-7">${file && file.fileId ? file.fileId : "-"}</div>
+                                            </div>
+                                            <div class="form-group" style="margin: 2px 2px">
+                                                <label class="col-md-5">File FILTER</label>
+                                                <div class="col-md-7">${filter}</div>
+                                            </div>
+                                            <div class="form-group" style="margin: 2px 2px">
+                                                <label class="col-md-5">File QUAL</label>
+                                                <div class="col-md-7">${qual}</div>
+                                            </div>
+                                            <div class="form-group" style="margin: 2px 2px">
+                                                <label class="col-md-5">File VCF call</label>
+                                                <div class="col-md-7">${originalCall}</div>
+                                            </div>
+                                            <div class="form-group" style="margin: 2px 2px">
+                                                <label class="col-md-12" style="color: darkgray;padding: 10px 0px 5px 0px">SAMPLE DATA</label>
+                                            </div>
+                                            ${formatFields.join("")}
+                                            <div class="form-group" style="margin: 2px 2px">
+                                                <label class="col-md-12" style="color: darkgray;padding: 10px 0px 5px 0px">FILE INFO</label>
+                                            </div>
+                                            ${infoFields.join("")}
+                                            <div class="form-group" style="margin: 2px 2px">
+                                                <label class="col-md-12" style="color: darkgray;padding: 10px 0px 5px 0px">SECONDARY ALTERNATES</label>
+                                            </div>
+                                            ${secondaryAlternates && secondaryAlternates.length > 0 
+                                                ? secondaryAlternates.join("") 
+                                                : `<div class="form-group" style="margin: 2px 2px">
+                                                        <label class="col-md-12">-</label>
+                                                   </div>`
+                                            }
+                                        </form>
+                                     </div>`;
+
+                // SECOND, prepare the visual representation of genotypes
                 let left;
                 let right;
                 let leftRadio = 8;
@@ -549,86 +604,57 @@ export default class VariantInterpreterGrid extends LitElement {
                 // Make sure we always render somatic sample first
 
                 if (this.field.clinicalAnalysis.type.toUpperCase() === "SINGLE" || this.field.clinicalAnalysis.type.toUpperCase() === "FAMILY") {
-                    sampleGT = row.studies[0].samples[this.field.memberIdx].data[0];
+                    sampleGT = sampleEntry.data[0];
                 } else {
                     // FIXME check GT exists in sampleDataKeys to avoid issues with somatic VAF
                     if (row.studies[0].samples.length === 2) {
-                        sampleGT = row.studies[0].samples[sampleIndex].data[0];
+                        sampleGT = sampleEntry.data[0];
                     } else {
-                        sampleGT = row.studies[0].samples[0].data[0];
-                    }
-                }
-                if (sampleGT === "0/1" || sampleGT === "1/0") {
-                    // If genotype si 0/1 or 1/0 they must be displayed like 0/1 (not phased)
-                    left = "white";
-                    right = mutationColor;
-                } else {
-                    const genotypes = sampleGT.split(genotypeSplitRegExp);
-                    switch (genotypes[0]) {
-                        case "0":
-                            left = "white";
-                            break;
-                        case "1":
-                            left = mutationColor;
-                            break;
-                        case ".":
-                            left = "red";
-                            leftRadio = 1;
-                            break;
-                    }
-                    switch (genotypes[1]) {
-                        case "0":
-                            right = "white";
-                            break;
-                        case "1":
-                            right = mutationColor;
-                            break;
-                        case ".":
-                            right = "red";
-                            rightRadio = 1;
-                            break;
+                        sampleGT = sampleEntry.data[0];
                     }
                 }
 
-                // Third, prepare the tooltip information
-                const tooltipText = `<div class="col-md-12 zygosity-formatter" style="padding: 0px">
-                                        <form class="form-horizontal">
-                                            <div class="form-group" style="margin: 0px 2px">
-                                                <label class="col-md-12" style="color: darkgray;padding: 10px 0px 5px 0px">SAMPLE DATA</label>
-                                            </div>
-                                            ${formatFields.join("")}
-                                            <div class="form-group" style="margin: 0px 2px">
-                                                <label class="col-md-12" style="color: darkgray;padding: 10px 0px 5px 0px">FILE INFO</label>
-                                            </div>
-                                            <div class="form-group" style="margin: 0px 2px">
-                                                <label class="col-md-5">FILTER</label>
-                                                <div class="col-md-7">${filter}</div>
-                                            </div>
-                                            <div class="form-group" style="margin: 0px 2px">
-                                                <label class="col-md-5">QUAL</label>
-                                                <div class="col-md-7">${qual}</div>
-                                            </div>
-                                            <div class="form-group" style="margin: 0px 2px">
-                                                <label class="col-md-5">VCF call</label>
-                                                <div class="col-md-7">${originalCall}</div>
-                                            </div>
-                                            ${infoFields.join("")}
-                                            <div class="form-group" style="margin: 0px 2px">
-                                                <label class="col-md-12" style="color: darkgray;padding: 10px 0px 5px 0px">SECONDARY ALTERNATES</label>
-                                            </div>
-                                            ${secondaryAlternates.join("")}
-                                        </form>
-                                     </div>`;
+                switch (sampleGT) {
+                    case "./.":
+                    case "?/?":
+                    case "NA":
+                        left = noCallColor;
+                        right = noCallColor;
+                        break;
+                    case "0|1":
+                    case "1|0":
+                        left = "white";
+                        right = mutationColor;
+                        break;
+                    default:
+                        const alleles = sampleGT.split(genotypeSplitRegExp);
+                        switch (alleles[0]) {
+                            case "0":
+                                left = "white";
+                                break;
+                            case ".":
+                                left = noCallColor;
+                                break;
+                            default:
+                                left = mutationColor;
+                                break;
+                        }
+                        switch (alleles[1]) {
+                            case "0":
+                                right = "white";
+                                break;
+                            case ".":
+                                right = noCallColor;
+                                break;
+                            default:
+                                right = mutationColor;
+                                break;
+                        }
+                        break;
+                }
 
-                // Last, put everything together and display
-                if (this.field.clinicalAnalysis.type.toUpperCase() !== "CANCER") {
-                    resultHtml = `<div class='zygositySampleTooltip' data-tooltip-text='${tooltipText}' style="width: 70px" align="center">
-                                    <svg viewBox="0 0 70 30" xmlns="http://www.w3.org/2000/svg">
-                                        <circle cx="20" cy="15" r="${leftRadio}" style="stroke: black;fill: ${left}"/>
-                                        <circle cx="50" cy="15" r="${rightRadio}" style="stroke: black;fill: ${right}"/>
-                                    </svg>
-                                  </div>`;
-                } else {
+                // THIRD, render genotypes
+                if (this.field.config.genotype.type === "bar") {
                     let af, ad, dp;
                     let afIndex, adIndex, dpIndex;
                     let refFreq, altFreq;
@@ -644,11 +670,16 @@ export default class VariantInterpreterGrid extends LitElement {
 
                     // Get Allele Frequencies
                     adIndex = row.studies[0].sampleDataKeys.findIndex(e => e === "AD");
-                    if (adIndex !== -1 && dp >= 0) {
+                    if (adIndex !== -1) {
                         ad = sampleFormat[adIndex];
                         let adCounts = ad.split(",");
-                        refFreq = Number.parseInt(adCounts[0]) / dp;
-                        altFreq = Number.parseInt(adCounts[1]) / dp;
+                        if (!dp && adCounts.length > 1) {
+                            dp = Number.parseInt(adCounts[0]) + Number.parseInt(adCounts[1]);
+                        }
+                        if (dp > 0) {
+                            refFreq = Number.parseInt(adCounts[0]) / dp;
+                            altFreq = Number.parseInt(adCounts[1]) / dp;
+                        }
                     } else {
                         // In cancer data AF has just one single value for the ALT
                         afIndex = row.studies[0].sampleDataKeys.findIndex(e => e === "AF");
@@ -660,13 +691,14 @@ export default class VariantInterpreterGrid extends LitElement {
                     }
 
                     if (refFreq >= 0 && altFreq >= 0) {
-                        let refWidth = Math.max(80 * refFreq, 1);
+                        let widthPx = 80;
+                        let refWidth = Math.max(widthPx * refFreq, 1);
                         let refColor = refFreq !== 0 ? "blue" : "black";
-                        let altWidth = 80 - refWidth;
+                        let altWidth = widthPx - refWidth;
                         let altColor = altFreq !== 0 ? "red" : "black";
                         let opacity = file?.data?.FILTER === "PASS" ? 100 : 50;
-                        resultHtml = `<div class="zygositySampleTooltip" data-tooltip-text='${tooltipText}' align="center">
-                                        <table style="width: 80px">
+                        resultHtml += `<div class="zygositySampleTooltip" data-tooltip-text='${tooltipText}' align="center">
+                                        <table style="width: ${widthPx}px">
                                             <tr>
                                                 <td style="width: ${refWidth}px; background-color: ${refColor}; border-right: 1px solid white; opacity: ${opacity}%">&nbsp;</td>
                                                 <td style="width: ${altWidth}px; background-color: ${altColor}; border-right: 1px solid white; opacity: ${opacity}%">&nbsp;</td>
@@ -675,50 +707,22 @@ export default class VariantInterpreterGrid extends LitElement {
                         resultHtml += `</table></div>`;
                     } else {
                         // Just in case we cannot render freqs, this should never happen.
-                        resultHtml = `<div class='zygositySampleTooltip' data-tooltip-text='${tooltipText}' style="width: 70px" align="center">
-                                        <svg viewBox="0 0 70 30" xmlns="http://www.w3.org/2000/svg">
-                                            <circle cx="20" cy="15" r="${leftRadio}" style="stroke: black;fill: ${left}"/>
-                                            <circle cx="50" cy="15" r="${rightRadio}" style="stroke: black;fill: ${right}"/>
-                                        </svg>
-                                      </div>`;
+                        resultHtml += `
+                            <div class='zygositySampleTooltip' data-tooltip-text='${tooltipText}' style="width: 70px" align="center">
+                                <svg viewBox="0 0 70 30" xmlns="http://www.w3.org/2000/svg">
+                                    <circle cx="20" cy="15" r="${leftRadio}" style="stroke: black;fill: ${left}"/>
+                                    <circle cx="50" cy="15" r="${rightRadio}" style="stroke: black;fill: ${right}"/>
+                                </svg>
+                            </div>`;
                     }
-
-                    // afIndex = row.studies[0].sampleDataKeys.findIndex(e => e === "AF");
-                    // if (afIndex !== -1) {
-                    //     af = sampleFormat[afIndex];
-                    //     debugger
-                    //     altFreqs = af.split(",");
-                    //     let rects = "";
-                    //     let totalFreq = 0;
-                    //     for (let altFreq of altFreqs) {
-                    //         let freq = Number.parseFloat(altFreq);
-                    //         totalFreq += freq;
-                    //         rects += `<rect x="20" y="5" width="20" height="${freq * 40}" style="fill: darkred"/>`;
-                    //     }
-                    //     if (totalFreq < 1) {
-                    //         rects += `<rect x="20" y="${totalFreq * 40 + 5}" width="20" height="${(1 - totalFreq) * 40}" style="fill: darkorange"/>`;
-                    //     }
-                    //
-                    //     // style="width: 50px; height: 50px"
-                    //     resultHtml = `<div class='zygositySampleTooltip' data-tooltip-text='${tooltipText}' style="width: 50px" align="center">
-                    //                 <svg viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg">
-                    //                     ${rects}
-                    //                 </svg>
-                    //               </div>`;
-                    //
-                    //     let refWidth = Math.max(80 * (1 - totalFreq), 1);
-                    //     // let refColor =
-                    //     // let altWidth = 20 * Number.parseFloat(altFreqs[0]);
-                    //     let altWidth = 80 - refWidth;
-                    //     debugger
-                    //     resultHtml = `<div class="zygositySampleTooltip" data-tooltip-text='${tooltipText}' align="center">
-                    //                     <table style="width: 80px">
-                    //                         <tr>
-                    //                             <td style="width: ${refWidth}px; background-color: blue; border-right: 1px solid white;">&nbsp;</td>
-                    //                             <td style="width: ${altWidth}px; background-color: red; border-right: 1px solid white;">&nbsp;</td>
-                    //                         </tr>
-                    //                 `;
-                    //     resultHtml += `</table></div>`;
+                } else {
+                    resultHtml += `
+                        <div class='zygositySampleTooltip' data-tooltip-text='${tooltipText}' style="width: 70px" align="center">
+                            <svg viewBox="0 0 70 30" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="20" cy="15" r="${leftRadio}" style="stroke: black;fill: ${left}"/>
+                                <circle cx="50" cy="15" r="${rightRadio}" style="stroke: black;fill: ${right}"/>
+                            </svg>
+                        </div>`;
                 }
             }
         }
@@ -1063,7 +1067,8 @@ export default class VariantInterpreterGrid extends LitElement {
                             memberName: samples[i].id,
                             sampleId: samples[i].id,
                             quality: this._config.quality,
-                            clinicalAnalysis: this.clinicalAnalysis
+                            clinicalAnalysis: this.clinicalAnalysis,
+                            config: this._config
                         },
                         rowspan: 1,
                         colspan: 1,
@@ -1272,6 +1277,9 @@ export default class VariantInterpreterGrid extends LitElement {
             nucleotideGenotype: true,
             alleleStringLengthMax: 10,
 
+            genotype: {
+                type: "circle"
+            },
             header: {
                 horizontalAlign: "center",
                 verticalAlign: "bottom"
@@ -1295,13 +1303,12 @@ export default class VariantInterpreterGrid extends LitElement {
                 .variant-link-dropdown:hover .dropdown-menu {
                     display: block;
                 }
-                
-                .qtip-custom-class .qtip-content {
-                    font-size: 12px;
+                .qtip-custom-class {
+                    font-size: 13px;
+                    max-width: none;
                 }
-                
                 .check-variant {
-                    transform: scale(1.5);
+                    transform: scale(1.2);
                 }
             </style>
     

@@ -1113,7 +1113,7 @@ export default class VariantGridFormatter {
                 }
             },
             position: {target: "mouse", adjust: {x: 2, y: 2, mouse: false}},
-            style: {width: true, classes: "qtip-light qtip-rounded qtip-shadow qtip-custom-class"},
+            style: {classes: "qtip-light qtip-rounded qtip-shadow qtip-custom-class"},
             show: {delay: 200},
             hide: {fixed: true, delay: 300}
         });

@@ -154,12 +154,20 @@ class VariantInterpreterBrowserCancer extends LitElement {
 
     updateActiveFilterFilters() {
         if (!this.query?.sample) {
-            // let sampleId = this.clinicalAnalysis.proband.samples.find(sample => sample.somatic).id;
-            let sampleIds = this.clinicalAnalysis.proband.samples.map(sample => sample.id).join(",");
+            let sampleId = this.clinicalAnalysis.proband.samples.find(sample => sample.somatic).id;
+            let sampleIds = this.clinicalAnalysis.proband.samples.map(sample => {
+                return sample.id;
+                // if (sample.somatic) {
+                //     return sample.id + ":0/1,1/1";
+                // } else {
+                //     return sample.id + ":0/0,0/1,1/1";
+                // }
+            }).join(",");
             this.query = {
                 ...this.query,
-                // sample: sampleId + ":0/1,1/1,0/2,1/2"
-                sample: sampleIds
+                // sample: sampleIds
+                sample: sampleId,
+                includeSample: sampleIds
             }
             this.predefinedFilter = {...this.query};
         }
