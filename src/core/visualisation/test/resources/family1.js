@@ -18,7 +18,7 @@ export default [
         "father": {},
         "mother": {},
         "sex": "MALE",
-        "age": "57"
+        "age": "61"
     },{
         "id": "7",
         "father": {id: "1"},
