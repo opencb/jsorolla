@@ -23,6 +23,7 @@ import "./variant-interpreter-grid.js";
 import "./variant-interpreter-detail.js";
 import "../opencga-variant-filter.js";
 import "../../commons/opencga-active-filters.js";
+import "../../commons/filters/sample-genotype-filter.js";
 import "../../commons/filters/caveman-caller-filter.js";
 import "../../commons/filters/strelka-caller-filter.js";
 import "../../commons/filters/pindel-caller-filter.js";
@@ -159,20 +160,20 @@ class VariantInterpreterBrowserCancer extends LitElement {
     }
 
     updateActiveFilterFilters() {
-        let somaticSampleId = this.clinicalAnalysis.proband.samples.find(sample => sample.somatic).id;
+        this.somaticSample = this.clinicalAnalysis.proband.samples.find(sample => sample.somatic);
 
         if (!this.query?.sample) {
             let sampleIds = this.clinicalAnalysis.proband.samples.map(sample => sample.id).join(",");
             this.query = {
                 ...this.query,
-                sample: somaticSampleId,
+                sample: this.somaticSample.id,
                 includeSample: sampleIds
             }
             this.predefinedFilter = {...this.query};
         }
 
         this.callerToFile = {};
-        this.opencgaSession.opencgaClient.files().search({samples: somaticSampleId, study: this.opencgaSession.study.fqn})
+        this.opencgaSession.opencgaClient.files().search({samples: this.somaticSample.id, study: this.opencgaSession.study.fqn})
             .then(fileResponse => {
                 this.files = fileResponse.response[0].results;
                 // Prepare a map from caller to File
@@ -362,12 +363,19 @@ class VariantInterpreterBrowserCancer extends LitElement {
                             //     tooltip: "VCF file based FILTER and QUAL filters",
                             //     showDepth: application.appConfig === "opencb"
                             // },
+                            // {
+                            //     id: "cohort",
+                            //     title: "Cohort Alternate Stats",
+                            //     onlyCohortAll: true,
+                            //     tooltip: tooltips.cohort,
+                            //     // cohorts: this.cohorts
+                            // },
                             {
-                                id: "cohort",
-                                title: "Cohort Alternate Stats",
-                                onlyCohortAll: true,
-                                tooltip: tooltips.cohort,
-                                // cohorts: this.cohorts
+                                id: "sample-genotype",
+                                title: "Sample Genotype",
+                                render: (eventHandler, query) => html`
+                                    <div>Genotype filter for <span style="font-style: italic; word-break: break-all">${this.somaticSample?.id}</span></div>
+                                    <sample-genotype-filter sample="${this.somaticSample}" @filterChange="${eventHandler}"></sample-genotype-filter>`,
                             },
                             {
                                 id: "caveman-caller",
@@ -387,7 +395,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                             },
                             {
                                 id: "pindel-caller",
-                                title: "Pindel",
+                                title: "Pindel Caller",
                                 render: (eventHandler, query) => html`
                                     <div>File filters for <span style="font-style: italic; word-break: break-all">${this.callerToFile["pindel"].name}</span></div>
                                     <pindel-caller-filter @filterChange="${e => this.onVariantCallerFilterChange("pindel", e)}"></pindel-caller-filter>`,
@@ -395,7 +403,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                             },
                             {
                                 id: "ascat-caller",
-                                title: "Ascat",
+                                title: "Ascat Caller",
                                 render: (eventHandler, query) => html`
                                     <div>File filters for <span style="font-style: italic; word-break: break-all">${this.callerToFile["ascat"].name}</span></div>
                                     <ascat-caller-filter @filterChange="${e => this.onVariantCallerFilterChange("ascat", e)}"></ascat-caller-filter>`,
@@ -403,7 +411,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                             },
                             {
                                 id: "canvas-caller",
-                                title: "Canvas",
+                                title: "Canvas Caller",
                                 render: (eventHandler, query) => html`
                                     <div>File filters for <span style="font-style: italic; word-break: break-all">${this.callerToFile["canvas"].name}</span></div>
                                     <canvas-caller-filter @filterChange="${e => this.onVariantCallerFilterChange("canvas", e)}"></canvas-caller-filter>`,
@@ -411,7 +419,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                             },
                             {
                                 id: "brass-caller",
-                                title: "Brass",
+                                title: "Brass Caller",
                                 render: (eventHandler, query) => html`
                                     <div>File filters for <span style="font-style: italic; word-break: break-all">${this.callerToFile["brass"].name}</span></div>
                                     <brass-caller-filter @filterChange="${e => this.onVariantCallerFilterChange("brass", e)}"></brass-caller-filter>`,
@@ -419,7 +427,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                             },
                             {
                                 id: "manta-caller",
-                                title: "Manta",
+                                title: "Manta Caller",
                                 render: (eventHandler, query) => html`
                                     <div>File filters for <span style="font-style: italic; word-break: break-all">${this.callerToFile["manta"].name}</span></div>
                                     <manta-caller-filter @filterChange="${e => this.onVariantCallerFilterChange("manta", e)}"></manta-caller-filter>`,
