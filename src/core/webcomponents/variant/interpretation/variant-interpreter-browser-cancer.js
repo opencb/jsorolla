@@ -23,7 +23,14 @@ import "./variant-interpreter-grid.js";
 import "./variant-interpreter-detail.js";
 import "../opencga-variant-filter.js";
 import "../../commons/opencga-active-filters.js";
-
+import "../../commons/filters/sample-genotype-filter.js";
+import "../../commons/filters/caveman-caller-filter.js";
+import "../../commons/filters/strelka-caller-filter.js";
+import "../../commons/filters/pindel-caller-filter.js";
+import "../../commons/filters/ascat-caller-filter.js";
+import "../../commons/filters/canvas-caller-filter.js";
+import "../../commons/filters/brass-caller-filter.js";
+import "../../commons/filters/manta-caller-filter.js";
 
 class VariantInterpreterBrowserCancer extends LitElement {
 
@@ -153,24 +160,36 @@ class VariantInterpreterBrowserCancer extends LitElement {
     }
 
     updateActiveFilterFilters() {
+        this.somaticSample = this.clinicalAnalysis.proband.samples.find(sample => sample.somatic);
+
         if (!this.query?.sample) {
-            let sampleId = this.clinicalAnalysis.proband.samples.find(sample => sample.somatic).id;
-            let sampleIds = this.clinicalAnalysis.proband.samples.map(sample => {
-                return sample.id;
-                // if (sample.somatic) {
-                //     return sample.id + ":0/1,1/1";
-                // } else {
-                //     return sample.id + ":0/0,0/1,1/1";
-                // }
-            }).join(",");
+            let sampleIds = this.clinicalAnalysis.proband.samples.map(sample => sample.id).join(",");
             this.query = {
                 ...this.query,
-                // sample: sampleIds
-                sample: sampleId,
+                sample: this.somaticSample.id,
                 includeSample: sampleIds
             }
             this.predefinedFilter = {...this.query};
         }
+
+        this.callerToFile = {};
+        this.opencgaSession.opencgaClient.files().search({samples: this.somaticSample.id, study: this.opencgaSession.study.fqn})
+            .then(fileResponse => {
+                this.files = fileResponse.response[0].results;
+                // Prepare a map from caller to File
+                this.callerToFile = {};
+                for (let file of this.files) {
+                    if (file.software?.name) {
+                        let softwareName = file.software.name.toLowerCase();
+                        this.callerToFile[softwareName] = file;
+                    }
+                }
+                this._config = {...this.getDefaultConfig(), ...this.config};
+            })
+            .catch(response => {
+                console.error("An error occurred fetching sample: ", response);
+            });
+
 
         let sampleQc = ClinicalAnalysisUtils.getProbandSampleQc(this.clinicalAnalysis);
         let _activeFilterFilters = [];
@@ -308,6 +327,10 @@ class VariantInterpreterBrowserCancer extends LitElement {
         this.requestUpdate();
     }
 
+    onVariantCallerFilterChange(caller, e) {
+        // debugger
+    }
+
     getDefaultConfig() {
         return {
             title: "Cancer Case Interpreter",
@@ -331,27 +354,85 @@ class VariantInterpreterBrowserCancer extends LitElement {
                 },
                 sections: [     // sections and subsections, structure and order is respected
                     {
-                        title: "Sample",
+                        title: "Sample And File",
                         collapsed: false,
                         fields: [
                             // {
-                            //     id: "study",
-                            //     title: "Studies Filter",
-                            //     tooltip: tooltips.study
+                            //     id: "file-quality",
+                            //     title: "Quality Filters",
+                            //     tooltip: "VCF file based FILTER and QUAL filters",
+                            //     showDepth: application.appConfig === "opencb"
+                            // },
+                            // {
+                            //     id: "cohort",
+                            //     title: "Cohort Alternate Stats",
+                            //     onlyCohortAll: true,
+                            //     tooltip: tooltips.cohort,
+                            //     // cohorts: this.cohorts
                             // },
                             {
-                                id: "file-quality",
-                                title: "Quality Filters",
-                                tooltip: "VCF file based FILTER and QUAL filters",
-                                showDepth: application.appConfig === "opencb"
+                                id: "sample-genotype",
+                                title: "Sample Genotype",
+                                render: (eventHandler, query) => html`
+                                    <div>Genotype filter for <span style="font-style: italic; word-break: break-all">${this.somaticSample?.id}</span></div>
+                                    <sample-genotype-filter sample="${this.somaticSample}" @filterChange="${eventHandler}"></sample-genotype-filter>`,
                             },
                             {
-                                id: "cohort",
-                                title: "Cohort Alternate Stats",
-                                onlyCohortAll: true,
-                                tooltip: tooltips.cohort,
-                                // cohorts: this.cohorts
-                            }
+                                id: "caveman-caller",
+                                title: "Caveman Caller",
+                                render: (eventHandler, query) => html`
+                                    <div>File filters for <span style="font-style: italic; word-break: break-all">${this.callerToFile["caveman"].name}</span></div>
+                                    <caveman-caller-filter @filterChange="${e => this.onVariantCallerFilterChange("caveman", e)}"></caveman-caller-filter>`,
+                                visible: () => this.callerToFile && this.callerToFile["caveman"]
+                            },
+                            {
+                                id: "strelka-caller",
+                                title: "Strelka Caller",
+                                render: (eventHandler, query) => html`
+                                    <div>File filters for <span style="font-style: italic; word-break: break-all">${this.callerToFile["strelka"].name}</span></div>
+                                    <strelka-caller-filter @filterChange="${e => this.onVariantCallerFilterChange("strelka", e)}"></strelka-caller-filter>`,
+                                visible: () => this.callerToFile && this.callerToFile["strelka"]
+                            },
+                            {
+                                id: "pindel-caller",
+                                title: "Pindel Caller",
+                                render: (eventHandler, query) => html`
+                                    <div>File filters for <span style="font-style: italic; word-break: break-all">${this.callerToFile["pindel"].name}</span></div>
+                                    <pindel-caller-filter @filterChange="${e => this.onVariantCallerFilterChange("pindel", e)}"></pindel-caller-filter>`,
+                                visible: () => this.callerToFile && this.callerToFile["pindel"]
+                            },
+                            {
+                                id: "ascat-caller",
+                                title: "Ascat Caller",
+                                render: (eventHandler, query) => html`
+                                    <div>File filters for <span style="font-style: italic; word-break: break-all">${this.callerToFile["ascat"].name}</span></div>
+                                    <ascat-caller-filter @filterChange="${e => this.onVariantCallerFilterChange("ascat", e)}"></ascat-caller-filter>`,
+                                visible: () => this.callerToFile && this.callerToFile["ascat"]
+                            },
+                            {
+                                id: "canvas-caller",
+                                title: "Canvas Caller",
+                                render: (eventHandler, query) => html`
+                                    <div>File filters for <span style="font-style: italic; word-break: break-all">${this.callerToFile["canvas"].name}</span></div>
+                                    <canvas-caller-filter @filterChange="${e => this.onVariantCallerFilterChange("canvas", e)}"></canvas-caller-filter>`,
+                                visible:() => this.callerToFile && this.callerToFile["canvas"]
+                            },
+                            {
+                                id: "brass-caller",
+                                title: "Brass Caller",
+                                render: (eventHandler, query) => html`
+                                    <div>File filters for <span style="font-style: italic; word-break: break-all">${this.callerToFile["brass"].name}</span></div>
+                                    <brass-caller-filter @filterChange="${e => this.onVariantCallerFilterChange("brass", e)}"></brass-caller-filter>`,
+                                visible: () => this.callerToFile && this.callerToFile["brass"]
+                            },
+                            {
+                                id: "manta-caller",
+                                title: "Manta Caller",
+                                render: (eventHandler, query) => html`
+                                    <div>File filters for <span style="font-style: italic; word-break: break-all">${this.callerToFile["manta"].name}</span></div>
+                                    <manta-caller-filter @filterChange="${e => this.onVariantCallerFilterChange("manta", e)}"></manta-caller-filter>`,
+                                visible: () => this.callerToFile && this.callerToFile["manta"]
+                            },
                         ]
                     },
                     {
