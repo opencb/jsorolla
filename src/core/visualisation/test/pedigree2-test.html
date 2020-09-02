@@ -72,12 +72,14 @@
 <body>
 <script type="module">
     import {LitElement, html} from "/web_modules/lit-element.js";
-    import family from "./resources/101761.js";
+    import "../pedigree2.js";
+    import family from "./resources/family1.js";
 
-    class PedigreeViewTest extends LitElement {
+    class Pedigree2Test extends LitElement {
 
         constructor() {
             super();
+
         }
 
         createRenderRoot() {
@@ -91,17 +93,16 @@
 
         render() {
             return html`
-                <div>
-                    <pedigree-view .family="${family}"></pedigree-view>
-                </div>
+                <pedigree-2 .family="${family}">
             `;
         }
     }
 
-    customElements.define("pedigree-view-test", PedigreeViewTest);
+    customElements.define("pedigree2-test", Pedigree2Test);
+
 </script>
 
-<pedigree-view-test></pedigree-view-test>
+<pedigree2-test></pedigree2-test>
 
 </body>
 </html>
