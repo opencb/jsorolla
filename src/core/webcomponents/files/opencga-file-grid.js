@@ -252,7 +252,7 @@ export default class OpencgaFileGrid extends LitElement {
                 formatter: this.catalogGridFormatter.dateFormatter
             },
             {
-                title: "Manage",
+                title: "Actions",
                 field: "id",
                 formatter: (value, row) => {
                     const url = this.opencgaSession.server.host + "/webservices/rest/" + this.opencgaSession.server.version + "/files/" + value + "/download?study=" + this.opencgaSession.study.fqn + "&sid=" + this.opencgaSession.token

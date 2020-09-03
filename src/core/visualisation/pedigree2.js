@@ -282,7 +282,7 @@ export default class Pedigree2 extends LitElement {
         this.pedigree.forEach( generation => {
             col = 0;
             generation.individuals.forEach( individual => {
-                let pos = this.gridToPx(row, col);
+                let pos = this.dynamicGridToPx(row, col, generation.individuals.length);
                 console.log(pos);
                 this.drawNode(individual, pos)
                 col++
@@ -295,12 +295,20 @@ export default class Pedigree2 extends LitElement {
 
     drawNode(node, pos) {
         if (node.sex === "MALE") {
-            this.draw.rect({width: this._config.nodeSize, height: this._config.nodeSize, fill: "#fff", stroke: "black", x: pos.x, y: pos.y})
+            this.draw.rect({id: "node" + node.id, width: this._config.nodeSize, height: this._config.nodeSize, fill: "#fff", stroke: "black", x: pos.x, y: pos.y})
         }
         if (node.sex === "FEMALE") {
-            this.draw.circle({r: this._config.nodeSize / 2, fill: "#fff", stroke: "black", cx: pos.x + this._config.nodeSize / 2, cy: pos.y + this._config.nodeSize / 2})
+            this.draw.circle({id: "node" + node.id, r: this._config.nodeSize / 2, fill: "#fff", stroke: "black", cx: pos.x + this._config.nodeSize / 2, cy: pos.y + this._config.nodeSize / 2})
         }
         this.draw.text(node.id).attr({dominantBaseline: "middle", textAnchor:"middle"}).dy(pos.y + this._config.nodeSize).dx(pos.x + this._config.nodeSize/2 * .8);
+    }
+
+    dynamicGridToPx(row, col, totalCols) {
+        console.log(totalCols)
+        let colWidth = this._config.board.width / totalCols;
+        let x = this.rescale_linear(col, 0, totalCols, colWidth / 2, this._config.board.width);
+        let y = this.rescale_linear(row, 0, this.gridRows, 0, this.boardHeight);
+        return {x, y};
     }
 
     gridToPx(row, col) {
