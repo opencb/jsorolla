@@ -37,7 +37,9 @@ import "../commons/filters/protein-substitution-score-filter.js";
 import "../commons/filters/sample-filter.js";
 import "../commons/filters/study-filter.js";
 import "../commons/filters/variant-type-filter.js";
-
+import "../commons/filters/caveman-caller-filter.js";
+import "../commons/filters/strelka-caller-filter.js";
+import "../commons/filters/pindel-caller-filter.js";
 
 export default class OpencgaVariantFilter extends LitElement {
 
@@ -145,7 +147,7 @@ export default class OpencgaVariantFilter extends LitElement {
         if (this.opencgaSession.study) {
             // Render filter menu and add event and tooltips
             if (this._initialised) {
-                this._renderFilterMenu();
+                this.renderFilterMenu();
             }
         }
     }
@@ -206,7 +208,6 @@ export default class OpencgaVariantFilter extends LitElement {
         }));
     }
 
-
     /** *
      * Handles filterChange events from all the filter components (this is the new updateQueryFilters)
      * @param key the name of the property in this.query
@@ -257,89 +258,76 @@ export default class OpencgaVariantFilter extends LitElement {
         }
         this.preparedQuery = {...this.preparedQuery, ...sampleFields};
         this.notifyQuery(this.preparedQuery);
-        this.requestUpdate(); // NOTE: this causes the bug in sample-filter / variant-filter-clinical (clicking the checkboxes on variant-filter-clinical)
 
+        this.requestUpdate(); // NOTE: this causes the bug in sample-filter / variant-filter-clinical (clicking the checkboxes on variant-filter-clinical)
     }
 
-
-    /**
-     * @deprecated
-     */
     // binding::from this.query to the view
     // most of those blocks have been refactored and moved in firstUpdated() in each filter component
-    setQueryFilters() {
-        if (!this._initialised) {
-            return;
-        }
+    // setQueryFilters() {
+    //     if (!this._initialised) {
+    //         return;
+    //     }
+    //
+    //     // Clear filter menu before rendering
+    //     this._clearHtmlDom();
+    //     // Check 'query' is not null or empty there is nothing else to do
+    //     if (UtilsNew.isUndefinedOrNull(this.preparedQuery) || Object.keys(this.preparedQuery).length === 0) {
+    //         console.warn("this.preparedQuery is NULL:", this.preparedQuery);
+    //         return;
+    //     }
+    // }
 
-        // Clear filter menu before rendering
-        this._clearHtmlDom();
-        // Check 'query' is not null or empty there is nothing else to do
-        if (UtilsNew.isUndefinedOrNull(this.preparedQuery) || Object.keys(this.preparedQuery).length === 0) {
-            console.warn("this.preparedQuery is NULL:", this.preparedQuery);
-            return;
-        }
-    }
-
-    /**
-     * @deprecated
-     */
     // binding::from the view to this.query
     // most of those blocks have been refactored & moved in filterChange() in each filter component
-    updateQueryFilters() {
-
-        if (!this._initialised) {
-            return;
-        }
-
-        console.log("this.query", this.query);
-
-        const _filters = {};
-
-        if (UtilsNew.isNotUndefinedOrNull(this.query.genotype)) {
-            _filters.genotype = this.query.genotype;
-        }
-        if (UtilsNew.isNotUndefinedOrNull(this.query.format)) {
-            _filters.format = this.query.format;
-        }
-        // if (UtilsNew.isNotUndefinedOrNull(this.query.file)) {
-        //     _filters.file = this.query.file;
-        // }
-        // if (UtilsNew.isNotUndefinedOrNull(this.query.qual)) {
-        //     _filters.qual = this.query.qual;
-        // }
-        if (UtilsNew.isNotUndefinedOrNull(this.query.info)) {
-            _filters.info = this.query.info;
-        }
-
-    }
+    // updateQueryFilters() {
+    //     if (!this._initialised) {
+    //         return;
+    //     }
+    //     const _filters = {};
+    //     if (UtilsNew.isNotUndefinedOrNull(this.query.genotype)) {
+    //         _filters.genotype = this.query.genotype;
+    //     }
+    //     if (UtilsNew.isNotUndefinedOrNull(this.query.format)) {
+    //         _filters.format = this.query.format;
+    //     }
+    //     // if (UtilsNew.isNotUndefinedOrNull(this.query.file)) {
+    //     //     _filters.file = this.query.file;
+    //     // }
+    //     // if (UtilsNew.isNotUndefinedOrNull(this.query.qual)) {
+    //     //     _filters.qual = this.query.qual;
+    //     // }
+    //     if (UtilsNew.isNotUndefinedOrNull(this.query.info)) {
+    //         _filters.info = this.query.info;
+    //     }
+    // }
 
 
-    // TODO recheck if there is no other way...
-    _clearHtmlDom() {
-        // Empty everything before rendering
-        $("." + this._prefix + "FilterSelect").prop("selectedIndex", 0);
-        $("." + this._prefix + "FilterSelect").prop("disabled", false);
+    // TO-DO recheck if there is no other way...
+    // _clearHtmlDom() {
+    //     // Empty everything before rendering
+    //     $("." + this._prefix + "FilterSelect").prop("selectedIndex", 0);
+    //     $("." + this._prefix + "FilterSelect").prop("disabled", false);
+    //
+    //     // handled in population-frequency-filter
+    //     // TODO many other components use this!
+    //     $("." + this._prefix + "FilterTextInput").val("");
+    //     $("." + this._prefix + "FilterTextInput").prop("disabled", false);
+    //
+    //     $("." + this._prefix + "FilterCheckBox").prop("checked", false);
+    //     $("." + this._prefix + "FilterRadio").prop("checked", false);
+    //     $("." + this._prefix + "FilterRadio").filter("[value=\"or\"]").prop("checked", true);
+    //     $("." + this._prefix + "FilterRadio").prop("disabled", true);
+    //
+    //     $("#" + this._prefix + "DiseasePanelsTextarea").val("");
+    //     if (PolymerUtils.getElementById(this._prefix + "FileQualInput") !== null) {
+    //         PolymerUtils.getElementById(this._prefix + "FileQualInput").disabled = true;
+    //     }
+    //
+    //     $("#" + this._prefix + "vcfFilterSelect").selectpicker("val", []);
+    // }
 
-        // handled in population-frequency-filter
-        // TODO many other components use this!
-        $("." + this._prefix + "FilterTextInput").val("");
-        $("." + this._prefix + "FilterTextInput").prop("disabled", false);
-
-        $("." + this._prefix + "FilterCheckBox").prop("checked", false);
-        $("." + this._prefix + "FilterRadio").prop("checked", false);
-        $("." + this._prefix + "FilterRadio").filter("[value=\"or\"]").prop("checked", true);
-        $("." + this._prefix + "FilterRadio").prop("disabled", true);
-
-        $("#" + this._prefix + "DiseasePanelsTextarea").val("");
-        if (PolymerUtils.getElementById(this._prefix + "FileQualInput") !== null) {
-            PolymerUtils.getElementById(this._prefix + "FileQualInput").disabled = true;
-        }
-
-        $("#" + this._prefix + "vcfFilterSelect").selectpicker("val", []);
-    }
-
-    isFilterVisible(filter) {
+    _isFilterVisible(filter) {
         // FIXME  Maybe we should keep this:   && this.config?.skipSubsections?.length && !!~this.config.skipSubsections.indexOf(field.id)
         let visible = true;
         if (typeof filter.visible !== "undefined" && filter.visible !== null) {
@@ -356,8 +344,25 @@ export default class OpencgaVariantFilter extends LitElement {
         return visible;
     }
 
-    _renderFilterMenu() {
-        return this.config.sections && this.config.sections.length && this.config.sections.map(section => this._createSection(section));
+    _getFilterField(filterField) {
+        if (filterField) {
+            if (typeof filterField === "string") {
+                return filterField;
+            } else {
+                if (typeof filterField === "function") {
+                    return filterField();
+                } else {
+                    console.error(`Field '${filterField}' not string or function: ${typeof filterField}`);
+                }
+            }
+        }
+        return "";
+    }
+
+    renderFilterMenu() {
+        if (this.config.sections && this.config.sections.length > 0) {
+            return this.config.sections.map(section => this._createSection(section));
+        }
     }
 
     _createSection(section) {
@@ -377,7 +382,7 @@ export default class OpencgaVariantFilter extends LitElement {
                 <div id="${this._prefix}${id}" class="panel-collapse collapse ${collapsed}" role="tabpanel" aria-labelledby="${this._prefix}${id}Heading">
                     <div class="panel-body">
                         ${section.fields && section.fields.length && section.fields.map(field => html`
-                            ${this.isFilterVisible(field)
+                            ${this._isFilterVisible(field)
                                 ? this._createSubSection(field)
                                 : null
                             }`
@@ -391,7 +396,7 @@ export default class OpencgaVariantFilter extends LitElement {
     _createSubSection(subsection) {
         // TODO is this still needed?
         // ConsequenceType needs horizontal scroll
-        const ctScroll = (subsection.id === "consequenceType") ? "browser-ct-scroll" : "";
+        // const ctScroll = (subsection.id === "consequenceType") ? "browser-ct-scroll" : "";
 
         let content = "";
 
@@ -485,6 +490,16 @@ export default class OpencgaVariantFilter extends LitElement {
                 case "fullTextSearch":
                     content = html`<fulltext-search-accessions-filter .traits="${this.preparedQuery.traits}" @filterChange="${e => this.onFilterChange("traits", e.detail.value)}"></fulltext-search-accessions-filter>`;
                     break;
+                case "caveman-caller":
+                    content = html`<caveman-caller-filter .fileId="${subsection.fileId}" .query="FILTER=PASS" 
+                                        @filterChange="${e => this.onFilterChange("fileData", subsection.callback(e.detail.value, this.preparedQuery))}">
+                                   </caveman-caller-filter>`;
+                    break;
+                case "pindel-caller":
+                    content = html`<pindel-caller-filter .fileId="${subsection.fileId}" .query="FILTER=PASS" 
+                                        @filterChange="${e => this.onFilterChange("fileData", subsection.callback(e.detail.value, this.preparedQuery))}">
+                                   </pindel-caller-filter>`;
+                    break;
                 default:
                     console.error("Filter component not found");
             }
@@ -495,12 +510,20 @@ export default class OpencgaVariantFilter extends LitElement {
         if (content !== "") {
             return html`
                 <div class="form-group">
-                    <div class="browser-subsection" id="${subsection.id}">${subsection.title}
+                    <div id="${this._prefix}${subsection.id}" class="browser-subsection">
+                        ${subsection.title
+                            ? html`<span>${this._getFilterField(subsection.title)}</span>`
+                            : null
+                        }
                         <div class="tooltip-div pull-right">
-                            <a tooltip-title="${subsection.title}" tooltip-text="${subsection.tooltip}"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
+                            <a tooltip-title="Info" tooltip-text="${subsection.tooltip}"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
                         </div>
                     </div>
-                    <div id="${this._prefix}${subsection.id}" class="subsection-content ${ctScroll}">
+                    <div id="${this._prefix}${subsection.id}" class="subsection-content">
+                        ${subsection.description 
+                            ? html`<div>${this._getFilterField(subsection.description)}</div>` 
+                            : null
+                        }
                         ${content}
                      </div>
                 </div>
@@ -523,7 +546,7 @@ export default class OpencgaVariantFilter extends LitElement {
     
                 <div class="panel-group" id="${this._prefix}Accordion" role="tablist" aria-multiselectable="true">
                     <div id="FilterMenu">
-                        ${this._renderFilterMenu()}
+                        ${this.renderFilterMenu()}
                     </div>
                 </div>
             </div>

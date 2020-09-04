@@ -35,6 +35,9 @@ export default class PindelCallerFilter extends LitElement {
 
     static get properties() {
         return {
+            fileId: {
+                type: String
+            },
             query: {
                 type: String
             },
@@ -46,10 +49,15 @@ export default class PindelCallerFilter extends LitElement {
 
     _init() {
         this._prefix = UtilsNew.randomString(8);
-        this.separator = ",";
+        // this.separator = ",";
+
+        this.query = "FILTER=PASS";
+        this._filter = {
+            FILTER: "PASS"
+        };
 
         this.filter = {
-            filter: "PASS",
+            FILTER: "=PASS",
         };
         this._config = this.getDefaultConfig();
     }
@@ -58,12 +66,13 @@ export default class PindelCallerFilter extends LitElement {
         super.connectedCallback();
 
         this._config = {...this.getDefaultConfig(), ...this.config};
+        this.notify();
     }
 
     filterChange(e) {
         if (e.detail.value) {
-            if (e.detail.param === "filter") {
-                this.filter["filter"] = "PASS";
+            if (e.detail.param === "FILTER") {
+                this.filter["FILTER"] = "=PASS";
             } else {
                 this.filter[e.detail.param] = ">=" + e.detail.value;
             }
@@ -71,9 +80,16 @@ export default class PindelCallerFilter extends LitElement {
             delete this.filter[e.detail.param];
         }
 
+        this.notify();
+    }
+
+    notify() {
+        let filter = this.fileId ? this.fileId + ":" : "";
+        filter += Object.entries(this.filter).map(([k, v]) => k + "" + v).join(";");
+
         const event = new CustomEvent("filterChange", {
             detail: {
-                value: this.filter
+                value: filter
             },
             bubbles: true,
             composed: true
@@ -100,7 +116,7 @@ export default class PindelCallerFilter extends LitElement {
                     elements: [
                         {
                             name: "PASS",
-                            field: "filter",
+                            field: "FILTER",
                             type: "checkbox",
                         },
                         {
@@ -123,7 +139,7 @@ export default class PindelCallerFilter extends LitElement {
 
     render() {
         return html`
-            <data-form .data=${this.filter} .config="${this._config}" @fieldChange="${this.filterChange}"></data-form>
+            <data-form .data=${this._filter} .config="${this._config}" @fieldChange="${this.filterChange}"></data-form>
         `;
     }
 }

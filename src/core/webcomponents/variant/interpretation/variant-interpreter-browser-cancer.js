@@ -327,8 +327,28 @@ class VariantInterpreterBrowserCancer extends LitElement {
         this.requestUpdate();
     }
 
-    onVariantCallerFilterChange(caller, e) {
-        // debugger
+    onVariantCallerFilterChange(filter, query) {
+        debugger
+        if (query.fileData) {
+            let [fileId, fileFilter] = filter.split(":");
+            let files = query.fileData.split(",");
+            let fileIndex = files.findIndex(e => e.startsWith(fileId));
+            if (fileIndex >= 0) {
+                if (fileFilter) {
+                    files[fileIndex] = filter;
+                } else {
+                    files.splice(fileIndex, 1);
+                }
+            } else {
+                if (fileFilter) {
+                    files.push(filter);
+                }
+            }
+            return files.join(",");
+        } else {
+            return filter;
+        }
+        // this.requestUpdate();
     }
 
     getDefaultConfig() {
@@ -348,7 +368,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                         // "gene": "Gene",
                         "ct": "Consequence Types",
                     },
-                    complexFields: ["sample", "genotype"],
+                    complexFields: ["sample", "fileData"],
                     hiddenFields: [],
                     lockedFields: [{id: "sample"}]
                 },
@@ -357,33 +377,28 @@ class VariantInterpreterBrowserCancer extends LitElement {
                         title: "Sample And File",
                         collapsed: false,
                         fields: [
-                            // {
-                            //     id: "file-quality",
-                            //     title: "Quality Filters",
-                            //     tooltip: "VCF file based FILTER and QUAL filters",
-                            //     showDepth: application.appConfig === "opencb"
-                            // },
-                            // {
-                            //     id: "cohort",
-                            //     title: "Cohort Alternate Stats",
-                            //     onlyCohortAll: true,
-                            //     tooltip: tooltips.cohort,
-                            //     // cohorts: this.cohorts
-                            // },
                             {
                                 id: "sample-genotype",
                                 title: "Sample Genotype",
                                 render: (eventHandler, query) => html`
                                     <div>Genotype filter for <span style="font-style: italic; word-break: break-all">${this.somaticSample?.id}</span></div>
-                                    <sample-genotype-filter sample="${this.somaticSample}" @filterChange="${eventHandler}"></sample-genotype-filter>`,
+                                    <sample-genotype-filter .sample="${this.somaticSample}" @filterChange="${eventHandler}"></sample-genotype-filter>`,
                             },
+                            // {
+                            //     id: "caveman-caller",
+                            //     title: "Caveman Caller",
+                            //     render: (eventHandler, preparedQuery, opencgaSession) => html`
+                            //         <div>File filters for <span style="font-style: italic; word-break: break-all">${this.callerToFile["caveman"].name}</span></div>
+                            //         <caveman-caller-filter .query="${{FILTER: "PASS"}}" @filterChange="${e => this.onVariantCallerFilterChange("caveman", eventHandler, e)}"></caveman-caller-filter>`,
+                            //     visible: () => this.callerToFile && this.callerToFile["caveman"]
+                            // },
                             {
                                 id: "caveman-caller",
                                 title: "Caveman Caller",
-                                render: (eventHandler, query) => html`
-                                    <div>File filters for <span style="font-style: italic; word-break: break-all">${this.callerToFile["caveman"].name}</span></div>
-                                    <caveman-caller-filter @filterChange="${e => this.onVariantCallerFilterChange("caveman", e)}"></caveman-caller-filter>`,
-                                visible: () => this.callerToFile && this.callerToFile["caveman"]
+                                description: () => html`File filters for <span style="font-style: italic; word-break: break-all">${this.callerToFile["caveman"].name}</span>`,
+                                fileId: `${this.callerToFile ? this.callerToFile["caveman"].name : null}`,
+                                visible: () => this.callerToFile && this.callerToFile["caveman"],
+                                callback: (filter, query) => this.onVariantCallerFilterChange(filter, query)
                             },
                             {
                                 id: "strelka-caller",
@@ -393,13 +408,29 @@ class VariantInterpreterBrowserCancer extends LitElement {
                                     <strelka-caller-filter @filterChange="${e => this.onVariantCallerFilterChange("strelka", e)}"></strelka-caller-filter>`,
                                 visible: () => this.callerToFile && this.callerToFile["strelka"]
                             },
+                            // {
+                            //     id: "strelka-caller",
+                            //     title: "Strelka Caller",
+                            //     description: () => html`File filters for <span style="font-style: italic; word-break: break-all">${this.callerToFile["strelka"].name}</span>`,
+                            //     fileId: `${this.callerToFile ? this.callerToFile["strelka"].name : null}`,
+                            //     visible: () => this.callerToFile && this.callerToFile["strelka"],
+                            //     callback: (filter, query) => this.onVariantCallerFilterChange(filter, query)
+                            // },
+                            // {
+                            //     id: "pindel-caller",
+                            //     title: "Pindel Caller",
+                            //     render: (eventHandler, query) => html`
+                            //         <div>File filters for <span style="font-style: italic; word-break: break-all">${this.callerToFile["pindel"].name}</span></div>
+                            //         <pindel-caller-filter @filterChange="${e => this.onVariantCallerFilterChange("pindel", e)}"></pindel-caller-filter>`,
+                            //     visible: () => this.callerToFile && this.callerToFile["pindel"]
+                            // },
                             {
                                 id: "pindel-caller",
                                 title: "Pindel Caller",
-                                render: (eventHandler, query) => html`
-                                    <div>File filters for <span style="font-style: italic; word-break: break-all">${this.callerToFile["pindel"].name}</span></div>
-                                    <pindel-caller-filter @filterChange="${e => this.onVariantCallerFilterChange("pindel", e)}"></pindel-caller-filter>`,
-                                visible: () => this.callerToFile && this.callerToFile["pindel"]
+                                description: () => html`File filters for <span style="font-style: italic; word-break: break-all">${this.callerToFile["pindel"].name}</span>`,
+                                fileId: `${this.callerToFile ? this.callerToFile["pindel"].name : null}`,
+                                visible: () => this.callerToFile && this.callerToFile["pindel"],
+                                callback: (filter, query) => this.onVariantCallerFilterChange(filter, query)
                             },
                             {
                                 id: "ascat-caller",
@@ -442,12 +473,12 @@ class VariantInterpreterBrowserCancer extends LitElement {
                             {
                                 id: "region",
                                 title: "Genomic Location",
-                                tooltip: tooltips.region
+                                tooltip: tooltips.region,
                             },
                             {
                                 id: "feature",
                                 title: "Feature IDs (gene, SNPs, ...)",
-                                tooltip: tooltips.feature
+                                tooltip: tooltips.feature,
                             },
                             {
                                 id: "diseasePanels",
