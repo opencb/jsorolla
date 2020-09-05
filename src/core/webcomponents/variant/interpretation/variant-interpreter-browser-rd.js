@@ -713,10 +713,10 @@ class VariantInterpreterBrowserRd extends LitElement {
                     <div>
                         <div class="btn-toolbar" role="toolbar" aria-label="toolbar" style="margin-bottom: 20px">
                             <div class="pull-right" role="group">
-                                <button type="button" class="btn btn-default ripple" @click="${this.onViewVariants}" title="This shows saved variants">
+                                <button type="button" class="btn btn-default ripple" @click="${this.onViewVariants}" title="Show saved variants">
                                     <i class="fas fa-eye icon-padding" aria-hidden="true"></i> View
                                 </button>
-                                <button type="button" class="btn btn-default ripple" @click="${this.onResetVariants}" title="This removes not saved variants">
+                                <button type="button" class="btn btn-default ripple" @click="${this.onResetVariants}" title="Remove not saved variants">
                                     <i class="fas fa-eraser icon-padding" aria-hidden="true"></i> Reset
                                 </button>
                                 <button type="button" class="btn btn-default ripple" @click="${this.onSaveVariants}" title="Save variants in the server">

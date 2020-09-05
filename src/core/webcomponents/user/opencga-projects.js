@@ -177,7 +177,7 @@ export default class OpencgaProjects extends LitElement {
             for (let study of project.studies) {
                 try {
                     const catalogStudyResponse = await this.opencgaSession.opencgaClient.studies().aggregationStats(study.fqn, {
-                        individualFields: "lifeStatus"
+                        individualFields: "lifeStatus,sex"
                     })
 
                     //let f = await fetch("/lib/jsorolla/src/core/webcomponents/user/" + study.fqn + ".json")
@@ -609,7 +609,7 @@ export default class OpencgaProjects extends LitElement {
                                             <div id="${this._prefix}${project.id}Files" role="tabpanel" class="tab-pane content-tab">
                                                 <h3>Files</h3>
                                                 <div class="row">
-                                                    ${this.chartData[project.id]["file"].map( chart => html`
+                                                    ${this.chartData[project.id]?.["file"]?.map?.( chart => html`
                                                         <div class="col-md-6"><simple-chart .active="${true}" type="column" title="${chart.name}" .config=${chart.config} .data="${chart.data}"></simple-chart></div>
                                                     `)}
                                                 </div>
