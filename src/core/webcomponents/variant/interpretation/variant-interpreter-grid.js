@@ -266,6 +266,11 @@ export default class VariantInterpreterGrid extends LitElement {
                     this.from = (page - 1) * size + 1;
                     this.to = page * size;
                 },
+                onExpandRow: (index, row, $detail) => {
+                    // Listen to Show/Hide link in the detail formatter consequence type table
+                    document.getElementById(this._prefix + row.id + "ShowCt").addEventListener("click", this.variantGridFormatter.toggleDetailConsequenceType.bind(this));
+                    document.getElementById(this._prefix + row.id + "HideCt").addEventListener("click", this.variantGridFormatter.toggleDetailConsequenceType.bind(this));
+                },
                 onPostBody: function (data) {
                     _this._onPostBody();
                 }
@@ -403,7 +408,7 @@ export default class VariantInterpreterGrid extends LitElement {
 
             detailHtml += "<div style='padding: 25px 0px 5px 25px'><h4>Consequence Types</h4></div>";
             detailHtml += "<div style='padding: 5px 50px'>";
-            detailHtml += this.variantGrid.variantGridFormatter.consequenceTypeDetailFormatter(value, row, this.variantGrid);
+            detailHtml += this.variantGrid.variantGridFormatter.consequenceTypeDetailFormatter(value, row, this.variantGrid, this.variantGrid.query, this.variantGrid._config);
             detailHtml += "</div>";
 
             detailHtml += "<div style='padding: 20px 0px 5px 25px'><h4>Clinical Phenotypes</h4></div>";
@@ -1289,7 +1294,13 @@ export default class VariantInterpreterGrid extends LitElement {
                 qual: 30,
                 dp: 20
             },
-            populationFrequencies: ["1kG_phase3:ALL", "GNOMAD_GENOMES:ALL", "GNOMAD_EXOMES:ALL", "UK10K:ALL", "GONL:ALL", "ESP6500:ALL", "EXAC:ALL"]
+            populationFrequencies: ["1kG_phase3:ALL", "GNOMAD_GENOMES:ALL", "GNOMAD_EXOMES:ALL", "UK10K:ALL", "GONL:ALL", "ESP6500:ALL", "EXAC:ALL"],
+
+            consequenceType: {
+                gencodeBasic: true,
+                filterByBiotype: true,
+                filterByConsequenceType: true,
+            }
         };
     }
 

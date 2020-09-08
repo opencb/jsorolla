@@ -26,7 +26,7 @@ export default class VariantGridFormatter {
         this.opencgaSession = opencgaSession;
         this.config = config;
         this.CT = consequenceTypes; //global var
-        this.prefix = "VarBrowserGrid-" + UtilsNew.randomString(6);
+        this.prefix = UtilsNew.randomString(8);
     }
 
     assignColors(consequenceTypes, proteinSubstitutionScores) {
@@ -384,27 +384,52 @@ export default class VariantGridFormatter {
         return "-";
     }
 
-    consequenceTypeDetailFormatter(value, row, variantGrid) {
-        if (typeof row !== "undefined" && typeof row.annotation !== "undefined" && UtilsNew.isNotEmptyArray(row.annotation.consequenceTypes)) {
-            let ctHtml = `<table id="ConsqTypeTable" class="table table-hover table-no-bordered">
-                                <thead>
-                                    <tr>
-                                        <th rowspan="2">Gene Name</th>
-                                        <th rowspan="2">Ensembl Gene</th>                                     
-                                        <th rowspan="2">Ensembl Transcript</th>
-                                        <th rowspan="2">Biotype</th>
-                                        <th rowspan="2">Transcript Flags</th>
-                                        <th rowspan="2">Consequence Types (SO Term)</th>
-                                        <th rowspan="1" colspan="3" style="text-align: center">Protein Variant Annotation</th>
-                                    </tr>
-                                    <tr>
-                                        <th rowspan="1">UniProt Acc</th>
-                                        <th rowspan="1">Position</th>
-                                        <th rowspan="1">Ref/Alt</th>
-                                    </tr>
-                                </thead>
-                                <tbody>`;
+    _consequenceTypeDetailFormatterFilter(cts, query, filter) {
+        let showArrayIndexes = [];
+        for (let i = 0; i < cts.length; i++) {
+            let ct = cts[i];
+            let result = true;
+            if (filter) {
+                if (filter.consequenceType.gencodeBasic) {
+                    result = result && ct.transcriptAnnotationFlags && ct.transcriptAnnotationFlags.includes("basic");
+                }
+                if (result && filter.consequenceType.filterByBiotype) {
+                    if (query.biotype) {
+                        result = result && query.biotype.split(",").includes(ct.biotype);
+                    }
+                }
+                if (result && filter.consequenceType.filterByConsequenceType) {
+                    if (query.ct) {
+                        let cts = query.ct.split(",");
+                        let isSoPresent = false;
+                        for (let term of ct.sequenceOntologyTerms) {
+                            isSoPresent = isSoPresent || cts.includes(term.name);
+                        }
+                        result = result && isSoPresent;
+                    }
+                }
+            }
+            if (result) {
+                showArrayIndexes.push(i);
+            }
+        }
+        return showArrayIndexes;
+    }
 
+    toggleDetailConsequenceType(e) {
+        let id = e.target.dataset.id;
+        let elements = document.getElementsByClassName(this._prefix + id + "Filtered");
+        for (let element of elements) {
+            if (element.style.display === "none") {
+                element.style.display = "";
+            } else {
+                element.style.display = "none";
+            }
+        }
+    }
+
+    consequenceTypeDetailFormatter(value, row, variantGrid, query, filter) {
+        if (row?.annotation?.consequenceTypes && row.annotation.consequenceTypes.length > 0) {
             // Sort and group CTs by Gene name
             row.annotation.consequenceTypes.sort(function (a, b) {
                 if (a.geneName === "" && b.geneName !== "") {
@@ -422,7 +447,46 @@ export default class VariantGridFormatter {
                 return 0;
             });
 
-            for (let ct of row.annotation.consequenceTypes) {
+            let showArrayIndexes = this._consequenceTypeDetailFormatterFilter(row.annotation.consequenceTypes, query, filter);
+            let message = "";
+            if (filter) {
+                // Create two different divs to 'show all' or 'apply filter' title
+                message = `<div class="${variantGrid._prefix}${row.id}Filtered">Showing <span style="font-weight: bold; color: red">${showArrayIndexes.length}</span> of 
+                                <span style="font-weight: bold; color: red">${row.annotation.consequenceTypes.length}</span> consequence types, 
+                                <a id="${variantGrid._prefix}${row.id}ShowCt" data-id="${row.id}" style="cursor: pointer">show all...</a>
+                            </div>
+                            <div class="${variantGrid._prefix}${row.id}Filtered" style="display: none">Showing <span style="font-weight: bold; color: red">${row.annotation.consequenceTypes.length}</span> of 
+                                <span style="font-weight: bold; color: red">${row.annotation.consequenceTypes.length}</span> consequence types, 
+                                <a id="${variantGrid._prefix}${row.id}HideCt" data-id="${row.id}" style="cursor: pointer">apply filters...</a>
+                           </div>
+                            `;
+            }
+
+            let ctHtml = `<div style="padding-bottom: 5px">
+                              ${message}
+                          </div>
+                          <table id="ConsqTypeTable" class="table table-hover table-no-bordered">
+                              <thead>
+                                  <tr>
+                                      <th rowspan="2">Gene Name</th>
+                                      <th rowspan="2">Ensembl Gene</th>                                     
+                                      <th rowspan="2">Ensembl Transcript</th>
+                                      <th rowspan="2">Biotype</th>
+                                      <th rowspan="2">Transcript Flags</th>
+                                      <th rowspan="2">Consequence Types (SO Term)</th>
+                                      <th rowspan="1" colspan="3" style="text-align: center">Protein Variant Annotation</th>
+                                  </tr>
+                                  <tr>
+                                      <th rowspan="1">UniProt Acc</th>
+                                      <th rowspan="1">Position</th>
+                                      <th rowspan="1">Ref/Alt</th>
+                                  </tr>
+                              </thead>
+                              <tbody>`;
+
+            for (let i = 0; i < row.annotation.consequenceTypes.length; i++) {
+                let ct = row.annotation.consequenceTypes[i];
+
                 // Prepare data info for columns
                 let geneName = ct.geneName ? `<a href="https://www.genenames.org/tools/search/#!/all?query=${ct.geneName}" target="_blank">${ct.geneName}</a>` : "-";
                 let geneId = ct.ensemblGeneId ? `<a href="${BioinfoUtils.getEnsemblLink(ct.ensemblGeneId, "gene", this.opencgaSession.project.organism.assembly)}" target="_blank">${ct.ensemblGeneId}</a>` : "-";
@@ -449,7 +513,9 @@ export default class VariantGridFormatter {
                 let uniprotAccession = pva.uniprotAccession ? `<a href="https://www.uniprot.org/uniprot/${pva.uniprotAccession}" target="_blank">${pva.uniprotAccession}</a>` : "-";
 
                 // Create the table row
-                ctHtml += `<tr class="detail-view-row">
+                let hideClass = showArrayIndexes.includes(i) ? "" : `${variantGrid._prefix}${row.id}Filtered`;
+                let displayStyle = showArrayIndexes.includes(i) ? "" : "display: none";
+                ctHtml += `<tr class="detail-view-row ${hideClass}" style="${displayStyle}">
                                 <td>${geneName}</td>
                                 <td>${geneId}</td>
                                 <td>${transcriptId}</td>
@@ -466,7 +532,6 @@ export default class VariantGridFormatter {
         }
         return "-";
     }
-
 
     addCohortStatsInfoTooltip(div, populationFrequencies) {
         $("#" + div).qtip({
