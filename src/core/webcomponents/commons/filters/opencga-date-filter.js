@@ -17,9 +17,8 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../utilsNew.js";
 import PolymerUtils from "../../PolymerUtils.js";
+import "./select-field-filter.js";
 
-//TODO refactor needed both in UI and code (UI done)
-//FIXME ::critical:: changes from active-filter are not handled at the moment
 
 export default class OpencgaDateFilter extends LitElement {
 
@@ -34,6 +33,9 @@ export default class OpencgaDateFilter extends LitElement {
 
     static get properties() {
         return {
+            creationDate: {
+                type: String
+            },
             config: {
                 type: Object
             }
@@ -44,387 +46,213 @@ export default class OpencgaDateFilter extends LitElement {
         this._prefix = "odf-" + UtilsNew.randomString(6) + "_";
         this._config = this.getDefaultConfig();
 
-        this.activatedRanges = false;
-        this.activatedDate = false;
-        this.activatedRecent = false;
+        this.activeTab = "all";
+    }
+
+    connectedCallback() {
+        super.connectedCallback();
+        this._config = {...this.getDefaultConfig(), ...this.config};
+        //const currentYear = new Date().getFullYear();
+        //this.yearsToSearch = UtilsNew.range(currentYear - 5, currentYear + 1);
+
+
+        this.years = UtilsNew.range(new Date().getFullYear() - 5, new Date().getFullYear() + 1); // years select
+        this.months = moment.monthsShort().map( (m,i) => ({id: `${i}`.padStart(2, 0), name:m}));  // months select (moment.months() for long names)
+
+
+        this.reset();
+
+        this.date = "";
+
     }
 
     updated(changedProperties) {
+        if (changedProperties.has("creationDate")) {
+            this.creationDateObserver();
+        }
         if (changedProperties.has("config")) {
             this.configObserver();
         }
     }
 
     configObserver() {
-        this._config = {...this.getDefaultConfig(), ...this.config};
+
     }
 
-    firstUpdated(_changedProperties) {
-
-        const _years = [];
-        const fullDate = new Date();
-        const limitYear = fullDate.getFullYear();
-        for (let year = this._config.minYear; year <= limitYear; year++) {
-            _years.push(year);
-        }
-        // This change triggers the polymer dom-repeat
-        this.years = _years;
-
-        // Init arrays for Date selector
-        const _yearsToSearch = [];
-        for (let year = limitYear, i = 0; i < 5; year--, i++) {
-            _yearsToSearch.push(year);
-        }
-        this.yearsToSearch = _yearsToSearch;
-
-        this.monthToSearch = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-
-        const _days = [];
-        for (let i = 1; i <= 31; i++) {
-            _days.push(i);
-        }
-        this.daysToSearch = _days;
-
-        if (UtilsNew.isNotEmpty(this._config.inputClass)) {
-            $(`.${this._prefix}-codeDis`, this).addClass(this._config.inputClass);
-            $(`.${this._prefix}-text`, this).addClass(this._config.class);
-        }
-    }
-
-    async calculateFilters(e) {
-        console.log("calculateFilters",e)
-        const dateOption = $(`#${this._prefix}DateRadioButton input[type='radio']:checked`).val();
-        console.log("dateOption",dateOption)
-        //console.log("DATE OPT", $(`#${this._prefix}DateRadioButton input[type='radio']:checked`).val())
-        //const dateOption = e.target.value;
-
-        let date = "";
-        switch (dateOption) {
-            case "recently":
-                this.activatedRanges = false;
-                this.activatedDate = false;
-                this.activatedRecent = true;
-                await this.requestUpdate();
-                // Last x days
-                const da = new Date();
-                da.setDate(da.getDate() - this.querySelector(`#${this._prefix}RecentSelect`).value);
-                // If the month and day have one digit we add 0 before
-                let m = da.getMonth() + 1;
-                if (m < 10) {
-                    m = "0" + m;
-                }
-                let d = da.getDate();
-                if (d < 10) {
-                    d = "0" + d;
-                }
-
-                date = `>=${da.getFullYear()}${m}${d}`;
-                break;
-            case "date":
-                this.activatedRanges = false;
-                this.activatedDate = true;
-                this.activatedRecent = false;
-                await this.requestUpdate();
-                date = this._getDateFilter();
-                break;
-            case "range":
-                this.activatedRanges = true;
-                this.activatedDate = false;
-                this.activatedRecent = false;
-                await this.requestUpdate();
-                date = this._getRangeFilter();
-                break;
-            case "all":
-            default:
-                this.activatedRanges = false;
-                this.activatedDate = false;
-                this.activatedRecent = false;
-                await this.requestUpdate();
-                break;
-        }
-        $(".bootstrap-select", this).selectpicker();
-        this.dispatchEvent(new CustomEvent("filterChange", {detail: {value: date}}));
-    }
-
-    _getDateFilter() {
-        const year = PolymerUtils.getElementById(this._prefix + "YearSelect").value;
-        let month = PolymerUtils.getElementById(this._prefix + "MonthSelect").value;
-        let day = PolymerUtils.getElementById(this._prefix + "DaySelect").value;
-        if (month === "any") {
-            month = "";
-            day = "";
+    creationDateObserver() {
+        if(this.creationDate) {
+            //TODO parse the string and discriminate cases recent, date, range
         } else {
-            const monthIndex = this.monthToSearch.indexOf(month) + 1;
-            month = monthIndex < 10 ? `0${monthIndex}` : monthIndex; // TODO use padStart
+            this.reset();
+            this.requestUpdate();
+        }
+    }
 
-            if (day === "any") {
-                day = "";
-            } else if (day < 10) {
-                day = `0${day}`;
+    reset() {
+        this.activeTab = "all";
+        this.selectedRecentDays = this._config.recentDays; // default value of Recent select
+        this.selectedDate = {
+            year: new Date().getFullYear()
+        };
+        this.selectedPeriod = {
+            start: {
+                year: new Date().getFullYear()
+            },
+            end: {
+                year: new Date().getFullYear()
             }
         }
-
-        return `${year}${month}${day}`;
     }
 
-    _getRangeFilter() {
-        const from = this._getFromDate();
-        const to = this._getToDate();
-
-        if (to > from) {
-            return `${from}-${to}`;
+    onFilterChange(e) {
+        e.stopPropagation();
+        // it covers the click of tab buttons
+        if (e.target?.dataset?.tab) {
+            this.activeTab = e.target.value;
         }
-        return "";
+
+        if (this.activeTab === "recent") {
+            if (e.target?.dataset?.type === "recent") {
+                this.selectedRecentDays = e.detail.value;
+            }
+            this.date = ">=" + moment().subtract(this.selectedRecentDays, "days").format("YYYYMMDD");
+        }
+
+        if (this.activeTab === "date") {
+            if (e.target?.dataset?.type === "date") {
+                const field = e.target.dataset.field;
+                this.selectedDate[field] = e.detail.value;
+            }
+            this.date = `${this.selectedDate.year}${this.selectedDate.month ?? ""}${this.selectedDate.day ?? ""}`;
+        }
+
+        if (this.activeTab === "range") {
+            if (e.target?.dataset?.type === "range") {
+                const {endpoint, field} = e.target.dataset;
+                this.selectedPeriod[endpoint][field] = e.detail.value;
+            }
+            this.date = `${this.selectedPeriod.start.year}${this.selectedPeriod.start.month ?? ""}${this.selectedPeriod.start.day ?? ""}` + "-" +
+                `${this.selectedPeriod.end.year}${this.selectedPeriod.end.month ?? ""}${this.selectedPeriod.end.day ?? ""}`
+        }
+        this.requestUpdate();
+        const event = new CustomEvent("filterChange", {
+            detail: {
+                value: this.date
+            }
+        });
+        this.dispatchEvent(event);
     }
 
-    _getFromDate() {
-        const year = PolymerUtils.getElementById(this._prefix + "YearSelectFrom").value;
-        let month = PolymerUtils.getElementById(this._prefix + "MonthSelectFrom").value;
-        let day = PolymerUtils.getElementById(this._prefix + "DaySelectFrom").value;
-        if (month === "any") {
-            month = "01";
+    daysInMonth(y, m) {
+        if (y && m) {
+            const d = moment([y, m]).daysInMonth();
+            return UtilsNew.range(1, d + 1).map( d => `${d}`.padStart(2, 0));
         } else {
-            const monthIndex = this.monthToSearch.indexOf(month) + 1;
-            month = monthIndex < 10 ? `0${monthIndex}` : monthIndex;
+            return [];
         }
-        if (day === "any") {
-            day = "01";
-        } else if (day < 10) {
-            day = `0${day}`;
-        }
-        return `${year}${month}${day}`;
-    }
-
-    _getToDate() {
-        const year = PolymerUtils.getElementById(this._prefix + "YearSelectTo").value;
-        let month = PolymerUtils.getElementById(this._prefix + "MonthSelectTo").value;
-        let day = PolymerUtils.getElementById(this._prefix + "DaySelectTo").value;
-        if (month === "any") {
-            month = "12";
-        } else {
-            const monthIndex = this.monthToSearch.indexOf(month) + 1;
-            month = monthIndex < 10 ? `0${monthIndex}` : monthIndex;
-        }
-        if (day === "any") {
-            day = ["01", "03", "05", "07", "08", "10", "12"].indexOf(month) !== -1 ? "31" : (month === "02" ? "28" : "30");
-        } else if (day < 10) {
-            day = `0${day}`;
-        }
-        return `${year}${month}${day}`;
-        //     let monthIndex = this.monthToSearch.indexOf(month) + 1;
-        //     if (monthIndex < 10) {
-        //         monthIndex = "0" + monthIndex;
-        //     }
-        //     if (day === "any") {
-        //         date = "~^" + year + monthIndex + "*";
-        //     } else {
-        //         if (day < 10) {
-        //             day = "0" + day;
-        //         }
-        //         date = "~^" + year + monthIndex + day + "*";
-        //     }
-        // }
-        // return date;
-    }
-
-    checkYears(e) {
-        e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
-        PolymerUtils.innerHTML(this._prefix + "_errorDiv_birthYear", "");
-        PolymerUtils.innerHTML(this._prefix + "_errorDiv_testYear", "");
-        let currentElement = PolymerUtils.getElementById(e.target.id);
-        const identifier = e.target.id;
-        let pairElement = "";
-        let divSuffix = "";
-        let message = "";
-        if (identifier.search("birthYear") !== -1) { // Birth year element raises the event -> check Test year
-            pairElement = PolymerUtils.getElementById(this._prefix + "testYear");
-            divSuffix = "birthYear";
-            message = "Year of Birth must be prior to year of Test";
-        } else { // Year of test element raises the event -> swap elements and check the birth year
-            currentElement = PolymerUtils.getElementById(this._prefix + "birthYear");
-            pairElement = PolymerUtils.getElementById(e.target.id);
-            divSuffix = "testYear";
-            message = "Year of Test must be posterior to year of Birth";
-        }
-
-        if (PolymerUtils.querySelectorAll("option:selected", pairElement) !== "" &&
-            (parseInt(PolymerUtils.querySelectorAll("option:selected", currentElement).textContent) > parseInt(PolymerUtils.querySelectorAll("option:selected", pairElement).textContent))) { // Year of birth cannot be lower than Year of test
-            PolymerUtils.innerHTML(this._prefix + "_errorDiv_" + divSuffix, message);
-        }
-    }
-
-    matchesRecentDaysConfig(day) {
-        // Because the config might not have changed yet...
-        this.configObserver();
-        return day === this._config.recentDays;
-    }
-
-    /**
-     * Use custom CSS class to easily reset all controls.
-     */
-    _clearHtmlDom() {
-        // Input controls
-        PolymerUtils.setPropertyByClassName(this._prefix + "FilterTextInput", "value", "");
-        PolymerUtils.removeAttributebyclass(this._prefix + "FilterTextInput", "disabled");
-        // Uncheck checkboxes
-        PolymerUtils.setPropertyByClassName(this._prefix + "FilterCheckBox", "checked", false);
-        // Set first option and make it active
-        PolymerUtils.setAttributeByClassName(this._prefix + "FilterSelect", "selectedIndex", 0);
-        PolymerUtils.removeAttributebyclass(this._prefix + "FilterSelect", "disabled");
-        PolymerUtils.setPropertyByClassName(this._prefix + "FilterRadio", "checked", false);
-        PolymerUtils.setAttributeByClassName(this._prefix + "FilterRadio", "disabled", true);
-
-        $("." + this._prefix + "FilterRadio").filter("[value=\"or\"]").prop("checked", true);
     }
 
     getDefaultConfig() {
         return {
-            minYear: 1920,
-            recentDays: 7,
-            inputClass: "input-sm",
-            class: "small"
+            minYear: 2000,
+            recentDays: 10
         };
     }
 
     render() {
         return html`
-        <style>
+        <style>            
             .range-box:nth-child(2) {
                 margin-top: 20px;
             }
+
+            .date-field-wrapper .col-md-4 {
+                padding: 0 5px 0 0;
+            }
+            
+            .date-field-wrapper .col-md-4:last-child {
+                padding: 0;
+            }            
         </style>
 
         <div class="form-group">
             <form id="${this._prefix}DateRadioButton">
                 <fieldset class="switch-toggle-wrapper">
                     <div class="switch-toggle text-white">
-                        <input type="radio" name="selectionButtons" id="${this._prefix}allRadio" value="all" class="${this._prefix}FilterRadio" checked @change="${this.calculateFilters}">
+                        <input type="radio" data-tab="all" name="selectionButtons" id="${this._prefix}allRadio" value="all" class="${this._prefix}FilterRadio" .checked="${this.activeTab === "all"}" @change="${this.onFilterChange}">
                         <label for="${this._prefix}allRadio" ><span class="${this._prefix}-text">All</span></label>
                     
-                        <input type="radio" name="selectionButtons" id="${this._prefix}recentlyRadio" value="recently" class="${this._prefix}FilterRadio" @change="${this.calculateFilters}">
+                        <input type="radio" data-tab="recent" name="selectionButtons" id="${this._prefix}recentlyRadio" value="recent" class="${this._prefix}FilterRadio" .checked="${this.activeTab === "recent"}" @change="${this.onFilterChange}">
                         <label for="${this._prefix}recentlyRadio" ><span class="${this._prefix}-text">Recent</span></label>
                     
-                        <input type="radio" name="selectionButtons" id="${this._prefix}dateRadio" value="date" class="${this._prefix}FilterRadio" @change="${this.calculateFilters}">
+                        <input type="radio" data-tab="date" name="selectionButtons" id="${this._prefix}dateRadio" value="date" class="${this._prefix}FilterRadio" .checked="${this.activeTab === "date"}" @change="${this.onFilterChange}">
                         <label for="${this._prefix}dateRadio" ><span class="${this._prefix}-text">Date</span></label>
              
-                        <input type="radio" name="selectionButtons" id="${this._prefix}rangesRadio" value="range" class="${this._prefix}FilterRadio" @change="${this.calculateFilters}">
+                        <input type="radio" data-tab="range" name="selectionButtons" id="${this._prefix}rangesRadio" value="range" class="${this._prefix}FilterRadio" .checked="${this.activeTab === "range"}" @change="${this.onFilterChange}">
                         <label for="${this._prefix}rangesRadio" ><span class="${this._prefix}-text">Range</span></label>
                         
                         <a class="btn btn-primary ripple btn-small"></a>
                     </div>
                 </fieldset>            
             
-                <div class="date-option-wrapper">
-                    ${this.activatedRecent ? html`
+                <div class="container-fluid">
+                    ${this.activeTab === "recent" ? html`
                         <div>
-                            <form class="form-inline text-center">
-                                <div class="">
+                            <form class="row date-field-wrapper text-center">
+                                <div class="col-md-offset-4 col-md-4">
                                     <span class="${this._prefix}-text">Last</span>
-                                    <select class="form-control bootstrap-select ${this._prefix}-codeDis"
-                                            id="${this._prefix}RecentSelect" name="birthYear" required @change="${this.calculateFilters}" data-size="10">
-                                        ${[...Array(30).keys()].map( n => html`<option value="${n + 1}" ?selected="${this.matchesRecentDaysConfig(n + 1)}">${n + 1}</option>`)}
-                                    </select>
+                                    <select-field-filter data-type="recent" .data="${UtilsNew.range(1,31)}" .value=${this.selectedRecentDays} @filterChange="${e => this.onFilterChange(e)}"></select-field-filter>
+                                    
                                     <span class="${this._prefix}-text"> day(s)</span>
                                 </div>
                             </form>
                         </div>
                     ` : null}
                     
-                    ${this.activatedDate ? html`
+                    ${this.activeTab === "date" ? html`
                         <div>
-                            <form class="form-inline">
-                                <div class="">
-                                    <select class="bootstrap-select form-control ${this._prefix}-codeDis col-md-4"
-                                            id="${this._prefix}YearSelect" name="birthYear" required @change="${this.calculateFilters}">
-                                        ${this.yearsToSearch.length && this.yearsToSearch.map(item => html`
-                                            <option value="${item}">${item}</option>
-                                        `)}
-                                    </select>
-        
-                                    <label>-</label>
-                                    <select class="bootstrap-select form-control ${this._prefix}-codeDis col-md-4"
-                                            id="${this._prefix}MonthSelect" name="birthYear" required @change="${this.calculateFilters}">
-                                        <option value="any">Any</option>
-                                        ${this.monthToSearch.length && this.monthToSearch.map(item => html`
-                                            <option value="${item}">${item}</option>
-                                        `)}
-                                    </select>
-        
-                                    <label>-</label>
-                                    <select class="bootstrap-select form-control ${this._prefix}-codeDis col-md-4"
-                                            id="${this._prefix}DaySelect" name="birthYear" required @change="${this.calculateFilters}" data-size="10">
-                                        <option value="any">Any</option>
-                                        ${this.daysToSearch.length && this.daysToSearch.map(item => html`
-                                            <option value="${item}">${item}</option>
-                                        `)}
-                                    </select>
+                            <form class="row date-field-wrapper">
+                                <div class="col-md-4">
+                                    <select-field-filter data-type="date" data-field="year" .data="${this.years}" .value=${this.selectedDate.year} @filterChange="${e => this.onFilterChange(e)}"></select-field-filter>
+                                </div>
+                                <div class="col-md-4">
+                                    <select-field-filter data-type="date" data-field="month" .data="${this.months}" .value=${this.selectedDate.month} @filterChange="${e => this.onFilterChange(e)}"></select-field-filter>
+                                </div>
+                                <div class="col-md-4">
+                                    <select-field-filter data-type="date" data-field="day" .data="${this.daysInMonth(this.selectedDate.year, this.selectedDate.month)}" .value=${this.selectedDate.day} @filterChange="${e => this.onFilterChange(e)}"></select-field-filter>
                                 </div>
                             </form>
                         </div>
                     ` : null}
     
                     
-                    ${this.activatedRanges ? html`
+                    ${this.activeTab === "range" ? html`
                         <div>
                             <div class="range-box">
-                                <label class="${this._prefix}-text">Begin periode</label>
-                                <form class="form-inline">
-                                    <div class="">
-                                        <select class="bootstrap-select form-control ${this._prefix}-codeDis col-md-4"
-                                                id="${this._prefix}YearSelectFrom" name="birthYear" required @change="${this.calculateFilters}">
-                                             ${this.yearsToSearch.length && this.yearsToSearch.map(item => html`
-                                                <option value="${item}">${item}</option>
-                                            `)}
-                                        </select>
-            
-                                        <label>-</label>
-                                        <select class="bootstrap-select form-control ${this._prefix}-codeDis col-md-4"
-                                                id="${this._prefix}MonthSelectFrom" name="birthYear" required @change="${this.calculateFilters}">
-                                            <option value="any">Any</option>
-                                             ${this.monthToSearch.length && this.monthToSearch.map(item => html`
-                                                <option value="${item}">${item}</option>
-                                            `)}
-                                        </select>
-            
-                                        <label>-</label>
-                                        <select class="bootstrap-select form-control ${this._prefix}-codeDis col-md-4"
-                                                id="${this._prefix}DaySelectFrom" name="birthYear" required @change="${this.calculateFilters}" data-size="10">
-                                            <option value="any">Any</option>
-                                             ${this.daysToSearch.length && this.daysToSearch.map(item => html`
-                                                <option value="${item}">${item}</option>
-                                            `)}
-                                        </select>
+                                <label class="${this._prefix}-text">Begin period</label>
+                                <form class="row date-field-wrapper">
+                                    <div class="col-md-4">
+                                        <select-field-filter data-type="range" data-endpoint="start" data-field="year" .data="${this.years}" .value=${this.selectedPeriod.start.year} @filterChange="${e => this.onFilterChange(e)}"></select-field-filter>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <select-field-filter data-type="range" data-endpoint="start" data-field="month" .data="${this.months}" .value=${this.selectedPeriod.start.month} @filterChange="${e => this.onFilterChange(e)}"></select-field-filter>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <select-field-filter data-type="range" data-endpoint="start" data-field="day" .data="${this.daysInMonth(this.selectedPeriod.start.year, this.selectedPeriod.start.month)}" .value=${this.selectedPeriod.start.day} @filterChange="${e => this.onFilterChange(e)}"></select-field-filter>
                                     </div>
                                 </form>
                             </div>
                             <div class="range-box">
-                                <label class="${this._prefix}-text">End periode</label>
-                                <form class="form-inline">
-                                    <div class="">
-                                        <select class="bootstrap-select form-control ${this._prefix}-codeDis col-md-4"
-                                                id="${this._prefix}YearSelectTo" name="birthYear" required @change="${this.calculateFilters}">
-                                             ${this.yearsToSearch.length && this.yearsToSearch.map(item => html`
-                                                <option value="${item}">${item}</option>
-                                            `)}
-                                        </select>
-            
-                                        <label>-</label>
-                                        <select class="bootstrap-select form-control ${this._prefix}-codeDis col-md-4"
-                                                id="${this._prefix}MonthSelectTo" name="birthYear" required @change="${this.calculateFilters}">
-                                            <option value="any">Any</option>
-                                             ${this.monthToSearch.length && this.monthToSearch.map(item => html`
-                                                <option value="${item}">${item}</option>
-                                            `)}
-                                        </select>
-            
-                                        <label>-</label>
-                                        <select class="bootstrap-select form-control ${this._prefix}-codeDis col-md-4"
-                                                id="${this._prefix}DaySelectTo" name="birthYear" required @change="${this.calculateFilters}" data-size="10">
-                                            <option value="any">Any</option>
-                                             ${this.daysToSearch.length && this.daysToSearch.map(item => html`
-                                                <option value="${item}">${item}</option>
-                                            `)}
-                                        </select>
+                                <label class="${this._prefix}-text">End period</label>
+                                <form class="row date-field-wrapper">
+                                    <div class="col-md-4">
+                                        <select-field-filter data-type="range" data-endpoint="end" data-field="year" .data="${this.years}" .value=${this.selectedPeriod.end.year} @filterChange="${e => this.onFilterChange(e)}"></select-field-filter>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <select-field-filter data-type="range" data-endpoint="end" data-field="month" .data="${this.months}" .value=${this.selectedPeriod.end.month} @filterChange="${e => this.onFilterChange(e)}"></select-field-filter>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <select-field-filter data-type="range" data-endpoint="end" data-field="day" .data="${this.daysInMonth(this.selectedPeriod.end.year, this.selectedPeriod.end.month)}" .value=${this.selectedPeriod.end.day} @filterChange="${e => this.onFilterChange(e)}"></select-field-filter>
                                     </div>
                                 </form>
                             </div>

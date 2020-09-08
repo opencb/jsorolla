@@ -189,7 +189,7 @@ export default class OpencgaSampleFilter extends LitElement {
                 content = html`<somatic-filter .value="${this.preparedQuery.somatic}" @filterChange="${e => this.onFilterChange("somatic", e.detail.value)}"></somatic-filter>`;
                 break;
             case "date":
-                content = html`<opencga-date-filter .config="${this.dateFilterConfig}" @filterChange="${e => this.onFilterChange("creationDate", e.detail.value)}"></opencga-date-filter>`;
+                content = html`<opencga-date-filter .config="${this.dateFilterConfig}" .creationDate="${this.preparedQuery.creationDate}" @filterChange="${e => this.onFilterChange("creationDate", e.detail.value)}"></opencga-date-filter>`;
                 break;
             default:
                 console.error("Filter component not found");
