@@ -356,7 +356,7 @@ export default class FacetFilter extends LitElement {
                     <select-field-filter multiple .data="${this.config.sections}" .value=${Object.keys(this.selectedFacet).join(",")} @filterChange="${this.onFacetFieldChange}"></select-field-filter>
                     <div class="text-center">
                         <p class="or-text">- or -</p>
-                        <button class="btn btn-default btn-small ripple detail-facets-button" @click="${this.addDefaultFacet}">Add default fields</button>
+                        <button class="btn btn-default btn-small ripple default-facets-button" @click="${this.addDefaultFacet}">Add default fields</button>
                     </div> 
                 </div>
             

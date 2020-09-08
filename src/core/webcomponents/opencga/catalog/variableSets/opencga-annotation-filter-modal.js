@@ -283,7 +283,7 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
                     <!--<pre> ${JSON.stringify(variable)}</pre>-->
                     ${variable?.allowedKeys?.length ? html`
                         <div class="col-md-12 map-field-wrapper">
-                            <label>type ${variable.type} <a tooltip-title="${variable.id}" tooltip-text="${variable.description}"><i class="fa fa-info-circle" aria-hidden="true"></i></a> ${variable.id}</label>
+                            <label><a tooltip-title="${variable.id}" tooltip-text="${variable.description}"><i class="fa fa-info-circle" aria-hidden="true"></i></a> ${variable.id}</label>
                             <select-field-filter multiple .data="${variable?.allowedKeys}" value=${this.variableMap?.[variableSet.id]?.[variable.id] ?? []} @filterChange="${e => this.changeMap(variableSet.id, variable.id, e.detail.value)}"></select-field-filter>
                             <div class="row map-field-inputs">
                                 ${this.variableMap?.[variableSet.id]?.[variable.id]?.map(key => {

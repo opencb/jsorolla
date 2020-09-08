@@ -283,4 +283,9 @@ export default class UtilsNew {
             document.body.removeChild(a);
         }, 0);
     }
+
+    static range(start, stop, step = 1) {
+        return Array.from({length: (stop - start) / step}, (x, i) => (i + start) * step);
+    }
+
 }

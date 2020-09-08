@@ -77,7 +77,7 @@ export default class SomaticFilter extends LitElement {
 
     render() {
         return html`
-            <form id="${this._prefix}-somatic" class="subsection-content form-group">
+            <form id="${this._prefix}-somatic" class="somatic-filter subsection-content form-group">
                
             <fieldset>
                 <div class="switch-toggle text-white">
