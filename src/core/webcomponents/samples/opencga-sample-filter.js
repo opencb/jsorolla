@@ -71,11 +71,6 @@ export default class OpencgaSampleFilter extends LitElement {
             inputClass: "input-sm"
         };
 
-        this.dateFilterConfig = {
-            recentDays: 10
-        };
-        this.minYear = 1920;
-
         this.query = {};
         this.preparedQuery = {};
         this.searchButton = true;
@@ -189,7 +184,7 @@ export default class OpencgaSampleFilter extends LitElement {
                 content = html`<somatic-filter .value="${this.preparedQuery.somatic}" @filterChange="${e => this.onFilterChange("somatic", e.detail.value)}"></somatic-filter>`;
                 break;
             case "date":
-                content = html`<opencga-date-filter .config="${this.dateFilterConfig}" .creationDate="${this.preparedQuery.creationDate}" @filterChange="${e => this.onFilterChange("creationDate", e.detail.value)}"></opencga-date-filter>`;
+                content = html`<opencga-date-filter .creationDate="${this.preparedQuery.creationDate}" @filterChange="${e => this.onFilterChange("creationDate", e.detail.value)}"></opencga-date-filter>`;
                 break;
             default:
                 console.error("Filter component not found");

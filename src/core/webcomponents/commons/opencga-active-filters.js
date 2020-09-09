@@ -495,29 +495,29 @@ export default class OpencgaActiveFilters extends LitElement {
                     
                         ${this.queryList ? html`
                             ${this.queryList.length === 0
-            ? html`
+                                ? html`
                                     <label>No filters selected</label>`
-            : html`
+                                : html`
                                     ${this.queryList.map(item => !this._isMultiValued(item)
-                ? html` 
+                                        ? html` 
                                             ${!item.locked
-                    ? html`
+                                                ? html`
                                                     <!-- No multi-valued filters -->
                                                     <button type="button" class="btn btn-warning btn-sm ${item.name}ActiveFilter active-filter-button ripple no-transform" data-filter-name="${item.name}" data-filter-value=""
                                                             @click="${this.onQueryFilterDelete}">
                                                     ${item.text}
                                                     </button>`
-                    : html`
+                                                : html`
                                                     <button type="button" class="btn btn-warning btn-sm ${item.name}ActiveFilter active-filter-button ripple no-transform" data-filter-name="${item.name}" data-filter-value=""
                                                              @click="${this.onQueryFilterDelete}" title="${item.message ?? ""}" disabled>
                                                         ${item.text}
                                                     </button>`
-                }`
-                : html`
+                                                }`
+                                        : html`
                                             <!-- Multi-valued filters -->
                                             <div class="btn-group">
                                                 ${item.locked
-                    ? html`
+                                                    ? html`
                                                         <button type="button" class="btn btn-warning btn-sm ${item.name}ActiveFilter active-filter-button ripple no-transform" data-filter-name="${item.name}" data-filter-value=""
                                                                 @click="${this.onQueryFilterDelete}" disabled> ${item.text} <span class="badge">${item.items.length}</span>
                                                         </button>
@@ -532,7 +532,7 @@ export default class OpencgaActiveFilters extends LitElement {
                                                                 </li>
                                                             `)}
                                                         </ul>`
-                    : html`
+                                                    : html`
                                                         <button type="button" class="btn btn-warning btn-sm ${item.name}ActiveFilter active-filter-button ripple no-transform" data-filter-name="${item.name}" data-filter-value=""
                                                                 @click="${this.onQueryFilterDelete}"> ${item.text} <span class="badge">${item.items.length}</span>
                                                         </button>
@@ -549,12 +549,12 @@ export default class OpencgaActiveFilters extends LitElement {
                                                                 </li>
                                                             `)}
                                                         </ul>`
-                }
+                                                    }
                                             </div>`
-            )}
+                                    )}
                                 `}
                             `
-            : null}
+                        : null}
                     </div> 
                         
                     <div class="rhs">

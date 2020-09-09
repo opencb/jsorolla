@@ -155,7 +155,7 @@ export default class OpencgaJobsFilter extends LitElement {
                 content = html`<select-field-filter multiple .value="${this.preparedQuery[subsection.id]}" .data="${subsection.allowedValues}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></select-field-filter>`;
                 break;
             case "creationDate":
-                content = html`<opencga-date-filter .config="${this.dateFilterConfig}" .creationDate="${this.preparedQuery.creationDate}" @filterChange="${e => this.onFilterChange("creationDate", e.detail.value)}"></opencga-date-filter>`;
+                content = html`<opencga-date-filter .creationDate="${this.preparedQuery.creationDate}" @filterChange="${e => this.onFilterChange("creationDate", e.detail.value)}"></opencga-date-filter>`;
                 break;
             default:
                 console.error("Filter component not found");
