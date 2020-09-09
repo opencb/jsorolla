@@ -83,6 +83,7 @@ export default class FacetFilter extends LitElement {
                 value: this.selectedFacetFormatted
             }
         });
+        UtilsNew.initTooltip(this);
         this.dispatchEvent(event);
         this.requestUpdate();
     }
@@ -90,10 +91,10 @@ export default class FacetFilter extends LitElement {
     addDefaultFacet() {
         for (const defaultFacetId of this.config.default) {
             const facet = defaultFacetId.split(">>");
-            //console.log(facet);
             // in case of nested facets
             if (facet.length > 1) {
                 const mainFacet = this._recFind(this.config.sections, facet[0]);
+
                 const nestedFacet = this._recFind(this.config.sections, facet[1]);
                 //console.log("nestedFacet", nestedFacet);
                 this.selectedFacet[facet[0]] = {
@@ -102,11 +103,21 @@ export default class FacetFilter extends LitElement {
                     nested: {...nestedFacet, facet: facet[1], value: nestedFacet.defaultValue || ""}
                 };
             } else {
-                const mainFacet = this._recFind(this.config.sections, facet[0]);
-                this.selectedFacet[defaultFacetId] = {...mainFacet, value: mainFacet?.defaultValue ?? ""};
+                //discriminate between range fiels with default value and all the others
+                let range = [...facet[0].matchAll(/(\w+)\[(\d+..\d+)](:\d+)?/gi)];
+                if(range.length) {
+                    const [r, facetKey, value, step] = range[0];
+                    const mainFacet = this._recFind(this.config.sections, facetKey);
+                    this.selectedFacet[facetKey] = {...mainFacet, value: value};
+                } else {
+                    const mainFacet = this._recFind(this.config.sections, facet[0]);
+                    this.selectedFacet[defaultFacetId] = {...mainFacet, value: mainFacet?.defaultValue ?? ""};
+
+                }
             }
         }
         this.selectedFacet = {...this.selectedFacet};
+        UtilsNew.initTooltip(this);
     }
 
     async onFacetFieldChange(e) {
@@ -137,7 +148,9 @@ export default class FacetFilter extends LitElement {
             delete this.selectedFacet[difference];
         }
         this.selectedFacet = {...this.selectedFacet};
-        this.requestUpdate();
+        UtilsNew.initTooltip(this);
+        //await this.requestUpdate();
+
     }
 
     onFacetValueChange(e) {
@@ -235,7 +248,7 @@ export default class FacetFilter extends LitElement {
                             <a class="btn btn-small collapsed" role="button" data-collapse="#${facet.id}_nested" @click="${this.toggleCollapse}"> <i class="fas fa-arrow-alt-circle-down"></i> Nested Facet (optional) </a>
                             <div class="collapse ${this.selectedFacet[facet.id].nested ? "in" : ""}" id="${facet.id}_nested"> 
                                 <div class="">
-                                    <select-field-filter .data="${this.config.sections.map(section => ({...section, fields: section.fields.map(item => ({...item, disabled: item.id === facet.id})) }))}" .value=${this.selectedFacet[facet.id].nested ? this.selectedFacet[facet.id].nested.id : null} @filterChange="${e => this.onNestedFacetFieldChange(e, facet.id)}"></select-field-filter>
+                                    <select-field-filter .data="${this.config.sections.map(section => ({...section, fields: section.fields.map(item => ({...item, disabled: item.id === facet.id}))}))}" .value=${this.selectedFacet[facet.id].nested ? this.selectedFacet[facet.id].nested.id : null} @filterChange="${e => this.onNestedFacetFieldChange(e, facet.id)}"></select-field-filter>
                                     <div class="row facet-row nested">
                                         ${this.renderNestedField(this.selectedFacet[facet.id].nested, facet.id)}
                                     </div>                                
@@ -274,7 +287,7 @@ export default class FacetFilter extends LitElement {
                 return html`
                     <div class="row facet-row">
                         <div class="col-md-12">
-                            <input type="text" class="form-control" placeholder="Include values" @input="${this.onFacetValueChange}" data-id="${facet.id}" type="text" .value="${facet.defaultValue ? facet.defaultValue : ""}" id="${facet.id}_NestedFnSelect"  />
+                            <input type="text" class="form-control" placeholder="Include values" @input="${this.onFacetValueChange}" data-id="${facet.id}" type="text" .value="${facet.value ?? facet.defaultValue ?? ""}" id="${facet.id}_NestedFnSelect"  />
                         </div>
                     </div>
                     ${renderNestedFieldWrapper(facet)}
