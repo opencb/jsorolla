@@ -21,6 +21,7 @@ import {NotificationQueue} from "../Notification.js";
 import PolymerUtils from "../PolymerUtils.js";
 import "./opencga-clinical-analysis-grid.js";
 import "./opencga-clinical-analysis-view.js";
+import GridCommons from "../variant/grid-commons.js";
 
 
 export default class OpencgaClinicalReviewCases extends LitElement {
@@ -51,8 +52,12 @@ export default class OpencgaClinicalReviewCases extends LitElement {
 
     _init() {
         this._prefix = "ocrc-" + UtilsNew.randomString(6);
-        this._config = this.getDefaultConfig();
         this._filters = [];
+    }
+
+    connectedCallback() {
+        super.connectedCallback();
+        this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
     firstUpdated(_changedProperties) {
@@ -93,7 +98,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
     }
 
     propertyObserver() {
-        this._config = Object.assign({}, this.getDefaultConfig(), this.config);
+        this._config = {...this.getDefaultConfig(), ...this.config};
 
         if (UtilsNew.isNotUndefinedOrNull(this.opencgaSession) && UtilsNew.isNotUndefinedOrNull(this.opencgaSession.study) &&
             UtilsNew.isNotEmptyArray(this.opencgaSession.study.groups)) {
