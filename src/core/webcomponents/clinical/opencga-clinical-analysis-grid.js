@@ -517,7 +517,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                                 </a>
                             </li>
                             <li>
-                                <a href="javascript: void 0" class="btn force-text-left" data-action="delete">
+                                <a href="javascript: void 0" class="btn disabled force-text-left" data-action="delete">
                                     <i class="fas fa-trash icon-padding" aria-hidden="true"></i> Delete
                                 </a>
                             </li>

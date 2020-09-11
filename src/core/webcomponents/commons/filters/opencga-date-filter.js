@@ -81,7 +81,41 @@ export default class OpencgaDateFilter extends LitElement {
 
     creationDateObserver() {
         if(this.creationDate) {
-            //TODO parse the string and discriminate cases recent, date, range
+            let recent = this.creationDate.match(/(>=)(\d+)/);
+            let [range, y1, m1, d1, y2, m2, d2] = this.creationDate.match(/(\d{4})?(\d{2})?(\d{2})?-?(\d{4})?(\d{2})?(\d{2})?/)
+            if (recent) {
+                this.activeTab = "recent";
+                let [,, date] = recent;
+                this.selectedRecentDays = moment().format("YYYYMMDD") - date; // TODO fix. In case the saved filter is "Recent", there will the be the exact date, so this won't work.
+            }
+
+            if(y2 || m2 || d2) {
+                // range date
+                this.activeTab = "range";
+                this.selectedPeriod = {
+                    start: {
+                        year: y1,
+                        month: m1,
+                        day: d1
+                    },
+                    end: {
+                        year: y2,
+                        month: m2,
+                        day: d2
+                    }
+                }
+
+            } else if (y1 || m1 || d1) {
+                //simple date
+                this.activeTab = "date";
+                this.selectedDate = {
+                    year: y1,
+                    month: m1,
+                    day: d1
+                }
+            }
+            this.requestUpdate();
+
         } else {
             this.reset();
             this.requestUpdate();
@@ -131,8 +165,8 @@ export default class OpencgaDateFilter extends LitElement {
                 const {endpoint, field} = e.target.dataset;
                 this.selectedPeriod[endpoint][field] = e.detail.value;
             }
-            this.date = `${this.selectedPeriod.start.year}${this.selectedPeriod.start.month ?? ""}${this.selectedPeriod.start.day ?? ""}` + "-" +
-                `${this.selectedPeriod.end.year}${this.selectedPeriod.end.month ?? ""}${this.selectedPeriod.end.day ?? ""}`
+            this.date = `${this.selectedPeriod.start.year}${this.selectedPeriod.start.month ? `${this.selectedPeriod.start.month}${this.selectedPeriod.start.day ?? ""}` : ""}-` +
+                        `${this.selectedPeriod.end.year}${this.selectedPeriod.end.month ? `${this.selectedPeriod.end.month}${this.selectedPeriod.end.day ?? ""}` : ""}`
         }
         this.requestUpdate();
         const event = new CustomEvent("filterChange", {
