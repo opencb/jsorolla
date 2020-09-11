@@ -923,15 +923,62 @@ export default class VariantGridFormatter {
     /*
      * Reported Variant formatters
      */
-    reportedEventDetailFormatter(value, row, variantGrid) {
-        if (typeof row !== "undefined" && UtilsNew.isNotEmptyArray(row.evidences)) {
+    toggleDetailClinicalEvidence(e) {
+        let id = e.target.dataset.id;
+        let elements = document.getElementsByClassName(this._prefix + id + "EvidenceFiltered");
+        for (let element of elements) {
+            if (element.style.display === "none") {
+                element.style.display = "";
+            } else {
+                element.style.display = "none";
+            }
+        }
+    }
+
+    reportedEventDetailFormatter(value, row, variantGrid, query, filter) {
+        if (row && row.evidences.length > 0) {
+            // Sort by Tier level
+            row.evidences.sort(function (a, b) {
+                if (a.tier === null || b.tier !== null) {
+                    return 1;
+                }
+                if (a.tier !== null || b.tier === null) {
+                    return -1;
+                }
+                if (a.tier < b.tier) {
+                    return -1;
+                }
+                if (a.tier > b.tier) {
+                    return 1;
+                }
+                return 0;
+            });
 
             // let selectColumnHtml = "";
             // if (variantGrid._config.showSelectCheckbox) {
             //     selectColumnHtml = "<th rowspan=\"2\">Select</th>";
             // }
 
-            let ctHtml = `<table id="ConsqTypeTable" class="table table-hover table-no-bordered">
+            let showArrayIndexes = this._consequenceTypeDetailFormatterFilter(row.annotation.consequenceTypes, query, filter);
+            let message = "";
+            if (filter) {
+                // Create two different divs to 'show all' or 'apply filter' title
+                message = `<div class="${variantGrid._prefix}${row.id}EvidenceFiltered">Showing <span style="font-weight: bold; color: red">${showArrayIndexes.length}</span> of 
+                                <span style="font-weight: bold; color: red">${row.annotation.consequenceTypes.length}</span> clinical evidences, 
+                                <a id="${variantGrid._prefix}${row.id}ShowEvidence" data-id="${row.id}" style="cursor: pointer">show all...</a>
+                            </div>
+                            <div class="${variantGrid._prefix}${row.id}EvidenceFiltered" style="display: none">Showing <span style="font-weight: bold; color: red">${row.annotation.consequenceTypes.length}</span> of 
+                                <span style="font-weight: bold; color: red">${row.annotation.consequenceTypes.length}</span> clinical evidences, 
+                                <a id="${variantGrid._prefix}${row.id}HideEvidence" data-id="${row.id}" style="cursor: pointer">apply filters...</a>
+                           </div>
+                            `;
+            }
+
+            let ctHtml = `
+                            <div style="padding-bottom: 5px">
+                                ${message}
+                            </div>
+                            <table id="ConsqTypeTable" class="table table-hover table-no-bordered">
                                 <thead>
                                     <tr>
                                         <th rowspan="2">Gene</th>
@@ -952,22 +999,6 @@ export default class VariantGridFormatter {
                                 </thead>
                                 <tbody>`;
 
-            // Sort by Tier level
-            row.evidences.sort(function (a, b) {
-                if (a.tier === null || b.tier !== null) {
-                    return 1;
-                }
-                if (a.tier !== null || b.tier === null) {
-                    return -1;
-                }
-                if (a.tier < b.tier) {
-                    return -1;
-                }
-                if (a.tier > b.tier) {
-                    return 1;
-                }
-                return 0;
-            });
 
             // FIXME Maybe this should happen in the server?
             // let biotypeSet = new Set();
@@ -981,7 +1012,9 @@ export default class VariantGridFormatter {
                 }
             }
 
-            for (let re of row.evidences) {
+            for (let i = 0; i < row.evidences.length; i++) {
+                let re = row.evidences[i];
+
                 // FIXME Maybe this should happen in the server?
                 // If ct exist and there are some consequenceTypeIds then we check that the report event matches the query
                 if (UtilsNew.isNotEmptyArray(re.consequenceTypeIds) && consequenceTypeSet.size > 0) {
@@ -1057,8 +1090,8 @@ export default class VariantGridFormatter {
                 }
 
                 let soArray = [];
-                if (UtilsNew.isNotEmptyArray(re.consequenceTypes)) {
-                    for (let so of re.consequenceTypes) {
+                if (re.genomicFeature.consequenceTypes && re.genomicFeature.consequenceTypes.length > 0) {
+                    for (let so of re.genomicFeature.consequenceTypes) {
                         let color = "black";
                         if (typeof variantGrid.consequenceTypeToColor !== "undefined" && typeof variantGrid.consequenceTypeToColor[so.name] !== "undefined") {
                             color = variantGrid.consequenceTypeToColor[so.name];
@@ -1143,9 +1176,12 @@ export default class VariantGridFormatter {
                 //     checboxHtml = `<td><input type="checkbox" ${checked}></td>`;
                 // }
 
+                // Create the table row
+                let hideClass = showArrayIndexes.includes(i) ? "" : `${variantGrid._prefix}${row.id}EvidenceFiltered`;
+                let displayStyle = showArrayIndexes.includes(i) ? "" : "display: none";
 
                 // Create the table row
-                ctHtml += `<tr class="detail-view-row">
+                ctHtml += `<tr class="detail-view-row ${hideClass}" style="${displayStyle}">
                             <td>${gene}</td>
                             <td>${transcriptId}</td>
                             <td>${transcriptFlag}</td>

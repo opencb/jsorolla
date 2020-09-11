@@ -124,7 +124,7 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
     sampleObserver() {
         if (this.opencgaSession && this.sample) {
             // let vcfIds = this.sample.fileIds?.filter(fileId => fileId.endsWith(".vcf") || fileId.endsWith(".vcf.gz")).join(",");
-            this.opencgaSession.opencgaClient.files().search({samples: this.sample.id, study: this.opencgaSession.study.fqn})
+            this.opencgaSession.opencgaClient.files().search({sampleIds: this.sample.id, study: this.opencgaSession.study.fqn})
                 .then(fileResponse => {
                     this.files = fileResponse.response[0].results;
 

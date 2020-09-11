@@ -173,7 +173,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
         }
 
         this.callerToFile = {};
-        this.opencgaSession.opencgaClient.files().search({samples: this.somaticSample.id, study: this.opencgaSession.study.fqn})
+        this.opencgaSession.opencgaClient.files().search({sampleIds: this.somaticSample.id, study: this.opencgaSession.study.fqn})
             .then(fileResponse => {
                 this.files = fileResponse.response[0].results;
                 // Prepare a map from caller to File
