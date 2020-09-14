@@ -81,12 +81,14 @@ export default class OpencgaDateFilter extends LitElement {
 
     creationDateObserver() {
         if(this.creationDate) {
-            let recent = this.creationDate.match(/(>=)(\d+)/);
+            let recent = this.creationDate.match(/(>=)(\d{4})(\d{2})(\d{2})/);
             let [range, y1, m1, d1, y2, m2, d2] = this.creationDate.match(/(\d{4})?(\d{2})?(\d{2})?-?(\d{4})?(\d{2})?(\d{2})?/)
             if (recent) {
                 this.activeTab = "recent";
-                let [,, date] = recent;
-                this.selectedRecentDays = moment().format("YYYYMMDD") - date; // TODO fix. In case the saved filter is "Recent", there will the be the exact date, so this won't work.
+                let [,, y, m, d] = recent;
+                const now = moment();
+                const creationDate = moment([y, m - 1, d]);
+                this.selectedRecentDays = now.diff(creationDate, "days");
             }
 
             if(y2 || m2 || d2) {
@@ -140,14 +142,14 @@ export default class OpencgaDateFilter extends LitElement {
 
     onFilterChange(e) {
         e.stopPropagation();
-        // it covers the click of tab buttons
+        // click of tab buttons
         if (e.target?.dataset?.tab) {
             this.activeTab = e.target.value;
         }
 
         if (this.activeTab === "recent") {
             if (e.target?.dataset?.type === "recent") {
-                this.selectedRecentDays = e.detail.value;
+                this.selectedRecentDays = e.target.value;
             }
             this.date = ">=" + moment().subtract(this.selectedRecentDays, "days").format("YYYYMMDD");
         }
@@ -204,6 +206,10 @@ export default class OpencgaDateFilter extends LitElement {
                 padding: 0 5px 0 0;
             }
             
+            .date-field-wrapper [data-type=recent] {
+                max-width: 70px;
+            }
+            
             .date-field-wrapper .col-md-4:last-child {
                 padding: 0;
             }            
@@ -232,12 +238,11 @@ export default class OpencgaDateFilter extends LitElement {
                 <div class="container-fluid">
                     ${this.activeTab === "recent" ? html`
                         <div>
-                            <form class="row date-field-wrapper text-center">
-                                <div class="col-md-offset-4 col-md-4">
-                                    <span class="${this._prefix}-text">Last</span>
-                                    <select-field-filter data-type="recent" .data="${UtilsNew.range(1,31)}" .value=${this.selectedRecentDays} @filterChange="${e => this.onFilterChange(e)}"></select-field-filter>
-                                    
-                                    <span class="${this._prefix}-text"> day(s)</span>
+                            <form class="form-inline row date-field-wrapper text-center">
+                                <div class="form-group">
+                                    <span>Last </span>
+                                        <input data-type="recent" type="number" class="form-control" min="1" max="100" .value=${this.selectedRecentDays} @change="${e => this.onFilterChange(e)}">
+                                    <span> day(s)</span>
                                 </div>
                             </form>
                         </div>
