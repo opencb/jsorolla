@@ -58,7 +58,7 @@ class VariantInterpreterBrowser extends LitElement {
     }
 
     _init() {
-        this._prefix = "vcis-" + UtilsNew.randomString(6);
+        this._prefix = UtilsNew.randomString(8);
         this.activeTab = {"VariantBrowser": true}; //default active tab
     }
 
@@ -70,12 +70,26 @@ class VariantInterpreterBrowser extends LitElement {
         // if (changedProperties.has("opencgaSession")) {
         //     this.opencgaSessionObserver();
         // }
+        if (changedProperties.has("clinicalAnalysis")) {
+            this.clinicalAnalysisObserver();
+        }
         if (changedProperties.has("clinicalAnalysisId")) {
             this.clinicalAnalysisIdObserver();
         }
-        // if (changedProperties.has("clinicalAnalysis")) {
-        //     this.clinicalAnalysisObserver();
-        // }
+
+    }
+    clinicalAnalysisObserver() {
+        if (this.clinicalAnalysis) {
+            if (this.clinicalAnalysis.type.toUpperCase() !== "CANCER") {
+                this._sample = this.clinicalAnalysis.proband.samples[0];
+                this.activeTab = {"VariantBrowser": true};
+            } else {
+                this._somaticSample = this.clinicalAnalysis.proband.samples.find(s => s.somatic);
+                this._germlineSample = this.clinicalAnalysis.proband.samples.find(s => !s.somatic);
+                this.activeTab = {"CancerSomaticVariantBrowser": true};
+            }
+        }
+        this.requestUpdate();
     }
 
     clinicalAnalysisIdObserver() {
@@ -83,7 +97,7 @@ class VariantInterpreterBrowser extends LitElement {
             this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
                 .then(response => {
                     this.clinicalAnalysis = response.responses[0].results[0];
-                    this.requestUpdate();
+                    this.clinicalAnalysisObserver();
                 })
                 .catch(response => {
                     console.error("An error occurred fetching clinicalAnalysis: ", response);
@@ -127,49 +141,74 @@ class VariantInterpreterBrowser extends LitElement {
             `;
         }
 
-        // if (!this.clinicalAnalysis) {
-        //     return html`
-        //             <div>
-        //                 <h3><i class="fas fa-lock"></i> No Case open</h3>
-        //             </div>`;
-        // }
+        if (!this.clinicalAnalysis) {
+            return html`
+                <div class="guard-page">
+                    <h3>No Case found</h3>
+                </div>`;
+        }
 
         return this.clinicalAnalysis ? html`
             <div id="${this._prefix}QcTabs">
                 <div class="">
                     <ul class="nav nav-tabs nav-center tablist" role="tablist" aria-label="toolbar">
-                        <li role="presentation" class="content-pills ${classMap({active: this.activeTab["VariantBrowser"]})}">
-                            <a href="javascript: void 0" role="tab" data-id="VariantBrowser" @click="${this._changeTab}" class="tab-title">Variant Browser</a>
-                        </li>
+                        ${this.clinicalAnalysis.type.toUpperCase() === "SINGLE" || this.clinicalAnalysis.type.toUpperCase() === "FAMILY"
+                            ? html`
+                                <li role="presentation" class="content-pills ${classMap({active: this.activeTab["VariantBrowser"]})}">
+                                    <a href="javascript: void 0" role="tab" data-id="VariantBrowser" @click="${this._changeTab}" class="tab-title">Variant Browser</a>
+                                </li>`
+                            : html`
+                                <li role="presentation" class="content-pills ${classMap({active: this.activeTab["CancerSomaticVariantBrowser"]})}">
+                                    <a href="javascript: void 0" role="tab" data-id="CancerSomaticVariantBrowser" @click="${this._changeTab}" class="tab-title">Somatic Variant Browser</a>
+                                </li>
+                                <li role="presentation" class="content-pills ${classMap({active: this.activeTab["CancerGermlineVariantBrowser"]})}">
+                                    <a href="javascript: void 0" role="tab" data-id="CancerGermlineVariantBrowser" @click="${this._changeTab}" class="tab-title">Germline Variant Browser</a>
+                                </li>`
+                        }
                     </ul>
                 </div>
                 
                 <div class="content-tab-wrapper">
-                    <div id="${this._prefix}VariantBrowser" role="tabpanel" class="tab-pane active col-md-12 content-tab" style="padding-top: 10px">
                         ${this.clinicalAnalysis.type.toUpperCase() === "SINGLE" || this.clinicalAnalysis.type.toUpperCase() === "FAMILY"
                             ? html`
-                                <variant-interpreter-browser-rd .opencgaSession="${this.opencgaSession}"
-                                                                .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                                .query="${this.query}"
-                                                                .cellbaseClient="${this.cellbaseClient}"
-                                                                @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}"
-                                                                @gene="${this.geneSelected}"
-                                                                @samplechange="${this.onSampleChange}">
-                                </variant-interpreter-browser-rd>`
-                            : null
-                        }
-                        ${this.clinicalAnalysis.type.toUpperCase() === "CANCER" 
-                            ? html`
-                                <variant-interpreter-browser-cancer .opencgaSession="${this.opencgaSession}"
+                                <div id="${this._prefix}VariantBrowser" role="tabpanel" class="tab-pane active col-md-12 content-tab">
+                                    <tool-header title="Variant Browser - ${this._sample?.id}" class="bg-white"></tool-header>
+                                    <variant-interpreter-browser-rd .opencgaSession="${this.opencgaSession}"
                                                                     .clinicalAnalysis="${this.clinicalAnalysis}"
                                                                     .query="${this.query}"
                                                                     .cellbaseClient="${this.cellbaseClient}"
                                                                     @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}"
-                                                                    @gene="${this.geneSelected}">
-                                </variant-interpreter-browser-cancer>` : 
-                            null
+                                                                    @gene="${this.geneSelected}"
+                                                                    @samplechange="${this.onSampleChange}">
+                                    </variant-interpreter-browser-rd>
+                                </div>`
+                            : null
                         }
-                    </div>
+                        ${this.clinicalAnalysis.type.toUpperCase() === "CANCER" 
+                            ? html`
+                                <div id="${this._prefix}CancerSomaticVariantBrowser" role="tabpanel" class="tab-pane active col-md-12 content-tab">
+                                    <tool-header title="Somatic Variant Browser - ${this._somaticSample?.id}" class="bg-white"></tool-header>
+                                    <variant-interpreter-browser-cancer .opencgaSession="${this.opencgaSession}"
+                                                                        .clinicalAnalysis="${this.clinicalAnalysis}"
+                                                                        .query="${this.query}"
+                                                                        .cellbaseClient="${this.cellbaseClient}"
+                                                                        @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}"
+                                                                        @gene="${this.geneSelected}">
+                                    </variant-interpreter-browser-cancer>
+                                </div>
+                                <div id="${this._prefix}CancerGermlineVariantBrowser" role="tabpanel" class="tab-pane active col-md-12 content-tab">
+                                    <tool-header title="Germline Variant Browser - ${this._germlineSample?.id}" class="bg-white"></tool-header>
+                                    <variant-interpreter-browser-rd .opencgaSession="${this.opencgaSession}"
+                                                                    .clinicalAnalysis="${this.clinicalAnalysis}"
+                                                                    .query="${this.query}"
+                                                                    .cellbaseClient="${this.cellbaseClient}"
+                                                                    @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}"
+                                                                    @gene="${this.geneSelected}"
+                                                                    @samplechange="${this.onSampleChange}">
+                                    </variant-interpreter-browser-rd>
+                                </div>`
+                            : null
+                        }
                 </div>
             </div>
         ` : null;

@@ -164,11 +164,12 @@ class VariantInterpreterBrowserRd extends LitElement {
     clinicalAnalysisObserver() {
         // If sample is not defined then we must set the default genotypes
         if (!this.query?.sample) {
+            if (!this.query) {
+                this.query = {};
+            }
+
             if (this.clinicalAnalysis.type.toUpperCase() === "SINGLE") {
                 if (this.clinicalAnalysis.proband?.samples) {
-                    if (!this.query) {
-                        this.query = {};
-                    }
                     this.query.sample = this.clinicalAnalysis.proband.samples[0].id + ":0/1,1/1";
                 }
             }
@@ -180,11 +181,16 @@ class VariantInterpreterBrowserRd extends LitElement {
                         sampleGenotypes.push(member.samples[0].id + ":0/1,1/1");
                     }
                 }
-                if (!this.query) {
-                    this.query = {};
-                }
                 this.query.sample = sampleGenotypes.join(";");
-                // this.requestUpdate();
+            }
+
+            if (this.clinicalAnalysis.type.toUpperCase() === "CANCER") {
+                if (this.clinicalAnalysis.proband?.samples) {
+                    let _sample = this.clinicalAnalysis.proband.samples.find(s => !s.somatic);
+                    if (_sample) {
+                        this.query.sample = _sample.id + ":0/1,1/1";
+                    }
+                }
             }
         }
 
