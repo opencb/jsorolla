@@ -245,6 +245,7 @@ export default class OpencgaFileBrowser extends LitElement {
                                 id: "creationMonth",
                                 name: "Creation Month",
                                 type: "category",
+                                multiple: true,
                                 allowedValues: ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"],
                                 description: "Creation month (JANUARY, FEBRUARY...)"
                             },
@@ -313,7 +314,8 @@ export default class OpencgaFileBrowser extends LitElement {
                             {
                                 id: "size",
                                 name: "Size",
-                                type: "string",
+                                type: "integer",
+                                defaultValue: "[0..214748364800]:10737418240",
                                 description: "Size"
                             },
                             {
@@ -392,7 +394,8 @@ export default class OpencgaFileBrowser extends LitElement {
                                 id: "numSamples",
                                 name: "Number Of Samples",
                                 type: "string",
-                                description: "Number of samples"
+                                description: "Number of samples",
+                                defaultValue: "[0..10]:1"
                             },
                             {
                                 id: "numRelatedFiles",

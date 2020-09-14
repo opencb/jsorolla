@@ -95,7 +95,19 @@ export default class SelectFieldFilter extends LitElement {
             this.selectPicker.selectpicker("refresh");
         }
         if (_changedProperties.has("value")) {
-            const val = this.value ? (this.multiple ? Array.isArray(this.value) ? this.value : this.value.split(",") : this.value) : ""
+            let val = "";
+            if (this.value) {
+                if(this.multiple) {
+                    if(Array.isArray(this.value)) {
+                        val = this.value
+                    } else {
+                        console.log("multiple mode with string value", this.value)
+                        val = this.value.split(",");
+                    }
+                } else {
+                    val = this.value;
+                }
+            }
             this.selectPicker.selectpicker("val", val);
 
             //console.log("value changes")
