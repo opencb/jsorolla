@@ -393,7 +393,7 @@ export default class OpencgaFileBrowser extends LitElement {
                             {
                                 id: "numSamples",
                                 name: "Number Of Samples",
-                                type: "string",
+                                type: "integer",
                                 description: "Number of samples",
                                 defaultValue: "[0..10]:1"
                             },

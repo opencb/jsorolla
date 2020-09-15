@@ -101,7 +101,6 @@ export default class SelectFieldFilter extends LitElement {
                     if(Array.isArray(this.value)) {
                         val = this.value
                     } else {
-                        console.log("multiple mode with string value", this.value)
                         val = this.value.split(",");
                     }
                 } else {

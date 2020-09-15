@@ -92,29 +92,47 @@ export default class FacetFilter extends LitElement {
 
     addDefaultFacet() {
         // NOTE default values for facet can be defined in config both in `default` array (list of default facets) and `fields` array too (defaultValue prop)
+        // NOTE default values of type Avg() or Percentile() can be defined in `default` array only at the moment
 
         for (const defaultFacetId of this.config.default) {
             const facet = defaultFacetId.split(">>");
-            // extract key from string in case there is a default value.
-            let [, mainFacetKey, mainFacetValue] = [...facet[0].matchAll(/(\w+)((\[[^\s]+])?(:\d+)?)?/gi)][0];
-            console.log("mainFacet range", mainFacetKey, mainFacetValue);
-            const mainFacet = this._recFind(this.config.sections, mainFacetKey);
-            this.selectedFacet[mainFacetKey] = {
+            // extract key, value and function from string
+            let {key, value, fn} = this.parseFacet(facet[0]);
+            console.log({key, value, fn})
+            const mainFacet = this._recFind(this.config.sections, key);
+            this.selectedFacet[key] = {
                 ...mainFacet,
-                value: mainFacetValue ?? mainFacet?.defaultValue ?? ""
+                facet: key,
+                value: value ?? mainFacet?.defaultValue ?? "",
+                fn
             };
-
             // in case of nested facets
             if (facet.length > 1) {
-                let [, nestedFacetKey, nestedFacetValue] = [...facet[1].matchAll(/(\w+)((\[[^\s]+])?(:\d+)?)?/gi)][0];
-                console.log("nestedFacet range", nestedFacetKey, nestedFacetValue);
+                let {key: nestedFacetKey, value: nestedFacetValue, fn} = this.parseFacet(facet[1]);
                 const nestedFacet = this._recFind(this.config.sections, nestedFacetKey);
-                this.selectedFacet[mainFacetKey].nested = {...nestedFacet, facet: nestedFacetKey, value: nestedFacetValue ?? nestedFacet.defaultValue ?? ""};
+                this.selectedFacet[key].nested = {...nestedFacet, facet: nestedFacetKey, value: nestedFacetValue ?? nestedFacet.defaultValue ?? "", fn};
             }
 
         }
         this.selectedFacet = {...this.selectedFacet};
         UtilsNew.initTooltip(this);
+    }
+
+    /**
+     * Extracts facet field name, value and function (Avg or Percentile) from default list (or saved facet, in future)
+     */
+    parseFacet(str) {
+        let fn_match =  [...str.matchAll(/(Avg|Percentile)\((\w+)\)/gi)];
+        let val_match = [...str.matchAll(/(\w+)((\[[^\s]+])?(:\d+)?)?/gi)]
+        //console.log(fn_match, val_match)
+        if (fn_match.length) {
+            let [, fn, key] =  fn_match[0];
+            return {key, fn, value: ""};
+        }
+        else if (val_match.length) {
+            let [, key, value] =  val_match[0];
+            return {key, value};
+        }
     }
 
     async onFacetFieldChange(e) {
@@ -249,12 +267,17 @@ export default class FacetFilter extends LitElement {
         if (value && (value === "Avg" || value === "Percentile")) {
             if (this.selectedFacet[facet].nested) {
                 this.selectedFacet[facet].nested.fn = value;
-                this.querySelector("#" + this._prefix + facet + "_NestedValue").disabled = true;
+                /*this.querySelector("#" + this._prefix + facet + "_Nested_range_start").disabled = true;
+                this.querySelector("#" + this._prefix + facet + "_Nested_range_stop").disabled = true;
+                this.querySelector("#" + this._prefix + facet + "_Nested_range_step").disabled = true;*/
+
             } else {
                 console.error("function selected before facet!");
             }
         } else {
-            this.querySelector("#" + this._prefix + facet + "_NestedValue").disabled = false;
+            /*this.querySelector("#" + this._prefix + facet + "_Nested_range_start").disabled = false;
+            this.querySelector("#" + this._prefix + facet + "_Nested_range_stop").disabled = false;
+            this.querySelector("#" + this._prefix + facet + "_Nested_range_step").disabled = false;*/
             delete this.selectedFacet[facet].nested.fn;
         }
         this.selectedFacet = {...this.selectedFacet};
@@ -308,8 +331,6 @@ export default class FacetFilter extends LitElement {
         switch (facet.type) {
             case "category":
                 const [,value] = facet.value ? [...facet.value.matchAll(/\[([^\s]+)]/gim)][0] : "";
-                console.log("category facet.value", facet.value)
-                console.log("cat value", value)
                 return html`
                     <div class="row facet-row">
                         <div class="col-md-12">
@@ -318,47 +339,29 @@ export default class FacetFilter extends LitElement {
                     </div>
                     ${renderNestedFieldWrapper(facet)}
                     `;
-            case "range":
-                console.log("facet.value", facet.value)
-                const [, start, stop, step] = facet.value ? [...facet.value.matchAll(/\[(\d+)\.\.(\d+)]:(\d+)/gim)][0] : "";
-                return html`
-                    <div class="row facet-row">
-                        <div class="col-md-4">
-                            <input type="text" class="form-control" placeholder="Start" id="${this._prefix}${facet.id}_range_start" data-id="${facet.id}" data-type="range_start" .value="${start || ""}" @input="${this.onFacetRangeChange}" />
-                        </div>
-                        <div class="col-md-4">
-                            <input type="text" class="form-control" placeholder="Stop" id="${this._prefix}${facet.id}_range_stop" data-id="${facet.id}" data-type="range_stop" .value="${stop || ""}" @input="${this.onFacetRangeChange}" />
-                        </div>
-                        <div class="col-md-4">
-                            <input type="text" class="form-control" placeholder="Step" id="${this._prefix}${facet.id}_range_step" data-id="${facet.id}" data-type="range_step" .value="${step || ""}" @input="${this.onFacetRangeChange}" />
-                        </div>
-                    </div>
-                    ${renderNestedFieldWrapper(facet)}
-                `;
             case "number":
             case "integer":
             case "float":
                 const [,num_value] = facet.value ? [...facet.value.matchAll(/\[([^\s]+)]/gim)][0] : "";
                 const [, nstart, nstop, nstep] = facet.value ? [...facet.value.matchAll(/\[(\d+)\.\.(\d+)]:(\d+)/gim)][0] : "";
                 return html`
-                    ${JSON.stringify(facet)}
                     <div class="row facet-row">
                         <div class="col-md-9">
                             <div class="row facet-row">
                                 <div class="col-md-4">
-                                    <input type="text" class="form-control" placeholder="Start" id="${this._prefix}${facet.id}_range_start" data-id="${facet.id}" data-type="range_start" .value="${nstart || ""}" @input="${this.onFacetRangeChange}" />
+                                    <input type="text" class="form-control" placeholder="Start" id="${this._prefix}${facet.id}_range_start" .disabled="${facet.fn}" data-id="${facet.id}" data-type="range_start" .value="${nstart || ""}" @input="${this.onFacetRangeChange}" />
                                 </div>
                                 <div class="col-md-4">
-                                    <input type="text" class="form-control" placeholder="Stop" id="${this._prefix}${facet.id}_range_stop" data-id="${facet.id}" data-type="range_stop" .value="${nstop || ""}" @input="${this.onFacetRangeChange}" />
+                                    <input type="text" class="form-control" placeholder="Stop" id="${this._prefix}${facet.id}_range_stop" .disabled="${facet.fn}" data-id="${facet.id}" data-type="range_stop" .value="${nstop || ""}" @input="${this.onFacetRangeChange}" />
                                 </div>
                                 <div class="col-md-4">
-                                    <input type="text" class="form-control" placeholder="Step" id="${this._prefix}${facet.id}_range_step" data-id="${facet.id}" data-type="range_step" .value="${nstep || ""}" @input="${this.onFacetRangeChange}" />
+                                    <input type="text" class="form-control" placeholder="Step" id="${this._prefix}${facet.id}_range_step" .disabled="${facet.fn}" data-id="${facet.id}" data-type="range_step" .value="${nstep || ""}" @input="${this.onFacetRangeChange}" />
                                 </div>
                             </div>
                             <!--<input type="text" class="form-control" placeholder="Include values or set range" id="${this._prefix}${facet.id}_text" data-id="${facet.id}" .value="${num_value || ""}" @input="${this.onFacetValueChange}" />-->
                         </div>
                         <div class="col-md-3">
-                            <select-field-filter .data="${["Range", "Avg", "Percentile"]}" .value="${"Range"}" id="${this._prefix}${facet.id}_FnSelect" data-facet="${facet.id}" @filterChange="${this.onFacetFnChange}"></select-field-filter>
+                            <select-field-filter .data="${["Range", "Avg", "Percentile"]}" .value="${facet.fn ?? "Range"}" id="${this._prefix}${facet.id}_FnSelect" data-facet="${facet.id}" @filterChange="${this.onFacetFnChange}"></select-field-filter>
                         </div>
                     </div>
                     ${renderNestedFieldWrapper(facet)}
@@ -391,7 +394,7 @@ export default class FacetFilter extends LitElement {
                     `;
             default:
                 console.log("no type recognized", facet);
-                return html`no type recognized: ${facet.type}`;
+                return html`<div class="alert alert-danger">Type not recognized: ${JSON.stringify(facet)}</div>`;
         }
     }
 
@@ -401,27 +404,12 @@ export default class FacetFilter extends LitElement {
         switch (facet.type) {
             case "category":
                 const [,value] = facet.value ? [...facet.value.matchAll(/\[([^\s]+)]/gim)][0] : "";
-                console.log("renderNestedField facet.value", facet.value)
-                console.log("cat value", value)
+                //console.log("renderNestedField facet.value", facet.value)
+                //console.log("cat value", value)
 
                 return html`
                     <div class="col-md-12">
                         <select-field-filter ?multiple="${facet.multiple === undefined || facet.multiple}" .data="${facet.allowedValues}" .value="${value}" id="${facet.id}_NestedSelect" data-parent-facet="${parent}" @filterChange="${this.onNestedFacetSelectChange}"></select-field-filter>
-                    </div>
-                `;
-            case "range":
-                console.log("facet.value", facet.value)
-
-                const [, start, stop, step] = facet.value ? [...facet.value.matchAll(/\[(\d+)\.\.(\d+)]:(\d+)/gim)][0] : "";
-                return html`
-                    <div class="col-md-4">
-                        <input type="text" class="form-control" placeholder="Start" data-parent-facet="${parent}" .disabled="${!(facet.facet)}" id="${this._prefix}${parent}_Nested_range_start" .value="${start || ""}" @input="${this.onNestedFacetRangeChange}" />
-                    </div>
-                    <div class="col-md-4">
-                        <input type="text" class="form-control" placeholder="Stop" data-parent-facet="${parent}" .disabled="${!(facet.facet)}" id="${this._prefix}${parent}_Nested_range_stop" .value="${stop || ""}" @input="${this.onNestedFacetRangeChange}" />
-                    </div>
-                    <div class="col-md-4">
-                        <input type="text" class="form-control" placeholder="Step" data-parent-facet="${parent}" .disabled="${!(facet.facet)}" id="${this._prefix}${parent}_Nested_range_step" .value="${step || ""}" @input="${this.onNestedFacetRangeChange}" />
                     </div>
                 `;
             case "number":
@@ -434,19 +422,19 @@ export default class FacetFilter extends LitElement {
                     <div class="col-md-9">
                         <div class="row facet-row">
                             <div class="col-md-4">
-                                <input type="text" class="form-control" placeholder="Start" id="${this._prefix}${facet.id}_range_start" data-id="${facet.id}" data-type="range_start" .value="${nstart || ""}" @input="${this.onFacetRangeChange}" />
+                                <input type="text" class="form-control" placeholder="Start" data-parent-facet="${parent}" id="${this._prefix}${parent}_Nested_range_start" .disabled="${facet.fn}" data-id="${facet.id}" data-type="range_start" .value="${nstart || ""}" @input="${this.onNestedFacetRangeChange}" />
                             </div>
                             <div class="col-md-4">
-                                <input type="text" class="form-control" placeholder="Stop" id="${this._prefix}${facet.id}_range_stop" data-id="${facet.id}" data-type="range_stop" .value="${nstop || ""}" @input="${this.onFacetRangeChange}" />
+                                <input type="text" class="form-control" placeholder="Stop" data-parent-facet="${parent}" id="${this._prefix}${parent}_Nested_range_stop" .disabled="${facet.fn}" data-id="${facet.id}" data-type="range_stop" .value="${nstop || ""}" @input="${this.onNestedFacetRangeChange}" />
                             </div>
                             <div class="col-md-4">
-                                <input type="text" class="form-control" placeholder="Step" id="${this._prefix}${facet.id}_range_step" data-id="${facet.id}" data-type="range_step" .value="${nstep || ""}" @input="${this.onFacetRangeChange}" />
+                                <input type="text" class="form-control" placeholder="Step" data-parent-facet="${parent}" id="${this._prefix}${parent}_Nested_range_step" .disabled="${facet.fn}" data-id="${facet.id}" data-type="range_step" .value="${nstep || ""}" @input="${this.onNestedFacetRangeChange}" />
                             </div>
                         </div>
                         <!--<input type="text" class="form-control" placeholder="Include values or set range" data-parent-facet="${parent}" .disabled="${!(facet.facet)}" id="${this._prefix}${parent}_NestedValue" .value="${num_value || ""}"  @input="${this.onNestedFacetValueChange}"  />-->
                     </div>
                     <div class="col-md-3">
-                        <select-field-filter .disabled="${false}" .data="${["Range", "Avg", "Percentile"]}" .value="${"Range"}" id="${parent}_NestedFnSelect" data-parent-facet="${parent}" @filterChange="${this.onNestedFacetFnChange}"></select-field-filter>
+                        <select-field-filter .disabled="${false}" .data="${["Range", "Avg", "Percentile"]}" .value="${facet.fn ?? "Range"}" id="${parent}_NestedFnSelect" data-parent-facet="${parent}" @filterChange="${this.onNestedFacetFnChange}"></select-field-filter>
                     </div>
                 `;
             case "string":
