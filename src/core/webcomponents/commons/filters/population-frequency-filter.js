@@ -52,54 +52,53 @@ export default class PopulationFrequencyFilter extends LitElement {
     _init() {
         this._prefix = "pff-" + UtilsNew.randomString(6) + "_";
         this.populationFrequenciesQuery = [];
+        this.state = {};
     }
 
     updated(_changedProperties) {
-        let pfArray = [];
-        if (this.populationFrequencyAlt) {
-            pfArray = this.populationFrequencyAlt.split(new RegExp("[,;]"));
-            // reset and update input fields and select fields
-            //$("." + this._prefix + "FilterTextInput").val(""); //it is useless and it causes a bug when you use the set all field
-            //$("." + this._prefix + "FilterTextInput").prop("disabled", false);
-            if (typeof populationFrequencies !== "undefined" && typeof populationFrequencies.studies !== "undefined" && populationFrequencies.studies.length > 0) {
-                pfArray.forEach(queryElm => {
-                    const popFreq = queryElm.split(/[<=>]+/);
-                    const [study, population] = popFreq[0].split(":");
-                    const value = popFreq[1];
-                    const operator = queryElm.split(/[-A-Za-z0-9._:]+/)[1];
-                    this.querySelector("#" + this._prefix + study + population).value = value;
-                    $("#" + this._prefix + study + population + "Operator").val(operator);
-                });
-            }
-        } else {
-            // this covers the case of opencga-active-filters deletes all populationFrequencyAlt filters
-            $("." + this._prefix + "FilterTextInput").val("");
-            //$("." + this._prefix + "FilterTextInput").prop("disabled", false);
+        if (_changedProperties.has("populationFrequencyAlt")) {
+            this.populationFrequencyAltObserver();
         }
     }
 
-    filterChange(e) {
-        // TODO refactor!
-        const popFreq = [];
-        if (populationFrequencies.studies && populationFrequencies.studies.length) {
-            populationFrequencies.studies.forEach(study => {
-                const study_id = study.id;
-                if (study.populations && study.populations.length) {
-                    study.populations.forEach(population => {
-                        const population_id = population.id;
-                        const studyTextbox = this.querySelector("#" + this._prefix + study_id + population_id);
-                        if (studyTextbox && studyTextbox.value) {
-                            const operator = this.querySelector("#" + this._prefix + study_id + population_id + "Operator");
-                            const pf = study_id + ":" + population_id + operator.value + studyTextbox.value;
-                            popFreq.push(pf);
-                        }
-                    });
+    populationFrequencyAltObserver() {
+        // 1kG_phase3:EUR<2;GNOMAD_GENOMES:ALL<1;GNOMAD_GENOMES:AMR<2
+        let pfArray = [];
+        if (this.populationFrequencyAlt) {
+
+            if (!populationFrequencies?.studies?.length && !this.populationFrequencies) {
+                console.error("populationFrequency data not available")
+            }
+            pfArray = this.populationFrequencyAlt.split(new RegExp("[,;]"));
+            pfArray.forEach(queryElm => {
+                const [, study, population, comparator, value] = queryElm.match(/([^\s]+):([^\s]+)(<=?|>=?)(\d+[.]?[\d+]?)/);
+                this.state[study + ":" + population] = {
+                    comparator,
+                    value
                 }
             });
+        } else {
+            this.state = {
+            }
+        }
+        this.requestUpdate();
+    }
+
+    filterChange(e) {
+        if(e?.detail?.value) {
+            e.stopPropagation();
+            const [, study, population, comparator, value] = e.detail.value.match(/([^\s]+):([^\s]+)(<=?|>=?)(\d+[.]?[\d+]?)/);
+            this.state[study + ":" + population] = {comparator, value};
+        }
+
+        let r = [];
+
+        for (let [study_popId, data] of Object.entries(this.state)) {
+            r.push(study_popId + data.comparator + data.value)
         }
         const event = new CustomEvent("filterChange", {
             detail: {
-                value: popFreq ? popFreq.join(";") : null
+                value: r.length ? r.join(";") : null
             }
         });
         this.dispatchEvent(event);
@@ -120,8 +119,17 @@ export default class PopulationFrequencyFilter extends LitElement {
         const studyId = e.target.getAttribute("data-study");
         const study = populationFrequencies.studies.find(study => study.id === studyId);
         study.populations.forEach(popFreq => {
-            this.querySelector("#" + this._prefix + studyId + popFreq.id).value = e.target.value;
+            if (this.state[studyId + ":" + popFreq.id]) {
+                this.state[studyId + ":" + popFreq.id].value = e.target.value;
+            } else {
+                this.state[studyId + ":" + popFreq.id] = {
+                    comparator: "<",
+                    value: e.target.value
+                };
+            }
         });
+        this.state = {...this.state};
+        this.requestUpdate();
         this.filterChange();
     }
 
@@ -130,6 +138,15 @@ export default class PopulationFrequencyFilter extends LitElement {
             return html`No Population Frequencies defined`
         }
         return html`
+            <style>
+            .set-all-form-wrapper {
+                    margin: 5px 0px;
+                }              
+                
+                .set-all-form-wrapper > div:not(:first-child) {
+                    padding: 0px 10px
+                }
+            </style>
             ${populationFrequencies.studies.map(study => html`
                 <div style="padding-top: 10px">
                     <i id="${this._prefix}${study.id}Icon" data-id="${this._prefix}${study.id}" class="fa fa-plus"
@@ -137,37 +154,18 @@ export default class PopulationFrequencyFilter extends LitElement {
                     <strong>${study.title}</strong>
                     <div id="${this._prefix}${study.id}" class="form-horizontal" hidden>
                         ${this.showSetAll ? html`
-                            <div class="form-group" style="margin: 5px 0px">
-                                <span class="col-md-7 control-label" data-toggle="tooltip" data-placement="top"
-                                      style="text-align: left;">Set all</span>
-                                <div class="col-md-5" style="padding: 0px 10px">
-                                    <input id="${this._prefix}${study.id}Input" type="number" data-study="${study.id}"
+                            <div class="set-all-form-wrapper form-group">
+                                <div class="col-md-4 control-label" data-toggle="tooltip" data-placement="top">Set all</div>
+                                <div class="col-md-4"></div>
+                                <div class="col-md-4">
+                                    <input id="${this._prefix}${study.id}Input" type="number" data-study="${study.id}" min="0"
                                            class="form-control input-sm ${this._prefix}FilterTextInput"
                                            name="${study.id}Input" @input="${this.keyUpAllPopFreq}">
                                 </div>
                             </div>
                         ` : ""}
                         ${study.populations && study.populations.length && study.populations.map(popFreq => html`
-                            <!--<number-field-filter .key="${study.id}_${popFreq.id}" .config="${{comparator: true}}" .label="${popFreq.id}"></number-field-filter>-->
-
-                            <div class="form-group" style="margin: 5px 0px">
-                                <span class="col-md-3 control-label" data-toggle="tooltip" data-placement="top" title="${popFreq.title}">${popFreq.id}</span>
-                                <div class="col-md-4" style="padding: 0px 10px">
-                                    <select id="${this._prefix}${study.id}${popFreq.id}Operator" name="${popFreq.id}Operator"
-                                            class="form-control input-sm ${this._prefix}FilterSelect" style="padding: 0px 5px"
-                                            @change="${this.filterChange}">
-                                        <option value="<" selected>&lt;</option>
-                                        <option value="<=">&le;</option>
-                                        <option value=">">&gt;</option>
-                                        <option value=">=">&ge;</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-5" style="padding: 0px 10px">
-                                    <input id="${this._prefix}${study.id}${popFreq.id}" type="number"
-                                           class="form-control input-sm ${this._prefix}FilterTextInput"
-                                           name="${study.id}_${popFreq.id}" @input="${this.filterChange}">
-                                </div>
-                            </div>
+                            <number-field-filter .key="${study.id}:${popFreq.id}" .value="${this.state[study.id +":"+popFreq.id]?.value ? this.state[study.id +":"+popFreq.id]?.comparator + this.state[study.id +":"+popFreq.id]?.value : "" }" .config="${{comparator: true}}" .label="${popFreq.id}" @filterChange="${this.filterChange}"></number-field-filter>
                         `)}
                     </div>
                 </div>

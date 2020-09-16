@@ -59,8 +59,9 @@ export default class TextFieldFilter extends LitElement {
 
     _init() {
         this._prefix = "tff-" + UtilsNew.randomString(6);
-        this.state = {};
-        this.defaultComparator = ">";
+        this.state = {
+            comparator: "<"
+        };
     }
 
     connectedCallback() {
@@ -70,6 +71,15 @@ export default class TextFieldFilter extends LitElement {
 
     updated(changedProperties) {
         if (changedProperties.has("value")) {
+            if(this.value) {
+                const [, comparator, value] = this.value.match(/(<=?|>=?)(\d+[.]?[\d+]?)/);
+                this.state = {comparator, value};
+            } else {
+                this.state = {
+                    comparator: "<"
+                };
+            }
+            this.requestUpdate();
         }
     }
 
@@ -77,11 +87,11 @@ export default class TextFieldFilter extends LitElement {
         e.stopPropagation();
         let field = e.target.dataset.field;
         this.state[field] = e.target.value;
-        console.log("state", this.state)
+        //console.log("filterChange", this.state.value ? (this.key + (this.state.comparator ?? "") + this.state.value) : null)
 
         const event = new CustomEvent("filterChange", {
             detail: {
-                value: this.label + (this.state.comparator ?? this.defaultComparator) + this.state.value
+                value: this.state.value ? (this.key + (this.state.comparator ?? "") + this.state.value) : null
             },
             bubbles: true,
             composed: true
@@ -114,16 +124,16 @@ export default class TextFieldFilter extends LitElement {
                     <select id="${this._prefix}Comparator" name="${this._prefix}Comparator"
                             class="form-control input-sm ${this._prefix}FilterSelect"
                             @change="${this.filterChange}" data-field="comparator">
-                        <option value="<" selected>&lt;</option>
-                        <option value="<=">&le;</option>
-                        <option value=">">&gt;</option>
-                        <option value=">=">&ge;</option>
+                        <option .selected="${this.state.comparator === "<"}" value="<">&lt;</option>
+                        <option .selected="${this.state.comparator === "<="}" value="<=">&le;</option>
+                        <option .selected="${this.state.comparator === ">="}" value=">">&gt;</option>
+                        <option .selected="${this.state.comparator === ">="}" value=">=">&ge;</option>
                     </select>
                 </div>` : null}
                 <div class="col-md-${this._config.layout[2]}">
-                    <input type="number" data-field="value"
+                    <input type="number" data-field="value" .min="${this.min ?? false}" .max="${this.max ?? false}" .step="${this.step ?? false}"
                            class="form-control input-sm ${this._prefix}FilterTextInput"
-                           name="${this.key}" value="${this.value}" @input="${this.filterChange}">
+                           name="${this.key}" value="${this.state.value}" @input="${this.filterChange}">
                 </div>
             </div>
         `;
