@@ -200,13 +200,7 @@ export default class OpencgaActiveFilters extends LitElement {
         const filterName = PolymerUtils.getValue(this._prefix + "filterName");
         const filterDescription = PolymerUtils.getValue(this._prefix + "filterDescription");
 
-        const data = {
-            id: filterName,
-            description: filterDescription,
-            resource: this.resource,
-            query: this.query,
-            options: {}
-        };
+
         this.opencgaClient.users().filters(this.opencgaSession.user.id)
             .then(restResponse => {
                 console.log("GET filters", restResponse);
@@ -214,8 +208,11 @@ export default class OpencgaActiveFilters extends LitElement {
 
                 console.log("savedFilters", savedFilters);
                 // updating an existing filter
-
-                //check if filterName else updateFilters
+                const data = {
+                    description: filterDescription,
+                    query: this.query,
+                    options: {}
+                };
                 if (savedFilters.find(savedFilter => savedFilter.id === filterName)) {
                     this.opencgaClient.users().updateFilter(this.opencgaSession.user.id, filterName, data)
                         .then(response => {
@@ -229,9 +226,15 @@ export default class OpencgaActiveFilters extends LitElement {
                         });
                 } else {
                     // saving a new filter
+                    const data = {
+                        id: filterName,
+                        description: filterDescription,
+                        resource: this.resource,
+                        query: this.query,
+                        options: {}
+                    };
                     this.opencgaClient.users().updateFilters(this.opencgaSession.user.id, data, {action: "ADD"})
                         .then(response => {
-
                             this._filters = [...this._filters, data];
                             PolymerUtils.setValue(this._prefix + "filterName", "");
                             PolymerUtils.setValue(this._prefix + "filterDescription", "");
@@ -572,23 +575,20 @@ export default class OpencgaActiveFilters extends LitElement {
                                 <ul class="dropdown-menu dropdown-menu-right">
                                     <li><a style="font-weight: bold">Saved Filters</a></li>
                                     ${this._filters && this._filters.length
-            ? this._filters.map(item => html`
-                                            ${item.separator
-                ? html`<li role="separator" class="divider"></li>`
-                : html`
-                                                    <li>
-                                                        <a data-filter-id="${item.id}" style="cursor: pointer;color: ${!item.active ? "black" : "green"}" @click="${this.onServerFilterChange}" class="filtersLink">&nbsp;&nbsp;${item.id}</a>
-                                                    </li>`
-                }`
-            )
-            : null
-        }
+                                        ? this._filters.map(item => item.separator ? html`
+                                                <li role="separator" class="divider"></li>
+                                            ` : html`
+                                                <li>
+                                                    <a data-filter-id="${item.id}" style="cursor: pointer;color: ${!item.active ? "black" : "green"}" @click="${this.onServerFilterChange}" class="filtersLink">&nbsp;&nbsp;${item.id}</a>
+                                                </li>`)
+                                        : null
+                                    }
                                     ${this.checkSid(this.opencgaClient._config) ? html`
                                         <li role="separator" class="divider"></li>
                                         <li>
                                             <a style="cursor: pointer" @click="${this.launchModal}"><i class="fa fa-floppy-o" aria-hidden="true"></i> Save...</a>
                                         </li>
-                                    ` : html``}
+                                    ` : null}
                                 </ul>
                             </div>
                         ` : null}
