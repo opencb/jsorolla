@@ -98,7 +98,7 @@ export default class FacetFilter extends LitElement {
             const facet = defaultFacetId.split(">>");
             // extract key, value and function from string
             let {key, value, fn} = this.parseFacet(facet[0]);
-            console.log({key, value, fn})
+            //console.log({key, value, fn})
             const mainFacet = this._recFind(this.config.sections, key);
             this.selectedFacet[key] = {
                 ...mainFacet,
@@ -124,7 +124,6 @@ export default class FacetFilter extends LitElement {
     parseFacet(str) {
         let fn_match =  [...str.matchAll(/(Avg|Percentile)\((\w+)\)/gi)];
         let val_match = [...str.matchAll(/(\w+)((\[[^\s]+])?(:\d+)?)?/gi)]
-        //console.log(fn_match, val_match)
         if (fn_match.length) {
             let [, fn, key] =  fn_match[0];
             return {key, fn, value: ""};

@@ -16,6 +16,7 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../utilsNew.js";
+import "./number-field-filter.js";
 
 /*
 * UX improvement: mouse drag for the numeric fields (e.g. jquery.stepper.js)
@@ -147,6 +148,8 @@ export default class PopulationFrequencyFilter extends LitElement {
                             </div>
                         ` : ""}
                         ${study.populations && study.populations.length && study.populations.map(popFreq => html`
+                            <!--<number-field-filter .key="${study.id}_${popFreq.id}" .config="${{comparator: true}}" .label="${popFreq.id}"></number-field-filter>-->
+
                             <div class="form-group" style="margin: 5px 0px">
                                 <span class="col-md-3 control-label" data-toggle="tooltip" data-placement="top" title="${popFreq.title}">${popFreq.id}</span>
                                 <div class="col-md-4" style="padding: 0px 10px">
