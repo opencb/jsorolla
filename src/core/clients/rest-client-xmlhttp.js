@@ -114,8 +114,12 @@ export class RestClientXmlhttp {
                 } else {
                     console.error(`REST call to URL failed: '${url}'`);
                     globalThis.dispatchEvent(eventDone);
-                    //TODO check this. it assumes in case of error a RestResponse shaped json is returned in any case
-                    reject(new RestResponse(JSON.parse(request.response)));
+                    if (this.getResponseHeader("Content-Type").indexOf("application/json") > -1) {
+                        reject(new RestResponse(JSON.parse(request.response)));
+                    } else {
+                        reject(request.response);
+                    }
+
                 }
             };
 

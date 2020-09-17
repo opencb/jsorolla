@@ -660,7 +660,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
     
             ${this._config.showToolbar 
                 ? html`
-                    <opencb-grid-toolbar    .config="${this.toolbarConfig}"
+                    <opencb-grid-toolbar    .config="${this._config.toolbar}"
                                             @columnChange="${this.onColumnChange}"
                                             @download="${this.onDownload}">
                     </opencb-grid-toolbar>` 

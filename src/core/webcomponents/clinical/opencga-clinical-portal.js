@@ -111,13 +111,12 @@ export default class OpencgaClinicalPortal extends LitElement {
             showTitle: true,
             icon: "fas fa-window-restore",
             showCreate: true,
-            showActions: true
-            // grid: {
-            //     pageSize: 10,
-            //     pageList: [10, 25, 50],
-            //     detailView: false,
-            //     multiSelection: false
-            // }
+            showActions: true,
+            grid: {
+                toolbar: {
+                    buttons: ["new", "columns", "download"]
+                }
+            }
         };
     }
 
@@ -164,7 +163,7 @@ export default class OpencgaClinicalPortal extends LitElement {
                     <div style="padding: 0px 10px">
                         <div id="${this._prefix}ReviewCases" class="clinical-portal-content">
                             <opencga-clinical-review-cases .opencgaSession="${this.opencgaSession}"
-                                                           .config="${this._config.reviewCases}">
+                                                           .config="${this._config}">
                             </opencga-clinical-review-cases>
                         </div>
 

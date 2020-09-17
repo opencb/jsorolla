@@ -31,15 +31,6 @@ export default class OpencbGridToolbar extends LitElement {
 
     static get properties() {
         return {
-            from: {
-                type: String
-            },
-            to: {
-                type: String
-            },
-            numTotalResultsText: {
-                type: String
-            },
             config: {
                 type: Object
             }
@@ -47,9 +38,8 @@ export default class OpencbGridToolbar extends LitElement {
     }
 
     _init() {
-        this._prefix = "dialog" + UtilsNew.randomString(6);
+        this._prefix = "grid" + UtilsNew.randomString(6);
         this._config = this.getDefaultConfig();
-        this.numTotalResultsText = "0"
     }
 
     connectedCallback() {
@@ -78,6 +68,9 @@ export default class OpencbGridToolbar extends LitElement {
     }
 
     onColumnClick(e) {
+        // We do this call to avoid the dropdown to be closed after the click
+        e.stopPropagation();
+
         // Toggle the checkbox
         e.currentTarget.firstElementChild.checked = !e.currentTarget.firstElementChild.checked;
         this.dispatchEvent(new CustomEvent("columnChange", {
@@ -87,8 +80,6 @@ export default class OpencbGridToolbar extends LitElement {
             }, bubbles: true, composed: true
         }));
 
-        // We do this call to avoid the dropdown to be closed after the click
-        e.stopPropagation();
     }
 
     onShareLink(e) {
@@ -108,7 +99,7 @@ export default class OpencbGridToolbar extends LitElement {
             columns: [], // [{field: "fieldname", title: "title", visible: true, eligible: true}]
             download: ["Tab", "JSON"],
             showShareLink: false,
-            showPaginationInfo: false
+            buttons: ["columns", "download"]
         };
     }
 
@@ -119,23 +110,20 @@ export default class OpencbGridToolbar extends LitElement {
                     margin-top: 5px;
                 }
                 .opencb-grid-toolbar {
-                    margin-bottom: 5px;
+                    margin-bottom: ${~this._config.buttons.indexOf("new") ? 10 : 5}px;
                 }
             </style>
             
             <div class="opencb-grid-toolbar">
                 <div class="row">
                     <div id="${this._prefix}ToolbarLeft" class="col-md-6">
-                        ${this._config.showPaginationInfo ? html`
-                            <span class="pagination-info">
-                                Showing <label>${this.from}-${this.to}</label> of <label>${this.numTotalResultsText}</label> ${this._config.label}
-                            </span>
-                        ` : null}
+                        ${~this._config.buttons.indexOf("new") ? html`<button type="button" class="btn btn-default ripple btn-sm">
+                            <i id="${this._prefix}ColumnIcon" class="fa fa-columns icon-padding" aria-hidden="true"></i> New </span>
+                        </button>` : null}
                     </div>
                     <div id="${this._prefix}toolbar" class="col-md-6">
-            
                         <div class="form-inline text-right pull-right">
-                            ${this._config.columns.length ? html`
+                            ${~this._config.buttons.indexOf("columns") && this._config.columns.length ? html`
                                     <div class="btn-group">
                                         <button type="button" class="btn btn-default ripple btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                             <i id="${this._prefix}ColumnIcon" class="fa fa-columns icon-padding" aria-hidden="true"></i> Columns <span class="caret"></span>
@@ -151,22 +139,24 @@ export default class OpencbGridToolbar extends LitElement {
                                                     </li>`)
                                                 : null}
                                         </ul>
-                                    </div>`
-                            : null }
+                                    </div>
+                            ` : null }
             
-                            <div class="btn-group">
-                                <button type="button" class="btn btn-default ripple btn-sm dropdown-toggle" data-toggle="dropdown"
-                                        aria-haspopup="true" aria-expanded="false">
-                                    <i id="${this._prefix}DownloadRefresh" class="fa fa-refresh fa-spin" aria-hidden="true"
-                                       style="font-size:14px;display: none"></i>
-                                    <i id="${this._prefix}DownloadIcon" class="fa fa-download icon-padding" aria-hidden="true"></i> Download <span class="caret"></span>
-                                </button>
-                                <ul class="dropdown-menu btn-sm">
-                                    ${this._config.download.length ? this._config.download.map(item => html`
-                                            <li><a href="javascript:;" data-download-option="${item}" @click="${this.onDownloadFile}">${item}</a></li>
-                                    `) : null}
-                                </ul>
-                            </div>
+                            ${~this._config.buttons.indexOf("download") ? html`
+                                <div class="btn-group">
+                                    <button type="button" class="btn btn-default ripple btn-sm dropdown-toggle" data-toggle="dropdown"
+                                            aria-haspopup="true" aria-expanded="false">
+                                        <i id="${this._prefix}DownloadRefresh" class="fa fa-refresh fa-spin" aria-hidden="true"
+                                           style="font-size:14px;display: none"></i>
+                                        <i id="${this._prefix}DownloadIcon" class="fa fa-download icon-padding" aria-hidden="true"></i> Download <span class="caret"></span>
+                                    </button>
+                                    <ul class="dropdown-menu btn-sm">
+                                        ${this._config.download.length ? this._config.download.map(item => html`
+                                                <li><a href="javascript:;" data-download-option="${item}" @click="${this.onDownloadFile}">${item}</a></li>
+                                        `) : null}
+                                    </ul>
+                                </div>
+                            ` : null}
             
                             <!--Share URL-->
                             ${this.showShareLink ? html`

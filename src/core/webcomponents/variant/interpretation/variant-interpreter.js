@@ -238,12 +238,13 @@ class VariantInterpreter extends LitElement {
             
             <div class="variant-interpreter-interpretation">
                 ${this.clinicalAnalysis && this.clinicalAnalysis.id ? html`
-                    <tool-header    icon="${this._config.icon}"
-                                    .title="${`${this._config.title}<span class="inverse"> Case ${this.clinicalAnalysis?.id} </span>` }"
-                                    .rhs="${html`
-                                                <a class="btn btn-primary ripple" title="Close Clinical Analysis" href="#clinicalAnalysisPortal/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}"><i class="fas fa-times"></i> Close</a>
-                                                <download-button .json="${this.clinicalAnalysis}" title="Download Clinical Analysis"></download-button>
-                                    `}"></tool-header>
+                    <tool-header icon="${this._config.icon}"
+                                 .title="${`${this._config.title}<span class="inverse"> Case ${this.clinicalAnalysis?.id} </span>` }"
+                                 .rhs="${html`
+                                    <download-button .json="${this.clinicalAnalysis}" title="Download Clinical Analysis"></download-button>
+                                    <a class="btn btn-default ripple" title="Close Clinical Analysis" href="#"><i class="fas fa-lock"></i> Lock </a>
+                                    <a class="btn btn-default ripple" title="Close Clinical Analysis" href="#clinicalAnalysisPortal/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}"><i class="fas fa-times"></i> Close</a>
+                                 `}"></tool-header>
                 ` : html`
                     <tool-header .title="${this._config.title}" icon="${this._config.icon}"></tool-header>
                 `}

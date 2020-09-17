@@ -207,23 +207,59 @@ export default class OpencgaActiveFilters extends LitElement {
                 const savedFilters = restResponse.getResults() || [];
 
                 console.log("savedFilters", savedFilters);
-                // updating an existing filter
-                const data = {
-                    description: filterDescription,
-                    query: this.query,
-                    options: {}
-                };
+
                 if (savedFilters.find(savedFilter => savedFilter.id === filterName)) {
-                    this.opencgaClient.users().updateFilter(this.opencgaSession.user.id, filterName, data)
-                        .then(response => {
-                            for (const i in this._filters) {
-                                if (this._filters[i].id === filterName) {
-                                    this._filters[i] = response.response[0].result[0];
-                                }
-                            }
-                            PolymerUtils.setValue(this._prefix + "filterName", "");
-                            PolymerUtils.setValue(this._prefix + "filterDescription", "");
-                        });
+                    // updating an existing filter
+                    const data = {
+                        description: filterDescription,
+                        query: this.query,
+                        options: {}
+                    };
+
+                    Swal.fire({
+                        title: "Are you sure?",
+                        text: "A Filter with the same name is already present. You are going to overwrite it.",
+                        icon: "warning",
+                        showCancelButton: true,
+                        confirmButtonColor: "#d33",
+                        cancelButtonColor: "#3085d6",
+                        confirmButtonText: "Yes"
+                    }).then(result => {
+                        if (result.value) {
+                            this.opencgaClient.users().updateFilter(this.opencgaSession.user.id, filterName, data)
+                                .then(restResponse => {
+                                    if (!restResponse.getEvents?.("ERROR")?.length) {
+                                        for (const i in this._filters) {
+                                            if (this._filters[i].id === filterName) {
+                                                this._filters[i] = restResponse.response[0].result[0];
+                                            }
+                                        }
+                                        Swal.fire(
+                                            "Filter Saved",
+                                            "Filter has been saved.",
+                                            "success"
+                                        );
+                                    } else {
+                                        console.error(restResponse);
+                                        Swal.fire(
+                                            "Server Error!",
+                                            "Filter has not been correctly saved.",
+                                            "error"
+                                        )
+                                    }
+                                    PolymerUtils.setValue(this._prefix + "filterName", "");
+                                    PolymerUtils.setValue(this._prefix + "filterDescription", "");
+                                }).catch(restResponse => {
+                                    console.error(restResponse);
+                                    Swal.fire(
+                                        "Server Error!",
+                                        "Filter has not been correctly saved.",
+                                        "error"
+                                    )
+                                })
+                        }
+                    })
+
                 } else {
                     // saving a new filter
                     const data = {
@@ -234,12 +270,33 @@ export default class OpencgaActiveFilters extends LitElement {
                         options: {}
                     };
                     this.opencgaClient.users().updateFilters(this.opencgaSession.user.id, data, {action: "ADD"})
-                        .then(response => {
-                            this._filters = [...this._filters, data];
-                            PolymerUtils.setValue(this._prefix + "filterName", "");
-                            PolymerUtils.setValue(this._prefix + "filterDescription", "");
+                        .then(restResponse => {
+                            if (!restResponse.getEvents?.("ERROR")?.length) {
+                                this._filters = [...this._filters, data];
+                                PolymerUtils.setValue(this._prefix + "filterName", "");
+                                PolymerUtils.setValue(this._prefix + "filterDescription", "");
+                                Swal.fire(
+                                    "Filter Saved",
+                                    "Filter has been saved.",
+                                    "success"
+                                );
+                            } else {
+                                console.error(restResponse);
+                                Swal.fire(
+                                    "Server Error!",
+                                    "Filter has not been correctly saved.",
+                                    "error"
+                                )
+                            }
                             this.requestUpdate();
-                        });
+                        }).catch(restResponse => {
+                        console.error(restResponse);
+                        Swal.fire(
+                            "Server Error!",
+                            "Filter has not been correctly saved.",
+                            "error"
+                        )
+                    })
                 }
 
             })
