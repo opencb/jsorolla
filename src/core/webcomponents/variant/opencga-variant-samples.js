@@ -110,22 +110,6 @@ export default class OpencgaVariantSamples extends LitElement {
         }
     }
 
-    phenotypesFormatter(value, row) {
-        if (value && value.length) {
-            const tooltip = value.map(phenotype => {
-                return `
-                    <div>
-                        ${phenotype.source && phenotype.source.toUpperCase() === "HPO" ? `
-                            <span><a target="_blank" href="https://hpo.jax.org/app/browse/term/${phenotype.id}">${phenotype.id} </a>(${phenotype.status})</span>
-                        ` : `<span>${phenotype.id} (${phenotype.status})</span>`}
-                    </div>`;
-            }).join("");
-            return `<a tooltip-title="Phenotypes" tooltip-text='${tooltip}'> ${value.length} term${value.length > 1 ? "s" : ""} found </a>`;
-        } else {
-            return "-";
-        }
-    }
-
     disorderFormatter(value, row, index) {
         if (value && value.length) {
             return value.map(disorder => `<p>${disorder.id}</p>`).join("");
