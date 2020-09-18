@@ -62,7 +62,7 @@ export default class ClinicalAnalysisUtils {
         return filtered;
     }*/
 
-    static updateInterpretatoin(clinicalAnalysis, opencgaSession, callback) {
+    static updateInterpretation(clinicalAnalysis, opencgaSession, callback) {
         if (!clinicalAnalysis) {
             console.error("It is not possible have this error");
             return;

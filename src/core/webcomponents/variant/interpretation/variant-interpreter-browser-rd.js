@@ -296,7 +296,7 @@ class VariantInterpreterBrowserRd extends LitElement {
             bubbles: true,
             composed: true
         }));
-        ClinicalAnalysisUtils.updateInterpretatoin(this.clinicalAnalysis, this.opencgaSession, f);
+        ClinicalAnalysisUtils.updateInterpretation(this.clinicalAnalysis, this.opencgaSession, f);
 
         // if (!this.clinicalAnalysis) {
         //     console.error("It is not possible have this error");

@@ -18,7 +18,7 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
 import GridCommons from "../variant/grid-commons.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
-import CatalogUIUtils from "../commons/CatalogUIUtils.js";
+import CatalogUtils from "../commons/catalog-utils.js";
 import "../commons/opencb-grid-toolbar.js";
 
 
@@ -57,7 +57,7 @@ export default class OpencgaSampleGrid extends LitElement {
     _init() {
         this._prefix = UtilsNew.randomString(8);
 
-        this.catalogUiUtils = new CatalogUIUtils();
+        this.catalogUiUtils = new CatalogUtils();
         this.gridId = this._prefix + "SampleBrowserGrid";
     }
 
@@ -354,7 +354,7 @@ export default class OpencgaSampleGrid extends LitElement {
                             <li>
                                 <a data-action="interpreter" class="btn force-text-left ${row.attributes.OPENCGA_CLINICAL_ANALYSIS ? "" : "disabled"}" 
                                         href="#interpreter/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.attributes.OPENCGA_CLINICAL_ANALYSIS?.id}">
-                                    <i class="fas fa-user-md icon-padding" aria-hidden="true"></i> Variant Interpreter 
+                                    <i class="fas fa-user-md icon-padding" aria-hidden="true"></i> Case Interpreter 
                                 </a>
                             </li>
                             <li role="separator" class="divider"></li>

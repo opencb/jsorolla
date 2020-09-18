@@ -242,8 +242,13 @@ class VariantInterpreter extends LitElement {
                                  .title="${`${this._config.title}<span class="inverse"> Case ${this.clinicalAnalysis?.id} </span>` }"
                                  .rhs="${html`
                                     <download-button .json="${this.clinicalAnalysis}" title="Download Clinical Analysis"></download-button>
-                                    <a class="btn btn-default ripple" title="Close Clinical Analysis" href="#"><i class="fas fa-lock"></i> Lock </a>
-                                    <a class="btn btn-default ripple" title="Close Clinical Analysis" href="#clinicalAnalysisPortal/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}"><i class="fas fa-times"></i> Close</a>
+                                    <a class="btn btn-default ripple" title="Close Case" href="#clinicalAnalysisPortal/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}"><i class="fas fa-times"></i> Close</a>
+                                    <div class="dropdown more-button">
+                                        <a class="btn btn-default ripple dropdown-toggle" type="button" data-toggle="dropdown"><i class="fas fa-ellipsis-h"></i></a>
+                                        <ul class="dropdown-menu pull-right">
+                                            <li><a title="Lock Case" href="#"><i class="fas fa-lock"></i> Lock Case</a></li>
+                                        </ul>
+                                    </div>
                                  `}"></tool-header>
                 ` : html`
                     <tool-header .title="${this._config.title}" icon="${this._config.icon}"></tool-header>

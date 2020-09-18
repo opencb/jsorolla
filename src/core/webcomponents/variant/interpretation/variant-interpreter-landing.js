@@ -20,6 +20,7 @@ import UtilsNew from "../../../utilsNew.js";
 import "../../clinical/opencga-clinical-analysis-writer.js";
 import "../../commons/filters/clinical-analysis-id-autocomplete.js";
 import "../../commons/view/data-form.js";
+import "./interpretation-manager.js";
 
 class VariantInterpreterLanding extends LitElement {
 
@@ -380,6 +381,9 @@ class VariantInterpreterLanding extends LitElement {
                         <li role="presentation" class="content-pills active ${classMap({active: this.activeTab["landing-search"] || UtilsNew.isEmpty(this.activeTab)})}"">
                             <a href="javascript: void 0" role="tab" data-id="landing-search" @click="${this._changeTab}" class="tab-title">Select Case</a>
                         </li>
+                        <li role="presentation" class="content-pills ${classMap({active: this.activeTab["landing-interpretation-manager"]})}"">
+                            <a href="javascript: void 0" role="tab" data-id="landing-interpretation-manager" @click="${e => this.editMode && this._changeTab(e)}" class="tab-title">Interpretation Manager</a>
+                        </li>
                         <li role="presentation" class="content-pills ${classMap({active: this.activeTab["landing-create"]})}"">
                             <a href="javascript: void 0" role="tab" data-id="landing-create" @click="${e => this.editMode && this._changeTab(e)}" class="tab-title ${classMap({disabled: !this.editMode})}">Create Case</a>
                         </li>
@@ -426,7 +430,11 @@ class VariantInterpreterLanding extends LitElement {
                                 : null
                         }
                     </div>
-                    
+                    <div id="landing-interpretation-manager" role="tabpanel" class="tab-pane content-tab">
+                        <interpretation-manager .opencgaSession="${this.opencgaSession}"
+                                                .clinicalAnalysis="${this.clinicalAnalysis}">
+                        </interpretation-manager>
+                    </div>
                     ${this._config.clinicalAnalysisSelector ? html`
                         <div id="landing-create" role="tabpanel" class="tab-pane content-tab">
                         <div class="col-md-8 col-md-offset-2">

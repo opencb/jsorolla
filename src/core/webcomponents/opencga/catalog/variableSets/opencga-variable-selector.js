@@ -18,7 +18,7 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../../utilsNew.js";
-import CatalogUIUtils from "../../../commons/CatalogUIUtils.js";
+import CatalogUtils from "../../../commons/catalog-utils.js";
 
 
 export default class OpencgaVariableSelector extends LitElement {
@@ -96,7 +96,7 @@ export default class OpencgaVariableSelector extends LitElement {
         };
 
         if (UtilsNew.isNotUndefinedOrNull(this.variableSet)) {
-            this.variables = CatalogUIUtils.parseVariableSetVariablesForDisplay(this.variableSet.variables, [], 25, customConfig);
+            this.variables = CatalogUtils.parseVariableSetVariablesForDisplay(this.variableSet.variables, [], 25, customConfig);
             console.log("onVariableSetConfigChange this.variables ", this.variables)
             //await this.requestUpdate();
             const selectpicker = $(`#${this._prefix}-annotation-picker`);

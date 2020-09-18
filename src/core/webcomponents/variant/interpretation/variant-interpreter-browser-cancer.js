@@ -272,7 +272,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
             bubbles: true,
             composed: true
         }));
-        ClinicalAnalysisUtils.updateInterpretatoin(this.clinicalAnalysis, this.opencgaSession, f);
+        ClinicalAnalysisUtils.updateInterpretation(this.clinicalAnalysis, this.opencgaSession, f);
     }
 
     onSampleChange(e) {
@@ -328,7 +328,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
     }
 
     onVariantCallerFilterChange(filter, query) {
-        debugger
+
         if (query.fileData) {
             let [fileId, fileFilter] = filter.split(":");
             let files = query.fileData.split(",");

@@ -153,7 +153,7 @@ class VariantInterpreterQcSummary extends LitElement {
         if (!this.clinicalAnalysis) {
             return html`
                     <div>
-                        <h3><i class="fas fa-lock"></i> No Case open</h3>
+                        <h3><i class="fas fa-lock"></i> No Case found</h3>
                     </div>`;
         }
 

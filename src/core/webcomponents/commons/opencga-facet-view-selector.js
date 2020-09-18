@@ -187,7 +187,7 @@ export default class OpencgaFacetViewSelector extends LitElement {
             for (let i = 0; i < variableSets.length; i++) {
                 showTerms.push({
                     name: variableSets[i].id,
-                    values: CatalogUIUtils.parseVariableSetVariablesForDisplay(variableSets[i].variables,
+                    values: CatalogUtils.parseVariableSetVariablesForDisplay(variableSets[i].variables,
                         ["annotation"], 25)
                 });
             }

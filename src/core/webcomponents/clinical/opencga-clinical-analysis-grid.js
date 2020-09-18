@@ -235,7 +235,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
 
     analysisIdFormatter(value, row) {
         if (value) {
-            return `<a title="Go to Variant Interpreter" href="#interpreter/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}">
+            return `<a title="Go to Case Interpreter" href="#interpreter/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}">
                         <span>${value}</span>
                     </a>`;
         } else {
@@ -258,7 +258,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
     }
 
     interpretationFormatter(value, row) {
-        return `<a class="btn force-text-left" data-action="interpreter" title="Go to Variant Interpreter" href="#interpreter/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}">
+        return `<a class="btn force-text-left" data-action="interpreter" title="Go to Case Interpreter" href="#interpreter/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}">
                     ${row.interpretation?.primaryFindings?.length
                         ? `<span>${row.interpretation.primaryFindings.length} variants</span>`
                         : `<span>0 variants</span>`
@@ -498,7 +498,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                         <ul class="dropdown-menu dropdown-menu-right">
                             <li>
                                 <a class="btn force-text-left" data-action="interpreter" href="#interpreter/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}">
-                                    <i class="fas fa-user-md icon-padding" aria-hidden="true"></i> Variant Interpreter 
+                                    <i class="fas fa-user-md icon-padding" aria-hidden="true"></i> Case Interpreter 
                                 </a>
                             </li> 
                             <li>
