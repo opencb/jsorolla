@@ -39,7 +39,6 @@ export default class OpencbGridToolbar extends LitElement {
 
     _init() {
         this._prefix = "grid" + UtilsNew.randomString(6);
-        this._config = this.getDefaultConfig();
     }
 
     connectedCallback() {
@@ -146,8 +145,7 @@ export default class OpencbGridToolbar extends LitElement {
                                 <div class="btn-group">
                                     <button type="button" class="btn btn-default ripple btn-sm dropdown-toggle" data-toggle="dropdown"
                                             aria-haspopup="true" aria-expanded="false">
-                                        <i id="${this._prefix}DownloadRefresh" class="fa fa-refresh fa-spin" aria-hidden="true"
-                                           style="font-size:14px;display: none"></i>
+                                        ${this._config.downloading ? html`<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>` : null}
                                         <i id="${this._prefix}DownloadIcon" class="fa fa-download icon-padding" aria-hidden="true"></i> Download <span class="caret"></span>
                                     </button>
                                     <ul class="dropdown-menu btn-sm">

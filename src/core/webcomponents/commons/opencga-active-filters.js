@@ -228,7 +228,7 @@ export default class OpencgaActiveFilters extends LitElement {
                         if (result.value) {
                             this.opencgaClient.users().updateFilter(this.opencgaSession.user.id, filterName, data)
                                 .then(restResponse => {
-                                    if (!restResponse.getEvents?.("ERROR")?.length) {
+                                    if (!restResponse?.getEvents?.("ERROR")?.length) {
                                         for (const i in this._filters) {
                                             if (this._filters[i].id === filterName) {
                                                 this._filters[i] = restResponse.response[0].result[0];

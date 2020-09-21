@@ -73,16 +73,16 @@ export default class OpencgaLogin extends LitElement {
             //in case a previous error has prevented the creation of opencgaSession object (in opencgaClient.createSession()), this would be undefined
             if (this.opencgaSession) {
                 this.opencgaSession.opencgaClient.login(user, pass)
-                    .then( response => {
+                    .then( restResponse => {
 
-                        if(response.getEvents("ERROR").length) {
-                            this.errorState = response.getEvents("ERROR")[0];
-                            new NotificationQueue().push(this.errorState.name, this.errorState.message, "error");
-                        } else if(response) {
+                        if(restResponse.getEvents?.("ERROR")?.length) {
+                            this.errorState = restResponse.getEvents("ERROR");
+                            new NotificationQueue().push(this.errorState[0].name, this.errorState[0].message, "error");
+                        } else if(restResponse) {
                             this.querySelector("#opencgaUser").value = "";
                             this.querySelector("#opencgaPassword").value = "";
-                            console.log("response", response)
-                            const token = response.getResult(0).token;
+                            console.log("response", restResponse)
+                            const token = restResponse.getResult(0).token;
                             const decoded = jwt_decode(token); // TODO expose as module
                             const dateExpired = new Date(decoded.exp * 1000);
                             const validTimeSessionId = moment(dateExpired, "YYYYMMDDHHmmss").format("D MMM YY HH:mm:ss"); // TODO expose as module
@@ -111,19 +111,25 @@ export default class OpencgaLogin extends LitElement {
                             }));
                         }
                     })
-                    .catch( response => {
+                    .catch( restResponse => {
                         // response isn't necessarily a restResponse instance
-                        console.error(response);
-                        this.errorState = {title: "Login error", message: "Please check your credentials."};
-                        this.dispatchEvent(new CustomEvent(_this.notifyEventMessage, {
-                            detail: {
-                                title: this.errorState.title,
-                                message: this.errorState.message,
-                                type: UtilsNew.MESSAGE_ERROR
-                            },
-                            bubbles: true,
-                            composed: true
-                        }));
+                        console.error(restResponse);
+                        if(restResponse.getEvents?.("ERROR")?.length) {
+                            this.errorState = restResponse.getEvents("ERROR");
+                            new NotificationQueue().push(this.errorState[0].name, this.errorState[0].message, "error");
+                        } else {
+                            this.errorState = [{name: "Generic server error", message: "Please contact your administrator."}];
+                            this.dispatchEvent(new CustomEvent(_this.notifyEventMessage, {
+                                detail: {
+                                    title: this.errorState[0].name,
+                                    message: this.errorState[0].message,
+                                    type: UtilsNew.MESSAGE_ERROR
+                                },
+                                bubbles: true,
+                                composed: true
+                            }));
+                        }
+
                     }).finally( () => this.requestUpdate());
             } else {
                 new NotificationQueue().push("Error retrieving OpencgaSession", null, "ERROR");
@@ -196,9 +202,9 @@ export default class OpencgaLogin extends LitElement {
                 </div>
             </div>
         </div>
-        ${this.errorState ? html`
+        ${this.errorState?.length ? html`
             <div id="error" class="alert alert-danger" role="alert">
-                <p><strong>${this.errorState.title}</strong></p><p>${this.errorState.message}</p>
+                ${this.errorState.map( error => html`<p><strong>${error.name}</strong></p><p>${error.message}</p>`)}
             </div>
         ` : null}
         `;
