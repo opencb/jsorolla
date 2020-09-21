@@ -15,6 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
+import OpencgaCatalogUtils from "../../../clients/opencga/opencga-catalog-utils.js";
 import ClinicalAnalysisUtils from "../../clinical/clinical-analysis-utils.js";
 import UtilsNew from "../../../utilsNew.js";
 import PolymerUtils from "../../PolymerUtils.js";
@@ -112,7 +113,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
         }
 
         if (changedProperties.has("clinicalAnalysis")) {
-            this.updateActiveFilterFilters();
+            this.clinicalAnalysisObserver();
         }
 
         if (changedProperties.has("clinicalAnalysisId")) {
@@ -150,7 +151,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
             this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
                 .then(response => {
                     this.clinicalAnalysis = response.responses[0].results[0];
-                    this.updateActiveFilterFilters();
+                    this.clinicalAnalysisObserver();
                     this.requestUpdate();
                 })
                 .catch(response => {
@@ -159,7 +160,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
         }
     }
 
-    updateActiveFilterFilters() {
+    clinicalAnalysisObserver() {
         this.somaticSample = this.clinicalAnalysis.proband.samples.find(sample => sample.somatic);
 
         if (!this.query?.sample) {
@@ -750,19 +751,20 @@ class VariantInterpreterBrowserCancer extends LitElement {
                 
                 <div class="col-md-10">
                     <div>
-                        <div class="btn-toolbar" role="toolbar" aria-label="toolbar" style="margin-bottom: 20px">
-                            <div class="pull-right" role="group">
-                                <button type="button" class="btn btn-default ripple" @click="${this.onViewVariants}" title="This shows saved variants">
-                                    <i class="fas fa-eye icon-padding" aria-hidden="true"></i> View
-                                </button>
-                                <button type="button" class="btn btn-default ripple" @click="${this.onResetVariants}" title="This removes not saved variants">
-                                    <i class="fas fa-eraser icon-padding" aria-hidden="true"></i> Reset
-                                </button>
-                                <button type="button" class="btn btn-default ripple" @click="${this.onSaveVariants}" title="Save variants in the server">
-                                    <i class="fas fa-save icon-padding" aria-hidden="true"></i> Save
-                                </button>
-                            </div>
-                        </div>
+                        ${OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS") ? html`
+                            <div class="btn-toolbar" role="toolbar" aria-label="toolbar" style="margin-bottom: 20px">
+                                <div class="pull-right" role="group">
+                                    <button type="button" class="btn btn-default ripple" @click="${this.onViewVariants}" title="Show saved variants">
+                                        <i class="fas fa-eye icon-padding" aria-hidden="true"></i> View
+                                    </button>
+                                    <button type="button" class="btn btn-default ripple" @click="${this.onResetVariants}" title="Remove not saved variants">
+                                        <i class="fas fa-eraser icon-padding" aria-hidden="true"></i> Reset
+                                    </button>
+                                    <button type="button" class="btn btn-default ripple" @click="${this.onSaveVariants}" title="Save variants in the server">
+                                        <i class="fas fa-save icon-padding" aria-hidden="true"></i> Save
+                                    </button>
+                                </div>
+                            </div>` : null}
                         ${this.notSavedVariantIds || this.removedVariantIds
                             ? html`
                                 <div class="alert alert-warning" role="alert" id="${this._prefix}SaveWarning">

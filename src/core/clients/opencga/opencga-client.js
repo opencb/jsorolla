@@ -326,7 +326,7 @@ export class OpenCGAClient {
                                                     } else {
                                                         acl = await _this.studies().acl(study.fqn, {member: session.user.id});
                                                     }
-                                                    study.acl = acl.getResult(0, 0);
+                                                    study.acl = acl.getResult(0);
 
                                                     // default study from config
                                                     if (study.fqn === application.defaultStudy) {

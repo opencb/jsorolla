@@ -15,6 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
+import OpencgaCatalogUtils from "../../clients/opencga/opencga-catalog-utils.js";
 import UtilsNew from "../../utilsNew.js";
 import PolymerUtils from "../PolymerUtils.js";
 import "../tool-header.js";
@@ -79,7 +80,12 @@ export default class OpencgaClinicalPortal extends LitElement {
 
 
     propertyObserver() {
-        this._config = Object.assign({}, this.getDefaultConfig(), this.config);
+        this._config = {...this.getDefaultConfig(), ...this.config};
+
+        // TODO decomment to activate the new button
+        /*if (OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS")) {
+            this._config.grid.toolbar.buttons = [...new Set([...this._config.grid.toolbar.buttons, "new"])]
+        }*/
 
         if (UtilsNew.isNotUndefinedOrNull(this.opencgaSession) && UtilsNew.isNotUndefinedOrNull(this.opencgaSession.project)) {
             this.checkProjects = true;
@@ -91,19 +97,15 @@ export default class OpencgaClinicalPortal extends LitElement {
 
     _changeView(e) {
         e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
-        $(".clinical-portal-content").hide(); // hides all content divs
-        if (typeof e.target !== "undefined" && typeof e.target.dataset.view !== "undefined") {
-            // $("#" + this._prefix + e.target.dataset.view).show(); // get the href and use it find which div to show
-            PolymerUtils.show(this._prefix + e.target.dataset.view);
-        }
-
-        // Show the active button
         $(".clinical-portal-button").removeClass("active");
+        $(".clinical-portal-content").hide(); // hides all content divs
+        if (e?.target?.dataset?.view) {
+            $("#" + this._prefix + e.target.dataset.view).show();
+        }
+        // Show the active button
         //$(".clinical-portal-button").removeClass("myactive");
         $(e.target).addClass("active");
-        //$(e.target).addClass("myactive");
     }
-
 
     getDefaultConfig() {
         return {
@@ -114,7 +116,7 @@ export default class OpencgaClinicalPortal extends LitElement {
             showActions: true,
             grid: {
                 toolbar: {
-                    buttons: ["new", "columns", "download"]
+                    buttons: ["columns", "download"]
                 }
             }
         };

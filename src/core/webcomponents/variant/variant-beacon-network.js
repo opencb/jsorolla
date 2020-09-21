@@ -163,7 +163,7 @@ export default class VariantBeaconNetwork extends LitElement {
             <div>
                 <p>Beacon Network is a search engine across the world's public beacons. You can find it here <a href="https://beacon-network.org">beacon-network.org</a>.</p>
                 <br>
-                <button class="btn btn-primary ripple" type="button" @click="${this.variantObserver}"><i class="fas fa-sync-alt icon-padding"></i> Rerun Beacon Network query</button>
+                <button class="btn btn-primary ripple" type="button" @click="${this.variantObserver}"><i class="fas fa-sync-alt icon-padding"></i> Refresh Beacon Network query</button>
             </div>
             ${this._config.hosts && this._config.hosts.length && this._config.hosts.map(item => html`
                 <div class="beacon-square host ${this._prefix}${item} shadow-sm">

@@ -15,6 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
+import OpencgaCatalogUtils from "../../../clients/opencga/opencga-catalog-utils.js";
 import ClinicalAnalysisUtils from "../../clinical/clinical-analysis-utils.js";
 import UtilsNew from "../../../utilsNew.js";
 import PolymerUtils from "../../PolymerUtils.js";
@@ -717,25 +718,26 @@ class VariantInterpreterBrowserRd extends LitElement {
                 
                 <div class="col-md-10">
                     <div>
-                        <div class="btn-toolbar" role="toolbar" aria-label="toolbar" style="margin-bottom: 20px">
-                            <div class="pull-right" role="group">
-                                <button type="button" class="btn btn-default ripple" @click="${this.onViewVariants}" title="Show saved variants">
-                                    <i class="fas fa-eye icon-padding" aria-hidden="true"></i> View
-                                </button>
-                                <button type="button" class="btn btn-default ripple" @click="${this.onResetVariants}" title="Remove not saved variants">
-                                    <i class="fas fa-eraser icon-padding" aria-hidden="true"></i> Reset
-                                </button>
-                                <button type="button" class="btn btn-default ripple" @click="${this.onSaveVariants}" title="Save variants in the server">
-                                    <i class="fas fa-save icon-padding" aria-hidden="true"></i> Save
-                                </button>
-                            </div>
-                        </div>
-                        ${this.notSavedVariantIds || this.removedVariantIds 
+                        ${OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS") ? html`
+                            <div class="btn-toolbar" role="toolbar" aria-label="toolbar" style="margin-bottom: 20px">
+                                <div class="pull-right" role="group">
+                                    <button type="button" class="btn btn-default ripple" @click="${this.onViewVariants}" title="Show saved variants">
+                                        <i class="fas fa-eye icon-padding" aria-hidden="true"></i> View
+                                    </button>
+                                    <button type="button" class="btn btn-default ripple" @click="${this.onResetVariants}" title="Remove not saved variants">
+                                        <i class="fas fa-eraser icon-padding" aria-hidden="true"></i> Reset
+                                    </button>
+                                    <button type="button" class="btn btn-default ripple" @click="${this.onSaveVariants}" title="Save variants in the server">
+                                        <i class="fas fa-save icon-padding" aria-hidden="true"></i> Save
+                                    </button>
+                                </div>
+                            </div>` : null}
+                        ${this.notSavedVariantIds || this.removedVariantIds
                             ? html`
                                 <div class="alert alert-warning" role="alert" id="${this._prefix}SaveWarning">
                                     <span><strong>Warning!</strong></span>&nbsp;&nbsp;Primary findings have changed:
                                     ${this.notSavedVariantIds ? html`${this.notSavedVariantIds} variant${this.notSavedVariantIds > 1 ? "s have" : " has"} been added` : null}${this.removedVariantIds ? html`${this.notSavedVariantIds ? " and " : null}${this.removedVariantIds} variant${this.removedVariantIds > 1 ? "s have" : " has"} been removed` : null}. Please click on <strong> Save </strong> to make the results persistent.
-                                </div>` 
+                                </div>`
                             : null
                         }
                     </div>
