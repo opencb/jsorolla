@@ -19,6 +19,8 @@ import UtilsNew from "../../utilsNew.js";
 import "../loading-spinner.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import GridCommons from "./grid-commons.js";
+import {NotificationQueue} from "../Notification.js";
+import "../commons/opencb-grid-toolbar.js";
 
 export default class OpencgaVariantSamples extends LitElement {
 
@@ -52,6 +54,7 @@ export default class OpencgaVariantSamples extends LitElement {
         this.active = false;
         this.gridId = this._prefix + "SampleTable";
         this.config = this.getDefaultConfig();
+        this.toolbarConfig = {};
     }
 
     updated(changedProperties) {
@@ -120,6 +123,7 @@ export default class OpencgaVariantSamples extends LitElement {
 
     renderTable() {
         if (!this.opencgaSession) {
+
             return;
         }
 
@@ -131,7 +135,7 @@ export default class OpencgaVariantSamples extends LitElement {
             columns: this.getColumns(),
             formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
 
-            ajax: params => {
+            ajax: async params => {
                 let tableOptions = this.table.bootstrapTable("getOptions");
                 // let limit = tableOptions.pageSize || 10;
                 // let skip = tableOptions.pageNumber ? tableOptions.pageNumber * limit - limit : 0;
@@ -141,89 +145,16 @@ export default class OpencgaVariantSamples extends LitElement {
                     limit: params.data.limit || tableOptions.pageSize,
                     skip: params.data.offset || 0,
                     count: !tableOptions.pageNumber || tableOptions.pageNumber === 1,
-                    genotype: "0/1,1/1,0/2,1/2,2/2",
-                    // skip: skip,
-                    // limit: limit
+                    genotype: "0/1,1/1,0/2,1/2,2/2"
                 };
 
-                this.opencgaSession.opencgaClient.variants().querySample(query)
-                    .then(response => {
-                        let result = response.responses[0].results[0];
-
-                        // Get the total number of samples
-                        // TODO count only the genotypes filtered
-                        // _this.numSamples = result.studies[0].samples.length;
-                        this.numSamples = 0;
-                        let stats = result.studies[0].stats;
-                        for (let stat of stats) {
-                            if (stat.cohortId === "ALL") {
-                                for (let gt of Object.keys(stat.genotypeCount)) {
-                                    if (gt !== "0/0" && gt !== "./.") {
-                                        this.numSamples += stat.genotypeCount[gt];
-                                    }
-                                }
-                                // this.numSamples = stat.genotypeCount["0/1"] + stat.genotypeCount["1/1"]
-                                // this.numSamples = stat.sampleCount - stat.genotypeCount["0/0"]
-                                break;
-                            }
-                        }
-
-                        // Prepare sample variant data for next query
-                        let variantSamples = result.studies[0].samples;
-                        if (variantSamples && variantSamples.length > 0) {
-                            let variantSampleInfo = {};
-                            let sampleIds = [];
-                            for (let variantSample of variantSamples) {
-                                sampleIds.push(variantSample.sampleId);
-                                variantSampleInfo[variantSample.sampleId] = {
-                                    id: variantSample.sampleId,
-                                    file: result.studies[0].files[variantSample.fileIndex],
-                                    dataKeys: result.studies[0].sampleDataKeys,
-                                    data: variantSample.data
-                                };
-                            }
-
-                            this.opencgaSession.opencgaClient.samples().info(sampleIds.join(","),
-                                {
-                                    study: this.opencgaSession.study.fqn,
-                                    includeIndividual: true
-                                })
-                                .then(resp => {
-                                    let samples = resp.responses[0].results;
-                                    for (let sample of samples) {
-                                        sample.attributes.OPENCGA_VARIANT = variantSampleInfo[sample.id];
-                                    }
-
-                                    // Fetch clinical analysis to display the Case ID
-                                    this.opencgaSession.opencgaClient.clinical().search(
-                                        {
-                                            proband: samples.map(sample => sample.individualId).join(","),
-                                            study: this.opencgaSession.study.fqn,
-                                            exclude: "proband.samples,family,interpretation,files"
-                                        })
-                                        .then(caseResponse => {
-                                            // We store the Case ID in the individual attribute
-                                            // Note clinical search results are not sorted
-                                            // FIXME at the moment we only search by proband
-                                            let map = caseResponse.responses[0].results.reduce((map, obj) => (map[obj.proband.id] = obj, map), {});
-                                            for (let sample of samples) {
-                                                sample.attributes.OPENCGA_CLINICAL_ANALYSIS = map[sample.individualId];
-                                            }
-                                            params.success(samples);
-                                        })
-                                        .catch(e => {
-                                            console.error(e);
-                                            params.error(e);
-                                        });
-                                })
-                                .catch(e => {
-                                    console.error(e);
-                                    params.error(e);
-                                });
-                        } else {
-                            params.error("No samples found");
-                        }
-                    });
+                try {
+                    let data = await this.fetchData(query);
+                    params.success(data);
+                } catch (e) {
+                    console.log(e)
+                    params.error(e);
+                }
             },
             responseHandler: response => {
                 // let tableOptions = $(this.table).bootstrapTable("getOptions");
@@ -239,8 +170,90 @@ export default class OpencgaVariantSamples extends LitElement {
             onLoadSuccess: data => {
                 this.gridCommons.onLoadSuccess(data, 2);
             },
-            onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse),
+            onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse)
         });
+    }
+
+    async fetchData(query, batch_size) {
+        try {
+
+            let variantResponse = await this.opencgaSession.opencgaClient.variants().querySample(query);
+            let result = variantResponse.getResult(0);
+
+            // Get the total number of samples
+            // TODO count only the genotypes filtered
+            // _this.numSamples = result.studies[0].samples.length;
+            this.numSamples = 0;
+            let stats = result.studies[0].stats;
+            for (let stat of stats) {
+                if (stat.cohortId === "ALL") {
+                    for (let gt of Object.keys(stat.genotypeCount)) {
+                        if (gt !== "0/0" && gt !== "./.") {
+                            this.numSamples += stat.genotypeCount[gt];
+                        }
+                    }
+                    // this.numSamples = stat.genotypeCount["0/1"] + stat.genotypeCount["1/1"]
+                    // this.numSamples = stat.sampleCount - stat.genotypeCount["0/0"]
+                    break;
+                }
+            }
+
+            // Prepare sample variant data for next query
+            let variantSamples = result.studies[0].samples;
+
+            if (variantSamples && variantSamples.length > 0) {
+                let variantSampleInfo = {};
+                let sampleIds = [];
+                let samples = [];
+                for (let variantSample of variantSamples) {
+                    sampleIds.push(variantSample.sampleId);
+                    variantSampleInfo[variantSample.sampleId] = {
+                        id: variantSample.sampleId,
+                        file: result.studies[0].files[variantSample.fileIndex],
+                        dataKeys: result.studies[0].sampleDataKeys,
+                        data: variantSample.data
+                    };
+                }
+
+
+                let batch = batch_size ?? sampleIds.length;
+                for (let i = 0; i < sampleIds.length;) {
+                    let sampleChunk = [];
+                    let sampleIdChunk = sampleIds.slice(i, i + batch);
+                    i = i + batch;
+
+                    let sampleResponse = await this.opencgaSession.opencgaClient.samples().info(sampleIdChunk.join(","), {study: this.opencgaSession.study.fqn, includeIndividual: true});
+
+                    sampleChunk = sampleResponse.getResults();
+                    for (let sample of sampleChunk) {
+                        sample.attributes.OPENCGA_VARIANT = variantSampleInfo[sample.id];
+                    }
+
+                    // Fetch clinical analysis to display the Case ID
+                    let caseResponse = await this.opencgaSession.opencgaClient.clinical().search(
+                        {
+                            proband: sampleChunk.map(sample => sample.individualId).join(","),
+                            study: this.opencgaSession.study.fqn,
+                            exclude: "proband.samples,family,interpretation,files"
+                        });
+                    // We store the Case ID in the individual attribute
+                    // Note clinical search results are not sorted
+                    // FIXME at the moment we only search by proband
+                    let map = caseResponse.responses[0].results.reduce((map, obj) => (map[obj.proband.id] = obj, map), {});
+                    for (let sample of sampleChunk) {
+                        sample.attributes.OPENCGA_CLINICAL_ANALYSIS = map[sample.individualId];
+                    }
+                    samples.push(...sampleChunk);
+                }
+                return samples;
+            } else {
+                console.error("No samples found");
+                await Promise.reject("No samples found");
+            }
+        } catch (e) {
+            console.error(e);
+            await Promise.reject(e);
+        }
     }
 
     getColumns() {
@@ -284,7 +297,7 @@ export default class OpencgaVariantSamples extends LitElement {
                     colspan: 1,
                     formatter: (value, row) => this.catalogGridFormatter.caseFormatter(value, row, row.individualId, this.opencgaSession),
                     halign: "center"
-                },
+                }
             ],
             [
                 {
@@ -328,43 +341,19 @@ export default class OpencgaVariantSamples extends LitElement {
 
     async onDownload(e) {
         try {
-            let samples;
+            // batch size for sample query
+            let BATCH_SIZE = 100;
             let query = {
                 variant: this.variantId,
                 study: this.opencgaSession.study.fqn,
-                genotype: "0/1,1/1,0/2,1/2,2/2",
-                limit: 1000
+                limit: 1000,
+                genotype: "0/1,1/1,0/2,1/2,2/2"
             };
-            let response = await this.opencgaSession.opencgaClient.variants().querySample(query);
-            let result = response.getResult(0);
-            // Prepare sample variant data for next query
-            let variantSamples = result.studies[0].samples;
-            if (variantSamples && variantSamples.length > 0) {
-                let variantSampleInfo = {};
-                let sampleIds = [];
-                for (let variantSample of variantSamples) {
-                    sampleIds.push(variantSample.sampleId);
-                    variantSampleInfo[variantSample.sampleId] = {
-                        id: variantSample.sampleId,
-                        file: result.studies[0].files[variantSample.fileIndex],
-                        dataKeys: result.studies[0].sampleDataKeys,
-                        data: variantSample.data
-                    };
-                }
-                let sampleData = await this.opencgaSession.opencgaClient.samples().info(sampleIds.join(","),
-                    {
-                        study: this.opencgaSession.study.fqn,
-                        includeIndividual: true
-                    });
-                samples = sampleData.responses[0].results;
-                for (let sample of samples) {
-                    sample.attributes.OPENCGA_VARIANT = variantSampleInfo[sample.id];
-                }
-            } else {
-                console.error("No samples found");
-            }
+            //this.toolbarConfig = {...this.toolbarConfig, downloading: true};
+            //await this.requestUpdate();
 
-            const header = ["Sample ID", "Genotype", "Variant Data", "Individual ID", "Individual Sex", "Phenotypes", "Disorders"];
+            let samples = await this.fetchData(query, BATCH_SIZE);
+            const header = ["Sample ID", "Genotype", "Variant Data", "Individual ID", "Individual Sex", "Phenotypes", "Disorders", "Case ID"];
             const rows = samples.map(sample => {
                 return [
                     sample.id,
@@ -373,7 +362,8 @@ export default class OpencgaVariantSamples extends LitElement {
                     sample.individualId,
                     this.sexFormatter(sample?.attributes?.OPENCGA_INDIVIDUAL),
                     sample?.attributes?.OPENCGA_INDIVIDUAL?.phenotypes?.map(p => p.id) ?? "-",
-                    sample?.attributes?.OPENCGA_INDIVIDUAL?.disorders?.map(d => d.id) ?? "-"
+                    sample?.attributes?.OPENCGA_INDIVIDUAL?.disorders?.map(d => d.id) ?? "-",
+                    sample?.attributes?.OPENCGA_CLINICAL_ANALYSIS?.id ?? "-"
                 ].join("\t");
 
             });
@@ -399,13 +389,27 @@ export default class OpencgaVariantSamples extends LitElement {
             a.download = this.opencgaSession.study.alias + extension;
             document.body.appendChild(a);
             a.click();
-            setTimeout(function () {
+            setTimeout(function() {
                 document.body.removeChild(a);
             }, 0);
 
-
+            //this.toolbarConfig = {...this.toolbarConfig, downloading: false};
+            //await this.requestUpdate();
         } catch (e) {
-            console.error(e);
+            // TODO copy in all the other download methods
+            // in case it is a restResponse
+            if (e?.getEvents?.("ERROR")?.length) {
+                const errors = e.getEvents("ERROR");
+                errors.forEach(error => {
+                    new NotificationQueue().push(error.name, error.message, "ERROR");
+                    console.log(error);
+                });
+            } else {
+                console.log(e);
+                await new NotificationQueue().push("Generic Error", JSON.stringify(e), "ERROR");
+            }
+            //this.toolbarConfig = {...this.toolbarConfig, downloading: false};
+            //await this.requestUpdate();
         }
 
     }

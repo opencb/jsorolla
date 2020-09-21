@@ -174,16 +174,19 @@ export default class GridCommons {
         UtilsNew.initTooltip(this.context);
     }
 
-    onLoadError(e, restResponse) {
+    onLoadError(e, response) {
         this.context.dispatchEvent(new CustomEvent("selectrow", {
             detail: {
                 id: null,
                 row: null
             }
         }));
-        let msg = "Server Error";
-        if(restResponse.getEvents?.("ERROR")?.length) {
-            msg = restResponse.getEvents("ERROR")[0].message;
+
+        // in some cases `response` is a string (in case the error state doesn't come from the server there is no restResponse instance, so we send an custom error msg)
+        let msg = typeof response === "string" ? response : "Generic Error";
+
+        if(response?.getEvents?.("ERROR")?.length) {
+            msg = response.getEvents("ERROR").map( error => error.message).join("<br>");
         }
         this.context.table.bootstrapTable("updateFormatText", "formatNoMatches", msg);
     }
