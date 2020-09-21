@@ -16,6 +16,7 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import {classMap} from "/web_modules/lit-html/directives/class-map.js";
+import OpencgaCatalogUtils from "../../../clients/opencga/opencga-catalog-utils.js";
 import UtilsNew from "../../../utilsNew.js";
 import "../../clinical/opencga-clinical-analysis-writer.js";
 import "../../commons/filters/clinical-analysis-id-autocomplete.js";
@@ -381,12 +382,14 @@ class VariantInterpreterLanding extends LitElement {
                         <li role="presentation" class="content-pills active ${classMap({active: this.activeTab["landing-search"] || UtilsNew.isEmpty(this.activeTab)})}"">
                             <a href="javascript: void 0" role="tab" data-id="landing-search" @click="${this._changeTab}" class="tab-title">Select Case</a>
                         </li>
-                        <li role="presentation" class="content-pills ${classMap({active: this.activeTab["landing-interpretation-manager"]})}"">
-                            <a href="javascript: void 0" role="tab" data-id="landing-interpretation-manager" @click="${e => this.editMode && this._changeTab(e)}" class="tab-title">Interpretation Manager</a>
-                        </li>
-                        <li role="presentation" class="content-pills ${classMap({active: this.activeTab["landing-create"]})}"">
-                            <a href="javascript: void 0" role="tab" data-id="landing-create" @click="${e => this.editMode && this._changeTab(e)}" class="tab-title ${classMap({disabled: !this.editMode})}">Create Case</a>
-                        </li>
+                        ${OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS") ? html`
+                            <li role="presentation" class="content-pills ${classMap({active: this.activeTab["landing-interpretation-manager"]})}"">
+                                <a href="javascript: void 0" role="tab" data-id="landing-interpretation-manager" @click="${e => this.editMode && this._changeTab(e)}" class="tab-title">Interpretation Manager</a>
+                            </li>
+                            <li role="presentation" class="content-pills ${classMap({active: this.activeTab["landing-create"]})}"">
+                                <a href="javascript: void 0" role="tab" data-id="landing-create" @click="${e => this.editMode && this._changeTab(e)}" class="tab-title ${classMap({disabled: !this.editMode})}">Create Case</a>
+                            </li>` : null
+                        }
                         <!--<li role="presentation" class="content-pills help-pill ${classMap({active: this.activeTab["landing-help"]})}">
                             <a href="javascript: void 0" role="tab" data-id="landing-help" @click="${this._changeTab}" class="tab-title"><i class="fas fa-question-circle"></i> Help</a>
                         </li>-->
