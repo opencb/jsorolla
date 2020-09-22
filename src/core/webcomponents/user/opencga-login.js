@@ -101,8 +101,8 @@ export default class OpencgaLogin extends LitElement {
 
                                     this.dispatchEvent(new CustomEvent(_this.notifyEventMessage, {
                                         detail: {
-                                            title: "Login success",
-                                            message: "Welcome, " + user + ". Your session is valid until " + validTimeSessionId,
+                                            title: "Welcome, " + user,
+                                            message: "Your session is valid until " + validTimeSessionId,
                                             options: {
                                                 icon: "fa fa-user-circle"
                                             },
@@ -137,17 +137,13 @@ export default class OpencgaLogin extends LitElement {
                                         composed: true
                                     }));
                                 }
+                            } else if (response instanceof Error) {
+                                this.errorState = [{name: response.name, message: response.message}];
+                                new NotificationQueue().push(this.errorState[0].name, this.errorState[0].message, "error");
                             } else {
-                                if (response instanceof Error) {
-                                    this.errorState = [{name: response.name, message: response.message}];
-                                    new NotificationQueue().push(this.errorState[0].name, this.errorState[0].message, "error");
-                                } else {
-                                    this.errorState = [{name: "Generic Error", message: JSON.JSON.stringify(response)}];
-                                    new NotificationQueue().push(this.errorState[0].name, this.errorState[0].message, "error");
-                                }
+                                this.errorState = [{name: "Generic Error", message: JSON.JSON.stringify(response)}];
+                                new NotificationQueue().push(this.errorState[0].name, this.errorState[0].message, "error");
                             }
-
-
                         }).finally(() => this.requestUpdate());
                 } else {
                     new NotificationQueue().push("Error retrieving OpencgaSession", null, "ERROR");

@@ -397,6 +397,7 @@ export default class OpencgaVariantSamples extends LitElement {
             this.requestUpdate();
 
         } catch (e) {
+            console.log(e)
             // TODO copy in all the other download methods
             // in case it is a restResponse
             if (e?.getEvents?.("ERROR")?.length) {
@@ -405,13 +406,10 @@ export default class OpencgaVariantSamples extends LitElement {
                     new NotificationQueue().push(error.name, error.message, "ERROR");
                     console.log(error);
                 });
+            } else if (e instanceof Error) {
+                new NotificationQueue().push(e.name, e.message, "ERROR");
             } else {
-                console.log(e);
-                if (e instanceof Error) {
-                    new NotificationQueue().push(e.name, e.message, "ERROR");
-                } else {
-                    new NotificationQueue().push("Generic Error", JSON.stringify(e), "ERROR");
-                }
+                new NotificationQueue().push("Generic Error", JSON.stringify(e), "ERROR");
             }
 
             this.toolbarConfig = {...this.toolbarConfig, downloading: false};

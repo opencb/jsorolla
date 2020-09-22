@@ -324,19 +324,17 @@ export default class OpencgaFileGrid extends LitElement {
             })
             .catch(e => {
                 // in case it is a restResponse
+                console.log(e);
                 if (e?.getEvents?.("ERROR")?.length) {
                     const errors = e.getEvents("ERROR");
                     errors.forEach(error => {
                         new NotificationQueue().push(error.name, error.message, "ERROR");
                         console.log(error);
                     });
+                } else if (e instanceof Error) {
+                    new NotificationQueue().push(e.name, e.message, "ERROR");
                 } else {
-                    console.log(e);
-                    if (e instanceof Error) {
-                        new NotificationQueue().push(e.name, e.message, "ERROR");
-                    } else {
-                        new NotificationQueue().push("Generic Error", JSON.stringify(e), "ERROR");
-                    }
+                    new NotificationQueue().push("Generic Error", JSON.stringify(e), "ERROR");
                 }
             })
             .finally(() => {

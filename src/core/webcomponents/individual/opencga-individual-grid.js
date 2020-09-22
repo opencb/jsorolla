@@ -499,6 +499,7 @@ export default class OpencgaIndividualGrid extends LitElement {
                 }
             })
             .catch(e => {
+                console.log(e);
                 // in case it is a restResponse
                 if (e?.getEvents?.("ERROR")?.length) {
                     const errors = e.getEvents("ERROR");
@@ -506,13 +507,10 @@ export default class OpencgaIndividualGrid extends LitElement {
                         new NotificationQueue().push(error.name, error.message, "ERROR");
                         console.log(error);
                     });
+                } else if (e instanceof Error) {
+                    new NotificationQueue().push(e.name, e.message, "ERROR");
                 } else {
-                    console.log(e);
-                    if (e instanceof Error) {
-                        new NotificationQueue().push(e.name, e.message, "ERROR");
-                    } else {
-                        new NotificationQueue().push("Generic Error", JSON.stringify(e), "ERROR");
-                    }
+                    new NotificationQueue().push("Generic Error", JSON.stringify(e), "ERROR");
                 }
             })
             .finally(() => {
