@@ -17,7 +17,7 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
 import {NotificationQueue} from "../Notification.js";
-
+import {RestResponse} from "../../clients/rest-response.js";
 
 export default class OpencgaLogin extends LitElement {
 
@@ -70,69 +70,91 @@ export default class OpencgaLogin extends LitElement {
             const pass = this.querySelector("#opencgaPassword").value;
             const _this = this;
 
-            //in case a previous error has prevented the creation of opencgaSession object (in opencgaClient.createSession()), this would be undefined
-            if (this.opencgaSession) {
-                this.opencgaSession.opencgaClient.login(user, pass)
-                    .then( restResponse => {
+            try {
+                //in case a previous error has prevented the creation of opencgaSession object (in opencgaClient.createSession()), this would be undefined
+                if (this.opencgaSession) {
+                    this.opencgaSession.opencgaClient.login(user, pass)
+                        .then(restResponse => {
 
-                        if(restResponse.getEvents?.("ERROR")?.length) {
-                            this.errorState = restResponse.getEvents("ERROR");
-                            new NotificationQueue().push(this.errorState[0].name, this.errorState[0].message, "error");
-                        } else if(restResponse) {
-                            this.querySelector("#opencgaUser").value = "";
-                            this.querySelector("#opencgaPassword").value = "";
-                            console.log("response", restResponse)
-                            const token = restResponse.getResult(0).token;
-                            const decoded = jwt_decode(token); // TODO expose as module
-                            const dateExpired = new Date(decoded.exp * 1000);
-                            const validTimeSessionId = moment(dateExpired, "YYYYMMDDHHmmss").format("D MMM YY HH:mm:ss"); // TODO expose as module
+                            if (restResponse instanceof RestResponse) {
+                                if (restResponse.getEvents?.("ERROR")?.length) {
+                                    this.errorState = restResponse.getEvents("ERROR");
+                                    new NotificationQueue().push(this.errorState[0].name, this.errorState[0].message, "error");
+                                } else if (restResponse) {
+                                    this.querySelector("#opencgaUser").value = "";
+                                    this.querySelector("#opencgaPassword").value = "";
+                                    console.log("response", restResponse)
+                                    const token = restResponse.getResult(0).token;
+                                    const decoded = jwt_decode(token); // TODO expose as module
+                                    const dateExpired = new Date(decoded.exp * 1000);
+                                    const validTimeSessionId = moment(dateExpired, "YYYYMMDDHHmmss").format("D MMM YY HH:mm:ss"); // TODO expose as module
 
 
-                            this.dispatchEvent(new CustomEvent("login", {
-                                detail: {
-                                    userId: user,
-                                    token: token
-                                },
-                                bubbles: true,
-                                composed: true
-                            }));
+                                    this.dispatchEvent(new CustomEvent("login", {
+                                        detail: {
+                                            userId: user,
+                                            token: token
+                                        },
+                                        bubbles: true,
+                                        composed: true
+                                    }));
 
-                            this.dispatchEvent(new CustomEvent(_this.notifyEventMessage, {
-                                detail: {
-                                    title: "Login success",
-                                    message: "Welcome, " + user + ". Your session is valid until " + validTimeSessionId,
-                                    options: {
-                                        icon: "fa fa-user-circle"
-                                    },
-                                    type: UtilsNew.MESSAGE_SUCCESS
-                                },
-                                bubbles: true,
-                                composed: true
-                            }));
-                        }
-                    })
-                    .catch( restResponse => {
-                        // response isn't necessarily a restResponse instance
-                        console.error(restResponse);
-                        if(restResponse.getEvents?.("ERROR")?.length) {
-                            this.errorState = restResponse.getEvents("ERROR");
-                            new NotificationQueue().push(this.errorState[0].name, this.errorState[0].message, "error");
-                        } else {
-                            this.errorState = [{name: "Generic server error", message: "Please contact your administrator."}];
-                            this.dispatchEvent(new CustomEvent(_this.notifyEventMessage, {
-                                detail: {
-                                    title: this.errorState[0].name,
-                                    message: this.errorState[0].message,
-                                    type: UtilsNew.MESSAGE_ERROR
-                                },
-                                bubbles: true,
-                                composed: true
-                            }));
-                        }
+                                    this.dispatchEvent(new CustomEvent(_this.notifyEventMessage, {
+                                        detail: {
+                                            title: "Login success",
+                                            message: "Welcome, " + user + ". Your session is valid until " + validTimeSessionId,
+                                            options: {
+                                                icon: "fa fa-user-circle"
+                                            },
+                                            type: UtilsNew.MESSAGE_SUCCESS
+                                        },
+                                        bubbles: true,
+                                        composed: true
+                                    }));
+                                }
+                            } else {
+                                this.errorState = [{name: "Generic Server Error", message: "Unexpected response format. Please check your host is up and running."}];
+                                new NotificationQueue().push(this.errorState[0].name, this.errorState[0].message, "error");
+                            }
+                        })
+                        .catch(response => {
+                            // response isn't necessarily a restResponse instance
+                            if (response instanceof RestResponse) {
+                                if (response.getEvents?.("ERROR")?.length) {
+                                    this.errorState = response.getEvents("ERROR");
+                                    new NotificationQueue().push(this.errorState[0].name, this.errorState[0].message, "error");
+                                } else {
+                                    this.errorState = [{name: "Generic Server Error", message: JSON.stringify(response)}];
+                                    new NotificationQueue().push(this.errorState[0].name, this.errorState[0].message, "error");
 
-                    }).finally( () => this.requestUpdate());
-            } else {
-                new NotificationQueue().push("Error retrieving OpencgaSession", null, "ERROR");
+                                    this.dispatchEvent(new CustomEvent(_this.notifyEventMessage, {
+                                        detail: {
+                                            title: this.errorState[0].name,
+                                            message: this.errorState[0].message,
+                                            type: UtilsNew.MESSAGE_ERROR
+                                        },
+                                        bubbles: true,
+                                        composed: true
+                                    }));
+                                }
+                            } else {
+                                if (response instanceof Error) {
+                                    this.errorState = [{name: response.name, message: response.message}];
+                                    new NotificationQueue().push(this.errorState[0].name, this.errorState[0].message, "error");
+                                } else {
+                                    this.errorState = [{name: "Generic Error", message: JSON.JSON.stringify(response)}];
+                                    new NotificationQueue().push(this.errorState[0].name, this.errorState[0].message, "error");
+                                }
+                            }
+
+
+                        }).finally(() => this.requestUpdate());
+                } else {
+                    new NotificationQueue().push("Error retrieving OpencgaSession", null, "ERROR");
+                }
+            } catch (e) {
+                this.errorState = [{name: "Generic Error", message: "Please contact your administrator."}];
+
             }
 
         }
@@ -167,6 +189,11 @@ export default class OpencgaLogin extends LitElement {
             
             .has-error .form-control:focus {
             
+            }
+            
+            opencga-login #error {
+                max-width: 316px;
+                word-break: break-word;
             }
         </style>
         <div class="container-fluid">

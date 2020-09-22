@@ -288,4 +288,8 @@ export default class UtilsNew {
         return Array.from({length: (stop - start) / step}, (x, i) => (i + start) * step);
     }
 
+    static ErrorStringify(error) {
+        return (err => JSON.stringify(Object.getOwnPropertyNames(Object.getPrototypeOf(err)).reduce(function(accumulator, currentValue) { return accumulator[currentValue] = err[currentValue], accumulator}, {})))(error);
+    }
+
 }
