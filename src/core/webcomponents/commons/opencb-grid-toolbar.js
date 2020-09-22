@@ -112,7 +112,6 @@ export default class OpencbGridToolbar extends LitElement {
                     margin-bottom: ${~this._config.buttons.indexOf("new") ? 10 : 5}px;
                 }
             </style>
-            
             <div class="opencb-grid-toolbar">
                 <div class="row">
                     <div id="${this._prefix}ToolbarLeft" class="col-md-6">
@@ -145,7 +144,7 @@ export default class OpencbGridToolbar extends LitElement {
                                 <div class="btn-group">
                                     <button type="button" class="btn btn-default ripple btn-sm dropdown-toggle" data-toggle="dropdown"
                                             aria-haspopup="true" aria-expanded="false">
-                                        ${this._config.downloading ? html`<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>` : null}
+                                        ${this.config?.downloading === true ? html`<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>` : null}
                                         <i id="${this._prefix}DownloadIcon" class="fa fa-download icon-padding" aria-hidden="true"></i> Download <span class="caret"></span>
                                     </button>
                                     <ul class="dropdown-menu btn-sm">

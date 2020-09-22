@@ -16,6 +16,7 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
+import {NotificationQueue} from "../Notification.js";
 import GridCommons from "../variant/grid-commons.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import "../commons/opencb-grid-toolbar.js";
@@ -76,7 +77,7 @@ export default class OpencgaFileGrid extends LitElement {
         }
 
         if (changedProperties.has("config")) {
-            this._config = Object.assign(this.getDefaultConfig(), this.config);
+            this._config = {...this.getDefaultConfig(), ...this.config};
             this.requestUpdate();
         }
     }
@@ -118,7 +119,7 @@ export default class OpencgaFileGrid extends LitElement {
                 showExport: this._config.showExport,
                 detailView: this._config.detailView,
                 detailFormatter: this._config.detailFormatter,
-                formatLoadingMessage: () =>"<div><loading-spinner></loading-spinner></div>",
+                formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
                 ajax: params => {
                     const filters = {
                         study: this.opencgaSession.study.fqn,
@@ -130,8 +131,8 @@ export default class OpencgaFileGrid extends LitElement {
                         ...this.query
                     };
                     this.opencgaSession.opencgaClient.files().search(filters)
-                        .then( res => params.success(res))
-                        .catch( e => {
+                        .then(res => params.success(res))
+                        .catch(e => {
                             console.error(e);
                             params.error(e);
                         });
@@ -168,7 +169,7 @@ export default class OpencgaFileGrid extends LitElement {
                     this.gridCommons.onLoadSuccess(data, 1);
                 },
                 onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse),
-                onPostBody: (data) => {
+                onPostBody: data => {
                     // Add tooltips?
                 }
             });
@@ -195,7 +196,7 @@ export default class OpencgaFileGrid extends LitElement {
             showExport: this._config.showExport,
             detailView: this._config.detailView,
             detailFormatter: this.detailFormatter,
-            formatLoadingMessage: () =>"<div><loading-spinner></loading-spinner></div>",
+            formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
 
             onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
             onPageChange: (page, size) => {
@@ -203,7 +204,7 @@ export default class OpencgaFileGrid extends LitElement {
                 this.from = result.from || this.from;
                 this.to = result.to || this.to;
             },
-            onPostBody: (data) => {
+            onPostBody: data => {
                 // We call onLoadSuccess to select first row
                 this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 2);
             }
@@ -223,7 +224,7 @@ export default class OpencgaFileGrid extends LitElement {
             {
                 title: "Directory",
                 field: "path",
-                formatter: (value, row) =>  "/" + row.path.replace(row.name, "")
+                formatter: (value, row) => "/" + row.path.replace(row.name, "")
             },
             {
                 title: "Size",
@@ -255,8 +256,8 @@ export default class OpencgaFileGrid extends LitElement {
                 title: "Actions",
                 field: "id",
                 formatter: (value, row) => {
-                    const url = this.opencgaSession.server.host + "/webservices/rest/" + this.opencgaSession.server.version + "/files/" + value + "/download?study=" + this.opencgaSession.study.fqn + "&sid=" + this.opencgaSession.token
-                    return `<a class="btn btn-small btn-default ripple" target="_blank" href="${url}"> <i class="fas fa-download"></i> Download</a>`
+                    const url = this.opencgaSession.server.host + "/webservices/rest/" + this.opencgaSession.server.version + "/files/" + value + "/download?study=" + this.opencgaSession.study.fqn + "&sid=" + this.opencgaSession.token;
+                    return `<a class="btn btn-small btn-default ripple" target="_blank" href="${url}"> <i class="fas fa-download"></i> Download</a>`;
                 },
                 valign: "middle",
                 events: {
@@ -278,7 +279,10 @@ export default class OpencgaFileGrid extends LitElement {
         return _columns;
     }
 
-    onDownload(e) {
+    async onDownload(e) {
+        this.toolbarConfig = {...this.toolbarConfig, downloading: true};
+        await this.requestUpdate();
+
         const params = {
             ...this.query,
             limit: 1000,
@@ -299,7 +303,7 @@ export default class OpencgaFileGrid extends LitElement {
                     if (e.detail.option.toLowerCase() === "tab") {
                         dataString = [
                             ["Name", "Path", "Format", "Bioformat", "Size", "Creation date", "Modification date", "Status"].join("\t"),
-                            ...result.map( _ => [
+                            ...result.map(_ => [
                                 _.id,
                                 _.path,
                                 _.format,
@@ -309,35 +313,35 @@ export default class OpencgaFileGrid extends LitElement {
                                 _.modificationDate,
                                 _.internal?.status?.name ?? "-"
                             ].join("\t"))];
-                        // console.log(dataString);
-                        mimeType = "text/plain";
-                        extension = ".txt";
+                        UtilsNew.downloadData([dataString.join("\n")], "files_" + this.opencgaSession.study.id + ".txt", "text/plain");
                     } else {
-                        for (const res of result) {
-                            dataString.push(JSON.stringify(res, null, "\t"));
-                        }
-                        mimeType = "application/json";
-                        extension = ".json";
+                        let json = JSON.stringify(result, null, "\t");
+                        UtilsNew.downloadData(json, "files_" + this.opencgaSession.study.id + ".json", "application/json");
                     }
-
-                    // Build file and anchor link
-                    const data = new Blob([dataString.join("\n")], {type: mimeType});
-                    const file = window.URL.createObjectURL(data);
-                    const a = document.createElement("a");
-                    a.href = file;
-                    a.download = this.opencgaSession.study.alias + extension;
-                    document.body.appendChild(a);
-                    a.click();
-                    setTimeout(function() {
-                        document.body.removeChild(a);
-                    }, 0);
                 } else {
                     console.error("Error in result format");
                 }
             })
-            .then(function() {
-                // this.downloadRefreshIcon.css("display", "none");
-                // this.downloadIcon.css("display", "inline-block");
+            .catch(e => {
+                // in case it is a restResponse
+                if (e?.getEvents?.("ERROR")?.length) {
+                    const errors = e.getEvents("ERROR");
+                    errors.forEach(error => {
+                        new NotificationQueue().push(error.name, error.message, "ERROR");
+                        console.log(error);
+                    });
+                } else {
+                    console.log(e);
+                    if (e instanceof Error) {
+                        new NotificationQueue().push(e.name, e.message, "ERROR");
+                    } else {
+                        new NotificationQueue().push("Generic Error", JSON.stringify(e), "ERROR");
+                    }
+                }
+            })
+            .finally(() => {
+                this.toolbarConfig = {...this.toolbarConfig, downloading: false};
+                this.requestUpdate();
             });
     }
 

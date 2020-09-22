@@ -4,7 +4,7 @@
 import UtilsNew from "../../utilsNew.js";
 
 
-// TODO urgent refactor
+// TODO urgent refactor!
 export default class VariantUtils {
 
     static jsonToTabConvert(json, studiesPopFrequencies, samples, nucleotideGenotype) {
@@ -12,9 +12,9 @@ export default class VariantUtils {
         let variantString = [];
         let populationMap = {};
 
-        for (var key in json[0]) {
+        /*for (var key in json[0]) {
             console.log(key);
-        }
+        }*/
 
         variantString.push("Variant");
         variantString.push("SNP ID");

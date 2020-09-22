@@ -341,6 +341,8 @@ export default class OpencgaVariantSamples extends LitElement {
 
     async onDownload(e) {
         try {
+            this.toolbarConfig = {...this.toolbarConfig, downloading: true};
+            await this.requestUpdate();
             // batch size for sample query
             let BATCH_SIZE = 100;
             let query = {
@@ -349,8 +351,6 @@ export default class OpencgaVariantSamples extends LitElement {
                 limit: 1000,
                 genotype: "0/1,1/1,0/2,1/2,2/2"
             };
-            //this.toolbarConfig = {...this.toolbarConfig, downloading: true};
-            //await this.requestUpdate();
 
             let samples = await this.fetchData(query, BATCH_SIZE);
             const header = ["Sample ID", "Genotype", "Variant Data", "Individual ID", "Individual Sex", "Phenotypes", "Disorders", "Case ID"];
@@ -393,8 +393,9 @@ export default class OpencgaVariantSamples extends LitElement {
                 document.body.removeChild(a);
             }, 0);
 
-            //this.toolbarConfig = {...this.toolbarConfig, downloading: false};
-            //await this.requestUpdate();
+            this.toolbarConfig = {...this.toolbarConfig, downloading: false};
+            this.requestUpdate();
+
         } catch (e) {
             // TODO copy in all the other download methods
             // in case it is a restResponse
@@ -406,10 +407,16 @@ export default class OpencgaVariantSamples extends LitElement {
                 });
             } else {
                 console.log(e);
-                await new NotificationQueue().push("Generic Error", JSON.stringify(e), "ERROR");
+                if (e instanceof Error) {
+                    new NotificationQueue().push(e.name, e.message, "ERROR");
+                } else {
+                    new NotificationQueue().push("Generic Error", JSON.stringify(e), "ERROR");
+                }
             }
-            //this.toolbarConfig = {...this.toolbarConfig, downloading: false};
-            //await this.requestUpdate();
+
+            this.toolbarConfig = {...this.toolbarConfig, downloading: false};
+            this.requestUpdate();
+
         }
 
     }

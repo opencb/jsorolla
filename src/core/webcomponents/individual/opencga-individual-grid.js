@@ -16,6 +16,7 @@
 
 import {html, LitElement} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
+import {NotificationQueue} from "../Notification.js";
 import GridCommons from "../variant/grid-commons.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import CatalogUtils from "../commons/catalog-utils.js";
@@ -452,7 +453,7 @@ export default class OpencgaIndividualGrid extends LitElement {
                 sortable: true,
                 formatter: this.catalogGridFormatter.dateFormatter,
                 halign: this._config.header.horizontalAlign
-            },
+            }
         ];
 
         if (this._config.showSelectCheckbox) {
@@ -468,7 +469,10 @@ export default class OpencgaIndividualGrid extends LitElement {
         return _columns;
     }
 
-    onDownload(e) {
+    async onDownload(e) {
+        this.toolbarConfig = {...this.toolbarConfig, downloading: true};
+        await this.requestUpdate();
+
         const query = {
             ...this.query,
             study: this.opencgaSession.study.fqn,
@@ -487,7 +491,7 @@ export default class OpencgaIndividualGrid extends LitElement {
                         let data = UtilsNew.toTableString(results, fields);
                         UtilsNew.downloadData(data, "individuals_" + this.opencgaSession.study.id + ".txt", "text/plain");
                     } else {
-                        let json = results.map(res => JSON.stringify(res, null, "\t"));
+                        let json = JSON.stringify(results, null, "\t");
                         UtilsNew.downloadData(json, this.opencgaSession.study.id + ".json", "application/json");
                     }
                 } else {
@@ -495,7 +499,25 @@ export default class OpencgaIndividualGrid extends LitElement {
                 }
             })
             .catch(e => {
-                console.error(e);
+                // in case it is a restResponse
+                if (e?.getEvents?.("ERROR")?.length) {
+                    const errors = e.getEvents("ERROR");
+                    errors.forEach(error => {
+                        new NotificationQueue().push(error.name, error.message, "ERROR");
+                        console.log(error);
+                    });
+                } else {
+                    console.log(e);
+                    if (e instanceof Error) {
+                        new NotificationQueue().push(e.name, e.message, "ERROR");
+                    } else {
+                        new NotificationQueue().push("Generic Error", JSON.stringify(e), "ERROR");
+                    }
+                }
+            })
+            .finally(() => {
+                this.toolbarConfig = {...this.toolbarConfig, downloading: false};
+                this.requestUpdate();
             });
     }
 
