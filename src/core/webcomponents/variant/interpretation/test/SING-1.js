@@ -4,6 +4,19 @@ export default {
     "description": "sss",
     "type": "SINGLE",
     "disorder": {"id": "OMIM:611597", "name": "Cataract, Autosomal Dominant, Multiple Types 1", "source": "OMIM"},
+    "comments": [
+        {
+            "id": "001",
+            "message": "test message",
+            "type": "NOTE",
+            "creationDate": "20200617133615",
+        },
+        {
+            "id": "002",
+            "message": "test message 2",
+            "creationDate": "20200617133615",
+        },
+    ],
     "files": [{
         "id": "data:vcfs:D000001_markdup_recalibrated_Haplotyper_anonymized.g.vcf.gz",
         "annotationSets": [],
@@ -8198,7 +8211,32 @@ export default {
         "attributes": {"modificationDate": 1596039526327},
         "internal": {"status": {"name": "NOT_REVIEWED", "date": "20200630181357", "description": ""}}
     },
-    "secondaryInterpretations": [],
+    "secondaryInterpretations": [
+        {
+            "id": "SING-1_2",
+            "uuid": "066f7e88-0173-000b-0001-62ab2590b200",
+            "description": "",
+            "clinicalAnalysisId": "SING-1",
+            "analyst": {},
+            "creationDate": "20200630181357",
+            "methods": [{"name": "IVA"}],
+            "primaryFindings": [
+                {
+                    "deNovoQualityScore": 0,
+                    "evidences": [{
+                        "phenotypes": [],
+                        "consequenceTypes": [{"accession": "SO:0001627", "name": "intron_variant"}],
+                        "genomicFeature": {"id": "ENSG00000187634", "type": "GENE", "transcriptId": "ENST00000420190", "geneName": "SAMD11"},
+                        "classification": {"tier": "none", "acmg": [], "clinicalSignificance": "UNCERTAIN_SIGNIFICANCE"},
+                        "score": 0,
+                        "fullyExplainPhenotypes": false,
+                        "compoundHeterozygousVariantIds": [],
+                        "actionable": false
+                    }]
+                }
+                ]
+        }
+    ],
     "consent": {"primaryFindings": "UNKNOWN", "secondaryFindings": "UNKNOWN", "carrierFindings": "UNKNOWN", "researchFindings": "UNKNOWN"},
     "analyst": {"assignee": "emee-glh", "assignedBy": "emee-glh", "date": "20200630181357"},
     "priority": "MEDIUM",

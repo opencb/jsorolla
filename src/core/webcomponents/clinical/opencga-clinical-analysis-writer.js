@@ -73,7 +73,7 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                             type: "FAMILY",
                             priority: "MEDIUM",
                             analyst: {
-                                assignee: this.opencgaSession?.user?.id
+                                id: this.opencgaSession?.user?.id
                             },
                             dueDate: moment().format("YYYYMMDDHHmmss"),
                             _users: group.userIds.filter(user => user !== "*")
@@ -94,7 +94,7 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
     }
 
     notifyClinicalAnalysisUpdate() {
-        console.log("notifyClinicalAnalysisUpdate")
+        console.log("notifyClinicalAnalysisUpdate");
     }
 
     onFieldChange(e) {
@@ -135,7 +135,7 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
             this.clinicalAnalysis.type = "SINGLE";
             let _this = this;
             this.opencgaSession.opencgaClient.individuals().info(e.detail.value, {study: this.opencgaSession.study.fqn})
-                .then( response => {
+                .then(response => {
                     _this.clinicalAnalysis.proband = response.responses[0].results[0];
 
                     if (_this.clinicalAnalysis.proband && _this.clinicalAnalysis.proband.disorders) {
@@ -159,7 +159,7 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
             this.clinicalAnalysis.type = "FAMILY";
             let _this = this;
             this.opencgaSession.opencgaClient.families().info(e.detail.value, {study: this.opencgaSession.study.fqn})
-                .then( response => {
+                .then(response => {
                     _this.clinicalAnalysis.family = response.responses[0].results[0];
                     // Select as proband the first son/daughter with a disorder
                     if (_this.clinicalAnalysis.family && _this.clinicalAnalysis.family.members) {
@@ -192,7 +192,7 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
             this.clinicalAnalysis.type = "CANCER";
             let _this = this;
             this.opencgaSession.opencgaClient.individuals().info(e.detail.value, {study: this.opencgaSession.study.fqn})
-                .then( response => {
+                .then(response => {
                     _this.clinicalAnalysis.proband = response.responses[0].results[0];
                     if (_this.clinicalAnalysis.proband && _this.clinicalAnalysis.proband.disorders) {
                         if (_this.clinicalAnalysis.proband.disorders.length === 1) {
@@ -248,7 +248,7 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                 showTitle: false,
                 infoIcon: "",
                 labelAlign: "left",
-                defaultLayout: "vertical",
+                defaultLayout: "vertical"
             },
             sections: [
                 {
@@ -285,7 +285,7 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                                 errorMessage: "No found...",
                                 display: {
                                     // width: 9,
-                                    disabled: () => this.mode === "update",
+                                    disabled: () => this.mode === "update"
                                 }
                             },
                             {
@@ -306,9 +306,9 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                                 defaultValue: "",
                                 display: {
                                     // width: 9,
-                                    rows: 2,
+                                    rows: 2
                                 }
-                            },
+                            }
                         ], [
                             {
                                 name: "Priority",
@@ -322,7 +322,7 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                             },
                             {
                                 name: "Assigned To",
-                                field: "analyst.assignee",
+                                field: "analyst.TEST",
                                 type: "select",
                                 defaultValue: this.opencgaSession?.user?.id,
                                 allowedValues: "_users",
@@ -338,7 +338,7 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                                 display: {
                                     // width: 9,
                                     visible: this.mode === "update",
-                                    disabled: true,
+                                    disabled: true
                                 }
                             },
                             {
@@ -364,7 +364,7 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                             } else {
                                 return true;
                             }
-                        },
+                        }
                     },
                     elements: [
                         {
@@ -377,9 +377,12 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                                 render: (data) => {
                                     return html`
                                         <individual-id-autocomplete 
-                                            .opencgaSession="${this.opencgaSession}" ?disabled=${this.mode === "update"} .config=${{addButton: false, multiple: false}} @filterChange="${e => this.onIndividualChange(e)}">
-                                        </individual-id-autocomplete>`
-                                },
+                                            .opencgaSession="${this.opencgaSession}" ?disabled=${this.mode === "update"} .config=${{
+                                        addButton: false,
+                                        multiple: false
+                                    }} @filterChange="${e => this.onIndividualChange(e)}">
+                                        </individual-id-autocomplete>`;
+                                }
                             }
                         },
                         {
@@ -393,7 +396,7 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                                 apply: (disorder) => `${disorder.name} (${disorder.id})`,
                                 errorMessage: "No family selected"
                             }
-                        },
+                        }
                     ]
                 },
                 {
@@ -407,7 +410,7 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                             } else {
                                 return true;
                             }
-                        },
+                        }
                     },
                     elements: [
                         {
@@ -420,9 +423,12 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                                 render: (data) => {
                                     return html`
                                         <family-id-autocomplete 
-                                            .opencgaSession="${this.opencgaSession}" ?disabled=${this.mode === "update"} .config=${{addButton: false, multiple: false}} @filterChange="${e => this.onFamilyChange(e)}">
-                                        </family-id-autocomplete>`
-                                },
+                                            .opencgaSession="${this.opencgaSession}" ?disabled=${this.mode === "update"} .config=${{
+                                        addButton: false,
+                                        multiple: false
+                                    }} @filterChange="${e => this.onFamilyChange(e)}">
+                                        </family-id-autocomplete>`;
+                                }
                             }
                         },
                         {
@@ -489,7 +495,7 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                                 visible: data => application.appConfig === "opencb", //TODO pedigree doesnt work with families with over 2 generations
                                 render: data => {
                                     if (data.family) {
-                                        return html`<pedigree-view .family="${data.family}"></pedigree-view>`
+                                        return html`<pedigree-view .family="${data.family}"></pedigree-view>`;
                                     }
                                 },
                                 errorMessage: "No family selected"
@@ -502,7 +508,7 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                     collapsed: false,
                     display: {
                         visible: data => {
-                            return data.type && data.type.toUpperCase() === "CANCER"
+                            return data.type && data.type.toUpperCase() === "CANCER";
                         }
                     },
                     elements: [
@@ -512,7 +518,10 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                             display: {
                                 width: 5,
                                 render: data => {
-                                    return html`<individual-id-autocomplete .opencgaSession="${this.opencgaSession}" .config=${{addButton: false, multiple: false}} @filterChange="${e => this.onCancerChange(e)}"></individual-id-autocomplete>`
+                                    return html`<individual-id-autocomplete .opencgaSession="${this.opencgaSession}" .config=${{
+                                        addButton: false,
+                                        multiple: false
+                                    }} @filterChange="${e => this.onCancerChange(e)}"></individual-id-autocomplete>`;
                                 }
                             }
                         },
@@ -545,9 +554,9 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                                 },
                                 errorMessage: "No family selected"
                             }
-                        },
+                        }
                     ]
-                },
+                }
                 // {
                 //     title: "Job Info",
                 //     id: "knockout-$DATE",
@@ -562,67 +571,84 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
             execute: (opencgaSession, clinicalAnalysis, params) => {
                 // Prepare the data for the REST create
                 // TODO validate data!
-                let data = {...clinicalAnalysis};
-                delete data._users;
+                try {
+                    let data = {...clinicalAnalysis};
 
-                data.proband = {
-                    id: clinicalAnalysis.proband ? clinicalAnalysis.proband.id : null
-                };
-                // data.interpretation = {
-                //     id: clinicalAnalysis.id + ".1",
-                //     clinicalAnalysisId: clinicalAnalysis.id,
-                //     analyst: {},
-                //     method: {},
-                //     primaryFindings: [],
-                //     secondaryFindings: [],
-                //     comments: [],
-                // }
+                    delete data._users;
 
-                if (clinicalAnalysis?.disorder?.id) {
-                    data.disorder = {
-                        id: clinicalAnalysis.disorder.id
-                    }
-                }
-
-                // Flags are optional, it can be empty
-                if (data.flags) {
-                    data.flags = clinicalAnalysis.flags.split(",");
-                }
-
-                if (data.type === "FAMILY") {
-                    data.family = {
-                        id: clinicalAnalysis.family.id,
-                        members: clinicalAnalysis.family.members.map(e => ({id: e.id}))
+                    data.proband = {
+                        id: clinicalAnalysis.proband ? clinicalAnalysis.proband.id : null
                     };
-                }
+                    // data.interpretation = {
+                    //     id: clinicalAnalysis.id + ".1",
+                    //     clinicalAnalysisId: clinicalAnalysis.id,
+                    //     analyst: {},
+                    //     method: {},
+                    //     primaryFindings: [],
+                    //     secondaryFindings: [],
+                    //     comments: [],
+                    // }
 
-                let _this = this;
-                if (this.mode === "create") {
-                    opencgaSession.opencgaClient.clinical().create(data, {study: opencgaSession.study.fqn})
-                        .then(function(response) {
-                            new NotificationQueue().push(`Clinical analysis ${response.responses[0].results[0].id} created successfully`, null,"success");
-                            _this.notifyClinicalAnalysisWrite();
-                            _this.onClear();
-                        })
-                        .catch(function(response) {
-                            console.error(response);
-                            new NotificationQueue().push(response.error, null, "ERROR");
+                    if (clinicalAnalysis?.disorder?.id) {
+                        data.disorder = {
+                            id: clinicalAnalysis.disorder.id
+                        };
+                    }
+
+                    // Flags are optional, it can be empty
+                    if (data.flags) {
+                        data.flags = clinicalAnalysis.flags.split(",");
+                    }
+
+                    if (data.type === "FAMILY") {
+                        data.family = {
+                            id: clinicalAnalysis.family.id,
+                            members: clinicalAnalysis.family.members.map(e => ({id: e.id}))
+                        };
+                    }
+
+                    let _this = this;
+                    if (this.mode === "create") {
+                        opencgaSession.opencgaClient.clinical().create(data, {study: opencgaSession.study.fqn})
+                            .then(function(response) {
+                                new NotificationQueue().push(`Clinical analysis ${response.responses[0].results[0].id} created successfully`, null, "success");
+                                _this.notifyClinicalAnalysisWrite();
+                                _this.onClear();
+                            })
+                            .catch(function(response) {
+                                console.error(response);
+                                new NotificationQueue().push(response.error, null, "ERROR");
+                            });
+                    } else {
+                        opencgaSession.opencgaClient.clinical().update(data, {study: opencgaSession.study.fqn})
+                            .then(function(response) {
+                                new NotificationQueue().push(`Clinical analysis ${response.responses[0].results[0].id} created successfully`, null, "success");
+                                _this.notifyClinicalAnalysisWrite();
+                                _this.onClear();
+                            })
+                            .catch(restResponse => {
+                                console.error(restResponse);
+                                if (restResponse.getEvents?.("ERROR")?.length) {
+                                    new NotificationQueue().push("Error creating Clinical Analysis", restResponse.getEvents("ERROR").map(error => error.message).join("<br>"), "ERROR");
+                                } else {
+                                    new NotificationQueue().push("Error creating Clinical Analysis", null, "ERROR");
+                                }
+                            });
+                    }
+                } catch (e) {
+                    console.log(e);
+                    // in case it is a restResponse
+                    if (e?.getEvents?.("ERROR")?.length) {
+                        const errors = e.getEvents("ERROR");
+                        errors.forEach(error => {
+                            new NotificationQueue().push(error.name, error.message, "ERROR");
+                            console.log(error);
                         });
-                } else {
-                    opencgaSession.opencgaClient.clinical().update(data, {study: opencgaSession.study.fqn})
-                        .then(function(response) {
-                            new NotificationQueue().push(`Clinical analysis ${response.responses[0].results[0].id} created successfully`, null,"success");
-                            _this.notifyClinicalAnalysisWrite();
-                            _this.onClear();
-                        })
-                        .catch( restResponse => {
-                            console.error(restResponse);
-                            if(restResponse.getEvents?.("ERROR")?.length) {
-                                new NotificationQueue().push("Error creating Clinical Analysis", restResponse.getEvents("ERROR").map(error => error.message).join("<br>"), "ERROR");
-                            } else {
-                                new NotificationQueue().push("Error creating Clinical Analysis", null, "ERROR");
-                            }
-                        });
+                    } else if (e instanceof Error) {
+                        new NotificationQueue().push(e.name, e.message, "ERROR");
+                    } else {
+                        new NotificationQueue().push("Generic Error", JSON.stringify(e), "ERROR");
+                    }
                 }
             },
             result: {

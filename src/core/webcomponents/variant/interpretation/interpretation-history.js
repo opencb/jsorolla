@@ -99,7 +99,7 @@ class InterpretationHistory extends LitElement {
             this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
                 .then(response => {
                     this.clinicalAnalysis = response.responses[0].results[0];
-                    this.updateActiveFilterFilters();
+                    //this.clinicalAnalysisObserver();
                     this.requestUpdate();
                 })
                 .catch(response => {
@@ -118,7 +118,7 @@ class InterpretationHistory extends LitElement {
 
     renderLocalTable() {
 
-        this.data = [this.clinicalAnalysis.interpretation]
+        this.data = [{...this.clinicalAnalysis.interpretation}]; //safe in case of empty object;
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
@@ -161,7 +161,7 @@ class InterpretationHistory extends LitElement {
             {
                 title: "methods",
                 field: "methods",
-                formatter: methods => methods.map(method => method.name).join("<br>")
+                formatter: methods => methods?.map(method => method.name).join("<br>")
             },
             {
                 title: "comments",
@@ -190,7 +190,7 @@ class InterpretationHistory extends LitElement {
                         <ul class="dropdown-menu dropdown-menu-right">
                             <li>
                                 <a href="javascript: void 0" class="btn force-text-left" data-action="restore">
-                                    <i class="fas fa-eraser icon-padding" aria-hidden="true"></i> Restore 
+                                    <i class="fas fa-file-upload icon-padding" aria-hidden="true"></i> Restore 
                                 </a>
                             </li>
                         </ul>
@@ -209,9 +209,7 @@ class InterpretationHistory extends LitElement {
 
     onActionClick(e, _, row) {
         const {action} = e.target.dataset;
-        if (action === "download") {
-
-        }
+        console.log("onActionClick", action);
     }
 
     getDefaultConfig() {

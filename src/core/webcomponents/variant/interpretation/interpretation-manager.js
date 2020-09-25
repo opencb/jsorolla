@@ -26,9 +26,10 @@ import "./variant-interpreter-qc-alignment-stats.js";
 import "./variant-interpreter-qc-gene-coverage-stats.js";
 import "./interpretation-grid.js";
 import "./interpretation-history.js";
+import "./interpretation-editor.js";
 
 
-class VariantInterpreterQcOverview extends LitElement {
+class InterpretationManager extends LitElement {
 
     constructor() {
         super();
@@ -104,6 +105,10 @@ class VariantInterpreterQcOverview extends LitElement {
                             title: "Summary"
                         },
                         {
+                            id: "editor",
+                            title: "Editor"
+                        },
+                        {
                             id: "interpretations",
                             title: "Interpretations"
                         },
@@ -172,16 +177,23 @@ class VariantInterpreterQcOverview extends LitElement {
                             </variant-interpreter-qc-summary>
                         </div>
                          
+                         <div id="${this._prefix}editor" role="tabpanel" class="tab-pane content-tab">
+                            <h3>Editor</h3>
+                            <interpretation-editor   .opencgaSession=${this.opencgaSession} 
+                                                    .clinicalAnalysis="${this.clinicalAnalysis}">
+                            </interpretation-editor>
+                        </div>
+                        
                         <div id="${this._prefix}interpretations" role="tabpanel" class="tab-pane content-tab">
                             <h3>Interpretations</h3>
                             <interpretation-grid   .opencgaSession=${this.opencgaSession} 
-                                                    .clinicalAnalysis="${this.clinicalAnalysis}">
+                                                   .clinicalAnalysis="${this.clinicalAnalysis}">
                             </interpretation-grid>
                         </div>
                         
                         <div id="${this._prefix}history" role="tabpanel" class="tab-pane content-tab">
                             <h3>History</h3>
-                            <interpretation-history   .opencgaSession=${this.opencgaSession} 
+                            <interpretation-history .opencgaSession=${this.opencgaSession} 
                                                     .clinicalAnalysis="${this.clinicalAnalysis}">
                             </interpretation-history>
                         </div>
@@ -203,4 +215,4 @@ class VariantInterpreterQcOverview extends LitElement {
 
 }
 
-customElements.define("interpretation-manager", VariantInterpreterQcOverview);
+customElements.define("interpretation-manager", InterpretationManager);

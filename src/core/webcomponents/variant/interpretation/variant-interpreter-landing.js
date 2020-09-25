@@ -97,8 +97,10 @@ class VariantInterpreterLanding extends LitElement {
     opencgaSessionObserver() {
 
         //debugger
+
+        // TODO decomment
         // Check logged user is the study owner
-        let _studyOwner = this.opencgaSession.study.fqn.split("@")[0];
+        /*let _studyOwner = this.opencgaSession.study.fqn.split("@")[0];
         if (this.opencgaSession.user.id === _studyOwner) {
             this.editMode = true;
         } else {
@@ -106,14 +108,17 @@ class VariantInterpreterLanding extends LitElement {
             for (let group of this.opencgaSession.study.groups) {
                 if (group.id === "@admins") {
                     _editMode = group.userIds.includes(this.opencgaSession.user.id);
-                    //break;
+                    break;
                 }
             }
             if (!_editMode) {
                 _editMode = this.opencgaSession.study?.acl?.includes("WRITE_CLINICAL_ANALYSIS");
             }
             this.editMode = _editMode;
-        }
+        }*/
+
+        // TODO comment
+        this.editMode = true;
 
         this.onCloseClinicalAnalysis();
 
@@ -384,7 +389,7 @@ class VariantInterpreterLanding extends LitElement {
                         </li>
                         ${OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS") ? html`
                             <li role="presentation" class="content-pills ${classMap({active: this.activeTab["landing-interpretation-manager"]})}"">
-                                <a href="javascript: void 0" role="tab" data-id="landing-interpretation-manager" @click="${e => this.editMode && this._changeTab(e)}" class="tab-title">Interpretation Manager</a>
+                                <a href="javascript: void 0" role="tab" data-id="landing-interpretation-manager" @click="${e => this.editMode && this._changeTab(e)}" class="tab-title ${classMap({disabled: !this.editMode})}">Case Manager</a>
                             </li>
                             <li role="presentation" class="content-pills ${classMap({active: this.activeTab["landing-create"]})}"">
                                 <a href="javascript: void 0" role="tab" data-id="landing-create" @click="${e => this.editMode && this._changeTab(e)}" class="tab-title ${classMap({disabled: !this.editMode})}">Create Case</a>

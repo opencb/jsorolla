@@ -20,7 +20,7 @@ import "../../simple-chart.js";
 import "../../json-viewer.js";
 import "../../tree-viewer.js";
 import "../../download-button.js";
-
+import "../../commons/filters/text-field-filter.js";
 
 export default class DataForm extends LitElement {
 

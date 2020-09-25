@@ -98,7 +98,7 @@ class InterpretationGrid extends LitElement {
             this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
                 .then(response => {
                     this.clinicalAnalysis = response.responses[0].results[0];
-                    this.updateActiveFilterFilters();
+                    //this.clinicalAnalysisObserver();
                     this.requestUpdate();
                 })
                 .catch(response => {
@@ -161,12 +161,12 @@ class InterpretationGrid extends LitElement {
             {
                 title: "methods",
                 field: "methods",
-                formatter: methods => methods.map(method => method.name).join("<br>")
+                formatter: methods => methods?.map(method => method.name).join("<br>")
             },
             {
                 title: "Primary Findings",
                 field: "primaryFindings",
-                formatter: primaryFindings => primaryFindings.length
+                formatter: primaryFindings => primaryFindings?.length
             },
             {
                 title: "comments",
@@ -187,26 +187,36 @@ class InterpretationGrid extends LitElement {
             },
             {
                 title: "Actions",
-                formatter: () => `
+                formatter: (_, interpretation) => `
                     <div class="dropdown">
                         <button class="btn btn-default btn-small ripple dropdown-toggle one-line" type="button" data-toggle="dropdown">Select action
                             <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-right">
+                            
+                            ${interpretation.primary ? `
+                                <li>
+                                    <a href="javascript: void 0" class="btn disabled force-text-left" data-action="history">
+                                        <i class="fas fa-code-branch icon-padding" aria-hidden="true"></i> Restore previous version
+                                    </a>
+                                </li>
+                            ` : `
+                                <li>
+                                    <a href="javascript: void 0" class="btn force-text-left" data-action="setprimary">
+                                        <i class="fas fa-map-marker icon-padding" aria-hidden="true"></i> Set as primary
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="javascript: void 0" class="btn force-text-left" data-action="merge">
+                                        <i class="far fa-object-group icon-padding" aria-hidden="true"></i> Merge
+                                    </a>
+                                </li>
+                            `}
+                            
+                            <li role="separator" class="divider"></li>
                             <li>
                                 <a href="javascript: void 0" class="btn force-text-left" data-action="clear">
                                     <i class="fas fa-eraser icon-padding" aria-hidden="true"></i> Clear 
-                                </a>
-                            </li>
-                            <li>
-                                <a href="javascript: void 0" class="btn force-text-left" data-action="setprimary">
-                                    <i class="fas fa-map-marker icon-padding" aria-hidden="true"></i> Set as primary
-                                </a>
-                            </li>
-                            <li role="separator" class="divider"></li>
-                            <li>
-                                <a href="javascript: void 0" class="btn disabled force-text-left" data-action="history">
-                                    <i class="fas fa-code-branch icon-padding" aria-hidden="true"></i> Restore previous version
                                 </a>
                             </li>
                             <li>
