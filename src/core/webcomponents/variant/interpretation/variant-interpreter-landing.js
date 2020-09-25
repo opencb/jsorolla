@@ -163,7 +163,6 @@ class VariantInterpreterLanding extends LitElement {
     onClinicalAnalysisIdChange(key, value) {
         this.clinicalAnalysisId = value;
         this.probandId = null;
-
     }
 
     onProbandIdChange(key, value) {
@@ -172,15 +171,14 @@ class VariantInterpreterLanding extends LitElement {
     }
 
     onClinicalAnalysisChange() {
-        let _this = this;
         if (this.clinicalAnalysisId) {
             this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
                 .then(response => {
-                    _this.clinicalAnalysis = response.responses[0].results[0];
-                    _this.dispatchEvent(new CustomEvent("selectClinicalAnalysis", {
+                    this.clinicalAnalysis = response.responses[0].results[0];
+                    this.dispatchEvent(new CustomEvent("selectClinicalAnalysis", {
                         detail: {
-                            id: _this.clinicalAnalysis ? _this.clinicalAnalysis.id : null,
-                            clinicalAnalysis: _this.clinicalAnalysis
+                            id: this.clinicalAnalysis ? this.clinicalAnalysis.id : null,
+                            clinicalAnalysis: this.clinicalAnalysis
                         },
                         bubbles: true,
                         composed: true
@@ -192,11 +190,11 @@ class VariantInterpreterLanding extends LitElement {
         } else if (this.probandId) {
             this.opencgaSession.opencgaClient.clinical().search({proband: this.probandId, study: this.opencgaSession.study.fqn})
                 .then(response => {
-                    _this.clinicalAnalysis = response.responses[0].results[0];
-                    _this.dispatchEvent(new CustomEvent("selectClinicalAnalysis", {
+                    this.clinicalAnalysis = response.responses[0].results[0];
+                    this.dispatchEvent(new CustomEvent("selectClinicalAnalysis", {
                         detail: {
-                            id: _this.clinicalAnalysis ? _this.clinicalAnalysis.id : null,
-                            clinicalAnalysis: _this.clinicalAnalysis
+                            id: this.clinicalAnalysis ? this.clinicalAnalysis.id : null,
+                            clinicalAnalysis: this.clinicalAnalysis
                         },
                         bubbles: true,
                         composed: true
@@ -210,14 +208,13 @@ class VariantInterpreterLanding extends LitElement {
 
     onClinicalAnalysisCreate(e) {
         // Fetch object from server since the server automatically adds some information
-        let _this = this;
         this.opencgaSession.opencgaClient.clinical().info(e.detail.id, {study: this.opencgaSession.study.fqn})
             .then(response => {
-                _this.clinicalAnalysis = response.responses[0].results[0];
-                _this.dispatchEvent(new CustomEvent("selectClinicalAnalysis", {
+                this.clinicalAnalysis = response.responses[0].results[0];
+                this.dispatchEvent(new CustomEvent("selectClinicalAnalysis", {
                     detail: {
-                        id: _this.clinicalAnalysis ? _this.clinicalAnalysis.id : null,
-                        clinicalAnalysis: _this.clinicalAnalysis
+                        id: this.clinicalAnalysis ? this.clinicalAnalysis.id : null,
+                        clinicalAnalysis: this.clinicalAnalysis
                     },
                     bubbles: true,
                     composed: true
@@ -370,58 +367,34 @@ class VariantInterpreterLanding extends LitElement {
         }
 
         return html`
-            <style>
-                #variant-interpreter-landing .nav-tabs.nav-center {
-                    /*margin-bottom: 20px;*/
-                }
-            </style>
             <div id="variant-interpreter-landing">
                 ${this._config.clinicalAnalysisSelector ? html`
                     <div>
-                    <ul class="nav nav-tabs nav-center tablist" role="tablist" aria-label="toolbar">
-                        <li role="presentation" class="content-pills active ${classMap({active: this.activeTab["landing-search"] || UtilsNew.isEmpty(this.activeTab)})}"">
-                            <a href="javascript: void 0" role="tab" data-id="landing-search" @click="${this._changeTab}" class="tab-title">Select Case</a>
-                        </li>
-                        ${OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS") ? html`
-                            <li role="presentation" class="content-pills ${classMap({active: this.activeTab["landing-interpretation-manager"]})}"">
-                                <a href="javascript: void 0" role="tab" data-id="landing-interpretation-manager" @click="${e => this.editMode && this._changeTab(e)}" class="tab-title">Interpretation Manager</a>
+                        <ul class="nav nav-tabs nav-center tablist" role="tablist" aria-label="toolbar">
+                            <li role="presentation" class="content-pills active ${classMap({active: this.activeTab["landing-search"] || UtilsNew.isEmpty(this.activeTab)})}"">
+                                <a href="javascript: void 0" role="tab" data-id="landing-search" 
+                                    @click="${this._changeTab}" class="tab-title">${this.clinicalAnalysis ? "Case Summary" : "Select Case"}</a>
                             </li>
-                            <li role="presentation" class="content-pills ${classMap({active: this.activeTab["landing-create"]})}"">
-                                <a href="javascript: void 0" role="tab" data-id="landing-create" @click="${e => this.editMode && this._changeTab(e)}" class="tab-title ${classMap({disabled: !this.editMode})}">Create Case</a>
-                            </li>` : null
-                        }
-                        <!--<li role="presentation" class="content-pills help-pill ${classMap({active: this.activeTab["landing-help"]})}">
-                            <a href="javascript: void 0" role="tab" data-id="landing-help" @click="${this._changeTab}" class="tab-title"><i class="fas fa-question-circle"></i> Help</a>
-                        </li>-->
-                    </ul>
-                </div>
+                            ${OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS") ? html`
+                                <li role="presentation" class="content-pills ${classMap({active: this.activeTab["landing-interpretation-manager"]})}"">
+                                    <a href="javascript: void 0" role="tab" data-id="landing-interpretation-manager" @click="${e => this.editMode && this._changeTab(e)}" class="tab-title">Case Manager</a>
+                                </li>
+                                <li role="presentation" class="content-pills ${classMap({active: this.activeTab["landing-create"]})}"">
+                                    <a href="javascript: void 0" role="tab" data-id="landing-create" @click="${e => this.editMode && this._changeTab(e)}" class="tab-title ${classMap({disabled: !this.editMode})}">Create Case</a>
+                                </li>` : null
+                            }
+                        </ul>
+                    </div>
                 ` : null}
                 
-                
                 <div class="content-tab-wrapper">
-                    <div id="landing-search" role="tabpanel" class="tab-pane active content-tab">
+                    <div id="landing-search" role="tabpanel" class="tab-pane active content-tab col-md-10 col-md-offset-1">
                         ${this.clinicalAnalysis
                             ? html`
-                                <div class="row">
-                                    <div class="col-md-10 col-md-offset-1">
-                                    <!--<div style="float: left">
-                                        <h2>Case ${this.clinicalAnalysis.id}</h2>
-                                    </div> -->
-                                    
-                                    ${false && this._config.clinicalAnalysisSelector ? html`
-                                        <div class="row pad5">
-                                            <div class="pull-right">
-                                                <button class="btn btn-primary ripple" @click="${this.onCloseClinicalAnalysis}">
-                                                    <i class="fas fa-times icon-padding"></i>Close
-                                                </button>
-                                            </div>
-                                        </div>  
-                                    ` : null}
-                                    <opencga-clinical-analysis-view .opencgaSession="${this.opencgaSession}"
-                                                                    .clinicalAnalysis="${this.clinicalAnalysis}">
-                                    </opencga-clinical-analysis-view>
-                                    </div>
-                                </div>`
+                                <tool-header title="Case Summary - ${this.clinicalAnalysis?.id}" class="bg-white"></tool-header>
+                                <opencga-clinical-analysis-view .opencgaSession="${this.opencgaSession}"
+                                                                .clinicalAnalysis="${this.clinicalAnalysis}">
+                                </opencga-clinical-analysis-view>`
                             : this._config.clinicalAnalysisSelector
                                 ? html`
                                     <data-form  .data="${{}}" 
@@ -433,11 +406,14 @@ class VariantInterpreterLanding extends LitElement {
                                 : null
                         }
                     </div>
-                    <div id="landing-interpretation-manager" role="tabpanel" class="tab-pane content-tab">
+                    
+                    <div id="landing-interpretation-manager" role="tabpanel" class="tab-pane content-tab col-md-10 col-md-offset-1">
+                        <tool-header title="Case Manager - ${this.clinicalAnalysis?.id}" class="bg-white"></tool-header>
                         <interpretation-manager .opencgaSession="${this.opencgaSession}"
                                                 .clinicalAnalysis="${this.clinicalAnalysis}">
                         </interpretation-manager>
                     </div>
+                    
                     ${this._config.clinicalAnalysisSelector ? html`
                         <div id="landing-create" role="tabpanel" class="tab-pane content-tab">
                         <div class="col-md-8 col-md-offset-2">
@@ -464,13 +440,6 @@ class VariantInterpreterLanding extends LitElement {
                     </div>
                     ` : null}
                     
-                    
-                    <div id="landing-help" role="tabpanel" class="tab-pane content-tab">
-                        <div class="container">
-                            
-                        </div>
-                        
-                    </div>
                 </div>
             </div>
         `;

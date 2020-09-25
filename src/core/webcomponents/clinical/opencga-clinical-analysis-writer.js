@@ -73,7 +73,7 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                             type: "FAMILY",
                             priority: "MEDIUM",
                             analyst: {
-                                assignee: this.opencgaSession?.user?.id
+                                id: this.opencgaSession?.user?.id
                             },
                             dueDate: moment().format("YYYYMMDDHHmmss"),
                             _users: group.userIds.filter(user => user !== "*")
@@ -598,7 +598,7 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
 
                 let _this = this;
                 if (this.mode === "create") {
-                    opencgaSession.opencgaClient.clinical().create(data, {study: opencgaSession.study.fqn})
+                    opencgaSession.opencgaClient.clinical().create(data, {study: opencgaSession.study.fqn, createDefaultInterpretation: true})
                         .then(function(response) {
                             new NotificationQueue().push(`Clinical analysis ${response.responses[0].results[0].id} created successfully`, null,"success");
                             _this.notifyClinicalAnalysisWrite();

@@ -174,26 +174,34 @@ class VariantInterpreterQcOverview extends LitElement {
                          
                         <div id="${this._prefix}interpretations" role="tabpanel" class="tab-pane content-tab">
                             <h3>Interpretations</h3>
-                            <interpretation-grid   .opencgaSession=${this.opencgaSession} 
-                                                    .clinicalAnalysis="${this.clinicalAnalysis}">
-                            </interpretation-grid>
+                            <div style="margin: 20px 10px">
+                                <interpretation-grid    .opencgaSession=${this.opencgaSession} 
+                                                        .clinicalAnalysis="${this.clinicalAnalysis}">
+                                </interpretation-grid>
+                            </div>
                         </div>
                         
                         <div id="${this._prefix}history" role="tabpanel" class="tab-pane content-tab">
                             <h3>History</h3>
-                            <interpretation-history   .opencgaSession=${this.opencgaSession} 
-                                                    .clinicalAnalysis="${this.clinicalAnalysis}">
-                            </interpretation-history>
+                            <div style="margin: 20px 10px">
+                                <interpretation-history   .opencgaSession=${this.opencgaSession} 
+                                                        .clinicalAnalysis="${this.clinicalAnalysis}">
+                                </interpretation-history>
+                            </div>
                         </div>
                                                 
                         <div id="${this._prefix}consent" role="tabpanel" class="tab-pane content-tab">
                             <h3>Consent</h3>
-                            Consent
+                            <div style="margin: 20px 10px">
+                                Consent
+                            </div>
                         </div>
                         
                         <div id="${this._prefix}review" role="tabpanel" class="tab-pane content-tab">
                             <h3>Review</h3>
-                            review
+                            <div style="margin: 20px 10px">
+                                review
+                            </div>
                         </div>
                     </div>
                 </div>
