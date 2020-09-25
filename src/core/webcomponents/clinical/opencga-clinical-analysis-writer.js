@@ -322,7 +322,7 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                             },
                             {
                                 name: "Assigned To",
-                                field: "analyst.TEST",
+                                field: "analyst.assignee",
                                 type: "select",
                                 defaultValue: this.opencgaSession?.user?.id,
                                 allowedValues: "_users",
