@@ -162,6 +162,29 @@ class InterpretationEditor extends LitElement {
         this.requestUpdate();
     }
 
+    renderStatus(status) {
+        return html`
+        <div class="container-fluid status-wrapper">
+            <div class="row">
+                <div class="col-md-3">
+                    <text-field-filter placeholder="Name" .value="${status.name}" @filterChange="${e => this.onFilterChange("status.name", e.detail.value)}"></text-field-filter>
+                </div>
+                <div class="col-md-5">
+                    <text-field-filter placeholder="Description" .value="${status.description}" @filterChange="${e => this.onFilterChange("status.name", e.detail.value)}"></text-field-filter>
+                </div>
+                <div class="col-md-4">
+                    <div class='input-group date' id="${this._prefix}DuePickerDate" data-field="${""}">
+                        <input type='text' id="${this._prefix}date" class="${this._prefix}Input form-control" data-field="${status.date}" ?disabled="${true}" >
+                        <span class="input-group-addon">
+                            <span class="fa fa-calendar"></span>
+                        </span>
+                    </div>
+                </div>
+                            
+            </div>
+        </div>`
+    }
+
     onFieldChange(e) {
 
     }
@@ -190,10 +213,14 @@ class InterpretationEditor extends LitElement {
                 {
                     title: "",
                     elements: [
-                        /*{
-                            name: "Analysis ID",
-                            field: "id"
-                        },*/
+                        {
+                            name: "Status",
+                            field: "internal.status",
+                            type: "custom",
+                            display: {
+                                render: status => this.renderStatus(status)
+                            }
+                        },
                         {
                             name: "Interpretation Flags",
                             field: "flags",

@@ -106,7 +106,7 @@ class InterpretationManager extends LitElement {
                         },
                         {
                             id: "editor",
-                            title: "Editor"
+                            title: "General"
                         },
                         {
                             id: "interpretations",
@@ -121,8 +121,8 @@ class InterpretationManager extends LitElement {
                             title: "Consent"
                         },
                         {
-                            id: "review",
-                            title: "Review"
+                            id: "report",
+                            title: "Report"
                         }
                     ]
                 }
@@ -178,7 +178,7 @@ class InterpretationManager extends LitElement {
                         </div>
                          
                          <div id="${this._prefix}editor" role="tabpanel" class="tab-pane content-tab">
-                            <h3>Editor</h3>
+                            <h3>General</h3>
                             <div style="margin: 20px 10px">
                                 <interpretation-editor   .opencgaSession=${this.opencgaSession} 
                                                         .clinicalAnalysis="${this.clinicalAnalysis}">
@@ -211,10 +211,10 @@ class InterpretationManager extends LitElement {
                             </div>
                         </div>
                         
-                        <div id="${this._prefix}review" role="tabpanel" class="tab-pane content-tab">
-                            <h3>Review</h3>
+                        <div id="${this._prefix}report" role="tabpanel" class="tab-pane content-tab">
+                            <h3>Report</h3>
                             <div style="margin: 20px 10px">
-                                review
+                                Report
                             </div>
                         </div>
                     </div>
