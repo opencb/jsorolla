@@ -162,7 +162,13 @@ export default class OpencgaSampleGrid extends LitElement {
                                     // We store the Case ID in the individual attribute
                                     // Note clinical search results are not sorted
                                     // FIXME at the moment we only search by proband
-                                    let map = caseResponse.responses[0].results.reduce((map, obj) => (map[obj.proband.id] = obj, map), {});
+                                    let map = {};
+                                    for (let clinicalAnalysis of caseResponse.responses[0].results) {
+                                        if (!map[clinicalAnalysis.proband.id]) {
+                                            map[clinicalAnalysis.proband.id] = [];
+                                        }
+                                        map[clinicalAnalysis.proband.id].push(clinicalAnalysis);
+                                    }
                                     for (let sample of sampleResponse.responses[0].results) {
                                         sample.attributes.OPENCGA_CLINICAL_ANALYSIS = map[sample.individualId];
                                     }

@@ -99,13 +99,19 @@ export default class CatalogGridFormatter {
         return "-";
     }
 
-    caseFormatter(clinicalAnalysis, row, individualId, opencgaSession) {
-        if (clinicalAnalysis && clinicalAnalysis.id) {
-            return `
-                <a href="#interpreter/${opencgaSession.project.id}/${opencgaSession.study.id}/${clinicalAnalysis.id}">
-                    ${clinicalAnalysis.id} ${clinicalAnalysis.proband.id === individualId ? "(proband)" : ""}
-                </a>
-            `;
+    caseFormatter(clinicalAnalysisArray, row, individualId, opencgaSession) {
+        if (clinicalAnalysisArray && clinicalAnalysisArray.length > 0) {
+            let result = "";
+            for (let clinicalAnalysis of clinicalAnalysisArray) {
+                result += `
+                    <div>
+                        <a href="#interpreter/${opencgaSession.project.id}/${opencgaSession.study.id}/${clinicalAnalysis.id}">
+                            ${clinicalAnalysis.id} ${clinicalAnalysis.proband.id === individualId ? "(proband)" : ""}
+                       </a>              
+                    </div>
+                `;
+            }
+            return result;
         } else {
             return "-";
         }
