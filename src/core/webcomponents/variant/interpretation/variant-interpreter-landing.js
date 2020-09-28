@@ -377,9 +377,9 @@ class VariantInterpreterLanding extends LitElement {
                     <div>
                     <ul class="nav nav-tabs nav-center tablist" role="tablist" aria-label="toolbar">
                         <li role="presentation" class="content-pills active ${classMap({active: this.activeTab["landing-search"] || UtilsNew.isEmpty(this.activeTab)})}"">
-                            <a href="javascript: void 0" role="tab" data-id="landing-search" @click="${this._changeTab}" class="tab-title">Select Case</a>
+                            <a href="javascript: void 0" role="tab" data-id="landing-search" @click="${this._changeTab}" class="tab-title">${this.clinicalAnalysis ? "Case Overview": "Select Case"}</a>
                         </li>
-                        ${OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS") ? html`
+                        ${false && OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS") ? html`
                             <li role="presentation" class="content-pills ${classMap({active: this.activeTab["landing-interpretation-manager"]})}"">
                                 <a href="javascript: void 0" role="tab" data-id="landing-interpretation-manager" @click="${e => this.editMode && this._changeTab(e)}" class="tab-title ${classMap({disabled: !this.editMode})}">Case Manager</a>
                             </li>
