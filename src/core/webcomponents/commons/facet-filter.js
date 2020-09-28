@@ -57,7 +57,7 @@ export default class FacetFilter extends LitElement {
          */
         const _valueFormatter = (k, v) => {
             let str = "";
-            if (v.fn && (v.fn === "Avg" || v.fn === "Percentile")) {
+            if (v.fn && (v.fn === "avg" || v.fn === "percentile")) {
                 str = v.fn + "(" + k + ")";
             } else {
                 //range type
@@ -65,7 +65,7 @@ export default class FacetFilter extends LitElement {
                 str = k + (v.value ?? "");
             }
             if (v.nested) {
-                str += ">>" + ((v.nested.fn && (v.nested.fn === "Avg" || v.nested.fn === "Percentile")) ? v.nested.fn + "(" + v.nested.facet + ")" : v.nested.facet + (v.nested.value ?? ""));
+                str += ">>" + ((v.nested.fn && (v.nested.fn === "avg" || v.nested.fn === "percentile")) ? v.nested.fn + "(" + v.nested.facet + ")" : v.nested.facet + (v.nested.value ?? ""));
             }
             return str;
         };
@@ -217,7 +217,7 @@ export default class FacetFilter extends LitElement {
     onFacetFnChange(e) {
         const value = e.detail.value;
         const facet = e.target.dataset.facet;
-        if (value && (value === "Avg" || value === "Percentile")) {
+        if (value && (value === "avg" || value === "percentile")) {
             this.selectedFacet[facet]["fn"] = value;
             this.querySelector("#" + this._prefix + facet + "_range_start").disabled = true;
             this.querySelector("#" + this._prefix + facet + "_range_stop").disabled = true;
@@ -263,7 +263,7 @@ export default class FacetFilter extends LitElement {
     onNestedFacetFnChange(e) {
         const value = e.detail.value;
         const facet = e.target.dataset.parentFacet;
-        if (value && (value === "Avg" || value === "Percentile")) {
+        if (value && (value === "avg" || value === "percentile")) {
             if (this.selectedFacet[facet].nested) {
                 this.selectedFacet[facet].nested.fn = value;
                 /*this.querySelector("#" + this._prefix + facet + "_Nested_range_start").disabled = true;
@@ -360,7 +360,7 @@ export default class FacetFilter extends LitElement {
                             <!--<input type="text" class="form-control" placeholder="Include values or set range" id="${this._prefix}${facet.id}_text" data-id="${facet.id}" .value="${num_value || ""}" @input="${this.onFacetValueChange}" />-->
                         </div>
                         <div class="col-md-4">
-                            <select-field-filter .data="${["Range", "Avg", "Percentile"]}" .value="${facet.fn ?? "Range"}" id="${this._prefix}${facet.id}_FnSelect" data-facet="${facet.id}" @filterChange="${this.onFacetFnChange}"></select-field-filter>
+                            <select-field-filter .data="${["Range", "avg", "percentile"]}" .value="${facet.fn ?? "Range"}" id="${this._prefix}${facet.id}_FnSelect" data-facet="${facet.id}" @filterChange="${this.onFacetFnChange}"></select-field-filter>
                         </div>
                     </div>
                     ${renderNestedFieldWrapper(facet)}
@@ -433,7 +433,7 @@ export default class FacetFilter extends LitElement {
                         <!--<input type="text" class="form-control" placeholder="Include values or set range" data-parent-facet="${parent}" .disabled="${!(facet.facet)}" id="${this._prefix}${parent}_NestedValue" .value="${num_value || ""}"  @input="${this.onNestedFacetValueChange}"  />-->
                     </div>
                     <div class="col-md-3">
-                        <select-field-filter .disabled="${false}" .data="${["Range", "Avg", "Percentile"]}" .value="${facet.fn ?? "Range"}" id="${parent}_NestedFnSelect" data-parent-facet="${parent}" @filterChange="${this.onNestedFacetFnChange}"></select-field-filter>
+                        <select-field-filter .disabled="${false}" .data="${["Range", "avg", "percentile"]}" .value="${facet.fn ?? "Range"}" id="${parent}_NestedFnSelect" data-parent-facet="${parent}" @filterChange="${this.onNestedFacetFnChange}"></select-field-filter>
                     </div>
                 `;
             case "string":
