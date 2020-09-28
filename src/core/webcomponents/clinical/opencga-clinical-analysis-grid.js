@@ -16,6 +16,7 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
+import {NotificationQueue} from "../Notification.js";
 import GridCommons from "../variant/grid-commons.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import "../commons/opencb-grid-toolbar.js";
@@ -120,8 +121,8 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                 gridContext: this,
                 formatLoadingMessage: () =>"<div><loading-spinner></loading-spinner></div>",
 
-                ajax: params => {
-                    const filters = {
+                ajax: async params => {
+                    const query = {
                         study: this.opencgaSession.study.fqn,
                         limit: params.data.limit,
                         skip: params.data.offset || 0,
@@ -129,12 +130,14 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                         exclude: "files",
                         ...this.query
                     };
-                    this.opencgaSession.opencgaClient.clinical().search(filters)
-                        .then( res => params.success(res))
-                        .catch( e => {
-                            console.error(e);
-                            params.error(e);
-                        });
+
+                    try {
+                        let data = await this.fetchData(query);
+                        params.success(data);
+                    } catch (e) {
+                        console.log(e)
+                        params.error(e);
+                    }
                 },
                 responseHandler: response => {
                     const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
@@ -202,6 +205,15 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
             // Delete table
             $("#" + this.gridId).bootstrapTable("destroy");
             this.numTotalResults = 0;
+        }
+    }
+
+    async fetchData(query) {
+        try {
+            return await this.opencgaSession.opencgaClient.clinical().search(query);
+        } catch (e) {
+            console.error(e);
+            await Promise.reject(e);
         }
     }
 
@@ -534,79 +546,69 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
         return _columns;
     }
 
-    onDownload(e) {
-        // let urlQueryParams = this._getUrlQueryParams();
-        // let params = urlQueryParams.queryParams;
-        const params = {
-            ...this.query,
-            exclude: "files",
-            limit: 100,
-            order: "asc",
-            skip: 0,
-            count: true,
-            study: this.opencgaSession.study.fqn
-        };
-        this.opencgaSession.opencgaClient.clinical().search(params)
-            .then(response => {
-                console.log("response", response);
-                const result = response.response[0].result;
-                let dataString = [];
-                let mimeType = "";
-                let extension = "";
+    async onDownload(e) {
 
-                // TODO evaluate webworker with Transferable Objects (it shares objects, not copy like classical WebWorker)
-                if (result) {
-                    console.log("result", result);
-                    // Check if user clicked in Tab or JSON format
-                    if (e.detail.option.toLowerCase() === "tab") {
-                        dataString = [
-                            ["Analysis ID", "Proband ID", "Family (#members)", "Disorder", "Type", "Interpretations", "Status", "Priority", "Assigned To", "Creation Date"].join("\t"),
-                            ...result.map( _ => [
-                                _.id,
-                                _.proband.id,
-                                _.family?.id && _.family?.members.length ? `${_.family.id} (${_.family.members.length})` : "",
-                                _?.disorder?.id ?? "-",
-                                _.type,
-                                _.interpretations?.join(",") ?? "-",
-                                _.status.name,
-                                _.priority,
-                                _.analyst.assignee,
-                                _.creationDate
-                            ].join("\t"))];
-                        // console.log(dataString);
-                        mimeType = "text/plain";
-                        extension = ".txt";
-                    } else {
-                        for (const res of result) {
-                            dataString.push(JSON.stringify(res, null, "\t"));
-                        }
-                        mimeType = "application/json";
-                        extension = ".json";
-                    }
+        // TODO evaluate refactor using webworker with Transferable Objects (it shares objects, not copy like classical WebWorker)
 
-                    // Build file and anchor link
-                    const data = new Blob([dataString.join("\n")], {type: mimeType});
-                    const file = window.URL.createObjectURL(data);
-                    const a = document.createElement("a");
-                    a.href = file;
-                    a.download = this.opencgaSession.study.alias + extension;
-                    document.body.appendChild(a);
-                    a.click();
-                    setTimeout(function() {
-                        document.body.removeChild(a);
-                    }, 0);
+        try {
+            this.toolbarConfig = {...this.toolbarConfig, downloading: true};
+            await this.requestUpdate();
+            const params = {
+                ...this.query,
+                exclude: "files",
+                limit: 100,
+                order: "asc",
+                skip: 0,
+                count: true,
+                study: this.opencgaSession.study.fqn
+            };
+
+            const r = await this.fetchData(params);
+            const result = r.getResults();
+            let dataString;
+            if (result) {
+                // Check if user clicked in Tab or JSON format
+                if (e.detail.option.toLowerCase() === "tab") {
+                    dataString = [
+                        ["Analysis ID", "Proband ID", "Family (#members)", "Disorder", "Type", "Interpretations", "Status", "Priority", "Assigned To", "Creation Date"].join("\t"),
+                        ...result.map( _ => [
+                            _.id,
+                            _.proband.id,
+                            _.family?.id && _.family?.members.length ? `${_.family.id} (${_.family.members.length})` : "",
+                            _?.disorder?.id ?? "-",
+                            _.type,
+                            _.interpretations?.join(",") ?? "-",
+                            _.status.name,
+                            _.priority,
+                            _.analyst.assignee,
+                            _.creationDate
+                        ].join("\t"))];
+                    UtilsNew.downloadData([dataString.join("\n")], "cases_" + this.opencgaSession.study.id + ".txt", "text/plain");
                 } else {
-                    console.error("Error in result format");
+                    let json = JSON.stringify(result, null, "\t");
+                    UtilsNew.downloadData(json, "cases_" + this.opencgaSession.study.id + ".json", "application/json");
                 }
-            })
-            .then(function() {
-                // this.downloadRefreshIcon.css("display", "none");
-                // this.downloadIcon.css("display", "inline-block");
-            });
-    }
+            } else {
+                console.error("Error in result format");
+            }
+        } catch (e) {
+            // in case it is a restResponse
+            console.log(e);
+            if (e?.getEvents?.("ERROR")?.length) {
+                const errors = e.getEvents("ERROR");
+                errors.forEach(error => {
+                    new NotificationQueue().push(error.name, error.message, "ERROR");
+                    console.log(error);
+                });
+            } else if (e instanceof Error) {
+                new NotificationQueue().push(e.name, e.message, "ERROR");
+            } else {
+                new NotificationQueue().push("Generic Error", JSON.stringify(e), "ERROR");
+            }
+        }
+        this.toolbarConfig = {...this.toolbarConfig, downloading: false};
+        this.requestUpdate();
 
-    onShare() {
-        // TODO
     }
 
     // TODO check
@@ -660,7 +662,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
     
             ${this._config.showToolbar 
                 ? html`
-                    <opencb-grid-toolbar    .config="${this._config.toolbar}"
+                    <opencb-grid-toolbar    .config="${this.toolbarConfig}"
                                             @columnChange="${this.onColumnChange}"
                                             @download="${this.onDownload}">
                     </opencb-grid-toolbar>` 

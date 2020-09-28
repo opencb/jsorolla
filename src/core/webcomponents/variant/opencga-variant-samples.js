@@ -139,7 +139,7 @@ export default class OpencgaVariantSamples extends LitElement {
                 let tableOptions = this.table.bootstrapTable("getOptions");
                 // let limit = tableOptions.pageSize || 10;
                 // let skip = tableOptions.pageNumber ? tableOptions.pageNumber * limit - limit : 0;
-                let query = {
+                const query = {
                     variant: this.variantId,
                     study: this.opencgaSession.study.fqn,
                     limit: params.data.limit || tableOptions.pageSize,

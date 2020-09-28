@@ -391,7 +391,7 @@ export default class OpencgaIndividualBrowser extends LitElement {
                             {
                                 id: "numSamples",
                                 name: "Number Of Samples",
-                                type: "string",
+                                type: "number",
                                 description: "Number Of Samples"
                             },
                             {

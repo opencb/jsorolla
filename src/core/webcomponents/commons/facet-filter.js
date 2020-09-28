@@ -345,7 +345,7 @@ export default class FacetFilter extends LitElement {
                 const [, nstart, nstop, nstep] = facet.value ? [...facet.value.matchAll(/\[(\d+)\.\.(\d+)]:(\d+)/gim)][0] : "";
                 return html`
                     <div class="row facet-row">
-                        <div class="col-md-9">
+                        <div class="col-md-8">
                             <div class="row facet-row">
                                 <div class="col-md-4">
                                     <input type="text" class="form-control" placeholder="Start" id="${this._prefix}${facet.id}_range_start" .disabled="${facet.fn}" data-id="${facet.id}" data-type="range_start" .value="${nstart || ""}" @input="${this.onFacetRangeChange}" />
@@ -359,7 +359,7 @@ export default class FacetFilter extends LitElement {
                             </div>
                             <!--<input type="text" class="form-control" placeholder="Include values or set range" id="${this._prefix}${facet.id}_text" data-id="${facet.id}" .value="${num_value || ""}" @input="${this.onFacetValueChange}" />-->
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-4">
                             <select-field-filter .data="${["Range", "Avg", "Percentile"]}" .value="${facet.fn ?? "Range"}" id="${this._prefix}${facet.id}_FnSelect" data-facet="${facet.id}" @filterChange="${this.onFacetFnChange}"></select-field-filter>
                         </div>
                     </div>

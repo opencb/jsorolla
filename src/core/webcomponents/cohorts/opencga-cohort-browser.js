@@ -262,7 +262,7 @@ export default class OpencgaCohortBrowser extends LitElement {
                             {
                                 id: "numSamples",
                                 name: "Number Of Samples",
-                                type: "string",
+                                type: "number",
                                 description: "Number of samples"
                             },
                             {
