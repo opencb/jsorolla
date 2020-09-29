@@ -117,33 +117,25 @@ class InterpretationGrid extends LitElement {
 
     renderLocalTable() {
 
-        this.data = [{...this.clinicalAnalysis.interpretation, primary: true}, ...this.clinicalAnalysis.secondaryInterpretations]
+        this.data = this.clinicalAnalysis.secondaryInterpretations ?? [];
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
             data: this.data,
             columns: this._initTableColumns(),
-            sidePagination: "local",
-            // Set table properties, these are read from config property
             uniqueId: "id",
-            pagination: this._config.pagination,
-            pageSize: this._config.pageSize,
-            pageList: this._config.pageList,
-            showExport: this._config.showExport,
-            detailView: this._config.detailView,
-            detailFormatter: this.detailFormatter,
             gridContext: this,
             formatLoadingMessage: () =>"<div><loading-spinner></loading-spinner></div>",
             onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
-            onPageChange: (page, size) => {
-                const result = this.gridCommons.onPageChange(page, size);
-                //this.from = result.from || this.from;
-                //this.to = result.to || this.to;
-            },
-            onPostBody: data => {
-                // We call onLoadSuccess to select first row
-                this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 1);
-            }
+            // onPageChange: (page, size) => {
+            //     const result = this.gridCommons.onPageChange(page, size);
+            //     //this.from = result.from || this.from;
+            //     //this.to = result.to || this.to;
+            // },
+            // onPostBody: data => {
+            //     // We call onLoadSuccess to select first row
+            //     //this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 1);
+            // }
         });
     }
 
@@ -244,16 +236,70 @@ class InterpretationGrid extends LitElement {
 
     getDefaultConfig() {
         return {
-            pagination: true,
-            pageSize: 10,
-            pageList: [10, 25, 50],
-            showExport: false,
-            detailView: false,
-            multiSelection: false,
-            header: {
-                horizontalAlign: "center",
-                verticalAlign: "bottom"
-            }
+            title: "",
+            icon: "",
+            display: {
+                collapsable: true,
+                showTitle: false,
+                labelWidth: 2,
+                defaultValue: "-"
+            },
+            sections: [
+                {
+                    title: "Primary Interpretation",
+                    display: {
+                        // width: 10,
+                        collapsed: false
+                    },
+                    elements: [
+                        {
+                            name: "ID",
+                            field: "id",
+                            formatter: (id, interpretation) => id + (interpretation.primary ? " <span class='badge badge-info'>Primary</span>" : "")
+                        },
+                        {
+                            name: "Description",
+                            field: "description"
+                        },
+                        {
+                            name: "Methods",
+                            field: "methods",
+                            type: "custom",
+                            display: {
+                                render: methods => methods?.map(method => method.name).join("<br>")
+                            }
+                        },
+                        {
+                            name: "Primary Findings",
+                            field: "primaryFindings",
+                            type: "custom",
+                            display: {
+                                render: primaryFindings => primaryFindings?.map(primaryFinding => primaryFinding.id).join(", ")
+                            }
+                        },
+                        {
+                            name: "Comments",
+                            field: "comments"
+                        },
+                        {
+                            name: "Creation Date",
+                            field: "creationDate",
+                            type: "custom",
+                            display: {
+                                render: creationDate => UtilsNew.dateFormatter(creationDate, "D MMM YYYY, h:mm:ss a")
+                            }
+                        },
+                        {
+                            name: "Status",
+                            field: "internal.status.name"
+                        },
+                        {
+                            name: "Version",
+                            field: "version"
+                        },
+                    ]
+                }
+            ]
         };
     }
 
@@ -264,9 +310,15 @@ class InterpretationGrid extends LitElement {
 
         return html`
             <div class="interpretation-grid">
-                <h3>Interpretations</h3>
+                
+                ${this.clinicalAnalysis.interpretation ? html`
+                    <data-form .data=${this.clinicalAnalysis.interpretation} .config="${this._config}"></data-form>
+                ` : html`<div class="alert alert-info"><i class="fas fa-3x fa-info-circle align-middle"></i> No interpretation available yet.</div>`}
+
+                <h3>Secondary Interpretations</h3>
                 <table id="${this.gridId}"></table>
                 <h3>History</h3>
+                <p>todo</p>
             </div>
         `;
     }
