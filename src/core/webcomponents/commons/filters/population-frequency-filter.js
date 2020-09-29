@@ -164,7 +164,7 @@ export default class PopulationFrequencyFilter extends LitElement {
                             </div>
                         ` : ""}
                         ${study.populations && study.populations.length && study.populations.map(popFreq => html`
-                            <number-field-filter .key="${study.id}:${popFreq.id}" min=0 .value="${this.state[study.id +":"+popFreq.id]?.value ? this.state[study.id +":"+popFreq.id]?.comparator + this.state[study.id +":"+popFreq.id]?.value : null }" .config="${{comparator: false}}" .label="${popFreq.id}" @filterChange="${this.filterChange}"></number-field-filter>
+                            <number-field-filter .key="${study.id}:${popFreq.id}" min=0 .value="${this.state[study.id +":"+popFreq.id]?.value ? this.state[study.id +":"+popFreq.id]?.comparator + this.state[study.id +":"+popFreq.id]?.value : null }" .config="${{comparator: true}}" .label="${popFreq.id}" @filterChange="${this.filterChange}"></number-field-filter>
                         `)}
                     </div>
                 </div>
