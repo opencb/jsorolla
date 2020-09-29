@@ -264,7 +264,9 @@ class InterpretationGrid extends LitElement {
 
         return html`
             <div class="interpretation-grid">
+                <h3>Interpretations</h3>
                 <table id="${this.gridId}"></table>
+                <h3>History</h3>
             </div>
         `;
     }

@@ -135,7 +135,9 @@ class VariantInterpreterLanding extends LitElement {
         $("#variant-interpreter-landing > .content-tab-wrapper > .content-tab", this).hide();
         $(`.${tabId}-tab`).addClass("active");
         $("#" + tabId, this).show();
-        for (const tab in this.activeTab) this.activeTab[tab] = false;
+        for (const tab in this.activeTab) {
+            this.activeTab[tab] = false;
+        }
         this.activeTab[tabId] = true;
         this.requestUpdate();
     }
@@ -373,35 +375,99 @@ class VariantInterpreterLanding extends LitElement {
 
         return html`
             <div id="variant-interpreter-landing">
-                ${this._config.clinicalAnalysisSelector ? html`
-                    <div>
+                <div>
                     <ul class="nav nav-tabs nav-center tablist" role="tablist" aria-label="toolbar">
-                        <li role="presentation" class="content-pills active ${classMap({active: this.activeTab["landing-search"] || UtilsNew.isEmpty(this.activeTab)})}"">
-                            <a href="javascript: void 0" role="tab" data-id="landing-search" @click="${this._changeTab}" class="tab-title">${this.clinicalAnalysis ? "Case Overview": "Select Case"}</a>
-                        </li>
-                        ${false && OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS") ? html`
-                            <li role="presentation" class="content-pills ${classMap({active: this.activeTab["landing-interpretation-manager"]})}"">
-                                <a href="javascript: void 0" role="tab" data-id="landing-interpretation-manager" @click="${e => this.editMode && this._changeTab(e)}" class="tab-title ${classMap({disabled: !this.editMode})}">Case Manager</a>
+                        ${OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS") ? html`
+                            <li role="presentation" class="content-pills ${classMap({active: this.activeTab["General"]})}">
+                                <a href="javascript: void 0" role="tab" data-id="${this._prefix}General" 
+                                    @click="${e => this.editMode && this._changeTab(e)}" class="tab-title ${classMap({disabled: !this.editMode})}">General</a>
                             </li>
-                            <li role="presentation" class="content-pills ${classMap({active: this.activeTab["landing-create"]})}"">
-                                <a href="javascript: void 0" role="tab" data-id="landing-create" @click="${e => this.editMode && this._changeTab(e)}" class="tab-title ${classMap({disabled: !this.editMode})}">Create Case</a>
-                            </li>` : null
+                            <li role="presentation" class="content-pills ${classMap({active: this.activeTab["Proband"]})}">
+                                <a href="javascript: void 0" role="tab" data-id="${this._prefix}Proband" 
+                                    @click="${e => this.editMode && this._changeTab(e)}" class="tab-title ${classMap({disabled: !this.editMode})}">Proband</a>
+                            </li>
+                            <li role="presentation" class="content-pills ${classMap({active: this.activeTab["Interpretations"]})}">
+                                <a href="javascript: void 0" role="tab" data-id="${this._prefix}Interpretations" 
+                                    @click="${e => this.editMode && this._changeTab(e)}" class="tab-title ${classMap({disabled: !this.editMode})}">Interpretation Manager</a>
+                            </li>
+                            <li role="presentation" class="content-pills ${classMap({active: this.activeTab["Consent"]})}">
+                                <a href="javascript: void 0" role="tab" data-id="${this._prefix}Consent" 
+                                    @click="${e => this.editMode && this._changeTab(e)}" class="tab-title ${classMap({disabled: !this.editMode})}">Consent</a>
+                            </li>                                                        
+                            <li role="presentation" class="content-pills ${classMap({active: this.activeTab["Audit"]})}">
+                                <a href="javascript: void 0" role="tab" data-id="${this._prefix}Audit" 
+                                    @click="${e => this.editMode && this._changeTab(e)}" class="tab-title ${classMap({disabled: !this.editMode})}">Audit</a>
+                            </li>
+                            
+                            <li role="presentation" class="content-pills ${classMap({active: this.activeTab["landing-interpretation-manager"]})}">
+                                <a href="javascript: void 0" role="tab" data-id="landing-interpretation-manager" 
+                                    @click="${e => this.editMode && this._changeTab(e)}" class="tab-title ${classMap({disabled: !this.editMode})}">Case Manager (Deprecated)</a>
+                            </li>
+                            <!--
+                                <li role="presentation" class="content-pills ${classMap({active: this.activeTab["landing-create"]})}"">
+                                    <a href="javascript: void 0" role="tab" data-id="landing-create" @click="${e => this.editMode && this._changeTab(e)}" class="tab-title ${classMap({disabled: !this.editMode})}">Create Case</a>
+                                </li>
+                            -->
+                            ` : null
                         }
-                        <!--<li role="presentation" class="content-pills help-pill ${classMap({active: this.activeTab["landing-help"]})}">
-                            <a href="javascript: void 0" role="tab" data-id="landing-help" @click="${this._changeTab}" class="tab-title"><i class="fas fa-question-circle"></i> Help</a>
-                        </li>-->
+                        <li role="presentation" class="content-pills active ${classMap({active: this.activeTab["landing-search"] || UtilsNew.isEmpty(this.activeTab)})}">
+                            <a href="javascript: void 0" role="tab" data-id="landing-search" 
+                                @click="${this._changeTab}" class="tab-title">${this.clinicalAnalysis ? "Case Overview" : "Select Case"}</a>
+                        </li>
                     </ul>
                 </div>
-                ` : null}
                 
                 <div class="content-tab-wrapper">
+                    <div id="${this._prefix}General" role="tabpanel" class="tab-pane content-tab col-md-10 col-md-offset-1">
+                        <tool-header title="General Settings - ${this.clinicalAnalysis?.id}" class="bg-white"></tool-header>
+                        <div style="padding: 0px 10px">
+                            <interpretation-editor  .opencgaSession=${this.opencgaSession} 
+                                                    .clinicalAnalysis="${this.clinicalAnalysis}">
+                            </interpretation-editor>
+                        </div>
+                    </div>
+                    <div id="${this._prefix}Proband" role="tabpanel" class="tab-pane content-tab col-md-10 col-md-offset-1">
+                        <tool-header title="Proband" class="bg-white"></tool-header>
+                        <div style="padding: 0px 10px">
+                            <interpretation-grid    .opencgaSession="${this.opencgaSession}"
+                                                    .clinicalAnalysis="${this.clinicalAnalysis}">
+                            </interpretation-grid>
+                        </div>                                    
+                    </div>                           
+                    <div id="${this._prefix}Interpretations" role="tabpanel" class="tab-pane content-tab col-md-10 col-md-offset-1">
+                        <tool-header title="Interpretation Manager" class="bg-white"></tool-header>
+                        <div style="padding: 0px 10px">
+                            <interpretation-grid    .opencgaSession="${this.opencgaSession}"
+                                                    .clinicalAnalysis="${this.clinicalAnalysis}">
+                            </interpretation-grid>
+                        </div>                                    
+                    </div>                                    
+                    <div id="${this._prefix}Consent" role="tabpanel" class="tab-pane content-tab col-md-10 col-md-offset-1">
+                        <tool-header title="Consent - ${this.clinicalAnalysis?.proband.id}" class="bg-white"></tool-header>
+                        <div style="padding: 0px 10px">
+                            <interpretation-manager .opencgaSession="${this.opencgaSession}"
+                                                    .clinicalAnalysis="${this.clinicalAnalysis}">
+                            </interpretation-manager>
+                        </div>                    
+                    </div>                    
+                    <div id="${this._prefix}Audit" role="tabpanel" class="tab-pane content-tab col-md-10 col-md-offset-1">
+                        <tool-header title="Audit Browser" class="bg-white"></tool-header>
+                        <div style="padding: 0px 10px">
+                            <interpretation-manager .opencgaSession="${this.opencgaSession}"
+                                                    .clinicalAnalysis="${this.clinicalAnalysis}">
+                            </interpretation-manager>
+                        </div> 
+                    </div> 
+                    
                     <div id="landing-search" role="tabpanel" class="tab-pane active content-tab col-md-10 col-md-offset-1">
                         ${this.clinicalAnalysis
                             ? html`
                                 <tool-header title="Case Summary - ${this.clinicalAnalysis?.id}" class="bg-white"></tool-header>
-                                <opencga-clinical-analysis-view .opencgaSession="${this.opencgaSession}"
-                                                                .clinicalAnalysis="${this.clinicalAnalysis}">
-                                </opencga-clinical-analysis-view>`
+                                <div style="padding: 0px 10px">
+                                    <opencga-clinical-analysis-view .opencgaSession="${this.opencgaSession}"
+                                                                    .clinicalAnalysis="${this.clinicalAnalysis}">
+                                    </opencga-clinical-analysis-view>
+                                </div>`
                             : this._config.clinicalAnalysisSelector
                                 ? html`
                                     <data-form  .data="${{}}" 
@@ -420,14 +486,12 @@ class VariantInterpreterLanding extends LitElement {
                                                 .clinicalAnalysis="${this.clinicalAnalysis}">
                         </interpretation-manager>
                     </div>
-                    
+
+                    <!--                    
                     ${this._config.clinicalAnalysisSelector ? html`
                         <div id="landing-create" role="tabpanel" class="tab-pane content-tab">
                         <div class="col-md-8 col-md-offset-2">
                             <div class="row pad5">
-                                <!--<div style="float: left">
-                                    <h2>Create Case</h2>
-                                </div>-->
                                 <div class="pull-right">
                                     <button class="btn btn-primary ripple" @click="${this.onCloseClinicalAnalysis}">
                                         <i class="fas fa-eraser icon-padding"></i>Clear
@@ -446,6 +510,7 @@ class VariantInterpreterLanding extends LitElement {
                         </div>
                     </div>
                     ` : null}
+                    -->
                     
                 </div>
             </div>

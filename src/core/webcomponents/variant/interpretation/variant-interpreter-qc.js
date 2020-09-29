@@ -110,7 +110,9 @@ class VariantInterpreterQc extends LitElement {
             navTabs.removeClass("active");
             contentTabs.removeClass("active");
             $("#" + this._prefix + tabId).addClass("active");
-            for (const tab in this.activeTab) this.activeTab[tab] = false;
+            for (const tab in this.activeTab) {
+                this.activeTab[tab] = false;
+            }
             this.activeTab[tabId] = true;
             this.requestUpdate();
         }
@@ -127,14 +129,14 @@ class VariantInterpreterQc extends LitElement {
             `;
         }
 
-        // if (!this.clinicalAnalysis) {
-        //     return html`
-        //             <div>
-        //                 <h3><i class="fas fa-lock"></i> No Case open</h3>
-        //             </div>`;
-        // }
+        if (!this.clinicalAnalysis) {
+            return html`
+                <div>
+                    <h3><i class="fas fa-lock"></i> No Case open</h3>
+                </div>`;
+        }
 
-        return this.clinicalAnalysis ? html`
+        return html`
             <div id="${this._prefix}QcTabs">
                 <div class="">
                     <ul class="nav nav-tabs nav-center tablist" role="tablist" aria-label="toolbar">
@@ -239,19 +241,8 @@ class VariantInterpreterQc extends LitElement {
                             </div>`
                         : ""
                     }
-                    <!--
-                    <div id="${this._prefix}GenomeBrowser" role="tabpanel" class="tab-pane content-tab">
-                        <opencga-variant-interpreter-genome-browser .opencgaSession="${this.opencgaSession}"
-                                                                    .cellbaseClient="${this.cellbaseClient}"
-                                                                    .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                                    .config="${this._config}"
-                                                                    .active="${this.activeTab["GenomeBrowser"]}">
-                        </opencga-variant-interpreter-genome-browser>
-                    </div>
-                    -->
                 </div>
-            </div>
-        ` : null;
+            </div>`;
     }
 
 }

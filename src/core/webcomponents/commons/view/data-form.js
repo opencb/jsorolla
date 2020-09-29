@@ -168,8 +168,8 @@ export default class DataForm extends LitElement {
         }
     }
 
-    _getLabelWidth(element) {
-        return element?.display?.labelWidth ?? this.config?.display?.labelWidth ?? 2;
+    _getLabelWidth(element, section) {
+        return element?.display?.labelWidth ?? section?.display?.labelWidth ?? this.config?.display?.labelWidth ?? 2;
     }
 
     _getTitleHeader(header, title, classes, style) {
@@ -191,17 +191,20 @@ export default class DataForm extends LitElement {
 
 
     renderData() {
+        let classes = this.config?.display?.classes ?? "";
+        let style = this.config?.display?.style ?? "";
+
         // Render custom display.layout array when provided
         if (this.config?.display && this.config?.display.layout && Array.isArray(this.config?.display.layout)) {
             return html`
-                <div class="">
+                <div class="${classes}" style="${style}">
                     ${this.config?.display.layout.map(section => section.id 
                         ? html`
-                            <section class="${section.classes}">
+                            <section class="${section.classes}" style="${section.style}">
                                 ${this._createSection(this.config.sections.find(s => s.id === section.id))}
                             </section>` 
                         : html`
-                            <section class="${section.classes}">
+                            <section class="${section.classes}" style="${section.style}">
                                 ${section.sections.map(subsection => subsection.id
                                     ? html`
                                         <div class="${subsection.classes}">
@@ -215,8 +218,6 @@ export default class DataForm extends LitElement {
             `;
         }
 
-        let classes = this.config?.display?.classes ?? "";
-        let style = this.config?.display?.style ?? "";
         if (this.config.type === "form") {
             return html`
                 <section>
@@ -256,7 +257,7 @@ export default class DataForm extends LitElement {
                     ${section.title ? this._getTitleHeader(titleHeader, section.title, sectionTitleClass, sectionTitleStyle) : null}
                     <div class="${sectionWidth}">    
                         <div class="">
-                            ${section.elements.map(element => this._createElement(element))}
+                            ${section.elements.map(element => this._createElement(element, section))}
                         </div>
                     </div>
                 </div>
@@ -270,10 +271,10 @@ export default class DataForm extends LitElement {
                     <div class="row" style="margin: 15px 0px">
                         ${section.title ? html`<h3 class="${sectionTitleClass}" style="${sectionTitleStyle}">${section.title}</h3>` : null}
                         <div class="col-md-${leftColumnWidth}" style="${columnSeparatorStyle}">
-                            ${section.elements[0].map(element => this._createElement(element))}
+                            ${section.elements[0].map(element => this._createElement(element, section))}
                         </div>
                         <div class="col-md-${rightColumnWidth}" style="padding-left: 25px">
-                            ${section.elements[1].map(element => this._createElement(element))}
+                            ${section.elements[1].map(element => this._createElement(element, section))}
                         </div>
                     </div>
                 </div>
@@ -281,7 +282,7 @@ export default class DataForm extends LitElement {
         }
     }
 
-    _createElement(element) {
+    _createElement(element, section) {
         // Check if the element is visible
         if (element.display && !this._getBooleanValue(element.display.visible)) {
             return;
@@ -361,7 +362,7 @@ export default class DataForm extends LitElement {
 
         let layout = element?.display?.defaultLayout ?? this.config?.display?.defaultLayout ?? "horizontal";
         let showLabel = element?.showLabel ?? true;
-        let labelWidth = showLabel ? this._getLabelWidth(element) : 0;
+        let labelWidth = showLabel ? this._getLabelWidth(element, section) : 0;
         let width = this._getWidth(element);
         width = width ? width : 12;
 

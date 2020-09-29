@@ -211,7 +211,7 @@ class InterpretationEditor extends LitElement {
             },
             sections: [
                 {
-                    title: "",
+                    title: "General",
                     elements: [
                         {
                             name: "Status",
@@ -243,26 +243,6 @@ class InterpretationEditor extends LitElement {
                             }
                         },
                         {
-                            name: "Priority",
-                            field: "priority",
-                            type: "select",
-                            allowedValues: ["URGENT", "HIGH", "MEDIUM", "LOW"],
-                            defaultValue: "MEDIUM",
-                            display: {
-                                // width: 9,
-                            }
-                        },
-                        {
-                            name: "Assigned To",
-                            field: "analyst.assignee.id",
-                            type: "select",
-                            defaultValue: this.clinicalAnalysis?.analyst?.id ?? this.clinicalAnalysis?.analyst?.assignee,
-                            allowedValues: () => this._users,
-                            display: {
-                                // width: 9,
-                            }
-                        },
-                        {
                             name: "Creation Date",
                             field: "creationDate",
                             type: "input-text",
@@ -274,6 +254,39 @@ class InterpretationEditor extends LitElement {
                             }
                         },
                         {
+                            name: "Comments",
+                            field: "comments",
+                            type: "custom",
+                            display: {
+                                render: comments => this.renderComments(comments)
+                            }
+                        }
+                    ]
+                },
+                {
+                    title: "Management",
+                    elements: [
+                        {
+                            name: "Priority",
+                            field: "priority",
+                            type: "select",
+                            allowedValues: ["URGENT", "HIGH", "MEDIUM", "LOW"],
+                            defaultValue: "MEDIUM",
+                            display: {
+                                // width: 9,
+                            }
+                        },
+                        {
+                            name: "Analyst",
+                            field: "analyst.id",
+                            type: "select",
+                            defaultValue: this.clinicalAnalysis?.analyst?.id ?? this.clinicalAnalysis?.analyst?.assignee,
+                            allowedValues: () => this._users,
+                            display: {
+                                // width: 9,
+                            }
+                        },
+                        {
                             name: "Due Date",
                             field: "dueDate",
                             type: "input-date",
@@ -282,14 +295,6 @@ class InterpretationEditor extends LitElement {
                                 render: date => moment(date, "YYYYMMDDHHmmss").format("DD/MM/YYYY")
                             }
                         },
-                        {
-                            name: "Comments",
-                            field: "comments",
-                            type: "custom",
-                            display: {
-                                render: comments => this.renderComments(comments)
-                            }
-                        }
                     ]
                 }
             ],

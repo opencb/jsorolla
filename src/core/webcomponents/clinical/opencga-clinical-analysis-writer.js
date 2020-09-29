@@ -248,7 +248,7 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                 showTitle: false,
                 infoIcon: "",
                 labelAlign: "left",
-                defaultLayout: "vertical"
+                defaultLayout: "horizontal"
             },
             sections: [
                 {
