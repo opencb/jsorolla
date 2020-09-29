@@ -125,7 +125,7 @@ export default class GenomeBrowserComponent extends LitElement {
     }
 
     propertyObserver(opencgaSession, cellbaseClient, tracks, filter, active) {
-        console.log("PROP OBSERVER")
+
         if (typeof this.cellbaseClient === "undefined" || typeof this.opencgaSession === "undefined") {
             return;
         }

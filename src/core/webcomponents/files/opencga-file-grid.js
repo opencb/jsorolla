@@ -282,7 +282,6 @@ export default class OpencgaFileGrid extends LitElement {
     async onDownload(e) {
         this.toolbarConfig = {...this.toolbarConfig, downloading: true};
         await this.requestUpdate();
-
         const params = {
             ...this.query,
             limit: 1000,

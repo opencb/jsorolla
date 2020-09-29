@@ -26,9 +26,10 @@ import "./variant-interpreter-qc-alignment-stats.js";
 import "./variant-interpreter-qc-gene-coverage-stats.js";
 import "./interpretation-grid.js";
 import "./interpretation-history.js";
+import "./interpretation-editor.js";
 
 
-class VariantInterpreterQcOverview extends LitElement {
+class InterpretationManager extends LitElement {
 
     constructor() {
         super();
@@ -104,6 +105,10 @@ class VariantInterpreterQcOverview extends LitElement {
                             title: "Summary"
                         },
                         {
+                            id: "editor",
+                            title: "General"
+                        },
+                        {
                             id: "interpretations",
                             title: "Interpretations"
                         },
@@ -116,8 +121,8 @@ class VariantInterpreterQcOverview extends LitElement {
                             title: "Consent"
                         },
                         {
-                            id: "review",
-                            title: "Review"
+                            id: "report",
+                            title: "Report"
                         }
                     ]
                 }
@@ -172,28 +177,45 @@ class VariantInterpreterQcOverview extends LitElement {
                             </variant-interpreter-qc-summary>
                         </div>
                          
+                         <div id="${this._prefix}editor" role="tabpanel" class="tab-pane content-tab">
+                            <h3>General</h3>
+                            <div style="margin: 20px 10px">
+                                <interpretation-editor   .opencgaSession=${this.opencgaSession} 
+                                                        .clinicalAnalysis="${this.clinicalAnalysis}">
+                                </interpretation-editor>
+                            </div>
+                        </div>
+                        
                         <div id="${this._prefix}interpretations" role="tabpanel" class="tab-pane content-tab">
                             <h3>Interpretations</h3>
-                            <interpretation-grid   .opencgaSession=${this.opencgaSession} 
-                                                    .clinicalAnalysis="${this.clinicalAnalysis}">
-                            </interpretation-grid>
+                            <div style="margin: 20px 10px">
+                                <interpretation-grid   .opencgaSession=${this.opencgaSession} 
+                                                        .clinicalAnalysis="${this.clinicalAnalysis}">
+                                </interpretation-grid>
+                            </div>
                         </div>
                         
                         <div id="${this._prefix}history" role="tabpanel" class="tab-pane content-tab">
                             <h3>History</h3>
-                            <interpretation-history   .opencgaSession=${this.opencgaSession} 
-                                                    .clinicalAnalysis="${this.clinicalAnalysis}">
-                            </interpretation-history>
+                            <div style="margin: 20px 10px">
+                                <interpretation-history   .opencgaSession=${this.opencgaSession} 
+                                                        .clinicalAnalysis="${this.clinicalAnalysis}">
+                                </interpretation-history>
+                            </div>
                         </div>
                                                 
                         <div id="${this._prefix}consent" role="tabpanel" class="tab-pane content-tab">
                             <h3>Consent</h3>
-                            Consent
+                            <div style="margin: 20px 10px">
+                                Consent
+                            </div>
                         </div>
                         
-                        <div id="${this._prefix}review" role="tabpanel" class="tab-pane content-tab">
-                            <h3>Review</h3>
-                            review
+                        <div id="${this._prefix}report" role="tabpanel" class="tab-pane content-tab">
+                            <h3>Report</h3>
+                            <div style="margin: 20px 10px">
+                                Report
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -203,4 +225,4 @@ class VariantInterpreterQcOverview extends LitElement {
 
 }
 
-customElements.define("interpretation-manager", VariantInterpreterQcOverview);
+customElements.define("interpretation-manager", InterpretationManager);
