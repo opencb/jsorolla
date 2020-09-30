@@ -547,6 +547,8 @@ export default class DataForm extends LitElement {
      */
     _createToggleElement(element) {
         let active = this.getValue(element.field) || this._getDefaultValue(element);
+        let activeName = element.display.activeName || "ON";
+        let inactiveName = element.display.inactiveName || "OFF";
         let activeClass = element.display.activeClass || "btn-primary";
         let inactiveClass = element.display.inactiveClass || "btn-default";
         let onClass, offClass;
@@ -562,9 +564,9 @@ export default class DataForm extends LitElement {
             <div class="">
                 <div class="btn-group btn-toggle"> 
                     <button class="btn ${onClass} ${classId}" data-id="ON" 
-                        @click="${e => this._onToggleClick("ON", activeClass, inactiveClass, element.field, classId, e)}">ON</button>
+                        @click="${e => this._onToggleClick("ON", activeClass, inactiveClass, element.field, classId, e)}">${activeName}</button>
                     <button class="btn ${offClass} ${classId}" data-id="OFF" 
-                        @click="${e => this._onToggleClick("OFF", activeClass, inactiveClass, element.field, classId, e)}">OFF</button>
+                        @click="${e => this._onToggleClick("OFF", activeClass, inactiveClass, element.field, classId, e)}">${inactiveName}</button>
                 </div>
             </div>
         `;
