@@ -65,16 +65,14 @@ class VariantInterpreterLanding extends LitElement {
             }
         };
 
-        // TODO Delete this code, just for the development purposes.
-        // this.clinicalAnalysisId = "AN-12";
-        // this.clinicalAnalysisIdObserver();
+        this.activeTab = {};
     }
 
     connectedCallback() {
         super.connectedCallback();
-        this.activeTab = {};
+
+        this.activeTab["General"] = true;
         this._config = {...this.getDefaultConfig(), ...this.config};
-        // this.requestUpdate();
     }
 
     firstUpdated(_changedProperties) {
@@ -384,7 +382,7 @@ class VariantInterpreterLanding extends LitElement {
                             </li>
                             <li role="presentation" class="content-pills ${classMap({active: this.activeTab["Proband"]})}">
                                 <a href="javascript: void 0" role="tab" data-id="${this._prefix}Proband" 
-                                    @click="${e => this.editMode && this._changeTab(e)}" class="tab-title ${classMap({disabled: !this.editMode})}">Proband</a>
+                                    @click="${e => this.editMode && this._changeTab(e)}" class="tab-title ${classMap({disabled: !this.editMode})}">Clinical</a>
                             </li>
                             <li role="presentation" class="content-pills ${classMap({active: this.activeTab["Interpretations"]})}">
                                 <a href="javascript: void 0" role="tab" data-id="${this._prefix}Interpretations" 
@@ -418,7 +416,7 @@ class VariantInterpreterLanding extends LitElement {
                 </div>
                 
                 <div class="content-tab-wrapper">
-                    <div id="${this._prefix}General" role="tabpanel" class="tab-pane content-tab col-md-10 col-md-offset-1">
+                    <div id="${this._prefix}General" role="tabpanel" class="active tab-pane content-tab col-md-10 col-md-offset-1">
                         <tool-header title="General Settings - ${this.clinicalAnalysis?.id}" class="bg-white"></tool-header>
                         <div style="padding: 0px 10px">
                             <interpretation-editor  .opencgaSession=${this.opencgaSession} 
@@ -459,7 +457,7 @@ class VariantInterpreterLanding extends LitElement {
                         </div> 
                     </div> 
                     
-                    <div id="landing-search" role="tabpanel" class="tab-pane active content-tab col-md-10 col-md-offset-1">
+                    <div id="landing-search" role="tabpanel" class="tab-pane content-tab col-md-10 col-md-offset-1">
                         ${this.clinicalAnalysis
                             ? html`
                                 <tool-header title="Case Summary - ${this.clinicalAnalysis?.id}" class="bg-white"></tool-header>

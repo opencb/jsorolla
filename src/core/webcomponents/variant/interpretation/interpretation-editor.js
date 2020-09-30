@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "/web_modules/lit-element.js";
+import {html, LitElement} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../utilsNew.js";
 import "./variant-interpreter-qc-summary.js";
 import "./variant-interpreter-qc-variant-stats.js";
@@ -29,7 +29,7 @@ import "./interpretation-history.js";
 import "../../commons/view/data-form.js";
 import "../../commons/filters/text-field-filter.js";
 
-import {NotificationQueue} from "../../Notification.js";
+import CatalogGridFormatter from "../../commons/catalog-grid-formatter.js";
 
 
 class InterpretationEditor extends LitElement {
@@ -68,6 +68,8 @@ class InterpretationEditor extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
+
+        this.catalogGridFormatter = new CatalogGridFormatter(this.opencgaSession);
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
@@ -186,7 +188,13 @@ class InterpretationEditor extends LitElement {
     }
 
     onFieldChange(e) {
-
+        switch (e.detail.param) {
+            case "lock":
+                this.clinicalAnalysis.lock = e.detail.value;
+                break;
+        }
+        // this.clinicalAnalysis
+        // debugger
     }
 
     getDefaultConfig() {
@@ -204,13 +212,114 @@ class InterpretationEditor extends LitElement {
                 // form: {
                 //     layout: "horizontal"
                 // },
+                width: "6",
                 showTitle: false,
                 infoIcon: "",
                 labelAlign: "left",
-                defaultLayout: "horizontal"
+                labelWidth: "3",
+                defaultLayout: "horizontal",
+                // layout: [
+                //     {
+                //         id: "",
+                //         classes: "",
+                //         sections: [
+                //             {
+                //                 id: "summary",
+                //                 classes: "col-md-6"
+                //             },
+                //             {
+                //                 id: "management",
+                //                 classes: "col-md-6"
+                //             }
+                //         ]
+                //     },
+                //     {
+                //         id: "general",
+                //         classes: "col-md-6"
+                //     }
+                // ]
             },
             sections: [
                 {
+                    id: "summary",
+                    title: "Summary",
+                    elements: [
+                        {
+                            name: "Case ID",
+                            field: "id",
+                            display: {
+                            }
+                        },
+                        {
+                            name: "Proband",
+                            field: "proband.id",
+                            display: {
+                            }
+                        },
+                        {
+                            name: "Disorder",
+                            field: "disorder",
+                            type: "custom",
+                            display: {
+                                render: disorder => UtilsNew.renderHTML(this.catalogGridFormatter.disorderFormatter(disorder))
+                            }
+                        },
+                        {
+                            name: "Analysis Type",
+                            field: "type",
+                            display: {
+                                visible: !this._config?.hiddenFields?.includes("type"),
+                            }
+                        },
+                    ]
+                },
+                {
+                    id: "management",
+                    title: "Management",
+                    elements: [
+                        {
+                            name: "Locked",
+                            field: "lock",
+                            type: "toggle",
+                            defaultValue: false,
+                            display: {
+                                // activeName: "YES"
+                                // activeClass: "btn-danger"
+                            }
+                        },
+                        {
+                            name: "Priority",
+                            field: "priority",
+                            type: "select",
+                            allowedValues: ["URGENT", "HIGH", "MEDIUM", "LOW"],
+                            defaultValue: "MEDIUM",
+                            display: {
+                                // width: 9,
+                            }
+                        },
+                        {
+                            name: "Analyst",
+                            field: "analyst.id",
+                            type: "select",
+                            defaultValue: this.clinicalAnalysis?.analyst?.id ?? this.clinicalAnalysis?.analyst?.assignee,
+                            allowedValues: () => this._users,
+                            display: {
+                                // width: 9,
+                            }
+                        },
+                        {
+                            name: "Due Date",
+                            field: "dueDate",
+                            type: "input-date",
+                            //defaultValue: moment().format("YYYYMMDDHHmmss"),
+                            display: {
+                                render: date => moment(date, "YYYYMMDDHHmmss").format("DD/MM/YYYY")
+                            }
+                        },
+                    ]
+                },
+                {
+                    id: "general",
                     title: "General",
                     elements: [
                         {
@@ -263,40 +372,7 @@ class InterpretationEditor extends LitElement {
                         }
                     ]
                 },
-                {
-                    title: "Management",
-                    elements: [
-                        {
-                            name: "Priority",
-                            field: "priority",
-                            type: "select",
-                            allowedValues: ["URGENT", "HIGH", "MEDIUM", "LOW"],
-                            defaultValue: "MEDIUM",
-                            display: {
-                                // width: 9,
-                            }
-                        },
-                        {
-                            name: "Analyst",
-                            field: "analyst.id",
-                            type: "select",
-                            defaultValue: this.clinicalAnalysis?.analyst?.id ?? this.clinicalAnalysis?.analyst?.assignee,
-                            allowedValues: () => this._users,
-                            display: {
-                                // width: 9,
-                            }
-                        },
-                        {
-                            name: "Due Date",
-                            field: "dueDate",
-                            type: "input-date",
-                            //defaultValue: moment().format("YYYYMMDDHHmmss"),
-                            display: {
-                                render: date => moment(date, "YYYYMMDDHHmmss").format("DD/MM/YYYY")
-                            }
-                        },
-                    ]
-                }
+
             ],
             execute: (opencgaSession, clinicalAnalysis, params) => {
                 // Prepare the data for the REST create

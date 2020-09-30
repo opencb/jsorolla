@@ -168,8 +168,12 @@ export default class DataForm extends LitElement {
         }
     }
 
+    _getSectionWidth(section) {
+        return section?.display?.width ?? this.config?.display?.width ?? 12;
+    }
+
     _getLabelWidth(element, section) {
-        return element?.display?.labelWidth ?? section?.display?.labelWidth ?? this.config?.display?.labelWidth ?? 2;
+        return element?.display?.labelWidth ?? section?.display?.labelWidth ?? this.config?.display?.labelWidth ?? 3;
     }
 
     _getTitleHeader(header, title, classes, style) {
@@ -200,19 +204,45 @@ export default class DataForm extends LitElement {
                 <div class="${classes}" style="${style}">
                     ${this.config?.display.layout.map(section => section.id 
                         ? html`
-                            <section class="${section.classes}" style="${section.style}">
-                                ${this._createSection(this.config.sections.find(s => s.id === section.id))}
-                            </section>` 
+                            <div class="${section.classes}" style="${section.style}">
+                                ${this.config.type === "form" 
+                                    ? html`
+                                        <section>
+                                            <form class="${this.config?.display?.defaultLayout === "horizontal" ? "form-horizontal" : ""} ${classes}" style="${style}">
+                                                ${this._createSection(this.config.sections.find(s => s.id === section.id))}
+                                            </form>
+                                        </section>` 
+                                    : html`
+                                        <section>
+                                            <div class="${classes}" style="${style}">
+                                                ${this._createSection(this.config.sections.find(s => s.id === section.id))}
+                                            </div>
+                                        </section>`
+                                }
+                            </div>` 
                         : html`
-                            <section class="${section.classes}" style="${section.style}">
+                            <div class="${section.classes}" style="${section.style}">
                                 ${section.sections.map(subsection => subsection.id
                                     ? html`
                                         <div class="${subsection.classes}">
-                                            ${this._createSection(this.config.sections.find(s => s.id === subsection.id))}
+                                            ${this.config.type === "form"
+                                                ? html`
+                                                    <section>
+                                                        <form class="${this.config?.display?.defaultLayout === "horizontal" ? "form-horizontal" : ""} ${classes}" style="${style}">
+                                                            ${this._createSection(this.config.sections.find(s => s.id === subsection.id))}
+                                                        </form>
+                                                    </section>`
+                                                : html`
+                                                    <section>
+                                                        <div class="${classes}" style="${style}">
+                                                            ${this._createSection(this.config.sections.find(s => s.id === subsection.id))}
+                                                        </div>
+                                                    </section>`
+                                            }
                                         </div>` 
                                     : null
                                 )}
-                            </section>`
+                            </div>`
                     )}
                 </div>
             `;
@@ -251,7 +281,7 @@ export default class DataForm extends LitElement {
         // Section 'elements' array has just one dimension
         if (!Array.isArray(section.elements[0])) {
             // const sectionWidth = section?.display?.width ? `col-md-${section?.display?.width}` : "col-md-12";
-            const sectionWidth = section?.display?.width ? `col-md-${section?.display?.width}` : "";
+            const sectionWidth = "col-md-" + this._getSectionWidth(section);
             return html`
                 <div class="row" style="margin: 15px 0px">
                     ${section.title ? this._getTitleHeader(titleHeader, section.title, sectionTitleClass, sectionTitleStyle) : null}
