@@ -126,16 +126,23 @@ class InterpretationEditor extends LitElement {
         console.log(field, value)
     }
 
+    onCommentChange(e, i, key) {
+        e.stopPropagation();
+        this.clinicalAnalysis.comments[i][key] = e.detail.value;
+        this.clinicalAnalysis = {...this.clinicalAnalysis}
+        this.requestUpdate()
+    }
+
     renderComments(comments) {
         const _comments = comments.map( (comment, i) => html`
                 <div class="container-fluid comment-wrapper">
                     <div class="row">
                         <div class="col-md-4 col-sx">
                             <div>
-                                <text-field-filter placeholder=${"Type"} .value="${comment.type}" @filterChange="${e => this.onFilterChange("type", e.detail.value)}"></text-field-filter>
+                                <text-field-filter placeholder=${"Type"} .value="${comment.type}" @filterChange="${e => this.onCommentChange(e, i, "type")}"></text-field-filter>
                             </div>
                             <!--<div>
-                                <text-field-filter placeholder=${"Author"} .value="${comment.author}" @filterChange="${e => this.onFilterChange("element.field", e.detail.value)}"></text-field-filter>
+                                <text-field-filter placeholder=${"Author"} .value="${comment.author}" @filterChange="${e => this.onFilterChange("element.field", e)}"></text-field-filter>
                             </div> -->
                             <div>
                                 <div class='input-group date' id="${this._prefix}DuePickerDate" data-field="${""}">
@@ -147,7 +154,7 @@ class InterpretationEditor extends LitElement {
                             </div>
                         </div>
                         <div class="col-md-8 col-dx">
-                            <text-field-filter .rows=${3} .value="${comment.message}" @filterChange="${e => this.onFilterChange("message", e.detail.value)}"></text-field-filter>
+                            <text-field-filter .rows=${3} .value="${comment.message}" @filterChange="${e => this.onCommentChange(e, i, "message")}"></text-field-filter>
                         </div>
                     </div>
                      <button type="button" class="close-button btn btn-danger btn-small ripple" @click="${() => this.deleteComment(i)}"><i class="fas fa-times"></i></button>
@@ -158,18 +165,17 @@ class InterpretationEditor extends LitElement {
 
     addEmptyComment = () => {
         this.clinicalAnalysis.comments.push({});
-        this.clinicalAnalysis = {...this.clinicalAnalysis}
+        this.clinicalAnalysis = {...this.clinicalAnalysis};
         this.requestUpdate();
     }
 
     deleteComment = i => {
         this.clinicalAnalysis.comments = [...this.clinicalAnalysis.comments.slice(0, i), ...this.clinicalAnalysis.comments.slice(i + 1)];
-        this.clinicalAnalysis = {...this.clinicalAnalysis}
+        this.clinicalAnalysis = {...this.clinicalAnalysis};
         this.requestUpdate();
     }
 
     renderStatus(status) {
-        // <text-field-filter placeholder="Name" .value="${status.name}" @filterChange="${e => this.onFilterChange("status.name", e.detail.value)}"></text-field-filter>
         return html`
             <div class="">
                 <div class="row">
