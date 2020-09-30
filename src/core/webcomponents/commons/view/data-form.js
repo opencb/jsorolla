@@ -327,6 +327,9 @@ export default class DataForm extends LitElement {
                 case "checkbox":
                     content = this._createCheckboxElement(element);
                     break;
+                case "toggle":
+                    content = this._createToggleElement(element);
+                    break;
                 case "select":
                     content = this._createInputSelectElement(element);
                     break;
@@ -497,6 +500,72 @@ export default class DataForm extends LitElement {
                 <input type="checkbox" class="${this._prefix}FilterCheckbox" 
                         @click="${e => this.onFilterChange(element.field, e.currentTarget.checked)}" ?checked="${value === "PASS"}" style="margin-right: 5px">
                 <span>Include only <span style="font-weight: bold;">PASS</span> variants</span>
+            </div>
+        `;
+    }
+
+    _onToggleClick(buttonId, activeClass, inactiveClass, field, classId, e) {
+        // Check if there is anything to do
+        let active = this.getValue(field);
+        if ((active && buttonId === "ON") || (!active && buttonId === "OFF")) {
+            return;
+        }
+
+        // Support several classes
+        let activeClasses = activeClass.split(" ");
+        let inactiveClasses = inactiveClass.split(" ");
+
+        // Fetch and reset buttons status
+        let buttons = this.getElementsByClassName(classId);
+        buttons.forEach(button => button.classList.remove(...activeClasses, ...inactiveClasses, "active"));
+        let onIndex = 0;
+        let offIndex = 1;
+        if (buttons[0].dataset.id === "OFF") {
+            onIndex = 1;
+            offIndex = 0;
+        }
+
+        // Set proper classes
+        let on = buttonId === "ON";
+        if (on) {
+            buttons[onIndex].classList.add(...activeClasses, "active");
+            buttons[offIndex].classList.add(...inactiveClasses);
+        } else {
+            buttons[onIndex].classList.add(...inactiveClasses);
+            buttons[offIndex].classList.add(...activeClasses ,"active");
+        }
+
+        // Set the field status
+        this.onFilterChange(field, on);
+    }
+
+    /**
+     * Creates a simple toggle button. It allows to configure the activeClass
+     * @param element
+     * @returns {TemplateResult}
+     * @private
+     */
+    _createToggleElement(element) {
+        let active = this.getValue(element.field) || this._getDefaultValue(element);
+        let activeClass = element.display.activeClass || "btn-primary";
+        let inactiveClass = element.display.inactiveClass || "btn-default";
+        let onClass, offClass;
+        if (active) {
+            onClass = activeClass + " active";
+            offClass = inactiveClass;
+        } else {
+            onClass = inactiveClass;
+            offClass = activeClass + " active";
+        }
+        let classId = "btn-toggle-" + UtilsNew.randomString(8);
+        return html`
+            <div class="">
+                <div class="btn-group btn-toggle"> 
+                    <button class="btn ${onClass} ${classId}" data-id="ON" 
+                        @click="${e => this._onToggleClick("ON", activeClass, inactiveClass, element.field, classId, e)}">ON</button>
+                    <button class="btn ${offClass} ${classId}" data-id="OFF" 
+                        @click="${e => this._onToggleClick("OFF", activeClass, inactiveClass, element.field, classId, e)}">OFF</button>
+                </div>
             </div>
         `;
     }
