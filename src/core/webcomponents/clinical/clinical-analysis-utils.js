@@ -16,6 +16,10 @@
 
 export default class ClinicalAnalysisUtils {
 
+    static getStatuses() {
+        return ["READY_FOR_INTERPRETATION", "READY_FOR_REPORT", "CLOSED", "REJECTED"];
+    }
+
     static getProbandQc(clinicalAnalysis) {
         return clinicalAnalysis?.proband?.qualityControl;
     }

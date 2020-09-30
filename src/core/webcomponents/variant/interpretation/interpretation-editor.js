@@ -16,6 +16,7 @@
 
 import {html, LitElement} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../utilsNew.js";
+import ClinicalAnalysisUtils from "../../clinical/clinical-analysis-utils.js";
 import "./variant-interpreter-qc-summary.js";
 import "./variant-interpreter-qc-variant-stats.js";
 import "./variant-interpreter-qc-inferred-sex.js";
@@ -63,13 +64,16 @@ class InterpretationEditor extends LitElement {
     }
 
     _init() {
-        this._prefix = "vcis-" + UtilsNew.randomString(6);
+        this._prefix = UtilsNew.randomString(8);
+
+        this.clinicalAnalysisUtils = new ClinicalAnalysisUtils();
     }
 
     connectedCallback() {
         super.connectedCallback();
 
         this.catalogGridFormatter = new CatalogGridFormatter(this.opencgaSession);
+        this.clinicalAnalysisUtils = new ClinicalAnalysisUtils();
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
@@ -165,26 +169,20 @@ class InterpretationEditor extends LitElement {
     }
 
     renderStatus(status) {
+        // <text-field-filter placeholder="Name" .value="${status.name}" @filterChange="${e => this.onFilterChange("status.name", e.detail.value)}"></text-field-filter>
         return html`
-        <div class="container-fluid status-wrapper">
-            <div class="row">
-                <div class="col-md-3">
-                    <text-field-filter placeholder="Name" .value="${status.name}" @filterChange="${e => this.onFilterChange("status.name", e.detail.value)}"></text-field-filter>
-                </div>
-                <div class="col-md-5">
-                    <text-field-filter placeholder="Description" .value="${status.description}" @filterChange="${e => this.onFilterChange("status.name", e.detail.value)}"></text-field-filter>
-                </div>
-                <div class="col-md-4">
-                    <div class='input-group date' id="${this._prefix}DuePickerDate" data-field="${""}">
-                        <input type='text' id="${this._prefix}date" class="${this._prefix}Input form-control" data-field="${status.date}" ?disabled="${true}" >
-                        <span class="input-group-addon">
-                            <span class="fa fa-calendar"></span>
-                        </span>
+            <div class="">
+                <div class="row">
+                    <div class="col-md-4">
+                        <select-field-filter .data="${ClinicalAnalysisUtils.getStatuses()}" 
+                            @filterChange="${e => this.onFilterChange("status", e.detail.value)}">
+                        </select-field-filter>
+                    </div>
+                    <div class="col-md-8">
+                        <text-field-filter placeholder="Message" .value="${status.description}" @filterChange="${e => this.onFilterChange("status.name", e.detail.value)}"></text-field-filter>
                     </div>
                 </div>
-                            
-            </div>
-        </div>`
+            </div>`
     }
 
     onFieldChange(e) {
@@ -278,7 +276,7 @@ class InterpretationEditor extends LitElement {
                     title: "Management",
                     elements: [
                         {
-                            name: "Locked",
+                            name: "Lock",
                             field: "lock",
                             type: "toggle",
                             defaultValue: false,
