@@ -55,7 +55,7 @@ class VariantInterpreterLanding extends LitElement {
     }
 
     _init() {
-        this._prefix = "vcis-" + UtilsNew.randomString(6);
+        this._prefix = UtilsNew.randomString(8);
 
         this.clinicalAnalysisEditorConfig = {
             display: {
@@ -72,7 +72,7 @@ class VariantInterpreterLanding extends LitElement {
     connectedCallback() {
         super.connectedCallback();
 
-        this.activeTab["landing_General"] = true;
+        this.activeTab["General"] = true;
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
@@ -132,7 +132,8 @@ class VariantInterpreterLanding extends LitElement {
         //the selectors are strictly defined to avoid conflics in tabs in children components
         $("#variant-interpreter-landing .tablist > .content-pills", this).removeClass("active");
         $("#variant-interpreter-landing .content-tab-wrapper > .content-tab", this).hide();
-        $("#" + tabId, this).show();
+        $("#" + this._prefix + tabId, this).show();
+        $("#" + this._prefix + tabId).addClass("active");
         for (const tab in this.activeTab) {
             this.activeTab[tab] = false;
         }
@@ -376,47 +377,42 @@ class VariantInterpreterLanding extends LitElement {
                 <div>
                     <ul class="nav nav-tabs nav-center tablist" role="tablist" aria-label="toolbar">
                         ${OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS") ? html`
-                            <li role="presentation" class="content-pills ${classMap({active: this.activeTab["landing_General"] || UtilsNew.isEmpty(this.activeTab)})}">
-                                <a href="javascript: void 0" role="tab" data-id="landing_General" 
+                            <li role="presentation" class="content-pills ${classMap({active: this.activeTab["General"] || UtilsNew.isEmpty(this.activeTab)})}">
+                                <a href="javascript: void 0" role="tab" data-id="General" 
                                     @click="${e => this.editMode && this._changeTab(e)}" class="tab-title ${classMap({disabled: !this.editMode})}">General</a>
                             </li>
-                            <li role="presentation" class="content-pills ${classMap({active: this.activeTab["landing_Clinical"]})}">
-                                <a href="javascript: void 0" role="tab" data-id="landing_Clinical" 
+                            <li role="presentation" class="content-pills ${classMap({active: this.activeTab["Clinical"]})}">
+                                <a href="javascript: void 0" role="tab" data-id="Clinical" 
                                     @click="${e => this.editMode && this._changeTab(e)}" class="tab-title ${classMap({disabled: !this.editMode})}">Clinical</a>
                             </li>
-                            <li role="presentation" class="content-pills ${classMap({active: this.activeTab["landing_Interpretations"]})}">
-                                <a href="javascript: void 0" role="tab" data-id="landing_Interpretations" 
+                            <li role="presentation" class="content-pills ${classMap({active: this.activeTab["Interpretations"]})}">
+                                <a href="javascript: void 0" role="tab" data-id="Interpretations" 
                                     @click="${e => this.editMode && this._changeTab(e)}" class="tab-title ${classMap({disabled: !this.editMode})}">Interpretation Manager</a>
                             </li>
-                            <li role="presentation" class="content-pills ${classMap({active: this.activeTab["landing_Consent"]})}">
-                                <a href="javascript: void 0" role="tab" data-id="landing_Consent" 
+                            <li role="presentation" class="content-pills ${classMap({active: this.activeTab["Consent"]})}">
+                                <a href="javascript: void 0" role="tab" data-id="Consent" 
                                     @click="${e => this.editMode && this._changeTab(e)}" class="tab-title ${classMap({disabled: !this.editMode})}">Consent</a>
                             </li>                                                        
-                            <li role="presentation" class="content-pills ${classMap({active: this.activeTab["landing_Audit"]})}">
-                                <a href="javascript: void 0" role="tab" data-id="landing_Audit" 
+                            <li role="presentation" class="content-pills ${classMap({active: this.activeTab["Audit"]})}">
+                                <a href="javascript: void 0" role="tab" data-id="Audit" 
                                     @click="${e => this.editMode && this._changeTab(e)}" class="tab-title ${classMap({disabled: !this.editMode})}">Audit</a>
                             </li>
                             
-                            <li role="presentation" class="content-pills ${classMap({active: this.activeTab["landing_interpretation-manager"]})}">
-                                <a href="javascript: void 0" role="tab" data-id="landing_interpretation-manager" 
+                            <li role="presentation" class="content-pills ${classMap({active: this.activeTab["interpretation-manager"]})}">
+                                <a href="javascript: void 0" role="tab" data-id="interpretation-manager" 
                                     @click="${e => this.editMode && this._changeTab(e)}" class="tab-title ${classMap({disabled: !this.editMode})}">Case Manager (Deprecated)</a>
                             </li>
-                            <!--
-                                <li role="presentation" class="content-pills ${classMap({active: this.activeTab["landing-create"]})}"">
-                                    <a href="javascript: void 0" role="tab" data-id="landing-create" @click="${e => this.editMode && this._changeTab(e)}" class="tab-title ${classMap({disabled: !this.editMode})}">Create Case</a>
-                                </li>
-                            -->
                             ` : null
                         }
-                        <li role="presentation" class="content-pills active ${classMap({active: this.activeTab["landing_Search"]})}">
-                            <a href="javascript: void 0" role="tab" data-id="landing_Search" 
+                        <li role="presentation" class="content-pills active ${classMap({active: this.activeTab["Overview"]})}">
+                            <a href="javascript: void 0" role="tab" data-id="Overview" 
                                 @click="${this._changeTab}" class="tab-title">${this.clinicalAnalysis ? "Case Overview" : "Select Case"}</a>
                         </li>
                     </ul>
                 </div>
                 
                 <div class="content-tab-wrapper">
-                    <div id="landing_General" role="tabpanel" class="active tab-pane content-tab col-md-10 col-md-offset-1">
+                    <div id="${this._prefix}General" role="tabpanel" class="active tab-pane content-tab col-md-10 col-md-offset-1">
                         <tool-header title="General Settings - ${this.clinicalAnalysis?.id}" class="bg-white"></tool-header>
                         <div style="padding: 0px 10px">
                             <interpretation-editor  .opencgaSession=${this.opencgaSession} 
@@ -424,7 +420,7 @@ class VariantInterpreterLanding extends LitElement {
                             </interpretation-editor>
                         </div>
                     </div>
-                    <div id="landing_Clinical" role="tabpanel" class="tab-pane content-tab col-md-10 col-md-offset-1">
+                    <div id="${this._prefix}Clinical" role="tabpanel" class="tab-pane content-tab col-md-10 col-md-offset-1">
                         <tool-header title="Clinical" class="bg-white"></tool-header>
                         <div style="padding: 0px 10px">
                             <interpretation-grid    .opencgaSession="${this.opencgaSession}"
@@ -432,7 +428,7 @@ class VariantInterpreterLanding extends LitElement {
                             </interpretation-grid>
                         </div>                                    
                     </div>                           
-                    <div id="landing_Interpretations" role="tabpanel" class="tab-pane content-tab col-md-10 col-md-offset-1">
+                    <div id="${this._prefix}Interpretations" role="tabpanel" class="tab-pane content-tab col-md-10 col-md-offset-1">
                         <tool-header title="Interpretation Manager" class="bg-white"></tool-header>
                         <div style="padding: 0px 10px">
                             <interpretation-grid    .opencgaSession="${this.opencgaSession}"
@@ -440,7 +436,7 @@ class VariantInterpreterLanding extends LitElement {
                             </interpretation-grid>
                         </div>                                    
                     </div>                                    
-                    <div id="landing_Consent" role="tabpanel" class="tab-pane content-tab col-md-10 col-md-offset-1">
+                    <div id="${this._prefix}Consent" role="tabpanel" class="tab-pane content-tab col-md-10 col-md-offset-1">
                         <tool-header title="Consent - ${this.clinicalAnalysis?.proband.id}" class="bg-white"></tool-header>
                         <div style="padding: 0px 10px">
                             <interpretation-manager .opencgaSession="${this.opencgaSession}"
@@ -448,7 +444,7 @@ class VariantInterpreterLanding extends LitElement {
                             </interpretation-manager>
                         </div>                    
                     </div>                    
-                    <div id="landing_Audit" role="tabpanel" class="tab-pane content-tab col-md-10 col-md-offset-1">
+                    <div id="${this._prefix}Audit" role="tabpanel" class="tab-pane content-tab col-md-10 col-md-offset-1">
                         <tool-header title="Audit Browser" class="bg-white"></tool-header>
                         <div style="padding: 0px 10px">
                             <interpretation-audit .opencgaSession="${this.opencgaSession}"
@@ -457,7 +453,7 @@ class VariantInterpreterLanding extends LitElement {
                         </div> 
                     </div> 
                     
-                    <div id="landing_Search" role="tabpanel" class="tab-pane content-tab col-md-10 col-md-offset-1">
+                    <div id="${this._prefix}Overview" role="tabpanel" class="tab-pane content-tab col-md-10 col-md-offset-1">
                         ${this.clinicalAnalysis
                             ? html`
                                 <tool-header title="Case Summary - ${this.clinicalAnalysis?.id}" class="bg-white"></tool-header>
@@ -478,38 +474,12 @@ class VariantInterpreterLanding extends LitElement {
                         }
                     </div>
                     
-                    <div id="landing_interpretation-manager" role="tabpanel" class="tab-pane content-tab col-md-10 col-md-offset-1">
+                    <div id="${this._prefix}interpretation-manager" role="tabpanel" class="tab-pane content-tab col-md-10 col-md-offset-1">
                         <tool-header title="Case Manager - ${this.clinicalAnalysis?.id}" class="bg-white"></tool-header>
                         <interpretation-manager .opencgaSession="${this.opencgaSession}"
                                                 .clinicalAnalysis="${this.clinicalAnalysis}">
                         </interpretation-manager>
                     </div>
-
-                    <!--                    
-                    ${this._config.clinicalAnalysisSelector ? html`
-                        <div id="landing_create" role="tabpanel" class="tab-pane content-tab">
-                            <div class="col-md-8 col-md-offset-2">
-                                <div class="row pad5">
-                                    <div class="pull-right">
-                                        <button class="btn btn-primary ripple" @click="${this.onCloseClinicalAnalysis}">
-                                            <i class="fas fa-eraser icon-padding"></i>Clear
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-8 col-md-offset-2">
-                                    <opencga-clinical-analysis-writer   .opencgaSession="${this.opencgaSession}"
-                                                                        .config="${this.clinicalAnalysisEditorConfig}"
-                                                                        @clinicalanalysischange="${e => this.onClinicalAnalysisUpdate(e)}"
-                                                                        @clinicalAnalysisCreate="${e => this.onClinicalAnalysisCreate(e)}">
-                                    </opencga-clinical-analysis-writer> 
-                               </div>
-                            </div>
-                        </div>
-                    ` : null}
-                    -->
-                    
                 </div>
             </div>
         `;
