@@ -58,6 +58,7 @@ export default class SampleVariantStatsBrowser extends LitElement {
         this.save = {};
         this.preparedQuery = {};
         this.loading = false;
+        this.errorState = false;
         this.sampleVariantStats = null;
     }
 
@@ -110,6 +111,7 @@ export default class SampleVariantStatsBrowser extends LitElement {
     async onVariantFilterSearch(e) {
         // TODO fix activeFilterClear and activeFilterChange!
         this.loading = true;
+        this.errorState = false;
         await this.requestUpdate();
         //this.preparedQuery = this._prepareQuery(e.detail.query); //TODO check if we need to process e.detail.query
         this.query = {...e.detail.query};
@@ -181,8 +183,18 @@ export default class SampleVariantStatsBrowser extends LitElement {
                 };
                 this.requestUpdate();
             })
-            .catch(restResponse => {
-                console.log(restResponse);
+            .catch(e => {
+                console.log(e);
+                this.sampleVariantStats = null;
+                if (e?.getEvents?.("ERROR")?.length) {
+                    this.errorState = {messages: e.getEvents("ERROR")};
+                } else if (e instanceof Error) {
+                    this.errorState = {messages: [{name: e.name, message: e.message}]
+                    };
+                } else {
+                    this.errorState = {messages: [{name: "Generic Error", message: JSON.stringify(e)}]
+                    };
+                }
             })
             .finally(() => {
                 this.loading = false;
@@ -458,10 +470,15 @@ export default class SampleVariantStatsBrowser extends LitElement {
                                         <div style="padding: 0px 15px">
                                             <sample-variant-stats-view .sampleVariantStats="${this.sampleVariantStats}"></sample-variant-stats-view>
                                         </div>`
-                                    : html`
-                                        <div class="alert alert-info" role="alert" style="margin: 0px 15px">
-                                            <i class="fas fa-3x fa-info-circle align-middle"></i> Please select some filters on the left.
-                                        </div>`
+                                    : this.errorState
+                                        ? html`
+                                            <div id="error" class="alert alert-danger" role="alert">
+                                                ${this.errorState.messages.map( error => html`<p><b>${error.name}</b></p><p>${error.message}</p>`)}
+                                            </div>`
+                                        : html`
+                                            <div class="alert alert-info" role="alert" style="margin: 0px 15px">
+                                                <i class="fas fa-3x fa-info-circle align-middle"></i> Please select some filters on the left.
+                                            </div>`
                             }
                         </div>
                     </div>
