@@ -172,15 +172,13 @@ class InterpretationEditor extends LitElement {
         // <text-field-filter placeholder="Name" .value="${status.name}" @filterChange="${e => this.onFilterChange("status.name", e.detail.value)}"></text-field-filter>
         return html`
             <div class="">
-                <div class="row">
-                    <div class="col-md-4">
-                        <select-field-filter .data="${ClinicalAnalysisUtils.getStatuses()}" 
-                            @filterChange="${e => this.onFilterChange("status", e.detail.value)}">
-                        </select-field-filter>
-                    </div>
-                    <div class="col-md-8">
-                        <text-field-filter placeholder="Message" .value="${status.description}" @filterChange="${e => this.onFilterChange("status.name", e.detail.value)}"></text-field-filter>
-                    </div>
+                <div style="padding-bottom: 10px">
+                    <select-field-filter .data="${ClinicalAnalysisUtils.getStatuses()}" 
+                        @filterChange="${e => this.onFilterChange("status", e.detail.value)}">
+                    </select-field-filter>
+                </div>
+                <div class="">
+                    <text-field-filter placeholder="Message" .value="${status.description}" @filterChange="${e => this.onFilterChange("status.name", e.detail.value)}"></text-field-filter>
                 </div>
             </div>`
     }
