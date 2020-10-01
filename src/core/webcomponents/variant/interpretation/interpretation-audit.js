@@ -176,7 +176,7 @@ class InterpretationAudit extends LitElement {
         }
 
         return html`
-            ${this.clinicalAnalysis.audit.length ? html`
+            ${this.clinicalAnalysis.audit?.length ? html`
                 <div class="interpretation-audit">
                     <table id="${this.gridId}"></table>
                 </div>` : html`

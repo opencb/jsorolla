@@ -15,6 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
+import {classMap} from "/web_modules/lit-html/directives/class-map.js";
 import ClinicalAnalysisUtils from "../../clinical/clinical-analysis-utils.js";
 import UtilsNew from "../../../utilsNew.js";
 import PolymerUtils from "../../PolymerUtils.js";
@@ -108,16 +109,88 @@ class InterpretationGrid extends LitElement {
     }
 
     clinicalAnalysisObserver() {
-        if(this.clinicalAnalysis) {
-            this.renderLocalTable()
+        if (this.clinicalAnalysis) {
+            this.interpretations = [{...this.clinicalAnalysis.interpretation, primary: true}, ...this.clinicalAnalysis.secondaryInterpretations];
+            this.renderHistoryTable();
+            this.requestUpdate();
         } else {
 
         }
     }
 
-    renderLocalTable() {
+    renderInterpretation(interpretation) {
+        return html`
+            <div class="interpretation-wrapper ${classMap({primary: interpretation.primary})}">
+                <div class="header">
+                    <span class="id">${interpretation.id}</span>
+                    ${interpretation.version ? html`<span class="version">version ${interpretation.version}</span>` : null}
+                    
+                    ${interpretation.primary ? html`<span class="badge badge-dark-blue">Primary</span>` : html`<span class="badge badge-light">Secondary</span>`}
+                    <span class="analyst" title="Analyst"><i class="fa fa-user-circle icon-padding" aria-hidden="true"></i>${interpretation?.analyst?.name ?? "-"}</span>
+                    <span class="modificationDate" title="Modification date"><i class="far fa-calendar-alt"></i> ${moment(interpretation?.attributes?.modificationDate).format("MM/DD/YYYY")}</span>
+                </div>
+                <div class="row">
+                    <div class="col-md-2"><label>Description</label></div>
+                    <div class="col-md-10">${interpretation.description ? interpretation.description : "-"}</div>
+                </div>
+                <div class="row">
+                    <div class="col-md-2"><label>Primary Findings</label></div>
+                    <div class="col-md-10">${interpretation.primaryFindings?.length}</div>
+                                       
+                </div>
+                <div class="row status">
+                    <div class="col-md-2"><label>Status</label></div>
+                    <div class="col-md-10"><span class="${interpretation?.internal?.status?.name}">${interpretation?.internal?.status?.name}</span></div>
+                                       
+                </div>
+                
+                <div class="dropdown action-dropdown">
+                        <button class="btn btn-default btn-small ripple dropdown-toggle one-line" type="button" data-toggle="dropdown">Action
+                            <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-right">
+                            
+                            ${interpretation.primary ? html`
+                                <li>
+                                    <a href="javascript: void 0" class="btn disabled force-text-left" data-action="history" @click="${this.onActionClick}">
+                                        <i class="fas fa-code-branch icon-padding" aria-hidden="true"></i> Restore previous version
+                                    </a>
+                                </li>
+                            ` : html`
+                                <li>
+                                    <a href="javascript: void 0" class="btn force-text-left" data-action="setprimary" @click="${this.onActionClick}">
+                                        <i class="fas fa-map-marker icon-padding" aria-hidden="true"></i> Set as primary
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="javascript: void 0" class="btn force-text-left" data-action="merge" @click="${this.onActionClick}">
+                                        <i class="far fa-object-group icon-padding" aria-hidden="true"></i> Merge
+                                    </a>
+                                </li>
+                            `}
+                            
+                            <li role="separator" class="divider"></li>
+                            <li>
+                                <a href="javascript: void 0" class="btn force-text-left" data-action="clear" @click="${this.onActionClick}">
+                                    <i class="fas fa-eraser icon-padding" aria-hidden="true"></i> Clear 
+                                </a>
+                            </li>
+                            ${!interpretation.primary ? html`
+                                <li>
+                                    <a href="javascript: void 0" class="btn disabled force-text-left" data-action="delete" @click="${this.onActionClick}">
+                                        <i class="fas fa-trash icon-padding" aria-hidden="true"></i> Delete</a>
+                                </li>` : null}
+                        </ul>
+                    </div>
+                
+                
+            </div>`;
 
-        this.data = this.clinicalAnalysis.secondaryInterpretations ?? [];
+    }
+
+    renderHistoryTable() {
+
+        this.data = [{...this.clinicalAnalysis.interpretation, version: 2}, {...this.clinicalAnalysis.interpretation, version: 3}, {...this.clinicalAnalysis.interpretation, version: 4}];
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
@@ -143,8 +216,7 @@ class InterpretationGrid extends LitElement {
         this._columns = [
             {
                 title: "ID",
-                field: "id",
-                formatter: (id, interpretation) => id + (interpretation.primary ? " <span class='badge badge-info'>Primary</span>" : "")
+                field: "id"
             },
             {
                 title: "description",
@@ -185,36 +257,16 @@ class InterpretationGrid extends LitElement {
                             <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-right">
-                            
-                            ${interpretation.primary ? `
                                 <li>
-                                    <a href="javascript: void 0" class="btn disabled force-text-left" data-action="history">
-                                        <i class="fas fa-code-branch icon-padding" aria-hidden="true"></i> Restore previous version
-                                    </a>
-                                </li>
-                            ` : `
-                                <li>
-                                    <a href="javascript: void 0" class="btn force-text-left" data-action="setprimary">
-                                        <i class="fas fa-map-marker icon-padding" aria-hidden="true"></i> Set as primary
+                                    <a href="javascript: void 0" class="btn disabled force-text-left" data-action="restore">
+                                        <i class="fas fa-code-branch icon-padding" aria-hidden="true"></i> Restore this version
                                     </a>
                                 </li>
                                 <li>
-                                    <a href="javascript: void 0" class="btn force-text-left" data-action="merge">
-                                        <i class="far fa-object-group icon-padding" aria-hidden="true"></i> Merge
+                                    <a href="javascript: void 0" class="btn force-text-left" data-action="compare">
+                                        <i class="far fa-object-group icon-padding" aria-hidden="true"></i> Compare
                                     </a>
                                 </li>
-                            `}
-                            
-                            <li role="separator" class="divider"></li>
-                            <li>
-                                <a href="javascript: void 0" class="btn force-text-left" data-action="clear">
-                                    <i class="fas fa-eraser icon-padding" aria-hidden="true"></i> Clear 
-                                </a>
-                            </li>
-                            <li>
-                                <a href="javascript: void 0" class="btn disabled force-text-left" data-action="delete">
-                                    <i class="fas fa-trash icon-padding" aria-hidden="true"></i> Delete</a>
-                            </li>
                         </ul>
                     </div>`,
                 valign: "middle",
@@ -296,7 +348,7 @@ class InterpretationGrid extends LitElement {
                         {
                             name: "Version",
                             field: "version"
-                        },
+                        }
                     ]
                 }
             ]
@@ -311,14 +363,16 @@ class InterpretationGrid extends LitElement {
         return html`
             <div class="interpretation-grid">
                 
-                ${this.clinicalAnalysis.interpretation ? html`
-                    <data-form .data=${this.clinicalAnalysis.interpretation} .config="${this._config}"></data-form>
-                ` : html`<div class="alert alert-info"><i class="fas fa-3x fa-info-circle align-middle"></i> No interpretation available yet.</div>`}
-
-                <h3>Secondary Interpretations</h3>
+                <h3>Interpretations</h3>
+                <div class="row">
+                    <div class="col-md-8">
+                        ${this.interpretations?.length ? this.interpretations.map(interpretation => this.renderInterpretation(interpretation))
+                : html`<div class="alert alert-info"><i class="fas fa-3x fa-info-circle align-middle"></i> No interpretation available yet.</div>`}
+                    </div>
+                </div>
+               
+                <h3>Main Interpretation History</h3>
                 <table id="${this.gridId}"></table>
-                <h3>History</h3>
-                <p>todo</p>
             </div>
         `;
     }
