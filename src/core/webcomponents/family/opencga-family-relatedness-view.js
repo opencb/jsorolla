@@ -80,6 +80,21 @@ export default class OpencgaFamilyRelatednessView extends LitElement {
         }
     }
 
+    getIndividualId(sampleId) {
+        let id;
+        this.family.members.forEach( member => {
+            member.samples.forEach( sample => {
+                if (sample.id === sampleId) {
+                    id = member.id;
+                    //return id; // FIXME
+                }
+            });
+        });
+        if (id) {
+            return id;
+        }
+    }
+
     onDownload(e) {
         let dataString = [];
         let mimeType = "";
@@ -134,7 +149,7 @@ export default class OpencgaFamilyRelatednessView extends LitElement {
         if (this.family?.qualityControl?.relatedness?.length > 0) {
             let relatedness = this.family.qualityControl.relatedness[0];
             return html`
-                <table class="table table-hover table-no-bordered text-center">
+                <table class="table table-hover table-no-bordered">
                     <thead>
                         <tr>
                             <th>Sample ID 1</th>
@@ -150,7 +165,7 @@ export default class OpencgaFamilyRelatednessView extends LitElement {
                     </thead>
                     <tbody>
                         ${relatedness.scores.map(score => {
-                            let role = this.family.roles[score.sampleId1][score.sampleId2];
+                            let role = this.family.roles[this.getIndividualId(score.sampleId1)][this.getIndividualId(score.sampleId2)];
                             return html`
                                 <tr>
                                     <td>
@@ -215,6 +230,7 @@ export default class OpencgaFamilyRelatednessView extends LitElement {
                 
                 <div class="row">
                     <div class="col-md-12">
+                        <h4>Information</h4>
                         <div class="col-md-2">
                             <label>Method:</label>
                         </div>
@@ -231,12 +247,8 @@ export default class OpencgaFamilyRelatednessView extends LitElement {
                         </div>
                     </div>
                     <div class="col-md-12">
-                        <div class="col-md-12">
-                            <label>Results:</label>
-                        </div>
-                        <div class="col-md-12">
-                            ${this.renderTable()}
-                        </div>
+                        <h4>Results</h4>
+                        ${this.renderTable()}
                     </div>
                 </div>
             </div>
