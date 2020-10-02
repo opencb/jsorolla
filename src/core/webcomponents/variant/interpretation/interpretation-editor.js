@@ -133,6 +133,14 @@ class InterpretationEditor extends LitElement {
     onFieldChange(e) {
         switch (e.detail.param) {
             case "locked":
+                let value = e.detail.value === "ON";
+                if (this._clinicalAnalysis[e.detail.param] !== value && e.detail.value) {
+                    this.clinicalAnalysis[e.detail.param] = value;
+                    this.updateParams[e.detail.param] = value;
+                } else {
+                    delete this.updateParams[e.detail.param];
+                }
+                break;
             case "priority":
             case "description":
                 if (this._clinicalAnalysis[e.detail.param] !== e.detail.value && e.detail.value) {
@@ -155,10 +163,7 @@ class InterpretationEditor extends LitElement {
             case "status.name":
             case "status.description":
                 // We need to pass all status field to the REST web service
-                this.updateParams.status = {
-                    name: this.clinicalAnalysis.status.name,
-                    description: this.clinicalAnalysis.status.description
-                };
+                this.updateParams.status = {...this.clinicalAnalysis.status};
                 let field = e.detail.param.split(".")[1];
                 if (this._clinicalAnalysis?.status[field] !== e.detail.value && e.detail.value) {
                     this.clinicalAnalysis.status[field] = e.detail.value;

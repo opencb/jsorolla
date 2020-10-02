@@ -537,7 +537,7 @@ export default class DataForm extends LitElement {
     _onToggleClick(buttonId, activeClass, inactiveClass, field, classId, e) {
         // Check if there is anything to do
         let active = this.getValue(field);
-        if ((active && buttonId === "ON") || (!active && buttonId === "OFF")) {
+        if (active === buttonId) {
             return;
         }
 
@@ -550,23 +550,32 @@ export default class DataForm extends LitElement {
         buttons.forEach(button => button.classList.remove(...activeClasses, ...inactiveClasses, "active"));
         let onIndex = 0;
         let offIndex = 1;
+        let unknownIndex = 2;
         if (buttons[0].dataset.id === "OFF") {
             onIndex = 1;
             offIndex = 0;
         }
 
-        // Set proper classes
-        let on = buttonId === "ON";
-        if (on) {
-            buttons[onIndex].classList.add(...activeClasses, "active");
-            buttons[offIndex].classList.add(...inactiveClasses);
-        } else {
-            buttons[onIndex].classList.add(...inactiveClasses);
-            buttons[offIndex].classList.add(...activeClasses ,"active");
+        switch (buttonId) {
+            case "ON":
+                buttons[onIndex].classList.add(...activeClasses, "active");
+                buttons[offIndex].classList.add(...inactiveClasses);
+                buttons[unknownIndex]?.classList.add(...inactiveClasses);
+                break;
+            case "OFF":
+                buttons[onIndex].classList.add(...inactiveClasses);
+                buttons[offIndex].classList.add(...activeClasses, "active");
+                buttons[unknownIndex]?.classList.add(...inactiveClasses);
+                break;
+            case "UNKNOWN":
+                buttons[onIndex].classList.add(...inactiveClasses);
+                buttons[offIndex].classList.add(...inactiveClasses);
+                buttons[unknownIndex]?.classList.add(...activeClasses, "active");
+                break;
         }
 
         // Set the field status
-        this.onFilterChange(field, on);
+        this.onFilterChange(field, buttonId);
     }
 
     /**
@@ -579,16 +588,43 @@ export default class DataForm extends LitElement {
         let active = this.getValue(element.field) || this._getDefaultValue(element);
         let activeName = element.display.activeName || "ON";
         let inactiveName = element.display.inactiveName || "OFF";
+        let unknownName = element.display.unknownName || "UNKNOWN";
         let activeClass = element.display.activeClass || "btn-primary";
         let inactiveClass = element.display.inactiveClass || "btn-default";
-        let onClass, offClass;
-        if (active) {
-            onClass = activeClass + " active";
-            offClass = inactiveClass;
+
+        let action = active;
+        if (typeof active === "boolean") {
+            action = active ? "ON" : "OFF";
         } else {
-            onClass = inactiveClass;
-            offClass = activeClass + " active";
+            switch (active) {
+                case "YES":
+                    action = "ON";
+                    break;
+                case "NO":
+                    action = "OFF";
+                    break;
+            }
         }
+
+        let onClass, offClass, unkownClass;
+        switch (action) {
+            case "ON":
+                onClass = activeClass + " active";
+                offClass = inactiveClass;
+                unkownClass = inactiveClass;
+                break;
+            case "OFF":
+                onClass = inactiveClass;
+                offClass = activeClass + " active";
+                unkownClass = inactiveClass;
+                break;
+            case "UNKNOWN":
+                onClass = inactiveClass;
+                offClass = inactiveClass;
+                unkownClass = activeClass + " active";
+                break;
+        }
+
         let classId = "btn-toggle-" + UtilsNew.randomString(8);
         return html`
             <div class="">
@@ -597,6 +633,13 @@ export default class DataForm extends LitElement {
                         @click="${e => this._onToggleClick("ON", activeClass, inactiveClass, element.field, classId, e)}">${activeName}</button>
                     <button class="btn ${offClass} ${classId}" data-id="OFF" 
                         @click="${e => this._onToggleClick("OFF", activeClass, inactiveClass, element.field, classId, e)}">${inactiveName}</button>
+                    ${element.display.includeUnknown 
+                        ? html`
+                            <button class="btn ${unkownClass} ${classId}" data-id="UNKNOWN" 
+                                @click="${e => this._onToggleClick("UNKNOWN", activeClass, inactiveClass, element.field, classId, e)}">${unknownName}
+                            </button>` 
+                        : null
+                    }
                 </div>
             </div>
         `;

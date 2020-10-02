@@ -23,6 +23,8 @@ import "../../commons/filters/clinical-analysis-id-autocomplete.js";
 import "../../commons/view/data-form.js";
 import "./interpretation-manager.js";
 import "./interpretation-audit.js";
+import "./interpretation-editor.js";
+import "./clinical-analysis-consent-editor.js";
 
 class VariantInterpreterLanding extends LitElement {
 
@@ -439,9 +441,9 @@ class VariantInterpreterLanding extends LitElement {
                     <div id="${this._prefix}Consent" role="tabpanel" class="tab-pane content-tab col-md-10 col-md-offset-1">
                         <tool-header title="Consent - ${this.clinicalAnalysis?.proband.id}" class="bg-white"></tool-header>
                         <div style="padding: 0px 10px">
-                            <interpretation-manager .opencgaSession="${this.opencgaSession}"
-                                                    .clinicalAnalysis="${this.clinicalAnalysis}">
-                            </interpretation-manager>
+                            <clinical-analysis-consent-editor   .opencgaSession=${this.opencgaSession} 
+                                                                .clinicalAnalysis="${this.clinicalAnalysis}">
+                            </clinical-analysis-consent-editor>
                         </div>                    
                     </div>                    
                     <div id="${this._prefix}Audit" role="tabpanel" class="tab-pane content-tab col-md-10 col-md-offset-1">
