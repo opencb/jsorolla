@@ -182,24 +182,40 @@ export default class OpencgaActiveFilters extends LitElement {
     opencgaSessionObserver() {
         if (this.opencgaClient instanceof OpenCGAClient && UtilsNew.isNotUndefined(this.opencgaSession.token)) {
             // console.error("arguments changed inverted after new clients. recheck functionality. serverVersion is now ignored");
-            this.opencgaClient.users().filters(this.opencgaSession.user.id).then( restResponse => {
-                const result = restResponse.getResults();
-
-                // (this.filters || []) in case comes undefined as prop
-                if (result.length > 0) {
-                    this._filters = [...(this.filters || []), ...result.filter( f => f.resource === this.resource)];
-                } else {
-                    this._filters = [...(this.filters || [])];
-                }
-                this.requestUpdate();
-            });
+            this.refreshFilters();
         }
     }
+
+    refreshFilters() {
+        this.opencgaClient.users().filters(this.opencgaSession.user.id).then(restResponse => {
+            const result = restResponse.getResults();
+
+            // (this.filters || []) in case comes undefined as prop
+            if (result.length > 0) {
+                this._filters = [...(this.filters || []), ...result.filter(f => f.resource === this.resource)];
+            } else {
+                this._filters = [...(this.filters || [])];
+            }
+            this.requestUpdate();
+        });
+    }
+
     // TODO recheck & refactor
     save() {
         const filterName = PolymerUtils.getValue(this._prefix + "filterName");
         const filterDescription = PolymerUtils.getValue(this._prefix + "filterDescription");
 
+        let query = this.query;
+        if (query.study) {
+            // filters out the current active study
+            const studies = query.study.split(",").filter( fqn => fqn !== this.opencgaSession.study.fqn);
+            if (studies.length) {
+                query.study = studies.join(",");
+            } else {
+                delete query.study;
+            }
+        }
+        //console.log("QUERY SAVED:", query)
 
         this.opencgaClient.users().filters(this.opencgaSession.user.id)
             .then(restResponse => {
@@ -212,7 +228,7 @@ export default class OpencgaActiveFilters extends LitElement {
                     // updating an existing filter
                     const data = {
                         description: filterDescription,
-                        query: this.query,
+                        query: query,
                         options: {}
                     };
 
@@ -234,31 +250,27 @@ export default class OpencgaActiveFilters extends LitElement {
                                                 this._filters[i] = restResponse.response[0].result[0];
                                             }
                                         }
-                                        Swal.fire(
-                                            "Filter Saved",
-                                            "Filter has been saved.",
-                                            "success"
-                                        );
+
                                     } else {
                                         console.error(restResponse);
                                         Swal.fire(
                                             "Server Error!",
                                             "Filter has not been correctly saved.",
                                             "error"
-                                        )
+                                        );
                                     }
                                     PolymerUtils.setValue(this._prefix + "filterName", "");
                                     PolymerUtils.setValue(this._prefix + "filterDescription", "");
                                 }).catch(restResponse => {
-                                    console.error(restResponse);
-                                    Swal.fire(
-                                        "Server Error!",
-                                        "Filter has not been correctly saved.",
-                                        "error"
-                                    )
-                                })
+                                console.error(restResponse);
+                                Swal.fire(
+                                    "Server Error!",
+                                    "Filter has not been correctly saved.",
+                                    "error"
+                                );
+                            });
                         }
-                    })
+                    });
 
                 } else {
                     // saving a new filter
@@ -266,7 +278,7 @@ export default class OpencgaActiveFilters extends LitElement {
                         id: filterName,
                         description: filterDescription,
                         resource: this.resource,
-                        query: this.query,
+                        query: query,
                         options: {}
                     };
                     this.opencgaClient.users().updateFilters(this.opencgaSession.user.id, data, {action: "ADD"})
@@ -286,7 +298,7 @@ export default class OpencgaActiveFilters extends LitElement {
                                     "Server Error!",
                                     "Filter has not been correctly saved.",
                                     "error"
-                                )
+                                );
                             }
                             this.requestUpdate();
                         }).catch(restResponse => {
@@ -295,14 +307,14 @@ export default class OpencgaActiveFilters extends LitElement {
                             "Server Error!",
                             "Filter has not been correctly saved.",
                             "error"
-                        )
-                    })
+                        );
+                    });
                 }
 
             })
             .catch(restResponse => {
                 if (restResponse.getEvents?.("ERROR")?.length) {
-                    const msg = restResponse.getEvents("ERROR").map(error => error.message).join("<br>")
+                    const msg = restResponse.getEvents("ERROR").map(error => error.message).join("<br>");
                     new NotificationQueue().push("Error saving the filter", msg, "error");
                 } else {
                     new NotificationQueue().push("Error saving the filter", "", "error");
@@ -316,14 +328,18 @@ export default class OpencgaActiveFilters extends LitElement {
 
     onServerFilterChange(e) {
         this.querySelector("#" + this._prefix + "Warning").style.display = "none";
-
         if (!UtilsNew.isUndefinedOrNull(this._filters)) {
             // We look for the filter name in the filters array
             for (const filter of this._filters) {
-                if (filter.id === e.target.dataset.filterId) {
+                if (filter.id === e.currentTarget.dataset.filterId) {
                     PolymerUtils.addStyleByClass("filtersLink", "color", "black");
-                    e.target.style.color = "green";
-                    const _queryList = Object.assign({}, filter.query);
+                    e.currentTarget.style.color = "green";
+                    const _queryList = {...filter.query};
+                    if(_queryList.study) {
+                        // add the current active study
+                        const studies = [...new Set([..._queryList.study.split(","), this.opencgaSession.study.fqn])];
+                        _queryList.study = studies.join(",")
+                    }
                     this.dispatchEvent(new CustomEvent("activeFilterChange", {
                         detail: _queryList,
                         bubbles: true,
@@ -334,6 +350,45 @@ export default class OpencgaActiveFilters extends LitElement {
             }
         }
         this.requestUpdate();
+    }
+
+    serverFilterDelete(e) {
+        const {filterId} = e.currentTarget.dataset;
+        Swal.fire({
+            title: "Are you sure?",
+            text: "The filter will be deleted. The operation cannot be reverted.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#3085d6",
+            confirmButtonText: "Yes"
+        }).then(result => {
+            if (result.value) {
+                const data = {
+                    id: filterId,
+                    resource: this.resource,
+                    options: {}
+                };
+                this.opencgaClient.users().updateFilters(this.opencgaSession.user.id, data, {action: "REMOVE"})
+                    .then(restResponse => {
+                        console.log("restResponse", restResponse)
+                        Swal.fire(
+                            "Filter Deleted",
+                            "Filter has been deleted.",
+                            "success"
+                        );
+                        this.refreshFilters();
+                    }).catch(restResponse => {
+                    if (restResponse.getEvents?.("ERROR")?.length) {
+                        const msg = restResponse.getEvents("ERROR").map(error => error.message).join("<br>");
+                        new NotificationQueue().push("Error deleting filter", msg, "error");
+                    } else {
+                        new NotificationQueue().push("Error deleting filter", "", "error");
+                    }
+                    console.error(restResponse);
+                });
+            }
+        });
     }
 
     onQueryFilterDelete(e) {
@@ -633,11 +688,14 @@ export default class OpencgaActiveFilters extends LitElement {
                                     <li><a style="font-weight: bold">Saved Filters</a></li>
                                     ${this._filters && this._filters.length
                                         ? this._filters.map(item => item.separator ? html`
-                                                <li role="separator" class="divider"></li>
-                                            ` : html`
-                                                <li>
-                                                    <a data-filter-id="${item.id}" style="cursor: pointer;color: ${!item.active ? "black" : "green"}" @click="${this.onServerFilterChange}" class="filtersLink">&nbsp;&nbsp;${item.id}</a>
-                                                </li>`)
+                                            <li role="separator" class="divider"></li>
+                                        ` : html`
+                                            <li>
+                                                <a data-filter-id="${item.id}" style="cursor: pointer;color: ${!item.active ? "black" : "green"}" title="${item.description ?? ""}" @click="${this.onServerFilterChange}" class="filtersLink">
+                                                    <span class="id-filter-button">&nbsp;&nbsp;${item.id}</span>
+                                                    <span class="delete-filter-button" title="Delete filter" data-filter-id="${item.id}" @click="${this.serverFilterDelete}"><i class="fas fa-times"></i></span>
+                                                </a>
+                                            </li>`)
                                         : null
                                     }
                                     ${this.checkSid(this.opencgaClient._config) ? html`

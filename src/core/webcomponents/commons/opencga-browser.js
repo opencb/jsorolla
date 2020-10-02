@@ -265,7 +265,6 @@ export default class OpencgaBrowser extends LitElement {
                                 <opencga-file-grid .opencgaSession="${this.opencgaSession}"
                                                    .config="${this._config.filter.grid}"
                                                    .query="${this.executedQuery}"
-                                                   .search="${this.executedQuery}"
                                                    .eventNotifyName="${this.eventNotifyName}"
                                                     @selectrow="${e => this.onClickRow(e, "file")}">
                                 </opencga-file-grid>

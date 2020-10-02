@@ -136,7 +136,7 @@ export default class OpencgaVariantDetail extends LitElement {
                     id: "file-view",
                     name: "Files",
                     render: (sample, active, opencgaSession) => {
-                        return html`<opencga-file-grid .opencgaSession="${opencgaSession}" .query="${{samples: sample.id}}" .search="${{samples: sample.id}}"></opencga-file-grid>`;
+                        return html`<opencga-file-grid .opencgaSession="${opencgaSession}" .query="${{sampleIds: sample.id}}"></opencga-file-grid>`;
                     }
                 }
             ]
