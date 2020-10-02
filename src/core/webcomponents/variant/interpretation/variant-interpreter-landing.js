@@ -21,7 +21,7 @@ import UtilsNew from "../../../utilsNew.js";
 import "../../clinical/opencga-clinical-analysis-writer.js";
 import "../../commons/filters/clinical-analysis-id-autocomplete.js";
 import "../../commons/view/data-form.js";
-import "./interpretation-manager.js";
+import "./interpretation-grid.js";
 import "./interpretation-audit.js";
 import "./interpretation-editor.js";
 import "./clinical-analysis-consent-editor.js";
@@ -399,11 +399,6 @@ class VariantInterpreterLanding extends LitElement {
                                 <a href="javascript: void 0" role="tab" data-id="Audit" 
                                     @click="${e => this.editMode && this._changeTab(e)}" class="tab-title ${classMap({disabled: !this.editMode})}">Audit</a>
                             </li>
-                            
-                            <li role="presentation" class="content-pills ${classMap({active: this.activeTab["interpretation-manager"]})}">
-                                <a href="javascript: void 0" role="tab" data-id="interpretation-manager" 
-                                    @click="${e => this.editMode && this._changeTab(e)}" class="tab-title ${classMap({disabled: !this.editMode})}">Case Manager (Deprecated)</a>
-                            </li>
                             ` : null
                         }
                         <li role="presentation" class="content-pills active ${classMap({active: this.activeTab["Overview"]})}">
@@ -425,9 +420,9 @@ class VariantInterpreterLanding extends LitElement {
                     <div id="${this._prefix}Clinical" role="tabpanel" class="tab-pane content-tab col-md-10 col-md-offset-1">
                         <tool-header title="Clinical" class="bg-white"></tool-header>
                         <div style="padding: 0px 10px">
-                            <interpretation-grid    .opencgaSession="${this.opencgaSession}"
-                                                    .clinicalAnalysis="${this.clinicalAnalysis}">
-                            </interpretation-grid>
+                            <opencga-clinical-analysis-view .opencgaSession="${this.opencgaSession}"
+                                                            .clinicalAnalysis="${this.clinicalAnalysis}">
+                            </opencga-clinical-analysis-view>
                         </div>                                    
                     </div>                           
                     <div id="${this._prefix}Interpretations" role="tabpanel" class="tab-pane content-tab col-md-10 col-md-offset-1">
@@ -474,13 +469,6 @@ class VariantInterpreterLanding extends LitElement {
                                     </data-form>`
                                 : null
                         }
-                    </div>
-                    
-                    <div id="${this._prefix}interpretation-manager" role="tabpanel" class="tab-pane content-tab col-md-10 col-md-offset-1">
-                        <tool-header title="Case Manager - ${this.clinicalAnalysis?.id}" class="bg-white"></tool-header>
-                        <interpretation-manager .opencgaSession="${this.opencgaSession}"
-                                                .clinicalAnalysis="${this.clinicalAnalysis}">
-                        </interpretation-manager>
                     </div>
                 </div>
             </div>
