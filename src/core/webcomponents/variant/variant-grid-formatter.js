@@ -974,31 +974,51 @@ export default class VariantGridFormatter {
                             `;
             }
 
-            let ctHtml = `
-                            <div style="padding-bottom: 5px">
+            let ctHtml = `<div style="padding-bottom: 5px">
                                 ${message}
-                            </div>
-                            <table id="ConsqTypeTable" class="table table-hover table-no-bordered">
-                                <thead>
+                           </div>
+                           <table id="ConsqTypeTable" class="table table-hover table-no-bordered">`;
+
+            if (variantGrid.clinicalAnalysis.type.toUpperCase() !== "CANCER") {
+                ctHtml += `<thead>
                                     <tr>
                                         <th rowspan="2">Gene</th>
                                         <th rowspan="2">Transcript</th>
+                                        <th rowspan="2">HGVS</th>
                                         <th rowspan="2">Gencode</th>
                                         <th rowspan="2">Consequence Type (SO Term)</th>
                                         <th rowspan="2">Panel</th>
                                         <th rowspan="2">Mode of Inheritance</th>
-                                        <th rowspan="2">Role in Cancer</th>
                                         <th rowspan="2">Actionable</th>
                                         <th rowspan="1" colspan="3" style="text-align: center">Classification</th>
                                     </tr>
                                     <tr>
                                         <th rowspan="1">ACMG</th>
-                                        <th rowspan="2">Tier</th>
+                                        <th rowspan="1">Tier</th>
                                         <th rowspan="1">Clinical Significance</th>
                                     </tr>
                                 </thead>
                                 <tbody>`;
-
+            } else {
+                ctHtml += `<thead>
+                                    <tr>
+                                        <th rowspan="2">Gene</th>
+                                        <th rowspan="2">Transcript</th>
+                                        <th rowspan="2">HGVS</th>
+                                        <th rowspan="2">Gencode</th>
+                                        <th rowspan="2">Consequence Type (SO Term)</th>
+                                        <th rowspan="2">Panel</th>
+                                        <th rowspan="2">Role in Cancer</th>
+                                        <th rowspan="2">Actionable</th>
+                                        <th rowspan="1" colspan="2" style="text-align: center">Classification</th>
+                                    </tr>
+                                    <tr>
+                                        <th rowspan="1">Tier</th>
+                                        <th rowspan="1">Clinical Significance</th>
+                                    </tr>
+                                </thead>
+                                <tbody>`;
+            }
 
             // FIXME Maybe this should happen in the server?
             // let biotypeSet = new Set();
@@ -1045,10 +1065,11 @@ export default class VariantGridFormatter {
                 }
 
 
+                let hgvsHtml = "-";
                 let transcriptId = "-";
                 if (UtilsNew.isNotEmpty(re.genomicFeature.transcriptId)) {
                     let biotype = "-";
-                    if (UtilsNew.isNotUndefinedOrNull(row.annotation) && UtilsNew.isNotEmptyArray(row.annotation.consequenceTypes)) {
+                    if (row.annotation && row.annotation.consequenceTypes) {
                         for (let ct of row.annotation.consequenceTypes) {
                             if (ct.ensemblTranscriptId === re.genomicFeature.transcriptId) {
                                 biotype = ct.biotype;
@@ -1065,6 +1086,13 @@ export default class VariantGridFormatter {
                                     <div style="padding-top: 5px">
                                         ${biotype}
                                     </div>`;
+
+                    if (row.annotation && row.annotation.hgvs) {
+                        // console.log(re.genomicFeature.transcriptId)
+                        // debugger
+                        debugger
+                        hgvsHtml = row.annotation.hgvs.filter(hgvs => hgvs.startsWith(re.genomicFeature.transcriptId));
+                    }
                 }
 
                 let transcriptFlag = "";
@@ -1181,19 +1209,35 @@ export default class VariantGridFormatter {
                 let displayStyle = showArrayIndexes.includes(i) ? "" : "display: none";
 
                 // Create the table row
-                ctHtml += `<tr class="detail-view-row ${hideClass}" style="${displayStyle}">
+                if (variantGrid.clinicalAnalysis.type.toUpperCase() !== "CANCER") {
+                    ctHtml += `<tr class="detail-view-row ${hideClass}" style="${displayStyle}">
                             <td>${gene}</td>
                             <td>${transcriptId}</td>
+                            <td>${hgvsHtml}</td>
                             <td>${transcriptFlag}</td>
                             <td>${soArray.join("")}</td>
                             <td>${panel}</td>
                             <td>${moi}</td>
-                            <td>${roleInCancer}</td>
                             <td>${actionable}</td>
                             <td>${acmg}</td>
                             <td>${tier}</td>
                             <td>${clinicalSignificance}</td>
                            </tr>`;
+                } else {
+                    ctHtml += `<tr class="detail-view-row ${hideClass}" style="${displayStyle}">
+                            <td>${gene}</td>
+                            <td>${transcriptId}</td>
+                            <td>${hgvsHtml}</td>
+                            <td>${transcriptFlag}</td>
+                            <td>${soArray.join("")}</td>
+                            <td>${panel}</td>
+                            <td>${roleInCancer}</td>
+                            <td>${actionable}</td>
+                            <td>${tier}</td>
+                            <td>${clinicalSignificance}</td>
+                           </tr>`;
+                }
+
             }
             ctHtml += "</tbody></table>";
             return ctHtml;

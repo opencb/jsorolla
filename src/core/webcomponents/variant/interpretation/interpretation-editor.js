@@ -55,11 +55,13 @@ class InterpretationEditor extends LitElement {
 
     _init() {
         this._prefix = UtilsNew.randomString(8);
+        this.updateParams = {};
     }
 
     connectedCallback() {
         super.connectedCallback();
 
+        this.updateParams = {};
         this.catalogGridFormatter = new CatalogGridFormatter(this.opencgaSession);
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
@@ -69,13 +71,13 @@ class InterpretationEditor extends LitElement {
             this.opencgaSessionObserver();
         }
 
+        if (changedProperties.has("clinicalAnalysis")) {
+            this.clinicalAnalysisObserver();
+        }
+
         if (changedProperties.has("clinicalAnalysisId")) {
             this.clinicalAnalysisIdObserver();
         }
-
-        // if (changedProperties.has("clinicalAnalysis")) {
-        //     this.clinicalAnalysisObserver();
-        // }
 
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
@@ -93,12 +95,19 @@ class InterpretationEditor extends LitElement {
         }
     }
 
+    clinicalAnalysisObserver() {
+        if (this.opencgaSession && this.clinicalAnalysis) {
+            this._clinicalAnalysis = JSON.parse(JSON.stringify(this.clinicalAnalysis));
+            // this.requestUpdate();
+        }
+    }
+
     clinicalAnalysisIdObserver() {
         if (this.opencgaSession && this.clinicalAnalysisId) {
             this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
                 .then(response => {
                     this.clinicalAnalysis = response.responses[0].results[0];
-                    this.requestUpdate();
+                    this.clinicalAnalysisObserver();
                 })
                 .catch(response => {
                     console.error("An error occurred fetching clinicalAnalysis: ", response);
@@ -106,79 +115,63 @@ class InterpretationEditor extends LitElement {
         }
     }
 
-    onFilterChange(field, value) {
-        console.log(field, value)
-    }
-
-    onCommentChange(e, i, key) {
-        e.stopPropagation();
-        this.clinicalAnalysis.comments[i][key] = e.detail.value;
-        this.clinicalAnalysis = {...this.clinicalAnalysis}
-        this.requestUpdate()
-    }
-
-    // renderComments(comments) {
-    //     const _comments = comments.map( (comment, i) => html`
-    //             <div class="container-fluid comment-wrapper">
-    //                 <div class="row">
-    //                     <div class="col-md-4 col-sx">
-    //                         <div>
-    //                             <text-field-filter placeholder=${"Type"} .value="${comment.type}" @filterChange="${e => this.onCommentChange(e, i, "type")}"></text-field-filter>
-    //                         </div>
-    //                         <!--<div>
-    //                             <text-field-filter placeholder=${"Author"} .value="${comment.author}" @filterChange="${e => this.onFilterChange("element.field", e)}"></text-field-filter>
-    //                         </div> -->
-    //                         <div>
-    //                             <div class='input-group date' id="${this._prefix}DuePickerDate" data-field="${""}">
-    //                                 <input type='text' id="${this._prefix}date" class="${this._prefix}Input form-control" data-field="${comment.date}" ?disabled="${true}" >
-    //                                 <span class="input-group-addon">
-    //                                     <span class="fa fa-calendar"></span>
-    //                                 </span>
-    //                             </div>
-    //                         </div>
-    //                     </div>
-    //                     <div class="col-md-8 col-dx">
-    //                         <text-field-filter .rows=${3} .value="${comment.message}" @filterChange="${e => this.onCommentChange(e, i, "message")}"></text-field-filter>
-    //                     </div>
-    //                 </div>
-    //                  <button type="button" class="close-button btn btn-danger btn-small ripple" @click="${() => this.deleteComment(i)}"><i class="fas fa-times"></i></button>
-    //             </div>`);
-    //
-    //     return html`${_comments} <button type="button" class="btn btn-default ripple" @click="${() => this.addEmptyComment()}">Add new Comment</button>`
-    // }
-
-    // addEmptyComment = () => {
-    //     this.clinicalAnalysis.comments.push({});
-    //     this.clinicalAnalysis = {...this.clinicalAnalysis};
-    //     this.requestUpdate();
-    // }
-    //
-    // deleteComment = i => {
-    //     this.clinicalAnalysis.comments = [...this.clinicalAnalysis.comments.slice(0, i), ...this.clinicalAnalysis.comments.slice(i + 1)];
-    //     this.clinicalAnalysis = {...this.clinicalAnalysis};
-    //     this.requestUpdate();
-    // }
-
     renderStatus(status) {
         return html`
             <div class="">
                 <div style="padding-bottom: 10px">
-                    <select-field-filter .data="${ClinicalAnalysisUtils.getStatuses()}" 
-                        @filterChange="${e => this.onFilterChange("status", e.detail.value)}">
+                    <select-field-filter .data="${ClinicalAnalysisUtils.getStatuses()}" .value="${status.name}" 
+                        @filterChange="${e => {e.detail.param = "status.name"; this.onFieldChange(e)}}">
                     </select-field-filter>
                 </div>
                 <div class="">
-                    <text-field-filter placeholder="Message" .value="${status.description}" @filterChange="${e => this.onFilterChange("status.name", e.detail.value)}"></text-field-filter>
+                    <text-field-filter placeholder="Message" .value="${status.description}" 
+                        @filterChange="${e => {e.detail.param = "status.description"; this.onFieldChange(e)}}"></text-field-filter>
                 </div>
             </div>`
     }
 
     onFieldChange(e) {
         switch (e.detail.param) {
-            case "lock":
-                this.clinicalAnalysis.lock = e.detail.value;
+            case "locked":
+            case "priority":
+            case "description":
+                if (this._clinicalAnalysis[e.detail.param] !== e.detail.value && e.detail.value) {
+                    this.clinicalAnalysis[e.detail.param] = e.detail.value;
+                    this.updateParams[e.detail.param] = e.detail.value;
+                } else {
+                    delete this.updateParams[e.detail.param];
+                }
+                break;
+            case "analyst.id":
+                if (this._clinicalAnalysis?.analyst.id !== e.detail.value && e.detail.value) {
+                    this.clinicalAnalysis.analyst.id = e.detail.value;
+                    this.updateParams.analyst = {
+                        id: e.detail.value
+                    };
+                } else {
+                    delete this.updateParams["analyst"];
+                }
+                break;
+            case "status.name":
+            case "status.description":
+                // We need to pass all status field to the REST web service
+                this.updateParams.status = {
+                    name: this.clinicalAnalysis.status.name,
+                    description: this.clinicalAnalysis.status.description
+                };
+                let field = e.detail.param.split(".")[1];
+                if (this._clinicalAnalysis?.status[field] !== e.detail.value && e.detail.value) {
+                    this.clinicalAnalysis.status[field] = e.detail.value;
+                    this.updateParams.status[field] = e.detail.value;
+                } else {
+                    delete this.updateParams.status[field];
+                }
+                if (UtilsNew.isEmpty(this.updateParams.status)) {
+                    delete this.updateParams.status;
+                }
                 break;
         }
+        this.requestUpdate();
     }
 
     getDefaultConfig() {
@@ -240,10 +233,11 @@ class InterpretationEditor extends LitElement {
                     elements: [
                         {
                             name: "Lock",
-                            field: "lock",
+                            field: "locked",
                             type: "toggle",
                             defaultValue: false,
                             display: {
+                                width: "9"
                                 // activeName: "YES"
                                 // activeClass: "btn-danger"
                             }
@@ -255,6 +249,7 @@ class InterpretationEditor extends LitElement {
                             allowedValues: ["URGENT", "HIGH", "MEDIUM", "LOW"],
                             defaultValue: "MEDIUM",
                             display: {
+                                width: "9"
                             }
                         },
                         {
@@ -264,6 +259,7 @@ class InterpretationEditor extends LitElement {
                             defaultValue: this.clinicalAnalysis?.analyst?.id ?? this.clinicalAnalysis?.analyst?.assignee,
                             allowedValues: () => this._users,
                             display: {
+                                width: "9"
                             }
                         },
                         {
@@ -271,6 +267,7 @@ class InterpretationEditor extends LitElement {
                             field: "dueDate",
                             type: "input-date",
                             display: {
+                                width: "9",
                                 render: date => moment(date, "YYYYMMDDHHmmss").format("DD/MM/YYYY")
                             }
                         },
@@ -282,7 +279,7 @@ class InterpretationEditor extends LitElement {
                     elements: [
                         {
                             name: "Status",
-                            field: "internal.status",
+                            field: "status",
                             type: "custom",
                             display: {
                                 render: status => this.renderStatus(status)
@@ -361,13 +358,32 @@ class InterpretationEditor extends LitElement {
         };
     }
 
+    onRun(e) {
+        if (this.updateParams && UtilsNew.isNotEmpty(this.updateParams)) {
+            this.opencgaSession.opencgaClient.clinical().update(this.clinicalAnalysis.id, this.updateParams, {study: this.opencgaSession.study.fqn})
+                .then(response => {
+                    console.log(response);
+                    this._clinicalAnalysis = JSON.parse(JSON.stringify(this.clinicalAnalysis));
+                    this.updateParams = {};
+                    Swal.fire({
+                        title: "Success",
+                        icon: "success",
+                        html: "Case info udpated succesfully"
+                    });
+                })
+                .catch(response => {
+                    console.error("An error occurred updating clinicalAnalysis: ", response);
+                });
+        }
+    }
+
     render() {
         if (!this.clinicalAnalysis) {
             return "";
         }
 
         return html`
-            <data-form   .data="${this.clinicalAnalysis}" 
+            <data-form  .data="${this.clinicalAnalysis}" 
                         .config="${this._config}" 
                         @fieldChange="${e => this.onFieldChange(e)}" 
                         @clear="${this.onClear}" 

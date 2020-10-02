@@ -80,14 +80,24 @@ class ClinicalAnalysisComments extends LitElement {
                 <div style="border-left: 2px solid #0c2f4c; margin: 15px 0px">
                     <div style="margin: 5px 10px">
                         <span style="font-weight: bold">${comment.author}</span>
-                        <span style="color: darkgrey; margin: 0px 10px">${comment.date}</span>
+                        <span style="color: darkgrey; margin: 0px 10px">${UtilsNew.dateFormatter(comment.date)}</span>
                         <div style="float: right">
-                            <span><i class="fas fa-edit"></i></span>
-                            <span><i class="fas fa-trash-alt"></i></span>
+                            ${comment.tags && comment.tags.includes("example") 
+                                ? html`<span style="color: darkgoldenrod"><i class="fas fa-star"></i></span>`
+                                : html`<span><i class="far fa-star"></i></span>`
+                            }
+                            <!--
+                                <span><i class="fas fa-edit"></i></span>
+                                <span><i class="fas fa-trash-alt"></i></span>
+                            -->
                         </div>
                     </div>
                     <div style="margin: 5px 10px">
-                        <span>${comment.message}</span>
+                        <div style="margin: 10px 0px">${comment.message}</div>
+                        <div style="margin: 10px 0px">${comment.tags && comment.tags.map(tag => html`
+                                <span class="label label-info" style="font-size: 95%">${tag}</span>`
+                            )}
+                        </div>
                     </div>
                     <div style="margin: 5px 10px">
                         <span>
@@ -105,10 +115,15 @@ class ClinicalAnalysisComments extends LitElement {
                 ? html`
                     <div style="border-left: 2px solid #0c2f4c; margin: 15px 0px">
                         <div style="margin: 5px 10px">
-                            <span style="font-weight: bold">${this.opencgaSession?.user.id}</span>
+                            <span style="font-weight: bold">New comment</span>
                         </div>
                         <div style="margin: 5px 10px">
                             <text-field-filter placeholder="Add comment..." .rows=${2} 
+                                @filterChange="${e => this.onFilterChange(e)}">
+                            </text-field-filter>
+                        </div>
+                        <div style="margin: 5px 10px">
+                            <text-field-filter placeholder="Add tags..." .rows=${1} 
                                 @filterChange="${e => this.onFilterChange(e)}">
                             </text-field-filter>
                         </div>
