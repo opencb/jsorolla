@@ -133,17 +133,9 @@ class InterpretationEditor extends LitElement {
     onFieldChange(e) {
         switch (e.detail.param) {
             case "locked":
-                let value = e.detail.value === "ON";
-                if (this._clinicalAnalysis[e.detail.param] !== value && e.detail.value) {
-                    this.clinicalAnalysis[e.detail.param] = value;
-                    this.updateParams[e.detail.param] = value;
-                } else {
-                    delete this.updateParams[e.detail.param];
-                }
-                break;
             case "priority":
             case "description":
-                if (this._clinicalAnalysis[e.detail.param] !== e.detail.value && e.detail.value) {
+                if (this._clinicalAnalysis[e.detail.param] !== e.detail.value && e.detail.value !== null) {
                     this.clinicalAnalysis[e.detail.param] = e.detail.value;
                     this.updateParams[e.detail.param] = e.detail.value;
                 } else {
@@ -151,7 +143,7 @@ class InterpretationEditor extends LitElement {
                 }
                 break;
             case "analyst.id":
-                if (this._clinicalAnalysis?.analyst.id !== e.detail.value && e.detail.value) {
+                if (this._clinicalAnalysis?.analyst.id !== e.detail.value && e.detail.value !== null) {
                     this.clinicalAnalysis.analyst.id = e.detail.value;
                     this.updateParams.analyst = {
                         id: e.detail.value
@@ -165,7 +157,7 @@ class InterpretationEditor extends LitElement {
                 // We need to pass all status field to the REST web service
                 this.updateParams.status = {...this.clinicalAnalysis.status};
                 let field = e.detail.param.split(".")[1];
-                if (this._clinicalAnalysis?.status[field] !== e.detail.value && e.detail.value) {
+                if (this._clinicalAnalysis?.status[field] !== e.detail.value && e.detail.value !== null) {
                     this.clinicalAnalysis.status[field] = e.detail.value;
                     this.updateParams.status[field] = e.detail.value;
                 } else {
@@ -239,11 +231,11 @@ class InterpretationEditor extends LitElement {
                         {
                             name: "Lock",
                             field: "locked",
-                            type: "toggle",
+                            type: "toggle-switch",
                             defaultValue: false,
                             display: {
-                                width: "9"
-                                // activeName: "YES"
+                                width: "9",
+                                // onText: "YES",
                                 // activeClass: "btn-danger"
                             }
                         },

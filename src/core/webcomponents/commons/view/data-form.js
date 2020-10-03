@@ -21,6 +21,7 @@ import "../../json-viewer.js";
 import "../../tree-viewer.js";
 import "../../download-button.js";
 import "../../commons/filters/text-field-filter.js";
+import "../../../form/controls/toggle-switch.js";
 
 export default class DataForm extends LitElement {
 
@@ -357,6 +358,9 @@ export default class DataForm extends LitElement {
                 case "checkbox":
                     content = this._createCheckboxElement(element);
                     break;
+                case "toggle-switch":
+                    content = this._createToggleSwitchElement(element);
+                    break;
                 case "toggle":
                     content = this._createToggleElement(element);
                     break;
@@ -530,6 +534,25 @@ export default class DataForm extends LitElement {
                 <input type="checkbox" class="${this._prefix}FilterCheckbox" 
                         @click="${e => this.onFilterChange(element.field, e.currentTarget.checked)}" ?checked="${value === "PASS"}" style="margin-right: 5px">
                 <span>Include only <span style="font-weight: bold;">PASS</span> variants</span>
+            </div>
+        `;
+    }
+
+    /**
+     * This element accepts 4 main parameters: onText, offTxt, activeClass and inactiveClass.
+     * Default values are: ON, OFF, btn-primary and btn-default, respectively.
+     * @param element
+     * @returns {TemplateResult}
+     * @private
+     */
+    _createToggleSwitchElement(element) {
+        let value = this.getValue(element.field) || this._getDefaultValue(element);
+        return html`
+            <div class="">
+                <toggle-switch .value="${value}" .onText="${element.display.onText}" .offText="${element.display.offText}" 
+                    .activeClass="${element.display.activeClass}" .inactiveClass="${element.display.inactiveClass}" 
+                    @filterChange="${e => this.onFilterChange(element.field, e.detail.value)}">
+                </toggle-switch>
             </div>
         `;
     }
