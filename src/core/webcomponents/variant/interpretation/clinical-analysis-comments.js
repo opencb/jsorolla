@@ -86,10 +86,6 @@ class ClinicalAnalysisComments extends LitElement {
                                 ? html`<span style="color: darkgoldenrod"><i class="fas fa-star"></i></span>`
                                 : html`<span><i class="far fa-star"></i></span>`
                             }
-                            <!--
-                                <span><i class="fas fa-edit"></i></span>
-                                <span><i class="fas fa-trash-alt"></i></span>
-                            -->
                         </div>
                     </div>
                     <div style="margin: 5px 10px">

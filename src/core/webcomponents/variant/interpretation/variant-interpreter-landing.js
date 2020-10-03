@@ -442,9 +442,9 @@ class VariantInterpreterLanding extends LitElement {
                         </div>                    
                     </div>                    
                     <div id="${this._prefix}Audit" role="tabpanel" class="tab-pane content-tab col-md-10 col-md-offset-1">
-                        <tool-header title="Audit Browser" class="bg-white"></tool-header>
+                        <tool-header title="Audit Log" class="bg-white"></tool-header>
                         <div style="padding: 0px 10px">
-                            <interpretation-audit .opencgaSession="${this.opencgaSession}"
+                            <interpretation-audit   .opencgaSession="${this.opencgaSession}"
                                                     .clinicalAnalysis="${this.clinicalAnalysis}">
                             </interpretation-audit>
                         </div> 
