@@ -179,15 +179,16 @@ class InterpretationEditor extends LitElement {
             type: "form",
             buttons: {
                 show: true,
-                clearText: "Clear",
-                okText: "Save"
+                clearText: "Cancel",
+                okText: "Save",
+                classes: "col-md-offset-4 col-md-3"
             },
             display: {
-                width: "6",
+                width: "7",
                 showTitle: false,
                 infoIcon: "",
                 labelAlign: "left",
-                labelWidth: "3",
+                labelWidth: "4",
                 defaultLayout: "horizontal",
             },
             sections: [

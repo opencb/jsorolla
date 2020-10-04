@@ -51,14 +51,18 @@ export default class ToolHeader extends LitElement {
         return html`
             <div class="page-title ${this.class ?? ""}">
                 <h2>
-                    ${this.icon ? this.icon.match(/\./)?.length ? html`
-                        <img src="img/tools/icons/${this.icon}" alt="${this.title}">
-                    ` : html`
-                        <i class="${this.icon}" aria-hidden="true"></i>
-                    ` : null}
+                    ${this.icon 
+                        ? this.icon.match(/\./)?.length 
+                            ? html`
+                                <img src="img/tools/icons/${this.icon}" alt="${this.title}">` 
+                            : html`
+                                <i class="${this.icon}" aria-hidden="true"></i>` 
+                        : null
+                    }
                     ${UtilsNew.renderHTML(this.title)}
                 </h2>
                 ${this.subtitle ? html`<h3>${this.subtitle}</h3>` : null}
+                
                 <div class="page-title-right">
                     ${this.rhs}
                 </div>

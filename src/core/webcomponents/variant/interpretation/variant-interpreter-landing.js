@@ -273,7 +273,8 @@ class VariantInterpreterLanding extends LitElement {
             buttons: {
                 show: true,
                 clearText: "Clear",
-                submitText: "Open"
+                submitText: "Open",
+                classes: "col-md-4 col-md-offset-4"
             },
             display: {
                 showTitle: true,
@@ -411,7 +412,7 @@ class VariantInterpreterLanding extends LitElement {
                 <div class="content-tab-wrapper">
                     <div id="${this._prefix}General" role="tabpanel" class="active tab-pane content-tab col-md-10 col-md-offset-1">
                         <tool-header title="General Settings - ${this.clinicalAnalysis?.id}" class="bg-white"></tool-header>
-                        <div style="padding: 0px 10px">
+                        <div style="padding: 0px 20px">
                             <interpretation-editor  .opencgaSession=${this.opencgaSession} 
                                                     .clinicalAnalysis="${this.clinicalAnalysis}">
                             </interpretation-editor>
@@ -419,7 +420,7 @@ class VariantInterpreterLanding extends LitElement {
                     </div>
                     <div id="${this._prefix}Clinical" role="tabpanel" class="tab-pane content-tab col-md-10 col-md-offset-1">
                         <tool-header title="Clinical" class="bg-white"></tool-header>
-                        <div style="padding: 0px 10px">
+                        <div style="padding: 0px 20px">
                             <opencga-clinical-analysis-view .opencgaSession="${this.opencgaSession}"
                                                             .clinicalAnalysis="${this.clinicalAnalysis}">
                             </opencga-clinical-analysis-view>
@@ -427,7 +428,7 @@ class VariantInterpreterLanding extends LitElement {
                     </div>                           
                     <div id="${this._prefix}Interpretations" role="tabpanel" class="tab-pane content-tab col-md-10 col-md-offset-1">
                         <tool-header title="Interpretation Manager" class="bg-white"></tool-header>
-                        <div style="padding: 0px 10px">
+                        <div style="padding: 0px 20px">
                             <interpretation-grid    .opencgaSession="${this.opencgaSession}"
                                                     .clinicalAnalysis="${this.clinicalAnalysis}">
                             </interpretation-grid>
@@ -435,7 +436,7 @@ class VariantInterpreterLanding extends LitElement {
                     </div>                                    
                     <div id="${this._prefix}Consent" role="tabpanel" class="tab-pane content-tab col-md-10 col-md-offset-1">
                         <tool-header title="Consent - ${this.clinicalAnalysis?.proband.id}" class="bg-white"></tool-header>
-                        <div style="padding: 0px 10px">
+                        <div style="padding: 0px 20px">
                             <clinical-analysis-consent-editor   .opencgaSession=${this.opencgaSession} 
                                                                 .clinicalAnalysis="${this.clinicalAnalysis}">
                             </clinical-analysis-consent-editor>
@@ -443,7 +444,7 @@ class VariantInterpreterLanding extends LitElement {
                     </div>                    
                     <div id="${this._prefix}Audit" role="tabpanel" class="tab-pane content-tab col-md-10 col-md-offset-1">
                         <tool-header title="Audit Log" class="bg-white"></tool-header>
-                        <div style="padding: 0px 10px">
+                        <div style="padding: 0px 20px">
                             <interpretation-audit   .opencgaSession="${this.opencgaSession}"
                                                     .clinicalAnalysis="${this.clinicalAnalysis}">
                             </interpretation-audit>
@@ -454,7 +455,7 @@ class VariantInterpreterLanding extends LitElement {
                         ${this.clinicalAnalysis
                             ? html`
                                 <tool-header title="Case Summary - ${this.clinicalAnalysis?.id}" class="bg-white"></tool-header>
-                                <div style="padding: 0px 10px">
+                                <div style="padding: 0px 20px">
                                     <opencga-clinical-analysis-view .opencgaSession="${this.opencgaSession}"
                                                                     .clinicalAnalysis="${this.clinicalAnalysis}">
                                     </opencga-clinical-analysis-view>

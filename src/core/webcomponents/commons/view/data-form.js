@@ -1001,7 +1001,7 @@ export default class DataForm extends LitElement {
             ${this.config.buttons && this.config.buttons.show
                 ? html`
                     <div class="row">
-                        <div class="${this.config.display.classes ? this.config.display.classes : "col-md-12"}" style="padding: 10px 40px">
+                        <div class="${this.config.buttons.classes ? this.config.buttons.classes : "col-md-12"}" style="padding: 10px 20px">
                             <button type="button" class="btn btn-primary ripple" @click="${this.onClear}">
                                 ${this.config.buttons.cancelText ? this.config.buttons.cancelText : "Cancel"}
                             </button>
