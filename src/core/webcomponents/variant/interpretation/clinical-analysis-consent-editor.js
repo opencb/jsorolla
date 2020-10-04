@@ -121,20 +121,11 @@ class ClinicalAnalysisConsentEditor extends LitElement {
             case "consent.secondaryFindings":
             case "consent.carrierFindings":
             case "consent.researchFindings":
-                let value = e.detail.value;
-                switch (e.detail.value) {
-                    case "ON":
-                        value = "YES";
-                        break;
-                    case "OFF":
-                        value = "NO";
-                        break;
-                }
                 let field = e.detail.param.split(".")[1];
                 this.updateParams.consent = {...this.clinicalAnalysis.consent};
-                if (this._clinicalAnalysis?.consent[field] !== value && e.detail.value) {
-                    this.clinicalAnalysis.consent[field] = value;
-                    this.updateParams.consent[field] = value;
+                if (this._clinicalAnalysis?.consent[field] !== e.detail.value && e.detail.value) {
+                    this.clinicalAnalysis.consent[field] = e.detail.value;
+                    this.updateParams.consent[field] = e.detail.value;
                 } else {
                     delete this.updateParams.consent[field];
                 }
@@ -153,7 +144,7 @@ class ClinicalAnalysisConsentEditor extends LitElement {
             icon: "fas fa-user-md",
             type: "form",
             buttons: {
-                show: false,
+                show: true,
                 clearText: "Clear",
                 okText: "Save"
             },
@@ -173,50 +164,37 @@ class ClinicalAnalysisConsentEditor extends LitElement {
                         {
                             name: "Primary Findings",
                             field: "consent.primaryFindings",
-                            type: "toggle",
-                            // defaultValue: false,
+                            type: "toggle-buttons",
+                            allowedValues: ["YES", "NO", "UNKNOWN"],
                             display: {
                                 width: "9",
-                                activeName: "YES",
-                                inactiveName: "NO",
-                                includeUnknown: true,
-                                // activeClass: "btn-danger"
                             }
                         },
                         {
                             name: "Secondary Findings",
                             field: "consent.secondaryFindings",
-                            type: "toggle",
-                            // defaultValue: false,
+                            type: "toggle-buttons",
+                            allowedValues: ["YES", "NO", "UNKNOWN"],
                             display: {
                                 width: "9",
-                                activeName: "YES",
-                                inactiveName: "NO",
-                                includeUnknown: true
                             }
                         },
                         {
                             name: "Carrier Findings",
                             field: "consent.carrierFindings",
-                            type: "toggle",
-                            // defaultValue: false,
+                            type: "toggle-buttons",
+                            allowedValues: ["YES", "NO", "UNKNOWN"],
                             display: {
                                 width: "9",
-                                activeName: "YES",
-                                inactiveName: "NO",
-                                includeUnknown: true
                             }
                         },
                         {
                             name: "Research Findings",
                             field: "consent.researchFindings",
-                            type: "toggle",
-                            // defaultValue: false,
+                            type: "toggle-buttons",
+                            allowedValues: ["YES", "NO", "UNKNOWN"],
                             display: {
                                 width: "9",
-                                activeName: "YES",
-                                inactiveName: "NO",
-                                includeUnknown: true
                             }
                         },
                     ]
@@ -241,7 +219,7 @@ class ClinicalAnalysisConsentEditor extends LitElement {
                     Swal.fire({
                         title: "Success",
                         icon: "success",
-                        html: "Case info udpated succesfully"
+                        html: "Case info updated succesfully"
                     });
                 })
                 .catch(response => {

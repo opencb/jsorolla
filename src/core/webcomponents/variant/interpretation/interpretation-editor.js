@@ -232,7 +232,7 @@ class InterpretationEditor extends LitElement {
                             name: "Lock",
                             field: "locked",
                             type: "toggle-switch",
-                            defaultValue: false,
+                            // defaultValue: false,
                             display: {
                                 width: "9",
                                 // onText: "YES",
@@ -355,7 +355,7 @@ class InterpretationEditor extends LitElement {
                     Swal.fire({
                         title: "Success",
                         icon: "success",
-                        html: "Case info udpated succesfully"
+                        html: "Case info updated succesfully"
                     });
                 })
                 .catch(response => {
