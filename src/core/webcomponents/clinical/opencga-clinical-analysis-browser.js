@@ -110,7 +110,7 @@ export default class OpencgaClinicalAnalysisBrowser extends LitElement {
                                 description: ""
                             },
                             {
-                                id: "samples",
+                                id: "sample",
                                 name: "Sample ID",
                                 placeholder: "HG01879, HG01880, HG01881...",
                                 description: ""

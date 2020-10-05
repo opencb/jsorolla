@@ -126,7 +126,7 @@ export default class OpencgaClinicalAnalysisFilter extends LitElement {
                 break;
             case "family":
             case "proband":
-            case "samples":
+            case "sample":
                 content = html`<text-field-filter placeholder="${subsection.placeholder}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></text-field-filter>`;
                 break;
             case "priority":

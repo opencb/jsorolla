@@ -182,11 +182,16 @@ export default class GridCommons {
             }
         }));
 
-        // in some cases `response` is a string (in case the error state doesn't come from the server there is no restResponse instance, so we send an custom error msg)
-        let msg = typeof response === "string" ? response : "Generic Error";
-
+        // in some cases `response` is a string (in case the error state doesn't come from the server there is no restResponse instance, so we send a custom error msg)
+        let msg = "Generic Error";
         if(response?.getEvents?.("ERROR")?.length) {
             msg = response.getEvents("ERROR").map( error => error.message).join("<br>");
+        } else if (response instanceof Error) {
+            msg = `<h2>${response.name}</h2><br>${response.message}`;
+        } else if (response instanceof Object) {
+            msg = JSON.stringify(response);
+        } else if (typeof response === "string") {
+            msg = response;
         }
         this.context.table.bootstrapTable("updateFormatText", "formatNoMatches", msg);
     }
