@@ -33,6 +33,9 @@ export default class TextFieldFilter extends LitElement {
 
     static get properties() {
         return {
+            type: {
+                type: String
+            },
             key: {
                 type: String
             },
@@ -72,7 +75,7 @@ export default class TextFieldFilter extends LitElement {
     updated(changedProperties) {
         if (changedProperties.has("value")) {
             if(this.value) {
-                const [, comparator, value] = this.value.match(/(<=?|>=?)(-?\d+[.]?[\d+]?)/);
+                const [, comparator, value] = this.value.match(/(<=?|>=?)(-?\d*\.?\d+)/);
                 this.state = {comparator, value};
             } else {
                 this.state = {
@@ -88,7 +91,6 @@ export default class TextFieldFilter extends LitElement {
         e.stopPropagation();
         let field = e.target.dataset.field;
         this.state[field] = e.target.value;
-        //console.log("filterChange", this.state.value ? (this.key + (this.state.comparator ?? "") + this.state.value) : null)
 
         const event = new CustomEvent("filterChange", {
             detail: {
@@ -132,9 +134,9 @@ export default class TextFieldFilter extends LitElement {
                     </select>
                 </div>` : null}
                 <div class="col-md-${this._config.layout[2]}">
-                    <input type="number" data-field="value" .min="${this.min ?? false}" .max="${this.max ?? false}" .step="${this.step ?? false}"
+                    <input type="${this.type ?? "number"}" data-field="value" .min="${this.min ?? false}" .max="${this.max ?? false}" .step="${this.step ?? false}"
                            class="form-control input-sm ${this._prefix}FilterTextInput"
-                           name="${this.key}" value="${this.state.value}" @input="${this.filterChange}">
+                           name="${this.key}" value="${this.state.value ?? ""}" @input="${this.filterChange}">
                 </div>
             </div>
         `;
