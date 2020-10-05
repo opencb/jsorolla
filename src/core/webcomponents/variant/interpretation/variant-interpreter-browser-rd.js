@@ -96,6 +96,7 @@ class VariantInterpreterBrowserRd extends LitElement {
 
         this.predefinedFilter = false; // flag that hides the warning message in active-filter for predefined samples value
 
+        this.savedVariants = [];
         this.notSavedVariantIds = 0;
         this.removedVariantIds = 0;
         this._config = {...this.getDefaultConfig(), ...this.config};
@@ -731,15 +732,16 @@ class VariantInterpreterBrowserRd extends LitElement {
                                         <i class="fas fa-save icon-padding" aria-hidden="true"></i> Save
                                     </button>
                                 </div>
-                            </div>` : null}
-                        ${this.notSavedVariantIds || this.removedVariantIds
-                            ? html`
-                                <div class="alert alert-warning" role="alert" id="${this._prefix}SaveWarning">
-                                    <span><strong>Warning!</strong></span>&nbsp;&nbsp;Primary findings have changed:
-                                    ${this.notSavedVariantIds ? html`${this.notSavedVariantIds} variant${this.notSavedVariantIds > 1 ? "s have" : " has"} been added` : null}${this.removedVariantIds ? html`${this.notSavedVariantIds ? " and " : null}${this.removedVariantIds} variant${this.removedVariantIds > 1 ? "s have" : " has"} been removed` : null}. Please click on <strong> Save </strong> to make the results persistent.
-                                </div>`
-                            : null
-                        }
+                            </div>
+                            ${this.notSavedVariantIds || this.removedVariantIds
+                                ? html`
+                                    <div class="alert alert-warning" role="alert" id="${this._prefix}SaveWarning">
+                                        <span><strong>Warning!</strong></span>&nbsp;&nbsp;Primary findings have changed:
+                                        ${this.notSavedVariantIds ? html`${this.notSavedVariantIds} variant${this.notSavedVariantIds > 1 ? "s have" : " has"} been added` : null}${this.removedVariantIds ? html`${this.notSavedVariantIds ? " and " : null}${this.removedVariantIds} variant${this.removedVariantIds > 1 ? "s have" : " has"} been removed` : null}. Please click on <strong> Save </strong> to make the results persistent.
+                                    </div>`
+                                : null
+                            }
+                        ` : null}
                     </div>
                     
                     <div id="${this._prefix}MainContent">

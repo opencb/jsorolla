@@ -167,6 +167,7 @@ export default class OpencgaVariantSamples extends LitElement {
                     rows: response
                 };
             },
+            onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
             onLoadSuccess: data => {
                 this.gridCommons.onLoadSuccess(data, 2);
             },

@@ -19,6 +19,7 @@ import UtilsNew from "../../utilsNew.js";
 import "../variant/opencga-variant-filter.js";
 import "../commons/opencga-active-filters.js";
 import "../loading-spinner.js";
+import OpencgaCatalogUtils from "../../clients/opencga/opencga-catalog-utils.js";
 
 export default class SampleVariantStatsBrowser extends LitElement {
 
@@ -435,17 +436,19 @@ export default class SampleVariantStatsBrowser extends LitElement {
                 </div>
 
                 <div class="col-md-9">
-                    <div>
-                        <div class="btn-toolbar" role="toolbar" aria-label="toolbar" style="margin-bottom: 20px">
-                            <div class="pull-right" role="group">
-                                <data-form  .data=${this.save} 
-                                            .config="${this.getSaveConfig()}" 
-                                            @fieldChange="${e => this.onSaveFieldChange(e)}" 
-                                            @submit="${this.onSave}">
-                                </data-form>
+                    ${OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS") ? html`
+                        <div>
+                            <div class="btn-toolbar" role="toolbar" aria-label="toolbar" style="margin-bottom: 20px">
+                                <div class="pull-right" role="group">
+                                    <data-form  .data=${this.save} 
+                                                .config="${this.getSaveConfig()}" 
+                                                @fieldChange="${e => this.onSaveFieldChange(e)}" 
+                                                @submit="${this.onSave}">
+                                    </data-form>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    ` : null }
                     <div>
                         <opencga-active-filters resource="VARIANT"
                                                 .opencgaSession="${this.opencgaSession}"
