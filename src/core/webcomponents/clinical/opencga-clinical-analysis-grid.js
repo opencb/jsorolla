@@ -285,13 +285,13 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
         } else {
             switch (value) {
                 case "URGENT":
-                    return "<span class='badge badge-danger'>Urgent</span>";
+                    return "<span class='label label-danger' style='font-size: 95%'>Urgent</span>";
                 case "HIGH":
-                    return "<span class='badge badge-warning'>High</span>";
+                    return "<span class='label label-warning' style='font-size: 95%'>High</span>";
                 case "MEDIUM":
-                    return "<span class='badge'>Medium</span>";
+                    return "<span class='label' style='font-size: 95%'>Medium</span>";
                 case "LOW":
-                    return "<span class='badge badge-light'>Low</span>";
+                    return "<span class='label label-light' style='font-size: 95%'>Low</span>";
                 default:
                     return "<span>-</span>";
             }
@@ -504,8 +504,8 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                 // <button class='btn btn-small btn-primary ripple' data-action="edit"><i class="fas fa-edit"></i> Edit</button>
                 formatter: (value, row) => `
                     <div class="dropdown">
-                        <button class="btn btn-default btn-small ripple dropdown-toggle one-line" type="button" data-toggle="dropdown">Select action
-                            <span class="caret"></span>
+                        <button class="btn btn-default btn-small ripple dropdown-toggle one-line" type="button" data-toggle="dropdown">Select
+                            <span class="caret" style="margin-left: 5px"></span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-right">
                             <li>

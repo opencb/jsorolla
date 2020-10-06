@@ -21,6 +21,8 @@ import "../../json-viewer.js";
 import "../../tree-viewer.js";
 import "../../download-button.js";
 import "../../commons/filters/text-field-filter.js";
+import "../../../form/controls/toggle-switch.js";
+import "../../../form/controls/toggle-buttons.js";
 
 export default class DataForm extends LitElement {
 
@@ -357,8 +359,11 @@ export default class DataForm extends LitElement {
                 case "checkbox":
                     content = this._createCheckboxElement(element);
                     break;
-                case "toggle":
-                    content = this._createToggleElement(element);
+                case "toggle-switch":
+                    content = this._createToggleSwitchElement(element);
+                    break;
+                case "toggle-buttons":
+                    content = this._createToggleButtonsElement(element);
                     break;
                 case "select":
                     content = this._createInputSelectElement(element);
@@ -510,16 +515,6 @@ export default class DataForm extends LitElement {
                 </span>
             </div>
         `;
-        // return html`
-        //     <div class="date col-md-${width}">
-        //         <div class='form-group input-group date' id="${this._prefix}DuePickerDate" data-field="${element.field}">
-        //             <input type='text' id="${this._prefix}DueDate" class="${this._prefix}Input form-control" data-field="${element.field}" ?disabled="${disabled}">
-        //             <span class="input-group-addon">
-        //                 <span class="fa fa-calendar"></span>
-        //             </span>
-        //         </div>
-        //     </div>
-        // `;
     }
 
     _createCheckboxElement(element) {
@@ -534,70 +529,36 @@ export default class DataForm extends LitElement {
         `;
     }
 
-    _onToggleClick(buttonId, activeClass, inactiveClass, field, classId, e) {
-        // Check if there is anything to do
-        let active = this.getValue(field);
-        if ((active && buttonId === "ON") || (!active && buttonId === "OFF")) {
-            return;
-        }
-
-        // Support several classes
-        let activeClasses = activeClass.split(" ");
-        let inactiveClasses = inactiveClass.split(" ");
-
-        // Fetch and reset buttons status
-        let buttons = this.getElementsByClassName(classId);
-        buttons.forEach(button => button.classList.remove(...activeClasses, ...inactiveClasses, "active"));
-        let onIndex = 0;
-        let offIndex = 1;
-        if (buttons[0].dataset.id === "OFF") {
-            onIndex = 1;
-            offIndex = 0;
-        }
-
-        // Set proper classes
-        let on = buttonId === "ON";
-        if (on) {
-            buttons[onIndex].classList.add(...activeClasses, "active");
-            buttons[offIndex].classList.add(...inactiveClasses);
-        } else {
-            buttons[onIndex].classList.add(...inactiveClasses);
-            buttons[offIndex].classList.add(...activeClasses ,"active");
-        }
-
-        // Set the field status
-        this.onFilterChange(field, on);
-    }
-
     /**
-     * Creates a simple toggle button. It allows to configure the activeClass
+     * This element accepts 4 main parameters: onText, offTxt, activeClass and inactiveClass.
+     * Default values are: ON, OFF, btn-primary and btn-default, respectively.
      * @param element
      * @returns {TemplateResult}
      * @private
      */
-    _createToggleElement(element) {
-        let active = this.getValue(element.field) || this._getDefaultValue(element);
-        let activeName = element.display.activeName || "ON";
-        let inactiveName = element.display.inactiveName || "OFF";
-        let activeClass = element.display.activeClass || "btn-primary";
-        let inactiveClass = element.display.inactiveClass || "btn-default";
-        let onClass, offClass;
-        if (active) {
-            onClass = activeClass + " active";
-            offClass = inactiveClass;
-        } else {
-            onClass = inactiveClass;
-            offClass = activeClass + " active";
-        }
-        let classId = "btn-toggle-" + UtilsNew.randomString(8);
+    _createToggleSwitchElement(element) {
+        let value = this.getValue(element.field); // || this._getDefaultValue(element);
+
         return html`
             <div class="">
-                <div class="btn-group btn-toggle"> 
-                    <button class="btn ${onClass} ${classId}" data-id="ON" 
-                        @click="${e => this._onToggleClick("ON", activeClass, inactiveClass, element.field, classId, e)}">${activeName}</button>
-                    <button class="btn ${offClass} ${classId}" data-id="OFF" 
-                        @click="${e => this._onToggleClick("OFF", activeClass, inactiveClass, element.field, classId, e)}">${inactiveName}</button>
-                </div>
+                <toggle-switch .value="${value}" .onText="${element.display.onText}" .offText="${element.display.offText}" 
+                    .activeClass="${element.display.activeClass}" .inactiveClass="${element.display.inactiveClass}" 
+                    @filterChange="${e => this.onFilterChange(element.field, e.detail.value)}">
+                </toggle-switch>
+            </div>
+        `;
+    }
+
+    _createToggleButtonsElement(element) {
+        let value = this.getValue(element.field) || this._getDefaultValue(element);
+        let names = element.allowedValues;
+
+        return html`
+            <div class="">
+                <toggle-buttons .names="${names}" .value="${value}" 
+                    .activeClass="${element.display.activeClass}" .inactiveClass="${element.display.inactiveClass}" 
+                    @filterChange="${e => this.onFilterChange(element.field, e.detail.value)}">
+                </toggle-buttons>
             </div>
         `;
     }

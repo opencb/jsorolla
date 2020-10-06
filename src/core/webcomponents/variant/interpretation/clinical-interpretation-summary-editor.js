@@ -23,7 +23,7 @@ import "../../commons/view/data-form.js";
 import "../../commons/filters/text-field-filter.js";
 
 
-class InterpretationEditor extends LitElement {
+class ClinicalInterpretationSummaryEditor extends LitElement {
 
     constructor() {
         super();
@@ -132,10 +132,8 @@ class InterpretationEditor extends LitElement {
 
     onFieldChange(e) {
         switch (e.detail.param) {
-            case "locked":
-            case "priority":
             case "description":
-                if (this._clinicalAnalysis[e.detail.param] !== e.detail.value && e.detail.value !== null) {
+                if (this._clinicalAnalysis[e.detail.param] !== e.detail.value && e.detail.value) {
                     this.clinicalAnalysis[e.detail.param] = e.detail.value;
                     this.updateParams[e.detail.param] = e.detail.value;
                 } else {
@@ -143,7 +141,7 @@ class InterpretationEditor extends LitElement {
                 }
                 break;
             case "analyst.id":
-                if (this._clinicalAnalysis?.analyst.id !== e.detail.value && e.detail.value !== null) {
+                if (this._clinicalAnalysis?.analyst.id !== e.detail.value && e.detail.value) {
                     this.clinicalAnalysis.analyst.id = e.detail.value;
                     this.updateParams.analyst = {
                         id: e.detail.value
@@ -157,7 +155,7 @@ class InterpretationEditor extends LitElement {
                 // We need to pass all status field to the REST web service
                 this.updateParams.status = {...this.clinicalAnalysis.status};
                 let field = e.detail.param.split(".")[1];
-                if (this._clinicalAnalysis?.status[field] !== e.detail.value && e.detail.value !== null) {
+                if (this._clinicalAnalysis?.status[field] !== e.detail.value && e.detail.value) {
                     this.clinicalAnalysis.status[field] = e.detail.value;
                     this.updateParams.status[field] = e.detail.value;
                 } else {
@@ -196,8 +194,14 @@ class InterpretationEditor extends LitElement {
                     title: "Summary",
                     elements: [
                         {
-                            name: "Case ID",
-                            field: "id",
+                            name: "Interpretation ID",
+                            field: "interpretation.id",
+                            display: {
+                            }
+                        },
+                        {
+                            name: "Interpretation Version",
+                            field: "interpretation.version",
                             display: {
                             }
                         },
@@ -225,52 +229,6 @@ class InterpretationEditor extends LitElement {
                     ]
                 },
                 {
-                    id: "management",
-                    title: "Management",
-                    elements: [
-                        {
-                            name: "Lock",
-                            field: "locked",
-                            type: "toggle-switch",
-                            // defaultValue: false,
-                            display: {
-                                width: "9",
-                                // onText: "YES",
-                                // activeClass: "btn-danger"
-                            }
-                        },
-                        {
-                            name: "Priority",
-                            field: "priority",
-                            type: "select",
-                            allowedValues: ["URGENT", "HIGH", "MEDIUM", "LOW"],
-                            defaultValue: "MEDIUM",
-                            display: {
-                                width: "9"
-                            }
-                        },
-                        {
-                            name: "Analyst",
-                            field: "analyst.id",
-                            type: "select",
-                            defaultValue: this.clinicalAnalysis?.analyst?.id ?? this.clinicalAnalysis?.analyst?.assignee,
-                            allowedValues: () => this._users,
-                            display: {
-                                width: "9"
-                            }
-                        },
-                        {
-                            name: "Due Date",
-                            field: "dueDate",
-                            type: "input-date",
-                            display: {
-                                width: "9",
-                                render: date => moment(date, "YYYYMMDDHHmmss").format("DD/MM/YYYY")
-                            }
-                        },
-                    ]
-                },
-                {
                     id: "general",
                     title: "General",
                     elements: [
@@ -283,13 +241,13 @@ class InterpretationEditor extends LitElement {
                             }
                         },
                         {
-                            name: "Interpretation Flags",
-                            field: "flags",
+                            name: "Analyst",
+                            field: "analyst.id",
                             type: "select",
-                            multiple: true,
-                            allowedValues: ["mixed_chemistries", "low_tumour_purity", "uniparental_isodisomy", "uniparental_heterodisomy",
-                                "unusual_karyotype", "suspected_mosaicism", "low_quality_sample"],
+                            defaultValue: this.clinicalAnalysis?.analyst?.id ?? this.clinicalAnalysis?.analyst?.assignee,
+                            allowedValues: () => this._users,
                             display: {
+                                width: "9"
                             }
                         },
                         {
@@ -317,25 +275,7 @@ class InterpretationEditor extends LitElement {
 
             ],
             execute: (opencgaSession, clinicalAnalysis, params) => {
-                // Prepare the data for the REST create
-                // TODO validate data!
-                let data = {...clinicalAnalysis};
-                console.log("EXECUTE");
 
-                /*opencgaSession.opencgaClient.clinical().update(data, {study: opencgaSession.study.fqn})
-                    .then(function(response) {
-                        new NotificationQueue().push(`Clinical analysis ${response.responses[0].results[0].id} created successfully`, null, "success");
-                        _this.notifyClinicalAnalysisWrite();
-                        _this.onClear();
-                    })
-                    .catch(restResponse => {
-                        console.error(restResponse);
-                        if (restResponse.getEvents?.("ERROR")?.length) {
-                            new NotificationQueue().push("Error creating Clinical Analysis", restResponse.getEvents("ERROR").map(error => error.message).join("<br>"), "ERROR");
-                        } else {
-                            new NotificationQueue().push("Error creating Clinical Analysis", null, "ERROR");
-                        }
-                    });*/
             },
             result: {
                 render: job => {
@@ -355,7 +295,7 @@ class InterpretationEditor extends LitElement {
                     Swal.fire({
                         title: "Success",
                         icon: "success",
-                        html: "Case info updated successfully"
+                        html: "Case info udpated succesfully"
                     });
                 })
                 .catch(response => {
@@ -381,4 +321,4 @@ class InterpretationEditor extends LitElement {
 
 }
 
-customElements.define("interpretation-editor", InterpretationEditor);
+customElements.define("clinical-interpretation-summary-editor", ClinicalInterpretationSummaryEditor);

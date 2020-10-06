@@ -21,15 +21,6 @@ import "../../tool-header.js";
 import "./variant-interpreter-grid.js";
 import "./variant-interpreter-detail.js";
 import "../opencga-variant-filter.js";
-import "../../commons/opencga-active-filters.js";
-import "../../commons/filters/sample-genotype-filter.js";
-import "../../commons/filters/caveman-caller-filter.js";
-import "../../commons/filters/strelka-caller-filter.js";
-import "../../commons/filters/pindel-caller-filter.js";
-import "../../commons/filters/ascat-caller-filter.js";
-import "../../commons/filters/canvas-caller-filter.js";
-import "../../commons/filters/brass-caller-filter.js";
-import "../../commons/filters/manta-caller-filter.js";
 import GridCommons from "../grid-commons.js";
 
 class InterpretationAudit extends LitElement {
@@ -75,6 +66,7 @@ class InterpretationAudit extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
+
         this._config = {...this.getDefaultConfig(), ...this.config};
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
     }
@@ -87,6 +79,7 @@ class InterpretationAudit extends LitElement {
 
         if ((changedProperties.has("clinicalAnalysis") || changedProperties.has("active")) && this.active) {
             this.clinicalAnalysisObserver();
+            // this.requestUpdate();
         }
 
         if (changedProperties.has("clinicalAnalysisId")) {
@@ -103,7 +96,7 @@ class InterpretationAudit extends LitElement {
             this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
                 .then(response => {
                     this.clinicalAnalysis = response.responses[0].results[0];
-                    this.clinicalAnalysisObserver();
+                    //this.clinicalAnalysisObserver();
                     this.requestUpdate();
                 })
                 .catch(response => {
@@ -180,7 +173,14 @@ class InterpretationAudit extends LitElement {
         this.table.bootstrapTable({
             data: data,
             columns: this._initTableColumns(),
+            sidePagination: "local",
+            // Set table properties, these are read from config property
             uniqueId: "id",
+            pagination: this._config.pagination,
+            pageSize: this._config.pageSize,
+            pageList: this._config.pageList,
+            paginationVAlign: "both",
+            formatShowingRows: this.gridCommons.formatShowingRows,
             gridContext: this,
             formatLoadingMessage: () =>"<div><loading-spinner></loading-spinner></div>",
             onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement)
@@ -190,38 +190,36 @@ class InterpretationAudit extends LitElement {
     _initTableColumns() {
         this._columns = [
             {
-                title: "Author",
-                field: "author",
-                sortable: true
-            },
-            {
-                title: "Action",
-                field: "action",
-                sortable: true
-            },
-            {
-                title: "Message",
-                field: "message",
-                sortable: true
-            },
-            {
                 title: "Date",
                 field: "date",
                 sortable: true,
                 formatter: date => UtilsNew.dateFormatter(date, "D MMM YYYY, h:mm:ss a")
-            }
-        ];
+            },
+            {
+                title: "User",
+                field: "author",
+                sortable: true,
+            },
+            {
+                title: "Event Type",
+                field: "action",
+                sortable: true,
+            },
+            {
+                title: "Message",
+                field: "message"
+            },
 
+        ];
         return this._columns;
     }
 
-    onActionClick(e, _, row) {
-        const {action} = e.target.dataset;
-        console.log("onActionClick", action);
-    }
-
     getDefaultConfig() {
-        return {}
+        return {
+            pagination: true,
+            pageSize: 25,
+            pageList: [25, 50, 100],
+        }
     }
 
     render() {
