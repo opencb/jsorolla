@@ -161,7 +161,7 @@ class InterpretationHistory extends LitElement {
             {
                 title: "methods",
                 field: "methods",
-                formatter: methods => methods?.map(method => method.name).join("<br>")
+                formatter: methods => methods?.map?.(method => method.name).join("<br>")
             },
             {
                 title: "comments",

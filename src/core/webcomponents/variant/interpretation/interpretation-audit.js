@@ -15,9 +15,8 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import ClinicalAnalysisUtils from "../../clinical/clinical-analysis-utils.js";
+import {classMap} from "/web_modules/lit-html/directives/class-map.js";
 import UtilsNew from "../../../utilsNew.js";
-import PolymerUtils from "../../PolymerUtils.js";
 import "../../tool-header.js";
 import "./variant-interpreter-grid.js";
 import "./variant-interpreter-detail.js";
@@ -59,6 +58,9 @@ class InterpretationAudit extends LitElement {
             },
             config: {
                 type: Object
+            },
+            active: {
+                type: Boolean
             }
         };
     }
@@ -66,7 +68,9 @@ class InterpretationAudit extends LitElement {
     _init() {
         this._prefix = "ia-" + UtilsNew.randomString(6);
         this.gridId = this._prefix + "int-audit";
-
+        this.timeline = {};
+        this._timeline = {};
+        this.activeTab = {timeline: true};
     }
 
     connectedCallback() {
@@ -81,7 +85,7 @@ class InterpretationAudit extends LitElement {
             this.requestUpdate();
         }
 
-        if (changedProperties.has("clinicalAnalysis")) {
+        if ((changedProperties.has("clinicalAnalysis") || changedProperties.has("active")) && this.active) {
             this.clinicalAnalysisObserver();
         }
 
@@ -99,7 +103,7 @@ class InterpretationAudit extends LitElement {
             this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
                 .then(response => {
                     this.clinicalAnalysis = response.responses[0].results[0];
-                    //this.clinicalAnalysisObserver();
+                    this.clinicalAnalysisObserver();
                     this.requestUpdate();
                 })
                 .catch(response => {
@@ -110,21 +114,72 @@ class InterpretationAudit extends LitElement {
 
     clinicalAnalysisObserver() {
         if(this.clinicalAnalysis) {
-            this.renderLocalTable()
+            if(this.clinicalAnalysis.audit?.length) {
+                this._audit = [...this.clinicalAnalysis.audit];
+                this.timeline = this.generateTimeline(this._audit);
+                this._timeline = {...this.timeline};
+                this.renderLocalTable(this._audit);
+                this.requestUpdate();
+            }
         } else {
-
+            this.timeline = {};
+            this._timeline = {};
+            this.requestUpdate();
         }
     }
 
-    renderLocalTable() {
+    _changeTab(e) {
+        e.preventDefault();
+        const tabId = e.currentTarget.dataset.id;
+        //the selectors are strictly defined to avoid conflics in tabs in children components
+        $("#interpretation-audit .buttons-wrapper > .view-button", this).removeClass("active");
+        $("#interpretation-audit .content-tab-wrapper > .content-tab", this).hide();
+        $("#" + this._prefix + tabId, this).show();
+        $("#" + this._prefix + tabId).addClass("active");
+        for (const tab in this.activeTab) {
+            this.activeTab[tab] = false;
+        }
+        this.activeTab[tabId] = true;
+        this.requestUpdate();
+    }
 
-        this.data = this.clinicalAnalysis.audit ?? []; //safe in case of empty object;
+    generateTimeline(data = []) {
+        const timeline = {};
+        data.forEach( event => {
+            const d = timeline[event.date.substr(0,8)];
+            if (d) {
+                d.push(event);
+            } else {
+                timeline[event.date.substr(0,8)] = [event];
+            }
+        });
+        return timeline;
+    }
+
+    filter(e) {
+        let keyword = e.target.value ? e.target.value.trim().toLowerCase() : null;
+        if (keyword) {
+            this._audit = this._audit.filter( event => {
+                return ~event.author.toLowerCase().indexOf(keyword)
+                    || ~event.action.toLowerCase().indexOf(keyword)
+                    || ~event.message.toLowerCase().indexOf(keyword)
+                    || ~event.author.toLowerCase().indexOf(keyword)
+                    || ~event.date.toLowerCase().indexOf(keyword)
+            });
+        } else {
+            this._audit = this.clinicalAnalysis.audit;
+        }
+        this._timeline = this.generateTimeline(this._audit);
+        this.renderLocalTable(this._audit);
+        this.requestUpdate();
+    }
+
+    renderLocalTable(data = []) {
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
-            data: this.data,
+            data: data,
             columns: this._initTableColumns(),
-            // Set table properties, these are read from config property
             uniqueId: "id",
             gridContext: this,
             formatLoadingMessage: () =>"<div><loading-spinner></loading-spinner></div>",
@@ -135,25 +190,24 @@ class InterpretationAudit extends LitElement {
     _initTableColumns() {
         this._columns = [
             {
-                title: "ID",
-                field: "id",
-            },
-            {
                 title: "Author",
-                field: "author"
+                field: "author",
+                sortable: true
             },
             {
                 title: "Action",
                 field: "action",
-                formatter: methods => methods?.map(method => method.name).join("<br>")
+                sortable: true
             },
             {
                 title: "Message",
-                field: "message"
+                field: "message",
+                sortable: true
             },
             {
-                title: "date",
+                title: "Date",
                 field: "date",
+                sortable: true,
                 formatter: date => UtilsNew.dateFormatter(date, "D MMM YYYY, h:mm:ss a")
             }
         ];
@@ -177,8 +231,52 @@ class InterpretationAudit extends LitElement {
 
         return html`
             ${this.clinicalAnalysis.audit?.length ? html`
-                <div class="interpretation-audit">
-                    <table id="${this.gridId}"></table>
+                <div class="row" id="interpretation-audit">
+                    <div class="col-md-8">
+                        <div class="form-inline buttons-wrapper">
+                            <div class="btn-group">
+                                <span data-id="timeline" class="view-button btn btn-default ${classMap({active: this.activeTab["timeline"] || UtilsNew.isEmpty(this.activeTab)})}" @click="${this._changeTab}">
+                                    <i class="fas fa-th-list icon-padding"></i>
+                                </span>
+                                <span data-id="table" class="view-button btn btn-default ${classMap({active: this.activeTab["table"]})}" @click="${this._changeTab}">
+                                    <i class="fas fa-table icon-padding"></i>
+                                </span>
+                            </div>
+                            <div class="form-group">
+                                <div class="input-group">
+                                    <div class="input-group-addon"><i class="fas fa-search"></i></div>
+                                    <input type="text" class="form-control" placeholder="Filter events.." @input="${this.filter}">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-8">   
+                        <div class="interpretation-audit">
+                            <div class="content-tab-wrapper">
+                                <div id="${this._prefix}timeline" role="tabpanel" class="active tab-pane content-tab">
+                                    <div class="interpretation-audit-timeline">
+                                        ${Object.keys(this._timeline).sort().reverse().map( date => html`
+                                            <ul class="">
+                                            ${this._timeline[date].length ? html`
+                                                <li class="date">${moment(date, "YYYYMMDD").format("D MMM YYYY")}</li>
+                                                ${this._timeline[date].map( entry => html`
+                                                    <li class="event" data-date="${UtilsNew.dateFormatter(entry.date, "h:mm:ss a")}">
+                                                        <span class="author">${entry.author}</span>
+                                                        <h3>${entry.action}</h3>
+                                                        <p>${entry.message}</p>
+                                                    </li>
+                                                `)}
+                                            ` : null}
+                                        </ul>
+                                        `)}
+                                    </div>
+                                </div>
+                                <div id="${this._prefix}table" role="tabpanel" class="tab-pane content-tab">
+                                    <table id="${this.gridId}"></table>
+                                </div>
+                            </div>
+                        </div> 
+                    </div>
                 </div>` : html`
             <div class="alert alert-info"><i class="fas fa-3x fa-info-circle align-middle"></i> No Audit available yet.</div>
             `}

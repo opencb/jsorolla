@@ -615,9 +615,9 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                                 _this.notifyClinicalAnalysisWrite();
                                 _this.onClear();
                             })
-                            .catch(function(response) {
+                            .catch(response => {
                                 console.error(response);
-                                new NotificationQueue().push(response.error, null, "ERROR");
+                                this.notifyError(response);
                             });
                     } else {
                         opencgaSession.opencgaClient.clinical().update(data, {study: opencgaSession.study.fqn})
@@ -626,29 +626,14 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                                 _this.notifyClinicalAnalysisWrite();
                                 _this.onClear();
                             })
-                            .catch(restResponse => {
-                                console.error(restResponse);
-                                if (restResponse.getEvents?.("ERROR")?.length) {
-                                    new NotificationQueue().push("Error creating Clinical Analysis", restResponse.getEvents("ERROR").map(error => error.message).join("<br>"), "ERROR");
-                                } else {
-                                    new NotificationQueue().push("Error creating Clinical Analysis", null, "ERROR");
-                                }
+                            .catch(response => {
+                                console.log(response);
+                                this.notifyError(response);
                             });
                     }
-                } catch (e) {
-                    console.log(e);
-                    // in case it is a restResponse
-                    if (e?.getEvents?.("ERROR")?.length) {
-                        const errors = e.getEvents("ERROR");
-                        errors.forEach(error => {
-                            new NotificationQueue().push(error.name, error.message, "ERROR");
-                            console.log(error);
-                        });
-                    } else if (e instanceof Error) {
-                        new NotificationQueue().push(e.name, e.message, "ERROR");
-                    } else {
-                        new NotificationQueue().push("Generic Error", JSON.stringify(e), "ERROR");
-                    }
+                } catch (response) {
+                    console.log(response);
+                    this.notifyError(response);
                 }
             },
             result: {
@@ -657,6 +642,19 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                 }
             }
         };
+    }
+
+    notifyError(response) {
+        if (response?.getEvents?.("ERROR")?.length) {
+            const errors = response.getEvents("ERROR");
+            errors.forEach(error => {
+                new NotificationQueue().push(error.name, error.message, "ERROR");
+            });
+        } else if (response instanceof Error) {
+            new NotificationQueue().push(response.name, response.message, "ERROR");
+        } else {
+            new NotificationQueue().push("Generic Error", JSON.stringify(response), "ERROR");
+        }
     }
 
     onClear() {
