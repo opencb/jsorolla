@@ -347,85 +347,80 @@ class VariantInterpreterBrowserCancer extends LitElement {
                                     <div>Genotype filter for <span style="font-style: italic; word-break: break-all">${this.somaticSample?.id}</span></div>
                                     <sample-genotype-filter .sample="${this.somaticSample}" @filterChange="${eventHandler}"></sample-genotype-filter>`,
                             },
-                            // {
-                            //     id: "caveman-caller",
-                            //     title: "Caveman Caller",
-                            //     render: (eventHandler, preparedQuery, opencgaSession) => html`
-                            //         <div>File filters for <span style="font-style: italic; word-break: break-all">${this.callerToFile["caveman"].name}</span></div>
-                            //         <caveman-caller-filter .query="${{FILTER: "PASS"}}" @filterChange="${e => this.onVariantCallerFilterChange("caveman", eventHandler, e)}"></caveman-caller-filter>`,
-                            //     visible: () => this.callerToFile && this.callerToFile["caveman"]
-                            // },
                             {
                                 id: "caveman-caller",
                                 title: "Caveman Caller",
                                 description: () => html`File filters for <span style="font-style: italic; word-break: break-all">${this.callerToFile["caveman"].name}</span>`,
-                                fileId: `${this.callerToFile ? this.callerToFile["caveman"].name : null}`,
                                 visible: () => this.callerToFile && this.callerToFile["caveman"],
-                                callback: (filter, query) => this.onVariantCallerFilterChange(filter, query)
+                                callback: (filter, query) => this.onVariantCallerFilterChange(filter, query),
+                                params: {
+                                    fileId: `${this.callerToFile ? this.callerToFile["caveman"]?.name : null}`,
+                                    query: "FILTER=PASS"
+                                }
                             },
                             {
                                 id: "strelka-caller",
                                 title: "Strelka Caller",
-                                render: (eventHandler, query) => html`
-                                    <div>File filters for <span style="font-style: italic; word-break: break-all">${this.callerToFile["strelka"].name}</span></div>
-                                    <strelka-caller-filter @filterChange="${e => this.onVariantCallerFilterChange("strelka", e)}"></strelka-caller-filter>`,
-                                visible: () => this.callerToFile && this.callerToFile["strelka"]
+                                description: () => html`File filters for <span style="font-style: italic; word-break: break-all">${this.callerToFile["strelka"].name}</span>`,
+                                visible: () => this.callerToFile && this.callerToFile["strelka"],
+                                callback: (filter, query) => this.onVariantCallerFilterChange(filter, query),
+                                params: {
+                                    fileId: `${this.callerToFile ? this.callerToFile["strelka"]?.name : null}`,
+                                    query: "FILTER=PASS"
+                                }
                             },
-                            // {
-                            //     id: "strelka-caller",
-                            //     title: "Strelka Caller",
-                            //     description: () => html`File filters for <span style="font-style: italic; word-break: break-all">${this.callerToFile["strelka"].name}</span>`,
-                            //     fileId: `${this.callerToFile ? this.callerToFile["strelka"].name : null}`,
-                            //     visible: () => this.callerToFile && this.callerToFile["strelka"],
-                            //     callback: (filter, query) => this.onVariantCallerFilterChange(filter, query)
-                            // },
-                            // {
-                            //     id: "pindel-caller",
-                            //     title: "Pindel Caller",
-                            //     render: (eventHandler, query) => html`
-                            //         <div>File filters for <span style="font-style: italic; word-break: break-all">${this.callerToFile["pindel"].name}</span></div>
-                            //         <pindel-caller-filter @filterChange="${e => this.onVariantCallerFilterChange("pindel", e)}"></pindel-caller-filter>`,
-                            //     visible: () => this.callerToFile && this.callerToFile["pindel"]
-                            // },
                             {
                                 id: "pindel-caller",
                                 title: "Pindel Caller",
                                 description: () => html`File filters for <span style="font-style: italic; word-break: break-all">${this.callerToFile["pindel"].name}</span>`,
-                                fileId: `${this.callerToFile ? this.callerToFile["pindel"].name : null}`,
                                 visible: () => this.callerToFile && this.callerToFile["pindel"],
-                                callback: (filter, query) => this.onVariantCallerFilterChange(filter, query)
+                                callback: (filter, query) => this.onVariantCallerFilterChange(filter, query),
+                                params: {
+                                    fileId: `${this.callerToFile ? this.callerToFile["pindel"]?.name : null}`,
+                                    query: "FILTER=PASS"
+                                }
                             },
                             {
                                 id: "ascat-caller",
                                 title: "Ascat Caller",
-                                render: (eventHandler, query) => html`
-                                    <div>File filters for <span style="font-style: italic; word-break: break-all">${this.callerToFile["ascat"].name}</span></div>
-                                    <ascat-caller-filter @filterChange="${e => this.onVariantCallerFilterChange("ascat", e)}"></ascat-caller-filter>`,
-                                visible: () => this.callerToFile && this.callerToFile["ascat"]
+                                description: () => html`File filters for <span style="font-style: italic; word-break: break-all">${this.callerToFile["ascat"].name}</span>`,
+                                visible: () => this.callerToFile && this.callerToFile["ascat"],
+                                callback: (filter, query) => this.onVariantCallerFilterChange(filter, query),
+                                params: {
+                                    fileId: `${this.callerToFile ? this.callerToFile["ascat"]?.name : null}`,
+                                }
                             },
                             {
                                 id: "canvas-caller",
                                 title: "Canvas Caller",
-                                render: (eventHandler, query) => html`
-                                    <div>File filters for <span style="font-style: italic; word-break: break-all">${this.callerToFile["canvas"].name}</span></div>
-                                    <canvas-caller-filter @filterChange="${e => this.onVariantCallerFilterChange("canvas", e)}"></canvas-caller-filter>`,
-                                visible:() => this.callerToFile && this.callerToFile["canvas"]
+                                description: () => html`File filters for <span style="font-style: italic; word-break: break-all">${this.callerToFile["canvas"].name}</span>`,
+                                visible: () => this.callerToFile && this.callerToFile["canvas"],
+                                callback: (filter, query) => this.onVariantCallerFilterChange(filter, query),
+                                params: {
+                                    fileId: `${this.callerToFile ? this.callerToFile["canvas"]?.name : null}`,
+                                    query: "FILTER=PASS"
+                                }
                             },
                             {
                                 id: "brass-caller",
                                 title: "Brass Caller",
-                                render: (eventHandler, query) => html`
-                                    <div>File filters for <span style="font-style: italic; word-break: break-all">${this.callerToFile["brass"].name}</span></div>
-                                    <brass-caller-filter @filterChange="${e => this.onVariantCallerFilterChange("brass", e)}"></brass-caller-filter>`,
-                                visible: () => this.callerToFile && this.callerToFile["brass"]
+                                description: () => html`File filters for <span style="font-style: italic; word-break: break-all">${this.callerToFile["brass"].name}</span>`,
+                                visible: () => this.callerToFile && this.callerToFile["brass"],
+                                callback: (filter, query) => this.onVariantCallerFilterChange(filter, query),
+                                params: {
+                                    fileId: `${this.callerToFile ? this.callerToFile["brass"]?.name : null}`,
+                                }
                             },
                             {
                                 id: "manta-caller",
                                 title: "Manta Caller",
-                                render: (eventHandler, query) => html`
-                                    <div>File filters for <span style="font-style: italic; word-break: break-all">${this.callerToFile["manta"].name}</span></div>
-                                    <manta-caller-filter @filterChange="${e => this.onVariantCallerFilterChange("manta", e)}"></manta-caller-filter>`,
-                                visible: () => this.callerToFile && this.callerToFile["manta"]
+                                description: () => html`File filters for <span style="font-style: italic; word-break: break-all">${this.callerToFile["manta"].name}</span>`,
+                                visible: () => this.callerToFile && this.callerToFile["manta"],
+                                callback: (filter, query) => this.onVariantCallerFilterChange(filter, query),
+                                params: {
+                                    fileId: `${this.callerToFile ? this.callerToFile["manta"]?.name : null}`,
+                                    query: "FILTER=PASS"
+                                }
                             },
                         ]
                     },
