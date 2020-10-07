@@ -484,8 +484,6 @@ export default class DataForm extends LitElement {
         let width = this._getWidth(element);
         const [min = "", max = ""] = element.allowedValues || [];
 
-    //     <input type="number" min=${min} max=${max} step="0.01" placeholder="${element.display?.placeholder || ""}" ?disabled=${disabled} ?required=${element.required} class="form-control input-sm"
-    // value="${value !== undefined ? value : ""}" @input="${e => this.onFilterChange(element.field, e.target.value)}">
         return html`
             <div class="">
                 <number-field-filter label="Value" value="${value !== undefined ? value : ""}" 
