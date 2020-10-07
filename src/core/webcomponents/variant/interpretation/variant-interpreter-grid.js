@@ -159,6 +159,7 @@ export default class VariantInterpreterGrid extends LitElement {
     }
 
     renderRemoteVariants() {
+        debugger
         if (this.clinicalAnalysis && this._timestamp && this.clinicalAnalysis.interpretation
             && this.clinicalAnalysis.interpretation.attributes.modificationDate === this._timestamp) {
             console.warn("grid refresh suppressed", this.clinicalAnalysis.interpretation);
@@ -166,6 +167,7 @@ export default class VariantInterpreterGrid extends LitElement {
         }
 
         if (!this.query?.sample) {
+            console.warn("No sample found, query: ", this.query)
             return;
         }
 

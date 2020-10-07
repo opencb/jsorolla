@@ -64,14 +64,12 @@ class VariantInterpreterBrowserRd extends LitElement {
     _init() {
         this._prefix = UtilsNew.randomString(8);
 
-        this.samples = [];
+        // this.samples = [];
         this.variant = null;
         this.reportedVariants = [];
 
         this.query = {};
-        // this.search = {};
         this.activeFilterFilters = [];
-
         this.predefinedFilter = false; // flag that hides the warning message in active-filter for predefined samples value
 
         this.notSavedVariantIds = 0;
@@ -118,9 +116,11 @@ class VariantInterpreterBrowserRd extends LitElement {
                 this.query = {};
             }
 
+            // Internal private copy of the sample being interpreted in this case
+            this._sampleId = null;
             switch (this.clinicalAnalysis.type.toUpperCase()) {
                 case "SINGLE":
-                    this.query.sample = this.clinicalAnalysis.proband.samples[0].id;
+                    this._sampleId = this.clinicalAnalysis.proband.samples[0].id;
                     break;
                 case "FAMILY":
                     let sampleIds = [this.clinicalAnalysis.proband.samples[0].id];
@@ -130,15 +130,16 @@ class VariantInterpreterBrowserRd extends LitElement {
                             sampleIds.push(member.samples[0].id);
                         }
                     }
-                    this.query.sample = sampleIds.join(";");
+                    this._sampleId = sampleIds.join(";");
                     break;
                 case "CANCER":
                     let _sample = this.clinicalAnalysis.proband.samples.find(sample => !sample.somatic);
                     if (_sample) {
-                        this.query.sample = _sample.id;
+                        this._sampleId = _sample.id;
                     }
                     break;
             }
+            this.query.sample = this._sampleId;
         }
 
         // Check if QC filters exist and add them to active filter
@@ -248,13 +249,6 @@ class VariantInterpreterBrowserRd extends LitElement {
         ClinicalAnalysisUtils.updateInterpretation(this.clinicalAnalysis, this.opencgaSession, f);
     }
 
-    onSampleChange(e) {
-        const _samples = e.detail.samples;
-        this.samples = _samples.slice();
-        this.dispatchEvent(new CustomEvent("samplechange", {detail: e.detail, bubbles: true, composed: true}));
-        // this._initGenotypeSamples(this.samples);
-    }
-
     onVariantFilterChange(e) {
         this.preparedQuery = e.detail.query;
         // TODO quick fix to avoid warning message on sample
@@ -267,24 +261,22 @@ class VariantInterpreterBrowserRd extends LitElement {
 
     onVariantFilterSearch(e) {
         this.preparedQuery = e.detail.query;
-        // this.executedQuery = {...this.preparedQuery};
         this.executedQuery = e.detail.query;
         this.requestUpdate();
     }
-
 
     onActiveFilterChange(e) {
         // this.query = {...this.predefinedFilter, ...e.detail}; // we add this.predefinedFilter in case sample field is not present
         this.query = {...e.detail}; // we add this.predefinedFilter in case sample field is not present
         this.preparedQuery = {...e.detail};
+        // TODO is this really needed? it seems to work without this line.
         this.executedQuery = {...e.detail};
         this.requestUpdate();
     }
 
     onActiveFilterClear() {
-        debugger
         // this.query = {study: this.opencgaSession.study.fqn, ...this.predefinedFilter};
-        this.query = {study: this.opencgaSession.study.fqn};
+        this.query = {study: this.opencgaSession.study.fqn, sample: this._sampleId};
         this.preparedQuery = {...this.query};
         this.executedQuery = {...this.query};
         this.requestUpdate();
@@ -596,8 +588,7 @@ class VariantInterpreterBrowserRd extends LitElement {
                                             .consequenceTypes="${consequenceTypes}"
                                             .config="${this._config.filter}"
                                             @queryChange="${this.onVariantFilterChange}"
-                                            @querySearch="${this.onVariantFilterSearch}"
-                                            @samplechange="${this.onSampleChange}">
+                                            @querySearch="${this.onVariantFilterSearch}">
                     </opencga-variant-filter>
                 </div> <!-- Close col-md-2 -->
                 

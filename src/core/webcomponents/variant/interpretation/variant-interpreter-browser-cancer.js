@@ -71,7 +71,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
     _init() {
         this._prefix = UtilsNew.randomString(8);
 
-        this.samples = [];
+        // this.samples = [];
         this.variant = null;
         this.reportedVariants = [];
 
@@ -113,45 +113,28 @@ class VariantInterpreterBrowserCancer extends LitElement {
                 this.preparedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
                 this.executedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
             } else {
-                this.preparedQuery = {study: this.opencgaSession.study.fqn, sample: this.predefinedFilter};
-                this.executedQuery = {study: this.opencgaSession.study.fqn, sample: this.predefinedFilter};
+                // this.preparedQuery = {study: this.opencgaSession.study.fqn, sample: this.predefinedFilter};
+                // this.executedQuery = {study: this.opencgaSession.study.fqn, sample: this.predefinedFilter};
             }
         }
         this.requestUpdate();
     }
 
-    /**
-     * Fetch the CinicalAnalysis object from REST and trigger the observer call.
-     */
-    clinicalAnalysisIdObserver() {
-        if (this.opencgaSession && this.clinicalAnalysisId) {
-            this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
-                .then(response => {
-                    this.clinicalAnalysis = response.responses[0].results[0];
-                    this.clinicalAnalysisObserver();
-                    this.requestUpdate();
-                })
-                .catch(response => {
-                    console.error("An error occurred fetching clinicalAnalysis: ", response);
-                });
-        }
-    }
-
     clinicalAnalysisObserver() {
         debugger
-        this.somaticSample = this.clinicalAnalysis.proband.samples.find(sample => sample.somatic);
-        if (this.somaticSample) {
+        this._sample = this.clinicalAnalysis.proband.samples.find(sample => sample.somatic);
+        if (this._sample) {
             // Set query object
             if (!this.query?.sample) {
                 this.query = {
                     ...this.query,
-                    sample: this.somaticSample.id,
+                    sample: this._sample.id,
                 }
                 // this.predefinedFilter = {...this.query};
             }
 
             this.callerToFile = {};
-            this.opencgaSession.opencgaClient.files().search({sampleIds: this.somaticSample.id, study: this.opencgaSession.study.fqn})
+            this.opencgaSession.opencgaClient.files().search({sampleIds: this._sample.id, study: this.opencgaSession.study.fqn})
                 .then(fileResponse => {
                     this.files = fileResponse.response[0].results;
                     // Prepare a map from caller to File
@@ -193,6 +176,24 @@ class VariantInterpreterBrowserCancer extends LitElement {
 
         if (this.clinicalAnalysis?.interpretation?.primaryFindings?.length) {
             this.savedVariants = this.clinicalAnalysis?.interpretation?.primaryFindings?.map(v => v.id);
+        }
+
+        // this.requestUpdate();
+    }
+
+    /**
+     * Fetch the CinicalAnalysis object from REST and trigger the observer call.
+     */
+    clinicalAnalysisIdObserver() {
+        if (this.opencgaSession && this.clinicalAnalysisId) {
+            this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
+                .then(response => {
+                    this.clinicalAnalysis = response.responses[0].results[0];
+                    this.clinicalAnalysisObserver();
+                })
+                .catch(response => {
+                    console.error("An error occurred fetching clinicalAnalysis: ", response);
+                });
         }
     }
 
@@ -253,40 +254,36 @@ class VariantInterpreterBrowserCancer extends LitElement {
         ClinicalAnalysisUtils.updateInterpretation(this.clinicalAnalysis, this.opencgaSession, f);
     }
 
-    onSampleChange(e) {
-        const _samples = e.detail.samples;
-        this.samples = _samples.slice();
-        this.dispatchEvent(new CustomEvent("samplechange", {detail: e.detail, bubbles: true, composed: true}));
-        // this._initGenotypeSamples(this.samples);
-    }
-
     onVariantFilterChange(e) {
         this.preparedQuery = e.detail.query;
         // TODO quick fix to avoid warning message on sample
-        if (!this.predefinedFilter) {
-            this.executedQuery = e.detail.query;
-            this.predefinedFilter = e.detail.query;
-        }
+        // if (!this.predefinedFilter) {
+        //     this.executedQuery = e.detail.query;
+        //     this.predefinedFilter = e.detail.query;
+        // }
         this.requestUpdate();
     }
 
     onVariantFilterSearch(e) {
         this.preparedQuery = e.detail.query;
-        // this.executedQuery = {...this.preparedQuery};
         this.executedQuery = e.detail.query;
         this.requestUpdate();
     }
 
-
     onActiveFilterChange(e) {
-        this.query = {...this.predefinedFilter, ...e.detail}; // we add this.predefinedFilter in case sample field is not present
+        // this.query = {...this.predefinedFilter, ...e.detail}; // we add this.predefinedFilter in case sample field is not present
+        this.query = {...e.detail}; // we add this.predefinedFilter in case sample field is not present
         this.preparedQuery = {...e.detail};
+        // TODO is this really needed? it seems to work without this line.
+        this.executedQuery = {...e.detail};
         this.requestUpdate();
     }
 
     onActiveFilterClear() {
-        this.query = {study: this.opencgaSession.study.fqn, ...this.predefinedFilter};
+        // this.query = {study: this.opencgaSession.study.fqn, ...this.predefinedFilter};
+        this.query = {study: this.opencgaSession.study.fqn, sample: this._sample.id};
         this.preparedQuery = {...this.query};
+        this.executedQuery = {...this.query};
         this.requestUpdate();
     }
 
@@ -344,8 +341,8 @@ class VariantInterpreterBrowserCancer extends LitElement {
                                 id: "sample-genotype",
                                 title: "Sample Genotype",
                                 render: (eventHandler, query) => html`
-                                    <div>Genotype filter for <span style="font-style: italic; word-break: break-all">${this.somaticSample?.id}</span></div>
-                                    <sample-genotype-filter .sample="${this.somaticSample}" @filterChange="${eventHandler}"></sample-genotype-filter>`,
+                                    <div>Genotype filter for <span style="font-style: italic; word-break: break-all">${this._sample?.id}</span></div>
+                                    <sample-genotype-filter .sample="${this._sample}" @filterChange="${eventHandler}"></sample-genotype-filter>`,
                             },
                             {
                                 id: "caveman-caller",
@@ -690,8 +687,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                                             .consequenceTypes="${this.consequenceTypes}"
                                             .config="${this._config.filter}"
                                             @queryChange="${this.onVariantFilterChange}"
-                                            @querySearch="${this.onVariantFilterSearch}"
-                                            @samplechange="${this.onSampleChange}">
+                                            @querySearch="${this.onVariantFilterSearch}">
                     </opencga-variant-filter>
                 </div> <!-- Close col-md-2 -->
                 
