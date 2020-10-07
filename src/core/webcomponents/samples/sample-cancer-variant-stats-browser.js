@@ -417,7 +417,8 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
             if (!this.queries[type]) {
                 this.queries[type] = {};
             }
-            this.queries[type][caller] = Object.entries(value.detail.value).map(([k, v]) => k + v).join(";");
+            // this.queries[type][caller] = Object.entries(value.detail.value).map(([k, v]) => k + v).join(";");
+            this.queries[type][caller] = value.detail.value;
         } else {
             delete this.queries[type][caller];
         }
