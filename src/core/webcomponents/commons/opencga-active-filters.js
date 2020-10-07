@@ -678,7 +678,7 @@ export default class OpencgaActiveFilters extends LitElement {
                         
                         <!-- TODO we probably need a new property for this -->
                         ${this.showSelectFilters(this.opencgaClient._config) ? html`
-                            <div class="dropdown">
+                            <div class="dropdown saved-filter-wrapper">
     
                                 <button type="button" class="btn btn-primary btn-sm dropdown-toggle ripple" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                     <i class="fa fa-filter icon-padding" aria-hidden="true"></i> Filters <span class="caret"></span>
