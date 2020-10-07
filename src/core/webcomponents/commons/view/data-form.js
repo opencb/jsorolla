@@ -419,7 +419,7 @@ export default class DataForm extends LitElement {
                 // const sectionWidth = element?.display?.width ? `col-md-${element.display.width}` : "col-md-12";
                 const sectionWidth = element?.display?.width ? `col-md-${element.display.width}` : "";
                 return html`
-                    <div class="form-group col-md-12">
+                    <div class="form-group">
                         <div class="${sectionWidth}">
                             <label class="control-label">${title}</label>
                             <div>
@@ -484,10 +484,14 @@ export default class DataForm extends LitElement {
         let width = this._getWidth(element);
         const [min = "", max = ""] = element.allowedValues || [];
 
+    //     <input type="number" min=${min} max=${max} step="0.01" placeholder="${element.display?.placeholder || ""}" ?disabled=${disabled} ?required=${element.required} class="form-control input-sm"
+    // value="${value !== undefined ? value : ""}" @input="${e => this.onFilterChange(element.field, e.target.value)}">
         return html`
             <div class="">
-                <input type="number" min=${min} max=${max} step="0.01" placeholder="${element.display?.placeholder || ""}" ?disabled=${disabled} ?required=${element.required} class="form-control input-sm"
-                        value="${value !== undefined ? value : ""}" @input="${e => this.onFilterChange(element.field, e.target.value)}">
+                <number-field-filter label="Value" value="${value !== undefined ? value : ""}" 
+                    min=${min} max=${max} step="0.01" placeholder="${element.display?.placeholder || ""}" 
+                    @filterChange="${e => this.onFilterChange(element.field, e.detail.value)}">
+                </number-field-filter>
             </div>
         `;
     }

@@ -86,13 +86,20 @@ export default class TextFieldFilter extends LitElement {
 
     filterChange(e) {
         e.stopPropagation();
+
         let field = e.target.dataset.field;
         this.state[field] = e.target.value;
-        //console.log("filterChange", this.state.value ? (this.key + (this.state.comparator ?? "") + this.state.value) : null)
 
+        let _value;
+        if (this.key) {
+            _value =  this.state.value ? (this.key + (this.state.comparator ?? "") + this.state.value) : null;
+        } else {
+            _value = (this.state.comparator ?? "") + this.state.value;
+        }
         const event = new CustomEvent("filterChange", {
             detail: {
-                value: this.state.value ? (this.key + (this.state.comparator ?? "") + this.state.value) : null
+                // value: this.state.value ? (this.key + (this.state.comparator ?? "") + this.state.value) : null
+                value: _value
             },
             bubbles: true,
             composed: true
@@ -119,7 +126,7 @@ export default class TextFieldFilter extends LitElement {
                     padding: 0px 10px
                 }
             </style>
-            <div class="number-field-filter form-group">
+            <div class="number-field-filter">
                 ${this.label ? html`<div class="col-md-${this._config.layout[0]} control-label" data-toggle="tooltip" data-placement="top" title="${this.label}">${this.label}</div>` : null}
                 ${this._config.comparator ? html`<div class="col-md-${this._config.layout[1]}">
                     <select id="${this._prefix}Comparator" name="${this._prefix}Comparator"

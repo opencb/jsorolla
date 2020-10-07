@@ -63,7 +63,7 @@ export default class BrassCallerFilter extends LitElement {
             if (e.detail.param === "type") {
                 this.filter["type"] = e.detail.value;
             } else {
-                this.filter[e.detail.param] = ">=" + e.detail.value;
+                this.filter[e.detail.param] = e.detail.value;
             }
         } else {
             delete this.filter[e.detail.param];
