@@ -314,12 +314,13 @@ export default class SampleVariantStatsBrowser extends LitElement {
         return {
             title: "Sample Variant Stats",
             icon: "fas fa-search",
-            searchButtonText: "Search",
             showTitle: true,
             titleClass: "",
             titleIcon: "fas fa-user",
             filter: {
                 title: "Filter",
+                searchButton: true,
+                searchButtonText: "Run",
                 activeFilters: {
                     alias: {
                         ct: "Consequence Types"

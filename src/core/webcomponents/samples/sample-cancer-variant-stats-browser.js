@@ -427,12 +427,13 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
         return {
             title: "Cancer Variant Plots",
             icon: "fas fa-search",
-            searchButtonText: "Search",
             showTitle: true,
             titleClass: "",
             titleIcon: "fas fa-user",
             filter: {
                 title: "Filter",
+                searchButton: true,
+                searchButtonText: "Run",
                 activeFilters: {
                     alias: {
                         ct: "Consequence Types"

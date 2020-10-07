@@ -147,7 +147,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                     ...this.query,
                     sample: this.somaticSample.id,
                 }
-                this.predefinedFilter = {...this.query};
+                // this.predefinedFilter = {...this.query};
             }
 
             this.callerToFile = {};
@@ -332,7 +332,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                         "ct": "Consequence Types",
                     },
                     complexFields: ["sample", "fileData"],
-                    hiddenFields: [],
+                    hiddenFields: ["sample"],
                     lockedFields: [{id: "sample"}]
                 },
                 sections: [     // sections and subsections, structure and order is respected
@@ -377,7 +377,6 @@ class VariantInterpreterBrowserCancer extends LitElement {
                                 callback: (filter, query) => this.onVariantCallerFilterChange(filter, query),
                                 params: {
                                     fileId: `${this.callerToFile ? this.callerToFile["pindel"]?.name : null}`,
-                                    query: "FILTER=PASS"
                                 }
                             },
                             {
@@ -461,11 +460,6 @@ class VariantInterpreterBrowserCancer extends LitElement {
                         title: "Consequence Type",
                         collapsed: true,
                         fields: [
-                            // {
-                            //     id: "consequenceType",
-                            //     title: "Select SO terms",
-                            //     tooltip: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined"
-                            // },
                             {
                                 id: "consequenceTypeSelect",
                                 title: "Select SO terms",
@@ -505,11 +499,6 @@ class VariantInterpreterBrowserCancer extends LitElement {
                                 title: "ClinVar Accessions",
                                 tooltip: tooltips.clinvar
                             },
-                            // {
-                            //     id: "fullTextSearch",
-                            //     title: "Full-text search on HPO, ClinVar, protein domains or keywords. Some OMIM and Orphanet IDs are also supported",
-                            //     tooltip: tooltips.fullTextSearch
-                            // }
                         ]
                     },
                     {

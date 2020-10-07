@@ -258,11 +258,10 @@ class VariantInterpreterBrowserRd extends LitElement {
     onVariantFilterChange(e) {
         this.preparedQuery = e.detail.query;
         // TODO quick fix to avoid warning message on sample
-        debugger
-        if (!this.predefinedFilter) {
-            this.executedQuery = e.detail.query;
-            this.predefinedFilter = e.detail.query;
-        }
+        // if (!this.predefinedFilter) {
+        //     this.executedQuery = e.detail.query;
+        //     this.predefinedFilter = e.detail.query;
+        // }
         this.requestUpdate();
     }
 
@@ -275,14 +274,19 @@ class VariantInterpreterBrowserRd extends LitElement {
 
 
     onActiveFilterChange(e) {
-        this.query = {...this.predefinedFilter, ...e.detail}; // we add this.predefinedFilter in case sample field is not present
+        // this.query = {...this.predefinedFilter, ...e.detail}; // we add this.predefinedFilter in case sample field is not present
+        this.query = {...e.detail}; // we add this.predefinedFilter in case sample field is not present
         this.preparedQuery = {...e.detail};
+        this.executedQuery = {...e.detail};
         this.requestUpdate();
     }
 
     onActiveFilterClear() {
-        this.query = {study: this.opencgaSession.study.fqn, ...this.predefinedFilter};
+        debugger
+        // this.query = {study: this.opencgaSession.study.fqn, ...this.predefinedFilter};
+        this.query = {study: this.opencgaSession.study.fqn};
         this.preparedQuery = {...this.query};
+        this.executedQuery = {...this.query};
         this.requestUpdate();
     }
 
@@ -304,7 +308,7 @@ class VariantInterpreterBrowserRd extends LitElement {
                         "ct": "Consequence Types",
                     },
                     complexFields: ["sample", "genotype"],
-                    hiddenFields: [],
+                    hiddenFields: ["sample"],
                     lockedFields: [{id: "sample"}]
                 },
                 sections: [
@@ -376,11 +380,6 @@ class VariantInterpreterBrowserRd extends LitElement {
                                 title: "Select SO terms",
                                 tooltip: tooltips.consequenceTypeSelect
                             }
-                            // {
-                            //     id: "consequenceTypeSelect",
-                            //     title: "Select SO terms",
-                            //     tooltip: tooltips.consequenceTypeSelect
-                            // },
                         ]
                     },
                     {
