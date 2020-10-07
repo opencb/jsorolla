@@ -132,8 +132,8 @@ class VariantInterpreterLanding extends LitElement {
 
         const tabId = e.currentTarget.dataset.id;
         //the selectors are strictly defined to avoid conflics in tabs in children components
-        $("#variant-interpreter-landing .tablist > .content-pills", this).removeClass("active");
-        $("#variant-interpreter-landing .content-tab-wrapper > .content-tab", this).hide();
+        $("#variant-interpreter-landing > div > .tablist > .content-pills", this).removeClass("active");
+        $("#variant-interpreter-landing > .content-tab-wrapper > .content-tab", this).hide();
         $("#" + this._prefix + tabId, this).show();
         $("#" + this._prefix + tabId).addClass("active");
         for (const tab in this.activeTab) {
@@ -444,9 +444,10 @@ class VariantInterpreterLanding extends LitElement {
                     </div>                    
                     <div id="${this._prefix}Audit" role="tabpanel" class="tab-pane content-tab col-md-10 col-md-offset-1">
                         <tool-header title="Audit Log" class="bg-white"></tool-header>
-                        <div style="padding: 0px 20px">
-                            <interpretation-audit   .opencgaSession="${this.opencgaSession}"
-                                                    .clinicalAnalysis="${this.clinicalAnalysis}">
+                        <div style="padding: 0px 10px">
+                            <interpretation-audit .opencgaSession="${this.opencgaSession}"
+                                                    .clinicalAnalysis="${this.clinicalAnalysis}"
+                                                    .active="${this.activeTab["Audit"]}">
                             </interpretation-audit>
                         </div> 
                     </div> 
