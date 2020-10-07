@@ -83,7 +83,6 @@ export default class VariantInterpreterGrid extends LitElement {
 
         this._config = {...this.getDefaultConfig(), ...this.config};
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
-
     }
 
     firstUpdated(_changedProperties) {
@@ -1103,20 +1102,33 @@ export default class VariantInterpreterGrid extends LitElement {
 
             // Add sample columns
             if (this.clinicalAnalysis.proband && this.clinicalAnalysis.proband.samples) {
+                // We only render somatic sample
+                let samples = null;
+                debugger
+                if (this.query && this.query.sample) {
+                    samples = [];
+                    let _sampleGenotypes = this.query.sample.split(";");
+                    for (let sampleGenotype of _sampleGenotypes) {
+                        let sampleId = sampleGenotype.split(":")[0];
+                        samples.push(this.clinicalAnalysis.proband.samples.find(s => s.id === sampleId));
+                    }
+                } else {
+                    samples = this.clinicalAnalysis.proband.samples.filter(s => s.somatic);
+                }
+
                 _columns[0].splice(5, 0, {
                     title: `Sample Genotypes`,
                     rowspan: 1,
-                    colspan: this.clinicalAnalysis.proband.samples.length,
+                    colspan: samples.length,
                     align: "center"
                 });
-
-                for (let i = 0; i < this.clinicalAnalysis.proband.samples.length; i++) {
-                    let sample = this.clinicalAnalysis.proband.samples[i];
-                    let color = sample.somatic ? "darkred" : "black";
+                for (let i = 0; i < samples.length; i++) {
+                    let sample = samples[i];
+                    let color = sample?.somatic ? "darkred" : "black";
 
                     _columns[1].splice(i, 0, {
                         title: `<span>${sample.id}</span><br>
-                            <span style="color: ${color};font-style: italic">${sample.somatic ? "somatic" : "germline"}</span>`,
+                                <span style="color: ${color};font-style: italic">${sample?.somatic ? "somatic" : "germline"}</span>`,
                         field: {
                             sampleId: sample.id,
                             quality: this._config.quality,

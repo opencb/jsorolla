@@ -150,7 +150,6 @@ export default class ToggleSwitch extends LitElement {
     }
 
     render() {
-        debugger
         return html`
             <div class="">
                 <div class="btn-group"> 

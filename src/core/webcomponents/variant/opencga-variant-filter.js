@@ -16,7 +16,6 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "./../../utilsNew.js";
-import PolymerUtils from "../PolymerUtils.js";
 import "../commons/variant-modal-ontology.js";
 import "../commons/filters/cadd-filter.js";
 import "../commons/filters/biotype-filter.js";
@@ -61,18 +60,11 @@ export default class OpencgaVariantFilter extends LitElement {
             query: {
                 type: Object
             },
-            // TODO variant-browser doesn't send this prop..
-            clinicalAnalysis: {
-                type: Object
-            },
             cellbaseClient: {
                 type: Object
             },
             populationFrequencies: {
                 type: Object
-            },
-            searchButton: {
-                type: Boolean
             },
             consequenceTypes: {
                 type: Object
@@ -83,22 +75,15 @@ export default class OpencgaVariantFilter extends LitElement {
         };
     }
 
-
     _init() {
-        this._prefix = `ovf${UtilsNew.randomString(6)}_`;
+        this._prefix = UtilsNew.randomString(8);
 
         this._initialised = false;
-        // this._reset = true;
 
         this.query = {}; // NOTE when no query param (or undefined) is passed to this component, this initialization is replaced with undefined value
         this.preparedQuery = {};
 
-        this.modalHpoActive = false;
-        this.modalGoActive = false;
-
-        // this.samples = [];
         this.updateClinicalFilterQuery = true;
-        this.searchButton = true;
     }
 
     connectedCallback() {
@@ -135,9 +120,6 @@ export default class OpencgaVariantFilter extends LitElement {
         if (changedProperties.has("opencgaSession")) {
             this.opencgaSessionObserver();
         }
-        if (changedProperties.has("clinicalAnalysis")) {
-            this.clinicalObserver();
-        }
         if (changedProperties.has("query")) {
             this.queryObserver();
         }
@@ -166,21 +148,8 @@ export default class OpencgaVariantFilter extends LitElement {
         } else {
             this.skipClinicalFilterQueryUpdate = true;
         }
-        /*if (this._reset) {
-            // console.trace(this.query)
-            this.setQueryFilters();
-        } else {
-            this._reset = true;
-        }*/
 
         this.requestUpdate();
-    }
-
-    clinicalObserver(clinicalAnalysis) {
-        //debugger
-        if (UtilsNew.isNotUndefinedOrNull(clinicalAnalysis)) {
-            // this.clinicalAnalysis = Object.assign({}, clinicalAnalysis);
-        }
     }
 
     onSearch() {
@@ -246,6 +215,10 @@ export default class OpencgaVariantFilter extends LitElement {
         this.requestUpdate();
     }
 
+    /**
+     * Deprecated: use funciton above.
+     * @param sampleFields
+     */
     onSampleFilterChange(sampleFields) {
         if (!sampleFields.sample) {
             delete this.preparedQuery.sample;
@@ -257,75 +230,11 @@ export default class OpencgaVariantFilter extends LitElement {
             delete this.preparedQuery.includeSample;
         }
         this.preparedQuery = {...this.preparedQuery, ...sampleFields};
+        debugger
         this.notifyQuery(this.preparedQuery);
 
         this.requestUpdate(); // NOTE: this causes the bug in sample-filter / variant-filter-clinical (clicking the checkboxes on variant-filter-clinical)
     }
-
-    // binding::from this.query to the view
-    // most of those blocks have been refactored and moved in firstUpdated() in each filter component
-    // setQueryFilters() {
-    //     if (!this._initialised) {
-    //         return;
-    //     }
-    //
-    //     // Clear filter menu before rendering
-    //     this._clearHtmlDom();
-    //     // Check 'query' is not null or empty there is nothing else to do
-    //     if (UtilsNew.isUndefinedOrNull(this.preparedQuery) || Object.keys(this.preparedQuery).length === 0) {
-    //         console.warn("this.preparedQuery is NULL:", this.preparedQuery);
-    //         return;
-    //     }
-    // }
-
-    // binding::from the view to this.query
-    // most of those blocks have been refactored & moved in filterChange() in each filter component
-    // updateQueryFilters() {
-    //     if (!this._initialised) {
-    //         return;
-    //     }
-    //     const _filters = {};
-    //     if (UtilsNew.isNotUndefinedOrNull(this.query.genotype)) {
-    //         _filters.genotype = this.query.genotype;
-    //     }
-    //     if (UtilsNew.isNotUndefinedOrNull(this.query.format)) {
-    //         _filters.format = this.query.format;
-    //     }
-    //     // if (UtilsNew.isNotUndefinedOrNull(this.query.file)) {
-    //     //     _filters.file = this.query.file;
-    //     // }
-    //     // if (UtilsNew.isNotUndefinedOrNull(this.query.qual)) {
-    //     //     _filters.qual = this.query.qual;
-    //     // }
-    //     if (UtilsNew.isNotUndefinedOrNull(this.query.info)) {
-    //         _filters.info = this.query.info;
-    //     }
-    // }
-
-
-    // TO-DO recheck if there is no other way...
-    // _clearHtmlDom() {
-    //     // Empty everything before rendering
-    //     $("." + this._prefix + "FilterSelect").prop("selectedIndex", 0);
-    //     $("." + this._prefix + "FilterSelect").prop("disabled", false);
-    //
-    //     // handled in population-frequency-filter
-    //     // TODO many other components use this!
-    //     $("." + this._prefix + "FilterTextInput").val("");
-    //     $("." + this._prefix + "FilterTextInput").prop("disabled", false);
-    //
-    //     $("." + this._prefix + "FilterCheckBox").prop("checked", false);
-    //     $("." + this._prefix + "FilterRadio").prop("checked", false);
-    //     $("." + this._prefix + "FilterRadio").filter("[value=\"or\"]").prop("checked", true);
-    //     $("." + this._prefix + "FilterRadio").prop("disabled", true);
-    //
-    //     $("#" + this._prefix + "DiseasePanelsTextarea").val("");
-    //     if (PolymerUtils.getElementById(this._prefix + "FileQualInput") !== null) {
-    //         PolymerUtils.getElementById(this._prefix + "FileQualInput").disabled = true;
-    //     }
-    //
-    //     $("#" + this._prefix + "vcfFilterSelect").selectpicker("val", []);
-    // }
 
     _isFilterVisible(filter) {
         // FIXME  Maybe we should keep this:   && this.config?.skipSubsections?.length && !!~this.config.skipSubsections.indexOf(field.id)
@@ -394,10 +303,6 @@ export default class OpencgaVariantFilter extends LitElement {
     }
 
     _createSubSection(subsection) {
-        // TODO is this still needed?
-        // ConsequenceType needs horizontal scroll
-        // const ctScroll = (subsection.id === "consequenceType") ? "browser-ct-scroll" : "";
-
         let content = "";
 
         // We allow to pass a render function
@@ -417,7 +322,7 @@ export default class OpencgaVariantFilter extends LitElement {
                                </cohort-stats-filter>`;
                     break;
                 case "sample":
-                    content = html`<sample-filter .opencgaSession="${this.opencgaSession}" .clinicalAnalysis="${this.clinicalAnalysis}" .query="${this.preparedQuery}" @sampleFilterChange="${e => this.onSampleFilterChange(e.detail.value)}"></sample-filter>`;
+                    content = html`<sample-filter .opencgaSession="${this.opencgaSession}" .clinicalAnalysis="${subsection.clinicalAnalysis}" .query="${this.preparedQuery}" @sampleFilterChange="${e => this.onSampleFilterChange(e.detail.value)}"></sample-filter>`;
                     break;
                 case "file-quality":
                     // content = html`<file-qual-filter .qual="${this.preparedQuery.qual}" @filterChange="${e => this.onFilterChange("qual", e.detail.value)}"></file-qual-filter>`;
@@ -426,13 +331,14 @@ export default class OpencgaVariantFilter extends LitElement {
                         let sampleDataFilters = this.preparedQuery.sampleData.split(";");
                         depth = sampleDataFilters.find(filter => filter.startsWith("DP")).split(">=")[1];
                     }
-                    content = html`<file-quality-filter .filter="${this.preparedQuery.filter}" .depth="${depth}" .qual="${this.preparedQuery.qual}" 
+                    content = html`
+                                <file-quality-filter .filter="${this.preparedQuery.filter}" .depth="${depth}" .qual="${this.preparedQuery.qual}" 
                                     @filterChange="${e => this.onFilterChange({
-                        filter: "filter",
-                        sampleData: "sampleData",
-                        qual: "qual"
-                    }, e.detail.value)}" .config="${subsection}" >
-                               </file-quality-filter>
+                                        filter: "filter",
+                                        sampleData: "sampleData",
+                                        qual: "qual"
+                                    }, e.detail.value)}" .config="${subsection}">
+                                </file-quality-filter>
                             `;
                     break;
                 case "region":
@@ -534,7 +440,7 @@ export default class OpencgaVariantFilter extends LitElement {
     render() {
         return html`
             <div>
-                ${this.searchButton 
+                ${this.config.searchButton 
                     ? html`
                         <div class="search-button-wrapper">
                             <button type="button" class="btn btn-primary ripple" @click="${this.onSearch}">

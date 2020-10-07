@@ -18,11 +18,10 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import OpencgaCatalogUtils from "../../../clients/opencga/opencga-catalog-utils.js";
 import ClinicalAnalysisUtils from "../../clinical/clinical-analysis-utils.js";
 import UtilsNew from "../../../utilsNew.js";
-import PolymerUtils from "../../PolymerUtils.js";
-import "../../tool-header.js";
 import "./variant-interpreter-grid.js";
 import "./variant-interpreter-detail.js";
 import "../opencga-variant-filter.js";
+import "../../tool-header.js";
 import "../../commons/opencga-active-filters.js";
 import "../../commons/filters/sample-genotype-filter.js";
 import "../../commons/filters/caveman-caller-filter.js";
@@ -63,15 +62,6 @@ class VariantInterpreterBrowserCancer extends LitElement {
             cellbaseClient: {
                 type: Object
             },
-            consequenceTypes: {
-                type: Object
-            },
-            populationFrequencies: {
-                type: Object
-            },
-            proteinSubstitutionScores: {
-                type: Object
-            },
             config: {
                 type: Object
             }
@@ -79,22 +69,14 @@ class VariantInterpreterBrowserCancer extends LitElement {
     }
 
     _init() {
-        this._prefix = "vicb-" + UtilsNew.randomString(6);
-
-        this.diseasePanelIds = [];
-
-        this.interactive = true;
-
-        this.messageError = false;
-        this.messageSuccess = false;
+        this._prefix = UtilsNew.randomString(8);
 
         this.samples = [];
-
         this.variant = null;
         this.reportedVariants = [];
 
         this.query = {};
-
+        this.activeFilterFilters = [];
         this.predefinedFilter = false; // flag that hides the warning message in active-filter for predefined samples value
 
         this.notSavedVariantIds = 0;
@@ -107,30 +89,25 @@ class VariantInterpreterBrowserCancer extends LitElement {
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("opencgaSession") || changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
-            this.requestUpdate();
-        }
-
+        // if (changedProperties.has("opencgaSession") || changedProperties.has("config")) {
+        //     this._config = {...this.getDefaultConfig(), ...this.config};
+        // }
         if (changedProperties.has("clinicalAnalysis")) {
             this.clinicalAnalysisObserver();
         }
-
         if (changedProperties.has("clinicalAnalysisId")) {
             this.clinicalAnalysisIdObserver();
         }
-
         if (changedProperties.has("query")) {
             this.queryObserver();
+        }
+        if (changedProperties.has("config")) {
+            this._config = {...this.getDefaultConfig(), ...this.config};
         }
     }
 
     queryObserver() {
-        // Query passed is executed and set to variant-filter, active-filters and variant-grid components
-        // if (UtilsNew.isNotUndefinedOrNull(this.query)) {
-        //     this.preparedQuery = this.query;
-        //     this.executedQuery = this.query;
-        // }
+        debugger
         if (this.opencgaSession) {
             if (this.query) {
                 this.preparedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
@@ -161,36 +138,36 @@ class VariantInterpreterBrowserCancer extends LitElement {
     }
 
     clinicalAnalysisObserver() {
+        debugger
         this.somaticSample = this.clinicalAnalysis.proband.samples.find(sample => sample.somatic);
-
-        if (!this.query?.sample) {
-            let sampleIds = this.clinicalAnalysis.proband.samples.map(sample => sample.id).join(",");
-            this.query = {
-                ...this.query,
-                sample: this.somaticSample.id,
-                includeSample: sampleIds
-            }
-            this.predefinedFilter = {...this.query};
-        }
-
-        this.callerToFile = {};
-        this.opencgaSession.opencgaClient.files().search({sampleIds: this.somaticSample.id, study: this.opencgaSession.study.fqn})
-            .then(fileResponse => {
-                this.files = fileResponse.response[0].results;
-                // Prepare a map from caller to File
-                this.callerToFile = {};
-                for (let file of this.files) {
-                    if (file.software?.name) {
-                        let softwareName = file.software.name.toLowerCase();
-                        this.callerToFile[softwareName] = file;
-                    }
+        if (this.somaticSample) {
+            // Set query object
+            if (!this.query?.sample) {
+                this.query = {
+                    ...this.query,
+                    sample: this.somaticSample.id,
                 }
-                this._config = {...this.getDefaultConfig(), ...this.config};
-            })
-            .catch(response => {
-                console.error("An error occurred fetching sample: ", response);
-            });
+                this.predefinedFilter = {...this.query};
+            }
 
+            this.callerToFile = {};
+            this.opencgaSession.opencgaClient.files().search({sampleIds: this.somaticSample.id, study: this.opencgaSession.study.fqn})
+                .then(fileResponse => {
+                    this.files = fileResponse.response[0].results;
+                    // Prepare a map from caller to File
+                    this.callerToFile = {};
+                    for (let file of this.files) {
+                        if (file.software?.name) {
+                            let softwareName = file.software.name.toLowerCase();
+                            this.callerToFile[softwareName] = file;
+                        }
+                    }
+                    this._config = {...this.getDefaultConfig(), ...this.config};
+                })
+                .catch(response => {
+                    console.error("An error occurred fetching sample: ", response);
+                });
+        }
 
         let sampleQc = ClinicalAnalysisUtils.getProbandSampleQc(this.clinicalAnalysis);
         let _activeFilterFilters = [];
@@ -283,21 +260,6 @@ class VariantInterpreterBrowserCancer extends LitElement {
         // this._initGenotypeSamples(this.samples);
     }
 
-    onChangeView(e) {
-        e.preventDefault();
-        const view = e.target.dataset.view;
-        if (view) {
-            // Hide all views and show the requested one
-            PolymerUtils.hideByClass("variant-interpretation-content");
-            PolymerUtils.show(this._prefix + view);
-
-            // Show the active button
-            // $(e.target).addClass("active");
-            PolymerUtils.removeClass(".variant-interpretation-view-buttons", "active");
-            PolymerUtils.addClass(this._prefix + view + "Button", "active");
-        }
-    }
-
     onVariantFilterChange(e) {
         this.preparedQuery = e.detail.query;
         // TODO quick fix to avoid warning message on sample
@@ -329,7 +291,6 @@ class VariantInterpreterBrowserCancer extends LitElement {
     }
 
     onVariantCallerFilterChange(filter, query) {
-
         if (query.fileData) {
             let [fileId, fileFilter] = filter.split(":");
             let files = query.fileData.split(",");
@@ -359,9 +320,10 @@ class VariantInterpreterBrowserCancer extends LitElement {
             active: false,
             showOtherTools: false,
             showTitle: false,
-            searchButtonText: "Search",
             filter: {
                 title: "Filter",
+                searchButton: true,
+                searchButtonText: "Search",
                 activeFilters: {
                     alias: {
                         // Example:
