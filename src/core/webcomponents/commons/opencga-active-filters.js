@@ -181,7 +181,6 @@ export default class OpencgaActiveFilters extends LitElement {
 
     opencgaSessionObserver() {
         if (this.opencgaClient instanceof OpenCGAClient && UtilsNew.isNotUndefined(this.opencgaSession.token)) {
-            // console.error("arguments changed inverted after new clients. recheck functionality. serverVersion is now ignored");
             this.refreshFilters();
         }
     }
