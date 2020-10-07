@@ -108,6 +108,14 @@ class InterpretationAudit extends LitElement {
     clinicalAnalysisObserver() {
         if(this.clinicalAnalysis) {
             if(this.clinicalAnalysis.audit?.length) {
+                let dates = this.clinicalAnalysis.audit.map(event => moment(event.date, "YYYYMMDDHHmmss"));
+                $("#" + this._prefix + "PickerDate").datetimepicker({
+                    format: "DD/MM/YYYY",
+                    defaultDate: moment.max(dates),
+                    enabledDates: dates,
+                    showClear: true,
+                }).on("dp.change", e => this.onDateFilterChange(e));
+
                 this._audit = [...this.clinicalAnalysis.audit];
                 this.timeline = this.generateTimeline(this._audit);
                 this._timeline = {...this.timeline};
@@ -149,10 +157,32 @@ class InterpretationAudit extends LitElement {
         return timeline;
     }
 
+    onDateFilterChange(e) {
+        let date;
+        if (e.date) {
+            // custom event fired by datepicker
+            date = e.date.format("YYYYMMDD")
+        } else if (e.target.value) {
+            // native @input event
+            date = moment(e.target.value, "DD/MM/YYYY").format("YYYYMMDD")
+        }
+        //console.log("date", date)
+        if (date) {
+            this._audit = this.clinicalAnalysis.audit.filter( event => {
+                return ~event.date.toLowerCase().indexOf(date)
+            });
+        } else {
+            this._audit = this.clinicalAnalysis.audit;
+        }
+        this._timeline = this.generateTimeline(this._audit);
+        this.renderLocalTable(this._audit);
+        this.requestUpdate();
+    }
+
     filter(e) {
         let keyword = e.target.value ? e.target.value.trim().toLowerCase() : null;
         if (keyword) {
-            this._audit = this._audit.filter( event => {
+            this._audit = this.clinicalAnalysis.audit.filter( event => {
                 return ~event.author.toLowerCase().indexOf(keyword)
                     || ~event.action.toLowerCase().indexOf(keyword)
                     || ~event.message.toLowerCase().indexOf(keyword)
@@ -231,8 +261,8 @@ class InterpretationAudit extends LitElement {
             ${this.clinicalAnalysis.audit?.length ? html`
                 <div class="row" id="interpretation-audit">
                     <div class="col-md-8">
-                        <div class="form-inline buttons-wrapper">
-                            <div class="btn-group">
+                        <div class="form-inline control-bar-wrapper">
+                            <div class="btn-group view-button-wrapper">
                                 <span data-id="timeline" class="view-button btn btn-default ${classMap({active: this.activeTab["timeline"] || UtilsNew.isEmpty(this.activeTab)})}" @click="${this._changeTab}">
                                     <i class="fas fa-th-list icon-padding"></i>
                                 </span>
@@ -245,6 +275,12 @@ class InterpretationAudit extends LitElement {
                                     <div class="input-group-addon"><i class="fas fa-search"></i></div>
                                     <input type="text" class="form-control" placeholder="Filter events.." @input="${this.filter}">
                                 </div>
+                            </div>
+                            <div class='input-group date' id="${this._prefix}PickerDate" data-field="${1}">
+                                <input type='text' id="${this._prefix}DueDate" class="${this._prefix}Input form-control" placeholder="Date">
+                                <span class="input-group-addon">
+                                        <span class="fa fa-calendar"></span>
+                                </span>
                             </div>
                         </div>
                     </div>
