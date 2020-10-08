@@ -261,7 +261,7 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                     elements: [
                         [
                             {
-                                name: "Analysis ID",
+                                name: "Case ID",
                                 field: "id",
                                 type: "input-text",
                                 required: true,

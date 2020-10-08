@@ -113,9 +113,9 @@ class InterpretationAudit extends LitElement {
                 let dates = this.clinicalAnalysis.audit.map(event => moment(event.date, "YYYYMMDDHHmmss"));
                 $("#" + this._prefix + "PickerDate").datetimepicker({
                     format: "DD/MM/YYYY",
-                    defaultDate: moment.max(dates),
+                    //defaultDate: moment.max(dates),
                     enabledDates: dates,
-                    showClear: true,
+                    showClear: true
                 }).on("dp.change", e => this.onDateFilterChange(e));
 
                 this._audit = [...this.clinicalAnalysis.audit].sort((a,b) => b - a);
