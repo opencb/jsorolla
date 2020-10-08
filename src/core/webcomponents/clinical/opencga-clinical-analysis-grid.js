@@ -380,7 +380,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
     _getDefaultColumns() {
         let _columns = [
             {
-                title: "Analysis ID",
+                title: "Case ID",
                 field: "id",
                 formatter: this.analysisIdFormatter.bind(this),
                 valign: "middle",
@@ -570,7 +570,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                 // Check if user clicked in Tab or JSON format
                 if (e.detail.option.toLowerCase() === "tab") {
                     dataString = [
-                        ["Analysis ID", "Proband ID", "Family (#members)", "Disorder", "Type", "Interpretations", "Status", "Priority", "Assigned To", "Creation Date"].join("\t"),
+                        ["Case ID", "Proband ID", "Family (#members)", "Disorder", "Type", "Interpretations", "Status", "Priority", "Assigned To", "Creation Date"].join("\t"),
                         ...result.map( _ => [
                             _.id,
                             _.proband.id,

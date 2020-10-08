@@ -62,6 +62,8 @@ class InterpretationAudit extends LitElement {
         this.timeline = {};
         this._timeline = {};
         this.activeTab = {timeline: true};
+        this.timelinePageSize = 20;
+        this.timelineEnd = this.timelinePageSize;
     }
 
     connectedCallback() {
@@ -111,13 +113,12 @@ class InterpretationAudit extends LitElement {
                 let dates = this.clinicalAnalysis.audit.map(event => moment(event.date, "YYYYMMDDHHmmss"));
                 $("#" + this._prefix + "PickerDate").datetimepicker({
                     format: "DD/MM/YYYY",
-                    defaultDate: moment.max(dates),
+                    //defaultDate: moment.max(dates),
                     enabledDates: dates,
-                    showClear: true,
+                    showClear: true
                 }).on("dp.change", e => this.onDateFilterChange(e));
 
-                this._audit = [...this.clinicalAnalysis.audit];
-                this.timeline = this.generateTimeline(this._audit);
+                this._audit = [...this.clinicalAnalysis.audit].sort((a,b) => b - a);
                 this._timeline = {...this.timeline};
                 this.renderLocalTable(this._audit);
                 this.requestUpdate();
@@ -144,9 +145,9 @@ class InterpretationAudit extends LitElement {
         this.requestUpdate();
     }
 
-    generateTimeline(data = []) {
+    renderTimeline(data = []) {
         const timeline = {};
-        data.forEach( event => {
+        data.slice(0, this.timelineEnd).forEach(event => {
             const d = timeline[event.date.substr(0,8)];
             if (d) {
                 d.push(event);
@@ -154,11 +155,27 @@ class InterpretationAudit extends LitElement {
                 timeline[event.date.substr(0,8)] = [event];
             }
         });
-        return timeline;
+        return html`
+            ${Object.keys(timeline).sort().reverse().map( date => html`
+                <ul class="">
+                ${timeline[date].length ? html`
+                    <li class="date">${moment(date, "YYYYMMDD").format("D MMM YYYY")}</li>
+                    ${timeline[date].map( entry => html`
+                        <li class="event" data-date="${UtilsNew.dateFormatter(entry.date, "h:mm:ss a")}">
+                            <span class="author">${entry.author}</span>
+                            <h3>${entry.action}</h3>
+                            <p>${entry.message}</p>
+                        </li>
+                    `)}
+                ` : null}
+            </ul>
+        `)}`;
+
     }
 
     onDateFilterChange(e) {
         let date;
+        this.timelineEnd = this.timelinePageSize;
         if (e.date) {
             // custom event fired by datepicker
             date = e.date.format("YYYYMMDD")
@@ -174,12 +191,12 @@ class InterpretationAudit extends LitElement {
         } else {
             this._audit = this.clinicalAnalysis.audit;
         }
-        this._timeline = this.generateTimeline(this._audit);
         this.renderLocalTable(this._audit);
         this.requestUpdate();
     }
 
     filter(e) {
+        this.timelineEnd = this.timelinePageSize;
         let keyword = e.target.value ? e.target.value.trim().toLowerCase() : null;
         if (keyword) {
             this._audit = this.clinicalAnalysis.audit.filter( event => {
@@ -192,8 +209,12 @@ class InterpretationAudit extends LitElement {
         } else {
             this._audit = this.clinicalAnalysis.audit;
         }
-        this._timeline = this.generateTimeline(this._audit);
         this.renderLocalTable(this._audit);
+        this.requestUpdate();
+    }
+
+    showNextEvents() {
+        this.timelineEnd += this.timelinePageSize;
         this.requestUpdate();
     }
 
@@ -259,6 +280,12 @@ class InterpretationAudit extends LitElement {
 
         return html`
             ${this.clinicalAnalysis.audit?.length ? html`
+                <style>
+                    .load-next-event-button {
+                        display: block;
+                        margin-left: 100px;
+                    }
+                </style>
                 <div class="row" id="interpretation-audit">
                     <div class="col-md-8">
                         <div class="form-inline control-bar-wrapper">
@@ -289,21 +316,9 @@ class InterpretationAudit extends LitElement {
                             <div class="content-tab-wrapper">
                                 <div id="${this._prefix}timeline" role="tabpanel" class="active tab-pane content-tab">
                                     <div class="interpretation-audit-timeline">
-                                        ${Object.keys(this._timeline).sort().reverse().map( date => html`
-                                            <ul class="">
-                                            ${this._timeline[date].length ? html`
-                                                <li class="date">${moment(date, "YYYYMMDD").format("D MMM YYYY")}</li>
-                                                ${this._timeline[date].map( entry => html`
-                                                    <li class="event" data-date="${UtilsNew.dateFormatter(entry.date, "h:mm:ss a")}">
-                                                        <span class="author">${entry.author}</span>
-                                                        <h3>${entry.action}</h3>
-                                                        <p>${entry.message}</p>
-                                                    </li>
-                                                `)}
-                                            ` : null}
-                                        </ul>
-                                        `)}
+                                        ${this.renderTimeline(this._audit)}
                                     </div>
+                                    ${this._audit && this._audit.length > this.timelineEnd ? html`<div><a href="javascript: void 0" class="btn btn-default ripple load-next-event-button" @click="${this.showNextEvents}"> Load next ${this._audit.length - this.timelinePageSize > this.timelineEnd ? this.timelinePageSize : this._audit.length - this.timelineEnd} events..</a></div>` : null}
                                 </div>
                                 <div id="${this._prefix}table" role="tabpanel" class="tab-pane content-tab">
                                     <table id="${this.gridId}"></table>

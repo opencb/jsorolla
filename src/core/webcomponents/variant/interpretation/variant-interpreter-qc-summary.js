@@ -102,7 +102,7 @@ class VariantInterpreterQcSummary extends LitElement {
                     collapsed: false,
                     elements: [
                         {
-                            name: "Analysis ID",
+                            name: "Case ID",
                             field: "id"
                         },
                         {
