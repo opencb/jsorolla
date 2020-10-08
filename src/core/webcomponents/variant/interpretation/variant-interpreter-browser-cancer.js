@@ -121,7 +121,6 @@ class VariantInterpreterBrowserCancer extends LitElement {
     }
 
     clinicalAnalysisObserver() {
-        debugger
         this._sample = this.clinicalAnalysis.proband.samples.find(sample => sample.somatic);
         if (this._sample) {
             // Set query object
@@ -212,6 +211,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
 
         this.clinicalAnalysis.modificationDate = e.detail.timestamp;
         this.clinicalAnalysis.interpretation = {
+            id: this.clinicalAnalysis.interpretation.id,
             attributes: {
                 modificationDate: e.detail.timestamp
             }
@@ -222,8 +222,8 @@ class VariantInterpreterBrowserCancer extends LitElement {
         this.currentSelection = e.detail?.rows?.map(v => v.id) ?? [];
 
         //the following counters keep track of the current variant selection compared to the one saved on the server
-        this.notSavedVariantIds = this.currentSelection.filter(v => !~this.savedVariants.indexOf(v)).length;
-        this.removedVariantIds = this.savedVariants.filter(v => !~this.currentSelection.indexOf(v)).length;
+        // this.notSavedVariantIds = this.currentSelection.filter(v => !~this.savedVariants.indexOf(v)).length;
+        // this.removedVariantIds = this.savedVariants.filter(v => !~this.currentSelection.indexOf(v)).length;
         this.requestUpdate();
     }
 
@@ -251,7 +251,9 @@ class VariantInterpreterBrowserCancer extends LitElement {
             bubbles: true,
             composed: true
         }));
-        ClinicalAnalysisUtils.updateInterpretation(this.clinicalAnalysis, this.opencgaSession, f);
+        this.clinicalAnalysis
+        debugger
+        ClinicalAnalysisUtils.updateInterpretation(this.clinicalAnalysis, this.clinicalAnalysis.interpretation.id, this.opencgaSession, f);
     }
 
     onVariantFilterChange(e) {
