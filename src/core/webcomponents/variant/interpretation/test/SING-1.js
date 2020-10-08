@@ -41,6 +41,12 @@ export default {
             "action": "UPDATE_CLINICAL_ANALYSIS",
             "message": "Update ClinicalAnalysis 'CA-666'",
             "date": "20201005095031"
+        },
+        {
+            "author": "aaltamura",
+            "action": "UPDATE_CLINICAL_ANALYSIS",
+            "message": "Update ClinicalAnalysis 'CA-666'",
+            "date": "20201005095010"
         }
     ],
     "files": [{
