@@ -86,10 +86,10 @@ export default class CavemanCallerFilter extends LitElement {
                     this.filter[e.detail.param] = "=" + "PASS";
                     break;
                 case "CLPM":
-                    this.filter[e.detail.param] = "=" + e.detail.value;
+                    this.filter[e.detail.param] = e.detail.value;
                     break;
                 case "ASMD":
-                    this.filter[e.detail.param] = ">=" + e.detail.value;
+                    this.filter[e.detail.param] = e.detail.value;
                     break;
             }
         } else {

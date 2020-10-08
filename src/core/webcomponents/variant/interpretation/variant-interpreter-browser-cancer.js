@@ -288,6 +288,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
     }
 
     onVariantCallerFilterChange(filter, query) {
+        debugger
         if (query.fileData) {
             let [fileId, fileFilter] = filter.split(":");
             let files = query.fileData.split(",");
@@ -374,6 +375,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                                 callback: (filter, query) => this.onVariantCallerFilterChange(filter, query),
                                 params: {
                                     fileId: `${this.callerToFile ? this.callerToFile["pindel"]?.name : null}`,
+                                    query: "FILTER=PASS"
                                 }
                             },
                             {
