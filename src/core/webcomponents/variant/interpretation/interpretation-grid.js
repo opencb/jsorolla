@@ -108,11 +108,15 @@ class InterpretationGrid extends LitElement {
         }
     }
 
-    clinicalAnalysisObserver() {
+    async clinicalAnalysisObserver() {
         if (this.clinicalAnalysis) {
-            this.interpretations = [{...this.clinicalAnalysis.interpretation, primary: true}, ...this.clinicalAnalysis.secondaryInterpretations];
+            if (this.clinicalAnalysis.interpretation) {
+                this.interpretations = [
+                    {...this.clinicalAnalysis.interpretation, primary: true},
+                    ...this.clinicalAnalysis.secondaryInterpretations];
+            }
+            await this.requestUpdate();
             this.renderHistoryTable();
-            this.requestUpdate();
         } else {
 
         }
@@ -122,10 +126,11 @@ class InterpretationGrid extends LitElement {
         return html`
             <div class="interpretation-wrapper ${classMap({primary: interpretation.primary})}">
                 <div class="header">
+                    <div>${interpretation.primary ? html`<span class="badge badge-dark-blue">Primary</span>` : html`<span class="badge badge-light">Secondary</span>`}</div>
                     <span class="id">${interpretation.id}</span>
                     ${interpretation.version ? html`<span class="version">version ${interpretation.version}</span>` : null}
                     
-                    ${interpretation.primary ? html`<span class="badge badge-dark-blue">Primary</span>` : html`<span class="badge badge-light">Secondary</span>`}
+                    
                     <span class="analyst" title="Analyst"><i class="fa fa-user-circle icon-padding" aria-hidden="true"></i>${interpretation?.analyst?.name ?? "-"}</span>
                     <span class="modificationDate" title="Modification date"><i class="far fa-calendar-alt"></i> ${moment(interpretation?.attributes?.modificationDate).format("MM/DD/YYYY")}</span>
                 </div>
@@ -190,7 +195,11 @@ class InterpretationGrid extends LitElement {
 
     renderHistoryTable() {
 
-        this.data = [{...this.clinicalAnalysis.interpretation, version: 2}, {...this.clinicalAnalysis.interpretation, version: 3}, {...this.clinicalAnalysis.interpretation, version: 4}];
+        this.data = [];
+        if (this.clinicalAnalysis?.interpretation) {
+            const versionCnt = this.clinicalAnalysis.interpretation.version;
+            this.data = [...Array(versionCnt - 1).keys()].map( num => ({...this.clinicalAnalysis.interpretation, version: num+1})).reverse()
+        }
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
@@ -198,8 +207,31 @@ class InterpretationGrid extends LitElement {
             columns: this._initTableColumns(),
             uniqueId: "id",
             gridContext: this,
+            sidePagination: "local",
+            formatNoMatches: () => "No previous versions",
             formatLoadingMessage: () =>"<div><loading-spinner></loading-spinner></div>",
             onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
+            ajax: params => {
+                params.error();
+                /*let _filters = {
+                    study: this.opencgaSession.study.fqn,
+                    include: "id,description,comment",
+                    id:"CA-2.1"
+                };
+                this.opencgaSession.opencgaClient.clinical().searchInterpretation(_filters)
+                    .then(res => {
+                        console.log(res)
+                        params.success(res)
+                    })
+                    .catch(e => {
+                        console.error(e);
+                        params.error(e);
+                    });*/
+            },
+            /*responseHandler: response => {
+                const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
+                return result.response;
+            },*/
             // onPageChange: (page, size) => {
             //     const result = this.gridCommons.onPageChange(page, size);
             //     //this.from = result.from || this.from;
@@ -362,19 +394,21 @@ class InterpretationGrid extends LitElement {
 
         return html`
             <div class="interpretation-grid">
-                
-                <h3>Interpretations</h3>
-                <div class="row">
-                    <div class="col-md-8">
-                        ${this.interpretations?.length ? this.interpretations.map(interpretation => this.renderInterpretation(interpretation))
-                : html`<div class="alert alert-info"><i class="fas fa-3x fa-info-circle align-middle"></i> No interpretation available yet.</div>`}
+                ${this.interpretations?.length ? html`
+                    <h3>Interpretations</h3>
+                    <div class="row">
+                        <div class="col-md-8">
+                            ${this.interpretations.map(interpretation => this.renderInterpretation(interpretation))}
+                        </div>
                     </div>
+                   
+                    <h3>Main Interpretation History</h3>
+                    <table id="${this.gridId}"></table>
+                ` : html`
+                    <div class="alert alert-info"><i class="fas fa-3x fa-info-circle align-middle"></i> No interpretation available yet.</div>`
+                } 
                 </div>
-               
-                <h3>Main Interpretation History</h3>
-                <table id="${this.gridId}"></table>
-            </div>
-        `;
+            `;
     }
 }
 
