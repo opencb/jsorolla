@@ -16,6 +16,7 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import OpencgaCatalogUtils from "../../../clients/opencga/opencga-catalog-utils.js";
+import ClinicalAnalysisManager from "../../clinical/clinical-analysis-manager.js";
 import ClinicalAnalysisUtils from "../../clinical/clinical-analysis-utils.js";
 import UtilsNew from "../../../utilsNew.js";
 import "./variant-interpreter-grid.js";
@@ -86,12 +87,14 @@ class VariantInterpreterBrowserCancer extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
+
+        this.clinicalAnalysisManager = new ClinicalAnalysisManager(this.clinicalAnalysis, this.opencgaSession);
     }
 
     updated(changedProperties) {
-        // if (changedProperties.has("opencgaSession") || changedProperties.has("config")) {
-        //     this._config = {...this.getDefaultConfig(), ...this.config};
-        // }
+        if (changedProperties.has("opencgaSession")) {
+            this.clinicalAnalysisManager = new ClinicalAnalysisManager(this.clinicalAnalysis, this.opencgaSession);
+        }
         if (changedProperties.has("clinicalAnalysis")) {
             this.clinicalAnalysisObserver();
         }
@@ -121,6 +124,8 @@ class VariantInterpreterBrowserCancer extends LitElement {
     }
 
     clinicalAnalysisObserver() {
+        this.clinicalAnalysisManager = new ClinicalAnalysisManager(this.clinicalAnalysis, this.opencgaSession);
+
         this._sample = this.clinicalAnalysis.proband.samples.find(sample => sample.somatic);
         if (this._sample) {
             // Set query object
@@ -204,27 +209,11 @@ class VariantInterpreterBrowserCancer extends LitElement {
     }
 
     onCheckVariant(e) {
-        if (!this.clinicalAnalysis) {
-            console.error("It is not possible have this error");
-            return;
+        if (e.detail.checked) {
+            this.clinicalAnalysisManager.addVariant(e.detail.row);
+        } else {
+            this.clinicalAnalysisManager.removeVariant(e.detail.row);
         }
-
-        this.clinicalAnalysis.modificationDate = e.detail.timestamp;
-        this.clinicalAnalysis.interpretation = {
-            id: this.clinicalAnalysis.interpretation.id,
-            attributes: {
-                modificationDate: e.detail.timestamp
-            }
-        };
-
-        this.clinicalAnalysis.interpretation.primaryFindings = Array.from(e.detail.rows);
-
-        this.currentSelection = e.detail?.rows?.map(v => v.id) ?? [];
-
-        //the following counters keep track of the current variant selection compared to the one saved on the server
-        // this.notSavedVariantIds = this.currentSelection.filter(v => !~this.savedVariants.indexOf(v)).length;
-        // this.removedVariantIds = this.savedVariants.filter(v => !~this.currentSelection.indexOf(v)).length;
-        this.requestUpdate();
     }
 
     onViewVariants(e) {
@@ -235,25 +224,41 @@ class VariantInterpreterBrowserCancer extends LitElement {
     }
 
     onResetVariants(e) {
-        let alreadySaved = this.clinicalAnalysis.interpretation.primaryFindings.filter(e => e.attributes.creationDate);
-        // debugger
-        this.clinicalAnalysis.interpretation.primaryFindings = alreadySaved;
-        console.error("primaryFindings", this.clinicalAnalysis.interpretation.primaryFindings);
-        this.clinicalAnalysis = {...this.clinicalAnalysis};
-        this.requestUpdate();
+        // let alreadySaved = this.clinicalAnalysis.interpretation.primaryFindings.filter(e => e.attributes.creationDate);
+        // // debugger
+        // this.clinicalAnalysis.interpretation.primaryFindings = alreadySaved;
+        // console.error("primaryFindings", this.clinicalAnalysis.interpretation.primaryFindings);
+        // this.clinicalAnalysis = {...this.clinicalAnalysis};
+        // this.requestUpdate();
+        this.clinicalAnalysisManager.reset();
+
+        this.clinicalAnalysis = JSON.parse(JSON.stringify(this.clinicalAnalysis));
     }
 
     onSaveVariants(e) {
-        let f = clinicalAnalysis => this.dispatchEvent(new CustomEvent("clinicalAnalysisUpdate", {
-            detail: {
-                clinicalAnalysis: clinicalAnalysis
-            },
-            bubbles: true,
-            composed: true
-        }));
-        this.clinicalAnalysis
-        debugger
-        ClinicalAnalysisUtils.updateInterpretation(this.clinicalAnalysis, this.clinicalAnalysis.interpretation.id, this.opencgaSession, f);
+        let f = (clinicalAnalysis) => {
+            // this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysis.id, {study: this.opencgaSession.study.fqn})
+            //     .then(restResponse => {
+            //         this.clinicalAnalysis = restResponse.responses[0].results[0];
+            //         this.dispatchEvent(new CustomEvent("clinicalAnalysisUpdate", {
+            //             detail: {
+            //                 clinicalAnalysis: this.clinicalAnalysis
+            //             },
+            //             bubbles: true,
+            //             composed: true
+            //         }));
+            //         this.requestUpdate();
+            //     });
+            this.dispatchEvent(new CustomEvent("clinicalAnalysisUpdate", {
+                detail: {
+                    clinicalAnalysis: clinicalAnalysis
+                },
+                bubbles: true,
+                composed: true
+            }));
+            // this.requestUpdate();
+        }
+        this.clinicalAnalysisManager.updateInterpretation(f);
     }
 
     onVariantFilterChange(e) {

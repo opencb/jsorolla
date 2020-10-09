@@ -118,15 +118,16 @@ class VariantInterpreterBrowser extends LitElement {
         }
     }
 
-    onClinicalAnalysisUpdate (e) {
-        this.dispatchEvent(new CustomEvent("clinicalAnalysisUpdate", {
-            detail: {
-                clinicalAnalysis: e.detail.clinicalAnalysis
-            },
-            bubbles: true,
-            composed: true
-        }));
-    }
+    // onClinicalAnalysisUpdate (e) {
+    //     debugger
+    //     this.dispatchEvent(new CustomEvent("clinicalAnalysisUpdate", {
+    //         detail: {
+    //             clinicalAnalysis: e.detail.clinicalAnalysis
+    //         },
+    //         bubbles: true,
+    //         composed: true
+    //     }));
+    // }
 
     render() {
         // Check Project exists

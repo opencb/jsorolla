@@ -121,6 +121,8 @@ export default class VariantInterpreterGrid extends LitElement {
     }
 
     clinicalAnalysisObserver() {
+        debugger
+
         // Make sure somatic sample is the first one
         if (this.clinicalAnalysis) {
             if (!this.clinicalAnalysis.interpretation) {
@@ -151,6 +153,7 @@ export default class VariantInterpreterGrid extends LitElement {
     }
 
     renderVariants() {
+        debugger
         if (this._config.renderLocal) {
             this.renderLocalVariants();
         } else {
@@ -383,13 +386,13 @@ export default class VariantInterpreterGrid extends LitElement {
         }
     }
 
-    showGene(geneName) {
-        this.dispatchEvent(new CustomEvent("selected", {
-            detail: {
-                gene: geneName
-            }
-        }));
-    }
+    // showGene(geneName) {
+    //     this.dispatchEvent(new CustomEvent("selected", {
+    //         detail: {
+    //             gene: geneName
+    //         }
+    //     }));
+    // }
 
     /*
      *  GRID FORMATTERS

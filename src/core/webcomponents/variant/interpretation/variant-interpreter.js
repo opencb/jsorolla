@@ -148,6 +148,7 @@ class VariantInterpreter extends LitElement {
     }*/
 
     onClinicalAnalysisUpdate (e) {
+        debugger
         this.clinicalAnalysis = {...e.detail.clinicalAnalysis};
         this.requestUpdate();
     }

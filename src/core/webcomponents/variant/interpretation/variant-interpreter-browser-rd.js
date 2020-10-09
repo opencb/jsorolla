@@ -16,6 +16,7 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import OpencgaCatalogUtils from "../../../clients/opencga/opencga-catalog-utils.js";
+import ClinicalAnalysisManager from "../../clinical/clinical-analysis-manager.js";
 import ClinicalAnalysisUtils from "../../clinical/clinical-analysis-utils.js";
 import UtilsNew from "../../../utilsNew.js";
 import "./variant-interpreter-grid.js";
@@ -79,6 +80,8 @@ class VariantInterpreterBrowserRd extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
+
+        this.clinicalAnalysisManager = new ClinicalAnalysisManager(this.clinicalAnalysis, this.opencgaSession);
     }
 
     updated(changedProperties) {
@@ -110,6 +113,8 @@ class VariantInterpreterBrowserRd extends LitElement {
     }
 
     clinicalAnalysisObserver() {
+        this.clinicalAnalysisManager = new ClinicalAnalysisManager(this.clinicalAnalysis, this.opencgaSession);
+
         // If sample is not defined and proband exists then we set the default samples
         if (!this.query?.sample && this.clinicalAnalysis.proband?.samples?.length > 0) {
             if (!this.query) {
@@ -193,33 +198,11 @@ class VariantInterpreterBrowserRd extends LitElement {
     }
 
     onCheckVariant(e) {
-        // let checkedVariants = e.detail.rows;
-        // for (let checkedVariant of checkedVariants) {
-        //     if (!this.clinicalAnalysis.interpretation.primaryFindings.some(e => e.id === checkedVariant.id)) {
-        //         this.notSavedvVriants.push(checkedVariant);
-        //     }
-        // }
-
-        if (!this.clinicalAnalysis) {
-            console.error("It is not possible have this error");
-            return;
+        if (e.detail.checked) {
+            this.clinicalAnalysisManager.addVariant(e.detail.row);
+        } else {
+            this.clinicalAnalysisManager.removeVariant(e.detail.row);
         }
-
-        this.clinicalAnalysis.modificationDate = e.detail.timestamp;
-        this.clinicalAnalysis.interpretation = {
-            attributes: {
-                modificationDate: e.detail.timestamp
-            }
-        };
-
-        this.clinicalAnalysis.interpretation.primaryFindings = Array.from(e.detail.rows);
-
-        this.currentSelection = e.detail?.rows?.map(v => v.id) ?? [];
-
-        //the following counters keep track of the current variant selection compared to the one saved on the server
-        this.notSavedVariantIds = this.currentSelection.filter(v => !~this.savedVariants.indexOf(v)).length;
-        this.removedVariantIds = this.savedVariants.filter(v => !~this.currentSelection.indexOf(v)).length;
-        this.requestUpdate();
     }
 
     onViewVariants(e) {
@@ -230,12 +213,13 @@ class VariantInterpreterBrowserRd extends LitElement {
     }
 
     onResetVariants(e) {
-        let alreadySaved = this.clinicalAnalysis.interpretation.primaryFindings.filter(e => e.attributes.creationDate);
-        // debugger
-        this.clinicalAnalysis.interpretation.primaryFindings = alreadySaved;
-        console.error("primaryFindings", this.clinicalAnalysis.interpretation.primaryFindings);
-        this.clinicalAnalysis = {...this.clinicalAnalysis};
-        this.requestUpdate();
+        // let alreadySaved = this.clinicalAnalysis.interpretation.primaryFindings.filter(e => e.attributes.creationDate);
+        // // debugger
+        // this.clinicalAnalysis.interpretation.primaryFindings = alreadySaved;
+        // console.error("primaryFindings", this.clinicalAnalysis.interpretation.primaryFindings);
+        // this.clinicalAnalysis = {...this.clinicalAnalysis};
+        // this.requestUpdate();
+        this.clinicalAnalysisManager.reset();
     }
 
     onSaveVariants(e) {
@@ -246,7 +230,7 @@ class VariantInterpreterBrowserRd extends LitElement {
             bubbles: true,
             composed: true
         }));
-        ClinicalAnalysisUtils.updateInterpretation(this.clinicalAnalysis, this.opencgaSession, f);
+        this.clinicalAnalysisManager.updateInterpretation(f);
     }
 
     onVariantFilterChange(e) {
