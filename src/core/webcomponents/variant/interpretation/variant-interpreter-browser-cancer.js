@@ -236,27 +236,14 @@ class VariantInterpreterBrowserCancer extends LitElement {
     }
 
     onSaveVariants(e) {
-        let f = (clinicalAnalysis) => {
-            // this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysis.id, {study: this.opencgaSession.study.fqn})
-            //     .then(restResponse => {
-            //         this.clinicalAnalysis = restResponse.responses[0].results[0];
-            //         this.dispatchEvent(new CustomEvent("clinicalAnalysisUpdate", {
-            //             detail: {
-            //                 clinicalAnalysis: this.clinicalAnalysis
-            //             },
-            //             bubbles: true,
-            //             composed: true
-            //         }));
-            //         this.requestUpdate();
-            //     });
+        let f = () => {
             this.dispatchEvent(new CustomEvent("clinicalAnalysisUpdate", {
                 detail: {
-                    clinicalAnalysis: clinicalAnalysis
+                    clinicalAnalysis: this.clinicalAnalysis
                 },
                 bubbles: true,
                 composed: true
             }));
-            // this.requestUpdate();
         }
         this.clinicalAnalysisManager.updateInterpretation(f);
     }

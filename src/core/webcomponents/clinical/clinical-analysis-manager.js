@@ -131,11 +131,6 @@ export default class ClinicalAnalysisManager {
                 // secondaryFindingsAction: "SET",
             })
             .then(restResponse => {
-                // this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysis.id, {study: this.opencgaSession.study.fqn})
-                //     .then(restResponse => {
-                //         this.clinicalAnalysis = restResponse.responses[0].results[0];
-                //         callback(this.clinicalAnalysis);
-                //     });
                 callback(this.clinicalAnalysis);
 
                 // Notify

@@ -148,15 +148,15 @@ class VariantInterpreter extends LitElement {
     }*/
 
     onClinicalAnalysisUpdate (e) {
-        debugger
-        this.clinicalAnalysis = {...e.detail.clinicalAnalysis};
-        this.requestUpdate();
+        this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysis.id, {study: this.opencgaSession.study.fqn})
+            .then(restResponse => {
+                this.clinicalAnalysis = restResponse.responses[0].results[0];
+                this.requestUpdate();
+            });
     }
 
     onClinicalAnalysis(e) {
         this.clinicalAnalysis = e.detail.clinicalAnalysis;
-        // debugger
-        // this.clinicalAnalysis.type = "CANCER";
         this.requestUpdate();
     }
 
@@ -341,7 +341,6 @@ class VariantInterpreter extends LitElement {
                                                                 .clinicalAnalysis="${this.clinicalAnalysis}"
                                                                 .query="${this.interpretationSearchQuery}"
                                                                 .cellbaseClient="${this.cellbaseClient}"
-                                                                <!--    .config="${this._config}" -->
                                                                 @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
                                 </variant-interpreter-browser>
                             </div>
