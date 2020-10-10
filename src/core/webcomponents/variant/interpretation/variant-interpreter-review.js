@@ -431,7 +431,7 @@ export default class VariantInterpreterReview extends LitElement {
                 
                 <div class="content-tab-wrapper">
                     <div id="${this._prefix}GeneralInfo" role="tabpanel" class="tab-pane active col-md-10 col-md-offset-1 content-tab">
-                        <tool-header title="Interpretation - ${this.clinicalAnalysis?.interpretation.id}" class="bg-white"></tool-header>
+                        <tool-header title="Interpretation - ${this.clinicalAnalysis?.interpretation?.id}" class="bg-white"></tool-header>
                         <div style="padding: 0px 10px">
                             <clinical-interpretation-summary-editor .opencgaSession="${this.opencgaSession}" 
                                                                     .clinicalAnalysis="${this.clinicalAnalysis}">
