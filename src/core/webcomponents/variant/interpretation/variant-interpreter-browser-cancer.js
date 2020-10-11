@@ -20,6 +20,7 @@ import ClinicalAnalysisManager from "../../clinical/clinical-analysis-manager.js
 import ClinicalAnalysisUtils from "../../clinical/clinical-analysis-utils.js";
 import UtilsNew from "../../../utilsNew.js";
 import "./variant-interpreter-grid.js";
+import "./variant-interpreter-toolbar.js";
 import "./variant-interpreter-detail.js";
 import "../opencga-variant-filter.js";
 import "../../tool-header.js";
@@ -214,6 +215,10 @@ class VariantInterpreterBrowserCancer extends LitElement {
         } else {
             this.clinicalAnalysisManager.removeVariant(e.detail.row);
         }
+        // This will force the refresh
+        // this.clinicalAnalysisManager = {...this.clinicalAnalysisManager};
+        // this._clinicalAnalysisManager = new ClinicalAnalysisManager*();
+        // this.clinicalAnalysisManager = JSON.parse(JSON.stringify(this.clinicalAnalysisManager));
     }
 
     onViewVariants(e) {
@@ -236,7 +241,8 @@ class VariantInterpreterBrowserCancer extends LitElement {
     }
 
     onSaveVariants(e) {
-        let f = () => {
+        let comment = e.detail.comment;
+        let saveCallback = () => {
             this.dispatchEvent(new CustomEvent("clinicalAnalysisUpdate", {
                 detail: {
                     clinicalAnalysis: this.clinicalAnalysis
@@ -245,7 +251,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                 composed: true
             }));
         }
-        this.clinicalAnalysisManager.updateInterpretation(f);
+        this.clinicalAnalysisManager.updateInterpretation(comment, saveCallback);
     }
 
     onVariantFilterChange(e) {
@@ -689,26 +695,12 @@ class VariantInterpreterBrowserCancer extends LitElement {
                 
                 <div class="col-md-10">
                     <div>
-                        ${OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS") ? html`
-                            <div class="btn-toolbar" role="toolbar" aria-label="toolbar" style="margin-bottom: 20px">
-                                <div class="pull-right" role="group">
-                                    <button type="button" class="btn btn-default ripple" @click="${this.onViewVariants}" title="Show saved variants">
-                                        <i class="fas fa-eye icon-padding" aria-hidden="true"></i> View
-                                    </button>
-                                    <button type="button" class="btn btn-default ripple" @click="${this.onResetVariants}" title="Remove not saved variants">
-                                        <i class="fas fa-eraser icon-padding" aria-hidden="true"></i> Reset
-                                    </button>
-                                    <button type="button" class="btn btn-default ripple" @click="${this.onSaveVariants}" title="Save variants in the server">
-                                        <i class="fas fa-save icon-padding" aria-hidden="true"></i> Save
-                                    </button>
-                                </div>
-                            </div>` : null}
-                        ${this.notSavedVariantIds || this.removedVariantIds
+                        ${OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS") 
                             ? html`
-                                <div class="alert alert-warning" role="alert" id="${this._prefix}SaveWarning">
-                                    <span><strong>Warning!</strong></span>&nbsp;&nbsp;Primary findings have changed:
-                                    ${this.notSavedVariantIds ? html`${this.notSavedVariantIds} variant${this.notSavedVariantIds > 1 ? "s have" : " has"} been added` : null}${this.removedVariantIds ? html`${this.notSavedVariantIds ? " and " : null}${this.removedVariantIds} variant${this.removedVariantIds > 1 ? "s have" : " has"} been removed` : null}. Please click on <strong> Save </strong> to make the results persistent.
-                                </div>`
+                                <variant-interpreter-toolbar .clinicalAnalysisManager="${this.clinicalAnalysisManager}"
+                                                             .state="${this.clinicalAnalysisManager.state}" 
+                                                             @saveInterpretation="${this.onSaveVariants}">
+                                </variant-interpreter-toolbar>` 
                             : null
                         }
                     </div>

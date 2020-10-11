@@ -261,7 +261,7 @@ class ClinicalInterpretationSummaryEditor extends LitElement {
                         },
                         {
                             name: "Comments",
-                            field: "comments",
+                            field: "interpretation.comments",
                             type: "custom",
                             display: {
                                 // render: comments => this.renderComments(comments)

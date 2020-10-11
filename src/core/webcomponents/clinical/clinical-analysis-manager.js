@@ -24,9 +24,11 @@ export default class ClinicalAnalysisManager {
     }
 
     init() {
-        this.addedVariants = [];
-        this.removedVariants = [];
-        this.updatedVariants = [];
+        this.state = {
+            addedVariants: [],
+            removedVariants: [],
+            updatedVariants: []
+        };
     }
 
     /**
@@ -57,40 +59,42 @@ export default class ClinicalAnalysisManager {
 
     addVariant(variant) {
         // First, check if the variant was selected to be removed
-        let index = this.removedVariants.findIndex(v => v.id === variant.id);
+        let index = this.state.removedVariants.findIndex(v => v.id === variant.id);
         if (index >= 0) {
-            this.removedVariants.splice(index, 1);
+            this.state.removedVariants.splice(index, 1);
         } else {
             // Second, check variant is new and selected to be added
             index = this.clinicalAnalysis.interpretation.primaryFindings.findIndex(v => v.id === variant.id);
             if (index === -1) {
-                this.addedVariants.push(variant);
+                this.state.addedVariants.push(variant);
             } else {
                 // Third, this cannot happen, variant must exist somewhere
                 console.error("There must be an error, variant " + variant.id + " seems to exist.");
             }
         }
+        this.state = {...this.state};
     }
 
     removeVariant(variant) {
         // First, check if the variant was selected to be added
-        let index = this.addedVariants.findIndex(v => v.id === variant.id);
+        let index = this.state.addedVariants.findIndex(v => v.id === variant.id);
         if (index >= 0) {
-            this.addedVariants.splice(index, 1);
+            this.state.addedVariants.splice(index, 1);
         } else {
             // Second, check if the variant was added to be inserted but not inserted yet
             index = this.clinicalAnalysis.interpretation.primaryFindings.findIndex(v => v.id === variant.id);
             if (index >= 0) {
-                this.removedVariants.push(variant);
+                this.state.removedVariants.push(variant);
             } else {
                 // Third, this cannot happen, variant must exist somewhere
                 console.error("There must be an error, variant " + variant.id + " seems to not exist.");
             }
         }
+        this.state = {...this.state};
     }
 
-    updateInterpretation(callback) {
-        if (this.addedVariants.length === 0 && this.removedVariants.length === 0) {
+    updateInterpretation(comment, callback) {
+        if (this.state.addedVariants.length === 0 && this.state.removedVariants.length === 0) {
             console.log("Nothing to do");
             return;
         }
@@ -99,10 +103,14 @@ export default class ClinicalAnalysisManager {
         let interpretation = {
             primaryFindings: this.clinicalAnalysis.interpretation.primaryFindings
         };
+        // Check if a comment is provided
+        if (comment && comment.message) {
+            interpretation.comments = [comment];
+        }
 
         // Add selected variants
-        if (this.addedVariants.length > 0) {
-            for (let addedVariant of this.addedVariants) {
+        if (this.state.addedVariants.length > 0) {
+            for (let addedVariant of this.state.addedVariants) {
                 let index = this.clinicalAnalysis.interpretation.primaryFindings.findIndex(v => v.id === addedVariant.id);
                 if (index === -1) {
                     interpretation.primaryFindings.push(addedVariant);
@@ -113,8 +121,8 @@ export default class ClinicalAnalysisManager {
         }
 
         // Remove variants
-        if (this.removedVariants.length > 0) {
-            for (let removedVariant of this.removedVariants) {
+        if (this.state.removedVariants.length > 0) {
+            for (let removedVariant of this.state.removedVariants) {
                 let index = this.clinicalAnalysis.interpretation.primaryFindings.findIndex(v => v.id === removedVariant.id);
                 if (index >= 0) {
                     interpretation.primaryFindings.splice(index, 1);
@@ -141,8 +149,7 @@ export default class ClinicalAnalysisManager {
                 );
 
                 // Reset
-                this.addedVariants = [];
-                this.removedVariants = [];
+                this.state = {...this.state, addedVariants: [], removedVariants: []};
             })
             .catch(restResponse => {
                 console.error(restResponse);

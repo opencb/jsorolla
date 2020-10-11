@@ -114,14 +114,10 @@ class ClinicalAnalysisComments extends LitElement {
                             <span style="font-weight: bold">New comment</span>
                         </div>
                         <div style="margin: 5px 10px">
-                            <text-field-filter placeholder="Add comment..." .rows=${2} 
-                                @filterChange="${e => this.onFilterChange(e)}">
-                            </text-field-filter>
+                            <text-field-filter placeholder="Add comment..." .rows=${2} @filterChange="${e => this.onFilterChange(e)}"></text-field-filter>
                         </div>
                         <div style="margin: 5px 10px">
-                            <text-field-filter placeholder="Add tags..." .rows=${1} 
-                                @filterChange="${e => this.onFilterChange(e)}">
-                            </text-field-filter>
+                            <text-field-filter placeholder="Add tags..." .rows=${1} @filterChange="${e => this.onFilterChange(e)}"></text-field-filter>
                         </div>
                         <div style="margin: 5px 10px">
                             <span>
