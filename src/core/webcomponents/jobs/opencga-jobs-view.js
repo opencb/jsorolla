@@ -94,6 +94,27 @@ export default class OpencgaJobsView extends LitElement {
         return {text: node.id, nodes: node.elements?.map(n => this.dependsOnMap(n))};
     }
 
+    renderResults() {
+        /** alternative solutions:
+         *  1. using the switch to render a result component like <opencga-knockout-analysis-result>. At that point having a `result` field in analysis configuration makes no sense anymore.
+         *  2. using the switch to dynamic import the config and call render
+         */
+
+        console.log("this.job.tool.id", this.job.tool.id)
+        switch(this.job.tool.id) {
+            case "knockout":
+                return html`<opencga-knockout-analysis-result></opencga-knockout-analysis-result>`
+            /*case "knockout":
+                let config = await import("./../variant/analysis/opencga-knockout-analysis.js")
+                return config.default.config().result();
+                break*/
+            default:
+                return "results"
+        }
+
+
+    }
+
     getDefaultConfig() {
         return {
             title: "Summary",
@@ -155,7 +176,7 @@ export default class OpencgaJobsView extends LitElement {
                         {
                             name: "Description",
                             field: "description"
-                        },
+                        }
                     ]
                 },
                 {
@@ -187,7 +208,7 @@ export default class OpencgaJobsView extends LitElement {
                             defaultValue: "N/A",
                             display: {
                                 template: "${name}",
-                                contentLayout: "bullets",
+                                contentLayout: "bullets"
                             }
                         },
                         // {
@@ -228,16 +249,31 @@ export default class OpencgaJobsView extends LitElement {
                             defaultValue: "N/A",
                             display: {
                                 template: "${name}",
-                                contentLayout: "bullets",
+                                contentLayout: "bullets"
                             }
                         },
                         {
                             name: "Command Line",
                             type: "complex",
                             display: {
-                                template: "<div class='cmd'>${commandLine}</div>",
+                                template: "<div class='cmd'>${commandLine}</div>"
                             }
-                        },
+                        }
+
+                    ]
+                },
+                {
+                    title: "Results",
+                    elements: [
+                        {
+                            type: "custom",
+                            name: "",
+                            display: {
+                                name: "",
+                                defaultLayout: "vertical",
+                                render: () => this.renderResults()
+                            }
+                        }
                     ]
                 },
                 {
@@ -265,7 +301,7 @@ export default class OpencgaJobsView extends LitElement {
                                 ],
                                 border: true
                             }
-                        },
+                        }
 
                     ]
                 }, {
@@ -294,6 +330,7 @@ export default class OpencgaJobsView extends LitElement {
             <data-form .data=${this.job} .config="${this._config}"></data-form>
         `;
     }
+
 }
 
 customElements.define("opencga-jobs-view", OpencgaJobsView);
