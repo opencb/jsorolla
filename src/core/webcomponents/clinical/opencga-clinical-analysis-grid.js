@@ -289,9 +289,9 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                 case "HIGH":
                     return "<span class='label label-warning' style='font-size: 95%'>High</span>";
                 case "MEDIUM":
-                    return "<span class='label' style='font-size: 95%'>Medium</span>";
+                    return "<span class='label label-primary' style='font-size: 95%'>Medium</span>";
                 case "LOW":
-                    return "<span class='label label-light' style='font-size: 95%'>Low</span>";
+                    return "<span class='label label-info' style='font-size: 95%'>Low</span>";
                 default:
                     return "<span>-</span>";
             }

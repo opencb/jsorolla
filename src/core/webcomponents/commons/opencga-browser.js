@@ -514,7 +514,7 @@ export default class OpencgaBrowser extends LitElement {
                             <opencga-active-filters facetActive 
                                                     .resource="${this.resource}"
                                                     .opencgaSession="${this.opencgaSession}"
-                                                    .defaultStudy="${this.opencgaSession.study.fqn}"
+                                                    .defaultStudy="${this.opencgaSession?.study?.fqn}"
                                                     .query="${this.preparedQuery}"
                                                     .refresh="${this.executedQuery}"
                                                     .facetQuery="${this.selectedFacetFormatted}"

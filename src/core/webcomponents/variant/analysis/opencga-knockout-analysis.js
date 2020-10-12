@@ -15,51 +15,11 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "./../../../utilsNew.js";
-import "../../commons/analysis/opencga-analysis-tool.js";
+import "./opencga-knockout-analysis-result.js";
 
+export default class OpencgaKnockoutAnalysis {
 
-export default class OpencgaKnockoutAnalysis extends LitElement {
-
-    constructor() {
-        super();
-
-        this._init();
-    }
-
-    createRenderRoot() {
-        return this;
-    }
-
-    static get properties() {
-        return {
-            opencgaSession: {
-                type: Object
-            },
-            config: {
-                type: Object
-            }
-        };
-    }
-
-    _init() {
-        this._prefix = "oga-" + UtilsNew.randomString(6);
-
-        this._config = this.getDefaultConfig();
-    }
-
-    connectedCallback() {
-        super.connectedCallback();
-    }
-
-    updated(changedProperties) {
-        if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
-            this.requestUpdate();
-        }
-    }
-
-    getDefaultConfig() {
+    static config() {
         return {
             id: "knockout",
             title: "Knockout Analysis",
@@ -159,16 +119,9 @@ export default class OpencgaKnockoutAnalysis extends LitElement {
                 data.filter ? body.filter = data.filter.join(",") : null;
                 opencgaSession.opencgaClient.variants().runKnockout(body, params);
             },
-            result: {
+            result: opencgaSession => {
+                return html`<opencga-knockout-analysis-result .opencgaSession="${opencgaSession}"></opencga-knockout-analysis-result>`
             }
         };
     }
-
-    render() {
-        return html`
-           <opencga-analysis-tool .opencgaSession="${this.opencgaSession}" .config="${this._config}" ></opencga-analysis-tool>
-        `;
-    }
 }
-
-customElements.define("opencga-knockout-analysis", OpencgaKnockoutAnalysis);
