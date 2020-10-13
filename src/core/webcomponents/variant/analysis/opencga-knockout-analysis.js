@@ -16,6 +16,8 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import "./opencga-knockout-analysis-result.js";
+import "../../commons/filters/consequence-type-select-filter.js";
+import UtilsNew from "../../../utilsNew.js";
 
 export default class OpencgaKnockoutAnalysis {
 
@@ -83,7 +85,10 @@ export default class OpencgaKnockoutAnalysis {
                             {
                                 id: "consequenceType",
                                 title: "Select consequence type",
-                                type: "text"
+                                type: "custom",
+                                display: {
+                                    render: () => html`<consequence-type-filter @filterChange="${e => console.log(e)}"></consequence-type-filter>`
+                                }
                             },
                             {
                                 id: "filter",
@@ -117,7 +122,11 @@ export default class OpencgaKnockoutAnalysis {
                 data.biotype ? body.biotype = data.biotype.join(",") : null;
                 data.consequenceType ? body.consequenceType = data.consequenceType.join(",") : null;
                 data.filter ? body.filter = data.filter.join(",") : null;
-                opencgaSession.opencgaClient.variants().runKnockout(body, params);
+                opencgaSession.opencgaClient.variants().runKnockout(body, params)
+                    .then( restResponse => {
+                        // TODO notify successfully launced
+                    })
+                    .catch (e => UtilsNew.notifyError(e));
             },
             result: opencgaSession => {
                 return html`<opencga-knockout-analysis-result .opencgaSession="${opencgaSession}"></opencga-knockout-analysis-result>`

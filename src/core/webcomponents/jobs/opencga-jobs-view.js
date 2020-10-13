@@ -309,9 +309,10 @@ export default class OpencgaJobsView extends LitElement {
                     visible: this.mode === "full",
                     elements: [
                         {
-                            name: "Log",
+                            name: "",
                             type: "custom",
                             display: {
+                                defaultLayout: "vertical",
                                 render: job => html`<opencga-jobs-detail-log
                                                         .opencgaSession=${this.opencgaSession}
                                                         .active="${true}"

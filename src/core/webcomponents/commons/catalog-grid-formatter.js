@@ -76,7 +76,7 @@ export default class CatalogGridFormatter {
                     results.push(fields[fields.length - 1]);
                 }
             }
-            return results.join("<br>");
+            return results.length > 20 ? results.length + " files" : results.join("<br>");
         } else {
             return "-";
         }

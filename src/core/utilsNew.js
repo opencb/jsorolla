@@ -1,3 +1,5 @@
+import {NotificationQueue} from "./webcomponents/Notification.js";
+
 export default class UtilsNew {
 
     static get MESSAGE_SUCCESS() {
@@ -290,6 +292,19 @@ export default class UtilsNew {
 
     static ErrorStringify(error) {
         return (err => JSON.stringify(Object.getOwnPropertyNames(Object.getPrototypeOf(err)).reduce(function(accumulator, currentValue) { return accumulator[currentValue] = err[currentValue], accumulator}, {})))(error);
+    }
+
+    static notifyError(response) {
+        if (response?.getEvents?.("ERROR")?.length) {
+            const errors = response.getEvents("ERROR");
+            errors.forEach(error => {
+                new NotificationQueue().push(error.name, error.message, "ERROR");
+            });
+        } else if (response instanceof Error) {
+            new NotificationQueue().push(response.name, response.message, "ERROR");
+        } else {
+            new NotificationQueue().push("Generic Error", JSON.stringify(response), "ERROR");
+        }
     }
 
 }
