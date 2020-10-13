@@ -19,8 +19,8 @@ import OpencgaCatalogUtils from "../../../clients/opencga/opencga-catalog-utils.
 import ClinicalAnalysisManager from "../../clinical/clinical-analysis-manager.js";
 import ClinicalAnalysisUtils from "../../clinical/clinical-analysis-utils.js";
 import UtilsNew from "../../../utilsNew.js";
-import "./variant-interpreter-grid.js";
 import "./variant-interpreter-toolbar.js";
+import "./variant-interpreter-grid.js";
 import "./variant-interpreter-detail.js";
 import "../opencga-variant-filter.js";
 import "../../tool-header.js";
@@ -215,29 +215,25 @@ class VariantInterpreterBrowserCancer extends LitElement {
         } else {
             this.clinicalAnalysisManager.removeVariant(e.detail.row);
         }
-        // This will force the refresh
-        // this.clinicalAnalysisManager = {...this.clinicalAnalysisManager};
-        // this._clinicalAnalysisManager = new ClinicalAnalysisManager*();
-        // this.clinicalAnalysisManager = JSON.parse(JSON.stringify(this.clinicalAnalysisManager));
     }
 
-    onViewVariants(e) {
-        let variantIds = this.clinicalAnalysis.interpretation.primaryFindings.map(e => e.id);
+    onFilterVariants(e) {
+        let variantIds = e.detail.variants.map(v => v.id);
         this.preparedQuery = {...this.preparedQuery, id: variantIds.join(",")};
         this.executedQuery = {...this.executedQuery, id: variantIds.join(",")};
         this.requestUpdate();
     }
 
     onResetVariants(e) {
-        // let alreadySaved = this.clinicalAnalysis.interpretation.primaryFindings.filter(e => e.attributes.creationDate);
-        // // debugger
-        // this.clinicalAnalysis.interpretation.primaryFindings = alreadySaved;
-        // console.error("primaryFindings", this.clinicalAnalysis.interpretation.primaryFindings);
-        // this.clinicalAnalysis = {...this.clinicalAnalysis};
-        // this.requestUpdate();
         this.clinicalAnalysisManager.reset();
 
-        this.clinicalAnalysis = JSON.parse(JSON.stringify(this.clinicalAnalysis));
+        this.preparedQuery = {...this.preparedQuery};
+        this.executedQuery = {...this.executedQuery};
+        delete this.preparedQuery.id;
+        delete this.executedQuery.id;
+
+        this.clinicalAnalysis = {...this.clinicalAnalysis};
+        // this.requestUpdate();
     }
 
     onSaveVariants(e) {
@@ -697,8 +693,10 @@ class VariantInterpreterBrowserCancer extends LitElement {
                     <div>
                         ${OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS") 
                             ? html`
-                                <variant-interpreter-toolbar .clinicalAnalysisManager="${this.clinicalAnalysisManager}"
+                                <variant-interpreter-toolbar .clinicalAnalysis="${this.clinicalAnalysis}" 
                                                              .state="${this.clinicalAnalysisManager.state}" 
+                                                             @filterVariants="${this.onFilterVariants}"
+                                                             @resetVariants="${this.onResetVariants}"
                                                              @saveInterpretation="${this.onSaveVariants}">
                                 </variant-interpreter-toolbar>` 
                             : null
@@ -730,7 +728,6 @@ class VariantInterpreterBrowserCancer extends LitElement {
                                                           .populationFrequencies="${populationFrequencies}"
                                                           .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
                                                           .config="${this._config.filter.result.grid}"
-                                                          @selected="${this.onSelectedGene}"
                                                           @selectrow="${this.onSelectVariant}"
                                                           @checkrow="${this.onCheckVariant}">
                                 </variant-interpreter-grid>
