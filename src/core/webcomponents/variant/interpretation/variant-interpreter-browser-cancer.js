@@ -19,8 +19,8 @@ import OpencgaCatalogUtils from "../../../clients/opencga/opencga-catalog-utils.
 import ClinicalAnalysisManager from "../../clinical/clinical-analysis-manager.js";
 import ClinicalAnalysisUtils from "../../clinical/clinical-analysis-utils.js";
 import UtilsNew from "../../../utilsNew.js";
-import "./variant-interpreter-grid.js";
 import "./variant-interpreter-toolbar.js";
+import "./variant-interpreter-grid.js";
 import "./variant-interpreter-detail.js";
 import "../opencga-variant-filter.js";
 import "../../tool-header.js";
