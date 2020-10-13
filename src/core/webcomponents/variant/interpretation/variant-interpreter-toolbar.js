@@ -16,7 +16,6 @@
 
 import {html, LitElement} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../utilsNew.js";
-import ClinicalAnalysisManager from "../../clinical/clinical-analysis-manager.js";
 
 
 class VariantInterpreterToolbar extends LitElement {
@@ -37,7 +36,7 @@ class VariantInterpreterToolbar extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            clinicalAnalysisManager: {
+            clinicalAnalysis: {
                 type: Object
             },
             state: {
@@ -59,28 +58,38 @@ class VariantInterpreterToolbar extends LitElement {
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("opencgaSession") || changedProperties.has("config")) {
+        if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
-            // this.requestUpdate();
-        }
-        if (changedProperties.has("clinicalAnalysisManager")) {
-            this.requestUpdate();
         }
     }
 
-    // onViewVariants(e) {
-    //     this.dispatchEvent(new CustomEvent("viewInterpretation", {
-    //         detail: {
-    //             comment: this.comment
-    //         },
-    //         bubbles: true,
-    //         composed: true
-    //     }));
-    // }
+    onFilterPrimaryFindingVariants(e) {
+        this.dispatchEvent(new CustomEvent("filterVariants", {
+            detail: {
+                variants: this.clinicalAnalysis.interpretation.primaryFindings
+            },
+            bubbles: true,
+            composed: true
+        }));
+    }
 
-    onResetVariants(e) {
-        this.clinicalAnalysisManager.reset();
-        this.clinicalAnalysis = JSON.parse(JSON.stringify(this.clinicalAnalysis));
+    onFilterModifiedVariants(e) {
+        this.dispatchEvent(new CustomEvent("filterVariants", {
+            detail: {
+                variants: [...this.state.addedVariants, ...this.state.removedVariants]
+            },
+            bubbles: true,
+            composed: true
+        }));
+    }
+
+    onResetModifiedVariants(e) {
+        this.dispatchEvent(new CustomEvent("resetVariants", {
+            detail: {
+            },
+            bubbles: true,
+            composed: true
+        }));
     }
 
     onSaveInterpretation(e) {
@@ -94,7 +103,7 @@ class VariantInterpreterToolbar extends LitElement {
         this.comment = {};
     }
 
-    onFilterChange(type, e) {
+    onSaveFieldsChange(type, e) {
         this.comment = this.comment ? this.comment : {};
         switch (type) {
             case "message":
@@ -106,6 +115,20 @@ class VariantInterpreterToolbar extends LitElement {
         }
     }
 
+    renderVariant(variant, icon) {
+        let geneNames = Array.from(new Set(variant.annotation.consequenceTypes.filter(ct => ct.geneName).map(ct => ct.geneName)));
+        let iconHtml = "";
+        if (icon) {
+            iconHtml = html`<span style="float: right; cursor: pointer"><i class="${icon}"></i></span>`;
+        }
+        return html`
+            <div style="border-left: 2px solid #0c2f4c; margin: 15px 0px">
+                <div style="margin: 5px 10px">${variant.id} (${variant.type}) ${iconHtml}</div>
+                <div style="margin: 5px 10px">${variant.annotation.displayConsequenceType}</div>
+                <div style="margin: 5px 10px">${geneNames.join(", ")}</div>
+            </div>
+        `;
+    }
     getDefaultConfig() {
         return {
 
@@ -116,18 +139,6 @@ class VariantInterpreterToolbar extends LitElement {
         return html`
             <div class="btn-toolbar" role="toolbar" aria-label="toolbar" style="margin-bottom: 20px">
                 <div class="pull-right" role="group">
-                    <!--
-                    <div class="btn-group">
-                        ${this.state.addedVariants?.length || this.state.removedVariants?.length 
-                            ? html`
-                                <label>Variants modified: </label>
-                                <span>${this.state.addedVariants.length}</span>
-                            ` 
-                            : null
-                        }                  
-                    </div>
-                    -->
-                    
                     <div class="btn-group">
                         <button type="button" class="btn btn-primary dropdown-toggle ripple" data-toggle="dropdown" aria-haspopup="true" 
                                     aria-expanded="false" title="Show saved variants">
@@ -136,40 +147,22 @@ class VariantInterpreterToolbar extends LitElement {
                         <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="${this._prefix}ResetMenu" style="width: 360px">
                             <li style="margin: 5px 10px">
                                 <div style="margin: 5px 0px">
-                                    <span style="font-weight: bold">Added Variants</span>
+                                    <span style="font-weight: bold">Primary Findings</span>
                                 </div>
                                 <div>
-                                    ${this.state.addedVariants?.length > 0
-                                        ? this.state.addedVariants.map(variant => html`
-                                            <div style="background-color: rgb(245, 245, 245); margin: 5px 5px">
-                                                <label style="font-weight: normal; width: 300px; margin: 5px">${variant.id} (${variant.type})</label>
-                                            </div>
+                                    ${this.clinicalAnalysis.interpretation.primaryFindings?.length > 0
+                                        ? this.clinicalAnalysis.interpretation.primaryFindings.map(variant => html`
+                                            ${this.renderVariant(variant)}
                                         `)
-                                        : html`<div style="margin: 5px 5px">No new variants selected</div>`
-                                    }
-                                </div>
-                            </li>
-                            <li role="separator" class="divider"></li>
-                            <li style="margin: 5px 10px">
-                                <div style="margin: 5px 0px">
-                                    <span style="font-weight: bold">Removed Variants</span>
-                                </div>
-                                <div>
-                                    ${this.state.removedVariants?.length > 0
-                                        ? this.state.removedVariants.map(variant => html`
-                                            <div style="background-color: rgb(245, 245, 245); margin: 5px 5px">
-                                                <label style="font-weight: normal; width: 300px; margin: 5px">${variant.id} (${variant.type})</label>
-                                            </div>
-                                        `)
-                                        : html`<div style="margin: 5px 5px">No variants to remove</div>`
+                                        : html`<div style="margin: 5px 5px">No primary findings found</div>`
                                     }
                                 </div>
                             </li>
                             <li role="separator" class="divider"></li>
                             <li style="margin: 5px 10px">
                                 <div style="float: right">
-                                    <button type="button" class="btn btn-primary ${this.state.addedVariants?.length || this.state.removedVariants?.length ? "" : "disabled"}" 
-                                        @click="${this.onResetVariants}">Filter
+                                    <button type="button" class="btn btn-primary ${this.clinicalAnalysis.interpretation.primaryFindings?.length ? "" : "disabled"}" 
+                                        @click="${this.onFilterPrimaryFindingVariants}" style="margin: 5px">Filter
                                     </button>
                                 </div>
                             </li>
@@ -189,11 +182,8 @@ class VariantInterpreterToolbar extends LitElement {
                                 <div>
                                     ${this.state.addedVariants?.length > 0
                                         ? this.state.addedVariants.map(variant => html`
-                                                                                <div style="background-color: rgb(245, 245, 245); margin: 5px 5px">
-                                                                                    <label style="font-weight: normal; width: 300px; margin: 5px">${variant.id} (${variant.type})</label>
-                                                                                    <span style="cursor: pointer"><i class="fas fa-times"></i></span>
-                                                                                </div>
-                                                                            `)
+                                            ${this.renderVariant(variant, "fas fa-times")}
+                                        `)
                                         : html`<div style="margin: 5px 5px">No new variants selected</div>`
                                     }
                                 </div>
@@ -206,10 +196,7 @@ class VariantInterpreterToolbar extends LitElement {
                                 <div>
                                     ${this.state.removedVariants?.length > 0
                                         ? this.state.removedVariants.map(variant => html`
-                                            <div style="background-color: rgb(245, 245, 245); margin: 5px 5px">
-                                                <label style="font-weight: normal; width: 300px; margin: 5px">${variant.id} (${variant.type})</label>
-                                                <span style="cursor: pointer"><i class="fas fa-times"></i></span>
-                                            </div>
+                                            ${this.renderVariant(variant, "fas fa-times")}
                                         `)
                                         : html`<div style="margin: 5px 5px">No variants to remove</div>`
                                     }
@@ -219,7 +206,10 @@ class VariantInterpreterToolbar extends LitElement {
                             <li style="margin: 5px 10px">
                                 <div style="float: right">
                                     <button type="button" class="btn btn-primary ${this.state.addedVariants?.length || this.state.removedVariants?.length ? "" : "disabled"}" 
-                                        @click="${this.onResetVariants}">Reset
+                                        @click="${this.onFilterModifiedVariants}" style="margin: 5px">Filter
+                                    </button>
+                                    <button type="button" class="btn btn-primary ${this.state.addedVariants?.length || this.state.removedVariants?.length ? "" : "disabled"}" 
+                                        @click="${this.onResetModifiedVariants}" style="margin: 5px">Reset
                                     </button>
                                 </div>
                             </li>
@@ -260,17 +250,17 @@ class VariantInterpreterToolbar extends LitElement {
                                     <span style="font-weight: bold">Add new comment</span>
                                 </div>
                                 <div style="margin: 5px 0px">
-                                    <text-field-filter placeholder="Add comment..." .rows=${3} @filterChange="${e => this.onFilterChange("message", e)}"></text-field-filter>
+                                    <text-field-filter placeholder="Add comment..." .rows=${3} @filterChange="${e => this.onSaveFieldsChange("message", e)}"></text-field-filter>
                                 </div>
                                 <div style="margin: 5px 0px">
-                                    <text-field-filter placeholder="Add tags..." .rows=${1} @filterChange="${e => this.onFilterChange(e)}"></text-field-filter>
+                                    <text-field-filter placeholder="Add tags..." .rows=${1} @filterChange="${e => this.onSaveFieldsChange(e)}"></text-field-filter>
                                 </div>
                             </li>
                             <li role="separator" class="divider"></li>
                             <li style="margin: 5px 10px">
                                 <div style="float: right">
                                     <button type="button" class="btn btn-primary ${this.state.addedVariants?.length || this.state.removedVariants?.length ? "" : "disabled"}" 
-                                        @click="${this.onSaveInterpretation}">Save
+                                        @click="${this.onSaveInterpretation}" style="margin: 5px">Save
                                     </button>
                                 </div>
                             </li>
