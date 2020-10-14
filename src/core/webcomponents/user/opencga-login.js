@@ -23,10 +23,8 @@ export default class OpencgaLogin extends LitElement {
 
     constructor() {
         super();
-        this.userName = "";
-        this.password = "";
-        this.buttonText = "Sign in";
-        this.notifyEventMessage = "messageevent";
+
+        this._init();
     }
     createRenderRoot() {
         return this;
@@ -52,6 +50,14 @@ export default class OpencgaLogin extends LitElement {
         };
     }
 
+    _init() {
+        this.userName = "";
+        this.password = "";
+        this.buttonText = "Sign in";
+        this.notifyEventMessage = "messageevent";
+        this.signingIn = false;
+    }
+
     firstUpdated(changedProperties) {
         $("#formLogin").validator("update");
         $("#formLogin").validator().on("submit", e => this.submitLogin(e));
@@ -66,6 +72,8 @@ export default class OpencgaLogin extends LitElement {
         } else {
             // everything looks good!
             e.preventDefault();
+            //this.dispatchEvent(new CustomEvent("signingIn"));
+
             const user = this.querySelector("#opencgaUser").value;
             const pass = this.querySelector("#opencgaPassword").value;
             const _this = this;
