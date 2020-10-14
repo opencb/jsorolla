@@ -192,23 +192,32 @@ class ClinicalInterpretationSummaryEditor extends LitElement {
                 {
                     id: "summary",
                     title: "Summary",
+                    display: {
+                        style: "background-color: #f3f3f3; border-left: 4px solid #0c2f4c; margin: 15px 0px; padding-top: 10px",
+                        elementLabelStyle: "padding-top: 0px", // forms add control-label which has an annoying top padding
+                    },
                     elements: [
                         {
                             name: "Interpretation ID",
-                            field: "interpretation.id",
+                            field: "interpretation",
+                            type: "custom",
                             display: {
-                            }
-                        },
-                        {
-                            name: "Interpretation Version",
-                            field: "interpretation.version",
-                            display: {
+                                render: interpretation => html`
+                                    <span style="font-weight: bold; margin-right: 10px">${interpretation.id}</span> 
+                                    <span class="version" style="padding-right: 40px">version ${interpretation.version}</span> 
+                                    <span><i class="far fa-calendar-alt"></i> ${UtilsNew.dateFormatter(interpretation?.modificationDate)}</span>`
                             }
                         },
                         {
                             name: "Proband",
-                            field: "proband.id",
+                            field: "proband",
+                            type: "custom",
                             display: {
+                                render: proband => {
+                                    let sex = (proband.sex && proband.sex !== "UNKNOWN") ? `(${proband.sex})` : "";
+                                    let sampleIds = proband.samples.map(sample => sample.id).join(", ");
+                                    return html`<span style="padding-right: 25px">${proband.id} ${sex}</span> <span>Sample(s): ${sampleIds}</span>`;
+                                }
                             }
                         },
                         {
@@ -223,7 +232,14 @@ class ClinicalInterpretationSummaryEditor extends LitElement {
                             name: "Analysis Type",
                             field: "type",
                             display: {
-                                visible: !this._config?.hiddenFields?.includes("type"),
+                            }
+                        },
+                        {
+                            name: "Primary Findings",
+                            field: "interpretation.primaryFindings",
+                            type: "custom",
+                            display: {
+                                render: primaryFindings => html`<span style="font-weight: bold">${primaryFindings.length}</span>`
                             }
                         },
                     ]
