@@ -73,7 +73,7 @@ export default class FamilyIdAutocomplete extends LitElement {
                     study: this.opencgaSession.study.fqn,
                     limit: 20,
                     count: false,
-                    // include: "id,individual.id",
+                    include: "id",
                     id: "~^" + query.toUpperCase()
                 };
                 this.opencgaSession.opencgaClient.families().search(filters).then(restResponse => {

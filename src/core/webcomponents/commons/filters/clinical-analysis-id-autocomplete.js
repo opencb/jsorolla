@@ -60,14 +60,15 @@ export default class CohortIdAutocomplete extends LitElement {
         return {
             addButton: false,
             fields: item => ({
-                name: item.id
+                name: item.id,
+                "Proband Id": item?.proband?.id
             }),
             dataSource: (query, process) => {
                 const filters = {
                     study: this.opencgaSession.study.fqn,
                     limit: 20,
                     count: false,
-                    // include: "id,individual.id",
+                    include: "id,proband",
                     id: "~^" + query.toUpperCase()
                 };
                 this.opencgaSession.opencgaClient.clinical().search(filters).then(restResponse => {
