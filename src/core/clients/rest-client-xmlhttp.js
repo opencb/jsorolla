@@ -84,7 +84,7 @@ export class RestClientXmlhttp {
 
             request.onload = function(event) {
                 if (request.status === 200) {
-                    let contentType = this.getResponseHeader("Content-Type");
+                    let contentType = this.getResponseHeader("Content-Type") ?? ""; // empty string is useful in case contentType is undefined (empty response)
                     // indexOf() is used because sometimes the contentType is 'application/json;charset=utf-8'
                     if (contentType.indexOf("application/json")!== -1) {
                         dataResponse = JSON.parse(this.response);
@@ -95,7 +95,7 @@ export class RestClientXmlhttp {
 
                         // If the call is OK then we execute the success function from the user
                         if (typeof options !== "undefined" && typeof options.success === "function"
-                            && typeof options.cacheFn === "undefined") {
+                                && typeof options.cacheFn === "undefined") {
                             options.success(dataResponse);
                         }
                         console.timeEnd(`REST call to ${url}`);
@@ -109,7 +109,7 @@ export class RestClientXmlhttp {
                         globalThis.dispatchEvent(eventDone);
                         resolve(this.response);
                     }  else {
-                        console.log(`Result is not JSON: ${this.response}`);
+                        console.error(`Response is not JSON: ${this.response}`);
                     }
                 } else {
                     console.error(`REST call to URL failed: '${url}'`);
