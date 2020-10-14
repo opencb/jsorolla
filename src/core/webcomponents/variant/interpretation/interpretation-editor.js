@@ -195,17 +195,33 @@ class InterpretationEditor extends LitElement {
                 {
                     id: "summary",
                     title: "Summary",
+                    display: {
+                        style: "background-color: #f3f3f3; border-left: 4px solid #0c2f4c; margin: 15px 0px; padding-top: 10px",
+                        elementLabelStyle: "padding-top: 0px", // forms add control-label which has an annoying top padding
+                    },
                     elements: [
                         {
                             name: "Case ID",
-                            field: "id",
+                            // field: "id",
+                            type: "custom",
                             display: {
+                                render: clinicalAnalysis => html`
+                                    <span style="font-weight: bold; padding-right: 40px">${clinicalAnalysis.id}</span> 
+                                    <span><i class="far fa-calendar-alt"></i> ${UtilsNew.dateFormatter(clinicalAnalysis?.modificationDate)}</span>`
                             }
                         },
                         {
                             name: "Proband",
-                            field: "proband.id",
+                            field: "proband",
+                            type: "custom",
                             display: {
+                                render: proband => {
+                                    let sex = (proband.sex && proband.sex !== "UNKNOWN") ? `(${proband.sex})` : "";
+                                    let sampleIds = proband.samples.map(sample => sample.id).join(", ");
+                                    return html`
+                                        <span style="padding-right: 25px">${proband.id} ${sex}</span>
+                                        <span style="font-weight: bold; padding-right: 10px">Sample(s):</span><span>${sampleIds}</span>`;
+                                }
                             }
                         },
                         {
@@ -219,8 +235,15 @@ class InterpretationEditor extends LitElement {
                         {
                             name: "Analysis Type",
                             field: "type",
+                        },
+                        {
+                            name: "Interpretation ID",
+                            field: "interpretation",
+                            type: "custom",
                             display: {
-                                visible: !this._config?.hiddenFields?.includes("type"),
+                                render: interpretation => html`
+                                    <span style="font-weight: bold; margin-right: 10px">${interpretation.id}</span> 
+                                    <span style="color: grey; padding-right: 40px">version ${interpretation.version}</span>`
                             }
                         },
                     ]

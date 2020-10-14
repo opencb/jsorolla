@@ -204,7 +204,7 @@ class ClinicalInterpretationSummaryEditor extends LitElement {
                             display: {
                                 render: interpretation => html`
                                     <span style="font-weight: bold; margin-right: 10px">${interpretation.id}</span> 
-                                    <span class="version" style="padding-right: 40px">version ${interpretation.version}</span> 
+                                    <span style="color: grey; padding-right: 40px">version ${interpretation.version}</span> 
                                     <span><i class="far fa-calendar-alt"></i> ${UtilsNew.dateFormatter(interpretation?.modificationDate)}</span>`
                             }
                         },
@@ -216,7 +216,9 @@ class ClinicalInterpretationSummaryEditor extends LitElement {
                                 render: proband => {
                                     let sex = (proband.sex && proband.sex !== "UNKNOWN") ? `(${proband.sex})` : "";
                                     let sampleIds = proband.samples.map(sample => sample.id).join(", ");
-                                    return html`<span style="padding-right: 25px">${proband.id} ${sex}</span> <span>Sample(s): ${sampleIds}</span>`;
+                                    return html`
+                                        <span style="padding-right: 25px">${proband.id} ${sex}</span>
+                                        <span style="font-weight: bold; padding-right: 10px">Sample(s):</span><span>${sampleIds}</span>`;
                                 }
                             }
                         },
