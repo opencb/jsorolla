@@ -438,7 +438,8 @@ export default class VariantInterpreterReview extends LitElement {
                             </clinical-interpretation-summary-editor>
                         </div>
                     </div>
-                    <div id="${this._prefix}PrimaryFindings" role="tabpanel" class="tab-pane col-md-12 content-tab">
+                    <div id="${this._prefix}PrimaryFindings" role="tabpanel" class="tab-pane col-md-10 col-md-offset-1 content-tab">
+                        <tool-header title="Primary Findings - ${this.clinicalAnalysis?.interpretation?.id}" class="bg-white"></tool-header>
                         <variant-interpreter-review-primary .opencgaSession="${this.opencgaSession}" 
                                                             .clinicalAnalysis="${this.clinicalAnalysis}"
                                                             .active="${this.activeTab["PrimaryFindings"]}">

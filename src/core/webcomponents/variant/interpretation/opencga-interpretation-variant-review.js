@@ -90,6 +90,14 @@ export default class OpencgaInterpretationVariantReview extends LitElement {
                             }
                         },
                         {
+                            name: "Status",
+                            field: "status",
+                            type: "select",
+                            allowedValues: ["NOT_REVIEWED", "REVIEW_REQUESTED", "REVIEWED", "DISCARDED", "REPORTED"],
+                            display: {
+                            }
+                        },
+                        {
                             name: "Comment",
                             field: "description",
                             type: "input-text",
@@ -105,12 +113,12 @@ export default class OpencgaInterpretationVariantReview extends LitElement {
     }
 
     render() {
-        // return html`
-        //     <data-form  .data=${this.save}
-        //                 .config="${this.getSaveConfig()}"
-        //                 @fieldChange="${e => this.onSaveFieldChange(e)}" @submit="${this.onSave}">
-        //     </data-form>
-        // `;
+        return html`
+            <data-form  .data=${this.save}
+                        .config="${this.getSaveConfig()}"
+                        @fieldChange="${e => this.onSaveFieldChange(e)}" @submit="${this.onSave}">
+            </data-form>
+        `;
 
         return html`
             <span>${this.variant ? this.variant.id : ""}</span>

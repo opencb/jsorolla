@@ -514,7 +514,7 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                     <i class="fas fa-save icon-padding"></i>Save
                 </button>
             </div>
-            <tool-header title="Primary Findings" class="bg-white" icon="${this._config.icon}"></tool-header>
+<!--            <tool-header title="Primary Findings" class="bg-white" icon="${this._config.icon}"></tool-header>-->
 
             <div class="row">
                 <div id="${this._prefix}SaveInterpretation">
