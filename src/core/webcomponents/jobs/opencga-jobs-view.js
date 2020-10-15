@@ -17,7 +17,7 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
 import "../commons/view/data-form.js";
-
+import AnalysisRegistry from "../variant/analysis/analysis-registry.js";
 
 export default class OpencgaJobsView extends LitElement {
 
@@ -271,7 +271,7 @@ export default class OpencgaJobsView extends LitElement {
                             display: {
                                 name: "",
                                 defaultLayout: "vertical",
-                                render: () => this.renderResults()
+                                render: () => AnalysisRegistry.get(this.job.tool.id).result
                             }
                         }
                     ]

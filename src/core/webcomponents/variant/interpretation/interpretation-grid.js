@@ -194,7 +194,6 @@ class InterpretationGrid extends LitElement {
     }
 
     renderHistoryTable() {
-
         this.data = [];
         if (this.clinicalAnalysis?.interpretation) {
             const versionCnt = this.clinicalAnalysis.interpretation.version;

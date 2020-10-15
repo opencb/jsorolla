@@ -551,7 +551,29 @@ export default class OpencgaActiveFilters extends LitElement {
             <div class="panel panel-default">
                 <div class="panel-body" style="padding: 8px 10px">
                     <div class="lhs">
-                        <p class="active-filter-label">Filters</p>
+                        <div class="dropdown saved-filter-dropdown">
+                            <button type="button" class="active-filter-label ripple no-shadow" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fa fa-filter icon-padding" aria-hidden="true"></i> Filters <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a style="font-weight: bold">Saved Filters</a></li>
+                                ${this._filters && this._filters.length
+                                    ? this._filters.map(item => item.separator ? html`
+                                            <li role="separator" class="divider"></li>
+                                        ` : html`
+                                            <li>
+                                                <a data-filter-id="${item.id}" style="cursor: pointer;color: ${!item.active ? "black" : "green"}" @click="${this.onServerFilterChange}" class="filtersLink">&nbsp;&nbsp;${item.id}</a>
+                                            </li>`)
+                                    : null
+                                }
+                                ${this.checkSid(this.opencgaClient._config) ? html`
+                                    <li role="separator" class="divider"></li>
+                                    <li>
+                                        <a style="cursor: pointer" @click="${this.launchModal}"><i class="fa fa-floppy-o" aria-hidden="true"></i> Save...</a>
+                                    </li>
+                                ` : null}
+                            </ul>
+                        </div>
                     
                         ${this.queryList ? html`
                             ${this.queryList.length === 0

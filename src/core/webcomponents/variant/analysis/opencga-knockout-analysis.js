@@ -124,12 +124,14 @@ export default class OpencgaKnockoutAnalysis {
                 data.filter ? body.filter = data.filter.join(",") : null;
                 opencgaSession.opencgaClient.variants().runKnockout(body, params)
                     .then( restResponse => {
-                        // TODO notify successfully launced
                     })
                     .catch (e => UtilsNew.notifyError(e));
             },
             result: opencgaSession => {
                 return html`<opencga-knockout-analysis-result .opencgaSession="${opencgaSession}"></opencga-knockout-analysis-result>`
+            },
+            resultEx: (AnalysisRegistry, opencgaSession) => {
+                return AnalysisRegistry.get("ko").result();
             }
         };
     }
