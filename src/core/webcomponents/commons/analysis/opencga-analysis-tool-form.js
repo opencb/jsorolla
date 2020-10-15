@@ -37,6 +37,9 @@ export default class OpencgaAnalysisToolForm extends LitElement {
             opencgaSession: {
                 type: Object
             },
+            cellbaseClient: {
+                type: Object
+            },
             config: {
                 type: Object
             }
@@ -190,11 +193,11 @@ export default class OpencgaAnalysisToolForm extends LitElement {
                     }
                 });
             }
-            this.config.sections = $.extend(true, [], this.config.sections); // god save the queen
-            this.requestUpdate();
         } else {
             delete this.data[e.detail.param];
         }
+        this.config.sections = $.extend(true, [], this.config.sections); // god save the queen
+        this.requestUpdate();
     }
 
     // This function fills job 'params' which contains study, jobId, jobTags and jobDescription. This is common for all OpenCGA Analysis.
@@ -238,6 +241,8 @@ export default class OpencgaAnalysisToolForm extends LitElement {
                         ${JSON.stringify(this.config.sections, null, "\t")}
                     </pre>
                 -->
+                
+                this.data ${JSON.stringify(this.data)}
                 <form id="${this._prefix}analysis-form" data-toggle="validator" data-feedback='{"success": "fa-check", "error": "fa-times"}' role="form">
                     ${this.config.sections.map( (section, i) => html`
                          <div class="panel panel-default shadow-sm">
@@ -253,7 +258,7 @@ export default class OpencgaAnalysisToolForm extends LitElement {
                                  <div class="panel-body">
                                      <div class="row">
                                          ${section.parameters && section.parameters.length ? section.parameters.map( param => html`
-                                             <opencga-analysis-tool-form-field .opencgaSession="${this.opencgaSession}" .config="${param}" @fieldChange="${this.onFieldChange}"> </opencga-analysis-tool-form-field>
+                                             <opencga-analysis-tool-form-field .opencgaSession="${this.opencgaSession}" .cellbaseClient=${this.cellbaseClient} .config="${param}" @fieldChange="${this.onFieldChange}"> </opencga-analysis-tool-form-field>
                                          `) : null }
                                      </div>
                                  </div>

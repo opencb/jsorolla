@@ -48,7 +48,7 @@ export default class OpencgaVariantFilter extends LitElement {
 
     constructor() {
         super();
-        
+
         this._init();
     }
 
@@ -362,7 +362,7 @@ export default class OpencgaVariantFilter extends LitElement {
                     content = html`<biotype-filter .config="${this.config}" .biotype=${this.preparedQuery.biotype} @filterChange="${e => this.onFilterChange("biotype", e.detail.value)}"></biotype-filter>`;
                     break;
                 case "type":
-                    content = html`<variant-type-filter .config="${this.config}" .type="${this.preparedQuery.type}" .cellbaseClient="${this.cellbaseClient}" @filterChange="${e => this.onFilterChange("type", e.detail.value)}"></variant-type-filter>`;
+                    content = html`<variant-type-filter .config="${this.config}" .type="${this.preparedQuery.type}" @filterChange="${e => this.onFilterChange("type", e.detail.value)}"></variant-type-filter>`;
                     break;
                 case "populationFrequency":
                     content = html`<population-frequency-filter .populationFrequencies="${populationFrequencies}" ?showSetAll="${subsection.showSetAll}" .populationFrequencyAlt="${this.preparedQuery.populationFrequencyAlt}" @filterChange="${e => this.onFilterChange("populationFrequencyAlt", e.detail.value)}"></population-frequency-filter>`;

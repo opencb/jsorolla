@@ -52,7 +52,10 @@ export default class OpencgaKnockoutAnalysis {
                             {
                                 id: "gene",
                                 title: "Select gene",
-                                type: "text"
+                                type: "GENE_FILTER",
+                                addButton: true,
+                                showList: true,
+                                fileUpload: true
                             },
                             {
                                 id: "panel",
@@ -62,6 +65,23 @@ export default class OpencgaKnockoutAnalysis {
                                 showList: true,
                                 fileUpload: true
                             }
+                        ]
+                    },
+                    {
+                        title: "Variant Filters",
+                        collapsed: false,
+                        parameters: [
+                            {
+                                id: "type",
+                                title: "Variant types",
+                                type: "VARIANT_TYPE_FILTER",
+                                layout: "horizontal"
+                            },
+                            {
+                                id: "ct",
+                                title: "Consequence type",
+                                type: "CONSEQUENCE-TYPE-FILTER"
+                            },
                         ]
                     },
                     {
@@ -81,14 +101,6 @@ export default class OpencgaKnockoutAnalysis {
                                     "sense_overlapping", "snRNA", "snoRNA", "transcribed_processed_pseudogene", "transcribed_unprocessed_pseudogene",
                                     "translated_processed_pseudogene", "unitary_pseudogene", "unprocessed_pseudogene"
                                 ]
-                            },
-                            {
-                                id: "consequenceType",
-                                title: "Select consequence type",
-                                type: "custom",
-                                display: {
-                                    render: () => html`<consequence-type-filter @filterChange="${e => console.log(e)}"></consequence-type-filter>`
-                                }
                             },
                             {
                                 id: "filter",

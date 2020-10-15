@@ -37,6 +37,9 @@ export default class OpencgaKnockoutAnalysisForm extends LitElement {
             opencgaSession: {
                 type: Object
             },
+            cellbaseClient: {
+                type: Object
+            },
             config: {
                 type: Object
             }
@@ -66,7 +69,7 @@ export default class OpencgaKnockoutAnalysisForm extends LitElement {
 
     render() {
         return html`
-           <opencga-analysis-tool .opencgaSession="${this.opencgaSession}" .config="${this._config}" ></opencga-analysis-tool>
+           <opencga-analysis-tool .opencgaSession="${this.opencgaSession}" .cellbaseClient="${this.cellbaseClient}" .config="${this._config}" ></opencga-analysis-tool>
         `;
     }
 
