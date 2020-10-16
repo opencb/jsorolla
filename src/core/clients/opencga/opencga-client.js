@@ -280,6 +280,7 @@ export class OpenCGAClient {
             // TODO should we check the session has not expired?
             //console.log("_this._config", _this._config);
             if (UtilsNew.isNotUndefined(_this._config.token)) {
+                globalThis.dispatchEvent(new CustomEvent("signingIn", {detail: {value: "Fetching User data"}}));
                 _this.users().info(_this._config.userId)
                     .then(async response => {
                         const session = {};
@@ -293,10 +294,12 @@ export class OpenCGAClient {
                         };
                         session.opencgaClient = _this;
 
+                        globalThis.dispatchEvent(new CustomEvent("signingIn", {detail: {value: "Updating User config"}}));
                         await this.updateUserConfigs({
                             lastAccess: moment(new Date()).valueOf()
                         });
 
+                        globalThis.dispatchEvent(new CustomEvent("signingIn", {detail: {value: "Fetching Projects and Studies"}}));
                         // Fetch authorised Projects and Studies
                         _this.projects().search({})
                             .then(async function(response) {
@@ -319,6 +322,8 @@ export class OpenCGAClient {
                                                         }
                                                     }
                                                     // FIXME Undo this week
+                                                    globalThis.dispatchEvent(new CustomEvent("signingIn", {detail: {value: "Fetching User permissions"}}));
+
                                                     let admins = study.groups.find(g => g.id === "@admins");
                                                     let acl = null;
                                                     if (admins.userIds?.includes(session.user.id)) {
@@ -348,6 +353,7 @@ export class OpenCGAClient {
                                             throw new Error("Default study not found");
                                         }
 
+                                        globalThis.dispatchEvent(new CustomEvent("signingIn", {detail: {value: "Fetching Disease Panels"}}));
                                         // Fetch the Disease Panels for each Study
                                         const panelPromises = [];
                                         for (const study of studies) {
