@@ -119,7 +119,7 @@ export default class OpencgaAnalysisToolFormField extends LitElement {
         }
 
         return html`
-            <div style="padding: ${padding}; width: ${width}">
+            <div class="opencga-analysis-tool-form-field" style="padding: ${padding}; width: ${width}">
                 <label>${this.config.title ? this.config.title : this.config.id}</label>
                 <div id="${this.config.id}-wrapper">
                     ${this.renderField()}

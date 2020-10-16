@@ -16,8 +16,8 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "./../../../utilsNew.js";
-import OpencgaKnockoutAnalysis from "./opencga-knockout-analysis.js";
 import "../../commons/analysis/opencga-analysis-tool.js";
+import AnalysisRegistry from "./analysis-registry.js";
 
 
 export default class OpencgaKnockoutAnalysisResult extends LitElement {
@@ -68,7 +68,7 @@ export default class OpencgaKnockoutAnalysisResult extends LitElement {
     }
 
     getDefaultConfig() {
-        return OpencgaKnockoutAnalysis.config();
+        return AnalysisRegistry.get("knockout").config;
     }
 
     render() {

@@ -271,7 +271,7 @@ export default class OpencgaJobsView extends LitElement {
                             display: {
                                 name: "",
                                 defaultLayout: "vertical",
-                                render: () => AnalysisRegistry.get(this.job.tool.id).result
+                                render: () => AnalysisRegistry.get(this.job.tool.id).result(this.job)
                             }
                         }
                     ]

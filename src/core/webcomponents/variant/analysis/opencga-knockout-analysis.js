@@ -16,12 +16,12 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import "./opencga-knockout-analysis-result.js";
-import "../../commons/filters/consequence-type-select-filter.js";
 import UtilsNew from "../../../utilsNew.js";
 
-export default class OpencgaKnockoutAnalysis {
+// this class will be in config folder
+class OpencgaKnockoutAnalysisConfig {
 
-    static config() {
+    static get() {
         return {
             id: "knockout",
             title: "Knockout Analysis",
@@ -81,7 +81,7 @@ export default class OpencgaKnockoutAnalysis {
                                 id: "ct",
                                 title: "Consequence type",
                                 type: "CONSEQUENCE-TYPE-FILTER"
-                            },
+                            }
                         ]
                     },
                     {
@@ -106,7 +106,7 @@ export default class OpencgaKnockoutAnalysis {
                                 id: "filter",
                                 title: "Select filter",
                                 type: "text"
-                            },
+                            }
                             // {
                             //     id: "qual",
                             //     title: "Select quality",
@@ -123,28 +123,44 @@ export default class OpencgaKnockoutAnalysis {
                     button: "Run",
                     validate: function(params) {
                         alert("test:" + params);
-                    },
+                    }
                 }
-            },
-            execute: (opencgaSession, data, params) => {
-                let body = {};
-                // data.sample ? body.sample = data.sample.join(",") : null;
-                data.sample ? body.sample = data.sample : null;
-                data.gene ? body.gene = data.gene.join(",") : null;
-                data.biotype ? body.biotype = data.biotype.join(",") : null;
-                data.consequenceType ? body.consequenceType = data.consequenceType.join(",") : null;
-                data.filter ? body.filter = data.filter.join(",") : null;
-                opencgaSession.opencgaClient.variants().runKnockout(body, params)
-                    .then( restResponse => {
-                    })
-                    .catch (e => UtilsNew.notifyError(e));
-            },
-            result: opencgaSession => {
-                return html`<opencga-knockout-analysis-result .opencgaSession="${opencgaSession}"></opencga-knockout-analysis-result>`
-            },
-            resultEx: (AnalysisRegistry, opencgaSession) => {
-                return AnalysisRegistry.get("ko").result();
             }
         };
+    }
+
+}
+
+
+export default class OpencgaKnockoutAnalysis {
+
+    constructor(config) {
+        this._config = {...OpencgaKnockoutAnalysisConfig.get(), ...config};
+    }
+
+    get config() {
+        return this._config;
+    }
+
+    check() {
+
+    }
+
+    execute(opencgaSession, data, params) {
+        let body = {};
+        // data.sample ? body.sample = data.sample.join(",") : null;
+        data.sample ? body.sample = data.sample : null;
+        data.gene ? body.gene = data.gene.join(",") : null;
+        data.biotype ? body.biotype = data.biotype.join(",") : null;
+        data.consequenceType ? body.consequenceType = data.consequenceType.join(",") : null;
+        data.filter ? body.filter = data.filter.join(",") : null;
+        opencgaSession.opencgaClient.variants().runKnockout(body, params)
+            .then(restResponse => {
+            })
+            .catch(e => UtilsNew.notifyError(e));
+    }
+
+    result(job, opencgaSession) {
+        return html`<opencga-knockout-analysis-result .job=${job} .opencgaSession="${opencgaSession}"></opencga-knockout-analysis-result>`;
     }
 }
