@@ -155,18 +155,15 @@ class VariantInterpreterLanding extends LitElement {
         }));
     }
 
-    onClinicalAnalysisUpdate(e) {
-        // debugger
-        // this.dispatchEvent(new CustomEvent("selectClinicalAnalysis", {
-        //     detail: {
-        //         id: e.detail.clinicalAnalysis?.id,
-        //         clinicalAnalysis: e.detail.clinicalAnalysis
-        //     },
-        //     bubbles: true,
-        //     composed: true
-        // }));
+    onClinicalAnalysisUpdate (e) {
+        this.dispatchEvent(new CustomEvent("clinicalAnalysisUpdate", {
+            detail: {
+                clinicalAnalysis: e.detail.clinicalAnalysis
+            },
+            bubbles: true,
+            composed: true
+        }));
     }
-
 
     onClinicalAnalysisIdChange(key, value) {
         this.clinicalAnalysisId = value;
@@ -430,7 +427,8 @@ class VariantInterpreterLanding extends LitElement {
                         <tool-header title="Interpretation Manager" class="bg-white"></tool-header>
                         <div style="padding: 0px 20px">
                             <clinical-analysis-interpretation-manager   .opencgaSession="${this.opencgaSession}"
-                                                                        .clinicalAnalysis="${this.clinicalAnalysis}">
+                                                                        .clinicalAnalysis="${this.clinicalAnalysis}" 
+                                                                        @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
                             </clinical-analysis-interpretation-manager>
                         </div>                                    
                     </div>                                    

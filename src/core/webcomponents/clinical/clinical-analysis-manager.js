@@ -93,6 +93,34 @@ export default class ClinicalAnalysisManager {
         this.state = {...this.state};
     }
 
+    setInterpretationAsPrimary(interpretationId, callback) {
+        this.opencgaSession.opencgaClient.clinical().updateInterpretation(this.clinicalAnalysis.id, interpretationId, {},
+            {
+                study: this.opencgaSession.study.fqn,
+                saveAs: "PRIMARY"
+            })
+            .then(restResponse => {
+                callback(this.clinicalAnalysis);
+
+                // Notify
+                Swal.fire(
+                    "Interpretation Saved",
+                    "Primary findings have been saved.",
+                    "success"
+                );
+            })
+            .catch(restResponse => {
+                console.error(restResponse);
+                //optional chaining is to make sure the response is a restResponse instance
+                const msg = restResponse?.getResultEvents?.("ERROR")?.map(event => event.message).join("<br>") ?? "Server Error";
+                Swal.fire({
+                    title: "Error",
+                    icon: "error",
+                    html: msg
+                });
+            });
+    }
+
     updateInterpretation(comment, callback) {
         if (this.state.addedVariants.length === 0 && this.state.removedVariants.length === 0) {
             console.log("Nothing to do");
@@ -163,4 +191,84 @@ export default class ClinicalAnalysisManager {
             });
     }
 
+    createInterpretation(interpretation, callback) {
+        if (!interpretation) {
+            let lastVersion = this.clinicalAnalysis.interpretation.id;
+            if (this.clinicalAnalysis.secondaryInterpretations?.length > 0) {
+                lastVersion = this.clinicalAnalysis.secondaryInterpretations[this.clinicalAnalysis.secondaryInterpretations.length - 1].id;
+            }
+            let interpretationVersion = Number.parseInt(lastVersion.split(".")[1]) + 1;
+            interpretation = {
+                id: this.clinicalAnalysis.id + "." + interpretationVersion,
+                clinicalAnalysisId: this.clinicalAnalysis.id,
+                analyst: {
+                    id: this.opencgaSession.user.id,
+                }
+            };
+        }
+
+        this.opencgaSession.opencgaClient.clinical().createInterpretation(this.clinicalAnalysis.id, interpretation, {study: this.opencgaSession.study.fqn})
+            .then(restResponse => {
+                callback(this.clinicalAnalysis);
+
+                Swal.fire(
+                    "Interpretation Created",
+                    "New interpretation created.",
+                    "success"
+                );
+            })
+            .catch(restResponse => {
+                console.error("An error occurred creating an interpretation: ", restResponse);
+                const msg = restResponse?.getResultEvents?.("ERROR")?.map(event => event.message).join("<br>") ?? "Server Error";
+                Swal.fire({
+                    title: "Error",
+                    icon: "error",
+                    html: msg
+                });
+            });
+    }
+
+    clearInterpretation(interpretationId, callback) {
+        this.opencgaSession.opencgaClient.clinical().clearInterpretation(this.clinicalAnalysis.id, interpretationId, {study: this.opencgaSession.study.fqn})
+            .then(restResponse => {
+                callback(this.clinicalAnalysis);
+
+                Swal.fire(
+                    "Interpretation Clear",
+                    "Interpretation cleared.",
+                    "success"
+                );
+            })
+            .catch(restResponse => {
+                console.error("An error occurred clearing an interpretation: ", restResponse);
+                const msg = restResponse?.getResultEvents?.("ERROR")?.map(event => event.message).join("<br>") ?? "Server Error";
+                Swal.fire({
+                    title: "Error",
+                    icon: "error",
+                    html: msg
+                });
+            });
+    }
+
+    deleteInterpretation(interpretationId, callback) {
+        this.opencgaSession.opencgaClient.clinical().deleteInterpretation(this.clinicalAnalysis.id, interpretationId, {study: this.opencgaSession.study.fqn})
+            .then(restResponse => {
+                callback(this.clinicalAnalysis);
+
+                Swal.fire(
+                    "Interpretation Deleted",
+                    "Interpretation deleted.",
+                    "success"
+                );
+            })
+            .catch(restResponse => {
+                console.error("An error occurred deleting an interpretation: ", restResponse);
+                const msg = restResponse?.getResultEvents?.("ERROR")?.map(event => event.message).join("<br>") ?? "Server Error";
+                Swal.fire({
+                    title: "Error",
+                    icon: "error",
+                    html: msg
+                });
+            });
+    }
 }

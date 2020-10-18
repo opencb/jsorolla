@@ -18,6 +18,7 @@ import {html, LitElement} from "/web_modules/lit-element.js";
 import {classMap} from "/web_modules/lit-html/directives/class-map.js";
 import UtilsNew from "../../utilsNew.js";
 import GridCommons from "../variant/grid-commons.js";
+import ClinicalAnalysisManager from "../clinical/clinical-analysis-manager.js";
 
 
 class ClinicalAnalysisInterpretationManager extends LitElement {
@@ -62,12 +63,13 @@ class ClinicalAnalysisInterpretationManager extends LitElement {
 
         this._config = {...this.getDefaultConfig(), ...this.config};
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
+        this.clinicalAnalysisManager = new ClinicalAnalysisManager(this.clinicalAnalysis, this.opencgaSession);
     }
 
     updated(changedProperties) {
         if (changedProperties.has("opencgaSession") || changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
-            // this.requestUpdate();
+            this.clinicalAnalysisManager = new ClinicalAnalysisManager(this.clinicalAnalysis, this.opencgaSession);
         }
 
         if (changedProperties.has("clinicalAnalysis")) {
@@ -98,10 +100,15 @@ class ClinicalAnalysisInterpretationManager extends LitElement {
 
     async clinicalAnalysisObserver() {
         if (this.clinicalAnalysis && this.clinicalAnalysis.interpretation) {
-            this.interpretations = [
-                {...this.clinicalAnalysis.interpretation, primary: true},
-                ...this.clinicalAnalysis.secondaryInterpretations];
+            this.clinicalAnalysisManager = new ClinicalAnalysisManager(this.clinicalAnalysis, this.opencgaSession);
 
+            this.interpretations = [
+                {
+                    ...this.clinicalAnalysis.interpretation, primary: true
+                },
+                ...this.clinicalAnalysis.secondaryInterpretations
+            ];
+debugger
             // let versions = [];
             // for (let i = this.clinicalAnalysis.interpretation.version; i > 0; i--) {
             //     versions.push(i);
@@ -130,13 +137,15 @@ class ClinicalAnalysisInterpretationManager extends LitElement {
         return html`
             <div class="interpretation-wrapper ${classMap({primary: interpretation.primary})}">
                 <div class="header">
-                    <div>${interpretation.primary ? html`<span class="badge badge-dark-blue">Primary</span>` : html`<span class="badge badge-light">Secondary</span>`}</div>
+                    <div>${interpretation.primary 
+                        ? html`<span class="badge badge-dark-blue">PRIMARY</span>` 
+                        : html`<span class="badge badge-light">SECONDARY</span>`
+                    }
+                    </div>
                     <span class="id">${interpretation.id}</span>
                     ${interpretation.version ? html`<span class="version">version ${interpretation.version}</span>` : null}
-                    
-                    
                     <span class="analyst" title="Analyst"><i class="fa fa-user-circle icon-padding" aria-hidden="true"></i>${interpretation?.analyst?.name ?? "-"}</span>
-                    <span class="modificationDate" title="Modification date"><i class="far fa-calendar-alt"></i> ${moment(interpretation?.attributes?.modificationDate).format("MM/DD/YYYY")}</span>
+                    <span class="modificationDate" title="Modification date"><i class="far fa-calendar-alt"></i>${moment(interpretation?.attributes?.modificationDate).format("MM/DD/YYYY")}</span>
                 </div>
                 <div class="row">
                     <div class="col-md-2"><label>Description</label></div>
@@ -160,13 +169,22 @@ class ClinicalAnalysisInterpretationManager extends LitElement {
                         
                         ${interpretation.primary ? html`
                             <li>
-                                <a href="javascript: void 0" class="btn disabled force-text-left" data-action="history" @click="${this.onActionClick}">
+                                <a href="javascript: void 0" class="btn disabled force-text-left" data-action="restorePrevious" data-interpretation-id="${interpretation.id}" 
+                                        @click="${this.onActionClick}">
                                     <i class="fas fa-code-branch icon-padding" aria-hidden="true"></i> Restore previous version
+                                </a>
+                            </li>
+                            <li role="separator" class="divider"></li>
+                            <li>
+                                <a href="javascript: void 0" class="btn force-text-left" data-action="clear" data-interpretation-id="${interpretation.id}" 
+                                            @click="${this.onActionClick}">
+                                    <i class="fas fa-eraser icon-padding" aria-hidden="true"></i> Clear 
                                 </a>
                             </li>
                         ` : html`
                             <li>
-                                <a href="javascript: void 0" class="btn force-text-left" data-action="setprimary" @click="${this.onActionClick}">
+                                <a href="javascript: void 0" class="btn force-text-left" data-action="setAsPrimary" data-interpretation-id="${interpretation.id}" 
+                                        @click="${this.onActionClick}">
                                     <i class="fas fa-map-marker icon-padding" aria-hidden="true"></i> Set as primary
                                 </a>
                             </li>
@@ -175,21 +193,21 @@ class ClinicalAnalysisInterpretationManager extends LitElement {
                                     <i class="far fa-object-group icon-padding" aria-hidden="true"></i> Merge
                                 </a>
                             </li>
-                        `}
-                        
-                        <li role="separator" class="divider"></li>
-                        <li>
-                            <a href="javascript: void 0" class="btn force-text-left" data-action="clear" @click="${this.onActionClick}">
-                                <i class="fas fa-eraser icon-padding" aria-hidden="true"></i> Clear 
-                            </a>
-                        </li>
-                        ${!interpretation.primary ? html`
+                            <li role="separator" class="divider"></li>
                             <li>
-                                <a href="javascript: void 0" class="btn disabled force-text-left" data-action="delete" @click="${this.onActionClick}">
+                                <a href="javascript: void 0" class="btn force-text-left" data-action="clear" data-interpretation-id="${interpretation.id}" 
+                                            @click="${this.onActionClick}">
+                                    <i class="fas fa-eraser icon-padding" aria-hidden="true"></i> Clear 
+                                </a>
+                            </li>
+                            <li>
+                                <a href="javascript: void 0" class="btn force-text-left" data-action="delete" data-interpretation-id="${interpretation.id}" 
+                                        @click="${this.onActionClick}">
                                     <i class="fas fa-trash icon-padding" aria-hidden="true"></i> Delete</a>
-                            </li>` : null}
+                            </li>
+                        `}
                     </ul>
-                    </div>
+                </div>
             </div>`;
     }
 
@@ -251,13 +269,35 @@ class ClinicalAnalysisInterpretationManager extends LitElement {
     }
 
     onActionClick(e, _, row) {
-        const {action} = e.target.dataset;
-        console.log("onActionClick", action);
+        const {action, interpretationId} = e.currentTarget.dataset;
+        let interpretationCallback = () => {
+            this.dispatchEvent(new CustomEvent("clinicalAnalysisUpdate", {
+                detail: {
+                    clinicalAnalysis: this.clinicalAnalysis
+                },
+                bubbles: true,
+                composed: true
+            }));
+        };
+
+        switch (action) {
+            case "create":
+                this.clinicalAnalysisManager.createInterpretation(null, interpretationCallback);
+                break;
+            case "setAsPrimary":
+                this.clinicalAnalysisManager.setInterpretationAsPrimary(interpretationId, interpretationCallback);
+                break;
+            case "clear":
+                this.clinicalAnalysisManager.clearInterpretation(interpretationId, interpretationCallback);
+                break;
+            case "delete":
+                this.clinicalAnalysisManager.deleteInterpretation(interpretationId, interpretationCallback);
+                break;
+        }
     }
 
     getDefaultConfig() {
         return {
-
         };
     }
 
@@ -273,7 +313,8 @@ class ClinicalAnalysisInterpretationManager extends LitElement {
                         <div class="col-md-8" style="margin-bottom: 10px">
                             <h3 style="padding-bottom: 5px">Interpretations</h3>
                             <div class="pull-right">
-                                <button class="btn btn-primary btn-small ripple" type="button" title="Create a new empty interpretation">
+                                <button class="btn btn-primary btn-small ripple" type="button" title="Create a new empty interpretation" data-action="create" 
+                                        @click="${this.onActionClick}">
                                     <span style="padding-right: 10px"><i class="fas fa-file-medical"></i></span>
                                     New Interpretation
                                 </button>

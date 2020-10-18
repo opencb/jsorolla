@@ -237,7 +237,7 @@ class VariantInterpreterBrowserRd extends LitElement {
                 bubbles: true,
                 composed: true
             }));
-        }
+        };
         this.clinicalAnalysisManager.updateInterpretation(comment, saveCallback);
     }
 

@@ -148,6 +148,7 @@ class VariantInterpreter extends LitElement {
     }*/
 
     onClinicalAnalysisUpdate (e) {
+        debugger
         this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysis.id, {study: this.opencgaSession.study.fqn})
             .then(restResponse => {
                 this.clinicalAnalysis = restResponse.responses[0].results[0];
@@ -292,6 +293,7 @@ class VariantInterpreter extends LitElement {
                                 <variant-interpreter-landing .opencgaSession="${this.opencgaSession}"
                                                              .clinicalAnalysis="${this.clinicalAnalysis}"
                                                              .config="${this._config}"
+                                                             @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}"
                                                              @selectClinicalAnalysis="${this.onClinicalAnalysis}">
                                 </variant-interpreter-landing>
                             </div>
