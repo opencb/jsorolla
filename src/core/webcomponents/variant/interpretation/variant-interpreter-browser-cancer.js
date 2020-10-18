@@ -111,7 +111,6 @@ class VariantInterpreterBrowserCancer extends LitElement {
     }
 
     queryObserver() {
-        debugger
         if (this.opencgaSession) {
             if (this.query) {
                 this.preparedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
@@ -284,7 +283,6 @@ class VariantInterpreterBrowserCancer extends LitElement {
     }
 
     onVariantCallerFilterChange(filter, query) {
-        debugger
         if (query.fileData) {
             let [fileId, fileFilter] = filter.split(":");
             let files = query.fileData.split(",");

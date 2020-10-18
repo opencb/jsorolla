@@ -121,8 +121,6 @@ export default class VariantInterpreterGrid extends LitElement {
     }
 
     clinicalAnalysisObserver() {
-        debugger
-
         // Make sure somatic sample is the first one
         if (this.clinicalAnalysis) {
             if (!this.clinicalAnalysis.interpretation) {
@@ -153,7 +151,6 @@ export default class VariantInterpreterGrid extends LitElement {
     }
 
     renderVariants() {
-        debugger
         if (this._config.renderLocal) {
             this.renderLocalVariants();
         } else {
@@ -162,7 +159,6 @@ export default class VariantInterpreterGrid extends LitElement {
     }
 
     renderRemoteVariants() {
-        debugger
         if (this.clinicalAnalysis && this._timestamp && this.clinicalAnalysis.interpretation
             && this.clinicalAnalysis.interpretation.attributes.modificationDate === this._timestamp) {
             console.warn("grid refresh suppressed", this.clinicalAnalysis.interpretation);
@@ -1109,7 +1105,6 @@ export default class VariantInterpreterGrid extends LitElement {
             if (this.clinicalAnalysis.proband && this.clinicalAnalysis.proband.samples) {
                 // We only render somatic sample
                 let samples = null;
-                debugger
                 if (this.query && this.query.sample) {
                     samples = [];
                     let _sampleGenotypes = this.query.sample.split(";");

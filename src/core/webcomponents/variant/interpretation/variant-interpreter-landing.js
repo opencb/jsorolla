@@ -19,9 +19,9 @@ import {classMap} from "/web_modules/lit-html/directives/class-map.js";
 import OpencgaCatalogUtils from "../../../clients/opencga/opencga-catalog-utils.js";
 import UtilsNew from "../../../utilsNew.js";
 import "../../clinical/opencga-clinical-analysis-writer.js";
+import "../../clinical/clinical-analysis-interpretation-manager.js";
 import "../../commons/filters/clinical-analysis-id-autocomplete.js";
 import "../../commons/view/data-form.js";
-import "./interpretation-grid.js";
 import "./interpretation-audit.js";
 import "./interpretation-editor.js";
 import "./clinical-analysis-consent-editor.js";
@@ -429,9 +429,9 @@ class VariantInterpreterLanding extends LitElement {
                     <div id="${this._prefix}Interpretations" role="tabpanel" class="tab-pane content-tab col-md-10 col-md-offset-1">
                         <tool-header title="Interpretation Manager" class="bg-white"></tool-header>
                         <div style="padding: 0px 20px">
-                            <interpretation-grid    .opencgaSession="${this.opencgaSession}"
-                                                    .clinicalAnalysis="${this.clinicalAnalysis}">
-                            </interpretation-grid>
+                            <clinical-analysis-interpretation-manager   .opencgaSession="${this.opencgaSession}"
+                                                                        .clinicalAnalysis="${this.clinicalAnalysis}">
+                            </clinical-analysis-interpretation-manager>
                         </div>                                    
                     </div>                                    
                     <div id="${this._prefix}Consent" role="tabpanel" class="tab-pane content-tab col-md-10 col-md-offset-1">

@@ -81,6 +81,10 @@ export default class Clinical extends OpenCGAParentClass {
         return this._get("analysis", null, "clinical/interpretation", null, "search", params);
     }
 
+    infoInterpretation(interpretation, params) {
+        return this._get("analysis", null, "clinical/interpretation", interpretation, "info", params);
+    }
+
     /** Run cancer tiering interpretation analysis
     * @param {Object} data - Cancer tiering interpretation analysis params.
     * @param {Object} [params] - The Object containing the following optional parameters:
