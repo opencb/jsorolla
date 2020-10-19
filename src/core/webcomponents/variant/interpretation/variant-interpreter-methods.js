@@ -20,10 +20,11 @@ import UtilsNew from "../../../utilsNew.js";
 import "../../clinical/analysis/opencga-rd-tiering-analysis.js";
 
 
-class VariantInterpreterInterpretation extends LitElement {
+class VariantInterpreterMethods extends LitElement {
 
     constructor() {
         super();
+
         this._init();
     }
 
@@ -36,11 +37,11 @@ class VariantInterpreterInterpretation extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            clinicalAnalysisId: {
-                type: String
-            },
             clinicalAnalysis: {
                 type: Object
+            },
+            clinicalAnalysisId: {
+                type: String
             },
             config: {
                 type: Object
@@ -49,8 +50,12 @@ class VariantInterpreterInterpretation extends LitElement {
     }
 
     _init() {
-        this._prefix = "vcis-" + UtilsNew.randomString(6);
-        this.activeTab = {"RdTiering": true}; //default active tab
+        this._prefix = UtilsNew.randomString(8);
+
+        //default active tab
+        this.activeTab = {
+            "RdTiering": true
+        };
     }
 
     connectedCallback() {
@@ -58,7 +63,6 @@ class VariantInterpreterInterpretation extends LitElement {
     }
 
     updated(changedProperties) {
-
         // if (changedProperties.has("opencgaSession")) {
         //     this.opencgaSessionObserver();
         // }
@@ -72,21 +76,6 @@ class VariantInterpreterInterpretation extends LitElement {
         //     this.queryObserver();
         // }
     }
-
-    // onAnalysisChange(e) {
-    //     this.analysis = e.detail.value;
-    //     this.requestUpdate();
-    // }
-    //
-    // renderAnalysis(type) {
-    //     switch(type) {
-    //         case "rd-tiering":
-    //             return html`<opencga-rd-tiering-analysis .opencgaSession="${this.opencgaSession}"></opencga-rd-tiering-analysis>`
-    //         case "--":
-    //             break;
-    //         default:
-    //     }
-    // }
 
     clinicalAnalysisIdObserver() {
         if (this.opencgaSession && this.clinicalAnalysisId) {
@@ -141,6 +130,13 @@ class VariantInterpreterInterpretation extends LitElement {
             <div id="${this._prefix}QcTabs">
                 <div>
                     <ul class="nav nav-tabs nav-center tablist" role="tablist" aria-label="toolbar">
+                        ${this.clinicalAnalysis.type.toUpperCase() === "SINGLE"
+                            ? html`
+                                <li role="presentation" class="content-pills ${classMap({active: this.activeTab["Upd"]})}">
+                                    <a href="javascript: void 0" role="tab" data-id="Upd" @click="${this._changeTab}" class="tab-title disabled">UPD (coming soon)</a>
+                                </li>`
+                            : null
+                        }                            
                         ${this.clinicalAnalysis.type.toUpperCase() === "FAMILY" 
                             ? html`
                                 <li role="presentation" class="content-pills ${classMap({active: this.activeTab["RdTiering"]})}">
@@ -158,16 +154,6 @@ class VariantInterpreterInterpretation extends LitElement {
                                 </li>`
                             : null
                         }
-                        ${this.clinicalAnalysis.type.toUpperCase() === "SINGLE"
-                            ? html`
-                                <li role="presentation" class="content-pills ${classMap({active: this.activeTab["Upd"]})}">
-                                    <a href="javascript: void 0" role="tab" data-id="Upd" @click="${this._changeTab}" class="tab-title disabled">UPD (coming soon)</a>
-                                </li>`
-                            : null
-                        }                        
-                        <!--<li role="presentation" class="content-pills help-pill ${classMap({active: this.activeTab["help"]})}">
-                            <a href="javascript: void 0" role="tab" data-id="Help" @click="${this._changeTab}" class="tab-title"><i class="fas fa-question-circle"></i> Help</a>
-                        </li>-->
                     </ul>
                 </div>
                 
@@ -199,4 +185,4 @@ class VariantInterpreterInterpretation extends LitElement {
 
 }
 
-customElements.define("variant-interpreter-interpretation", VariantInterpreterInterpretation);
+customElements.define("variant-interpreter-methods", VariantInterpreterMethods);

@@ -24,9 +24,7 @@ import "./variant-interpreter-report.js";
 import "./variant-interpreter-browser-rd.js";
 import "./variant-interpreter-browser-cancer.js";
 import "./variant-interpreter-review.js";
-import "./variant-interpreter-interpretation.js";
-import "./opencga-variant-interpreter-genome-browser.js";
-import "../../opencga/opencga-genome-browser.js";
+import "./variant-interpreter-methods.js";
 import "../../clinical/opencga-clinical-analysis-view.js";
 import "../../clinical/clinical-interpretation-view.js";
 import "../../commons/opencga-active-filters.js";
@@ -188,7 +186,7 @@ class VariantInterpreter extends LitElement {
                     icon: "fa fa-chart-bar"
                 },
                 {
-                    id: "interpretation",
+                    id: "methods",
                     title: "Interpretation Methods",
                     acronym: "VB",
                     description: "",
@@ -233,12 +231,12 @@ class VariantInterpreter extends LitElement {
 
         return html`
             <style>
-                variant-interpreter-interpretation .page-title {
+                variant-interpreter-tool .page-title {
                     background: transparent;
                 }
             </style>
             
-            <div class="variant-interpreter-interpretation">
+            <div class="variant-interpreter-tool">
                 ${this.clinicalAnalysis && this.clinicalAnalysis.id ? html`
                     <tool-header icon="${this._config.icon}"
                                  .title="${`${this._config.title}<span class="inverse"> Case ${this.clinicalAnalysis?.id} </span>` }"
@@ -307,36 +305,13 @@ class VariantInterpreter extends LitElement {
                                 </variant-interpreter-qc>
                             </div>
                             
-                            <div id="${this._prefix}interpretation" class="clinical-portal-content" 
-                                        style="${this._config.tools[0].id !== "interpretation" ? "display: none" : ""}">
-                                <variant-interpreter-interpretation .opencgaSession="${this.opencgaSession}"
-                                                        .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                        .config="${this._config}">
-                                </variant-interpreter-interpretation>
+                            <div id="${this._prefix}methods" class="clinical-portal-content" 
+                                        style="${this._config.tools[0].id !== "methods" ? "display: none" : ""}">
+                                <variant-interpreter-methods    .opencgaSession="${this.opencgaSession}"
+                                                                .clinicalAnalysis="${this.clinicalAnalysis}"
+                                                                .config="${this._config}">
+                                </variant-interpreter-methods>
                             </div>                            
-                            
-                            <div id="${this._prefix}genome-browser" class="clinical-portal-content" style="${this._config.tools[0].id !== "genome-browser" ? "display: none" : ""}">
-                                <opencga-variant-interpreter-genome-browser .opencgaSession="${this.opencgaSession}"
-                                                                            .cellbaseClient="${this.cellbaseClient}"
-                                                                            .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                                            .config="${this._config}">
-                                </opencga-variant-interpreter-genome-browser>
-                                <!--
-                                <opencga-variant-interpreter-genome-browser .opencgaSession="${this.opencgaSession}"
-                                                                            .cellbaseClient="${this.cellbaseClient}"
-                                                                            .samples="${this.samples}"
-                                                                            .query="${this.query}"
-                                                                            .search="${this.search}"
-                                                                            .region="${this.search?.region}"
-                                                                            .geneIds="${this.geneIds}"
-                                                                            .panelIds="${this.diseasePanelIds}"
-                                                                            .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                                            .active="${this._genomeBrowserActive}"
-                                                                            .fullScreen="${this.fullScreen}"
-                                                                            .config="${this._config.genomeBrowser}">
-                                </opencga-variant-interpreter-genome-browser>
-                                -->
-                            </div>
                             
                             <div id="${this._prefix}variant-browser" class="clinical-portal-content" style="${this._config.tools[0].id !== "variant-browser" ? "display: none" : ""}">
                                 <variant-interpreter-browser    .opencgaSession="${this.opencgaSession}"

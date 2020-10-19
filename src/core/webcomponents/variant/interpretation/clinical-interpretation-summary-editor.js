@@ -18,7 +18,7 @@ import {html, LitElement} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../utilsNew.js";
 import CatalogGridFormatter from "../../commons/catalog-grid-formatter.js";
 import ClinicalAnalysisUtils from "../../clinical/clinical-analysis-utils.js";
-import "./clinical-analysis-comments.js";
+import "../../clinical/clinical-analysis-comment-editor.js";
 import "../../commons/view/data-form.js";
 import "../../commons/filters/text-field-filter.js";
 
@@ -285,7 +285,7 @@ class ClinicalInterpretationSummaryEditor extends LitElement {
                             display: {
                                 // render: comments => this.renderComments(comments)
                                 render: comments => html`
-                                    <clinical-analysis-comments .comments="${comments}" .opencgaSession="${this.opencgaSession}"></clinical-analysis-comments>`
+                                    <clinical-analysis-comment-editor .comments="${comments}" .opencgaSession="${this.opencgaSession}"></clinical-analysis-comment-editor>`
                             }
                         }
                     ]

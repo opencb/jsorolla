@@ -23,7 +23,7 @@ import "../../clinical/opencga-clinical-analysis-writer.js";
 import "../../clinical/clinical-analysis-interpretation-editor.js";
 import "../../commons/filters/clinical-analysis-id-autocomplete.js";
 import "../../commons/view/data-form.js";
-import "./interpretation-audit.js";
+import "../../clinical/clinical-analysis-audit-browser.js";
 import "../../clinical/clinical-analysis-consent-editor.js";
 
 class VariantInterpreterLanding extends LitElement {
@@ -443,10 +443,10 @@ class VariantInterpreterLanding extends LitElement {
                     <div id="${this._prefix}Audit" role="tabpanel" class="tab-pane content-tab col-md-10 col-md-offset-1">
                         <tool-header title="Audit Log" class="bg-white"></tool-header>
                         <div style="padding: 0px 10px">
-                            <interpretation-audit .opencgaSession="${this.opencgaSession}"
-                                                    .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                    .active="${this.activeTab["Audit"]}">
-                            </interpretation-audit>
+                            <clinical-analysis-audit-browser    .opencgaSession="${this.opencgaSession}"
+                                                                .clinicalAnalysis="${this.clinicalAnalysis}"
+                                                                .active="${this.activeTab["Audit"]}">
+                            </clinical-analysis-audit-browser>
                         </div> 
                     </div> 
                     

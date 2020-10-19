@@ -16,14 +16,14 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import {classMap} from "/web_modules/lit-html/directives/class-map.js";
-import UtilsNew from "../../../utilsNew.js";
-import "../../tool-header.js";
-import "./variant-interpreter-grid.js";
-import "./variant-interpreter-detail.js";
-import "../opencga-variant-filter.js";
-import GridCommons from "../grid-commons.js";
+import UtilsNew from "../../utilsNew.js";
+import "../tool-header.js";
+import "../variant/interpretation/variant-interpreter-grid.js";
+import "../variant/interpretation/variant-interpreter-detail.js";
+import "../variant/opencga-variant-filter.js";
+import GridCommons from "../variant/grid-commons.js";
 
-class InterpretationAudit extends LitElement {
+class ClinicalAnalysisAuditBrowser extends LitElement {
 
     constructor() {
         super();
@@ -329,10 +329,8 @@ class InterpretationAudit extends LitElement {
                 </div>` : html`
             <div class="alert alert-info"><i class="fas fa-3x fa-info-circle align-middle"></i> No Audit available yet.</div>
             `}
-
-            
         `;
     }
 }
 
-customElements.define("interpretation-audit", InterpretationAudit);
+customElements.define("clinical-analysis-audit-browser", ClinicalAnalysisAuditBrowser);

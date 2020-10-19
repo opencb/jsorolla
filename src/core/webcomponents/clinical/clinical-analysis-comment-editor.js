@@ -15,9 +15,9 @@
  */
 
 import {html, LitElement} from "/web_modules/lit-element.js";
-import UtilsNew from "../../../utilsNew.js";
+import UtilsNew from "../../utilsNew.js";
 
-class ClinicalAnalysisComments extends LitElement {
+class ClinicalAnalysisCommentEditor extends LitElement {
 
     constructor() {
         super();
@@ -134,4 +134,4 @@ class ClinicalAnalysisComments extends LitElement {
     }
 }
 
-customElements.define("clinical-analysis-comments", ClinicalAnalysisComments);
+customElements.define("clinical-analysis-comment-editor", ClinicalAnalysisCommentEditor);
