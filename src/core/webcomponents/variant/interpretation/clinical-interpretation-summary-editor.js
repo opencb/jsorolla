@@ -181,11 +181,11 @@ class ClinicalInterpretationSummaryEditor extends LitElement {
                 okText: "Save"
             },
             display: {
-                width: "6",
+                width: "8",
                 showTitle: false,
                 infoIcon: "",
                 labelAlign: "left",
-                labelWidth: "3",
+                labelWidth: "4",
                 defaultLayout: "horizontal",
             },
             sections: [
@@ -251,14 +251,6 @@ class ClinicalInterpretationSummaryEditor extends LitElement {
                     title: "General",
                     elements: [
                         {
-                            name: "Status",
-                            field: "status",
-                            type: "custom",
-                            display: {
-                                render: status => this.renderStatus(status)
-                            }
-                        },
-                        {
                             name: "Analyst",
                             field: "analyst.id",
                             type: "select",
@@ -269,12 +261,21 @@ class ClinicalInterpretationSummaryEditor extends LitElement {
                             }
                         },
                         {
+                            name: "Status",
+                            field: "status",
+                            type: "custom",
+                            display: {
+                                // width: "9",
+                                render: status => this.renderStatus(status)
+                            }
+                        },
+                        {
                             name: "Description",
                             field: "description",
                             type: "input-text",
                             defaultValue: "",
                             display: {
-                                rows: 2
+                                rows: 3
                             }
                         },
                         {
@@ -284,8 +285,7 @@ class ClinicalInterpretationSummaryEditor extends LitElement {
                             display: {
                                 // render: comments => this.renderComments(comments)
                                 render: comments => html`
-                                    <clinical-analysis-comments .comments="${comments}" .opencgaSession="${this.opencgaSession}"></clinical-analysis-comments>
-                                `
+                                    <clinical-analysis-comments .comments="${comments}" .opencgaSession="${this.opencgaSession}"></clinical-analysis-comments>`
                             }
                         }
                     ]

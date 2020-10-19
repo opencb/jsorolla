@@ -18,13 +18,13 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import {classMap} from "/web_modules/lit-html/directives/class-map.js";
 import OpencgaCatalogUtils from "../../../clients/opencga/opencga-catalog-utils.js";
 import UtilsNew from "../../../utilsNew.js";
+import "../../clinical/clinical-analysis-editor.js";
 import "../../clinical/opencga-clinical-analysis-writer.js";
-import "../../clinical/clinical-analysis-interpretation-manager.js";
+import "../../clinical/clinical-analysis-interpretation-editor.js";
 import "../../commons/filters/clinical-analysis-id-autocomplete.js";
 import "../../commons/view/data-form.js";
 import "./interpretation-audit.js";
-import "./interpretation-editor.js";
-import "./clinical-analysis-consent-editor.js";
+import "../../clinical/clinical-analysis-consent-editor.js";
 
 class VariantInterpreterLanding extends LitElement {
 
@@ -410,9 +410,9 @@ class VariantInterpreterLanding extends LitElement {
                     <div id="${this._prefix}General" role="tabpanel" class="active tab-pane content-tab col-md-10 col-md-offset-1">
                         <tool-header title="General Settings - ${this.clinicalAnalysis?.id}" class="bg-white"></tool-header>
                         <div style="padding: 0px 20px">
-                            <interpretation-editor  .opencgaSession=${this.opencgaSession} 
-                                                    .clinicalAnalysis="${this.clinicalAnalysis}">
-                            </interpretation-editor>
+                            <clinical-analysis-editor   .opencgaSession=${this.opencgaSession} 
+                                                        .clinicalAnalysis="${this.clinicalAnalysis}">
+                            </clinical-analysis-editor>
                         </div>
                     </div>
                     <div id="${this._prefix}Clinical" role="tabpanel" class="tab-pane content-tab col-md-10 col-md-offset-1">
@@ -426,10 +426,10 @@ class VariantInterpreterLanding extends LitElement {
                     <div id="${this._prefix}Interpretations" role="tabpanel" class="tab-pane content-tab col-md-10 col-md-offset-1">
                         <tool-header title="Interpretation Manager" class="bg-white"></tool-header>
                         <div style="padding: 0px 20px">
-                            <clinical-analysis-interpretation-manager   .opencgaSession="${this.opencgaSession}"
+                            <clinical-analysis-interpretation-editor    .opencgaSession="${this.opencgaSession}"
                                                                         .clinicalAnalysis="${this.clinicalAnalysis}" 
                                                                         @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
-                            </clinical-analysis-interpretation-manager>
+                            </clinical-analysis-interpretation-editor>
                         </div>                                    
                     </div>                                    
                     <div id="${this._prefix}Consent" role="tabpanel" class="tab-pane content-tab col-md-10 col-md-offset-1">

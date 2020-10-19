@@ -15,15 +15,15 @@
  */
 
 import {html, LitElement} from "/web_modules/lit-element.js";
-import UtilsNew from "../../../utilsNew.js";
-import CatalogGridFormatter from "../../commons/catalog-grid-formatter.js";
-import ClinicalAnalysisUtils from "../../clinical/clinical-analysis-utils.js";
-import "./clinical-analysis-comments.js";
-import "../../commons/view/data-form.js";
-import "../../commons/filters/text-field-filter.js";
+import UtilsNew from "../../utilsNew.js";
+import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
+import ClinicalAnalysisUtils from "./clinical-analysis-utils.js";
+import "../variant/interpretation/clinical-analysis-comments.js";
+import "../commons/view/data-form.js";
+import "../commons/filters/text-field-filter.js";
 
 
-class InterpretationEditor extends LitElement {
+class ClinicalAnalysisEditor extends LitElement {
 
     constructor() {
         super();
@@ -184,7 +184,7 @@ class InterpretationEditor extends LitElement {
                 classes: "col-md-offset-4 col-md-3"
             },
             display: {
-                width: "7",
+                width: "8",
                 showTitle: false,
                 infoIcon: "",
                 labelAlign: "left",
@@ -322,7 +322,7 @@ class InterpretationEditor extends LitElement {
                             type: "input-text",
                             defaultValue: "",
                             display: {
-                                rows: 2
+                                rows: 3
                             }
                         },
                         {
@@ -405,4 +405,4 @@ class InterpretationEditor extends LitElement {
 
 }
 
-customElements.define("interpretation-editor", InterpretationEditor);
+customElements.define("clinical-analysis-editor", ClinicalAnalysisEditor);

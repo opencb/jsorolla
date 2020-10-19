@@ -15,12 +15,11 @@
  */
 
 import {html, LitElement} from "/web_modules/lit-element.js";
-import UtilsNew from "../../../utilsNew.js";
-import CatalogGridFormatter from "../../commons/catalog-grid-formatter.js";
-import ClinicalAnalysisUtils from "../../clinical/clinical-analysis-utils.js";
-import "./clinical-analysis-comments.js";
-import "../../commons/view/data-form.js";
-import "../../commons/filters/text-field-filter.js";
+import UtilsNew from "../../utilsNew.js";
+import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
+import "../variant/interpretation/clinical-analysis-comments.js";
+import "../commons/view/data-form.js";
+import "../commons/filters/text-field-filter.js";
 
 
 class ClinicalAnalysisConsentEditor extends LitElement {

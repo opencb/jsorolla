@@ -21,7 +21,7 @@ import GridCommons from "../variant/grid-commons.js";
 import ClinicalAnalysisManager from "../clinical/clinical-analysis-manager.js";
 
 
-class ClinicalAnalysisInterpretationManager extends LitElement {
+class ClinicalAnalysisInterpretationEditor extends LitElement {
 
     constructor() {
         super();
@@ -108,7 +108,7 @@ class ClinicalAnalysisInterpretationManager extends LitElement {
                 },
                 ...this.clinicalAnalysis.secondaryInterpretations
             ];
-debugger
+
             // let versions = [];
             // for (let i = this.clinicalAnalysis.interpretation.version; i > 0; i--) {
             //     versions.push(i);
@@ -338,4 +338,4 @@ debugger
     }
 }
 
-customElements.define("clinical-analysis-interpretation-manager", ClinicalAnalysisInterpretationManager);
+customElements.define("clinical-analysis-interpretation-editor", ClinicalAnalysisInterpretationEditor);
