@@ -21,7 +21,8 @@ import "../filters/text-field-filter.js";
 import "../filters/cohort-id-autocomplete.js";
 import "../filters/sample-id-autocomplete.js";
 import "../filters/family-id-autocomplete.js";
-
+import "../filters/population-frequency-filter.js";
+import "../filters/clinvar-accessions-filter.js";
 
 export default class OpencgaAnalysisToolFormField extends LitElement {
 
@@ -88,6 +89,10 @@ export default class OpencgaAnalysisToolFormField extends LitElement {
                                     <input class="magic-radio" type="radio" name="${fieldConfig.id}" id="${this._prefix + fieldConfig.id}no" ?checked=${fieldConfig.value === "no"} value="no" @change="${e => this.onFilterChange(fieldConfig.id, "yes")}"> <label class="magic-horizontal-label" for="${this._prefix + fieldConfig.id}no"> No </label>
                                 </div>
                             </div>`;
+            case "CLINVAR-ACCESSION-FILTER":
+                return html`<clinvar-accessions-filter .config="${{clinvar: false}}" .clinicalSignificance="${fieldConfig.value}" @filterChange="${e => this.onFilterChange("clinicalSignificance", e?.detail?.value?.clinicalSignificance)}"></clinvar-accessions-filter>`
+                case "POPULATION-FREQUENCY-FILTER":
+                return html`<population-frequency-filter .populationFrequencyAlt="${fieldConfig.value}" @filterChange="${e => this.onFilterChange("populationFrequencyAlt", e.detail.value)}"></population-frequency-filter>`;
             case "CONSEQUENCE-TYPE-FILTER":
                 return html`<consequence-type-select-filter .ct="${fieldConfig.value}" .config="${fieldConfig}" @filterChange="${e => this.onFilterChange("ct", e.detail.value)}"></consequence-type-select-filter>`;
             case "VARIANT_TYPE_FILTER":

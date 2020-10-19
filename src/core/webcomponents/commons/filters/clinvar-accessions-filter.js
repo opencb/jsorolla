@@ -44,6 +44,9 @@ export default class ClinvarAccessionsFilter extends LitElement {
             },
             clinicalSignificance: {
                 type: Object
+            },
+            config: {
+                type: Object
             }
         };
     }
@@ -51,8 +54,11 @@ export default class ClinvarAccessionsFilter extends LitElement {
     _init() {
         this._prefix = "cvaf-" + UtilsNew.randomString(6) + "_";
         this.placeholder = "RCV000058226";
-        this._config = this.getDefaultConfig();
+    }
 
+    connectedCallback() {
+        super.connectedCallback();
+        this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
     updated(_changedProperties) {
@@ -85,22 +91,20 @@ export default class ClinvarAccessionsFilter extends LitElement {
 
         }
         e.stopPropagation();
-
-        //console.log(this.clinVar, this.clinicalSignificance)
-
+        let value = {};
+        if (this._config.clinvar) {
+            value.clinvar = this._clinVar || null;
+        }
+        value.clinicalSignificance = this.clinicalSignificance || null;
         const event = new CustomEvent("filterChange", {
-            detail: {
-                value: {
-                    clinvar: this._clinVar || null,
-                    clinicalSignificance: this.clinicalSignificance || null
-                }
-            }
+            detail: {value}
         });
         this.dispatchEvent(event);
     }
 
     getDefaultConfig() {
         return {
+            clinvar: true,
             clinicalSignificanceValues: {
                 benign: "Benign",
                 likely_benign: "Likely benign",
@@ -116,9 +120,11 @@ export default class ClinvarAccessionsFilter extends LitElement {
             <div class="form-group">
                 <select-field-filter multiple .data="${Object.entries(this._config.clinicalSignificanceValues).map( ([code, label]) => ({id: code, name: label}))}" .value=${this.clinicalSignificance} @filterChange="${e => this.filterChange(e, "clinicalSignificance")}"></select-field-filter>
             </div>
-            <div class="form-group">
-                <textarea id="${this._prefix}ClinVarTextarea" class="form-control clearable ${this._prefix}FilterTextInput" rows="3" name="clinvar" placeholder="${this.placeholder}" @keyup="${e => this.filterChange(e, "clinvar")}"></textarea>
-            </div>`;
+            ${this._config.clinvar ? html`
+                <div class="form-group">
+                    <textarea id="${this._prefix}ClinVarTextarea" class="form-control clearable ${this._prefix}FilterTextInput" rows="3" name="clinvar" placeholder="${this.placeholder}" @keyup="${e => this.filterChange(e, "clinvar")}"></textarea>
+                </div>
+            ` : null}`
     }
 
 }

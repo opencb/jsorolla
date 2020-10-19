@@ -54,6 +54,10 @@ export default class OpencgaAnalysisTool extends LitElement {
 
     }
 
+    openModal(e) {
+        $("#analysis_description_modal", this).modal("show");
+    }
+
     onAnalysisRun(e) {
         // Execute function provided in the configuration
         if (this.config.execute) {
@@ -81,22 +85,40 @@ export default class OpencgaAnalysisTool extends LitElement {
                     <i class="fas fa-exclamation fa-5x"></i>
                     <h3>No valid Analysis tool configuration provided. Please check configuration:</h3>
                     <div style="padding: 10px">
-                        <pre>${JSON.stringify(this.config, null, 2)}</pre>              
+                        <pre>${JSON.stringify(this.config, null, 2)}</pre>
                     </div>
                 </div>
             `;
         }
 
         return html`
-            <tool-header title="${this.config.title}" icon="${this.config.icon}"></tool-header>
-            <!-- <tool-header title="${`<text-icon title="${this.config.title}" acronym="${this.config.acronym ? this.config.acronym : this.config.title[0] + this.config.title[1] + this.config.title[2].toLowerCase()}"></text-icon>` + this.config.title}"></tool-header> -->
-
-            <div class="container">
-                <opencga-analysis-tool-form .opencgaSession=${this.opencgaSession} 
-                                            .cellbaseClient="${this.cellbaseClient}"
-                                            .config="${this.config.form}"
-                                            @analysisRun="${this.onAnalysisRun}">
-                </opencga-analysis-tool-form>
+            <div class="opencga-analysis-tool">
+                <tool-header title="${this.config.title}" icon="${this.config.icon}" .rhs="${html`<button class="btn btn-default ripple" @click="${e => this.openModal()}">Info</button>`}"></tool-header>
+                <!-- <tool-header title="${`<text-icon title="${this.config.title}" acronym="${this.config.acronym ? this.config.acronym : this.config.title[0] + this.config.title[1] + this.config.title[2].toLowerCase()}"></text-icon>` + this.config.title}"></tool-header> -->
+    
+                <div class="container">
+                    <opencga-analysis-tool-form .opencgaSession=${this.opencgaSession} 
+                                                .cellbaseClient="${this.cellbaseClient}"
+                                                .config="${this.config.form}"
+                                                @analysisRun="${this.onAnalysisRun}">
+                    </opencga-analysis-tool-form>
+                </div>
+                
+                <div class="modal fade" id="analysis_description_modal" tabindex="-1" role="dialog">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                                <h4 class="modal-title">${this.config.title}</h4>
+                            </div>
+                            <div class="modal-body">
+                                ${this.config.description}
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         `;
     }

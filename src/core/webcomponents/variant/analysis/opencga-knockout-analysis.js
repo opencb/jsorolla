@@ -27,7 +27,7 @@ class OpencgaKnockoutAnalysisConfig {
             title: "Knockout Analysis",
             icon: "",
             requires: "2.0.0",
-            description: "Sample Variant Stats description",
+            description: "Returns individuals with bialleic variants in a given gene, in either homozygous or compound heterozygous conformation. These patterns of variation often increase the risk of recessive disorders.”",
             links: [
                 {
                     title: "OpenCGA",
@@ -38,7 +38,7 @@ class OpencgaKnockoutAnalysisConfig {
             form: {
                 sections: [
                     {
-                        title: "Input Parameters",
+                        title: "Select Gene",
                         collapsed: false,
                         parameters: [
                             {
@@ -59,7 +59,7 @@ class OpencgaKnockoutAnalysisConfig {
                             },
                             {
                                 id: "panel",
-                                title: "Select panel",
+                                title: "Select disease panel",
                                 type: "DISEASE_PANEL_FILTER",
                                 addButton: true,
                                 showList: true,
@@ -72,6 +72,11 @@ class OpencgaKnockoutAnalysisConfig {
                         collapsed: false,
                         parameters: [
                             {
+                                id: "populationFrequencyAlt",
+                                title: "Cohort Alternate Stats",
+                                type: "POPULATION-FREQUENCY-FILTER"
+                            },
+                            {
                                 id: "type",
                                 title: "Variant types",
                                 type: "VARIANT_TYPE_FILTER",
@@ -80,11 +85,17 @@ class OpencgaKnockoutAnalysisConfig {
                             {
                                 id: "ct",
                                 title: "Consequence type",
-                                type: "CONSEQUENCE-TYPE-FILTER"
+                                type: "CONSEQUENCE-TYPE-FILTER",
+                                value: ["transcript_ablation","splice_acceptor_variant","splice_donor_variant","stop_gained","frameshift_variant","stop_lost","start_lost","transcript_amplification","inframe_insertion","inframe_deletion"]
+                            },
+                            {
+                                id: "clinicalSignificance",
+                                title: "Clinical Significance",
+                                type: "CLINVAR-ACCESSION-FILTER"
                             }
                         ]
                     },
-                    {
+                    /*{
                         title: "Configuration Parameters",
                         collapsed: false,
                         parameters: [
@@ -113,7 +124,7 @@ class OpencgaKnockoutAnalysisConfig {
                             //     type: "number"
                             // }
                         ]
-                    }
+                    }*/
                 ],
                 job: {
                     title: "Job Info",
