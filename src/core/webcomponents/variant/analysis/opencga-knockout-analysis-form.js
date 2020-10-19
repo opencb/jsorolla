@@ -53,24 +53,19 @@ export default class OpencgaKnockoutAnalysisForm extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
-        this._config = {...this.getDefaultConfig(), ...this.config};
-
+        this.analysisClass = AnalysisRegistry.get("knockout");
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("config")) {
+        /*if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
             this.requestUpdate();
-        }
-    }
-
-    getDefaultConfig() {
-        return AnalysisRegistry.get("knockout").config;
+        }*/
     }
 
     render() {
         return html`
-           <opencga-analysis-tool .opencgaSession="${this.opencgaSession}" .cellbaseClient="${this.cellbaseClient}" .config="${this._config}" ></opencga-analysis-tool>
+           <opencga-analysis-tool .opencgaSession="${this.opencgaSession}" .cellbaseClient="${this.cellbaseClient}" .analysisClass="${this.analysisClass}" ></opencga-analysis-tool>
         `;
     }
 

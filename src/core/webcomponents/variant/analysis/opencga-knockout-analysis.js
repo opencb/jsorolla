@@ -95,6 +95,27 @@ class OpencgaKnockoutAnalysisConfig {
                             }
                         ]
                     },
+                    {
+                        title: "Sample filters",
+                        collapsed: false,
+                        parameters: [
+                            {
+                                id: "FAMILY_MEMBER_SELECTOR",
+                                title: "Include family",
+                                type: "category",
+                                multiple: true,
+                                defaultValue: "protein_coding",
+                                allowedValues: ["Father", "Mother"]
+                            },
+                            {
+                                id: "PROBAND_ONLY",
+                                title: "Proband only",
+                                type: "boolean",
+                                defaultValue: "yes"
+                                //allowedValues: ["father", "mother"]
+                            },
+                            ]
+                    }
                     /*{
                         title: "Configuration Parameters",
                         collapsed: false,

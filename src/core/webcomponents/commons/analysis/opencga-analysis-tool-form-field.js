@@ -74,7 +74,7 @@ export default class OpencgaAnalysisToolFormField extends LitElement {
         let fieldConfig = this.config;
         switch (fieldConfig.type) {
             case "category":
-                return html`<select-field-filter ?multiple="${fieldConfig.multiple}" ?disabled=${this.config.disabled} ?required=${this.config.required} .data="${fieldConfig.allowedValues}" .value="${fieldConfig.defaultValue}" maxOptions="2" @filterChange="${e => this.onFilterChange(fieldConfig.id, e.detail.value)}"></select-field-filter>`;
+                return html`<select-field-filter ?multiple="${fieldConfig.multiple}" ?disabled=${this.config.disabled} ?required=${this.config.required} .data="${fieldConfig.allowedValues}" .value="${fieldConfig.defaultValue}" @filterChange="${e => this.onFilterChange(fieldConfig.id, e.detail.value)}"></select-field-filter>`;
             case "string":
                 return html`<text-field-filter placeholder="${fieldConfig.placeholder || ""}" ?disabled=${this.config.disabled} ?required=${this.config.required} .value="${fieldConfig.defaultValue || ""}" @filterChange="${e => this.onFilterChange(fieldConfig.id, e.detail.value)}"></text-field-filter>`;
             case "number":
