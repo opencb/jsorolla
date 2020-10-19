@@ -91,8 +91,10 @@ export default class OpencgaAnalysisToolFormField extends LitElement {
                             </div>`;
             case "CLINVAR-ACCESSION-FILTER":
                 return html`<clinvar-accessions-filter .config="${{clinvar: false}}" .clinicalSignificance="${fieldConfig.value}" @filterChange="${e => this.onFilterChange("clinicalSignificance", e?.detail?.value?.clinicalSignificance)}"></clinvar-accessions-filter>`
-                case "POPULATION-FREQUENCY-FILTER":
-                return html`<population-frequency-filter .populationFrequencyAlt="${fieldConfig.value}" @filterChange="${e => this.onFilterChange("populationFrequencyAlt", e.detail.value)}"></population-frequency-filter>`;
+            case "COHORT-FREQUENCY-FILTER":
+                return html`<cohort-stats-filter .opencgaSession="${this.opencgaSession}" .onlyCohortAll=${true} .cohortStatsAlt="${fieldConfig.value}" 
+                                    @filterChange="${e => this.onFilterChange("cohortStatsAlt", e.detail.value)}">
+                               </cohort-stats-filter>`;
             case "CONSEQUENCE-TYPE-FILTER":
                 return html`<consequence-type-select-filter .ct="${fieldConfig.value}" .config="${fieldConfig}" @filterChange="${e => this.onFilterChange("ct", e.detail.value)}"></consequence-type-select-filter>`;
             case "VARIANT_TYPE_FILTER":

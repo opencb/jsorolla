@@ -241,8 +241,6 @@ export default class OpencgaAnalysisToolForm extends LitElement {
                         ${JSON.stringify(this.config.sections, null, "\t")}
                     </pre>
                 -->
-                
-                this.data ${JSON.stringify(this.data)}
                 <form id="${this._prefix}analysis-form" data-toggle="validator" data-feedback='{"success": "fa-check", "error": "fa-times"}' role="form">
                     ${this.config.sections.map( (section, i) => html`
                          <div class="panel panel-default shadow-sm">

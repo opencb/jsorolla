@@ -41,14 +41,14 @@ class OpencgaKnockoutAnalysisConfig {
                         title: "Select Gene",
                         collapsed: false,
                         parameters: [
-                            {
+                            /*{
                                 id: "sample",
                                 title: "Select samples",
                                 type: "SAMPLE_FILTER",
                                 addButton: true,
                                 showList: true,
                                 fileUpload: true
-                            },
+                            },*/
                             {
                                 id: "gene",
                                 title: "Select gene",
@@ -57,14 +57,14 @@ class OpencgaKnockoutAnalysisConfig {
                                 showList: true,
                                 fileUpload: true
                             },
-                            {
+                            /*{
                                 id: "panel",
                                 title: "Select disease panel",
                                 type: "DISEASE_PANEL_FILTER",
                                 addButton: true,
                                 showList: true,
                                 fileUpload: true
-                            }
+                            }*/
                         ]
                     },
                     {
@@ -72,9 +72,9 @@ class OpencgaKnockoutAnalysisConfig {
                         collapsed: false,
                         parameters: [
                             {
-                                id: "populationFrequencyAlt",
+                                id: "cohortStatsAlt",
                                 title: "Cohort Alternate Stats",
-                                type: "POPULATION-FREQUENCY-FILTER"
+                                type: "COHORT-FREQUENCY-FILTER"
                             },
                             {
                                 id: "type",

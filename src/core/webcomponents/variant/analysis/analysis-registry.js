@@ -6,7 +6,7 @@ export default class AnalysisRegistry {
         "knockout": {
             class: OpencgaKnockoutAnalysis,
             config: {} // default config (override the user config)
-            // result: html`Custom result component`
+            // result: html`Custom result component` // override the render in the analysis Class
         }
     }
 
