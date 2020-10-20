@@ -81,18 +81,19 @@ export default class PopulationFrequencyFilter extends LitElement {
         } else {
             this.state = {};
         }
+        this.state = {...this.state};
         this.requestUpdate();
     }
 
-    filterChange(e) {
+    filterChange(e, studyAndPopCode) {
+        //console.log("e?.detail?.value", e?.detail?.value, studyAndPopCode)
         if(e?.detail?.value) {
             e.stopPropagation();
-            const [, study, population, comparator, value] = e.detail.value.match(/([^\s]+):([^\s]+)(<=?|>=?)(-?\d*\.?\d+)/);
-            this.state[study + ":" + population] = {comparator, value};
+            //const [, study, population, comparator, value] = e.detail.value.match(/([^\s]+):([^\s]+)(<=?|>=?)(-?\d*\.?\d+)/);
+            //const [, comparator, value] = e.detail.value.match(/(<=?|>=?)(-?\d*\.?\d+)/);
+            this.state[studyAndPopCode] = {comparator: e.detail.comparator, value: e.detail.numValue};
         }
-
         let r = [];
-
         for (let [study_popId, data] of Object.entries(this.state)) {
             r.push(study_popId + data.comparator + data.value)
         }
@@ -165,7 +166,12 @@ export default class PopulationFrequencyFilter extends LitElement {
                             </div>
                         ` : ""}
                         ${study.populations && study.populations.length && study.populations.map(popFreq => html`
-                            <number-field-filter .key="${study.id}:${popFreq.id}" type="string" .value="${this.state[study.id +":"+popFreq.id]?.value ? ((this.state[study.id +":"+popFreq.id]?.comparator ?? this.defaultComparator) + this.state[study.id +":"+popFreq.id]?.value) : "" }" .config="${{comparator: true, layout: [3,3,6]}}" .label="${popFreq.id}" @filterChange="${this.filterChange}"></number-field-filter>
+                            <number-field-filter
+                                .value="${this.state[study.id +":"+popFreq.id]?.value ? ((this.state[study.id +":"+popFreq.id]?.comparator ?? this.defaultComparator) + this.state[study.id +":"+popFreq.id]?.value) : "" }"
+                                .config="${{comparator: true, layout: [3,3,6]}}" .label="${popFreq.id}"
+                                type="string"
+                                @filterChange="${e => this.filterChange(e, `${study.id}:${popFreq.id}`)}">
+                            </number-field-filter>  
                         `)}
                     </div>
                 </div>
