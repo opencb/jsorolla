@@ -224,7 +224,7 @@ export default class OpencgaFileGrid extends LitElement {
             {
                 title: "Directory",
                 field: "path",
-                formatter: (value, row) => "/" + row.path.replace(row.name, "")
+                formatter: (value, row) => "/" + row.path.replace("/" + row.name, "")
             },
             {
                 title: "Size",

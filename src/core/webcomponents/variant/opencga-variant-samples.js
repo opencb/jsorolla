@@ -167,6 +167,7 @@ export default class OpencgaVariantSamples extends LitElement {
                     rows: response
                 };
             },
+            onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
             onLoadSuccess: data => {
                 this.gridCommons.onLoadSuccess(data, 2);
             },
@@ -232,15 +233,22 @@ export default class OpencgaVariantSamples extends LitElement {
                     // Fetch clinical analysis to display the Case ID
                     let caseResponse = await this.opencgaSession.opencgaClient.clinical().search(
                         {
-                            proband: sampleChunk.map(sample => sample.individualId).join(","),
+                            member: sampleChunk.map(sample => sample.individualId).join(","),
+                            limit: batch,
                             study: this.opencgaSession.study.fqn,
-                            exclude: "proband.samples,family,interpretation,files"
+                            exclude: "proband.samples,interpretation,files"
                         });
                     // We store the Case ID in the individual attribute
                     // Note clinical search results are not sorted
                     // FIXME at the moment we only search by proband
-                    let map = caseResponse.responses[0].results.reduce((map, obj) => (map[obj.proband.id] = obj, map), {});
-                    for (let sample of sampleChunk) {
+                    let map = {};
+                    for (let clinicalAnalysis of caseResponse.responses[0].results) {
+                        if (!map[clinicalAnalysis.proband.id]) {
+                            map[clinicalAnalysis.proband.id] = [];
+                        }
+                        map[clinicalAnalysis.proband.id].push(clinicalAnalysis);
+                    }
+                    for (let sample of sampleResponse.responses[0].results) {
                         sample.attributes.OPENCGA_CLINICAL_ANALYSIS = map[sample.individualId];
                     }
                     samples.push(...sampleChunk);

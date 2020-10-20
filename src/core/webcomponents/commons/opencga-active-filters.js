@@ -249,18 +249,14 @@ export default class OpencgaActiveFilters extends LitElement {
                                                 this._filters[i] = restResponse.response[0].result[0];
                                             }
                                         }
-                                        /*Swal.fire(
-                                            "Filter Saved",
-                                            "Filter has been saved.",
-                                            "success"
-                                        );*/
+
                                     } else {
                                         console.error(restResponse);
                                         Swal.fire(
                                             "Server Error!",
                                             "Filter has not been correctly saved.",
                                             "error"
-                                        )
+                                        );
                                     }
                                     PolymerUtils.setValue(this._prefix + "filterName", "");
                                     PolymerUtils.setValue(this._prefix + "filterDescription", "");
@@ -270,10 +266,10 @@ export default class OpencgaActiveFilters extends LitElement {
                                         "Server Error!",
                                         "Filter has not been correctly saved.",
                                         "error"
-                                    )
-                                })
+                                    );
+                            });
                         }
-                    })
+                    });
 
                 } else {
                     // saving a new filter
@@ -301,7 +297,7 @@ export default class OpencgaActiveFilters extends LitElement {
                                     "Server Error!",
                                     "Filter has not been correctly saved.",
                                     "error"
-                                )
+                                );
                             }
                             this.requestUpdate();
                         }).catch(restResponse => {
@@ -310,14 +306,14 @@ export default class OpencgaActiveFilters extends LitElement {
                             "Server Error!",
                             "Filter has not been correctly saved.",
                             "error"
-                        )
-                    })
+                        );
+                    });
                 }
 
             })
             .catch(restResponse => {
                 if (restResponse.getEvents?.("ERROR")?.length) {
-                    const msg = restResponse.getEvents("ERROR").map(error => error.message).join("<br>")
+                    const msg = restResponse.getEvents("ERROR").map(error => error.message).join("<br>");
                     new NotificationQueue().push("Error saving the filter", msg, "error");
                 } else {
                     new NotificationQueue().push("Error saving the filter", "", "error");
@@ -707,7 +703,7 @@ export default class OpencgaActiveFilters extends LitElement {
                         
                         <!-- TODO we probably need a new property for this -->
                         ${this.showSelectFilters(this.opencgaClient._config) ? html`
-                            <div class="dropdown">
+                            <div class="dropdown saved-filter-wrapper">
     
                                 <button type="button" class="btn btn-primary btn-sm dropdown-toggle ripple" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                     <i class="fa fa-filter icon-padding" aria-hidden="true"></i> Filters <span class="caret"></span>
@@ -716,11 +712,14 @@ export default class OpencgaActiveFilters extends LitElement {
                                     <li><a style="font-weight: bold">Saved Filters</a></li>
                                     ${this._filters && this._filters.length
                                         ? this._filters.map(item => item.separator ? html`
-                                                <li role="separator" class="divider"></li>
-                                            ` : html`
-                                                <li>
-                                                    <a data-filter-id="${item.id}" style="cursor: pointer;color: ${!item.active ? "black" : "green"}" @click="${this.onServerFilterChange}" class="filtersLink">&nbsp;&nbsp;${item.id}</a>
-                                                </li>`)
+                                            <li role="separator" class="divider"></li>
+                                        ` : html`
+                                            <li>
+                                                <a data-filter-id="${item.id}" style="cursor: pointer;color: ${!item.active ? "black" : "green"}" title="${item.description ?? ""}" @click="${this.onServerFilterChange}" class="filtersLink">
+                                                    <span class="id-filter-button">&nbsp;&nbsp;${item.id}</span>
+                                                    <span class="delete-filter-button" title="Delete filter" data-filter-id="${item.id}" @click="${this.serverFilterDelete}"><i class="fas fa-times"></i></span>
+                                                </a>
+                                            </li>`)
                                         : null
                                     }
                                     ${this.checkSid(this.opencgaClient._config) ? html`

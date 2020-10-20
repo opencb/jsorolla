@@ -152,32 +152,34 @@ export default class OpencgaSampleGrid extends LitElement {
                         .then(sampleResponse => {
                             // Fetch clinical analysis to display the Case ID
                             let individualIds = sampleResponse.responses[0].results.map(sample => sample.individualId).join(",");
-                            this.opencgaSession.opencgaClient.clinical().search(
-                                {
-                                    proband: individualIds,
-                                    study: this.opencgaSession.study.fqn,
-                                    exclude: "proband.samples,family,interpretation,files"
-                                })
-                                .then(caseResponse => {
-                                    // We store the Case ID in the individual attribute
-                                    // Note clinical search results are not sorted
-                                    // FIXME at the moment we only search by proband
-                                    let map = {};
-                                    for (let clinicalAnalysis of caseResponse.responses[0].results) {
-                                        if (!map[clinicalAnalysis.proband.id]) {
-                                            map[clinicalAnalysis.proband.id] = [];
+                            if (individualIds) {
+                                this.opencgaSession.opencgaClient.clinical().search(
+                                    {
+                                        member: individualIds,
+                                        study: this.opencgaSession.study.fqn,
+                                        exclude: "proband.samples,family,interpretation,files"
+                                    })
+                                    .then(caseResponse => {
+                                        // We store the Case ID in the individual attribute
+                                        // Note clinical search results are not sorted
+                                        // FIXME at the moment we only search by proband
+                                        let map = {};
+                                        for (let clinicalAnalysis of caseResponse.responses[0].results) {
+                                            if (!map[clinicalAnalysis.proband.id]) {
+                                                map[clinicalAnalysis.proband.id] = [];
+                                            }
+                                            map[clinicalAnalysis.proband.id].push(clinicalAnalysis);
                                         }
-                                        map[clinicalAnalysis.proband.id].push(clinicalAnalysis);
-                                    }
-                                    for (let sample of sampleResponse.responses[0].results) {
-                                        sample.attributes.OPENCGA_CLINICAL_ANALYSIS = map[sample.individualId];
-                                    }
-                                    params.success(sampleResponse);
-                                })
-                                .catch(e => {
-                                    console.error(e);
-                                    params.error(e);
-                                });
+                                        for (let sample of sampleResponse.responses[0].results) {
+                                            sample.attributes.OPENCGA_CLINICAL_ANALYSIS = map[sample.individualId];
+                                        }
+                                        params.success(sampleResponse);
+                                    })
+                                    .catch(e => {
+                                        console.error(e);
+                                        params.error(e);
+                                    });
+                            }
                         })
                         .catch(e => {
                             console.error(e);

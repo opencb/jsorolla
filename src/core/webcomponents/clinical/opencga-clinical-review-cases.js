@@ -53,6 +53,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
     _init() {
         this._prefix = "ocrc-" + UtilsNew.randomString(6);
         this._filters = [];
+        this.resource = "CLINICAL_ANALYSIS";
     }
 
     connectedCallback() {
@@ -81,19 +82,9 @@ export default class OpencgaClinicalReviewCases extends LitElement {
     }
 
     opencgaSessionObserver() {
-        console.log("opencgaSessionObserver");
         this.filters = this._config.filter.examples;
-
         if (this.opencgaSession.opencgaClient instanceof OpenCGAClient && UtilsNew.isNotUndefined(this.opencgaSession.token)) {
-            this.opencgaSession.opencgaClient.users().filters(this.opencgaSession.user.id).then(restResponse => {
-                const result = restResponse.getResults();
-                if (result.length > 0) {
-                    this._filters = [...this.filters, ...result.filter(f => f.resource === "CLINICAL_ANALYSIS")];
-                } else {
-                    this._filters = [...this.filters];
-                }
-                this.requestUpdate();
-            });
+            this.refreshFilters();
         }
     }
 
@@ -115,6 +106,19 @@ export default class OpencgaClinicalReviewCases extends LitElement {
             this._query = Object.assign({}, this.query);
         }
         this.requestUpdate();
+    }
+
+    refreshFilters() {
+        this.opencgaSession.opencgaClient.users().filters(this.opencgaSession.user.id).then(restResponse => {
+            const result = restResponse.getResults();
+            // (this.filters || []) in case comes undefined as prop
+            if (result.length > 0) {
+                this._filters = [...(this.filters || []), ...result.filter(f => f.resource === this.resource)];
+            } else {
+                this._filters = [...(this.filters || [])];
+            }
+            this.requestUpdate();
+        });
     }
 
     checkSid(config) {
@@ -159,7 +163,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
         this.requestUpdate();
     }
 
-    onFilterChange(e) {
+    /*onFilterChange(e) {
         console.log("onFilterChange", e);
         for (const filter of this._filters) {
             if (e.currentTarget.dataset.filterId === filter.id) {
@@ -168,6 +172,56 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                 break;
             }
         }
+    }*/
+
+    onServerFilterChange(e) {
+        console.log("onFilterChange", e);
+        for (const filter of this._filters) {
+            if (e.currentTarget.dataset.filterId === filter.id) {
+                this._query = filter.query;
+                this.setQueryFilters(this._query);
+                break;
+            }
+        }
+    }
+
+    serverFilterDelete(e) {
+        const {filterId} = e.currentTarget.dataset;
+        Swal.fire({
+            title: "Are you sure?",
+            text: "The filter will be deleted. The operation cannot be reverted.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#3085d6",
+            confirmButtonText: "Yes"
+        }).then(result => {
+            if (result.value) {
+                const data = {
+                    id: filterId,
+                    resource: this.resource,
+                    options: {}
+                };
+                this.opencgaSession.opencgaClient.users().updateFilters(this.opencgaSession.user.id, data, {action: "REMOVE"})
+                    .then(restResponse => {
+                        console.log("restResponse", restResponse)
+                        Swal.fire(
+                            "Filter Deleted",
+                            "Filter has been deleted.",
+                            "success"
+                        );
+                        this.refreshFilters();
+                    }).catch(restResponse => {
+                        if (restResponse.getEvents?.("ERROR")?.length) {
+                            const msg = restResponse.getEvents("ERROR").map(error => error.message).join("<br>");
+                            new NotificationQueue().push("Error deleting filter", msg, "error");
+                        } else {
+                            new NotificationQueue().push("Error deleting filter", "", "error");
+                        }
+                        console.error(restResponse);
+                    });
+            }
+        });
     }
 
     onFilterInputText(e) {
@@ -410,7 +464,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                 detailView: false,
                 multiSelection: false,
                 showActions: true
-            },
+            }
         };
     }
 
@@ -637,17 +691,24 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                     <button type="button" class="btn btn-primary btn-sm ripple" @click="${this.onClearQuery}">
                                         <i class="fa fa-times icon-padding" aria-hidden="true"></i> Clear
                                     </button>
-                                    <div class="dropdown">
+                                    <div class="dropdown saved-filter-wrapper">
                                         <button type="button" class="btn btn-primary btn-sm dropdown-toggle ripple" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                             <i class="fa fa-filter icon-padding" aria-hidden="true"></i> Filters <span class="caret"></span>
                                         </button>
                                         <ul class="dropdown-menu">
                                             <li><a style="font-weight: bold">Saved Filters</a></li>
-                                                ${this._filters && this._filters.length ? this._filters.map(item => html`
+                                            ${this._filters && this._filters.length
+                                                ? this._filters.map(item => item.separator ? html`
+                                                    <li role="separator" class="divider"></li>
+                                                ` : html`
                                                     <li>
-                                                        <a data-filter-id="${item.id}" style="cursor: pointer; ${item.active ? "color: green" : ""}" @click="${this.onFilterChange}" class="filtersLink">&nbsp;&nbsp;${item.id}</a>
-                                                    </li>
-                                                `) : null}
+                                                        <a data-filter-id="${item.id}" style="cursor: pointer;color: ${!item.active ? "black" : "green"}" title="${item.description ?? ""}" @click="${this.onServerFilterChange}" class="filtersLink">
+                                                            <span class="id-filter-button">&nbsp;&nbsp;${item.id}</span>
+                                                            <span class="delete-filter-button" title="Delete filter" data-filter-id="${item.id}" @click="${this.serverFilterDelete}"><i class="fas fa-times"></i></span>
+                                                        </a>
+                                                    </li>`)
+                                                : null }
+
                                             ${this.opencgaSession?.token ? html`
                                                 <li role="separator" class="divider"></li>
                                                 <li>

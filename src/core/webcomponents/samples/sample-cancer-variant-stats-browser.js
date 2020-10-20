@@ -16,6 +16,7 @@
 
 import {html, LitElement} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
+import OpencgaCatalogUtils from "../../clients/opencga/opencga-catalog-utils.js";
 import "./sample-cancer-variant-stats-plots.js";
 import "../variant/opencga-variant-filter.js";
 import "../commons/opencga-active-filters.js";
@@ -610,22 +611,24 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                 </div>
 
                 <div class="col-md-9">
-                    <div>
-                        <div class="btn-toolbar" role="toolbar" aria-label="toolbar" style="margin-bottom: 20px">
-                            <div class="pull-right" role="group">
-                                <data-form  .data=${this.settings} 
-                                            .config="${this.getSettingsConfig()}" 
-                                            @fieldChange="${e => this.onSettingsFieldChange(e)}" 
-                                            @submit="${this.onSettingsOk}">
-                                </data-form>
-                                <data-form  .data=${this.save} 
-                                            .config="${this.getSaveConfig()}" 
-                                            @fieldChange="${e => this.onSaveFieldChange(e)}" 
-                                            @submit="${this.onSave}">
-                                </data-form>
+                    ${OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS") ? html`
+                        <div>
+                            <div class="btn-toolbar" role="toolbar" aria-label="toolbar" style="margin-bottom: 20px">
+                                <div class="pull-right" role="group">
+                                    <data-form  .data=${this.settings} 
+                                                .config="${this.getSettingsConfig()}" 
+                                                @fieldChange="${e => this.onSettingsFieldChange(e)}" 
+                                                @submit="${this.onSettingsOk}">
+                                    </data-form>
+                                    <data-form  .data=${this.save} 
+                                                .config="${this.getSaveConfig()}" 
+                                                @fieldChange="${e => this.onSaveFieldChange(e)}" 
+                                                @submit="${this.onSave}">
+                                    </data-form>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    ` : null}
                     
                     <div id="${this._prefix}MainContent">    
                         <div id="${this._prefix}ActiveFilters">

@@ -53,6 +53,7 @@ export default class PopulationFrequencyFilter extends LitElement {
         this._prefix = "pff-" + UtilsNew.randomString(6) + "_";
         this.populationFrequenciesQuery = [];
         this.state = {};
+        this.defaultComparator = "<";
     }
 
     updated(_changedProperties) {
@@ -71,7 +72,7 @@ export default class PopulationFrequencyFilter extends LitElement {
             }
             pfArray = this.populationFrequencyAlt.split(new RegExp("[,;]"));
             pfArray.forEach(queryElm => {
-                const [, study, population, comparator, value] = queryElm.match(/([^\s]+):([^\s]+)(<=?|>=?)(-?\d+[.]?[\d+]?)/);
+                const [, study, population, comparator, value] = queryElm.match(/([^\s]+):([^\s]+)(<=?|>=?)(-?\d*\.?\d+)/);
                 this.state[study + ":" + population] = {
                     comparator,
                     value
@@ -86,7 +87,7 @@ export default class PopulationFrequencyFilter extends LitElement {
     filterChange(e) {
         if(e?.detail?.value) {
             e.stopPropagation();
-            const [, study, population, comparator, value] = e.detail.value.match(/([^\s]+):([^\s]+)(<=?|>=?)(-?\d+[.]?[\d+]?)/);
+            const [, study, population, comparator, value] = e.detail.value.match(/([^\s]+):([^\s]+)(<=?|>=?)(-?\d*\.?\d+)/);
             this.state[study + ":" + population] = {comparator, value};
         }
 
@@ -154,17 +155,17 @@ export default class PopulationFrequencyFilter extends LitElement {
                     <div id="${this._prefix}${study.id}" class="form-horizontal" hidden>
                         ${this.showSetAll ? html`
                             <div class="set-all-form-wrapper form-group">
-                                <div class="col-md-4 control-label" data-toggle="tooltip" data-placement="top">Set all</div>
-                                <div class="col-md-4"></div>
-                                <div class="col-md-4">
-                                    <input id="${this._prefix}${study.id}Input" type="number" data-study="${study.id}" min="0"
+                                <div class="col-md-3 control-label" data-toggle="tooltip" data-placement="top">Set all</div>
+                                <div class="col-md-3"></div>
+                                <div class="col-md-6">
+                                    <input id="${this._prefix}${study.id}Input" type="string" data-study="${study.id}"
                                            class="form-control input-sm ${this._prefix}FilterTextInput"
                                            name="${study.id}Input" @input="${this.keyUpAllPopFreq}">
                                 </div>
                             </div>
                         ` : ""}
                         ${study.populations && study.populations.length && study.populations.map(popFreq => html`
-                            <number-field-filter .key="${study.id}:${popFreq.id}" min=0 .value="${this.state[study.id +":"+popFreq.id]?.value ? this.state[study.id +":"+popFreq.id]?.comparator + this.state[study.id +":"+popFreq.id]?.value : null }" .config="${{comparator: true}}" .label="${popFreq.id}" @filterChange="${this.filterChange}"></number-field-filter>
+                            <number-field-filter .key="${study.id}:${popFreq.id}" type="string" .value="${this.state[study.id +":"+popFreq.id]?.value ? ((this.state[study.id +":"+popFreq.id]?.comparator ?? this.defaultComparator) + this.state[study.id +":"+popFreq.id]?.value) : "" }" .config="${{comparator: true, layout: [3,3,6]}}" .label="${popFreq.id}" @filterChange="${this.filterChange}"></number-field-filter>
                         `)}
                     </div>
                 </div>

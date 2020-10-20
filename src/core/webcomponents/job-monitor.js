@@ -16,6 +16,7 @@
 
 
 import {LitElement, html} from "/web_modules/lit-element.js";
+import OpencgaCatalogUtils from "../clients/opencga/opencga-catalog-utils.js";
 import UtilsNew from "../utilsNew.js";
 import {NotificationQueue} from "./Notification.js";
 
@@ -71,17 +72,18 @@ export class JobMonitor extends LitElement {
     }
 
     launchMonitor() {
+        if (OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "VIEW_JOBS")) {
         // Make a first query
-        clearInterval(this.interval);
-        this._jobs = [];
-        this.jobs = [];
-        this.filteredJobs = [];
-        this.fetchLastJobs();
-        // and then every 'interval' ms
-        this.interval = setInterval(() => {
+            clearInterval(this.interval);
+            this._jobs = [];
+            this.jobs = [];
+            this.filteredJobs = [];
             this.fetchLastJobs();
-        }, this._config.interval);
-
+            // and then every 'interval' ms
+            this.interval = setInterval(() => {
+                this.fetchLastJobs();
+            }, this._config.interval);
+        }
     }
 
     async applyUpdated() {
@@ -115,9 +117,7 @@ export class JobMonitor extends LitElement {
     }
 
     fetchLastJobs() {
-        //console.log("job opencgaSession", this.opencgaSession)
-        //console.log("job study", this.opencgaSession?.study?.fqn)
-        if (!this.opencgaSession?.study?.fqn || !$("#job-monitor").is(":visible")) {
+        if (!!this?.opencgaSession?.token || !$("#job-monitor").is(":visible")) {
             clearInterval(this.interval);
             return;
         }

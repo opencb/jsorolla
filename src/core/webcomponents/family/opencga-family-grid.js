@@ -141,31 +141,34 @@ export default class OpencgaFamilyGrid extends LitElement {
                         .then(familyResponse => {
                             // Fetch Clinical Analysis ID per Family in 1 single query
                             let familyIds = familyResponse.responses[0].results.map(family => family.id).join(",");
-                            this.opencgaSession.opencgaClient.clinical().search(
-                                {
-                                    family: familyIds,
-                                    study: this.opencgaSession.study.fqn,
-                                    exclude: "proband.samples,family.members,interpretation,files"
-                                })
-                                .then(caseResponse => {
-                                    // We store the Case ID in the individual attribute
-                                    // Note clinical search results are not sorted
-                                    // FIXME at the moment we only search by proband
-                                    for (let clinicalAnalysis of caseResponse.responses[0].results) {
-                                        if (!map[clinicalAnalysis.family.id]) {
-                                            map[clinicalAnalysis.family.id] = [];
+                            if (familyIds) {
+                                this.opencgaSession.opencgaClient.clinical().search(
+                                    {
+                                        family: familyIds,
+                                        study: this.opencgaSession.study.fqn,
+                                        exclude: "proband.samples,family.members,interpretation,files"
+                                    })
+                                    .then(caseResponse => {
+                                        // We store the Case ID in the individual attribute
+                                        // Note clinical search results are not sorted
+                                        // FIXME at the moment we only search by proband
+                                        let map = {};
+                                        for (let clinicalAnalysis of caseResponse.responses[0].results) {
+                                            if (!map[clinicalAnalysis.family.id]) {
+                                                map[clinicalAnalysis.family.id] = [];
+                                            }
+                                            map[clinicalAnalysis.family.id].push(clinicalAnalysis);
                                         }
-                                        map[clinicalAnalysis.family.id].push(clinicalAnalysis);
-                                    }
-                                    for (let family of familyResponse.responses[0].results) {
-                                        family.attributes.OPENCGA_CLINICAL_ANALYSIS = map[family.id];
-                                    }
-                                    params.success(familyResponse);
-                                })
-                                .catch(e => {
-                                    console.error(e);
-                                    params.error(e);
-                                });
+                                        for (let family of familyResponse.responses[0].results) {
+                                            family.attributes.OPENCGA_CLINICAL_ANALYSIS = map[family.id];
+                                        }
+                                        params.success(familyResponse);
+                                    })
+                                    .catch(e => {
+                                        console.error(e);
+                                        params.error(e);
+                                    });
+                            }
                         })
                         .catch(e => {
                             console.error(e);

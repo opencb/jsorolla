@@ -81,6 +81,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
         this.activeFilterFilters = [];
         this.predefinedFilter = false; // flag that hides the warning message in active-filter for predefined samples value
 
+        this.savedVariants = [];
         this.notSavedVariantIds = 0;
         this.removedVariantIds = 0;
         this._config = {...this.getDefaultConfig(), ...this.config};
