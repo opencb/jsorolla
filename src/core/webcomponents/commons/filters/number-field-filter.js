@@ -91,7 +91,6 @@ export default class TextFieldFilter extends LitElement {
         e.stopPropagation();
         let field = e.target.dataset.field;
         this.state[field] = e.target.value;
-        //console.log("filterChange", this.state.value ? (this.key + (this.state.comparator ?? "") + this.state.value) : null)
 
         const event = new CustomEvent("filterChange", {
             detail: {
@@ -100,6 +99,19 @@ export default class TextFieldFilter extends LitElement {
             bubbles: true,
             composed: true
         });
+        /*let _value;
+        if (this.key) {
+            _value =  this.state.value ? (this.key + (this.state.comparator ?? "") + this.state.value) : null;
+        } else {
+            _value = (this.state.comparator ?? "") + this.state.value;
+        }
+        const event = new CustomEvent("filterChange", {
+            detail: {
+                value: _value
+            },
+            bubbles: true,
+            composed: true
+        });*/
         this.dispatchEvent(event);
     }
 
@@ -128,6 +140,7 @@ export default class TextFieldFilter extends LitElement {
                     <select id="${this._prefix}Comparator" name="${this._prefix}Comparator"
                             class="form-control input-sm ${this._prefix}FilterSelect"
                             @change="${this.filterChange}" data-field="comparator">
+                        <option .selected="${this.state.comparator === "="}" value="=">=</option>
                         <option .selected="${this.state.comparator === "<"}" value="<">&lt;</option>
                         <option .selected="${this.state.comparator === "<="}" value="<=">&le;</option>
                         <option .selected="${this.state.comparator === ">="}" value=">">&gt;</option>

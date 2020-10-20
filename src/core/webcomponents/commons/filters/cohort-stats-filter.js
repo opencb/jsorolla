@@ -94,7 +94,7 @@ export default class CohortStatsFilter extends LitElement {
             for (let study of this.opencgaSession.project.studies) {
                 cohortsPerStudy[study.fqn] = [
                     {id: "ALL", name: "All"}
-                ]
+                ];
             }
         }
         return cohortsPerStudy;
@@ -110,7 +110,7 @@ export default class CohortStatsFilter extends LitElement {
             const value = e.target.value;
             this.state[study] = {...this.state[study], cohort, operator: this.state[study]?.operator ?? "<", value};
         }
-        const value = Object.entries(this.state).filter( ([,v]) => v.value).map( ([study,v]) => `${study}:${v.cohort}${v.operator}${v.value}`).join(";")
+        const value = Object.entries(this.state).filter(([, v]) => v.value).map(([study, v]) => `${study}:${v.cohort}${v.operator}${v.value}`).join(";");
         const event = new CustomEvent("filterChange", {
             detail: {
                 value: value
@@ -120,7 +120,7 @@ export default class CohortStatsFilter extends LitElement {
     }
 
     render() {
-        return this.cohortsPerStudy ? Object.entries(this.cohortsPerStudy).map( ([study,cohort]) => html`
+        return this.cohortsPerStudy ? Object.entries(this.cohortsPerStudy).map(([study, cohort]) => html`
             <div style="padding: 5px 0px">
                 <div style="padding-bottom: 5px">
                     <span class="break-word"><i>${study}</i></span> study:
@@ -136,7 +136,7 @@ export default class CohortStatsFilter extends LitElement {
                                         data-cohort="${cohort.id}"
                                         data-action="operator"
                                         @change="${this.filterChange}">
-                                    ${["<", "<=", ">", ">="].map( (op, i) => html`
+                                    ${["<", "<=", ">", ">="].map((op, i) => html`
                                         <option .selected="${this.state[study]?.operator === op || i === 0}">${op}</option>
                                     `)}
                                 </select>
@@ -157,6 +157,8 @@ export default class CohortStatsFilter extends LitElement {
                 <span>Project not found</span>
             `;
     }
+
+
 
 }
 

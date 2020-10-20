@@ -52,8 +52,6 @@ export default class OpencgaAnalysisTool extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
-        console.error("CONFIG")
-        console.error(this._config)
     }
 
     updated(changedProperties) {

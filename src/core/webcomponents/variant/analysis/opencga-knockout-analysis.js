@@ -24,7 +24,7 @@ class OpencgaKnockoutAnalysisConfig {
     static get() {
         return {
             id: "knockout",
-            title: "Knockout Analysis",
+            title: "Recessive gene Analysis",
             icon: "",
             requires: "2.0.0",
             description: "Returns individuals with bialleic variants in a given gene, in either homozygous or compound heterozygous conformation. These patterns of variation often increase the risk of recessive disorders.”",
@@ -50,7 +50,7 @@ class OpencgaKnockoutAnalysisConfig {
                                 fileUpload: true
                             },*/
                             {
-                                id: "gene",
+                                id: "xref",
                                 title: "Select gene",
                                 type: "GENE_FILTER",
                                 addButton: true,
@@ -73,25 +73,33 @@ class OpencgaKnockoutAnalysisConfig {
                         parameters: [
                             {
                                 id: "cohortStatsAlt",
-                                title: "Cohort Alternate Stats",
-                                type: "COHORT-FREQUENCY-FILTER"
+                                title: "Alternate Allele Frequency",
+                                type: "COHORT_FREQUENCY_FILTER"
+                            },
+                            {
+                                id: "populationFrequencyAlt",
+                                title: "",
+                                type: "POPULATION_FREQUENCY_FILTER"
                             },
                             {
                                 id: "type",
                                 title: "Variant types",
                                 type: "VARIANT_TYPE_FILTER",
+                                types: ["SNV", "INDEL", "INSERTION", "DELETION"],
+                                tooltip: tooltips.type,
                                 layout: "horizontal"
                             },
                             {
                                 id: "ct",
                                 title: "Consequence type",
-                                type: "CONSEQUENCE-TYPE-FILTER",
+                                type: "CONSEQUENCE_TYPE_FILTER",
+                                tooltip: tooltips.consequenceTypeSelect,
                                 value: ["transcript_ablation","splice_acceptor_variant","splice_donor_variant","stop_gained","frameshift_variant","stop_lost","start_lost","transcript_amplification","inframe_insertion","inframe_deletion"]
                             },
                             {
                                 id: "clinicalSignificance",
                                 title: "Clinical Significance",
-                                type: "CLINVAR-ACCESSION-FILTER"
+                                type: "CLINVAR_ACCESSION_FILTER"
                             }
                         ]
                     },

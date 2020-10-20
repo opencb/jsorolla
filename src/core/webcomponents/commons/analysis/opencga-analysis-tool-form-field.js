@@ -89,13 +89,15 @@ export default class OpencgaAnalysisToolFormField extends LitElement {
                                     <input class="magic-radio" type="radio" name="${fieldConfig.id}" id="${this._prefix + fieldConfig.id}no" ?checked=${fieldConfig.value === "no"} value="no" @change="${e => this.onFilterChange(fieldConfig.id, "yes")}"> <label class="magic-horizontal-label" for="${this._prefix + fieldConfig.id}no"> No </label>
                                 </div>
                             </div>`;
-            case "CLINVAR-ACCESSION-FILTER":
+            case "CLINVAR_ACCESSION_FILTER":
                 return html`<clinvar-accessions-filter .config="${{clinvar: false}}" .clinicalSignificance="${fieldConfig.value}" @filterChange="${e => this.onFilterChange("clinicalSignificance", e?.detail?.value?.clinicalSignificance)}"></clinvar-accessions-filter>`
-            case "COHORT-FREQUENCY-FILTER":
+            case "COHORT_FREQUENCY_FILTER":
                 return html`<cohort-stats-filter .opencgaSession="${this.opencgaSession}" .onlyCohortAll=${true} .cohortStatsAlt="${fieldConfig.value}" 
                                     @filterChange="${e => this.onFilterChange("cohortStatsAlt", e.detail.value)}">
-                               </cohort-stats-filter>`;
-            case "CONSEQUENCE-TYPE-FILTER":
+                           </cohort-stats-filter>`;
+           case "POPULATION_FREQUENCY_FILTER":
+                return html`<population-frequency-filter .populationFrequencyAlt="${fieldConfig.value}" @filterChange="${e => this.onFilterChange("populationFrequencyAlt", e.detail.value)}"></population-frequency-filter>`;
+            case "CONSEQUENCE_TYPE_FILTER":
                 return html`<consequence-type-select-filter .ct="${fieldConfig.value}" .config="${fieldConfig}" @filterChange="${e => this.onFilterChange("ct", e.detail.value)}"></consequence-type-select-filter>`;
             case "VARIANT_TYPE_FILTER":
                 return html`<variant-type-filter .type="${fieldConfig.value}" .config="${fieldConfig}" @filterChange="${e => this.onFilterChange("type", e.detail.value)}"></variant-type-filter>`;
@@ -127,7 +129,12 @@ export default class OpencgaAnalysisToolFormField extends LitElement {
 
         return html`
             <div class="opencga-analysis-tool-form-field" style="padding: ${padding}; width: ${width}">
-                <label>${this.config.title ? this.config.title : this.config.id}</label>
+                ${this.config.title ? html`<label>${this.config.title}</label>` : null}
+                ${this.config.tooltip ? html`
+                    <div class="tooltip-div pull-right">
+                        <a tooltip-title="Info" tooltip-text="${this.config.tooltip}"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
+                    </div>
+                ` : null}
                 <div id="${this.config.id}-wrapper">
                     ${this.renderField()}
                 </div>

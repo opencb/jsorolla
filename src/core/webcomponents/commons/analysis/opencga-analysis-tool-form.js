@@ -98,7 +98,7 @@ export default class OpencgaAnalysisToolForm extends LitElement {
 
     }
 
-    updated(changedProperties) {
+    async updated(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
             this.params["study"] = this.opencgaSession.study.fqn;
             // // Check logged user is the study owner
@@ -128,7 +128,9 @@ export default class OpencgaAnalysisToolForm extends LitElement {
             //     }
             // }
             this.runnable = OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "EXECUTE_JOBS")
-            this.requestUpdate();
+
+            await this.updateComplete;
+            UtilsNew.initTooltip(this);
         }
     }
 
@@ -241,6 +243,8 @@ export default class OpencgaAnalysisToolForm extends LitElement {
                         ${JSON.stringify(this.config.sections, null, "\t")}
                     </pre>
                 -->
+                
+                ${JSON.stringify(this.data)}
                 <form id="${this._prefix}analysis-form" data-toggle="validator" data-feedback='{"success": "fa-check", "error": "fa-times"}' role="form">
                     ${this.config.sections.map( (section, i) => html`
                          <div class="panel panel-default shadow-sm">
