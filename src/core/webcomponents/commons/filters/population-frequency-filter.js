@@ -87,7 +87,7 @@ export default class PopulationFrequencyFilter extends LitElement {
 
     filterChange(e, studyAndPopCode) {
         //console.log("e?.detail?.value", e?.detail?.value, studyAndPopCode)
-        if(e?.detail?.value) {
+        if (e?.detail?.value) {
             e.stopPropagation();
             //const [, study, population, comparator, value] = e.detail.value.match(/([^\s]+):([^\s]+)(<=?|>=?)(-?\d*\.?\d+)/);
             //const [, comparator, value] = e.detail.value.match(/(<=?|>=?)(-?\d*\.?\d+)/);

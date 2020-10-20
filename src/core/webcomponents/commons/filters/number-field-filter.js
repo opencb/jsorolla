@@ -36,9 +36,6 @@ export default class TextFieldFilter extends LitElement {
             type: {
                 type: String
             },
-            key: {
-                type: String
-            },
             value: {
                 type: String
             },
@@ -74,7 +71,7 @@ export default class TextFieldFilter extends LitElement {
 
     updated(changedProperties) {
         if (changedProperties.has("value")) {
-            if(this.value) {
+            if (this.value) {
                 const [, comparator, value] = this.value.match(/(<=?|>=?)(-?\d*\.?\d+)/);
                 this.state = {comparator, value};
             } else {
@@ -100,19 +97,6 @@ export default class TextFieldFilter extends LitElement {
             //bubbles: true,
             //composed: true
         });
-        /*let _value;
-        if (this.key) {
-            _value =  this.state.value ? (this.key + (this.state.comparator ?? "") + this.state.value) : null;
-        } else {
-            _value = (this.state.comparator ?? "") + this.state.value;
-        }
-        const event = new CustomEvent("filterChange", {
-            detail: {
-                value: _value
-            },
-            bubbles: true,
-            composed: true
-        });*/
         this.dispatchEvent(event);
     }
 
@@ -130,13 +114,15 @@ export default class TextFieldFilter extends LitElement {
                 .number-field-filter {
                     margin: 5px 0px;
                 }              
-                
                 .number-field-filter > div:not(:first-child) {
                     padding: 0px 10px
                 }
             </style>
+            
             <div class="number-field-filter form-group">
-                ${this.label ? html`<div class="col-md-${this._config.layout[0]} control-label" data-toggle="tooltip" data-placement="top" title="${this.label}">${this.label}</div>` : null}
+                ${this.label ? html`<div class="col-md-${this._config.layout[0]} control-label" data-toggle="tooltip" data-placement="top" title="${this.label}">
+                        ${this.label}
+                    </div>` : null}
                 ${this._config.comparator ? html`<div class="col-md-${this._config.layout[1]}">
                     <select id="${this._prefix}Comparator" name="${this._prefix}Comparator"
                             class="form-control input-sm ${this._prefix}FilterSelect"
