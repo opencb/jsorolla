@@ -18,7 +18,7 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../utilsNew.js";
 
 
-export default class TextFieldFilter extends LitElement {
+export default class NumberFieldFilter extends LitElement {
 
     constructor() {
         super();
@@ -36,7 +36,7 @@ export default class TextFieldFilter extends LitElement {
             type: {
                 type: String
             },
-            key: {
+            config: {
                 type: String
             },
             value: {
@@ -164,4 +164,4 @@ export default class TextFieldFilter extends LitElement {
 
 }
 
-customElements.define("number-field-filter", TextFieldFilter);
+customElements.define("number-field-filter", NumberFieldFilter);

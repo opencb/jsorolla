@@ -87,7 +87,7 @@ class OpencgaKnockoutAnalysisConfig {
                                 type: "VARIANT_TYPE_FILTER",
                                 types: ["SNV", "INDEL", "INSERTION", "DELETION"],
                                 tooltip: tooltips.type,
-                                layout: "horizontal"
+                                //layout: "horizontal"
                             },
                             {
                                 id: "ct",
@@ -109,17 +109,21 @@ class OpencgaKnockoutAnalysisConfig {
                         parameters: [
                             {
                                 id: "FAMILY_MEMBER_SELECTOR",
-                                title: "Include family",
+                                title: "Include families with",
                                 type: "category",
-                                multiple: true,
-                                defaultValue: "protein_coding",
-                                allowedValues: ["Father", "Mother"]
+                                allowedValues: [
+                                    {id:"ALL", name:"All"},
+                                    {id:"NO_PARENTS", name: "No parents"},
+                                    {id: "ONE_PARENT", name:"One parents"},
+                                    {id:"ONE_OR_TWO_PARENTS", name:"One or two parents"},
+                                    {id:"TWO_PARENTS", name:"Two parents"}
+                                ]
                             },
                             {
                                 id: "PROBAND_ONLY",
-                                title: "Proband only",
+                                title: "Affected individuals only",
                                 type: "boolean",
-                                defaultValue: "yes"
+                                defaultValue: "no"
                                 //allowedValues: ["father", "mother"]
                             },
                             ]
