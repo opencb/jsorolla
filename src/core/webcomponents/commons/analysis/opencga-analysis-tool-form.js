@@ -269,35 +269,36 @@ export default class OpencgaAnalysisToolForm extends LitElement {
                     `)}
                     
                     <!-- Job Info section -->
-                    <div class="panel panel-default shadow-sm">
-                        <div class="panel-heading" role="tab" id="${this._prefix}HeadingJob">
-                            <h4 class="panel-title">
-                                <a class="collapsed" role="button" data-toggle="collapse" data-parent="#${this._prefix}Accordion"
-                                        href="#${this._prefix}section-job" aria-expanded="true">
-                                    ${this.config.job.title}
-                                </a>
-                            </h4>
-                        </div>
-                        <div id="${this._prefix}section-job" class="panel-collapse" role="tabpanel">
-                            <div class="panel-body">
-                                <div class="row">
-                                    <div style="padding: 4px 20px; width: 480px">
-                                        <label>Job ID</label>
-                                        <text-field-filter placeholder="job ID" .value="${this.jobId}" @filterChange="${e => this.onJobFieldChange("jobId", e.detail.value)}"></text-field-filter>
-                                    </div>
-                                    <div style="padding: 4px 20px; width: 480px">
-                                        <label>Job tags</label>
-                                        <text-field-filter placeholder="Comma-separated tags, eg. variant, stats, ... " .value="" @filterChange="${e => this.onJobFieldChange("jobTags", e.detail.value)}"></text-field-filter>
-                                    </div>
-                                    <div style="padding: 4px 20px; width: 480px">
-                                        <label>Job Description</label>
-                                        <text-field-filter placeholder="job description" .value="" @filterChange="${e => this.onJobFieldChange("jobDescription", e.detail.value)}"></text-field-filter>
+                    ${(this.config.job.visible ?? true) ? html`
+                        <div class="panel panel-default shadow-sm">
+                            <div class="panel-heading" role="tab" id="${this._prefix}HeadingJob">
+                                <h4 class="panel-title">
+                                    <a class="collapsed" role="button" data-toggle="collapse" data-parent="#${this._prefix}Accordion"
+                                            href="#${this._prefix}section-job" aria-expanded="true">
+                                        ${this.config.job.title}
+                                    </a>
+                                </h4>
+                            </div>
+                            <div id="${this._prefix}section-job" class="panel-collapse" role="tabpanel">
+                                <div class="panel-body">
+                                    <div class="row">
+                                        <div style="padding: 4px 20px; width: 480px">
+                                            <label>Job ID</label>
+                                            <text-field-filter placeholder="job ID" .value="${this.jobId}" @filterChange="${e => this.onJobFieldChange("jobId", e.detail.value)}"></text-field-filter>
+                                        </div>
+                                        <div style="padding: 4px 20px; width: 480px">
+                                            <label>Job tags</label>
+                                            <text-field-filter placeholder="Comma-separated tags, eg. variant, stats, ... " .value="" @filterChange="${e => this.onJobFieldChange("jobTags", e.detail.value)}"></text-field-filter>
+                                        </div>
+                                        <div style="padding: 4px 20px; width: 480px">
+                                            <label>Job Description</label>
+                                            <text-field-filter placeholder="job description" .value="" @filterChange="${e => this.onJobFieldChange("jobDescription", e.detail.value)}"></text-field-filter>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                        
+                    ` : null}
                     <div class="pull-right button-wrapper">
                         ${this.runnable 
                             ? html`

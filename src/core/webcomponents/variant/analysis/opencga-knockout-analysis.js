@@ -163,6 +163,7 @@ class OpencgaKnockoutAnalysisConfig {
                     title: "Job Info",
                     id: "knockout-$DATE",
                     tags: "",
+                    visible: false,
                     description: "",
                     button: "Run",
                     validate: function(params) {
