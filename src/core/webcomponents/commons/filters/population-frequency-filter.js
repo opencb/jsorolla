@@ -87,7 +87,7 @@ export default class PopulationFrequencyFilter extends LitElement {
 
     filterChange(e, studyAndPopCode) {
         // e.detail.value is not defined iff you are changing the comparator and a value hasn't been set yet
-        if(e?.detail?.value) {
+        if (e?.detail?.value) {
             e.stopPropagation();
             //const [, study, population, comparator, value] = e.detail.value.match(/([^\s]+):([^\s]+)(<=?|>=?)(-?\d*\.?\d+)/);
             //const [, comparator, value] = e.detail.value.match(/(<=?|>=?)(-?\d*\.?\d+)/);
