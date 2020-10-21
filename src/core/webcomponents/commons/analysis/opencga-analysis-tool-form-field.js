@@ -82,6 +82,19 @@ export default class OpencgaAnalysisToolFormField extends LitElement {
                 return html`<div id="${this._prefix}-wrapper" class="subsection-content form-group">
                                 <input type="number" min=${min} max=${max} step="0.01" .disabled=${this.config.disabled} ?required=${this.config.required} value="${fieldConfig.defaultValue || ""}" id="${this._prefix}-input-${fieldConfig.id}" class="form-control input-sm ${this._prefix}FilterTextInput" placeholder="${fieldConfig.placeholder || ""}" @input="${e => this.onFilterChange(fieldConfig.id, e.target.value)}">
                             </div>`;
+            case "checkbox":
+                return html`<div id="${this._prefix}-wrapper">
+                                <ul class="magic-checkbox-wrapper">
+                                    ${fieldConfig.allowedValues.map( el => html`
+                                        <li>
+                                            <input class="magic-checkbox" type="checkbox" name="${fieldConfig.id}" id="${this._prefix}${el}" value="${el}">
+                                            <label for="${this._prefix}${el}">
+                                                ${el}
+                                            </label>
+                                        </li>
+                                    `)}
+                                </ul>
+                            </div>`;
             case "boolean":
                 return html`<div class="form-horizontal">
                                 <div class="from-group form-inline">

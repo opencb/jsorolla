@@ -97,18 +97,17 @@ export default class VariantTypeFilter extends LitElement {
     render() {
         return html`
             <style>
-                variant-type-filter .checkbox-container.inline li {
+                variant-type-filter .inline li {
                     display: inline-block;
                     margin-right: 10px;
                 }
             </style>
             <div id="${this._prefix}Type">
-             <ul class="checkbox-container ${classMap({inline: this._config.layout === "horizontal"})}">
+             <ul class="magic-checkbox-wrapper ${classMap({inline: this._config.layout === "horizontal"})}">
                 ${this._config.types && this._config.types.length && this._config.types.map( type => html`
                     <li>
-                            <input type="checkbox" value="${type}" .checked="${~this.selectedVariantTypes.indexOf(type)}" class="${this._prefix}FilterCheckBox"/>
-                            <label class="checkmark-label" @click="${() => this.toggle(type) }">${type}</label>
-                            
+                        <input class="magic-checkbox" type="checkbox" value="${type}" .checked="${~this.selectedVariantTypes.indexOf(type)}"/>
+                        <label class="" @click="${() => this.toggle(type) }">${type}</label>
                     </li>
                 `)}
              </ul>

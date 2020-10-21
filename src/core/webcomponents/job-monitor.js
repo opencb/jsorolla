@@ -117,7 +117,7 @@ export class JobMonitor extends LitElement {
     }
 
     fetchLastJobs() {
-        if (!!this?.opencgaSession?.token || !$("#job-monitor").is(":visible")) {
+        if (!this?.opencgaSession?.token || !$("#job-monitor").is(":visible")) {
             clearInterval(this.interval);
             return;
         }
