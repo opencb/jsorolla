@@ -23,6 +23,7 @@ import "../filters/sample-id-autocomplete.js";
 import "../filters/family-id-autocomplete.js";
 import "../filters/population-frequency-filter.js";
 import "../filters/clinvar-accessions-filter.js";
+import "../filters/checkbox-field-filter.js";
 
 export default class OpencgaAnalysisToolFormField extends LitElement {
 
@@ -59,6 +60,7 @@ export default class OpencgaAnalysisToolFormField extends LitElement {
     }
 
     onFilterChange(fieldId, value) {
+        console.log(fieldId, value)
         this.dispatchEvent(new CustomEvent("fieldChange", {
             detail: {
                 param: fieldId,
@@ -83,18 +85,7 @@ export default class OpencgaAnalysisToolFormField extends LitElement {
                                 <input type="number" min=${min} max=${max} step="0.01" .disabled=${this.config.disabled} ?required=${this.config.required} value="${fieldConfig.defaultValue || ""}" id="${this._prefix}-input-${fieldConfig.id}" class="form-control input-sm ${this._prefix}FilterTextInput" placeholder="${fieldConfig.placeholder || ""}" @input="${e => this.onFilterChange(fieldConfig.id, e.target.value)}">
                             </div>`;
             case "checkbox":
-                return html`<div id="${this._prefix}-wrapper">
-                                <ul class="magic-checkbox-wrapper">
-                                    ${fieldConfig.allowedValues.map( el => html`
-                                        <li>
-                                            <input class="magic-checkbox" type="checkbox" name="${fieldConfig.id}" id="${this._prefix}${el}" value="${el}">
-                                            <label for="${this._prefix}${el}">
-                                                ${el}
-                                            </label>
-                                        </li>
-                                    `)}
-                                </ul>
-                            </div>`;
+                return html`<checkbox-field-filter .value="${fieldConfig.value}" .data="${fieldConfig.allowedValues}" @filterChange="${e => this.onFilterChange(fieldConfig.id, e.detail.value)}"></checkbox-field-filter>`;
             case "boolean":
                 return html`<div class="form-horizontal">
                                 <div class="from-group form-inline">

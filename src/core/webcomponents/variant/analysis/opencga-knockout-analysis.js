@@ -94,7 +94,7 @@ class OpencgaKnockoutAnalysisConfig {
                                 title: "Consequence type",
                                 type: "CONSEQUENCE_TYPE_FILTER",
                                 tooltip: tooltips.consequenceTypeSelect,
-                                value: ["transcript_ablation","splice_acceptor_variant","splice_donor_variant","stop_gained","frameshift_variant","stop_lost","start_lost","transcript_amplification","inframe_insertion","inframe_deletion"]
+                                value: consequenceTypes.lof
                             },
                             {
                                 id: "clinicalSignificance",
@@ -110,20 +110,18 @@ class OpencgaKnockoutAnalysisConfig {
                             {
                                 id: "FAMILY_MEMBER_SELECTOR",
                                 title: "Include families with",
-                                type: "category",
-                                allowedValues: [
-                                    {id:"ALL", name:"All"},
-                                    {id:"NO_PARENTS", name: "No parents"},
-                                    {id: "ONE_PARENT", name:"One parents"},
-                                    {id:"ONE_OR_TWO_PARENTS", name:"One or two parents"},
-                                    {id:"TWO_PARENTS", name:"Two parents"}
-                                ]
+                                type: "checkbox",
+                                defaultValue: "1,2",
+                                allowedValues:
+                                    [{id: 0, name: "No parents"}, {id:1, name: "One Parents"}, {id: 2, name: "Two Parents"}]
+
                             },
                             {
                                 id: "PROBAND_ONLY",
-                                title: "Affected individuals only",
+                                title: "Affected individuals (proband) only",
                                 type: "boolean",
-                                defaultValue: "no"
+                                defaultValue: "no",
+                                tooltip: "other info here"
                                 //allowedValues: ["father", "mother"]
                             },
                             ]
