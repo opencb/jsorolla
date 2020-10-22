@@ -189,7 +189,8 @@ export default class OpencgaKnockoutAnalysis {
 
     }
 
-    execute(opencgaSession, data, params) {
+    execute(e, opencgaSession) {
+        let {data, params} = e.detail;
         let body = {};
         // data.sample ? body.sample = data.sample.join(",") : null;
         data.sample ? body.sample = data.sample : null;
@@ -201,6 +202,12 @@ export default class OpencgaKnockoutAnalysis {
             .then(restResponse => {
             })
             .catch(e => UtilsNew.notifyError(e));
+    }
+
+    form(opencgaSession, cellbaseClient) {
+        return html`
+           <opencga-analysis-tool .opencgaSession="${opencgaSession}" .cellbaseClient="${cellbaseClient}" .config="${this.config}" @execute="${e => this.execute(e, opencgaSession)}"></opencga-analysis-tool>
+        `;
     }
 
     result(job, opencgaSession) {
