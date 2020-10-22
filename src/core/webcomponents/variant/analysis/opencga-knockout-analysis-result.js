@@ -61,6 +61,16 @@ export default class OpencgaKnockoutAnalysisResult extends LitElement {
             this.job = null;
         }
 
+        if (changedProperties.has("job") && this.opencgaSession) {
+            this.job = null;
+            let query = {study: "demo@family:corpasome", job: "knockout.20201021003108.inXESR"};
+            this.opencgaSession.opencgaClient.variants().queryKnockoutIndividual(query).then(restResponse => {
+                console.log("queryKnockoutIndividual response")
+                console.log(restResponse.getResults())
+            })
+        }
+
+
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
             this.requestUpdate();
