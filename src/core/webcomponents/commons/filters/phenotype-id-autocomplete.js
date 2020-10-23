@@ -71,7 +71,6 @@ export default class PhenotypeIdAutocomplete extends LitElement {
                     phenotypes: "~^" + query.toUpperCase()
                 };
                 this.opencgaSession.opencgaClient.individuals().distinct("phenotypes.id", filters).then(restResponse => {
-                    console.log("distinct", restResponse.getResults())
                     const results = restResponse.getResults();
                     process(results.map(this._config.fields));
                 });

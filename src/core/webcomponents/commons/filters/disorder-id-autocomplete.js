@@ -71,7 +71,6 @@ export default class DisorderIdAutocomplete extends LitElement {
                     disorders: "~^" + query.toUpperCase()
                 };
                 this.opencgaSession.opencgaClient.individuals().distinct("disorders.id", filters).then(restResponse => {
-                    console.log("distinct", restResponse.getResults())
                     const results = restResponse.getResults();
                     process(results.map(this._config.fields));
                 });

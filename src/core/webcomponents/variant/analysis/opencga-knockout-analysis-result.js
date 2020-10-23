@@ -15,10 +15,11 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
+import GridCommons from "../grid-commons.js";
 import UtilsNew from "./../../../utilsNew.js";
 import "../../commons/analysis/opencga-analysis-tool.js";
 import AnalysisRegistry from "./analysis-registry.js";
-
+import knockoutData from "./test/knockout.20201021003108.inXESR.js";
 
 export default class OpencgaKnockoutAnalysisResult extends LitElement {
 
@@ -50,10 +51,88 @@ export default class OpencgaKnockoutAnalysisResult extends LitElement {
         this._prefix = "oga-" + UtilsNew.randomString(6);
 
         this._config = this.getDefaultConfig();
+
+        this.data = knockoutData;
+
+        this.LIMIT = 20; //temp limit for both rows and cols
+
+        this.gridId = this._prefix + "KnockoutGrid";
+        this.preprocess()
     }
 
     connectedCallback() {
         super.connectedCallback();
+        this._config = {...this.getDefaultConfig(), ...this.config};
+        this.gridCommons = new GridCommons(this.gridId, this, this._config);
+
+    }
+
+    firstUpdated(_changedProperties) {
+        this.renderTable()
+    }
+
+    preprocess() {
+        let i = 0;
+        this._data = {};
+        this.samples = []
+        for (let a=0; a < this.data.length; a++) {
+            const sample = this.data[a];
+            for (let b=0; b < sample.genes.length; b++) {
+                const gene = sample.genes[b];
+                for (let c=0; c < gene.transcripts.length; c++) {
+                    const transcript = gene.transcripts[c];
+                    for (let d=0; d < transcript.variants.length; d++) {
+                        const variant = transcript.variants[d];
+                        //console.log(variant.id)
+                        this.samples.push(sample)
+                        if(this._data[variant.id]) {
+                            this._data[variant.id].push(sample);
+                        } else {
+                            this._data[variant.id] = [sample];
+                        }
+                        i++
+                    }
+                }
+            }
+        }
+        console.log(this._data)
+        this.tableData = Object.entries(this._data).splice(0,this.LIMIT).map( ([variant, samples]) => ({
+            variantId: variant,
+            ...samples
+        }))
+        this.renderTable()
+
+    }
+
+    renderTable() {
+        this.table = $("#" + this.gridId);
+        this.table.bootstrapTable("destroy");
+        this.table.bootstrapTable({
+            data: this.tableData,
+            columns: this._initTableColumns(),
+            sidePagination: "local",
+            // Set table properties, these are read from config property
+            uniqueId: "variantId",
+            //pagination: this._config.pagination,
+            //pageSize: this._config.pageSize,
+            //pageList: this._config.pageList,
+            paginationVAlign: "both",
+            //formatShowingRows: this.gridCommons.formatShowingRows,
+            gridContext: this,
+            formatLoadingMessage: () =>"<div><loading-spinner></loading-spinner></div>",
+            onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement)
+        });
+    }
+
+    _initTableColumns() {
+        return [
+            {title: "", field: "variantId"},
+            ...this.samples.slice(0,this.LIMIT).map(sample => {
+                return {
+                    title: `Sample ${sample.sampleId}`,
+                    formatter: r => "x"
+                }
+            })];
     }
 
     updated(changedProperties) {
@@ -61,14 +140,15 @@ export default class OpencgaKnockoutAnalysisResult extends LitElement {
             this.job = null;
         }
 
-        if (changedProperties.has("job") && this.opencgaSession) {
+        /*if (changedProperties.has("job") && this.opencgaSession) {
             this.job = null;
             let query = {study: "demo@family:corpasome", job: "knockout.20201021003108.inXESR"};
             this.opencgaSession.opencgaClient.variants().queryKnockoutIndividual(query).then(restResponse => {
-                console.log("queryKnockoutIndividual response")
                 console.log(restResponse.getResults())
+                this.data = restResponse.getResults()
+
             })
-        }
+        }*/
 
 
         if (changedProperties.has("config")) {
@@ -83,38 +163,10 @@ export default class OpencgaKnockoutAnalysisResult extends LitElement {
 
     render() {
         return html`
-            <table class="table table-bordered table-condensed">
-                <thead>
-                    <tr>
-                        <th></th>
-                        <th>h1</th>
-                        <th>h2</th>
-                        <th>h3</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <th scope="row">1</th>
-                        <td>v1</td>
-                        <td>v2</td>
-                        <td>v3</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">2</th>
-                        <td>v4</td>
-                        <td>v5</td>
-                        <td>v6</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">3</th>
-                        <td>v7</td>
-                        <td>v8</td>
-                        <td>v9</td>
-                    </tr>
-                </tbody>
-            </table>
+            <table id="${this.gridId}"></table>
         `;
     }
+
 }
 
 customElements.define("opencga-knockout-analysis-result", OpencgaKnockoutAnalysisResult);
