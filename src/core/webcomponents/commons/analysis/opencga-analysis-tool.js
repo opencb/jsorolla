@@ -40,7 +40,7 @@ export default class OpencgaAnalysisTool extends LitElement {
             cellbaseClient: {
                 type: Object
             },
-            analysisClass: {
+            config: {
                 type: Object
             }
         };
@@ -55,23 +55,28 @@ export default class OpencgaAnalysisTool extends LitElement {
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("analysisClass")) {
-            this._config = {...this.analysisClass.config};
+        if (changedProperties.has("config")) {
+            this._config = {...this.config};
             this.requestUpdate();
         }
     }
 
     openModal(e) {
-        $("#analysis_description_modal", this).modal("show");
+        $(`#${this._prefix}analysis_description_modal`, this).modal("show");
     }
 
     onAnalysisRun(e) {
         // Execute function provided in the configuration
-        if (this.analysisClass.execute) {
+        /*if (this.analysisClass.execute) {
             this.analysisClass.execute(this.opencgaSession, e.detail.data, e.detail.params);
         } else {
             console.error(`No execute() function provided for analysis: ${this._config.id}`)
-        }
+        }*/
+
+        //TODO NOTE onAnalysisRun at the moment just forwards the `analysisRun` event fired in opencga-analysis-tool-form
+        this.dispatchEvent(new CustomEvent("execute", {
+            detail: e.detail
+        }));
     }
 
     render() {
@@ -111,7 +116,7 @@ export default class OpencgaAnalysisTool extends LitElement {
                     </opencga-analysis-tool-form>
                 </div>
                 
-                <div class="modal fade" id="analysis_description_modal" tabindex="-1" role="dialog">
+                <div class="modal fade" id="${this._prefix}analysis_description_modal" tabindex="-1" role="dialog">
                     <div class="modal-dialog" role="document">
                         <div class="modal-content">
                             <div class="modal-header">

@@ -113,6 +113,11 @@ export default class CohortStatsFilter extends LitElement {
         }
     }
 
+    formatStudyId(fqn) {
+        // replaces characters not valid in an DOM Element ID
+        return fqn.replace(/@|:/g, "_")
+    }
+
     filterChange(e, study, cohort) {
         // e.detail.value is not defined iff you are changing the comparator and a value hasn't been set yet
         if(e?.detail?.value) {
@@ -143,11 +148,11 @@ export default class CohortStatsFilter extends LitElement {
         return this.cohortsPerStudy ? Object.entries(this.cohortsPerStudy).map(([study, cohort]) => html`
             <div style="padding: 5px 0px">
                 <div style="padding-bottom: 5px">
-                    <i id="${this._prefix}${study.id}Icon" data-id="${this._prefix}${study.id}" class="fa fa-plus"
+                    <i id="${this._prefix}${this.formatStudyId(study)}Icon" data-id="${this._prefix}${this.formatStudyId(study)}" class="fa fa-plus"
                        style="cursor: pointer;padding-right: 10px" @click="${this.handleCollapseAction}"></i>
                     <span class="break-word"><strong>${study.split("@")[1]}</strong></span> study
                 </div>
-                <div class="form-horizontal" id="${this._prefix}${study.id}" hidden>
+                <div class="form-horizontal" id="${this._prefix}${this.formatStudyId(study)}" hidden>
                     ${cohort.map(cohort => html`
                         <div class="form-group" style="margin: 5px 0px">
                             <number-field-filter
