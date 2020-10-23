@@ -36,7 +36,7 @@ export default class BrassCallerFilter extends LitElement {
     static get properties() {
         return {
             query: {
-                type: String
+                type: Object
             },
             config: {
                 type: Object
@@ -46,7 +46,6 @@ export default class BrassCallerFilter extends LitElement {
 
     _init() {
         this._prefix = UtilsNew.randomString(8);
-        this.separator = ",";
 
         this.filter = {};
         this._config = this.getDefaultConfig();
@@ -56,6 +55,14 @@ export default class BrassCallerFilter extends LitElement {
         super.connectedCallback();
 
         this._config = {...this.getDefaultConfig(), ...this.config};
+    }
+
+    updated(changedProperties) {
+        if (changedProperties.has("query")) {
+            if (this.query) {
+                this.filter = this.query;
+            }
+        }
     }
 
     filterChange(e) {

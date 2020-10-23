@@ -39,7 +39,7 @@ export default class CavemanCallerFilter extends LitElement {
                 type: String
             },
             query: {
-                type: String
+                type: Object
             },
             config: {
                 type: Object
@@ -49,18 +49,8 @@ export default class CavemanCallerFilter extends LitElement {
 
     _init() {
         this._prefix = UtilsNew.randomString(8);
-        // this.separator = ",";
 
-        this.query = "FILTER=PASS";
-        this._filter = {
-            FILTER: "PASS"
-        };
-
-        this.filter = {
-            FILTER: "=PASS",
-            // CLPM: "=" + 0,
-            // ASMD: ">=" + 140
-        };
+        this.filter = {};
         this._config = this.getDefaultConfig();
     }
 
@@ -68,14 +58,13 @@ export default class CavemanCallerFilter extends LitElement {
         super.connectedCallback();
 
         this._config = {...this.getDefaultConfig(), ...this.config};
-
-        this.notify();
     }
 
     updated(changedProperties) {
         if (changedProperties.has("query")) {
-            // this._filter = this.query;
-            this.requestUpdate();
+            if (this.query) {
+                this.filter = this.query;
+            }
         }
     }
 
@@ -83,11 +72,9 @@ export default class CavemanCallerFilter extends LitElement {
         if (e.detail.value) {
             switch (e.detail.param) {
                 case "FILTER":
-                    this.filter[e.detail.param] = "=" + "PASS";
+                    this.filter[e.detail.param] = "PASS";
                     break;
                 case "CLPM":
-                    this.filter[e.detail.param] = e.detail.value;
-                    break;
                 case "ASMD":
                     this.filter[e.detail.param] = e.detail.value;
                     break;
@@ -96,15 +83,18 @@ export default class CavemanCallerFilter extends LitElement {
             delete this.filter[e.detail.param];
         }
 
-        // let filter = this.fileId ? this.fileId + ":" : "";
-        // this.query = filter + Object.entries(this.filter).map(([k, v]) => k + "" + v).join(";");
-
         this.notify();
     }
 
     notify() {
         let filter = this.fileId ? this.fileId + ":" : "";
-        filter += Object.entries(this.filter).map(([k, v]) => k + "" + v).join(";");
+        filter += Object.entries(this.filter).map(([k, v]) => {
+            if (k === "FILTER") {
+                return k + "=" + v;
+            } else {
+                return k + "" + v;
+            }
+        }).join(";");
 
         const event = new CustomEvent("filterChange", {
             detail: {
@@ -158,7 +148,7 @@ export default class CavemanCallerFilter extends LitElement {
 
     render() {
         return html`
-            <data-form .data=${this._filter} .config="${this._config}" @fieldChange="${this.filterChange}"></data-form>
+            <data-form .data=${this.query} .config="${this._config}" @fieldChange="${this.filterChange}"></data-form>
         `;
     }
 }

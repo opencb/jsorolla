@@ -153,6 +153,29 @@ export default class OpencgaVariantFilter extends LitElement {
             this.skipClinicalFilterQueryUpdate = true;
         }
 
+        // This section parse query.filedata and stores the filters for each file.
+        // This is use for the somatic caller filters
+        this.somaticCallerQueryMap = {};
+        if (this.preparedQuery.fileData) {
+            let fileDataFilters = this.preparedQuery.fileData.split(",");
+            for (let fileDataFilter of fileDataFilters) {
+                let [fileName, fileFilter] = fileDataFilter.split(":");
+                let filters = fileFilter.split(";");
+                let query = {};
+                for (let filter of filters) {
+                    let key, comparator, value;
+                    if (filter.includes("<") || filter.includes("<=") || filter.includes(">") || filter.includes(">=")) {
+                        [, key, comparator, value] = filter.match(/(\w*)(<=?|>=?)(-?\d*\.?\d+)/);
+                    } else {
+                        comparator = "";
+                        [key, value] = filter.split("=");
+                    }
+                    query[key] = comparator + value;
+                }
+                this.somaticCallerQueryMap[fileName] = query;
+            }
+        }
+
         this.requestUpdate();
     }
 
@@ -401,37 +424,37 @@ export default class OpencgaVariantFilter extends LitElement {
                     content = html`<fulltext-search-accessions-filter .traits="${this.preparedQuery.traits}" @filterChange="${e => this.onFilterChange("traits", e.detail.value)}"></fulltext-search-accessions-filter>`;
                     break;
                 case "caveman-caller":
-                    content = html`<caveman-caller-filter .fileId="${subsection.params.fileId}" .query="${subsection.params.query}" 
+                    content = html`<caveman-caller-filter .fileId="${subsection.params.fileId}" .query="${this.somaticCallerQueryMap[subsection.params.fileId]}" 
                                         @filterChange="${e => this.onFilterChange("fileData", subsection.callback(e.detail.value, this.preparedQuery))}">
                                    </caveman-caller-filter>`;
                     break;
                 case "strelka-caller":
-                    content = html`<strelka-caller-filter .fileId="${subsection.params.fileId}" .query="${subsection.params.query}" 
+                    content = html`<strelka-caller-filter .fileId="${subsection.params.fileId}" .query="${this.somaticCallerQueryMap[subsection.params.fileId]}" 
                                         @filterChange="${e => this.onFilterChange("fileData", subsection.callback(e.detail.value, this.preparedQuery))}">
                                    </strelka-caller-filter>`;
                     break;
                 case "pindel-caller":
-                    content = html`<pindel-caller-filter .fileId="${subsection.params.fileId}" .query="${subsection.params.query}" 
+                    content = html`<pindel-caller-filter .fileId="${subsection.params.fileId}" .query="${this.somaticCallerQueryMap[subsection.params.fileId]}" 
                                         @filterChange="${e => this.onFilterChange("fileData", subsection.callback(e.detail.value, this.preparedQuery))}">
                                    </pindel-caller-filter>`;
                     break;
                 case "ascat-caller":
-                    content = html`<ascat-caller-filter .fileId="${subsection.params.fileId}" .query="${subsection.params.query}" 
+                    content = html`<ascat-caller-filter .fileId="${subsection.params.fileId}" .query="${this.somaticCallerQueryMap[subsection.params.fileId]}" 
                                         @filterChange="${e => this.onFilterChange("fileData", subsection.callback(e.detail.value, this.preparedQuery))}">
                                    </ascat-caller-filter>`;
                     break;
                 case "canvas-caller":
-                    content = html`<canvas-caller-filter .fileId="${subsection.params.fileId}" .query="${subsection.params.query}" 
+                    content = html`<canvas-caller-filter .fileId="${subsection.params.fileId}" .query="${this.somaticCallerQueryMap[subsection.params.fileId]}" 
                                         @filterChange="${e => this.onFilterChange("fileData", subsection.callback(e.detail.value, this.preparedQuery))}">
                                    </canvas-caller-filter>`;
                     break;
                 case "brass-caller":
-                    content = html`<brass-caller-filter .fileId="${subsection.params.fileId}" .query="${subsection.params.query}" 
+                    content = html`<brass-caller-filter .fileId="${subsection.params.fileId}" .query="${this.somaticCallerQueryMap[subsection.params.fileId]}" 
                                         @filterChange="${e => this.onFilterChange("fileData", subsection.callback(e.detail.value, this.preparedQuery))}">
                                    </brass-caller-filter>`;
                     break;
                 case "manta-caller":
-                    content = html`<manta-caller-filter .fileId="${subsection.params.fileId}" .query="${subsection.params.query}" 
+                    content = html`<manta-caller-filter .fileId="${subsection.params.fileId}" .query="${this.somaticCallerQueryMap[subsection.params.fileId]}" 
                                         @filterChange="${e => this.onFilterChange("fileData", subsection.callback(e.detail.value, this.preparedQuery))}">
                                    </manta-caller-filter>`;
                     break;

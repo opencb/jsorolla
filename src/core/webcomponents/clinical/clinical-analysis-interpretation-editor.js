@@ -109,19 +109,14 @@ class ClinicalAnalysisInterpretationEditor extends LitElement {
                 ...this.clinicalAnalysis.secondaryInterpretations
             ];
 
-            // let versions = [];
-            // for (let i = this.clinicalAnalysis.interpretation.version; i > 0; i--) {
-            //     versions.push(i);
-            // }
             let params = {
                 study: this.opencgaSession.study.fqn,
-                // version: versions.join(","),
-                version: 1,
+                version: "all",
                 // include: "id,version,modificationDate"
             };
             await this.opencgaSession.opencgaClient.clinical().infoInterpretation(this.clinicalAnalysis.interpretation.id, params)
                 .then(response => {
-                    this.interpretationVersions = response.responses[0].results;
+                    this.interpretationVersions = response.responses[0].results.reverse();
                 })
                 .catch(response => {
                     console.error("An error occurred fetching clinicalAnalysis: ", response);
@@ -189,7 +184,8 @@ class ClinicalAnalysisInterpretationEditor extends LitElement {
                                 </a>
                             </li>
                             <li>
-                                <a href="javascript: void 0" class="btn force-text-left" data-action="merge" @click="${this.onActionClick}">
+                                <a href="javascript: void 0" class="btn force-text-left" data-action="merge" data-interpretation-id="${interpretation.id}" 
+                                        @click="${this.onActionClick}">
                                     <i class="far fa-object-group icon-padding" aria-hidden="true"></i> Merge
                                 </a>
                             </li>
@@ -287,6 +283,9 @@ class ClinicalAnalysisInterpretationEditor extends LitElement {
             case "setAsPrimary":
                 this.clinicalAnalysisManager.setInterpretationAsPrimary(interpretationId, interpretationCallback);
                 break;
+            // case "restore":
+            //     this.clinicalAnalysisManager.restoreInterpretation(interpretationId, interpretationCallback);
+            //     break;
             case "clear":
                 this.clinicalAnalysisManager.clearInterpretation(interpretationId, interpretationCallback);
                 break;
@@ -308,33 +307,34 @@ class ClinicalAnalysisInterpretationEditor extends LitElement {
 
         return html`
             <div class="interpreter-content-tab">
-                ${this.interpretations?.length ? html`
-                    <div class="row">
-                        <div class="col-md-8" style="margin-bottom: 10px">
-                            <h3 style="padding-bottom: 5px">Interpretations</h3>
-                            <div class="pull-right">
-                                <button class="btn btn-primary btn-small ripple" type="button" title="Create a new empty interpretation" data-action="create" 
-                                        @click="${this.onActionClick}">
-                                    <span style="padding-right: 10px"><i class="fas fa-file-medical"></i></span>
-                                    New Interpretation
-                                </button>
-                            </div>                            
-                        </div>
-                        
-                        <div class="col-md-8" style="margin-bottom: 10px">
-                            ${this.interpretations.map(interpretation => this.renderInterpretation(interpretation))}
-                        </div>
-                        
-                        <div class="col-md-10">
-                            <h3>Main Interpretation History - ${this.clinicalAnalysis.interpretation.id}</h3>
-                            <table id="${this.gridId}"></table>
-                        </div>
-                    </div>
-                ` : html`
-                    <div class="alert alert-info"><i class="fas fa-3x fa-info-circle align-middle"></i> No interpretation available yet.</div>`
+                ${this.interpretations?.length 
+                    ? html`
+                        <div class="row">
+                            <div class="col-md-8" style="margin-bottom: 10px">
+                                <h3 style="padding-bottom: 5px">Interpretations</h3>
+                                <div class="pull-right">
+                                    <button class="btn btn-primary btn-small ripple" type="button" title="Create a new empty interpretation" data-action="create" 
+                                            @click="${this.onActionClick}">
+                                        <span style="padding-right: 10px"><i class="fas fa-file-medical"></i></span>
+                                        New Interpretation
+                                    </button>
+                                </div>                            
+                            </div>
+                            
+                            <div class="col-md-8" style="margin-bottom: 10px">
+                                ${this.interpretations.map(interpretation => this.renderInterpretation(interpretation))}
+                            </div>
+                            
+                            <div class="col-md-10">
+                                <h3>Main Interpretation History - ${this.clinicalAnalysis.interpretation.id}</h3>
+                                <table id="${this.gridId}"></table>
+                            </div>
+                        </div>` 
+                    : html`
+                        <div class="alert alert-info"><i class="fas fa-3x fa-info-circle align-middle"></i> No interpretation available yet.</div>`
                 } 
-                </div>
-            `;
+            </div>
+        `;
     }
 }
 

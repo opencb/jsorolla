@@ -97,7 +97,7 @@ export default class ClinicalAnalysisManager {
         this.opencgaSession.opencgaClient.clinical().updateInterpretation(this.clinicalAnalysis.id, interpretationId, {},
             {
                 study: this.opencgaSession.study.fqn,
-                saveAs: "PRIMARY"
+                setAs: "PRIMARY"
             })
             .then(restResponse => {
                 callback(this.clinicalAnalysis);

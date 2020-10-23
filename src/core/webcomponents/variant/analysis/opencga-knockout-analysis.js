@@ -175,7 +175,7 @@ class OpencgaKnockoutAnalysisConfig {
 }
 
 
-export default class OpencgaKnockoutAnalysis {
+export default class OpencgaKnockoutAnalysis  { // extends LitElement
 
     constructor(config) {
         this._config = {...OpencgaKnockoutAnalysisConfig.get(), ...config};
@@ -203,7 +203,23 @@ export default class OpencgaKnockoutAnalysis {
             .catch(e => UtilsNew.notifyError(e));
     }
 
+    form() {
+        return html`
+           <opencga-analysis-tool .opencgaSession="${this.opencgaSession}" .cellbaseClient="${this.cellbaseClient}" .analysisClass="${this.analysisClass}" 
+                                    @submit="${this.execute()}"></opencga-analysis-tool>
+        `;
+    }
+
     result(job, opencgaSession) {
+        // this.check(job);
         return html`<opencga-knockout-analysis-result .job=${job} .opencgaSession="${opencgaSession}"></opencga-knockout-analysis-result>`;
     }
+
+    // render() {
+    //     if () {
+    //         return this.form();
+    //     } else {
+    //         return this.result();
+    //     }
+    // }
 }

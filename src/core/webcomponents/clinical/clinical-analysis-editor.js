@@ -156,6 +156,8 @@ class ClinicalAnalysisEditor extends LitElement {
             case "status.description":
                 // We need to pass all status field to the REST web service
                 this.updateParams.status = {...this.clinicalAnalysis.status};
+                delete this.updateParams.status.date;
+                
                 let field = e.detail.param.split(".")[1];
                 if (this._clinicalAnalysis?.status[field] !== e.detail.value && e.detail.value !== null) {
                     this.clinicalAnalysis.status[field] = e.detail.value;

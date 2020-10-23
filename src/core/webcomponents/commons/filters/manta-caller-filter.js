@@ -36,7 +36,7 @@ export default class MantaCallerFilter extends LitElement {
     static get properties() {
         return {
             query: {
-                type: String
+                type: Object
             },
             config: {
                 type: Object
@@ -46,7 +46,6 @@ export default class MantaCallerFilter extends LitElement {
 
     _init() {
         this._prefix = UtilsNew.randomString(8);
-        this.separator = ",";
 
         this.filter = {};
         this._config = this.getDefaultConfig();
@@ -56,6 +55,14 @@ export default class MantaCallerFilter extends LitElement {
         super.connectedCallback();
 
         this._config = {...this.getDefaultConfig(), ...this.config};
+    }
+
+    updated(changedProperties) {
+        if (changedProperties.has("query")) {
+            if (this.query) {
+                this.filter = this.query;
+            }
+        }
     }
 
     filterChange(e) {
@@ -69,9 +76,22 @@ export default class MantaCallerFilter extends LitElement {
             delete this.filter[e.detail.param];
         }
 
+        this.notify();
+    }
+
+    notify() {
+        let filter = this.fileId ? this.fileId + ":" : "";
+        filter += Object.entries(this.filter).map(([k, v]) => {
+            if (k === "FILTER") {
+                return k + "=" + v;
+            } else {
+                return k + "" + v;
+            }
+        }).join(";");
+
         const event = new CustomEvent("filterChange", {
             detail: {
-                value: this.filter
+                value: filter
             },
             bubbles: true,
             composed: true

@@ -150,7 +150,13 @@ class VariantInterpreterBrowserCancer extends LitElement {
                             this.callerToFile[softwareName] = file;
                         }
                     }
+
+                    // TODO Move to config object
+                    // this.query.fileData = this.callerToFile["caveman"].name + ":FILTER=PASS;CLPM>2";
+                    this.query = {...this.query, fileData: this.callerToFile["caveman"].name + ":FILTER=PASS;CLPM>2" + "," + this.callerToFile["pindel"].name + ":FILTER=PASS"};
+                    debugger
                     this._config = {...this.getDefaultConfig(), ...this.config};
+                    this.queryObserver();
                 })
                 .catch(response => {
                     console.error("An error occurred fetching sample: ", response);
@@ -284,6 +290,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
     }
 
     onVariantCallerFilterChange(filter, query) {
+        debugger
         if (query.fileData) {
             let [fileId, fileFilter] = filter.split(":");
             let files = query.fileData.split(",");
@@ -348,7 +355,8 @@ class VariantInterpreterBrowserCancer extends LitElement {
                                 callback: (filter, query) => this.onVariantCallerFilterChange(filter, query),
                                 params: {
                                     fileId: `${this.callerToFile ? this.callerToFile["caveman"]?.name : null}`,
-                                    query: "FILTER=PASS"
+                                    // query: {...this.query}
+                                    // query: {FILTER: "PASS"}
                                 }
                             },
                             {
@@ -359,7 +367,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                                 callback: (filter, query) => this.onVariantCallerFilterChange(filter, query),
                                 params: {
                                     fileId: `${this.callerToFile ? this.callerToFile["strelka"]?.name : null}`,
-                                    query: "FILTER=PASS"
+                                    // query: "FILTER=PASS"
                                 }
                             },
                             {
@@ -370,7 +378,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                                 callback: (filter, query) => this.onVariantCallerFilterChange(filter, query),
                                 params: {
                                     fileId: `${this.callerToFile ? this.callerToFile["pindel"]?.name : null}`,
-                                    query: "FILTER=PASS"
+                                    query: this.query
                                 }
                             },
                             {
@@ -391,7 +399,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                                 callback: (filter, query) => this.onVariantCallerFilterChange(filter, query),
                                 params: {
                                     fileId: `${this.callerToFile ? this.callerToFile["canvas"]?.name : null}`,
-                                    query: "FILTER=PASS"
+                                    // query: "FILTER=PASS"
                                 }
                             },
                             {
@@ -412,7 +420,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                                 callback: (filter, query) => this.onVariantCallerFilterChange(filter, query),
                                 params: {
                                     fileId: `${this.callerToFile ? this.callerToFile["manta"]?.name : null}`,
-                                    query: "FILTER=PASS"
+                                    // query: "FILTER=PASS"
                                 }
                             },
                         ]

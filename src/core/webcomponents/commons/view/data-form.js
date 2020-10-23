@@ -528,6 +528,7 @@ export default class DataForm extends LitElement {
     _createCheckboxElement(element) {
         // let checked = element.display?.checked ? "checked" : "";
         let value = this.getValue(element.field) || this._getDefaultValue(element);
+
         return html`
             <div class="">
                 <input type="checkbox" class="${this._prefix}FilterCheckbox" 

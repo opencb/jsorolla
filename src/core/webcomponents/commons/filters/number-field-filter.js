@@ -133,7 +133,7 @@ export default class NumberFieldFilter extends LitElement {
                         <option .selected="${this.state.comparator === "="}" value="=">=</option>
                         <option .selected="${this.state.comparator === "<"}" value="<">&lt;</option>
                         <option .selected="${this.state.comparator === "<="}" value="<=">&le;</option>
-                        <option .selected="${this.state.comparator === ">="}" value=">">&gt;</option>
+                        <option .selected="${this.state.comparator === ">"}" value=">">&gt;</option>
                         <option .selected="${this.state.comparator === ">="}" value=">=">&ge;</option>
                     </select>
                 </div>` : null}

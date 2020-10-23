@@ -36,7 +36,7 @@ export default class CanvasCallerFilter extends LitElement {
     static get properties() {
         return {
             query: {
-                type: String
+                type: Object
             },
             config: {
                 type: Object
@@ -69,9 +69,22 @@ export default class CanvasCallerFilter extends LitElement {
             delete this.filter[e.detail.param];
         }
 
+        this.notify();
+    }
+
+    notify() {
+        let filter = this.fileId ? this.fileId + ":" : "";
+        filter += Object.entries(this.filter).map(([k, v]) => {
+            if (k === "FILTER") {
+                return k + "=" + v;
+            } else {
+                return k + "" + v;
+            }
+        }).join(";");
+
         const event = new CustomEvent("filterChange", {
             detail: {
-                value: this.filter
+                value: filter
             },
             bubbles: true,
             composed: true
