@@ -147,12 +147,14 @@ export default class OpencgaIndividualBrowser extends LitElement {
                                 id: "phenotypes",
                                 name: "Phenotype",
                                 placeholder: "Full-text search, e.g. *melanoma*",
+                                multiple: true,
                                 description: ""
                             },
                             {
                                 id: "disorders",
                                 name: "Disorder",
                                 placeholder: "Intellectual disability,Arthrogryposis...",
+                                multiple: true,
                                 description: ""
                             },
                             {
