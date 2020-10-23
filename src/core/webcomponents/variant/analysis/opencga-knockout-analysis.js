@@ -203,7 +203,7 @@ export default class OpencgaKnockoutAnalysis  { // extends LitElement
             })
             .catch(e => UtilsNew.notifyError(e));
     }
-    
+
     form(opencgaSession, cellbaseClient) {
         return html`
            <opencga-analysis-tool .opencgaSession="${opencgaSession}" .cellbaseClient="${cellbaseClient}" .config="${this.config}" @execute="${e => this.execute(e, opencgaSession)}"></opencga-analysis-tool>
