@@ -20,6 +20,8 @@ import "../opencga/catalog/variableSets/opencga-annotation-filter.js";
 import "../commons/filters/text-field-filter.js";
 import "../commons/filters/select-field-filter.js";
 import "../commons/filters/individual-id-autocomplete.js";
+import "../commons/filters/disorder-id-autocomplete.js";
+import "../commons/filters/phenotype-id-autocomplete.js";
 import "../commons/filters/opencga-date-filter.js";
 
 
@@ -153,9 +155,13 @@ export default class OpencgaIndividualFilter extends LitElement {
             case "samples":
                 content = html`<sample-id-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></sample-id-autocomplete>`
                 break;
-            case "ethnicity":
             case "disorders":
+                content = html`<disorder-id-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></disorder-id-autocomplete>`
+                break;
             case "phenotypes":
+                content = html`<phenotype-id-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></phenotype-id-autocomplete>`
+                break;
+            case "ethnicity":
                 content = html`<text-field-filter placeholder="${subsection.placeholder}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></text-field-filter>`;
                 break;
             case "sex":
