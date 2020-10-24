@@ -75,7 +75,7 @@ export default class SelectFieldFilter extends LitElement {
     }
 
     _init() {
-        this._prefix = "sff-" + UtilsNew.randomString(6);
+        this._prefix = UtilsNew.randomString(8);
 
         this.multiple = false;
         this.data = [];
@@ -87,19 +87,18 @@ export default class SelectFieldFilter extends LitElement {
         this.selectPicker.selectpicker("val", "");
     }
 
-    updated(_changedProperties) {
-        if (_changedProperties.has("data")) {
+    updated(changedProperties) {
+        if (changedProperties.has("data")) {
             // TODO check why lit-element execute this for all existing select-field-filter instances..wtf
-            // console.log("data",this.data)
             this.data = this.data ?? [];
             this.selectPicker.selectpicker("refresh");
         }
-        if (_changedProperties.has("value")) {
+        if (changedProperties.has("value")) {
             let val = "";
             if (this.value) {
-                if(this.multiple) {
-                    if(Array.isArray(this.value)) {
-                        val = this.value
+                if (this.multiple) {
+                    if (Array.isArray(this.value)) {
+                        val = this.value;
                     } else {
                         val = this.value.split(",");
                     }
@@ -108,14 +107,8 @@ export default class SelectFieldFilter extends LitElement {
                 }
             }
             this.selectPicker.selectpicker("val", val);
-
-            //console.log("value changes")
-            //this.filterChange();
-
-            //this.requestUpdate()
-            //$(".selectpicker", this).selectpicker("refresh");
         }
-        if (_changedProperties.has("disabled")) {
+        if (changedProperties.has("disabled")) {
             this.selectPicker.selectpicker("refresh");
         }
     }
@@ -126,16 +119,17 @@ export default class SelectFieldFilter extends LitElement {
         if (selection && selection.length) {
             if (this.multiple) {
                 val = selection.join(",")
-            } else if (this.forceSelection) {
-                // single mode that DOESN'T allow deselection
-                // forceSelection means multiple flag in selectpicker is false, this is the only case `selection` is not an array
-                val = selection;
             } else {
-                // single mode that allows deselection
-                val = selection[0];
+                if (this.forceSelection) {
+                    // single mode that DOESN'T allow deselection
+                    // forceSelection means multiple flag in selectpicker is false, this is the only case `selection` is not an array
+                    val = selection;
+                } else {
+                    // single mode that allows deselection
+                    val = selection[0];
+                }
             }
         }
-        //console.error("filterChange val", val)
 
         //this.value = val ? val : null; // this allow users to get the selected values using DOMElement.value
         const event = new CustomEvent("filterChange", {
@@ -161,23 +155,28 @@ export default class SelectFieldFilter extends LitElement {
                         data-max-options="${!this.multiple ? 1 : this.maxOptions ? this.maxOptions : false}" 
                         @change="${this.filterChange}" data-width="100%">
                     ${this.data?.map(opt => html`
-                        ${opt.separator ? html`<option data-divider="true"></option>` : html`
-                            ${opt.fields ? html`
-                                <optgroup label="${opt.id ?? opt.name}">${opt.fields.map(subopt => html`
-                                    ${UtilsNew.isObject(subopt) ? html`
-                                        <option ?disabled="${subopt.disabled}" ?selected="${subopt.selected}" .value="${subopt.id ?? subopt.name}">${subopt.name}</option>    
-                                    ` : html`
-                                        <option>${subopt}</option>
-                                    `}
-                                    `)}
-                                </optgroup>
-                                ` : html` 
-                                    ${UtilsNew.isObject(opt) ? html`
-                                        <option ?disabled="${opt.disabled}" ?selected="${opt.selected}" .value="${opt.id ?? opt.name}">${opt.name ?? opt.id}</option>
-                                    ` : html`
-                                        <option>${opt}</option>
+                        ${opt.separator 
+                            ? html`<option data-divider="true"></option>` 
+                            : html`
+                                ${opt.fields 
+                                    ? html`
+                                        <optgroup label="${opt.id ?? opt.name}">${opt.fields.map(subopt => html`
+                                            ${UtilsNew.isObject(subopt) 
+                                                ? html`
+                                                    <option ?disabled="${subopt.disabled}" ?selected="${subopt.selected}" .value="${subopt.id ?? subopt.name}" title="aaaaa">${subopt.name}</option>` 
+                                                : html`
+                                                    <option>${subopt}</option>
+                                                `}
+                                            `)}
+                                        </optgroup>` 
+                                    : html` 
+                                        ${UtilsNew.isObject(opt) 
+                                            ? html`
+                                                <option ?disabled="${opt.disabled}" ?selected="${opt.selected}" .value="${opt.id ?? opt.name}">${opt.name ?? opt.id}</option>` 
+                                            : html`
+                                                <option>${opt}</option>
+                                        `}
                                 `}
-                            `}
                         `}
                     `)}
                 </select>

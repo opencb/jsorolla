@@ -75,17 +75,17 @@ export default class OpencgaKnockoutAnalysisResult extends LitElement {
         let i = 0;
         this._data = {};
         this.samples = []
-        for (let a=0; a < this.data.length; a++) {
+        for (let a = 0; a < this.data.length; a++) {
             const sample = this.data[a];
-            for (let b=0; b < sample.genes.length; b++) {
+            for (let b = 0; b < sample.genes.length; b++) {
                 const gene = sample.genes[b];
-                for (let c=0; c < gene.transcripts.length; c++) {
+                for (let c = 0; c < gene.transcripts.length; c++) {
                     const transcript = gene.transcripts[c];
-                    for (let d=0; d < transcript.variants.length; d++) {
+                    for (let d = 0; d < transcript.variants.length; d++) {
                         const variant = transcript.variants[d];
                         //console.log(variant.id)
                         this.samples.push(sample)
-                        if(this._data[variant.id]) {
+                        if (this._data[variant.id]) {
                             this._data[variant.id].push(sample);
                         } else {
                             this._data[variant.id] = [sample];

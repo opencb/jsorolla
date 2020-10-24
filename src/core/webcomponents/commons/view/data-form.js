@@ -588,7 +588,13 @@ export default class DataForm extends LitElement {
         // First. Check if 'allowedValues' field is provided
         if (element.allowedValues) {
             if (Array.isArray(element.allowedValues)) {
-                allowedValues = element.allowedValues;
+                if (element.display.apply) {
+                    for (let value of element.allowedValues) {
+                        allowedValues.push(element.display.apply(value));
+                    }
+                } else {
+                    allowedValues = element.allowedValues;
+                }
             } else {
                 if (typeof element.allowedValues === "string") {
                     let values = this.getValue(element.allowedValues);
@@ -622,7 +628,7 @@ export default class DataForm extends LitElement {
             // Check if data field contains a value
             defaultValue = this.getValue(element.field);
             if (defaultValue) {
-                // If apply is define we need to apply the same transformation to be selected
+                // If apply is defined we need to apply the same transformation to be selected
                 if (element.display.apply) {
                     for (let allowedValue of allowedValues) {
                         if (allowedValue.includes(defaultValue)) {
