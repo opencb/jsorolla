@@ -320,7 +320,35 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                                 apply: (disorder) => `${disorder.name} (${disorder.id})`,
                                 errorMessage: "No proband selected"
                             }
-                        }
+                        },
+                        {
+                            name: "Samples",
+                            field: "proband.samples",
+                            type: "table",
+                            display: {
+                                defaultLayout: "vertical",
+                                errorMessage: "No proband selected",
+                                errorClasses: "",
+                                columns: [
+                                    {
+                                        name: "ID", type: "custom",
+                                        display: {
+                                            render: sample => html`
+                                                <div><span style="font-weight: bold">${sample.id}</span></div>`
+                                        }
+                                    },
+                                    {
+                                        name: "Files", field: "fileIds", type: "custom",
+                                        display: {
+                                            render: fileIds => html`${fileIds.join("<br>")}`
+                                        }
+                                    },
+                                    {
+                                        name: "Status", field: "status.name", defaultValue: "-"
+                                    }
+                                ],
+                            }
+                        },
                     ]
                 },
                 {
@@ -377,31 +405,85 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                         },
                         {
                             name: "Members",
-                            field: "family",
-                            type: "custom",
+                            field: "family.members",
+                            type: "table",
                             display: {
-                                render: (family) => {
-                                    if (family && family.members) {
-                                        let individualGridConfig = {
-                                            showSelectCheckbox: false,
-                                            showToolbar: false
-                                        };
-                                        return html`
-                                            <opencga-individual-grid .opencgaSession="${this.opencgaSession}" 
-                                                                     .individuals="${family.members}" 
-                                                                     .config="${individualGridConfig}"
-                                                                     @filterChange="${e => this.onFamilyChange(e)}">
-                                            </opencga-individual-grid>
-                                        `;
+                                width: "12",
+                                defaultLayout: "vertical",
+                                errorMessage: "No family selected",
+                                errorClasses: "",
+                                columns: [
+                                    {
+                                        name: "Individual", type: "custom",
+                                        display: {
+                                            render: individual => html`
+                                                <div><span style="font-weight: bold">${individual.id}</span></div>
+                                                <div><span class="help-block">${individual.sex} (${individual.karyotypicSex})</span></div>`
+                                        }
+                                    },
+                                    {
+                                        name: "Sample", field: "samples", type: "custom",
+                                        display: {
+                                            render: samples => html`${samples[0].id}`
+                                        }
+                                    },
+                                    {
+                                        name: "Father", field: "father.id"
+                                    },
+                                    {
+                                        name: "Mother", field: "mother.id"
+                                    },
+                                    {
+                                        name: "Disorders", field: "disorders", type: "custom",
+                                        display: {
+                                            render: disorders => {
+                                                if (disorders && disorders.length > 0) {
+                                                    let id = disorders[0].id;
+                                                    let name = disorders[0].name;
+                                                    if (id?.startsWith("OMIM:")) {
+                                                        id = html`<a href="https://omim.org/entry/${id.split(":")[1]}" target="_blank">${id}</a>`;
+                                                    }
+                                                    return html`${name} (${id})`
+                                                } else {
+                                                    return html`<span>N/A</span>`;
+                                                }
+                                            },
+                                        }
                                     }
-                                },
-                                errorMessage: "No family selected"
+                                ],
+
                             }
                         },
+                        // {
+                        //     name: "Members",
+                        //     field: "family",
+                        //     type: "custom",
+                        //     display: {
+                        //         width: "12",
+                        //         defaultLayout: "vertical",
+                        //         render: (family) => {
+                        //             if (family && family.members) {
+                        //                 let individualGridConfig = {
+                        //                     showSelectCheckbox: false,
+                        //                     showToolbar: false
+                        //                 };
+                        //                 return html`
+                        //                     <opencga-individual-grid .opencgaSession="${this.opencgaSession}"
+                        //                                              .individuals="${family.members}"
+                        //                                              .config="${individualGridConfig}"
+                        //                                              @filterChange="${e => this.onFamilyChange(e)}">
+                        //                     </opencga-individual-grid>
+                        //                 `;
+                        //             }
+                        //         },
+                        //         errorMessage: "No family selected"
+                        //     }
+                        // },
                         {
                             name: "Pedigree",
                             type: "custom",
                             display: {
+                                defaultLayout: "vertical",
                                 visible: data => application.appConfig === "opencb", //TODO pedigree doesnt work with families with over 2 generations
                                 render: data => {
                                     if (data.family) {
@@ -448,20 +530,35 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                         {
                             name: "Samples",
                             field: "proband.samples",
-                            type: "custom",
+                            type: "table",
                             display: {
-                                render: (data) => {
-                                    if (data?.proband && data?.proband?.samples) {
-                                        return html`
-                                            <opencga-sample-grid    .opencgaSession="${this.opencgaSession}" 
-                                                                    .samples="${data.proband.samples}">
-                                            </opencga-sample-grid>
-                                        `;
+                                width: "12",
+                                defaultLayout: "vertical",
+                                errorMessage: "No proband selected",
+                                errorClasses: "",
+                                columns: [
+                                    {
+                                        name: "ID", type: "custom",
+                                        display: {
+                                            render: sample => html`
+                                                <div><span style="font-weight: bold">${sample.id}</span></div>`
+                                        }
+                                    },
+                                    {
+                                        name: "Files", field: "fileIds", type: "custom",
+                                        display: {
+                                            render: fileIds => html`${fileIds.join("<br>")}`
+                                        }
+                                    },
+                                    {
+                                        name: "Somatic", field: "somatic"
+                                    },
+                                    {
+                                        name: "Status", field: "status.name", defaultValue: "-"
                                     }
-                                },
-                                errorMessage: "No proband selected"
+                                ],
                             }
-                        }
+                        },
                     ]
                 },
                 {

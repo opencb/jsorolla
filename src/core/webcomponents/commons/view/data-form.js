@@ -411,7 +411,7 @@ export default class DataForm extends LitElement {
 
         // When forms we return a form-group
         if (this.config.type && this.config.type === "form") {
-            if (this.config?.display?.defaultLayout === "horizontal") {
+            if (layout === "horizontal") {
                 return html`
                     <div class="form-group">
                         <label class="control-label col-md-${labelWidth} ${elementLabelClasses}" 
@@ -422,8 +422,7 @@ export default class DataForm extends LitElement {
                     </div>
                 `;
             } else {
-                // const sectionWidth = element?.display?.width ? `col-md-${element.display.width}` : "col-md-12";
-                const sectionWidth = element?.display?.width ? `col-md-${element.display.width}` : "";
+                const sectionWidth = element?.display?.width ? `col-md-${element.display.width}` : `col-md-${this.config?.display?.width ?? 12}`;
                 return html`
                     <div class="form-group">
                         <div class="${sectionWidth}">
@@ -740,20 +739,22 @@ export default class DataForm extends LitElement {
     _createTableElement(element) {
         // Get values
         let array = this.getValue(element.field);
+        let errorMessage = this._getErrorMessage(element);
+        let errorClasses = element.display.errorClasses ?? "text-danger";
 
         // Check values
         if (!array) {
-            return html`<span class="text-danger">Type 'table' requires a valid array field: '${element.field}' not found</span>`;
+            return html`<span class="${errorClasses}">${errorMessage ?? `Type 'table' requires a valid array field: ${element.field} not found`}</span>`;
         }
         if (!Array.isArray(array)) {
-            return html`<span class="text-danger">Field '${element.field}' is not an array</span>`;
+            return html`<span class="${errorClasses}">Field '${element.field}' is not an array</span>`;
         }
         if (!array.length) {
             // return this.getDefaultValue(element);
             return html`<span>${this._getDefaultValue(element)}</span>`;
         }
         if (!element.display && !element.display.columns) {
-            return html`<span class="text-danger">Type 'table' requires a 'columns' array</span>`;
+            return html`<span class="${errorClasses}">Type 'table' requires a 'columns' array</span>`;
         }
 
         return html`
@@ -770,7 +771,7 @@ export default class DataForm extends LitElement {
                         <tr scope="row">
                             ${element.display.columns.map(elem => html`
                                 <td>
-                                   ${elem.type === "complex" ? this._createComplexElement(elem)
+                                   ${elem.type === "complex" ? this._createComplexElement(elem, row)
                                     : elem.type === "custom" ? elem.display.render(this.getValue(elem.field, row))
                                     : this.getValue(elem.field, row, elem.defaultValue, elem.format)}
                                 </td>

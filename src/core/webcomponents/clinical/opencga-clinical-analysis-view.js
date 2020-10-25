@@ -325,7 +325,7 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                                         name: "ID", field: "id"
                                     },
                                     {
-                                        name: "Files", field: "filedIds"
+                                        name: "Files", field: "fileIds"
                                     },
                                     {
                                         name: "Collection Method", field: "collection.method", defaultValue: "-"
