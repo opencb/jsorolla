@@ -22,6 +22,12 @@ export default class CatalogUtils {
 
     }
 
+    static getUsers(study) {
+        let _users = study?.groups
+            .find(group => group.id === "@members")
+            .userIds.filter(user => user !== "*");
+        return _users;
+    }
     static parseVariableSetVariablesForDisplay(variables, tags, margin, config) {
         config = Object.assign({
             marginStep: 15,

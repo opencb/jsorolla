@@ -241,7 +241,7 @@ class ClinicalInterpretationSummaryEditor extends LitElement {
                             field: "interpretation.primaryFindings",
                             type: "custom",
                             display: {
-                                render: primaryFindings => html`<span style="font-weight: bold">${primaryFindings.length}</span>`
+                                render: primaryFindings => html`<span style="font-weight: bold">${primaryFindings?.length}</span>`
                             }
                         },
                     ]

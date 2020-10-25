@@ -472,7 +472,6 @@ export default class DataForm extends LitElement {
     _createInputTextElement(element) {
         let value = this.getValue(element.field) || this._getDefaultValue(element);
         let disabled = this._getBooleanValue(element.display?.disabled, false);
-        // let width = this._getWidth(element);
         let rows = element.display && element.display.rows ? element.display.rows : 1;
 
         return html`
@@ -487,7 +486,6 @@ export default class DataForm extends LitElement {
     _createInputNumberElement(element) {
         let value = this.getValue(element.field) ?? this._getDefaultValue(element);
         let disabled = this._getBooleanValue(element?.display?.disabled, false);
-        let width = this._getWidth(element);
         const [min = "", max = ""] = element.allowedValues || [];
 
         return html`

@@ -238,8 +238,8 @@ class ClinicalAnalysisEditor extends LitElement {
                             type: "custom",
                             display: {
                                 render: interpretation => html`
-                                    <span style="font-weight: bold; margin-right: 10px">${interpretation.id}</span> 
-                                    <span style="color: grey; padding-right: 40px">version ${interpretation.version}</span>`
+                                    <span style="font-weight: bold; margin-right: 10px">${interpretation?.id}</span> 
+                                    <span style="color: grey; padding-right: 40px">version ${interpretation?.version}</span>`
                             }
                         },
                     ]
