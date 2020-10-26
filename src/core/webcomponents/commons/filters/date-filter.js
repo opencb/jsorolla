@@ -16,11 +16,10 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../utilsNew.js";
-import PolymerUtils from "../../PolymerUtils.js";
 import "./select-field-filter.js";
 
 
-export default class OpencgaDateFilter extends LitElement {
+export default class DateFilter extends LitElement {
 
     constructor() {
         super();
@@ -303,4 +302,4 @@ export default class OpencgaDateFilter extends LitElement {
 
 }
 
-customElements.define("opencga-date-filter", OpencgaDateFilter);
+customElements.define("date-filter", DateFilter);

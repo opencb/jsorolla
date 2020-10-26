@@ -20,7 +20,7 @@ import PolymerUtils from "../PolymerUtils.js";
 import "../opencga/catalog/variableSets/opencga-annotation-filter.js";
 import "../opencga/catalog/variableSets/opencga-annotation-filter-dynamic.js";
 import "../opencga/catalog/variableSets/opencga-annotation-filter-modal.js";
-import "../commons/filters/opencga-date-filter.js";
+import "../commons/filters/date-filter.js";
 import "../commons/filters/text-field-filter.js";
 import "../commons/filters/select-field-filter.js";
 import "../commons/filters/select-token-filter.js";
@@ -187,7 +187,7 @@ export default class OpencgaFileFilter extends LitElement {
                         </opencga-annotation-filter-modal>`;
                 break;
             case "date":
-                content = html`<opencga-date-filter .creationDate="${this.preparedQuery.creationDate}" @filterChange="${e => this.onFilterChange("creationDate", e.detail.value)}"></opencga-date-filter>`;
+                content = html`<date-filter .creationDate="${this.preparedQuery.creationDate}" @filterChange="${e => this.onFilterChange("creationDate", e.detail.value)}"></date-filter>`;
                 break;
             default:
                 console.error("Filter component not found");

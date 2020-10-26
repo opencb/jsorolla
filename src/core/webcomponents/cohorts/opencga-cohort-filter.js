@@ -19,7 +19,7 @@ import UtilsNew from "../../utilsNew.js";
 import PolymerUtils from "../PolymerUtils.js";
 import "../opencga/catalog/variableSets/opencga-annotation-filter.js";
 import "../opencga/catalog/variableSets/opencga-annotation-filter-dynamic.js";
-import "../commons/filters/opencga-date-filter.js";
+import "../commons/filters/date-filter.js";
 import "../commons/filters/text-field-filter.js";
 import "../commons/filters/select-field-filter.js";
 import "../commons/filters/cohort-id-autocomplete.js";
@@ -206,7 +206,7 @@ export default class OpencgaCohortFilter extends LitElement {
                 content = html`<select-field-filter ?multiple="${subsection.multiple}" .data="${subsection.allowedValues}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></select-field-filter>`;
                 break;
             case "date":
-                content = html`<opencga-date-filter .creationDate="${this.preparedQuery.creationDate}" @filterChange="${e => this.onFilterChange("creationDate", e.detail.value)}"></opencga-date-filter>`;
+                content = html`<date-filter .creationDate="${this.preparedQuery.creationDate}" @filterChange="${e => this.onFilterChange("creationDate", e.detail.value)}"></date-filter>`;
                 break;
             default:
                 console.error("Filter component not found");

@@ -201,7 +201,7 @@ export default class OpencgaPanelFilter extends LitElement {
                 <!--<div id="${this._prefix}IndividualSelection" class="panel-collapse collapse in" role="tabpanel"-->
                      <!--aria-labelledby="${this._prefix}IndividualSelectionHeading">-->
                     <!--<div class="panel-body">-->
-                        <!--<opencga-date-filter config="{{dateFilterConfig}}" on-datechanged="onDateChanged"></opencga-date-filter>-->
+                        <!--<date-filter config="{{dateFilterConfig}}" on-datechanged="onDateChanged"></opencga-date-filter>-->
                     <!--</div>-->
                 <!--</div>-->
             </div>
