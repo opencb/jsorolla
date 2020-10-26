@@ -72,7 +72,7 @@ export default class PopulationFrequencyFilter extends LitElement {
             }
             pfArray = this.populationFrequencyAlt.split(new RegExp("[,;]"));
             pfArray.forEach(queryElm => {
-                const [, study, population, comparator, value] = queryElm.match(/([^\s]+):([^\s]+)(<=?|>=?)(-?\d*\.?\d+)/);
+                const [, study, population, comparator, value] = queryElm.match(/([^\s]+):([^\s]+)(<=?|>=?|=)(-?\d*\.?\d+)/);
                 this.state[study + ":" + population] = {
                     comparator,
                     value

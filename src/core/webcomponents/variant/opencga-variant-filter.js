@@ -165,7 +165,7 @@ export default class OpencgaVariantFilter extends LitElement {
                 for (let filter of filters) {
                     let key, comparator, value;
                     if (filter.includes("<") || filter.includes("<=") || filter.includes(">") || filter.includes(">=")) {
-                        [, key, comparator, value] = filter.match(/(\w*)(<=?|>=?)(-?\d*\.?\d+)/);
+                        [, key, comparator, value] = filter.match(/(\w*)(<=?|>=?|=)(-?\d*\.?\d+)/);
                     } else {
                         comparator = "";
                         [key, value] = filter.split("=");
