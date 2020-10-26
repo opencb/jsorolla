@@ -66,7 +66,8 @@ class VariantInterpreter extends LitElement {
     }
 
     _init() {
-        this._prefix = "vgi-" + UtilsNew.randomString(6);
+        this._prefix = UtilsNew.randomString(8);
+
         this.activeTab = {};
     }
 

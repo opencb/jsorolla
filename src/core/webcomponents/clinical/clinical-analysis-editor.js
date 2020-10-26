@@ -55,6 +55,7 @@ class ClinicalAnalysisEditor extends LitElement {
 
     _init() {
         this._prefix = UtilsNew.randomString(8);
+
         this.updateParams = {};
     }
 
@@ -98,7 +99,6 @@ class ClinicalAnalysisEditor extends LitElement {
     clinicalAnalysisObserver() {
         if (this.opencgaSession && this.clinicalAnalysis) {
             this._clinicalAnalysis = JSON.parse(JSON.stringify(this.clinicalAnalysis));
-            // this.requestUpdate();
         }
     }
 
@@ -118,16 +118,14 @@ class ClinicalAnalysisEditor extends LitElement {
     renderStatus(status) {
         return html`
             <div class="">
-                <div style="padding-bottom: 10px">
-                    <select-field-filter .data="${ClinicalAnalysisUtils.getStatuses()}" .value="${status.name}" 
+                <select-field-filter .data="${ClinicalAnalysisUtils.getStatuses()}" .value="${status.name}" 
                         @filterChange="${e => {e.detail.param = "status.name"; this.onFieldChange(e)}}">
-                    </select-field-filter>
-                </div>
-                <div class="">
-                    <text-field-filter placeholder="Message" .value="${status.description}" 
-                        @filterChange="${e => {e.detail.param = "status.description"; this.onFieldChange(e)}}"></text-field-filter>
-                </div>
-            </div>`
+                </select-field-filter>
+                ${status.description
+                    ? html`<span class="help-block" style="padding: 0px 5px">${status.description}</span>`
+                    : null
+                }
+            </div>`;
     }
 
     onFieldChange(e) {
@@ -153,17 +151,13 @@ class ClinicalAnalysisEditor extends LitElement {
                 }
                 break;
             case "status.name":
-            case "status.description":
-                // We need to pass all status field to the REST web service
-                this.updateParams.status = {...this.clinicalAnalysis.status};
-                delete this.updateParams.status.date;
-
-                let field = e.detail.param.split(".")[1];
-                if (this._clinicalAnalysis?.status[field] !== e.detail.value && e.detail.value !== null) {
-                    this.clinicalAnalysis.status[field] = e.detail.value;
-                    this.updateParams.status[field] = e.detail.value;
+                if (this._clinicalAnalysis?.status.name !== e.detail.value && e.detail.value !== null) {
+                    this.clinicalAnalysis.status.name = e.detail.value;
+                    this.updateParams.status = {
+                        name: e.detail.value
+                    };
                 } else {
-                    delete this.updateParams.status[field];
+                    delete this.updateParams.status.name;
                 }
                 if (UtilsNew.isEmpty(this.updateParams.status)) {
                     delete this.updateParams.status;
@@ -244,8 +238,8 @@ class ClinicalAnalysisEditor extends LitElement {
                             type: "custom",
                             display: {
                                 render: interpretation => html`
-                                    <span style="font-weight: bold; margin-right: 10px">${interpretation.id}</span> 
-                                    <span style="color: grey; padding-right: 40px">version ${interpretation.version}</span>`
+                                    <span style="font-weight: bold; margin-right: 10px">${interpretation?.id}</span> 
+                                    <span style="color: grey; padding-right: 40px">version ${interpretation?.version}</span>`
                             }
                         },
                     ]
@@ -308,6 +302,15 @@ class ClinicalAnalysisEditor extends LitElement {
                                 render: status => this.renderStatus(status)
                             }
                         },
+                        // {
+                        //     name: "Status2",
+                        //     field: "status",
+                        //     type: "select",
+                        //     allowedValues: "status",
+                        //     display: {
+                        //         apply: (status) => status.name
+                        //     }
+                        // },
                         {
                             name: "Interpretation Flags",
                             field: "flags",
@@ -332,42 +335,13 @@ class ClinicalAnalysisEditor extends LitElement {
                             field: "comments",
                             type: "custom",
                             display: {
-                                // render: comments => this.renderComments(comments)
                                 render: comments => html`
-                                    <clinical-analysis-comment-editor .comments="${comments}" .opencgaSession="${this.opencgaSession}"></clinical-analysis-comment-editor>
-                                `
+                                    <clinical-analysis-comment-editor .comments="${comments}" .opencgaSession="${this.opencgaSession}"></clinical-analysis-comment-editor>`
                             }
                         }
                     ]
                 },
-
             ],
-            execute: (opencgaSession, clinicalAnalysis, params) => {
-                // Prepare the data for the REST create
-                // TODO validate data!
-                let data = {...clinicalAnalysis};
-                console.log("EXECUTE");
-
-                /*opencgaSession.opencgaClient.clinical().update(data, {study: opencgaSession.study.fqn})
-                    .then(function(response) {
-                        new NotificationQueue().push(`Clinical analysis ${response.responses[0].results[0].id} created successfully`, null, "success");
-                        _this.notifyClinicalAnalysisWrite();
-                        _this.onClear();
-                    })
-                    .catch(restResponse => {
-                        console.error(restResponse);
-                        if (restResponse.getEvents?.("ERROR")?.length) {
-                            new NotificationQueue().push("Error creating Clinical Analysis", restResponse.getEvents("ERROR").map(error => error.message).join("<br>"), "ERROR");
-                        } else {
-                            new NotificationQueue().push("Error creating Clinical Analysis", null, "ERROR");
-                        }
-                    });*/
-            },
-            result: {
-                render: job => {
-
-                }
-            }
         };
     }
 
