@@ -72,8 +72,9 @@ export default class PopulationFrequencyFilter extends LitElement {
             }
             pfArray = this.populationFrequencyAlt.split(new RegExp("[,;]"));
             pfArray.forEach(queryElm => {
-                const [, study, population, comparator, value] = queryElm.match(/([^\s]+):([^\s]+)(<=?|>=?|=)(-?\d*\.?\d+)/);
-                this.state[study + ":" + population] = {
+                const [study, pop] = queryElm.split(":");
+                const [popCode, comparator, value] = pop.split(/(<=?|>=?|=)/);
+                this.state[study + ":" + popCode] = {
                     comparator,
                     value
                 }
@@ -92,6 +93,8 @@ export default class PopulationFrequencyFilter extends LitElement {
             //const [, study, population, comparator, value] = e.detail.value.match(/([^\s]+):([^\s]+)(<=?|>=?)(-?\d*\.?\d+)/);
             //const [, comparator, value] = e.detail.value.match(/(<=?|>=?)(-?\d*\.?\d+)/);
             this.state[studyAndPopCode] = {comparator: e.detail.comparator, value: e.detail.numValue};
+        } else {
+            delete this.state[studyAndPopCode];
         }
         let r = [];
         for (let [study_popId, data] of Object.entries(this.state)) {
