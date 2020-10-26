@@ -440,7 +440,8 @@ export default class SampleVariantStatsBrowser extends LitElement {
 
         return html`
             ${this.sample && this._config.showTitle
-                ? html`<tool-header title="${this._config.title} - ${this.sample.id}" icon="${this._config.titleIcon}" class="${this._config.titleClass}"></tool-header>`
+                ? html`
+                    <tool-header title="${this._config.title} - ${this.sample.id}" icon="${this._config.titleIcon}" class="${this._config.titleClass}"></tool-header>`
                 : null
             }
             <div class="row">                
@@ -459,19 +460,24 @@ export default class SampleVariantStatsBrowser extends LitElement {
                 </div>
 
                 <div class="col-md-9">
-                    ${OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS") ? html`
-                        <div>
-                            <div class="btn-toolbar" role="toolbar" aria-label="toolbar" style="margin-bottom: 20px">
-                                <div class="pull-right" role="group">
-                                    <data-form  .data=${this.save} 
-                                                .config="${this.getSaveConfig()}" 
-                                                @fieldChange="${e => this.onSaveFieldChange(e)}" 
-                                                @submit="${this.onSave}">
-                                    </data-form>
+                    ${OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS") 
+                        ? html`
+                            <div>
+                                <div class="btn-toolbar" role="toolbar" aria-label="toolbar" style="margin-bottom: 20px">
+                                    <div class="pull-right" role="group">
+                                        <button type="button" class="btn btn-default ripple" @click="${this.onOpem}">
+                                            <span><i class="fas fa-folder-open icon-padding"></i>Open</span>
+                                        </button>
+                                        <data-form  .data=${this.save} 
+                                                    .config="${this.getSaveConfig()}" 
+                                                    @fieldChange="${e => this.onSaveFieldChange(e)}" 
+                                                    @submit="${this.onSave}">
+                                        </data-form>
+                                    </div>
                                 </div>
-                            </div>
-                        </div>
-                    ` : null }
+                            </div>` 
+                        : null 
+                    }
                     <div>
                         <opencga-active-filters resource="VARIANT"
                                                 .opencgaSession="${this.opencgaSession}"
