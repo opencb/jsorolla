@@ -17,7 +17,7 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
 import "./opencga-cohort-view.js";
-import "./../samples/opencga-sample-grid.js";
+import "../sample/opencga-sample-grid.js";
 import "./../commons/view/detail-tabs.js";
 
 export default class OpencgaCohortDetail extends LitElement {

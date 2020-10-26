@@ -20,8 +20,8 @@ import UtilsNew from "../../../utilsNew.js";
 import "./variant-interpreter-qc-overview.js";
 import "./variant-interpreter-qc-alignment.js";
 import "./variant-interpreter-qc-gene-coverage.js";
-import "../../samples/sample-variant-stats-browser.js";
-import "../../samples/sample-cancer-variant-stats-browser.js";
+import "../../sample/sample-variant-stats-browser.js";
+import "../../sample/sample-cancer-variant-stats-browser.js";
 
 
 class VariantInterpreterQc extends LitElement {

@@ -23,26 +23,26 @@ import "./opencb-facet-results.js";
 import "./facet-filter.js";
 import "../loading-spinner.js";
 import "../tool-header.js";
-import "../files/opencga-file-grid.js";
-import "../files/opencga-file-filter.js";
-import "../files/opencga-file-detail.js";
-import "../samples/opencga-sample-grid.js";
-import "../samples/opencga-sample-filter.js";
-import "../samples/opencga-sample-detail.js";
+import "../file/opencga-file-grid.js";
+import "../file/opencga-file-filter.js";
+import "../file/opencga-file-detail.js";
+import "../sample/opencga-sample-grid.js";
+import "../sample/opencga-sample-filter.js";
+import "../sample/opencga-sample-detail.js";
 import "../individual/opencga-individual-grid.js";
 import "../individual/opencga-individual-filter.js";
 import "../individual/opencga-individual-detail.js";
 import "../family/opencga-family-grid.js";
 import "../family/opencga-family-filter.js";
 import "../family/opencga-family-detail.js";
-import "../cohorts/opencga-cohort-grid.js";
-import "../cohorts/opencga-cohort-filter.js";
-import "../cohorts/opencga-cohort-detail.js";
-import "../jobs/opencga-jobs-grid.js";
-import "../jobs/opencga-jobs-filter.js";
-import "../jobs/opencga-jobs-detail.js";
-import "../jobs/opencga-jobs-browser.js";
-import "../jobs/jobs-timeline.js";
+import "../cohort/opencga-cohort-grid.js";
+import "../cohort/opencga-cohort-filter.js";
+import "../cohort/opencga-cohort-detail.js";
+import "../job/opencga-job-grid.js";
+import "../job/opencga-job-filter.js";
+import "../job/opencga-job-detail.js";
+import "../job/opencga-job-browser.js";
+import "../job/job-timeline.js";
 import "../clinical/opencga-clinical-analysis-grid.js";
 import "../clinical/opencga-clinical-analysis-filter.js";
 import "../clinical/opencga-clinical-analysis-detail.js";
@@ -366,18 +366,18 @@ export default class OpencgaBrowser extends LitElement {
                 this.endpoint = this.opencgaSession.opencgaClient.jobs();
                 return html`
                     <div id="table-tab" class="content-tab active">
-                         <opencga-jobs-grid .opencgaSession="${this.opencgaSession}"
+                         <opencga-job-grid .opencgaSession="${this.opencgaSession}"
                                          .config="${this._config.filter.grid}"
                                          .query="${this.executedQuery}"
                                          .search="${this.executedQuery}"
                                          .eventNotifyName="${this.eventNotifyName}"
                                          .files="${this.files}"
                                          @selectrow="${e => this.onClickRow(e, "job")}">
-                         </opencga-jobs-grid>
-                         <opencga-jobs-detail   .opencgaSession="${this.opencgaSession}"
+                         </opencga-job-grid>
+                         <opencga-job-detail   .opencgaSession="${this.opencgaSession}"
                                                 .config="${this._config.filter.detail}"
                                                 .jobId="${this.detail.job?.id}">
-                         </opencga-jobs-detail>
+                         </opencga-job-detail>
                     </div>
                     ${facetView}
                     <div id="visual-browser-tab" class="content-tab">
@@ -474,7 +474,7 @@ export default class OpencgaBrowser extends LitElement {
                                 ` : null}
                                 
                                 ${this.resource === "JOB" ? html`
-                                    <opencga-jobs-filter .opencgaSession="${this.opencgaSession}"
+                                    <opencga-job-filter .opencgaSession="${this.opencgaSession}"
                                                         .config="${this._config.filter}"
                                                         .files="${this.files}"
                                                         .query="${this.query}"
@@ -482,7 +482,7 @@ export default class OpencgaBrowser extends LitElement {
                                                         .searchButton="${false}"
                                                         @queryChange="${this.onQueryFilterChange}"
                                                         @querySearch="${this.onQueryFilterSearch}">
-                                    </opencga-jobs-filter>
+                                    </opencga-job-filter>
                                 ` : null}                                
                             </div>
                             

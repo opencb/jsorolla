@@ -16,7 +16,6 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
-import PolymerUtils from "../PolymerUtils.js";
 import "../opencga/catalog/variableSets/opencga-annotation-filter.js";
 import "../opencga/catalog/variableSets/opencga-annotation-filter-dynamic.js";
 import "../opencga/catalog/variableSets/opencga-annotation-filter-modal.js";
@@ -26,6 +25,7 @@ import "../commons/filters/select-field-filter.js";
 import "../commons/filters/select-token-filter.js";
 import "../commons/filters/file-name-autocomplete.js";
 import "../commons/filters/sample-id-autocomplete.js";
+import "../commons/filters/directory-autocomplete.js";
 
 export default class OpencgaFileFilter extends LitElement {
 
@@ -168,8 +168,10 @@ export default class OpencgaFileFilter extends LitElement {
             case "samples":
                 content = html`<sample-id-autocomplete .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></sample-id-autocomplete>`
                 break;
-            case "path":
             case "directory":
+                content = html`<directory-autocomplete .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></directory-autocomplete>`
+                break;
+            case "path":
                 content = html`<text-field-filter placeholder="${subsection.placeholder}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></text-field-filter>`;
                 break;
             case "format":

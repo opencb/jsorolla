@@ -22,7 +22,7 @@ import "../commons/opencb-grid-toolbar.js";
 import "../loading-spinner.js";
 
 
-export default class OpencgaJobsGrid extends LitElement {
+export default class OpencgaJobGrid extends LitElement {
 
     constructor() {
         super();
@@ -512,4 +512,4 @@ export default class OpencgaJobsGrid extends LitElement {
 
 }
 
-customElements.define("opencga-jobs-grid", OpencgaJobsGrid);
+customElements.define("opencga-job-grid", OpencgaJobGrid);

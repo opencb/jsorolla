@@ -70,7 +70,7 @@ export default class CohortStatsFilter extends LitElement {
                 const cohorts = this.cohortStatsAlt.split(";");
                 cohorts.forEach(cohortStat => {
                     const [project, study, cohortFreq] = cohortStat.split(":");
-                    const [cohort, comparator, value] = cohortFreq.split(/(<=?|>=?)/);
+                    const [cohort, comparator, value] = cohortFreq.split(/(<=?|>=?|=)/);
                     this.state[project + ":" + study] = {cohort, comparator, value};
                 });
             }
@@ -123,6 +123,8 @@ export default class CohortStatsFilter extends LitElement {
         if(e?.detail?.value) {
             e.stopPropagation();
             this.state[study] = {cohort: cohort, comparator: e.detail.comparator, value: e.detail.numValue};
+        } else {
+            delete this.state[study];
         }
         /*const {study, cohort, action} = e.target.dataset;
         console.log("study, cohort, action", study, cohort, action)

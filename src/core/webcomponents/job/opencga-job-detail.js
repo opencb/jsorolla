@@ -16,11 +16,11 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
-import "./opencga-jobs-detail-log.js";
-import "./opencga-jobs-view.js";
+import "./opencga-job-detail-log.js";
+import "./opencga-job-view.js";
 import "./../commons/view/detail-tabs.js";
 
-export default class OpencgaJobsDetail extends LitElement {
+export default class OpencgaJobDetail extends LitElement {
 
     constructor() {
         super();
@@ -95,7 +95,7 @@ export default class OpencgaJobsDetail extends LitElement {
                     name: "Overview",
                     active: true,
                     render: (job, active, opencgaSession) => {
-                        return html`<opencga-jobs-view .opencgaSession=${opencgaSession} mode="simple" .job="${job}"></opencga-jobs-view>`;
+                        return html`<opencga-job-view .opencgaSession=${opencgaSession} mode="simple" .job="${job}"></opencga-job-view>`;
                     }
                 },
                 {
@@ -103,10 +103,10 @@ export default class OpencgaJobsDetail extends LitElement {
                     name: "Logs",
                     render: (job, active, opencgaSession) => {
                         return html`
-                            <opencga-jobs-detail-log    .opencgaSession=${opencgaSession}
+                            <opencga-job-detail-log    .opencgaSession=${opencgaSession}
                                                         .active="${active}"
                                                         .job="${job}">
-                            </opencga-jobs-detail-log>
+                            </opencga-job-detail-log>
                         `;
                     }
                 }
@@ -123,4 +123,4 @@ export default class OpencgaJobsDetail extends LitElement {
 
 }
 
-customElements.define("opencga-jobs-detail", OpencgaJobsDetail);
+customElements.define("opencga-job-detail", OpencgaJobDetail);
