@@ -19,7 +19,7 @@ import UtilsNew from "../../utilsNew.js";
 import "../commons/opencga-browser.js";
 
 
-export default class OpencgaJobsBrowser extends LitElement {
+export default class OpencgaJobBrowser extends LitElement {
 
     constructor() {
         super();
@@ -214,7 +214,7 @@ export default class OpencgaJobsBrowser extends LitElement {
                             name: "Overview",
                             active: true,
                             render: (job, active, opencgaSession) => {
-                                return html`<opencga-jobs-view .opencgaSession=${opencgaSession} mode="simple" .job="${job}"></opencga-jobs-view>`;
+                                return html`<opencga-job-view .opencgaSession=${opencgaSession} mode="simple" .job="${job}"></opencga-job-view>`;
                             }
                         },
                         {
@@ -222,10 +222,10 @@ export default class OpencgaJobsBrowser extends LitElement {
                             name: "Logs",
                             render: (job, active, opencgaSession) => {
                                 return html`
-                                    <opencga-jobs-detail-log    .opencgaSession=${opencgaSession}
+                                    <opencga-job-detail-log    .opencgaSession=${opencgaSession}
                                                                 .active="${active}"
                                                                 .job="${job}">
-                                    </opencga-jobs-detail-log>
+                                    </opencga-job-detail-log>
                                 `;
                             }
                         },
@@ -382,4 +382,4 @@ export default class OpencgaJobsBrowser extends LitElement {
 
 }
 
-customElements.define("opencga-jobs-browser", OpencgaJobsBrowser);
+customElements.define("opencga-job-browser", OpencgaJobBrowser);

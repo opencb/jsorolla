@@ -97,7 +97,6 @@ export default class OpencgaCohortGrid extends LitElement {
 
         this.opencgaClient = this.opencgaSession.opencgaClient;
 
-        // this.set('cohorts', []);
         this.cohorts = [];
         let filters = {...this.query};
 

@@ -18,7 +18,7 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
 
 
-export default class JobsTimeline extends LitElement {
+export default class JobTimeline extends LitElement {
 
     constructor() {
         super();
@@ -368,12 +368,12 @@ export default class JobsTimeline extends LitElement {
             <div id="svg-timeline">
             </div>
         </div>
-        <opencga-jobs-detail    .opencgaSession="${this.opencgaSession}"
+        <opencga-job-detail    .opencgaSession="${this.opencgaSession}"
                             .jobId="${this.jobId}">
-        </opencga-jobs-detail>
+        </opencga-job-detail>
         `;
     }
 
 }
 
-customElements.define("jobs-timeline", JobsTimeline);
+customElements.define("jobs-timeline", JobTimeline);

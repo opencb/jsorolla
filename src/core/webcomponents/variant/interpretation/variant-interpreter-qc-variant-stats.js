@@ -17,7 +17,7 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import ClinicalAnalysisUtils from "../../clinical/clinical-analysis-utils.js";
 import UtilsNew from "../../../utilsNew.js";
-import "../../samples/sample-variant-stats-view.js";
+import "../../sample/sample-variant-stats-view.js";
 
 class VariantInterpreterQcVariantStats extends LitElement {
 

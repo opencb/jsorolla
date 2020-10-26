@@ -22,7 +22,7 @@ import "../commons/filters/text-field-filter.js";
 import "../commons/filters/jobs-id-autocomplete.js";
 
 
-export default class OpencgaJobsFilter extends LitElement {
+export default class OpencgaJobFilter extends LitElement {
 
     constructor() {
         super();
@@ -245,4 +245,4 @@ export default class OpencgaJobsFilter extends LitElement {
 
 }
 
-customElements.define("opencga-jobs-filter", OpencgaJobsFilter);
+customElements.define("opencga-job-filter", OpencgaJobFilter);
