@@ -22,7 +22,7 @@ import "../commons/filters/select-field-filter.js";
 import "../commons/filters/individual-id-autocomplete.js";
 import "../commons/filters/disorder-id-autocomplete.js";
 import "../commons/filters/phenotype-id-autocomplete.js";
-import "../commons/filters/opencga-date-filter.js";
+import "../commons/filters/date-filter.js";
 
 
 export default class OpencgaIndividualFilter extends LitElement {
@@ -179,7 +179,7 @@ export default class OpencgaIndividualFilter extends LitElement {
                         </opencga-annotation-filter-modal>`;
                 break;
             case "date":
-                content = html`<opencga-date-filter .creationDate="${this.preparedQuery.creationDate}" @filterChange="${e => this.onFilterChange("creationDate", e.detail.value)}"></opencga-date-filter>`;
+                content = html`<date-filter .creationDate="${this.preparedQuery.creationDate}" @filterChange="${e => this.onFilterChange("creationDate", e.detail.value)}"></date-filter>`;
                 break;
             default:
                 console.error("Filter component not found");

@@ -74,7 +74,7 @@ import "./core/webcomponents/opencga/catalog/files/opencga-file-browser.js";
 import "./core/webcomponents/opencga/catalog/files/opencga-file-grid.js";
 import "./core/webcomponents/opencga/catalog/files/opencga-file-facet.js";
 import "./core/webcomponents/opencga/catalog/files/opencga-file-filter.js";
-import "./core/webcomponents/opencga/catalog/opencga-date-filter.js";
+import "./core/webcomponents/opencga/catalog/date-filter.js";
 import "./core/webcomponents/opencga/catalog/panel/opencga-panel-browser.js";
 import "./core/webcomponents/opencga/catalog/panel/opencga-panel-grid.js";
 import "./core/webcomponents/opencga/catalog/panel/opencga-panel-summary.js";

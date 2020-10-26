@@ -17,7 +17,7 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
 import "../opencga/catalog/variableSets/opencga-annotation-filter.js";
-import "../commons/filters/opencga-date-filter.js";
+import "../commons/filters/date-filter.js";
 import "../commons/filters/text-field-filter.js";
 import "../commons/filters/jobs-id-autocomplete.js";
 
@@ -155,7 +155,7 @@ export default class OpencgaJobsFilter extends LitElement {
                 content = html`<select-field-filter multiple .value="${this.preparedQuery[subsection.id]}" .data="${subsection.allowedValues}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></select-field-filter>`;
                 break;
             case "creationDate":
-                content = html`<opencga-date-filter .creationDate="${this.preparedQuery.creationDate}" @filterChange="${e => this.onFilterChange("creationDate", e.detail.value)}"></opencga-date-filter>`;
+                content = html`<date-filter .creationDate="${this.preparedQuery.creationDate}" @filterChange="${e => this.onFilterChange("creationDate", e.detail.value)}"></date-filter>`;
                 break;
             default:
                 console.error("Filter component not found");
