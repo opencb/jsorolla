@@ -37,11 +37,11 @@ class VariantInterpreterQcVariantStats extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            clinicalAnalysisId: {
-                type: String
-            },
             clinicalAnalysis: {
                 type: Object
+            },
+            clinicalAnalysisId: {
+                type: String
             },
             config: {
                 type: Object
@@ -50,13 +50,15 @@ class VariantInterpreterQcVariantStats extends LitElement {
     }
 
     _init() {
-        this._prefix = "vcis-" + UtilsNew.randomString(6);
+        this._prefix = UtilsNew.randomString(8);
+
         this.statsSelect = [];
         this.variantStats = null;
     }
 
     connectedCallback() {
         super.connectedCallback();
+
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
@@ -71,19 +73,6 @@ class VariantInterpreterQcVariantStats extends LitElement {
 
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
-        }
-    }
-
-    clinicalAnalysisIdObserver() {
-        if (this.opencgaSession && this.clinicalAnalysisId) {
-            this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
-                .then(response => {
-                    this.clinicalAnalysis = response.responses[0].results[0];
-                    // this.clinicalAnalysisObserver();
-                })
-                .catch(response => {
-                    console.error("An error occurred fetching clinicalAnalysis: ", response);
-                });
         }
     }
 
@@ -155,8 +144,10 @@ class VariantInterpreterQcVariantStats extends LitElement {
                             id: this.clinicalAnalysis.proband.samples[0].id + ":" + vStats.id,
                             name: vStats.id
                         }));*/
-                    this.statsSelect = [this.clinicalAnalysis.proband?.samples[0].id];
+                    // let sample = this.clinicalAnalysis.proband?.samples.filter(sample => !sample.somatic);
+                    this.statsSelect = this.clinicalAnalysis.proband?.samples.filter(sample => !sample.somatic).map(sample => sample.id);
                     this.samplesVariantStats = this.clinicalAnalysis?.proband?.samples
+                        .filter(sample => !sample.somatic)
                         .map(sample => {
                             return {
                                 sample: sample,
@@ -182,6 +173,20 @@ class VariantInterpreterQcVariantStats extends LitElement {
         }*/
         this.requestUpdate();
     }
+
+    clinicalAnalysisIdObserver() {
+        if (this.opencgaSession && this.clinicalAnalysisId) {
+            this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
+                .then(response => {
+                    this.clinicalAnalysis = response.responses[0].results[0];
+                    this.clinicalAnalysisObserver();
+                })
+                .catch(response => {
+                    console.error("An error occurred fetching clinicalAnalysis: ", response);
+                });
+        }
+    }
+
 
     onSampleChange(e) {
         /*this.selectedStat = e.detail.value;
@@ -213,7 +218,6 @@ class VariantInterpreterQcVariantStats extends LitElement {
 
     getDefaultConfig() {
         return {
-
         };
     }
 

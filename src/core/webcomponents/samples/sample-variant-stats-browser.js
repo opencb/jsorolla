@@ -38,11 +38,11 @@ export default class SampleVariantStatsBrowser extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            sampleId: {
-                type: String
-            },
             sample: {
                 type: Object
+            },
+            sampleId: {
+                type: String
             },
             query: {
                 type: Object
@@ -123,6 +123,28 @@ export default class SampleVariantStatsBrowser extends LitElement {
             sample: this.sample.id,
             ...this.query
         };
+        // debugger
+        // this.opencgaSession.opencgaClient.variants().querySampleStats(this.sample.id, {study: this.opencgaSession.study.fqn, ...this.query})
+        //     .then(response => {
+        //         this.sampleVariantStats = response.responses[0].results;
+        //     })
+        //     .catch(e => {
+        //         console.log(e);
+        //         this.sampleVariantStats = null;
+        //         if (e?.getEvents?.("ERROR")?.length) {
+        //             this.errorState = {messages: e.getEvents("ERROR")};
+        //         } else if (e instanceof Error) {
+        //             this.errorState = {messages: [{name: e.name, message: e.message}]
+        //             };
+        //         } else {
+        //             this.errorState = {messages: [{name: "Generic Error", message: JSON.stringify(e)}]
+        //             };
+        //         }
+        //     })
+        //     .finally(() => {
+        //         this.loading = false;
+        //         this.requestUpdate();
+        //     });
         this.opencgaSession.opencgaClient.variants().aggregationStats(params)
             .then(response => {
                 this.aggregationStatsResults = response.responses[0].results;
