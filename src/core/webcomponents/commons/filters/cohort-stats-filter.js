@@ -152,7 +152,7 @@ export default class CohortStatsFilter extends LitElement {
                 <div style="padding-bottom: 5px">
                     <i id="${this._prefix}${this.formatStudyId(study)}Icon" data-id="${this._prefix}${this.formatStudyId(study)}" class="fa fa-plus"
                        style="cursor: pointer;padding-right: 10px" @click="${this.handleCollapseAction}"></i>
-                    <span class="break-word"><strong>${study.split("@")[1]}</strong></span> study
+                    <span class="break-word">Study <strong>${study.split("@")[1]}</strong> cohorts</span> 
                 </div>
                 <div class="form-horizontal" id="${this._prefix}${this.formatStudyId(study)}" hidden>
                     ${cohort.map(cohort => html`
