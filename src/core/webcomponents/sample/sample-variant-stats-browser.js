@@ -433,6 +433,32 @@ export default class SampleVariantStatsBrowser extends LitElement {
         };
     }
 
+    onSelectVariantStats(e) {
+        let qcVariantStats = this.sample.qualityControl.metrics[0].variantStats.find(qcVariantStats => qcVariantStats.id === e.currentTarget.dataset.id);
+        this.query = qcVariantStats.query ?? {};
+        this.sampleVariantStats = {
+            stats: qcVariantStats.stats
+        };
+        this.requestUpdate();
+    }
+
+    renderQcVariantStats(qcVvariantStats) {
+        let queryString = "No Filters applied";
+        if (qcVvariantStats.query) {
+            queryString = Object.entries(qcVvariantStats.query)
+                .filter(([key, value]) => key !== "study")
+                .map(([key, value]) => key + "=" + value)
+                .join(", ");
+        }
+        return html`
+            <div style="border-left: 2px solid #0c2f4c">
+                <div style="font-weight: bold; margin: 5px 10px">${qcVvariantStats.id}</div>
+                <div style="margin: 5px 10px">${qcVvariantStats.description}</div>
+                <div class="help-block" style="margin: 5px 10px">${queryString}</div>
+            </div>
+        `;
+    }
+
     render() {
         if (!this.opencgaSession) {
             return;
@@ -463,16 +489,36 @@ export default class SampleVariantStatsBrowser extends LitElement {
                     ${OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS") 
                         ? html`
                             <div>
-                                <div class="btn-toolbar" role="toolbar" aria-label="toolbar" style="margin-bottom: 20px">
+                                <div class="btn-toolbar" role="toolbar" aria-label="toolbar" style="margin: 0px 5px 20px 0px">
                                     <div class="pull-right" role="group">
-                                        <button type="button" class="btn btn-default ripple" @click="${this.onOpem}">
-                                            <span><i class="fas fa-folder-open icon-padding"></i>Open</span>
-                                        </button>
-                                        <data-form  .data=${this.save} 
-                                                    .config="${this.getSaveConfig()}" 
-                                                    @fieldChange="${e => this.onSaveFieldChange(e)}" 
-                                                    @submit="${this.onSave}">
-                                        </data-form>
+                                        <div class="btn-group">
+                                            <button type="button" class="btn btn-default ripple dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" 
+                                                        aria-expanded="false" title="Show saved variants" @click="${this.onLoad}">
+                                                <span><i class="fas fa-folder-open icon-padding"></i>Load <span class="caret" style="padding-left: 5px"></span></span>
+                                            </button>
+                                            <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="${this._prefix}ResetMenu" style="width: 360px">
+                                                <li style="margin: 5px 10px">
+                                                    <span style="font-weight: bold">Saved Variant Stats</span>
+                                                </li>
+                                                ${this.sample?.qualityControl?.metrics?.length > 0 && this.sample.qualityControl.metrics[0].variantStats?.length > 0
+                                                    ? this.sample.qualityControl.metrics[0].variantStats.map(qcVariantStat => html`
+                                                        <li>
+                                                            <a href="javascript:void(0);" data-id="${qcVariantStat.id}" @click="${this.onSelectVariantStats}">
+                                                                ${this.renderQcVariantStats(qcVariantStat)}
+                                                            </a>
+                                                        </li>
+                                                    `)
+                                                    : html`<div style="margin: 5px 5px">No Variant Stats found</div>`
+                                                }
+                                            </ul>
+                                        </div>
+                                        <div class="btn-group">
+                                            <data-form  .data=${this.save} 
+                                                        .config="${this.getSaveConfig()}" 
+                                                        @fieldChange="${e => this.onSaveFieldChange(e)}" 
+                                                        @submit="${this.onSave}">
+                                            </data-form>
+                                        </div>
                                     </div>
                                 </div>
                             </div>` 
