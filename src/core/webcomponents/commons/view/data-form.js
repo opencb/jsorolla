@@ -86,7 +86,7 @@ export default class DataForm extends LitElement {
                     if (format.link) {
                         value = html`<a href="${format.link.replace(field.toUpperCase(), value)}" target="_blank">${value}</a>`;
                     }
-                    if (format.decimals) {
+                    if (format.decimals && !isNaN(value)) {
                         value = value.toFixed(format.decimals);
                     }
                 }

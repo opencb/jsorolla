@@ -70,6 +70,10 @@ export default class SampleVariantStatsBrowser extends LitElement {
     }
 
     updated(changedProperties) {
+        if (changedProperties.has("sample")) {
+            this.sampleObserver();
+        }
+
         if (changedProperties.has("sampleId")) {
             this.sampleIdObserver();
         }
@@ -83,6 +87,25 @@ export default class SampleVariantStatsBrowser extends LitElement {
         }
     }
 
+    sampleObserver() {
+        if (this.sample?.qualityControl?.metrics?.length && this.sample.qualityControl.metrics[0].variantStats?.length) {
+            this.selectVariantStats("ALL", this.sample.qualityControl.metrics[0].variantStats[0]);
+        }
+    }
+
+    sampleIdObserver() {
+        if (this.opencgaSession && this.sampleId) {
+            this.opencgaSession.opencgaClient.samples().info(this.sampleId, {study: this.opencgaSession.study.fqn})
+                .then(response => {
+                    this.sample = response.getResult(0);
+                    this.sampleObserver();
+                })
+                .catch(response => {
+                    console.error("An error occurred fetching sample: ", response);
+                });
+        }
+    }
+
     queryObserver() {
         if (this.query) {
             this.preparedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
@@ -91,18 +114,6 @@ export default class SampleVariantStatsBrowser extends LitElement {
         this.requestUpdate();
     }
 
-    sampleIdObserver() {
-        if (this.opencgaSession && this.sampleId) {
-            this.opencgaSession.opencgaClient.samples().info(this.sampleId, {study: this.opencgaSession.study.fqn})
-                .then(response => {
-                    this.sample = response.getResult(0);
-                    this.getVariantStatFromSample();
-                })
-                .catch(response => {
-                    console.error("An error occurred fetching sample: ", response);
-                });
-        }
-    }
 
     onVariantFilterChange(e) {
         this.preparedQuery = e.detail.query;
@@ -117,94 +128,18 @@ export default class SampleVariantStatsBrowser extends LitElement {
         //this.preparedQuery = this._prepareQuery(e.detail.query); //TODO check if we need to process e.detail.query
         this.query = {...e.detail.query};
 
-        let params = {
-            study: this.opencgaSession.study.fqn,
-            fields: "chromosome;genotype;type;biotype;consequenceType;clinicalSignificance;depth;filter",
-            sample: this.sample.id,
-            ...this.query
-        };
+        // let params = {
+        //     study: this.opencgaSession.study.fqn,
+        //     fields: "chromosome;genotype;type;biotype;consequenceType;clinicalSignificance;depth;filter",
+        //     sample: this.sample.id,
+        //     ...this.query
+        // };
         // debugger
-        // this.opencgaSession.opencgaClient.variants().querySampleStats(this.sample.id, {study: this.opencgaSession.study.fqn, ...this.query})
-        //     .then(response => {
-        //         this.sampleVariantStats = response.responses[0].results;
-        //     })
-        //     .catch(e => {
-        //         console.log(e);
-        //         this.sampleVariantStats = null;
-        //         if (e?.getEvents?.("ERROR")?.length) {
-        //             this.errorState = {messages: e.getEvents("ERROR")};
-        //         } else if (e instanceof Error) {
-        //             this.errorState = {messages: [{name: e.name, message: e.message}]
-        //             };
-        //         } else {
-        //             this.errorState = {messages: [{name: "Generic Error", message: JSON.stringify(e)}]
-        //             };
-        //         }
-        //     })
-        //     .finally(() => {
-        //         this.loading = false;
-        //         this.requestUpdate();
-        //     });
-        this.opencgaSession.opencgaClient.variants().aggregationStats(params)
+        this.opencgaSession.opencgaClient.variants().querySampleStats(this.sample.id, {study: this.opencgaSession.study.fqn, ...this.query})
             .then(response => {
-                this.aggregationStatsResults = response.responses[0].results;
-
-                // Remove contigs and sort chromosomes
-                let chromosomes = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "X", "Y", "MT"];
-                let sortedBuckets = [];
-                for (let chromosome of chromosomes) {
-                    for (let bucket of this.aggregationStatsResults[0].buckets) {
-                        if (bucket.value === chromosome) {
-                            sortedBuckets.push(bucket);
-                            break;
-                        }
-                    }
-                }
-                this.aggregationStatsResults[0].buckets = sortedBuckets;
-
-                // FIXME OpenCGA will return directly the sampleVariantStats soon
-                // Parse aggregationStatsResults and create a sampleVariantStats
-                let _sampleVariantStats = {
-                    id: this.sample.id
-                };
-                for (let aggregatedResult of this.aggregationStatsResults) {
-                    let values = {};
-                    for (let bucket of aggregatedResult.buckets) {
-                        values[bucket.value] = bucket.count;
-                    }
-                    switch (aggregatedResult.name) {
-                        case "chromosome":
-                            _sampleVariantStats.variantCount = aggregatedResult.count;
-                            _sampleVariantStats.chromosomeCount = values;
-                            break;
-                        case "genotype":
-                            _sampleVariantStats.genotypeCount = values;
-                            let het = _sampleVariantStats.genotypeCount["0/1"];
-                            het += _sampleVariantStats.genotypeCount["0/2"] || 0;
-                            het += _sampleVariantStats.genotypeCount["1/2"] || 0;
-                            _sampleVariantStats.heterozygosityRate = het / aggregatedResult.count;
-                            break;
-                        case "filter":
-                            _sampleVariantStats.filterCount = values;
-                            break;
-                        case "type":
-                            _sampleVariantStats.typeCount = values;
-                            break;
-                        case "biotype":
-                            _sampleVariantStats.biotypeCount = values;
-                            break;
-                        case "consequenceType":
-                            _sampleVariantStats.consequenceTypeCount = values;
-                            break;
-                        case "clinicalSignificance":
-                            _sampleVariantStats.clinicalSignificanceCount = values;
-                            break;
-                    }
-                }
                 this.sampleVariantStats = {
-                    stats: _sampleVariantStats
+                    stats: response.responses[0].results[0]
                 };
-                this.requestUpdate();
             })
             .catch(e => {
                 console.log(e);
@@ -223,6 +158,84 @@ export default class SampleVariantStatsBrowser extends LitElement {
                 this.loading = false;
                 this.requestUpdate();
             });
+        // this.opencgaSession.opencgaClient.variants().aggregationStats(params)
+        //     .then(response => {
+        //         this.aggregationStatsResults = response.responses[0].results;
+        //
+        //         // Remove contigs and sort chromosomes
+        //         let chromosomes = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "X", "Y", "MT"];
+        //         let sortedBuckets = [];
+        //         for (let chromosome of chromosomes) {
+        //             for (let bucket of this.aggregationStatsResults[0].buckets) {
+        //                 if (bucket.value === chromosome) {
+        //                     sortedBuckets.push(bucket);
+        //                     break;
+        //                 }
+        //             }
+        //         }
+        //         this.aggregationStatsResults[0].buckets = sortedBuckets;
+        //
+        //         // FIXME OpenCGA will return directly the sampleVariantStats soon
+        //         // Parse aggregationStatsResults and create a sampleVariantStats
+        //         let _sampleVariantStats = {
+        //             id: this.sample.id
+        //         };
+        //         for (let aggregatedResult of this.aggregationStatsResults) {
+        //             let values = {};
+        //             for (let bucket of aggregatedResult.buckets) {
+        //                 values[bucket.value] = bucket.count;
+        //             }
+        //             switch (aggregatedResult.name) {
+        //                 case "chromosome":
+        //                     _sampleVariantStats.variantCount = aggregatedResult.count;
+        //                     _sampleVariantStats.chromosomeCount = values;
+        //                     break;
+        //                 case "genotype":
+        //                     _sampleVariantStats.genotypeCount = values;
+        //                     let het = _sampleVariantStats.genotypeCount["0/1"];
+        //                     het += _sampleVariantStats.genotypeCount["0/2"] || 0;
+        //                     het += _sampleVariantStats.genotypeCount["1/2"] || 0;
+        //                     _sampleVariantStats.heterozygosityRate = het / aggregatedResult.count;
+        //                     break;
+        //                 case "filter":
+        //                     _sampleVariantStats.filterCount = values;
+        //                     break;
+        //                 case "type":
+        //                     _sampleVariantStats.typeCount = values;
+        //                     break;
+        //                 case "biotype":
+        //                     _sampleVariantStats.biotypeCount = values;
+        //                     break;
+        //                 case "consequenceType":
+        //                     _sampleVariantStats.consequenceTypeCount = values;
+        //                     break;
+        //                 case "clinicalSignificance":
+        //                     _sampleVariantStats.clinicalSignificanceCount = values;
+        //                     break;
+        //             }
+        //         }
+        //         this.sampleVariantStats = {
+        //             stats: _sampleVariantStats
+        //         };
+        //         this.requestUpdate();
+        //     })
+        //     .catch(e => {
+        //         console.log(e);
+        //         this.sampleVariantStats = null;
+        //         if (e?.getEvents?.("ERROR")?.length) {
+        //             this.errorState = {messages: e.getEvents("ERROR")};
+        //         } else if (e instanceof Error) {
+        //             this.errorState = {messages: [{name: e.name, message: e.message}]
+        //             };
+        //         } else {
+        //             this.errorState = {messages: [{name: "Generic Error", message: JSON.stringify(e)}]
+        //             };
+        //         }
+        //     })
+        //     .finally(() => {
+        //         this.loading = false;
+        //         this.requestUpdate();
+        //     });
     }
 
     onActiveFilterChange(e) {
@@ -433,16 +446,22 @@ export default class SampleVariantStatsBrowser extends LitElement {
         };
     }
 
-    onSelectVariantStats(e) {
-        let qcVariantStats = this.sample.qualityControl.metrics[0].variantStats.find(qcVariantStats => qcVariantStats.id === e.currentTarget.dataset.id);
-        this.query = qcVariantStats.query ?? {};
-        this.sampleVariantStats = {
-            stats: qcVariantStats.stats
-        };
+    selectVariantStats(id, defaultQcVariantStats) {
+        let qcVariantStats = this.sample.qualityControl.metrics[0].variantStats.find(qcVariantStats => qcVariantStats.id === id);
+        if (!qcVariantStats && defaultQcVariantStats) {
+            qcVariantStats = defaultQcVariantStats;
+        }
+
+        if (qcVariantStats) {
+            this.query = qcVariantStats.query ?? {};
+            this.sampleVariantStats = {
+                stats: qcVariantStats.stats
+            };
+        }
         this.requestUpdate();
     }
 
-    renderQcVariantStats(qcVvariantStats) {
+    renderQcVariantStatsSelectItem(qcVvariantStats) {
         let queryString = "No Filters applied";
         if (qcVvariantStats.query) {
             queryString = Object.entries(qcVvariantStats.query)
@@ -503,8 +522,8 @@ export default class SampleVariantStatsBrowser extends LitElement {
                                                 ${this.sample?.qualityControl?.metrics?.length > 0 && this.sample.qualityControl.metrics[0].variantStats?.length > 0
                                                     ? this.sample.qualityControl.metrics[0].variantStats.map(qcVariantStat => html`
                                                         <li>
-                                                            <a href="javascript:void(0);" data-id="${qcVariantStat.id}" @click="${this.onSelectVariantStats}">
-                                                                ${this.renderQcVariantStats(qcVariantStat)}
+                                                            <a href="javascript:void(0);" data-id="${qcVariantStat.id}" @click="${e=> this.selectVariantStats(qcVariantStat.id)}">
+                                                                ${this.renderQcVariantStatsSelectItem(qcVariantStat)}
                                                             </a>
                                                         </li>
                                                     `)
@@ -546,7 +565,7 @@ export default class SampleVariantStatsBrowser extends LitElement {
                                 : this.sampleVariantStats
                                     ? html`
                                         <div style="padding: 0px 15px">
-                                            <sample-variant-stats-view .sampleVariantStats="${this.sampleVariantStats}"></sample-variant-stats-view>
+                                            <sample-variant-stats-view .sampleVariantStats="${this.sampleVariantStats}" .description="${this.sampleVariantStats.description}"></sample-variant-stats-view>
                                         </div>`
                                     : this.errorState
                                         ? html`

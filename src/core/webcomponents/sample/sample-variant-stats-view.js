@@ -38,14 +38,17 @@ class SampleVariantStatsView extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            sampleId: {
-                type: String
-            },
             sample: {
                 type: Object
             },
+            sampleId: {
+                type: String
+            },
             sampleVariantStats: {
                 type: Object
+            },
+            description: {
+                type: String
             },
             config: {
                 type: Object
@@ -90,16 +93,16 @@ class SampleVariantStatsView extends LitElement {
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("sampleVariantStats")) {
-            this.sampleVariantStatsObserver();
+        if (changedProperties.has("sample")) {
+            this.sampleObserver();
         }
 
         if (changedProperties.has("sampleId")) {
             this.sampleIdObserver();
         }
 
-        if (changedProperties.has("sample")) {
-            this.getVariantStatFromSample();
+        if (changedProperties.has("sampleVariantStats")) {
+            this.sampleVariantStatsObserver();
         }
 
         if (changedProperties.has("config")) {
@@ -110,31 +113,7 @@ class SampleVariantStatsView extends LitElement {
         }
     }
 
-    sampleVariantStatsObserver() {
-        this.variantStats = {
-            stats: {
-                ...this.sampleVariantStats.stats,
-                chromosomeCount: ClinicalAnalysisUtils.chromosomeFilterSorter(this.sampleVariantStats.stats.chromosomeCount)
-            }
-        };
-        this.sampleSelector = false;
-        this.requestUpdate();
-    }
-
-    sampleIdObserver() {
-        if (this.opencgaSession && this.sampleId) {
-            this.opencgaSession.opencgaClient.samples().info(this.sampleId, {study: this.opencgaSession.study.fqn})
-                .then(response => {
-                    this.sample = response.getResult(0);
-                    this.getVariantStatFromSample();
-                })
-                .catch(response => {
-                    console.error("An error occurred fetching sample: ", response);
-                });
-        }
-    }
-
-    getVariantStatFromSample() {
+    sampleObserver() {
         this.statsSelect = [];
         if (this.sample?.qualityControl?.metrics?.length && this.sample.qualityControl.metrics[0].variantStats?.length) {
             // By default we render the stat 'ALL' from the first metric, if there is not stat 'ALL' then we take the first one
@@ -152,7 +131,33 @@ class SampleVariantStatsView extends LitElement {
         if (this.variantStats?.chromosomeCount) {
             this.variantStats.chromosomeCount = ClinicalAnalysisUtils.chromosomeFilterSorter(this.variantStats.chromosomeCount);
         }
+
         this.sampleSelector = true;
+        this.requestUpdate();
+    }
+
+    sampleIdObserver() {
+        if (this.opencgaSession && this.sampleId) {
+            this.opencgaSession.opencgaClient.samples().info(this.sampleId, {study: this.opencgaSession.study.fqn})
+                .then(response => {
+                    this.sample = response.getResult(0);
+                    this.sampleObserver();
+                })
+                .catch(response => {
+                    console.error("An error occurred fetching sample: ", response);
+                });
+        }
+    }
+
+    sampleVariantStatsObserver() {
+        this.variantStats = {
+            stats: {
+                ...this.sampleVariantStats.stats,
+                chromosomeCount: ClinicalAnalysisUtils.chromosomeFilterSorter(this.sampleVariantStats.stats.chromosomeCount)
+            }
+        };
+
+        this.sampleSelector = false;
         this.requestUpdate();
     }
 

@@ -163,7 +163,7 @@ export default class SelectFieldFilter extends LitElement {
                                         <optgroup label="${opt.id ?? opt.name}">${opt.fields.map(subopt => html`
                                             ${UtilsNew.isObject(subopt) 
                                                 ? html`
-                                                    <option ?disabled="${subopt.disabled}" ?selected="${subopt.selected}" .value="${subopt.id ?? subopt.name}" title="aaaaa">${subopt.name}</option>` 
+                                                    <option ?disabled="${subopt.disabled}" ?selected="${subopt.selected}" .value="${subopt.id ?? subopt.name}">${subopt.name}</option>` 
                                                 : html`
                                                     <option>${subopt}</option>
                                                 `}
