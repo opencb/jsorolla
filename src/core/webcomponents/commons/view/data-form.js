@@ -86,7 +86,7 @@ export default class DataForm extends LitElement {
                     if (format.link) {
                         value = html`<a href="${format.link.replace(field.toUpperCase(), value)}" target="_blank">${value}</a>`;
                     }
-                    if (format.decimals) {
+                    if (format.decimals && !isNaN(value)) {
                         value = value.toFixed(format.decimals);
                     }
                 }
@@ -585,7 +585,7 @@ export default class DataForm extends LitElement {
         // First. Check if 'allowedValues' field is provided
         if (element.allowedValues) {
             if (Array.isArray(element.allowedValues)) {
-                if (element.display.apply) {
+                if (element.display?.apply) {
                     for (let value of element.allowedValues) {
                         allowedValues.push(element.display.apply(value));
                     }
