@@ -56,6 +56,7 @@ export default class OpencgaKnockoutAnalysisResult extends LitElement {
         this.data = knockoutData;
 
         this.LIMIT = 50; //temp limit for both rows and cols
+        this.colToShow = 2;
 
         this.gridId = this._prefix + "KnockoutGrid";
         this.preprocess()
@@ -97,6 +98,7 @@ export default class OpencgaKnockoutAnalysisResult extends LitElement {
             }
         }
         this.samples = [...new Set(this.samples)];
+        this.activeSamples = this.samples.slice(0,this.colToShow).map(sample => sample.sampleId);
         this.tableData = Object.entries(this._data).splice(0,this.LIMIT).map( ([variant, samples]) => ({
             variantId: variant,
             data: samples
@@ -127,13 +129,17 @@ export default class OpencgaKnockoutAnalysisResult extends LitElement {
 
     _initTableColumns() {
         return [
-            {title: "", field: "variantId"},
-            ...this.samples.slice(0,this.LIMIT).map(sample => {
+            {title: "Variant", field: "variantId"},
+            {title: "dbSNP", field: "dbSNP"},
+            {title: "Consequence Type", field: "consequenceType"},
+            ...this.samples.map(sample => {
                 return {
                     title: `Sample ${sample.sampleId}`,
-                    field: "data",
-                    formatter: r => {
-                        return r.find( a => a.sampleId === sample.sampleId)?.variant?.knockoutType
+                    field: sample.sampleId,
+                    visible: !!~this.activeSamples.indexOf(sample.sampleId),
+                    formatter: (v, row) => {
+                        return row.data.find( a => a.sampleId === sample.sampleId)?.variant?.knockoutType
+                        //return JSON.stringify(v)
                     }
                 }
             })];
@@ -162,8 +168,13 @@ export default class OpencgaKnockoutAnalysisResult extends LitElement {
     }
 
     onColumnChange(e) {
-        e.detail.id = e.detail.value;
-        this.gridCommons.onColumnChange(e);
+        const ids = e.detail.value ?? "";
+        this.table.bootstrapTable("hideAllColumns");
+        this.table.bootstrapTable("showColumn", ["variantId","dbSNP","consequenceType"]);
+        if (ids) {
+            ids.split(",").forEach( id => this.table.bootstrapTable("showColumn", id));
+        }
+
     }
 
     getDefaultConfig() {
@@ -176,7 +187,7 @@ export default class OpencgaKnockoutAnalysisResult extends LitElement {
                 <div class="row">
                     <div class="col-md-2 pull-right">
                         <div style="padding: 20px 0">
-                            <select-field-filter .liveSearch=${true} multiple .data="${this.samples?.map(sample => sample.sampleId)}" @filterChange="${e => this.onColumnChange(e)}"></select-field-filter>
+                            <select-field-filter .liveSearch=${true} multiple .data="${this.samples?.map(sample => sample.sampleId)}" .value="${this.activeSamples}" @filterChange="${e => this.onColumnChange(e)}"></select-field-filter>
                         </div>
                     </div>
                 </div>
