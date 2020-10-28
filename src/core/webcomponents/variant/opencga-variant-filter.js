@@ -167,8 +167,9 @@ export default class OpencgaVariantFilter extends LitElement {
                     if (filter.includes("<") || filter.includes("<=") || filter.includes(">") || filter.includes(">=")) {
                         [, key, comparator, value] = filter.match(/(\w*)(<=?|>=?|=)(-?\d*\.?\d+)/);
                     } else {
-                        comparator = "";
                         [key, value] = filter.split("=");
+                        // number-field-filter needs the equal operator
+                        isNaN(value) ? comparator = "" : comparator = "=";
                     }
                     query[key] = comparator + value;
                 }

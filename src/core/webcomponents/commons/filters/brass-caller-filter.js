@@ -105,7 +105,7 @@ export default class BrassCallerFilter extends LitElement {
                     elements: [
                         {
                             name: "Assembly Score",
-                            field: "assembly_score",
+                            field: "BAS",
                             type: "input-number",
                             defaultValue: "",
                         },
