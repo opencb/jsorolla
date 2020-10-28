@@ -738,6 +738,25 @@ export default class VariantInterpreterGrid extends LitElement {
         return resultHtml;
     }
 
+    vcfDataFormatter(value, row, index) {
+        if (this.field.vcfColumn === "info") {
+            for (let file of row.studies[0].files) {
+                if (file.data[this.field.key]) {
+                    return file.data[this.field.key];
+                }
+            }
+        } else {
+            debugger
+            let sampleIndex = row.studies[0].samples.findIndex(sample => sample.sampleId === this.field.sample.id);
+            let index = row.studies[0].sampleDataKeys.findIndex(key => key === this.field.key);
+            if (index >= 0) {
+                return row.studies[0].samples[sampleIndex].data[index];
+            } else {
+                return "-";
+            }
+        }
+    }
+
     pathogeniticyFormatter(value, row, index) {
         // TODO we must call to PathDB to get the frequency of each variant, next code is just an example
         const val = `<div class="col-md-12" style="padding: 0px">
@@ -1102,9 +1121,9 @@ export default class VariantInterpreterGrid extends LitElement {
             );
 
             // Add sample columns
+            let samples = null;
             if (this.clinicalAnalysis.proband && this.clinicalAnalysis.proband.samples) {
                 // We only render somatic sample
-                let samples = null;
                 if (this.query && this.query.sample) {
                     samples = [];
                     let _sampleGenotypes = this.query.sample.split(";");
@@ -1140,6 +1159,47 @@ export default class VariantInterpreterGrid extends LitElement {
                         formatter: this.zygosityFormatter,
                         align: "center",
                         nucleotideGenotype: true
+                    });
+                }
+            }
+
+            if (this._config.vcf && (this._config.vcf.info?.length > 0 || this._config.vcf.format?.length > 0)) {
+                let vcfDataSize = this._config.vcf.info?.length + this._config.vcf.format?.length;
+                _columns[0].splice(6, 0,
+                    {
+                        title: "VCF Data",
+                        // field: "evidences",
+                        rowspan: 1,
+                        colspan: vcfDataSize,
+                        // formatter: this.roleInCancerFormatter.bind(this),
+                        halign: "center"
+                    }
+                );
+                for (let i = 0; i < this._config.vcf.info.length; i++) {
+                    _columns[1].splice(i + samples.length, 0, {
+                        title: this._config.vcf.info[i],
+                        field: {
+                            vcfColumn: "info",
+                            key: this._config.vcf.info[i]
+                        },
+                        rowspan: 1,
+                        colspan: 1,
+                        formatter: this.vcfDataFormatter,
+                        halign: "center"
+                    });
+                }
+                for (let i = 0; i < this._config.vcf.format.length; i++) {
+                    _columns[1].splice(i + samples.length + this._config.vcf.info.length, 0, {
+                        title: this._config.vcf.format[i],
+                        field: {
+                            vcfColumn: "format",
+                            sample: samples[0],
+                            key: this._config.vcf.format[i]
+                        },
+                        rowspan: 1,
+                        colspan: 1,
+                        formatter: this.vcfDataFormatter,
+                        halign: "center"
                     });
                 }
             }
@@ -1315,6 +1375,11 @@ export default class VariantInterpreterGrid extends LitElement {
                 gencodeBasic: true,
                 filterByBiotype: true,
                 filterByConsequenceType: true,
+            },
+
+            vcf: {
+                info: ["DP", "ASMD", "TG", "QUAL", "REP"],
+                format: []
             }
         };
     }

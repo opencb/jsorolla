@@ -75,7 +75,6 @@ export default class NumberFieldFilter extends LitElement {
     updated(changedProperties) {
         if (changedProperties.has("value")) {
             if (this.value) {
-                debugger
                 const [, comparator, value] = this.value.match(/(<=?|>=?|=)(-?\d*\.?\d+)/);
                 this.state = {comparator, value};
             } else {
