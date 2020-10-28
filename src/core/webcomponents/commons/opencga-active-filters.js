@@ -331,8 +331,9 @@ export default class OpencgaActiveFilters extends LitElement {
             // We look for the filter name in the filters array
             for (const filter of this._filters) {
                 if (filter.id === e.currentTarget.dataset.filterId) {
-                    PolymerUtils.addStyleByClass("filtersLink", "color", "black");
-                    e.currentTarget.style.color = "green";
+                    //PolymerUtils.addStyleByClass("filtersLink", "color", "black");
+                    //e.currentTarget.style.color = "green";
+                    filter.active = true;
                     const _queryList = {...filter.query};
                     if(_queryList.study) {
                         // add the current active study
@@ -345,6 +346,8 @@ export default class OpencgaActiveFilters extends LitElement {
                         composed: true
                     }));
                     break;
+                } else {
+                    filter.active = false;
                 }
             }
         }
@@ -610,14 +613,21 @@ export default class OpencgaActiveFilters extends LitElement {
                                 <i class="fa fa-filter icon-padding" aria-hidden="true"></i> Filters <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu saved-filter-wrapper">
-                                <li><a style="font-weight: bold">Saved Filters</a></li>
+                                <li>
+                                    <a href="javascript: void 0" @click="${this.clear}">
+                                        <i class="fa fa-eraser icon-padding" aria-hidden="true"></i> <strong>Clear</strong>
+                                    </a>    
+                                </li>
+                                <li role="separator" class="divider"></li>
+                        
+                                <li><a><i class="fas fa-cloud-upload-alt"></i> <strong>Saved Filters</strong></a></li>
                                 ${this._filters && this._filters.length
                                     ? this._filters.map(item => item.separator ? html`
                                             <li role="separator" class="divider"></li>
                                         ` : html`
                                             <li>
-                                                <a data-filter-id="${item.id}" style="cursor: pointer;color: ${!item.active ? "black" : "green"}" @click="${this.onServerFilterChange}" class="filtersLink">
-                                                    <span class="id-filter-button">&nbsp;&nbsp;${item.id}</span>
+                                                <a data-filter-id="${item.id}" class="filtersLink" style="cursor: pointer;color: ${!item.active ? "black" : "green"}" @click="${this.onServerFilterChange}">
+                                                    <span class="id-filter-button"> ${item.id}</span>
                                                     <span class="delete-filter-button" title="Delete filter" data-filter-id="${item.id}" @click="${this.serverFilterDelete}"><i class="fas fa-times"></i></span>
                                                 </a>
                                             </li>`)
@@ -626,7 +636,7 @@ export default class OpencgaActiveFilters extends LitElement {
                                 ${this.checkSid(this.opencgaClient._config) ? html`
                                     <li role="separator" class="divider"></li>
                                     <li>
-                                        <a style="cursor: pointer" @click="${this.launchModal}"><i class="fa fa-floppy-o" aria-hidden="true"></i> Save...</a>
+                                        <a style="cursor: pointer" @click="${this.launchModal}"><i class="fas fa-save"></i> <strong>Save current filter...</strong></a>
                                     </li>
                                 ` : null}
                             </ul>
@@ -697,12 +707,13 @@ export default class OpencgaActiveFilters extends LitElement {
                     </div> 
                         
                     <div class="rhs">
-                        <button type="button" class="btn btn-primary btn-sm ripple" @click="${this.clear}">
+                        <!--<button type="button" class="btn btn-primary btn-sm ripple" @click="${this.clear}">
                             <i class="fa fa-eraser icon-padding" aria-hidden="true"></i> Clear
                         </button>
+                        -->
                         
                         <!-- TODO we probably need a new property for this -->
-                        ${this.showSelectFilters(this.opencgaClient._config) ? html`
+                        ${false && this.showSelectFilters(this.opencgaClient._config) ? html`
                             <div class="dropdown saved-filter-wrapper">
     
                                 <button type="button" class="btn btn-primary btn-sm dropdown-toggle ripple" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -715,7 +726,7 @@ export default class OpencgaActiveFilters extends LitElement {
                                             <li role="separator" class="divider"></li>
                                         ` : html`
                                             <li>
-                                                <a data-filter-id="${item.id}" style="cursor: pointer;color: ${!item.active ? "black" : "green"}" title="${item.description ?? ""}" @click="${this.onServerFilterChange}" class="filtersLink">
+                                                <a data-filter-id="${item.id}" class="filtersLink" style="cursor: pointer;color: ${!item.active ? "black" : "green"}" title="${item.description ?? ""}" @click="${this.onServerFilterChange}">
                                                     <span class="id-filter-button">&nbsp;&nbsp;${item.id}</span>
                                                     <span class="delete-filter-button" title="Delete filter" data-filter-id="${item.id}" @click="${this.serverFilterDelete}"><i class="fas fa-times"></i></span>
                                                 </a>
