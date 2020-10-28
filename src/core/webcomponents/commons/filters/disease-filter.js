@@ -145,7 +145,7 @@ export default class DiseaseFilter extends LitElement {
             return html`
                 <div class="row">
                     <div class="col-md-4">
-                        <select-field-filter .liveSearch=${"true"} .data="${opts}" .value=${this.panel} @filterChange="${this.panelChange}"></select-field-filter>
+                        <select-field-filter .liveSearch=${true} .data="${opts}" .value=${this.panel} @filterChange="${this.panelChange}"></select-field-filter>
                     </div>
                     <div class="col-md-4">
                         <select-field-filter .data="${this.genes.map( gene => ({id:gene.name, name: `${gene.name} (${gene.id})`}))}" @filterChange="${this.filterChange}"></select-field-filter>
@@ -155,7 +155,7 @@ export default class DiseaseFilter extends LitElement {
         } else {
             return html`
                 <div>
-                    <select-field-filter multiple .liveSearch=${"true"} .data="${opts}" .value=${this.panel} @filterChange="${this.filterChange}"></select-field-filter>
+                    <select-field-filter multiple .liveSearch=${true} .data="${opts}" .value=${this.panel} @filterChange="${this.filterChange}"></select-field-filter>
                     ${this._config.showSummary
                         ? html`
                             <textarea class="form-control" rows="4" style="margin-top: 5px;background: #f7f7f7" disabled>${this.panel}</textarea>`

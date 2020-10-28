@@ -20,6 +20,7 @@ import UtilsNew from "./../../../utilsNew.js";
 import "../../commons/analysis/opencga-analysis-tool.js";
 import AnalysisRegistry from "./analysis-registry.js";
 import knockoutData from "./test/knockout.20201021003108.inXESR.js";
+import "../../commons/filters/select-field-filter.js";
 
 export default class OpencgaKnockoutAnalysisResult extends LitElement {
 
@@ -54,7 +55,7 @@ export default class OpencgaKnockoutAnalysisResult extends LitElement {
 
         this.data = knockoutData;
 
-        this.LIMIT = 20; //temp limit for both rows and cols
+        this.LIMIT = 50; //temp limit for both rows and cols
 
         this.gridId = this._prefix + "KnockoutGrid";
         this.preprocess()
@@ -86,19 +87,19 @@ export default class OpencgaKnockoutAnalysisResult extends LitElement {
                         //console.log(variant.id)
                         this.samples.push(sample)
                         if (this._data[variant.id]) {
-                            this._data[variant.id].push(sample);
+                            this._data[variant.id].push({sampleId: sample.sampleId, variant: variant});
                         } else {
-                            this._data[variant.id] = [sample];
+                            this._data[variant.id] = [{sampleId: sample.sampleId, variant: variant}];
                         }
                         i++
                     }
                 }
             }
         }
-        console.log(this._data)
+        this.samples = [...new Set(this.samples)];
         this.tableData = Object.entries(this._data).splice(0,this.LIMIT).map( ([variant, samples]) => ({
             variantId: variant,
-            ...samples
+            data: samples
         }))
         this.renderTable()
 
@@ -130,7 +131,10 @@ export default class OpencgaKnockoutAnalysisResult extends LitElement {
             ...this.samples.slice(0,this.LIMIT).map(sample => {
                 return {
                     title: `Sample ${sample.sampleId}`,
-                    formatter: r => "x"
+                    field: "data",
+                    formatter: r => {
+                        return r.find( a => a.sampleId === sample.sampleId)?.variant?.knockoutType
+                    }
                 }
             })];
     }
@@ -157,13 +161,30 @@ export default class OpencgaKnockoutAnalysisResult extends LitElement {
         }
     }
 
+    onColumnChange(e) {
+        e.detail.id = e.detail.value;
+        this.gridCommons.onColumnChange(e);
+    }
+
     getDefaultConfig() {
         return AnalysisRegistry.get("knockout").config;
     }
 
     render() {
         return html`
-            <table id="${this.gridId}"></table>
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-2 pull-right">
+                        <div style="padding: 20px 0">
+                            <select-field-filter .liveSearch=${true} multiple .data="${this.samples?.map(sample => sample.sampleId)}" @filterChange="${e => this.onColumnChange(e)}"></select-field-filter>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <table id="${this.gridId}"></table>
+                </div>
+            </div>
+            
         `;
     }
 
