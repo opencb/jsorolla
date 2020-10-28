@@ -157,7 +157,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                         ...this.query,
                         fileData: this.callerToFile["caveman"].name + ":FILTER=PASS;CLPM=0;ASMD>=140"
                             + "," + this.callerToFile["pindel"].name + ":FILTER=PASS;QUAL>=250;REP<=9"
-                            + "," + this.callerToFile["brass"].name + ":BAS>95"
+                            + "," + this.callerToFile["brass"].name + ":BAS>=95"
                     };
                     // debugger
                     this._config = {...this.getDefaultConfig(), ...this.config};
@@ -168,7 +168,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                 });
         }
 
-        let sampleQc = ClinicalAnalysisUtils.getProbandSampleQc(this.clinicalAnalysis);
+        let sampleQc = ClinicalAnalysisUtils.getProbandSampleQc(this.clinicalAnalysis, 1);
         let _activeFilterFilters = [];
         if (sampleQc?.metrics?.length > 0) {
             let variantStats = sampleQc.metrics[0].variantStats;
@@ -194,7 +194,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
             this.savedVariants = this.clinicalAnalysis?.interpretation?.primaryFindings?.map(v => v.id);
         }
 
-        // this.requestUpdate();
+        this.requestUpdate();
     }
 
     /**

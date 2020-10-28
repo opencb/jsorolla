@@ -497,6 +497,17 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                                     ? typeof this.callerToFile["strelka"] !== "undefined" || this.callerToFile["strelka"] != null
                                     : false
                             },
+                            // {
+                            //     id: "caveman-caller",
+                            //     title: "Caveman",
+                            //     visible: () => this.callerToFile
+                            //         ? typeof this.callerToFile["caveman"] !== "undefined" || this.callerToFile["caveman"] != null
+                            //         : false,
+                            //     callback: (filter, query) => this.onFilterChange("SNV", "caveman", query),
+                            //     params: {
+                            //         fileId: `${this.callerToFile ? this.callerToFile["caveman"]?.name : null}`,
+                            //     }
+                            // },
                         ]
                     },
                     {

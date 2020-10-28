@@ -144,7 +144,7 @@ export default class PindelCallerFilter extends LitElement {
 
     render() {
         return html`
-            <data-form .data=${this.query} .config="${this._config}" @fieldChange="${this.filterChange}"></data-form>
+            <data-form .data=${this.filter} .config="${this._config}" @fieldChange="${this.filterChange}"></data-form>
         `;
     }
 }
