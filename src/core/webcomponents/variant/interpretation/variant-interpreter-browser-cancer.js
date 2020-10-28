@@ -153,7 +153,12 @@ class VariantInterpreterBrowserCancer extends LitElement {
 
                     // TODO Move to config object
                     // this.query.fileData = this.callerToFile["caveman"].name + ":FILTER=PASS;CLPM>2";
-                    this.query = {...this.query, fileData: this.callerToFile["caveman"].name + ":FILTER=PASS;CLPM>2" + "," + this.callerToFile["pindel"].name + ":FILTER=PASS"};
+                    this.query = {
+                        ...this.query,
+                        fileData: this.callerToFile["caveman"].name + ":FILTER=PASS;CLPM>=2"
+                            + "," + this.callerToFile["pindel"].name + ":FILTER=PASS;QUAL>=250;REP<=9"
+                            // + "," + this.callerToFile["ascat"].name + ":segmentSize>=0"
+                    };
                     debugger
                     this._config = {...this.getDefaultConfig(), ...this.config};
                     this.queryObserver();

@@ -93,6 +93,10 @@ class VariantInterpreter extends LitElement {
         this.clinicalAnalysis = null;
         this._changeView(this._config?.tools[0].id)
         this.requestUpdate();
+
+        // To delete
+        this.clinicalAnalysisId = "CA-2";
+        this.clinicalAnalysisIdObserver();
     }
 
     clinicalAnalysisIdObserver() {
