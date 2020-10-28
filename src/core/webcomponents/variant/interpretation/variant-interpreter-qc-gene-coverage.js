@@ -155,9 +155,9 @@ class VariantInterpreterQcGeneCoverage extends LitElement {
 
         return html`
             ${this.file ? html`
-                <div class="pull-right save-button" style="margin: 20px">
+                <div class="pull-right save-button">
                     <button class="btn btn-default ripple" @click="${this.onSave}">
-                        <i class="fas fa-save pad5"></i>Save
+                        <i class="fas fa-save icon-padding"></i> Save
                     </button>
                 </div>
             ` : null}

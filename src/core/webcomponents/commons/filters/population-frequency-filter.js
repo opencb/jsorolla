@@ -60,6 +60,9 @@ export default class PopulationFrequencyFilter extends LitElement {
         if (_changedProperties.has("populationFrequencyAlt")) {
             this.populationFrequencyAltObserver();
         }
+        if (_changedProperties.has("populationFrequencies")) {
+            // TODO currently ignored
+        }
     }
 
     populationFrequencyAltObserver() {
@@ -67,6 +70,7 @@ export default class PopulationFrequencyFilter extends LitElement {
         let pfArray = [];
         if (this.populationFrequencyAlt) {
 
+            this.state = {};
             if (!populationFrequencies?.studies?.length && !this.populationFrequencies) {
                 console.error("populationFrequency data not available")
             }
@@ -83,6 +87,7 @@ export default class PopulationFrequencyFilter extends LitElement {
             this.state = {};
         }
         this.state = {...this.state};
+        //this.state = $.extend(true, {}, this.state);
         this.requestUpdate();
     }
 
