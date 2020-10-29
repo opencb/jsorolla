@@ -108,24 +108,11 @@ export default class OpencgaClinicalReviewCases extends LitElement {
         this.requestUpdate();
     }
 
-    refreshFilters() {
-        this.opencgaSession.opencgaClient.users().filters(this.opencgaSession.user.id).then(restResponse => {
-            const result = restResponse.getResults();
-            // (this.filters || []) in case comes undefined as prop
-            if (result.length > 0) {
-                this._filters = [...(this.filters || []), ...result.filter(f => f.resource === this.resource)];
-            } else {
-                this._filters = [...(this.filters || [])];
-            }
-            this.requestUpdate();
-        });
+    isLoggedIn() {
+        return !!this?.opencgaSession?.token;
     }
 
-    checkSid(config) {
-        return UtilsNew.isNotEmpty(config.sessionId);
-    }
-
-    onClearQuery(e) {
+    clear(e) {
         //FIXME monkey patch to reset button (text) fields. TODO complete refactor.
         this.case = "All";
         if (this.querySelector(`#${this._prefix}caseInput`)) {
@@ -239,46 +226,126 @@ export default class OpencgaClinicalReviewCases extends LitElement {
         $(PolymerUtils.getElementById(this._prefix + "SaveModal")).modal("show");
     }
 
+    refreshFilters() {
+        this.opencgaSession.opencgaClient.users().filters(this.opencgaSession.user.id).then(restResponse => {
+            const result = restResponse.getResults();
+            // (this.filters || []) in case this.filters (prop) is undefined
+            if (result.length > 0) {
+                this._filters = [...(this.filters || []), ...result.filter(f => f.resource === this.resource)];
+            } else {
+                this._filters = [...(this.filters || [])];
+            }
+            this.requestUpdate();
+        });
+    }
+
     save() {
         const filterName = PolymerUtils.getValue(this._prefix + "filterName");
         const filterDescription = PolymerUtils.getValue(this._prefix + "filterDescription");
 
-        const data = {
-            id: filterName,
-            description: filterDescription,
-            resource: "CLINICAL_ANALYSIS",
-            query: this._query,
-            options: {}
-        };
+        let query = this.query;
+        if (query.study) {
+            // filters out the current active study
+            const studies = query.study.split(",").filter( fqn => fqn !== this.opencgaSession.study.fqn);
+            if (studies.length) {
+                query.study = studies.join(",");
+            } else {
+                delete query.study;
+            }
+        }
+        //console.log("QUERY SAVED:", query)
+
         this.opencgaSession.opencgaClient.users().filters(this.opencgaSession.user.id)
             .then(restResponse => {
                 console.log("GET filters", restResponse);
                 const savedFilters = restResponse.getResults() || [];
 
                 console.log("savedFilters", savedFilters);
-                // updating an existing filter
 
-                //check if filterName else updateFilters
                 if (savedFilters.find(savedFilter => savedFilter.id === filterName)) {
-                    this.opencgaSession.opencgaClient.users().updateFilter(this.opencgaSession.user.id, filterName, data)
-                        .then(response => {
-                            for (const i in this._filters) {
-                                if (this._filters[i].id === filterName) {
-                                    this._filters[i] = response.response[0].result[0];
-                                }
-                            }
-                            PolymerUtils.setValue(this._prefix + "filterName", "");
-                            PolymerUtils.setValue(this._prefix + "filterDescription", "");
-                        });
+                    // updating an existing filter
+                    const data = {
+                        description: filterDescription,
+                        query: query,
+                        options: {}
+                    };
+
+                    Swal.fire({
+                        title: "Are you sure?",
+                        text: "A Filter with the same name is already present. You are going to overwrite it.",
+                        icon: "warning",
+                        showCancelButton: true,
+                        confirmButtonColor: "#d33",
+                        cancelButtonColor: "#3085d6",
+                        confirmButtonText: "Yes"
+                    }).then(result => {
+                        if (result.value) {
+                            this.opencgaSession.opencgaClient.users().updateFilter(this.opencgaSession.user.id, filterName, data)
+                                .then(restResponse => {
+                                    if (!restResponse?.getEvents?.("ERROR")?.length) {
+                                        for (const i in this._filters) {
+                                            if (this._filters[i].id === filterName) {
+                                                this._filters[i] = restResponse.response[0].result[0];
+                                            }
+                                        }
+
+                                    } else {
+                                        console.error(restResponse);
+                                        Swal.fire(
+                                            "Server Error!",
+                                            "Filter has not been correctly saved.",
+                                            "error"
+                                        );
+                                    }
+                                    PolymerUtils.setValue(this._prefix + "filterName", "");
+                                    PolymerUtils.setValue(this._prefix + "filterDescription", "");
+                                }).catch(restResponse => {
+                                    console.error(restResponse);
+                                    Swal.fire(
+                                        "Server Error!",
+                                        "Filter has not been correctly saved.",
+                                        "error"
+                                    );
+                                });
+                        }
+                    });
+
                 } else {
                     // saving a new filter
+                    const data = {
+                        id: filterName,
+                        description: filterDescription,
+                        resource: this.resource,
+                        query: query,
+                        options: {}
+                    };
                     this.opencgaSession.opencgaClient.users().updateFilters(this.opencgaSession.user.id, data, {action: "ADD"})
-                        .then(response => {
-
-                            this._filters = [...this._filters, data];
-                            PolymerUtils.setValue(this._prefix + "filterName", "");
-                            PolymerUtils.setValue(this._prefix + "filterDescription", "");
+                        .then(restResponse => {
+                            if (!restResponse.getEvents?.("ERROR")?.length) {
+                                this._filters = [...this._filters, data];
+                                PolymerUtils.setValue(this._prefix + "filterName", "");
+                                PolymerUtils.setValue(this._prefix + "filterDescription", "");
+                                Swal.fire(
+                                    "Filter Saved",
+                                    "Filter has been saved.",
+                                    "success"
+                                );
+                            } else {
+                                console.error(restResponse);
+                                Swal.fire(
+                                    "Server Error!",
+                                    "Filter has not been correctly saved.",
+                                    "error"
+                                );
+                            }
                             this.requestUpdate();
+                        }).catch(restResponse => {
+                            console.error(restResponse);
+                            Swal.fire(
+                                "Server Error!",
+                                "Filter has not been correctly saved.",
+                                "error"
+                            );
                         });
                 }
 
@@ -523,13 +590,50 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                             <!--<div class="panel-heading">Case Filters</div>-->
                             <div class="panel-body" style="padding: 10px">
                                 <div class="lhs">
-                                    <div class="btn-group">
-                                        <p class="active-filter-label">Filters</p>
+                                    
+                                    <div class="dropdown saved-filter-dropdown" style="margin-right: 5px">
+                                        <button type="button" class="active-filter-label ripple no-shadow" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-cy="filter-button">
+                                            <i class="fa fa-filter icon-padding" aria-hidden="true"></i> Filters <span class="caret"></span>
+                                        </button>
+                                        <ul class="dropdown-menu saved-filter-wrapper">
+                                            <li>
+                                                <a><i class="fas fa-cloud-upload-alt icon-padding"></i> <strong>Saved Filters</strong></a>
+                                            </li>
+                                            ${this._filters && this._filters.length
+                                                ? this._filters.map(item => item.separator
+                                                    ? html`
+                                                        <li role="separator" class="divider"></li>`
+                                                    : html`
+                                                        <li>
+                                                            <a data-filter-id="${item.id}" class="filtersLink" style="cursor: pointer;color: ${!item.active ? "black" : "green"}" 
+                                                                    @click="${this.onServerFilterChange}">
+                                                                <span class="id-filter-button"> ${item.id}</span>
+                                                                <span class="delete-filter-button" title="Delete filter" data-filter-id="${item.id}" 
+                                                                        @click="${this.serverFilterDelete}"><i class="fas fa-times"></i>
+                                                                </span>
+                                                            </a>
+                                                        </li>`
+                                                    )
+                                                : html`<li><a class="help-block">No filters found</a></li>`
+                                            }
+                                            
+                                            <li role="separator" class="divider"></li>
+                                            <li>
+                                                <a href="javascript: void 0" @click="${this.clear}" data-action="active-filter-clear">
+                                                    <i class="fa fa-eraser icon-padding" aria-hidden="true"></i> <strong>Clear</strong>
+                                                </a>    
+                                            </li>
+                                            ${this.isLoggedIn() ? html`
+                                                <li>
+                                                    <a style="cursor: pointer" @click="${this.launchModal}" data-action="active-filter-save"><i class="fas fa-save icon-padding"></i> <strong>Save filter...</strong></a>
+                                                </li>
+                                            ` : null}
+                                        </ul>
                                     </div>
         
                                     ${~this._config.filter.sections[0].fields.findIndex(field => field.id === "case") ? html`
                                         <!-- Case ID -->
-                                        <div class="btn-group">
+                                        <div class="btn-group" data-cy="form-case">
                                             <button type="button" class="dropdown-toggle btn btn-default filter-button" style="width:125px; color: rgb(153, 153, 153);"
                                                     id="${this._prefix}caseMenu"
                                                     data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
@@ -548,7 +652,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                     
                                     ${~this._config.filter.sections[0].fields.findIndex(field => field.id === "sample") ? html`
                                     <!-- Sample -->
-                                    <div class="btn-group">
+                                    <div class="btn-group" data-cy="form-sample">
                                         <button type="button" class="dropdown-toggle btn btn-default filter-button" style="width:125px; color: rgb(153, 153, 153);"
                                                 id="${this._prefix}sampleMenu"
                                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
@@ -567,7 +671,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                     
                                     ${~this._config.filter.sections[0].fields.findIndex(field => field.id === "proband") ? html`
                                     <!-- Proband -->
-                                    <div class="btn-group">
+                                    <div class="btn-group" data-cy="form-proband">
                                         <button type="button" class="btn btn-default dropdown-toggle filter-button" style="width:125px; color: rgb(153, 153, 153);"
                                                 id="${this._prefix}probandMenu" title="${this.proband}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                                             <span class="ocap-text-button">Proband: <span>${this.proband}</span></span>&nbsp; <span class="caret"></span>
@@ -656,7 +760,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                     
                                     ${~this._config.filter.sections[0].fields.findIndex(field => field.id === "priority") ? html`
                                     <!-- Priority -->
-                                    <div class="btn-group">
+                                    <div class="btn-group" data-cy="form-priority">
                                         <select class="selectpicker" data-width="105px" id="${this._prefix}-priority" multiple
                                                 title="Priority: All" @change="${this.updateQuery}">
                                             <option style="color: red; font-weight: bold;" value="URGENT">Urgent</option>
@@ -687,37 +791,39 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                 </div>
                                 
                                 
-                                <div class="rhs" style="padding: 7px">
-                                    <button type="button" class="btn btn-primary btn-sm ripple" @click="${this.onClearQuery}">
-                                        <i class="fa fa-times icon-padding" aria-hidden="true"></i> Clear
-                                    </button>
-                                    <div class="dropdown saved-filter-wrapper">
-                                        <button type="button" class="btn btn-primary btn-sm dropdown-toggle ripple" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                            <i class="fa fa-filter icon-padding" aria-hidden="true"></i> Filters <span class="caret"></span>
+                                ${false ? html`
+                                    <div class="rhs" style="padding: 7px">
+                                        <button type="button" class="btn btn-primary btn-sm ripple" @click="${this.clear}">
+                                            <i class="fa fa-times icon-padding" aria-hidden="true"></i> Clear
                                         </button>
-                                        <ul class="dropdown-menu">
-                                            <li><a style="font-weight: bold">Saved Filters</a></li>
-                                            ${this._filters && this._filters.length
-                                                ? this._filters.map(item => item.separator ? html`
+                                        <div class="dropdown saved-filter-wrapper">
+                                            <button type="button" class="btn btn-primary btn-sm dropdown-toggle ripple" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                <i class="fa fa-filter icon-padding" aria-hidden="true"></i> Filters <span class="caret"></span>
+                                            </button>
+                                            <ul class="dropdown-menu">
+                                                <li><a style="font-weight: bold">Saved Filters</a></li>
+                                                ${this._filters && this._filters.length
+                                                    ? this._filters.map(item => item.separator ? html`
+                                                        <li role="separator" class="divider"></li>
+                                                    ` : html`
+                                                        <li>
+                                                            <a data-filter-id="${item.id}" style="cursor: pointer;color: ${!item.active ? "black" : "green"}" title="${item.description ?? ""}" @click="${this.onServerFilterChange}" class="filtersLink">
+                                                                <span class="id-filter-button">&nbsp;&nbsp;${item.id}</span>
+                                                                <span class="delete-filter-button" title="Delete filter" data-filter-id="${item.id}" @click="${this.serverFilterDelete}"><i class="fas fa-times"></i></span>
+                                                            </a>
+                                                        </li>`)
+                                                    : null }
+    
+                                                ${this.opencgaSession?.token ? html`
                                                     <li role="separator" class="divider"></li>
-                                                ` : html`
                                                     <li>
-                                                        <a data-filter-id="${item.id}" style="cursor: pointer;color: ${!item.active ? "black" : "green"}" title="${item.description ?? ""}" @click="${this.onServerFilterChange}" class="filtersLink">
-                                                            <span class="id-filter-button">&nbsp;&nbsp;${item.id}</span>
-                                                            <span class="delete-filter-button" title="Delete filter" data-filter-id="${item.id}" @click="${this.serverFilterDelete}"><i class="fas fa-times"></i></span>
-                                                        </a>
-                                                    </li>`)
-                                                : null }
-
-                                            ${this.opencgaSession?.token ? html`
-                                                <li role="separator" class="divider"></li>
-                                                <li>
-                                                    <a style="cursor: pointer" @click="${this.launchModal}"><i class="fa fa-floppy-o icon-padding" aria-hidden="true"></i> Save...</a>
-                                                </li>
-                                            ` : null}
-                                        </ul>
+                                                        <a style="cursor: pointer" @click="${this.launchModal}"><i class="fa fa-floppy-o icon-padding" aria-hidden="true"></i> Save...</a>
+                                                    </li>
+                                                ` : null}
+                                            </ul>
+                                        </div>
                                     </div>
-                                </div>
+                                ` : null}
                                 
                                 
                             </div>

@@ -175,8 +175,8 @@ export default class OpencgaActiveFilters extends LitElement {
         return (this.filters !== undefined && this.filters.length > 0) || !UtilsNew.isEmpty(this.opencgaSession.token);
     }
 
-    checkSid(config) {
-        return UtilsNew.isNotEmpty(config);
+    isLoggedIn() {
+        return !!this?.opencgaSession?.token;
     }
 
     opencgaSessionObserver() {
@@ -189,7 +189,7 @@ export default class OpencgaActiveFilters extends LitElement {
         this.opencgaClient.users().filters(this.opencgaSession.user.id).then(restResponse => {
             const result = restResponse.getResults();
 
-            // (this.filters || []) in case comes undefined as prop
+            // (this.filters || []) in case this.filters (prop) is undefined
             if (result.length > 0) {
                 this._filters = [...(this.filters || []), ...result.filter(f => f.resource === this.resource)];
             } else {
@@ -267,7 +267,7 @@ export default class OpencgaActiveFilters extends LitElement {
                                         "Filter has not been correctly saved.",
                                         "error"
                                     );
-                            });
+                                });
                         }
                     });
 
@@ -301,13 +301,13 @@ export default class OpencgaActiveFilters extends LitElement {
                             }
                             this.requestUpdate();
                         }).catch(restResponse => {
-                        console.error(restResponse);
-                        Swal.fire(
-                            "Server Error!",
-                            "Filter has not been correctly saved.",
-                            "error"
-                        );
-                    });
+                            console.error(restResponse);
+                            Swal.fire(
+                                "Server Error!",
+                                "Filter has not been correctly saved.",
+                                "error"
+                            );
+                        });
                 }
 
             })
@@ -371,7 +371,7 @@ export default class OpencgaActiveFilters extends LitElement {
                     resource: this.resource,
                     options: {}
                 };
-                this.opencgaClient.users().updateFilters(this.opencgaSession.user.id, data, {action: "REMOVE"})
+                this.opencgaSession.opencgaClient.users().updateFilters(this.opencgaSession.user.id, data, {action: "REMOVE"})
                     .then(restResponse => {
                         console.log("restResponse", restResponse)
                         Swal.fire(
@@ -381,14 +381,14 @@ export default class OpencgaActiveFilters extends LitElement {
                         );
                         this.refreshFilters();
                     }).catch(restResponse => {
-                    if (restResponse.getEvents?.("ERROR")?.length) {
-                        const msg = restResponse.getEvents("ERROR").map(error => error.message).join("<br>");
-                        new NotificationQueue().push("Error deleting filter", msg, "error");
-                    } else {
-                        new NotificationQueue().push("Error deleting filter", "", "error");
-                    }
-                    console.error(restResponse);
-                });
+                        if (restResponse.getEvents?.("ERROR")?.length) {
+                            const msg = restResponse.getEvents("ERROR").map(error => error.message).join("<br>");
+                            new NotificationQueue().push("Error deleting filter", msg, "error");
+                        } else {
+                            new NotificationQueue().push("Error deleting filter", "", "error");
+                        }
+                        console.error(restResponse);
+                    });
             }
         });
     }
@@ -609,7 +609,7 @@ export default class OpencgaActiveFilters extends LitElement {
                 <div class="panel-body" style="padding: 8px 10px">
                     <div class="lhs">
                         <div class="dropdown saved-filter-dropdown" style="margin-right: 5px">
-                            <button type="button" class="active-filter-label ripple no-shadow" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <button type="button" class="active-filter-label ripple no-shadow" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-cy="filter-button">
                                 <i class="fa fa-filter icon-padding" aria-hidden="true"></i> Filters <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu saved-filter-wrapper">
@@ -631,18 +631,18 @@ export default class OpencgaActiveFilters extends LitElement {
                                                 </a>
                                             </li>`
                                         )
-                                    : html`<li><span class="help-block">No filters found</span></li>`
+                                    : html`<li><a class="help-block">No filters found</a></li>`
                                 }
                                 
                                 <li role="separator" class="divider"></li>
                                 <li>
-                                    <a href="javascript: void 0" @click="${this.clear}">
+                                    <a href="javascript: void 0" @click="${this.clear}" data-action="active-filter-clear">
                                         <i class="fa fa-eraser icon-padding" aria-hidden="true"></i> <strong>Clear</strong>
                                     </a>    
                                 </li>
-                                ${this.checkSid(this.opencgaClient._config) ? html`
+                                ${this.isLoggedIn() ? html`
                                     <li>
-                                        <a style="cursor: pointer" @click="${this.launchModal}"><i class="fas fa-save icon-padding"></i> <strong>Save filter...</strong></a>
+                                        <a style="cursor: pointer" @click="${this.launchModal}" data-action="active-filter-save"><i class="fas fa-save icon-padding"></i> <strong>Save filter...</strong></a>
                                     </li>
                                 ` : null}
                             </ul>
@@ -739,7 +739,7 @@ export default class OpencgaActiveFilters extends LitElement {
                                             </li>`)
                                         : null
                                     }
-                                    ${this.checkSid(this.opencgaClient._config) ? html`
+                                    ${this.isLoggedIn() ? html`
                                         <li role="separator" class="divider"></li>
                                         <li>
                                             <a style="cursor: pointer" @click="${this.launchModal}"><i class="fa fa-floppy-o" aria-hidden="true"></i> Save...</a>
@@ -786,18 +786,18 @@ export default class OpencgaActiveFilters extends LitElement {
                             <div class="form-group row">
                                 <label for="filterName" class="col-xs-2 col-form-label">Name</label>
                                 <div class="col-xs-10">
-                                    <input class="form-control" type="text" id="${this._prefix}filterName">
+                                    <input class="form-control" type="text" id="${this._prefix}filterName" data-cy="modal-filter-name">
                                 </div>
                             </div>
                             <div class="form-group row">
                                 <label for="${this._prefix}filterDescription" class="col-xs-2 col-form-label">Description</label>
                                 <div class="col-xs-10">
-                                    <input class="form-control" type="text" id="${this._prefix}filterDescription">
+                                    <input class="form-control" type="text" id="${this._prefix}filterDescription" data-cy="modal-filter-description">
                                 </div>
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${this.save}">Save</button>
+                            <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${this.save}" data-cy="modal-filter-save-button">Save</button>
                         </div>
                     </div>
                 </div>
