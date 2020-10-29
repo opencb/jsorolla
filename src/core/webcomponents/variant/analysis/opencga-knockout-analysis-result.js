@@ -15,6 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
+import {classMap} from "/web_modules/lit-html/directives/class-map.js";
 import GridCommons from "../grid-commons.js";
 import UtilsNew from "./../../../utilsNew.js";
 import "../../commons/analysis/opencga-analysis-tool.js";
@@ -59,6 +60,8 @@ export default class OpencgaKnockoutAnalysisResult extends LitElement {
         this.colToShow = 2;
 
         this.gridId = this._prefix + "KnockoutGrid";
+
+        this.activeTab = {summary:true};
         this.preprocess()
     }
 
@@ -177,25 +180,69 @@ export default class OpencgaKnockoutAnalysisResult extends LitElement {
 
     }
 
+    _changeTab(e) {
+        e.preventDefault();
+        const tabId = e.currentTarget.dataset.id;
+        //the selectors are strictly defined to avoid conflics in tabs in children components
+        $("#opencga-knockout-analysis-result > div > .content-pills", this).removeClass("active");
+        $("#opencga-knockout-analysis-result > .content-tab-wrapper > .content-tab", this).hide();
+        $("#" + this._prefix + tabId, this).show();
+        $("#" + this._prefix + tabId, this).addClass("active");
+        for (const tab in this.activeTab) {
+            this.activeTab[tab] = false;
+        }
+        this.activeTab[tabId] = true;
+        this.requestUpdate();
+    }
+
     getDefaultConfig() {
         return AnalysisRegistry.get("knockout").config;
     }
 
     render() {
         return html`
-            <div class="container-fluid">
-                <div class="row">
-                    <div class="col-md-2 pull-right">
-                        <div style="padding: 20px 0">
-                            <select-field-filter .liveSearch=${true} multiple .data="${this.samples?.map(sample => sample.sampleId)}" .value="${this.activeSamples}" @filterChange="${e => this.onColumnChange(e)}"></select-field-filter>
+            <div id="opencga-knockout-analysis-result">
+                <div class="btn-group" role="toolbar" aria-label="toolbar">
+                    <button type="button" class="btn btn-success active ripple content-pills ${classMap({active: this.activeTab["summary"]})}" @click="${this._changeTab}" data-id="summary">
+                        <i class="fa fa-table icon-padding" aria-hidden="true"></i> Summary
+                    </button>
+                    <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab["gene"]})}" @click="${this._changeTab}" data-id="gene">
+                        <i class="fas fa-table icon-padding" aria-hidden="true"></i> Genes
+                    </button>
+                    <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab["variant"]})}" @click="${this._changeTab}" data-id="variant">
+                        <i class="fas fa-table icon-padding" aria-hidden="true"></i> Variants
+                    </button>
+                    <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab["sample"]})}" @click="${this._changeTab}" data-id="sample">
+                        <i class="fas fa-table icon-padding" aria-hidden="true"></i> Samples
+                    </button>
+                </div>
+                <div class="content-tab-wrapper">
+                    <div id="${this._prefix}summary" class="content-tab active">
+                        <div class="container-fluid">
+                            <div class="row">
+                                <div class="col-md-2 pull-right">
+                                    <div style="padding: 20px 0">
+                                        <select-field-filter .liveSearch=${true} multiple .data="${this.samples?.map(sample => sample.sampleId)}" .value="${this.activeSamples}" @filterChange="${e => this.onColumnChange(e)}"></select-field-filter>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <table id="${this.gridId}"></table>
+                            </div>
                         </div>
                     </div>
+                    <div id="${this._prefix}gene" class="content-tab">
+                        gene
+                    </div>
+                    <div id="${this._prefix}variant" class="content-tab">
+                        variant
+                    </div>
+                    <div id="${this._prefix}sample" class="content-tab">
+                        sample
+                    </div>
                 </div>
-                <div class="row">
-                    <table id="${this.gridId}"></table>
-                </div>
+                
             </div>
-            
         `;
     }
 
