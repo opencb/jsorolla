@@ -608,35 +608,41 @@ export default class OpencgaActiveFilters extends LitElement {
             <div class="panel panel-default">
                 <div class="panel-body" style="padding: 8px 10px">
                     <div class="lhs">
-                        <div class="dropdown saved-filter-dropdown">
+                        <div class="dropdown saved-filter-dropdown" style="margin-right: 5px">
                             <button type="button" class="active-filter-label ripple no-shadow" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <i class="fa fa-filter icon-padding" aria-hidden="true"></i> Filters <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu saved-filter-wrapper">
                                 <li>
+                                    <a><i class="fas fa-cloud-upload-alt icon-padding"></i> <strong>Saved Filters</strong></a>
+                                </li>
+                                ${this._filters && this._filters.length
+                                    ? this._filters.map(item => item.separator 
+                                        ? html`
+                                            <li role="separator" class="divider"></li>` 
+                                        : html`
+                                            <li>
+                                                <a data-filter-id="${item.id}" class="filtersLink" style="cursor: pointer;color: ${!item.active ? "black" : "green"}" 
+                                                        @click="${this.onServerFilterChange}">
+                                                    <span class="id-filter-button"> ${item.id}</span>
+                                                    <span class="delete-filter-button" title="Delete filter" data-filter-id="${item.id}" 
+                                                            @click="${this.serverFilterDelete}"><i class="fas fa-times"></i>
+                                                    </span>
+                                                </a>
+                                            </li>`
+                                        )
+                                    : html`<li><span class="help-block">No filters found</span></li>`
+                                }
+                                
+                                <li role="separator" class="divider"></li>
+                                <li>
                                     <a href="javascript: void 0" @click="${this.clear}">
                                         <i class="fa fa-eraser icon-padding" aria-hidden="true"></i> <strong>Clear</strong>
                                     </a>    
                                 </li>
-                                <li role="separator" class="divider"></li>
-                        
-                                <li><a><i class="fas fa-cloud-upload-alt"></i> <strong>Saved Filters</strong></a></li>
-                                ${this._filters && this._filters.length
-                                    ? this._filters.map(item => item.separator ? html`
-                                            <li role="separator" class="divider"></li>
-                                        ` : html`
-                                            <li>
-                                                <a data-filter-id="${item.id}" class="filtersLink" style="cursor: pointer;color: ${!item.active ? "black" : "green"}" @click="${this.onServerFilterChange}">
-                                                    <span class="id-filter-button"> ${item.id}</span>
-                                                    <span class="delete-filter-button" title="Delete filter" data-filter-id="${item.id}" @click="${this.serverFilterDelete}"><i class="fas fa-times"></i></span>
-                                                </a>
-                                            </li>`)
-                                    : null
-                                }
                                 ${this.checkSid(this.opencgaClient._config) ? html`
-                                    <li role="separator" class="divider"></li>
                                     <li>
-                                        <a style="cursor: pointer" @click="${this.launchModal}"><i class="fas fa-save"></i> <strong>Save current filter...</strong></a>
+                                        <a style="cursor: pointer" @click="${this.launchModal}"><i class="fas fa-save icon-padding"></i> <strong>Save filter...</strong></a>
                                     </li>
                                 ` : null}
                             </ul>
