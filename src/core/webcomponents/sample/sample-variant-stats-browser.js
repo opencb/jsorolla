@@ -114,36 +114,49 @@ export default class SampleVariantStatsBrowser extends LitElement {
         this.requestUpdate();
     }
 
-
     onVariantFilterChange(e) {
         this.preparedQuery = e.detail.query;
         this.requestUpdate();
     }
 
     async onVariantFilterSearch(e) {
-        // TODO fix activeFilterClear and activeFilterChange!
+        this.query = {...e.detail.query};
+        this.renderVariantStats();
+    }
+
+    onActiveFilterChange(e) {
+        this.query = {study: this.opencgaSession.study.fqn, ...e.detail};
+        this.preparedQuery = {...this.query};
+        this.executedQuery = {...this.query};
+
+        this.renderVariantStats();
+        this.requestUpdate();
+    }
+
+    onActiveFilterClear(e) {
+        this.query = {study: this.opencgaSession.study.fqn};
+        this.preparedQuery = {...this.query};
+        this.executedQuery = {...this.query};
+
+        this.renderVariantStats();
+        this.requestUpdate();
+    }
+
+    async renderVariantStats() {
         this.loading = true;
         this.errorState = false;
         await this.requestUpdate();
-        //this.preparedQuery = this._prepareQuery(e.detail.query); //TODO check if we need to process e.detail.query
-        this.query = {...e.detail.query};
 
-        // let params = {
-        //     study: this.opencgaSession.study.fqn,
-        //     fields: "chromosome;genotype;type;biotype;consequenceType;clinicalSignificance;depth;filter",
-        //     sample: this.sample.id,
-        //     ...this.query
-        // };
-        // debugger
         this.opencgaSession.opencgaClient.variants().querySampleStats(this.sample.id, {study: this.opencgaSession.study.fqn, ...this.query})
             .then(response => {
-                this.sampleVariantStats = {
-                    stats: response.responses[0].results[0]
+                this.sampleQcVariantStats = {
+                    stats: response.responses[0].results[0],
+                    query: this.query
                 };
             })
             .catch(e => {
                 console.log(e);
-                this.sampleVariantStats = null;
+                this.sampleQcVariantStats = null;
                 if (e?.getEvents?.("ERROR")?.length) {
                     this.errorState = {messages: e.getEvents("ERROR")};
                 } else if (e instanceof Error) {
@@ -158,94 +171,6 @@ export default class SampleVariantStatsBrowser extends LitElement {
                 this.loading = false;
                 this.requestUpdate();
             });
-        // this.opencgaSession.opencgaClient.variants().aggregationStats(params)
-        //     .then(response => {
-        //         this.aggregationStatsResults = response.responses[0].results;
-        //
-        //         // Remove contigs and sort chromosomes
-        //         let chromosomes = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "X", "Y", "MT"];
-        //         let sortedBuckets = [];
-        //         for (let chromosome of chromosomes) {
-        //             for (let bucket of this.aggregationStatsResults[0].buckets) {
-        //                 if (bucket.value === chromosome) {
-        //                     sortedBuckets.push(bucket);
-        //                     break;
-        //                 }
-        //             }
-        //         }
-        //         this.aggregationStatsResults[0].buckets = sortedBuckets;
-        //
-        //         // FIXME OpenCGA will return directly the sampleVariantStats soon
-        //         // Parse aggregationStatsResults and create a sampleVariantStats
-        //         let _sampleVariantStats = {
-        //             id: this.sample.id
-        //         };
-        //         for (let aggregatedResult of this.aggregationStatsResults) {
-        //             let values = {};
-        //             for (let bucket of aggregatedResult.buckets) {
-        //                 values[bucket.value] = bucket.count;
-        //             }
-        //             switch (aggregatedResult.name) {
-        //                 case "chromosome":
-        //                     _sampleVariantStats.variantCount = aggregatedResult.count;
-        //                     _sampleVariantStats.chromosomeCount = values;
-        //                     break;
-        //                 case "genotype":
-        //                     _sampleVariantStats.genotypeCount = values;
-        //                     let het = _sampleVariantStats.genotypeCount["0/1"];
-        //                     het += _sampleVariantStats.genotypeCount["0/2"] || 0;
-        //                     het += _sampleVariantStats.genotypeCount["1/2"] || 0;
-        //                     _sampleVariantStats.heterozygosityRate = het / aggregatedResult.count;
-        //                     break;
-        //                 case "filter":
-        //                     _sampleVariantStats.filterCount = values;
-        //                     break;
-        //                 case "type":
-        //                     _sampleVariantStats.typeCount = values;
-        //                     break;
-        //                 case "biotype":
-        //                     _sampleVariantStats.biotypeCount = values;
-        //                     break;
-        //                 case "consequenceType":
-        //                     _sampleVariantStats.consequenceTypeCount = values;
-        //                     break;
-        //                 case "clinicalSignificance":
-        //                     _sampleVariantStats.clinicalSignificanceCount = values;
-        //                     break;
-        //             }
-        //         }
-        //         this.sampleVariantStats = {
-        //             stats: _sampleVariantStats
-        //         };
-        //         this.requestUpdate();
-        //     })
-        //     .catch(e => {
-        //         console.log(e);
-        //         this.sampleVariantStats = null;
-        //         if (e?.getEvents?.("ERROR")?.length) {
-        //             this.errorState = {messages: e.getEvents("ERROR")};
-        //         } else if (e instanceof Error) {
-        //             this.errorState = {messages: [{name: e.name, message: e.message}]
-        //             };
-        //         } else {
-        //             this.errorState = {messages: [{name: "Generic Error", message: JSON.stringify(e)}]
-        //             };
-        //         }
-        //     })
-        //     .finally(() => {
-        //         this.loading = false;
-        //         this.requestUpdate();
-        //     });
-    }
-
-    onActiveFilterChange(e) {
-        this.query = {study: this.opencgaSession.study.fqn, ...e.detail};
-        this.requestUpdate();
-    }
-
-    onActiveFilterClear(e) {
-        this.query = {study: this.opencgaSession.study.fqn};
-        this.requestUpdate();
     }
 
     onSaveFieldChange(e) {
@@ -265,7 +190,7 @@ export default class SampleVariantStatsBrowser extends LitElement {
             id: this.save.id,
             query: this.executedQuery || {},
             description: this.save.description || "",
-            stats: this.sampleVariantStats.stats
+            stats: this.sampleQcVariantStats.stats
         };
 
         // Check if a metric object for that bamFileId exists
@@ -325,7 +250,8 @@ export default class SampleVariantStatsBrowser extends LitElement {
                 mode: {
                     type: "modal",
                     title: "Save Variant Stats",
-                    buttonClass: "btn btn-default ripple"
+                    buttonClass: "btn btn-primary ripple",
+                    disabled: !OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS")
                 },
                 labelWidth: 3,
                 labelAlign: "right",
@@ -453,9 +379,12 @@ export default class SampleVariantStatsBrowser extends LitElement {
         }
 
         if (qcVariantStats) {
+            // set the selected query
             this.query = qcVariantStats.query ?? {};
-            this.sampleVariantStats = {
-                stats: qcVariantStats.stats
+            this.sampleQcVariantStats = {
+                stats: qcVariantStats.stats,
+                query: qcVariantStats.query ?? {},
+                description: qcVariantStats.description
             };
         }
         this.requestUpdate();
@@ -473,7 +402,7 @@ export default class SampleVariantStatsBrowser extends LitElement {
             <div style="border-left: 2px solid #0c2f4c">
                 <div style="font-weight: bold; margin: 5px 10px">${qcVvariantStats.id}</div>
                 <div style="margin: 5px 10px">${qcVvariantStats.description}</div>
-                <div class="help-block" style="margin: 5px 10px">${queryString}</div>
+                <div class="help-block" style="margin: 5px 10px"><span>${queryString}</span></div>
             </div>
         `;
     }
@@ -505,44 +434,39 @@ export default class SampleVariantStatsBrowser extends LitElement {
                 </div>
 
                 <div class="col-md-9">
-                    ${OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS") 
-                        ? html`
-                            <div>
-                                <div class="btn-toolbar" role="toolbar" aria-label="toolbar" style="margin: 0px 5px 20px 0px">
-                                    <div class="pull-right" role="group">
-                                        <div class="btn-group">
-                                            <button type="button" class="btn btn-default ripple dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" 
-                                                        aria-expanded="false" title="Show saved variants" @click="${this.onLoad}">
-                                                <span><i class="fas fa-folder-open icon-padding"></i>Load <span class="caret" style="padding-left: 5px"></span></span>
-                                            </button>
-                                            <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="${this._prefix}ResetMenu" style="width: 360px">
-                                                <li style="margin: 5px 10px">
-                                                    <span style="font-weight: bold">Saved Variant Stats</span>
-                                                </li>
-                                                ${this.sample?.qualityControl?.metrics?.length > 0 && this.sample.qualityControl.metrics[0].variantStats?.length > 0
-                                                    ? this.sample.qualityControl.metrics[0].variantStats.map(qcVariantStat => html`
-                                                        <li>
-                                                            <a href="javascript:void(0);" data-id="${qcVariantStat.id}" @click="${e=> this.selectVariantStats(qcVariantStat.id)}">
-                                                                ${this.renderQcVariantStatsSelectItem(qcVariantStat)}
-                                                            </a>
-                                                        </li>
-                                                    `)
-                                                    : html`<div style="margin: 5px 5px">No Variant Stats found</div>`
-                                                }
-                                            </ul>
-                                        </div>
-                                        <div class="btn-group">
-                                            <data-form  .data=${this.save} 
-                                                        .config="${this.getSaveConfig()}" 
-                                                        @fieldChange="${e => this.onSaveFieldChange(e)}" 
-                                                        @submit="${this.onSave}">
-                                            </data-form>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>` 
-                        : null 
-                    }
+                    <div class="btn-toolbar" role="toolbar" aria-label="toolbar" style="margin: 0px 5px 20px 0px">
+                        <div class="pull-right" role="group">
+                            <div class="btn-group" style="margin-right: 2px">
+                                <button type="button" class="btn btn-primary ripple dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" 
+                                            aria-expanded="false" title="Show saved variants" @click="${this.onLoad}">
+                                    <span><i class="fas fa-folder-open icon-padding"></i>Load <span class="caret" style="padding-left: 5px"></span></span>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="${this._prefix}ResetMenu" style="width: 360px">
+                                    <li style="margin: 5px 10px">
+                                        <span style="font-weight: bold">Saved Variant Stats</span>
+                                    </li>
+                                    ${this.sample?.qualityControl?.metrics?.length > 0 && this.sample.qualityControl.metrics[0].variantStats?.length > 0
+                                        ? this.sample.qualityControl.metrics[0].variantStats.map(qcVariantStat => html`
+                                            <li>
+                                                <a href="javascript:void(0);" data-id="${qcVariantStat.id}" @click="${e=> this.selectVariantStats(qcVariantStat.id)}">
+                                                    ${this.renderQcVariantStatsSelectItem(qcVariantStat)}
+                                                </a>
+                                            </li>
+                                        `)
+                                        : html`<div style="margin: 5px 5px">No Variant Stats found</div>`
+                                    }
+                                </ul>
+                            </div>
+                            <div class="btn-group">
+                                <data-form  .data=${this.save} 
+                                            .config="${this.getSaveConfig()}" 
+                                            @fieldChange="${e => this.onSaveFieldChange(e)}" 
+                                            @submit="${this.onSave}">
+                                </data-form>
+                            </div>
+                        </div>
+                    </div>
+
                     <div>
                         <opencga-active-filters resource="VARIANT"
                                                 .opencgaSession="${this.opencgaSession}"
@@ -562,10 +486,13 @@ export default class SampleVariantStatsBrowser extends LitElement {
                                     <div id="loading">
                                         <loading-spinner></loading-spinner>
                                     </div>`
-                                : this.sampleVariantStats
+                                : this.sampleQcVariantStats
                                     ? html`
                                         <div style="padding: 0px 15px">
-                                            <sample-variant-stats-view .sampleVariantStats="${this.sampleVariantStats}" .description="${this.sampleVariantStats.description}"></sample-variant-stats-view>
+                                            <sample-variant-stats-view  .sampleVariantStats="${this.sampleQcVariantStats}" 
+                                                                        .query="${this.sampleQcVariantStats.query}"
+                                                                        .description="${this.sampleQcVariantStats.description}">
+                                            </sample-variant-stats-view>
                                         </div>`
                                     : this.errorState
                                         ? html`

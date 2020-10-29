@@ -47,6 +47,9 @@ class SampleVariantStatsView extends LitElement {
             sampleVariantStats: {
                 type: Object
             },
+            query: {
+                type: Object
+            },
             description: {
                 type: String
             },
@@ -101,7 +104,7 @@ class SampleVariantStatsView extends LitElement {
             this.sampleIdObserver();
         }
 
-        if (changedProperties.has("sampleVariantStats")) {
+        if (changedProperties.has("sampleVariantStats") || changedProperties.has("query") || changedProperties.has("description")) {
             this.sampleVariantStatsObserver();
         }
 
@@ -114,25 +117,18 @@ class SampleVariantStatsView extends LitElement {
     }
 
     sampleObserver() {
-        this.statsSelect = [];
         if (this.sample?.qualityControl?.metrics?.length && this.sample.qualityControl.metrics[0].variantStats?.length) {
             // By default we render the stat 'ALL' from the first metric, if there is not stat 'ALL' then we take the first one
             this.statsSelect = this.sample.qualityControl.metrics[0].variantStats.map(stat => stat.id)
-            let selectedStat = this.sample.qualityControl.metrics[0].variantStats.find(stat => stat.id === "ALL") ?? this.sample.qualityControl.metrics[0].variantStats[0];
-            this.statsSelected = selectedStat.id;
-            this.variantStats = selectedStat;
+            this.variantStats = this.sample.qualityControl.metrics[0].variantStats.find(stat => stat.id === "ALL") ?? this.sample.qualityControl.metrics[0].variantStats[0];
+
+            if (this.variantStats?.chromosomeCount) {
+                this.variantStats.chromosomeCount = ClinicalAnalysisUtils.chromosomeFilterSorter(this.variantStats.chromosomeCount);
+            }
         } else {
-            // TODO recheck
-            // Check if sample variant stats has been indexed in annotationSets
-            let annotationSet = this.sample?.annotationSets?.find(annotSet => annotSet.id.toLowerCase() === "opencga_sample_variant_stats");
-            this.variantStats = annotationSet?.annotations;
+            this.statsSelect = [];
+            this.variantStats = null;
         }
-
-        if (this.variantStats?.chromosomeCount) {
-            this.variantStats.chromosomeCount = ClinicalAnalysisUtils.chromosomeFilterSorter(this.variantStats.chromosomeCount);
-        }
-
-        this.sampleSelector = true;
         this.requestUpdate();
     }
 
@@ -154,10 +150,11 @@ class SampleVariantStatsView extends LitElement {
             stats: {
                 ...this.sampleVariantStats.stats,
                 chromosomeCount: ClinicalAnalysisUtils.chromosomeFilterSorter(this.sampleVariantStats.stats.chromosomeCount)
-            }
+            },
+            query: this.query,
+            description: this.description
         };
 
-        this.sampleSelector = false;
         this.requestUpdate();
     }
 
@@ -411,18 +408,21 @@ class SampleVariantStatsView extends LitElement {
 
     render() {
         if (!this.variantStats?.stats?.id) {
-            return html`<div class="alert alert-info"><i class="fas fa-3x fa-info-circle align-middle" style="padding-right: 10px"></i> No Variant Stats found.</div>`;
+            return html`
+                <div class="alert alert-info">
+                    <i class="fas fa-3x fa-info-circle align-middle" style="padding-right: 10px"></i> No Variant Stats found.
+                </div>`;
         }
 
         return html`
-            ${this.sampleSelector
+            ${this.sample
                 ? html`
                     <div style="margin: 20px 10px">
                         <div class="form-horizontal">
                             <div class="form-group">
                                 <label class="col-md-2">Select Variant Stat</label>
                                 <div class="col-md-2">
-                                    <select-field-filter forceSelection .data="${this.statsSelect}" .value=${this.statsSelected} @filterChange="${this.statChange}"></select-field-filter>
+                                    <select-field-filter forceSelection .data="${this.statsSelect}" .value=${this.variantStats.id} @filterChange="${this.statChange}"></select-field-filter>
                                 </div>
                             </div>
                         </div>
