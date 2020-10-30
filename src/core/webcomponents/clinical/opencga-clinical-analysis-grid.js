@@ -15,6 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
+import OpencgaCatalogUtils from "../../clients/opencga/opencga-catalog-utils.js";
 import UtilsNew from "../../utilsNew.js";
 import {NotificationQueue} from "../Notification.js";
 import GridCommons from "../variant/grid-commons.js";
@@ -298,6 +299,26 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
         }
     }
 
+    statusFormatter(value) {
+        return OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS") ? `
+            <div class="dropdown">
+                <button class="btn btn-default btn-sm dropdown-toggle one-line" type="button" data-toggle="dropdown">${value}
+                    <span class="caret" style="margin-left: 5px"></span>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-right">
+                    ${["READY_FOR_INTERPRETATION", "READY_FOR_REPORT", "CLOSED", "REJECTED"].map(status => `
+                        <li>
+                            <a href="javascript: void 0" class="btn force-text-left" data-action="statusChange" data-status="${status}">
+                                ${status === value ? `<strong>${status}</strong>` : status}
+                            </a>
+                        </li>
+                    `).join("")}
+                    
+                </ul>
+            </div>
+        ` : value;
+    }
+
     // reviewCaseFormatter(value, row) {
     //     // return `<button data-id=${row.id} style="cursor: pointer; color: #5a4444; border-radius: 5px; padding: 4px;
     //     //         background: #eae7d8; border: 1px solid #8a6d3b;" class='reviewCaseButton'>
@@ -375,6 +396,22 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
         if (action === "download") {
             UtilsNew.downloadData([JSON.stringify(row, null, "\t")], row.id + ".json")
         }
+        if(action === "statusChange") {
+            const {status} = e.target.dataset;
+            this.opencgaSession.opencgaClient.clinical().update(row.id, {status: {name: status}}, {study: this.opencgaSession.study.fqn})
+                .then(restResponse => {
+                    if (!restResponse.getResultEvents("ERROR").length) {
+                        this.renderTable();
+                    } else {
+                        console.error(restResponse);
+                    }
+                })
+                .catch(response => {
+                    UtilsNew.notifyError(response);
+                })
+
+            console.log()
+        }
     }
 
     _getDefaultColumns() {
@@ -432,7 +469,11 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                 field: "status.name",
                 valign: "middle",
                 halign: this._config.header.horizontalAlign,
-                visible: !this._config.columns.hidden.includes("status")
+                visible: !this._config.columns.hidden.includes("status"),
+                formatter: this.statusFormatter.bind(this),
+                events: {
+                    "click a": this.onActionClick.bind(this)
+                }
             },
             {
                 title: "Priority",
@@ -522,17 +563,20 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                                     <i class="fas fa-download icon-padding" aria-hidden="true"></i> Download
                                 </a>
                             </li>
-                            <li role="separator" class="divider"></li>
-                            <li>
-                                <a href="javascript: void 0" class="btn disabled force-text-left" data-action="edit">
-                                    <i class="fas fa-edit icon-padding" aria-hidden="true"></i> Edit
-                                </a>
-                            </li>
-                            <li>
-                                <a href="javascript: void 0" class="btn force-text-left" data-action="delete">
-                                    <i class="fas fa-trash icon-padding" aria-hidden="true"></i> Delete
-                                </a>
-                            </li>
+                            ${OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS") ? `
+                                <li role="separator" class="divider"></li>
+                                <li>
+                                    <a href="javascript: void 0" class="btn disabled force-text-left" data-action="edit">
+                                        <i class="fas fa-edit icon-padding" aria-hidden="true"></i> Edit
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="javascript: void 0" class="btn force-text-left" data-action="delete">
+                                        <i class="fas fa-trash icon-padding" aria-hidden="true"></i> Delete
+                                    </a>
+                                </li>
+                            ` : null}
+                            
                         </ul>
                     </div>`,
                 valign: "middle",
