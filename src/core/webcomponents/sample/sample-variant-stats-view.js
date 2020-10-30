@@ -232,7 +232,7 @@ class SampleVariantStatsView extends LitElement {
                             type: "custom",
                             display: {
                                 render: query => query && !UtilsNew.isEmpty(query)
-                                    ? Object.entries(query).map((k, v) => html`<span class="badge">${k}: ${v}</span>`)
+                                    ? Object.entries(query).map((k, v) => html`<span class="badge break-word">${k}: ${v}</span>`)
                                     : "none"
                             }
                         },

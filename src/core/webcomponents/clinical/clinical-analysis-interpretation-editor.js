@@ -216,6 +216,7 @@ class ClinicalAnalysisInterpretationEditor extends LitElement {
             uniqueId: "id",
             gridContext: this,
             sidePagination: "local",
+            pagination: true,
             formatNoMatches: () => "No previous versions",
             formatLoadingMessage: () =>"<div><loading-spinner></loading-spinner></div>",
             onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),

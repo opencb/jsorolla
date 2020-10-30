@@ -30,7 +30,7 @@ import "../../clinical/clinical-interpretation-view.js";
 import "../../commons/opencga-active-filters.js";
 import "../../commons/filters/select-field-filter-autocomplete-simple.js";
 import "../../download-button.js";
-
+import "../../loading-spinner.js";
 
 class VariantInterpreter extends LitElement {
 
@@ -99,16 +99,22 @@ class VariantInterpreter extends LitElement {
         // this.clinicalAnalysisIdObserver();
     }
 
-    clinicalAnalysisIdObserver() {
+     clinicalAnalysisIdObserver() {
+        console.error("loading")
+
         if (this.opencgaSession) {
+            this.loading = true;
             if( this.clinicalAnalysisId) {
                 this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
-                    .then(response => {
-                        this.clinicalAnalysis = response.responses[0].results[0];
-                        this.requestUpdate();
+                    .then(async response => {
+                        this.clinicalAnalysis = response.getResult(0);
                     })
                     .catch(response => {
                         console.error("An error occurred fetching clinicalAnalysis: ", response);
+                    })
+                    .finally( async () => {
+                        this.loading = false;
+                        await this.requestUpdate();
                     });
             } else {
                 this.clinicalAnalysis = null;
@@ -235,11 +241,6 @@ class VariantInterpreter extends LitElement {
         }
 
         return html`
-            <style>
-                variant-interpreter-tool .page-title {
-                    background: transparent;
-                }
-            </style>
             
             <div class="variant-interpreter-tool">
                 ${this.clinicalAnalysis && this.clinicalAnalysis.id ? html`
