@@ -566,15 +566,6 @@ export default class OpencgaClinicalReviewCases extends LitElement {
             .horizontal-flex > div label {
                 display:block
             }
-            .active-filter-label{
-                display: inline-block;
-                font-size: 15px;
-                text-transform: uppercase;
-                letter-spacing: 2px;
-                height: 34px;
-                line-height: 34px;
-                margin: 0;
-            }
             
             .clinical-right-buttons {
                 float: right;

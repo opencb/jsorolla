@@ -20,7 +20,7 @@ import GridCommons from "../grid-commons.js";
 import UtilsNew from "./../../../utilsNew.js";
 import "../../commons/analysis/opencga-analysis-tool.js";
 import AnalysisRegistry from "./analysis-registry.js";
-import knockoutData from "./test/knockout.20201021003108.inXESR.js";
+import knockoutData from "./test/knockout.20201029141213.SChLEA.js";
 import "../../commons/filters/select-field-filter.js";
 
 export default class OpencgaKnockoutAnalysisResult extends LitElement {

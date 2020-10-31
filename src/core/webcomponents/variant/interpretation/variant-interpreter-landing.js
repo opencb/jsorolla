@@ -408,7 +408,7 @@ class VariantInterpreterLanding extends LitElement {
                 
                 <div class="content-tab-wrapper">
                     <div id="${this._prefix}General" role="tabpanel" class="active tab-pane content-tab col-md-10 col-md-offset-1">
-                        <tool-header title="General Settings - ${this.clinicalAnalysis?.id}" class="bg-white"></tool-header>
+                        <tool-header title="General Settings - ${this.clinicalAnalysis?.id ?? ""}" class="bg-white"></tool-header>
                         <div style="padding: 0px 20px">
                             <clinical-analysis-editor   .opencgaSession=${this.opencgaSession} 
                                                         .clinicalAnalysis="${this.clinicalAnalysis}">
