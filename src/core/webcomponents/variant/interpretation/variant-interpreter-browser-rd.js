@@ -627,7 +627,6 @@ class VariantInterpreterBrowserRd extends LitElement {
                                                           .populationFrequencies="${populationFrequencies}"
                                                           .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
                                                           .config="${this._config.filter.result.grid}"
-                                                          @selected="${this.onSelectedGene}"
                                                           @selectrow="${this.onSelectVariant}"
                                                           @checkrow="${this.onCheckVariant}">
                                 </variant-interpreter-grid>

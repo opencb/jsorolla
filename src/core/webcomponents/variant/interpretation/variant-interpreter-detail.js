@@ -43,11 +43,11 @@ export default class VariantInterpreterDetail extends LitElement {
             clinicalAnalysis: {
                 type: Object
             },
-            variantId: {
-                type: String
-            },
             variant: {
                 type: Object
+            },
+            variantId: {
+                type: String
             },
             cellbaseClient: {
                 type: Object
@@ -203,8 +203,8 @@ export default class VariantInterpreterDetail extends LitElement {
                         <div id="${this._prefix}annotationSummary" role="tabpanel" class="tab-pane active">
                             <div style="width: 90%;padding-top: 8px">
                                 <cellbase-variant-annotation-summary    .variantAnnotation="${this.variant.annotation}"
-                                                                        .consequenceTypes="${this.consequenceTypes}"
-                                                                        .proteinSubstitutionScores="${this.proteinSubstitutionScores}">
+                                                                        .consequenceTypes="${consequenceTypes}"
+                                                                        .proteinSubstitutionScores="${proteinSubstitutionScore}">
                                 </cellbase-variant-annotation-summary>  
                             </div>
                         </div>

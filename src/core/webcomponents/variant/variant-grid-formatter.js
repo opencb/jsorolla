@@ -393,21 +393,21 @@ export default class VariantGridFormatter {
                 if (filter.consequenceType.gencodeBasic) {
                     result = result && ct.transcriptAnnotationFlags && ct.transcriptAnnotationFlags.includes("basic");
                 }
-                if (result && filter.consequenceType.filterByBiotype) {
-                    if (query.biotype) {
-                        result = result && query.biotype.split(",").includes(ct.biotype);
-                    }
-                }
-                if (result && filter.consequenceType.filterByConsequenceType) {
-                    if (query.ct) {
-                        let cts = query.ct.split(",");
-                        let isSoPresent = false;
-                        for (let term of ct.sequenceOntologyTerms) {
-                            isSoPresent = isSoPresent || cts.includes(term.name);
-                        }
-                        result = result && isSoPresent;
-                    }
-                }
+                // if (result && filter.consequenceType.filterByBiotype) {
+                //     if (query && query.biotype) {
+                //         result = result && query.biotype.split(",").includes(ct.biotype);
+                //     }
+                // }
+                // if (result && filter.consequenceType.filterByConsequenceType) {
+                //     if (query && query.ct) {
+                //         let cts = query.ct.split(",");
+                //         let isSoPresent = false;
+                //         for (let term of ct.sequenceOntologyTerms) {
+                //             isSoPresent = isSoPresent || cts.includes(term.name);
+                //         }
+                //         result = result && isSoPresent;
+                //     }
+                // }
             }
             if (result) {
                 showArrayIndexes.push(i);
@@ -1088,9 +1088,6 @@ export default class VariantGridFormatter {
                                     </div>`;
 
                     if (row.annotation && row.annotation.hgvs) {
-                        // console.log(re.genomicFeature.transcriptId)
-                        // debugger
-                        debugger
                         hgvsHtml = row.annotation.hgvs.filter(hgvs => hgvs.startsWith(re.genomicFeature.transcriptId));
                     }
                 }

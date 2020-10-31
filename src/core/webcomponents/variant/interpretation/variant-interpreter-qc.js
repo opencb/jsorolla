@@ -277,7 +277,7 @@ class VariantInterpreterQc extends LitElement {
                                                               .config="${{showTitle: false}}">
                                 </sample-variant-stats-browser>
                             </div>
-                            ${this.sample
+                            ${this.sample && false
                                 ? html`
                                     <div id="${this._prefix}SampleVariantStats" role="tabpanel" class="tab-pane col-md-10 col-md-offset-1 content-tab">
                                         <tool-header title="Germline Variant Stats - ${this.clinicalAnalysis.proband.id} (${this.sample?.id})" class="bg-white"></tool-header>

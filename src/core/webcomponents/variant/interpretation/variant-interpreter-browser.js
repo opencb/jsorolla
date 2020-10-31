@@ -48,9 +48,9 @@ class VariantInterpreterBrowser extends LitElement {
             clinicalAnalysisId: {
                 type: String
             },
-            query: {
-                type: Object
-            },
+            // query: {
+            //     type: Object
+            // },
             // config: {
             //     type: Object
             // }
@@ -73,6 +73,7 @@ class VariantInterpreterBrowser extends LitElement {
 
     clinicalAnalysisObserver() {
         if (this.clinicalAnalysis) {
+            debugger
             switch (this.clinicalAnalysis.type.toUpperCase()) {
                 case "SINGLE":
                 case "FAMILY":
@@ -176,7 +177,6 @@ class VariantInterpreterBrowser extends LitElement {
                                                                 .query="${this.query}"
                                                                 .cellbaseClient="${this.cellbaseClient}"
                                                                 @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}"
-                                                                @gene="${this.geneSelected}"
                                                                 @samplechange="${this.onSampleChange}">
                                 </variant-interpreter-browser-rd>
                             </div>`
@@ -190,11 +190,10 @@ class VariantInterpreterBrowser extends LitElement {
                                                                     .clinicalAnalysis="${this.clinicalAnalysis}"
                                                                     .query="${this.query}"
                                                                     .cellbaseClient="${this.cellbaseClient}"
-                                                                    @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}"
-                                                                    @gene="${this.geneSelected}">
+                                                                    @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
                                 </variant-interpreter-browser-cancer>
                             </div>
-                            ${this._germlineSample      // Check Germline sample exist
+                            ${this._germlineSample     // Check Germline sample exist
                                 ? html`
                                     <div id="${this._prefix}CancerGermlineVariantBrowser" role="tabpanel" class="tab-pane col-md-12 content-tab">
                                         <tool-header title="Germline Variant Browser - ${this._germlineSample?.id}" class="bg-white"></tool-header>
@@ -203,7 +202,6 @@ class VariantInterpreterBrowser extends LitElement {
                                                                         .query="${this.query}"
                                                                         .cellbaseClient="${this.cellbaseClient}"
                                                                         @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}"
-                                                                        @gene="${this.geneSelected}"
                                                                         @samplechange="${this.onSampleChange}">
                                         </variant-interpreter-browser-rd>
                                     </div>` 

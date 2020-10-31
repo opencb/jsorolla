@@ -112,14 +112,9 @@ class VariantInterpreterBrowserCancer extends LitElement {
     }
 
     queryObserver() {
-        if (this.opencgaSession) {
-            if (this.query) {
-                this.preparedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
-                this.executedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
-            } else {
-                // this.preparedQuery = {study: this.opencgaSession.study.fqn, sample: this.predefinedFilter};
-                // this.executedQuery = {study: this.opencgaSession.study.fqn, sample: this.predefinedFilter};
-            }
+        if (this.opencgaSession && this.query) {
+            this.preparedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
+            this.executedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
         }
         this.requestUpdate();
     }
@@ -131,10 +126,12 @@ class VariantInterpreterBrowserCancer extends LitElement {
         if (this._sample) {
             // Set query object
             if (!this.query?.sample) {
+                debugger
                 this.query = {
                     ...this.query,
                     sample: this._sample.id,
                 }
+                debugger
                 // this.predefinedFilter = {...this.query};
             }
 
@@ -159,8 +156,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                             + "," + this.callerToFile["pindel"].name + ":FILTER=PASS;QUAL>=250;REP<=9"
                             + "," + this.callerToFile["brass"].name + ":BAS>=95"
                     };
-                    // debugger
-                    this._config = {...this.getDefaultConfig(), ...this.config};
+                    // this._config = {...this.getDefaultConfig(), ...this.config};
                     this.queryObserver();
                 })
                 .catch(response => {
@@ -194,7 +190,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
             this.savedVariants = this.clinicalAnalysis?.interpretation?.primaryFindings?.map(v => v.id);
         }
 
-        this.requestUpdate();
+        // this.requestUpdate();
     }
 
     /**
@@ -295,7 +291,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
     }
 
     onVariantCallerFilterChange(filter, query) {
-        debugger
+        // debugger
         if (query.fileData) {
             let [fileId, fileFilter] = filter.split(":");
             let files = query.fileData.split(",");
@@ -360,8 +356,6 @@ class VariantInterpreterBrowserCancer extends LitElement {
                                 callback: (filter, query) => this.onVariantCallerFilterChange(filter, query),
                                 params: {
                                     fileId: `${this.callerToFile ? this.callerToFile["caveman"]?.name : null}`,
-                                    // query: {...this.query}
-                                    // query: {FILTER: "PASS"}
                                 }
                             },
                             {
@@ -372,7 +366,6 @@ class VariantInterpreterBrowserCancer extends LitElement {
                                 callback: (filter, query) => this.onVariantCallerFilterChange(filter, query),
                                 params: {
                                     fileId: `${this.callerToFile ? this.callerToFile["strelka"]?.name : null}`,
-                                    // query: "FILTER=PASS"
                                 }
                             },
                             {
@@ -383,7 +376,6 @@ class VariantInterpreterBrowserCancer extends LitElement {
                                 callback: (filter, query) => this.onVariantCallerFilterChange(filter, query),
                                 params: {
                                     fileId: `${this.callerToFile ? this.callerToFile["pindel"]?.name : null}`,
-                                    query: this.query
                                 }
                             },
                             {
@@ -404,7 +396,6 @@ class VariantInterpreterBrowserCancer extends LitElement {
                                 callback: (filter, query) => this.onVariantCallerFilterChange(filter, query),
                                 params: {
                                     fileId: `${this.callerToFile ? this.callerToFile["canvas"]?.name : null}`,
-                                    // query: "FILTER=PASS"
                                 }
                             },
                             {
@@ -425,7 +416,6 @@ class VariantInterpreterBrowserCancer extends LitElement {
                                 callback: (filter, query) => this.onVariantCallerFilterChange(filter, query),
                                 params: {
                                     fileId: `${this.callerToFile ? this.callerToFile["manta"]?.name : null}`,
-                                    // query: "FILTER=PASS"
                                 }
                             },
                         ]
@@ -735,10 +725,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                             <div id="${this._prefix}TableResult" class="variant-interpretation-content active">
                                 <variant-interpreter-grid .opencgaSession="${this.opencgaSession}"
                                                           .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                          .query="${this.executedQuery}"
-                                                          .consequenceTypes="${consequenceTypes}"
-                                                          .populationFrequencies="${populationFrequencies}"
-                                                          .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
+                                                          .query="${this.executedQuery}" 
                                                           .config="${this._config.filter.result.grid}"
                                                           @selectrow="${this.onSelectVariant}"
                                                           @checkrow="${this.onCheckVariant}">
@@ -746,11 +733,9 @@ class VariantInterpreterBrowserCancer extends LitElement {
                 
                                 <!-- Bottom tabs with detailed variant information -->
                                 <variant-interpreter-detail .opencgaSession="${this.opencgaSession}"
-                                                            .cellbaseClient="${this.cellbaseClient}"
-                                                            .variant="${this.variant}"
                                                             .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                            .consequenceTypes="${consequenceTypes}"
-                                                            .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
+                                                            .variant="${this.variant}"
+                                                            .cellbaseClient="${this.cellbaseClient}"
                                                             .config=${this._config.filter.detail}>
                                 </variant-interpreter-detail>
                             </div>
@@ -761,5 +746,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
         `;
     }
 }
-
+// .consequenceTypes="${consequenceTypes}"
+//     .populationFrequencies="${populationFrequencies}"
+//     .proteinSubstitutionScores="${proteinSubstitutionScore}"
 customElements.define("variant-interpreter-browser-cancer", VariantInterpreterBrowserCancer);
