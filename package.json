@@ -46,7 +46,7 @@
     "cytoscape": "~2.5.4",
     "eonasdan-bootstrap-datetimepicker": "~4.17.43",
     "file-saver": "~1.3.2",
-    "highcharts": "^8.0.4",
+    "highcharts": "^8.1.1",
     "jquery": "~2.2.4",
     "jwt-decode": "^2.2.0",
     "moment": "^2.15.1",
