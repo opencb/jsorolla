@@ -305,4 +305,48 @@ export default class UtilsNew {
         }
     }
 
+    /**
+     * This function return the object sorted by the keys provided.
+     * @param unordered object
+     * @param keys ordered keys
+     * @param addMissingKeys keys
+     * @returns Ordered object
+     */
+    static objectKeySort(unordered, keys, addMissingKeys) {
+        if (!unordered) {
+            console.log("Parameter unordered is not valued: ", unordered);
+            return null;
+        }
+
+        if (!keys || keys.length === 0) {
+            console.log("Parameter keys is undefined or empty: ", keys);
+            return unordered;
+        }
+
+        let ordered = {};
+        for (let key of keys) {
+            if (typeof unordered[key] !== "undefined") {
+                ordered[key] = unordered[key];
+            }
+        }
+        // We check if there is any other unordered key not present in the keys array
+        if (addMissingKeys && Object.keys(unordered).length !== keys.length) {
+            for (let unorderedKey of Object.keys(unordered)) {
+                if (!keys.includes(unorderedKey)) {
+                    ordered[unorderedKey] = unordered[unorderedKey];
+                }
+            }
+        }
+        return ordered;
+    }
+
+    static substring(string, maxLength) {
+        if (typeof maxLength === "undefined") {
+            return string;
+        }
+
+        if (string && string.length > maxLength) {
+            return string.substring(0, maxLength) + "...";
+        }
+    }
 }

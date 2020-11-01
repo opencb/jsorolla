@@ -32,6 +32,9 @@ export default class ClinicalAnalysisUtils {
         return qc;
     }
 
+    /*
+        This can be REPLACED by using UtilsNew.objectKeySort and CHROMOSOMES constants.
+     */
     static chromosomeFilterSorter(chromosomeCount) {
         let filtered = Object.assign({}, ...Object.entries(chromosomeCount).map(([ch, val]) => {
             if (!isNaN(ch) || ["X", "Y", "MT"].includes(ch)) return {[ch]: val};

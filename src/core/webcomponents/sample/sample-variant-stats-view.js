@@ -16,10 +16,15 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
+import ClinicalAnalysisUtils from "../clinical/clinical-analysis-utils.js";
 import "../simple-chart.js";
 import "../commons/view/data-form.js";
-import ClinicalAnalysisUtils from "../clinical/clinical-analysis-utils.js";
 
+/**
+ * This component can work on two different ways:
+ *  1. if a sample (or sampleID) is provided then it renders a dropdown to select the SampleVariantStats
+ *  2. if a sampleVariantStats is provided it just renders it
+ */
 class SampleVariantStatsView extends LitElement {
 
     constructor() {
@@ -61,7 +66,7 @@ class SampleVariantStatsView extends LitElement {
 
     _init() {
         this._prefix = UtilsNew.randomString(8);
-        this.variantStats = null;
+        // this.variantStats = null;
 
         // Default config for Highcharts charts
         this.defaultHighchartConfig = {
@@ -149,7 +154,12 @@ class SampleVariantStatsView extends LitElement {
         this.variantStats = {
             stats: {
                 ...this.sampleVariantStats.stats,
-                chromosomeCount: ClinicalAnalysisUtils.chromosomeFilterSorter(this.sampleVariantStats.stats.chromosomeCount)
+                // chromosomeCount: ClinicalAnalysisUtils.chromosomeFilterSorter(this.sampleVariantStats.stats.chromosomeCount),
+                chromosomeCount: UtilsNew.objectKeySort(this.sampleVariantStats?.stats?.chromosomeCount, CHROMOSOMES),
+                depthCount: UtilsNew.objectKeySort(this.sampleVariantStats?.stats?.depthCount, ["lt5", "lt10", "lt15", "lt20", "gte20", "na"]),
+                typeCount: UtilsNew.objectKeySort(this.sampleVariantStats?.stats?.typeCount, ["SNV", "INDEL", "CNV", "INSERTION", "DELETION"], true),
+                indelLengthCount: UtilsNew.objectKeySort(this.sampleVariantStats?.stats?.indelLengthCount, ["lt5", "lt10", "lt15", "lt20", "gte20"]),
+                clinicalSignificanceCount: UtilsNew.objectKeySort(this.sampleVariantStats?.stats?.clinicalSignificanceCount, ["benign_likely_benign", "uncertain_significance", "likely_pathogenic", "pathogenic"]),
             },
             query: this.query,
             description: this.description
@@ -168,7 +178,7 @@ class SampleVariantStatsView extends LitElement {
             title: "Summary",
             icon: "",
             display: {
-                collapsable: true,
+                // collapsable: true,
                 // showTitle: false,
                 labelWidth: 3,
                 defaultValue: "-",
@@ -178,7 +188,6 @@ class SampleVariantStatsView extends LitElement {
                 {
                     title: "Summary",
                     display: {
-                        // titleHeader: "h1"
                     },
                     elements: [
                         {
@@ -232,8 +241,17 @@ class SampleVariantStatsView extends LitElement {
                             type: "custom",
                             display: {
                                 render: query => query && !UtilsNew.isEmpty(query)
-                                    ? Object.entries(query).map((k, v) => html`<span class="badge break-word">${k}: ${v}</span>`)
-                                    : "none"
+                                    ? Object.entries(query)
+                                        .map(([k, v]) => {
+                                            if (k !== "study") {
+                                                return html`<span class="break-word"><span style="font-weight: bold">${k}:</span> ${v}</span><br>`;
+                                            } else {
+                                                if (Object.keys(query).length === 1) {
+                                                    return html`<span>-</span>`;
+                                                }
+                                            }
+                                        })
+                                    : "none",
                             }
                         },
                         {
@@ -248,45 +266,6 @@ class SampleVariantStatsView extends LitElement {
                     },
                     elements: [
                         [
-                            {
-                                name: "Chromosomes",
-                                field: "stats.chromosomeCount",
-                                type: "chart",
-                                showLabel: false,
-                                display: {
-                                    highcharts: {
-                                        chart: {
-                                            type: "column",
-                                            ...this.defaultHighchartConfig.chart
-                                        },
-                                        title: {
-                                            text: "Chromosomes"
-                                        },
-                                        tooltip: {
-                                            ...this.defaultHighchartConfig.tooltip
-                                        }
-                                    }
-                                }
-                            },
-                            {
-                                name: "Variant Type",
-                                field: "stats.typeCount",
-                                type: "chart",
-                                showLabel: false,
-                                display: {
-                                    sort: true,
-                                    highcharts: {
-                                        chart: {
-                                            type: "column",
-                                            ...this.defaultHighchartConfig.chart
-                                        },
-                                        tooltip: {
-                                            ...this.defaultHighchartConfig.tooltip
-                                        }
-                                    }
-                                }
-                            }
-                        ], [
                             {
                                 name: "Genotype and Filter",
                                 type: "custom",
@@ -305,14 +284,89 @@ class SampleVariantStatsView extends LitElement {
                                         `;
                                     }
                                 }
-                            },
+                            }
+                        ], [
+                            {
+                                name: "Depth",
+                                field: "stats.depthCount",
+                                type: "chart",
+                                showLabel: false,
+                                display: {
+                                    highcharts: {
+                                        chart: {
+                                            type: "column",
+                                            ...this.defaultHighchartConfig.chart
+                                        },
+                                        title: {
+                                            text: "Depth"
+                                        },
+                                        tooltip: {
+                                            ...this.defaultHighchartConfig.tooltip
+                                        }
+                                    }
+                                }
+                            }
+                        ]
+                    ]
+                },
+                {
+                    display: {
+                        visible: variantStats => variantStats?.stats?.variantCount > 0
+                    },
+                    elements: [
+                        {
+                            name: "Chromosomes",
+                            field: "stats.chromosomeCount",
+                            type: "chart",
+                            showLabel: false,
+                            display: {
+                                highcharts: {
+                                    chart: {
+                                        type: "column",
+                                        ...this.defaultHighchartConfig.chart
+                                    },
+                                    title: {
+                                        text: "Chromosomes"
+                                    },
+                                    tooltip: {
+                                        ...this.defaultHighchartConfig.tooltip
+                                    }
+                                }
+                            }
+                        },
+                    ]
+                },
+                {
+                    display: {
+                        visible: variantStats => variantStats?.stats?.variantCount > 0
+                    },
+                    elements: [
+                        [
+                            {
+                                name: "Variant Type",
+                                field: "stats.typeCount",
+                                type: "chart",
+                                showLabel: false,
+                                display: {
+                                    highcharts: {
+                                        chart: {
+                                            type: "column",
+                                            ...this.defaultHighchartConfig.chart
+                                        },
+                                        tooltip: {
+                                            ...this.defaultHighchartConfig.tooltip
+                                        }
+                                    }
+                                }
+                            }
+                        ],
+                        [
                             {
                                 name: "INDEL Size",
                                 field: "stats.indelLengthCount",
                                 type: "chart",
                                 showLabel: false,
                                 display: {
-                                    visible: indelLengthCount => !indelLengthCount,
                                     highcharts: {
                                         chart: {
                                             type: "column",
@@ -326,7 +380,8 @@ class SampleVariantStatsView extends LitElement {
                             }
                         ]
                     ]
-                }, {
+                },
+                {
                     //title: "plots2",
                     display: {
                         visible: variantStats => variantStats?.stats?.variantCount > 0
@@ -374,7 +429,6 @@ class SampleVariantStatsView extends LitElement {
                             type: "chart",
                             showLabel: false,
                             display: {
-                                sort: true,
                                 highcharts: {
                                     chart: {
                                         type: "column",

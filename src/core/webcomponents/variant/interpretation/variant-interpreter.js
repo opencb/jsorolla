@@ -100,8 +100,6 @@ class VariantInterpreter extends LitElement {
     }
 
      clinicalAnalysisIdObserver() {
-        console.error("loading")
-
         if (this.opencgaSession) {
             this.loading = true;
             if( this.clinicalAnalysisId) {
@@ -157,7 +155,6 @@ class VariantInterpreter extends LitElement {
     }*/
 
     onClinicalAnalysisUpdate (e) {
-        debugger
         this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysis.id, {study: this.opencgaSession.study.fqn})
             .then(restResponse => {
                 this.clinicalAnalysis = restResponse.responses[0].results[0];

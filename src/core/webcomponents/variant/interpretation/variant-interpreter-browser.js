@@ -73,7 +73,6 @@ class VariantInterpreterBrowser extends LitElement {
 
     clinicalAnalysisObserver() {
         if (this.clinicalAnalysis) {
-            debugger
             switch (this.clinicalAnalysis.type.toUpperCase()) {
                 case "SINGLE":
                 case "FAMILY":

@@ -126,12 +126,10 @@ class VariantInterpreterBrowserCancer extends LitElement {
         if (this._sample) {
             // Set query object
             if (!this.query?.sample) {
-                debugger
                 this.query = {
                     ...this.query,
                     sample: this._sample.id,
                 }
-                debugger
                 // this.predefinedFilter = {...this.query};
             }
 
