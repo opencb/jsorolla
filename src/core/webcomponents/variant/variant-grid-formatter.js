@@ -1001,23 +1001,22 @@ export default class VariantGridFormatter {
                                 <tbody>`;
             } else {
                 ctHtml += `<thead>
-                                    <tr>
-                                        <th rowspan="2">Gene</th>
-                                        <th rowspan="2">Transcript</th>
-                                        <th rowspan="2">HGVS</th>
-                                        <th rowspan="2">Gencode</th>
-                                        <th rowspan="2">Consequence Type (SO Term)</th>
-                                        <th rowspan="2">Panel</th>
-                                        <th rowspan="2">Role in Cancer</th>
-                                        <th rowspan="2">Actionable</th>
-                                        <th rowspan="1" colspan="2" style="text-align: center">Classification</th>
-                                    </tr>
-                                    <tr>
-                                        <th rowspan="1">Tier</th>
-                                        <th rowspan="1">Clinical Significance</th>
-                                    </tr>
-                                </thead>
-                                <tbody>`;
+                                <tr>
+                                    <th rowspan="2">Gene</th>
+                                    <th rowspan="2">Transcript</th>
+                                    <th rowspan="2">HGVS</th>
+                                    <th rowspan="2">Gencode</th>
+                                    <th rowspan="2">Consequence Type (SO Term)</th>
+                                    <th rowspan="2">Panel</th>
+                                    <th rowspan="2">Role in Cancer</th>
+                                    <th rowspan="2">Actionable</th>
+                                    <th rowspan="1" colspan="1" style="text-align: center">Classification</th>
+                                </tr>
+                                <tr>
+                                    <th rowspan="1" style="text-align: center">Tier</th>
+                                </tr>
+                            </thead>
+                            <tbody>`;
             }
 
             // FIXME Maybe this should happen in the server?
@@ -1207,7 +1206,8 @@ export default class VariantGridFormatter {
 
                 // Create the table row
                 if (variantGrid.clinicalAnalysis.type.toUpperCase() !== "CANCER") {
-                    ctHtml += `<tr class="detail-view-row ${hideClass}" style="${displayStyle}">
+                    ctHtml += `
+                        <tr class="detail-view-row ${hideClass}" style="${displayStyle}">
                             <td>${gene}</td>
                             <td>${transcriptId}</td>
                             <td>${hgvsHtml}</td>
@@ -1219,9 +1219,10 @@ export default class VariantGridFormatter {
                             <td>${acmg}</td>
                             <td>${tier}</td>
                             <td>${clinicalSignificance}</td>
-                           </tr>`;
+                        </tr>`;
                 } else {
-                    ctHtml += `<tr class="detail-view-row ${hideClass}" style="${displayStyle}">
+                    ctHtml += `
+                        <tr class="detail-view-row ${hideClass}" style="${displayStyle}">
                             <td>${gene}</td>
                             <td>${transcriptId}</td>
                             <td>${hgvsHtml}</td>
@@ -1231,10 +1232,8 @@ export default class VariantGridFormatter {
                             <td>${roleInCancer}</td>
                             <td>${actionable}</td>
                             <td>${tier}</td>
-                            <td>${clinicalSignificance}</td>
-                           </tr>`;
+                        </tr>`;
                 }
-
             }
             ctHtml += "</tbody></table>";
             return ctHtml;

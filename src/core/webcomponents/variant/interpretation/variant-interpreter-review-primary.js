@@ -407,7 +407,7 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                     showExport: false,
                     detailView: true,
                     showReview: true,
-                    showActions: true,
+                    showActions: false,
 
                     showSelectCheckbox: false,
                     multiSelection: false,
