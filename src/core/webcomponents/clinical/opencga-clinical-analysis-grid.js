@@ -505,6 +505,8 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
         if (this.opencgaSession && this._config.showActions) {
             _columns.push( {
                 title: "Actions",
+                halign: this._config.header.horizontalAlign,
+                valign: "middle",
                 formatter: (value, row) => `
                     <div class="dropdown">
                         <button class="btn btn-default btn-small ripple dropdown-toggle one-line" type="button" data-toggle="dropdown">Select
@@ -525,23 +527,23 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                                     <i class="fas fa-download icon-padding" aria-hidden="true"></i> Download
                                 </a>
                             </li>
-                            ${OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS") ? `
-                                <li role="separator" class="divider"></li>
-                                <li>
-                                    <a href="javascript: void 0" class="btn disabled force-text-left" data-action="edit">
-                                        <i class="fas fa-edit icon-padding" aria-hidden="true"></i> Edit
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="javascript: void 0" class="btn force-text-left" data-action="delete">
-                                        <i class="fas fa-trash icon-padding" aria-hidden="true"></i> Delete
-                                    </a>
-                                </li>
-                            ` : null}
-                            
+                            ${OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS") 
+                                ? `
+                                    <li role="separator" class="divider"></li>
+                                    <li>
+                                        <a href="javascript: void 0" class="btn disabled force-text-left" data-action="edit">
+                                            <i class="fas fa-edit icon-padding" aria-hidden="true"></i> Edit
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="javascript: void 0" class="btn force-text-left" data-action="delete">
+                                            <i class="fas fa-trash icon-padding" aria-hidden="true"></i> Delete
+                                        </a>
+                                    </li>` 
+                                : null
+                            }
                         </ul>
                     </div>`,
-                valign: "middle",
                 events: {
                     "click a": this.onActionClick.bind(this)
                 },
