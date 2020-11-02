@@ -155,13 +155,23 @@ class VariantInterpreterBrowser extends LitElement {
                                 <li role="presentation" class="content-pills ${classMap({active: this.activeTab["VariantBrowser"]})}">
                                     <a href="javascript: void 0" role="tab" data-id="VariantBrowser" @click="${this._changeTab}" class="tab-title">Variant Browser</a>
                                 </li>`
-                            : html`
+                            : null
+                        }
+                        
+                        ${this.clinicalAnalysis.type.toUpperCase() === "CANCER" 
+                            ? html`
                                 <li role="presentation" class="content-pills ${classMap({active: this.activeTab["CancerSomaticVariantBrowser"]})}">
                                     <a href="javascript: void 0" role="tab" data-id="CancerSomaticVariantBrowser" @click="${this._changeTab}" class="tab-title">Somatic Variant Browser</a>
                                 </li>
-                                <li role="presentation" class="content-pills ${classMap({active: this.activeTab["CancerGermlineVariantBrowser"]})}">
-                                    <a href="javascript: void 0" role="tab" data-id="CancerGermlineVariantBrowser" @click="${this._changeTab}" class="tab-title">Germline Variant Browser</a>
-                                </li>`
+                                ${this._germlineSample 
+                                    ? html`
+                                        <li role="presentation" class="content-pills ${classMap({active: this.activeTab["CancerGermlineVariantBrowser"]})}">
+                                            <a href="javascript: void 0" role="tab" data-id="CancerGermlineVariantBrowser" @click="${this._changeTab}" class="tab-title">Germline Variant Browser</a>
+                                        </li>`
+                                    : null
+                                }
+                                `
+                            : null
                         }
                     </ul>
                 </div>
