@@ -532,7 +532,7 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                         <div style="padding-top: 5px">
     
                             <div id="${this._prefix}collapsibleVariants" class="collapse in">
-                                ${this.clinicalAnalysis && this.clinicalAnalysis.interpretation 
+                                ${this.clinicalAnalysis && false && this.clinicalAnalysis.interpretation 
                                     ? html`
                                         <variant-interpreter-grid .opencgaSession="${this.opencgaSession}"
                                                                   .clinicalAnalysis="${this.clinicalAnalysis}"

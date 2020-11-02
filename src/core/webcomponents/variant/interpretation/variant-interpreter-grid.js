@@ -155,7 +155,7 @@ export default class VariantInterpreterGrid extends LitElement {
         }
 
         if (!this.query?.sample) {
-            console.warn("No sample found, query: ", this.query)
+            console.warn("No sample found, query: ", this.query);
             return;
         }
 
@@ -410,12 +410,14 @@ export default class VariantInterpreterGrid extends LitElement {
     }
 
     variantFormatter(value, row, index) {
+        debugger
         const variantHtmlDiv = this.variantGridFormatter.variantFormatter(value, row, this._config);
         const snptHtmlAnchor = this.variantGridFormatter.snpFormatter(value, row, index);
         return `${variantHtmlDiv}<div style='padding-top: 10px'>${snptHtmlAnchor && snptHtmlAnchor !== "-" ? snptHtmlAnchor : ""}</div>`;
     }
 
     roleInCancerFormatter(value, row, index) {
+        debugger
         if (value) {
             let roles = new Set();
             for (let evidenceIndex in value) {
@@ -433,6 +435,7 @@ export default class VariantInterpreterGrid extends LitElement {
     }
 
     zygosityFormatter(value, row, index) {
+        debugger
         let resultHtml = "";
 
         if (row.studies?.length > 0 && row.studies[0].samples?.length > 0) {
@@ -695,6 +698,7 @@ export default class VariantInterpreterGrid extends LitElement {
     }
 
     vcfDataFormatter(value, row, index) {
+        debugger
         if (this.field.vcfColumn === "info") {
             for (let file of row.studies[0].files) {
                 if (file.data[this.field.key]) {
@@ -713,6 +717,7 @@ export default class VariantInterpreterGrid extends LitElement {
     }
 
     pathogeniticyFormatter(value, row, index) {
+        debugger
         // TODO we must call to PathDB to get the frequency of each variant, next code is just an example
         const val = `<div class="col-md-12" style="padding: 0px">
                                 <form class="form-horizontal">
@@ -735,6 +740,7 @@ export default class VariantInterpreterGrid extends LitElement {
     }
 
     studyCohortsFormatter(value, row) {
+        debugger
         //console.log("value, row",value, row)
         if (typeof row !== "undefined" && typeof row.studies !== "undefined" && this.variantGridFormatter) {
             const cohorts = [];
@@ -753,6 +759,7 @@ export default class VariantInterpreterGrid extends LitElement {
     }
 
     clinicalPopulationFrequenciesFormatter(value, row) {
+        debugger
         if (typeof row !== "undefined" && typeof row.annotation !== "undefined") {
             const popFreqMap = new Map();
             if (UtilsNew.isNotEmptyArray(row.annotation.populationFrequencies)) {
@@ -767,6 +774,7 @@ export default class VariantInterpreterGrid extends LitElement {
     }
 
     predictionFormatter(value, row, index) {
+        debugger
         if (!row.evidences) {
             return "-";
         }
@@ -1043,6 +1051,7 @@ export default class VariantInterpreterGrid extends LitElement {
 
         // update columns dynamically
         this._updateTableColumns(_columns);
+        debugger
         return _columns;
     }
 
@@ -1087,7 +1096,7 @@ export default class VariantInterpreterGrid extends LitElement {
             if (samples.length > 0) {
                 _columns[0].splice(4, 0, {
                     title: "Sample Genotypes",
-                    field: "zygosity",
+                    // field: "zygosity",
                     rowspan: 1,
                     colspan: samples.length,
                     align: "center"

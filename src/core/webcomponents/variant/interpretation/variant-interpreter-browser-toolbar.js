@@ -18,7 +18,7 @@ import {html, LitElement} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../utilsNew.js";
 
 
-class VariantInterpreterToolbar extends LitElement {
+class VariantInterpreterBrowserToolbar extends LitElement {
 
     constructor() {
         super();
@@ -137,9 +137,9 @@ class VariantInterpreterToolbar extends LitElement {
 
     render() {
         return html`
-            <div class="btn-toolbar" role="toolbar" aria-label="toolbar" style="margin-bottom: 20px">
+            <div class="btn-toolbar" role="toolbar" aria-label="toolbar" style="margin: 0px 5px 20px 0px">
                 <div class="pull-right" role="group">
-                    <div class="btn-group">
+                    <div class="btn-group" style="margin-right: 2px">
                         <button type="button" class="btn btn-primary dropdown-toggle ripple" data-toggle="dropdown" aria-haspopup="true" 
                                     aria-expanded="false" title="Show saved variants">
                             <i class="fas fa-eye icon-padding" aria-hidden="true"></i> View
@@ -169,7 +169,7 @@ class VariantInterpreterToolbar extends LitElement {
                         </ul>
                     </div>
                     
-                    <div class="btn-group">
+                    <div class="btn-group" style="margin-right: 2px">
                         <button type="button" id="${this._prefix}ResetMenu" class="btn btn-primary dropdown-toggle ripple" data-toggle="dropdown" aria-haspopup="true" 
                                     aria-expanded="false" title="Remove not saved variants">
                             <i class="fas fa-eraser icon-padding" aria-hidden="true"></i> Reset
@@ -272,4 +272,4 @@ class VariantInterpreterToolbar extends LitElement {
     }
 }
 
-customElements.define("variant-interpreter-toolbar", VariantInterpreterToolbar);
+customElements.define("variant-interpreter-browser-toolbar", VariantInterpreterBrowserToolbar);

@@ -330,7 +330,7 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                 mode: {
                     type: "modal",
                     title: "Display Settings",
-                    buttonClass: "btn btn-default ripple"
+                    buttonClass: "btn btn-primary ripple"
                 },
                 labelWidth: 4,
                 labelAlign: "right",
@@ -380,7 +380,7 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                 mode: {
                     type: "modal",
                     title: "Save Variant Stats",
-                    buttonClass: "btn btn-default ripple"
+                    buttonClass: "btn btn-primary ripple"
                 },
                 labelWidth: 3,
                 labelAlign: "right",
@@ -624,18 +624,22 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                 <div class="col-md-9">
                     ${OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS") ? html`
                         <div>
-                            <div class="btn-toolbar" role="toolbar" aria-label="toolbar" style="margin-bottom: 20px">
+                            <div class="btn-toolbar" role="toolbar" aria-label="toolbar" style="margin: 0px 5px 20px 0px">
                                 <div class="pull-right" role="group">
-                                    <data-form  .data=${this.settings} 
-                                                .config="${this.getSettingsConfig()}" 
-                                                @fieldChange="${e => this.onSettingsFieldChange(e)}" 
-                                                @submit="${this.onSettingsOk}">
-                                    </data-form>
-                                    <data-form  .data=${this.save} 
-                                                .config="${this.getSaveConfig()}" 
-                                                @fieldChange="${e => this.onSaveFieldChange(e)}" 
-                                                @submit="${this.onSave}">
-                                    </data-form>
+                                    <div class="btn-group" style="margin-right: 2px">
+                                        <data-form  .data=${this.settings} 
+                                                    .config="${this.getSettingsConfig()}" 
+                                                    @fieldChange="${e => this.onSettingsFieldChange(e)}" 
+                                                    @submit="${this.onSettingsOk}">
+                                        </data-form>
+                                    </div>
+                                    <div class="btn-group">
+                                        <data-form  .data=${this.save} 
+                                                    .config="${this.getSaveConfig()}" 
+                                                    @fieldChange="${e => this.onSaveFieldChange(e)}" 
+                                                    @submit="${this.onSave}">
+                                        </data-form>
+                                    </div>
                                 </div>
                             </div>
                         </div>

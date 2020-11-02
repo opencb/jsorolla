@@ -19,7 +19,7 @@ import OpencgaCatalogUtils from "../../../clients/opencga/opencga-catalog-utils.
 import ClinicalAnalysisManager from "../../clinical/clinical-analysis-manager.js";
 import ClinicalAnalysisUtils from "../../clinical/clinical-analysis-utils.js";
 import UtilsNew from "../../../utilsNew.js";
-import "./variant-interpreter-toolbar.js";
+import "./variant-interpreter-browser-toolbar.js";
 import "./variant-interpreter-grid.js";
 import "./variant-interpreter-detail.js";
 import "../opencga-variant-filter.js";
@@ -589,12 +589,12 @@ class VariantInterpreterBrowserRd extends LitElement {
                     <div>
                         ${OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS")
                             ? html`
-                                <variant-interpreter-toolbar .clinicalAnalysis="${this.clinicalAnalysis}" 
-                                                             .state="${this.clinicalAnalysisManager.state}" 
-                                                             @filterVariants="${this.onFilterVariants}"
-                                                             @resetVariants="${this.onResetVariants}"
-                                                             @saveInterpretation="${this.onSaveVariants}">
-                                </variant-interpreter-toolbar>`
+                                <variant-interpreter-browser-toolbar    .clinicalAnalysis="${this.clinicalAnalysis}" 
+                                                                        .state="${this.clinicalAnalysisManager.state}" 
+                                                                        @filterVariants="${this.onFilterVariants}"
+                                                                        @resetVariants="${this.onResetVariants}"
+                                                                        @saveInterpretation="${this.onSaveVariants}">
+                                </variant-interpreter-browser-toolbar>`
                             : null
                         }
                     </div>
