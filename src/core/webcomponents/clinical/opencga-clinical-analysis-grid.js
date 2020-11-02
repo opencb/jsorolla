@@ -82,6 +82,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
 
         // Config for the grid toolbar
         this.toolbarConfig = {
+            ...this._config.toolbar,
             columns: this._getDefaultColumns().filter( col => col.field)
         };
 
