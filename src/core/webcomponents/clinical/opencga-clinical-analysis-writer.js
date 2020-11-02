@@ -226,7 +226,7 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                 submitText: "Create"
             },
             display: {
-                width: "6",
+                width: "8",
                 showTitle: false,
                 infoIcon: "",
                 labelAlign: "left",

@@ -574,7 +574,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
         </style>
 
         <div class="row">
-            <div class="col-md-12">
+            <div class="col-md-10 col-md-offset-1">
                 <div style="">
                     <form @submit="${() => console.log("submit")}">
                         <div class="panel panel-default" style="margin-bottom: 10px">
@@ -816,16 +816,13 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                     </div>
                                 ` : null}
                                 
-                                
                             </div>
                         </div>
-                    
                     </form>
 
-                    <div>
+                    <div style="margin-top: 25px">
                         <opencga-clinical-analysis-grid .opencgaSession="${this.opencgaSession}"
                                                         .query="${this._query}"
-                                                        .active="${this.active}"
                                                         .config="${this._config.grid}"
                                                         @selectrow="${this.onSelectClinicalAnalysis}">
                         </opencga-clinical-analysis-grid>
@@ -900,9 +897,6 @@ export default class OpencgaClinicalReviewCases extends LitElement {
         </div>
         `;
     }
-
-
-
 }
 
 customElements.define("opencga-clinical-review-cases", OpencgaClinicalReviewCases);

@@ -147,16 +147,6 @@ export default class OpencgaClinicalPortal extends LitElement {
                                     </button>
                                 </li>
                             ` : null}
-<!--                            <li>-->
-<!--                                <button type="button" class="btn btn-link clinical-portal-button" style="font-size: 1.1em" data-view="DiseasePanel" on-click="_changeView">-->
-<!--                                    <i class="fa fa-columns clinical-portal-button" style="padding: 0px 5px" data-view="DiseasePanel" on-click="_changeView"></i>Disease Panel (Experimental)-->
-<!--                                </button>-->
-<!--                            </li>-->
-                            <!--<li>-->
-                            <!--<button type="button" class="btn btn-link clinical-portal-button" style="font-size: 1.1em" style="font-size: 1.1em" data-view="ReviewCases" on-click="_changeView">-->
-                            <!--<i class="fa fa-database" style="padding: 0px 5px" data-view="ReviewCases" on-click="_changeView"></i>CVA (pending)-->
-                            <!--</button>-->
-                            <!--</li>-->
                         </ul>
                     </nav>
                 </div>
@@ -173,21 +163,9 @@ export default class OpencgaClinicalPortal extends LitElement {
 
                         <div id="${this._prefix}CreateCase" class="clinical-portal-content" style="display: none">
                             <opencga-clinical-analysis-writer .opencgaSession="${this.opencgaSession}"
-                                                              .config="${this._config.clinicalAnalysisBrowser}"
                                                               @clinicalanalysischange="${this.onClinicalAnalysisEditor}">
                             </opencga-clinical-analysis-writer>
                         </div>
-
-                        <!-- 
-                        <div id="${this._prefix}DiseasePanel" class="clinical-portal-content" style="display: none">
-                            <opencga-panel-browser .opencgaSession="${this.opencgaSession}"
-                                                   .opencgaClient="${this.opencgaSession.opencgaClient}"
-                                                   .cellbaseClient="${this.cellbaseClient}"
-                                                   .eventNotifyName="${this._config.notifyEventMessage}"
-                                                   @notifymessage="${this.onNotifyMessage}">
-                            </opencga-panel-browser>
-                        </div>
-                        -->
                     </div>
                 </div>
             </div>
