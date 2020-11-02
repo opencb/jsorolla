@@ -316,30 +316,31 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
             }).then(result => {
                 if (result.value) {
                     const clinicalAnalysisId = row.id;
-                    this.opencgaSession.opencgaClient.clinical().delete(clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
-                        .then(restResponse => {
-                            if (restResponse.getResultEvents("ERROR").length) {
-                                Swal.fire({
-                                    title: "Error",
-                                    icon: "error",
-                                    html: restResponse.getResultEvents("ERROR").map(event => event.message).join("<br>")
-                                })
-                            } else {
-                                Swal.fire(
-                                    "Deleted!",
-                                    "Clinical Analysis has been deleted.",
-                                    "success"
-                                )
-                                this.renderTable();
-                            }
-                        })
-                        .catch(restResponse => {
+                    this.opencgaSession.opencgaClient.clinical().delete(clinicalAnalysisId, {
+                        study: this.opencgaSession.study.fqn,
+                        force: row.interpretation.primaryFindings.length === 0  // Only empty Cases can be deleted for now
+                    }).then(restResponse => {
+                        if (restResponse.getResultEvents("ERROR").length) {
+                            Swal.fire({
+                                title: "Error",
+                                icon: "error",
+                                html: restResponse.getResultEvents("ERROR").map(event => event.message).join("<br>")
+                            })
+                        } else {
                             Swal.fire(
-                                "Server Error!",
-                                "Clinical Analysis has not been correctly deleted.",
-                                "error"
+                                "Deleted!",
+                                "Clinical Analysis has been deleted.",
+                                "success"
                             )
-                        })
+                            this.renderTable();
+                        }
+                    }).catch(restResponse => {
+                        Swal.fire(
+                            "Server Error!",
+                            "Clinical Analysis has not been correctly deleted.",
+                            "error"
+                        )
+                    })
                 }
             })
         }
