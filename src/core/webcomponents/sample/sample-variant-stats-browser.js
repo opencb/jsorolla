@@ -50,6 +50,9 @@ export default class SampleVariantStatsBrowser extends LitElement {
             config: {
                 type: Object
             },
+            active: {
+                type: Boolean
+            }
         };
     }
 
@@ -70,12 +73,12 @@ export default class SampleVariantStatsBrowser extends LitElement {
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("sample")) {
+        if ((changedProperties.has("sample") || changedProperties.has("active")) && this.active) {
             this.sampleObserver();
         }
 
-        if (changedProperties.has("sampleId")) {
-            this.sampleIdObserver();
+        if ((changedProperties.has("sampleId") || changedProperties.has("active")) && this.active) {
+           this.sampleIdObserver();
         }
 
         if (changedProperties.has("query")) {
@@ -94,7 +97,7 @@ export default class SampleVariantStatsBrowser extends LitElement {
     }
 
     sampleIdObserver() {
-        if (this.opencgaSession && this.sampleId) {
+        if (this.opencgaSession && this.sampleId && this.active) {
             this.opencgaSession.opencgaClient.samples().info(this.sampleId, {study: this.opencgaSession.study.fqn})
                 .then(response => {
                     this.sample = response.getResult(0);

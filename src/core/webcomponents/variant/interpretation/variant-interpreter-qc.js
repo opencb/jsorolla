@@ -236,7 +236,7 @@ class VariantInterpreterQc extends LitElement {
                                  <tool-header title="Samlpe Variant Stats - ${this.clinicalAnalysis.proband.id} (${this.sample?.id})" class="bg-white"></tool-header>
                                  <sample-variant-stats-browser .opencgaSession="${this.opencgaSession}" 
                                                                .sample="${this.sample}"
-                                                               .active="${this.activeTab["VariantQc"]}"
+                                                               .active="${this.activeTab["SampleVariantStats"]}"
                                                                .config="${{showTitle: false}}">
                                  </sample-variant-stats-browser>
                              </div>`
@@ -249,7 +249,7 @@ class VariantInterpreterQc extends LitElement {
                                 <tool-header title="Sample Variant Stats - ${this.clinicalAnalysis.proband.id} (${this.sample?.id})" class="bg-white"></tool-header>
                                 <sample-variant-stats-browser .opencgaSession="${this.opencgaSession}" 
                                                               .sample="${this.sample}"
-                                                              .active="${this.activeTab["VariantQc"]}"
+                                                              .active="${this.activeTab["SampleVariantStats"]}"
                                                               .config="${{showTitle: false}}">
                                 </sample-variant-stats-browser>
                             </div>
@@ -265,7 +265,7 @@ class VariantInterpreterQc extends LitElement {
                                 <tool-header title="Cancer QC Plots - ${this.clinicalAnalysis.proband.id} (${this.somaticSample?.id})" class="bg-white"></tool-header>
                                 <sample-cancer-variant-stats-browser    .opencgaSession="${this.opencgaSession}" 
                                                                         .sample="${this.somaticSample}"
-                                                                        .active="${this.activeTab["VariantQc"]}" 
+                                                                        .active="${this.activeTab["VariantQcCancer"]}" 
                                                                         .config="${{showTitle: false}}">
                                 </sample-cancer-variant-stats-browser>
                             </div>
@@ -273,7 +273,7 @@ class VariantInterpreterQc extends LitElement {
                                 <tool-header title="Somatic Variant Stats - ${this.clinicalAnalysis.proband.id} (${this.somaticSample?.id})" class="bg-white"></tool-header>
                                 <sample-variant-stats-browser .opencgaSession="${this.opencgaSession}" 
                                                               .sample="${this.somaticSample}"
-                                                              .active="${this.activeTab["VariantQc"]}"
+                                                              .active="${this.activeTab["SomaticVariantStats"]}"
                                                               .config="${{showTitle: false}}">
                                 </sample-variant-stats-browser>
                             </div>
@@ -283,7 +283,7 @@ class VariantInterpreterQc extends LitElement {
                                         <tool-header title="Germline Variant Stats - ${this.clinicalAnalysis.proband.id} (${this.sample?.id})" class="bg-white"></tool-header>
                                         <sample-variant-stats-browser .opencgaSession="${this.opencgaSession}" 
                                                                       .sample="${this.sample}"
-                                                                      .active="${this.activeTab["VariantQc"]}"
+                                                                      .active="${this.activeTab["SampleVariantStats"]}"
                                                                       .config="${{showTitle: false}}">
                                         </sample-variant-stats-browser>
                                     </div>`
