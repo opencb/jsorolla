@@ -22,6 +22,8 @@ import "../../commons/analysis/opencga-analysis-tool.js";
 import AnalysisRegistry from "./analysis-registry.js";
 import knockoutData from "./test/knockout.20201029141213.SChLEA.js";
 import "../../commons/filters/select-field-filter.js";
+import "./opencga-knockout-analysis/knockout-gene-table.js";
+
 
 export default class OpencgaKnockoutAnalysisResult extends LitElement {
 
@@ -232,7 +234,7 @@ export default class OpencgaKnockoutAnalysisResult extends LitElement {
                         </div>
                     </div>
                     <div id="${this._prefix}gene" class="content-tab">
-                        gene
+                        <knockout-gene-table></knockout-gene-table>
                     </div>
                     <div id="${this._prefix}variant" class="content-tab">
                         variant
