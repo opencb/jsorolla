@@ -222,9 +222,11 @@ class VariantInterpreterQcOverview extends LitElement {
                          
                         <div id="${this._prefix}VariantStats" role="tabpanel" class="tab-pane content-tab">
                             <h3>Sample Variant Stats</h3>
+                            <!--
                             <variant-interpreter-qc-variant-stats   .opencgaSession=${this.opencgaSession} 
                                                                     .clinicalAnalysis="${this.clinicalAnalysis}">
                             </variant-interpreter-qc-variant-stats>
+                            -->
                         </div>
                         
                         <div id="${this._prefix}InferredSex" role="tabpanel" class="tab-pane content-tab">

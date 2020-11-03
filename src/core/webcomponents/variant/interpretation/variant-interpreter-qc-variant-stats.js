@@ -157,7 +157,7 @@ class VariantInterpreterQcVariantStats extends LitElement {
                     break;
             }
             this.sampleId = this.statsSelect[0];
-            this.sample = this.samplesVariantStats[0].sample
+            this.sample = this.samplesVariantStats[0]?.sample;
         }
         /*let sampleQc = ClinicalAnalysisUtils.getProbandSampleQc(this.clinicalAnalysis);
         // in any case we must have at least 1 variant stat for the proband
