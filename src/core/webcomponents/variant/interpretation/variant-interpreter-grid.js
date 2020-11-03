@@ -410,14 +410,12 @@ export default class VariantInterpreterGrid extends LitElement {
     }
 
     variantFormatter(value, row, index) {
-        debugger
         const variantHtmlDiv = this.variantGridFormatter.variantFormatter(value, row, this._config);
         const snptHtmlAnchor = this.variantGridFormatter.snpFormatter(value, row, index);
         return `${variantHtmlDiv}<div style='padding-top: 10px'>${snptHtmlAnchor && snptHtmlAnchor !== "-" ? snptHtmlAnchor : ""}</div>`;
     }
 
     roleInCancerFormatter(value, row, index) {
-        debugger
         if (value) {
             let roles = new Set();
             for (let evidenceIndex in value) {
@@ -435,7 +433,6 @@ export default class VariantInterpreterGrid extends LitElement {
     }
 
     zygosityFormatter(value, row, index) {
-        debugger
         let resultHtml = "";
 
         if (row.studies?.length > 0 && row.studies[0].samples?.length > 0) {
@@ -698,14 +695,13 @@ export default class VariantInterpreterGrid extends LitElement {
     }
 
     vcfDataFormatter(value, row, index) {
-        debugger
         if (this.field.vcfColumn === "info") {
             for (let file of row.studies[0].files) {
                 if (file.data[this.field.key]) {
                     return file.data[this.field.key];
                 }
             }
-        } else {
+        } else {    // This must be FORMAT column
             let sampleIndex = row.studies[0].samples.findIndex(sample => sample.sampleId === this.field.sample.id);
             let index = row.studies[0].sampleDataKeys.findIndex(key => key === this.field.key);
             if (index >= 0) {
@@ -717,7 +713,6 @@ export default class VariantInterpreterGrid extends LitElement {
     }
 
     pathogeniticyFormatter(value, row, index) {
-        debugger
         // TODO we must call to PathDB to get the frequency of each variant, next code is just an example
         const val = `<div class="col-md-12" style="padding: 0px">
                                 <form class="form-horizontal">
@@ -740,9 +735,7 @@ export default class VariantInterpreterGrid extends LitElement {
     }
 
     studyCohortsFormatter(value, row) {
-        debugger
-        //console.log("value, row",value, row)
-        if (typeof row !== "undefined" && typeof row.studies !== "undefined" && this.variantGridFormatter) {
+        if (row?.studies && this.variantGridFormatter) {
             const cohorts = [];
             const cohortMap = new Map();
             for (const study of row.studies) {
@@ -751,7 +744,6 @@ export default class VariantInterpreterGrid extends LitElement {
                 cohorts.push(s);
                 cohortMap.set(s, study.stats.length ? Number(study.stats[0].altAlleleFreq).toFixed(4) : "-");
             }
-
             return this.variantGridFormatter.createPopulationFrequenciesTable(cohorts, cohortMap, populationFrequencies?.style);
         } else {
             return "-";
@@ -759,10 +751,9 @@ export default class VariantInterpreterGrid extends LitElement {
     }
 
     clinicalPopulationFrequenciesFormatter(value, row) {
-        debugger
-        if (typeof row !== "undefined" && typeof row.annotation !== "undefined") {
+        if (row?.annotation) {
             const popFreqMap = new Map();
-            if (UtilsNew.isNotEmptyArray(row.annotation.populationFrequencies)) {
+            if (row.annotation.populationFrequencies?.length > 0) {
                 for (const popFreq of row.annotation.populationFrequencies) {
                     popFreqMap.set(popFreq.study + ":" + popFreq.population, Number(popFreq.altAlleleFreq).toFixed(4));
                 }
@@ -774,7 +765,6 @@ export default class VariantInterpreterGrid extends LitElement {
     }
 
     predictionFormatter(value, row, index) {
-        debugger
         if (!row.evidences) {
             return "-";
         }
@@ -840,42 +830,62 @@ export default class VariantInterpreterGrid extends LitElement {
             return;
         }
 
-        // This prepares the configured columns with VCF Data
+        // This code creates dynamically the columns for the VCF INFO and FORMAT column data.
+        // Multiple file callers are supported.
         let vcfDataColumns = [];
-        if (this._config.vcf && this.clinicalAnalysis.type.toUpperCase() === "CANCER") {
-            if (this._config.vcf.info?.length > 0 ) {
-                for (let i = 0; i < this._config.vcf.info.length; i++) {
-                    vcfDataColumns.push({
-                        title: this._config.vcf.info[i],
-                        field: {
-                            vcfColumn: "info",
-                            key: this._config.vcf.info[i]
-                        },
-                        rowspan: 1,
-                        colspan: 1,
-                        formatter: this.vcfDataFormatter,
-                        halign: "center"
-                    });
-                }
-            }
-            if (this._config.vcf.format?.length > 0) {
-                for (let i = 0; i < this._config.vcf.format.length; i++) {
-                    vcfDataColumns.push({
-                        title: this._config.vcf.format[i],
-                        field: {
-                            vcfColumn: "format",
-                            sample: samples[0],
-                            key: this._config.vcf.format[i]
-                        },
-                        rowspan: 1,
-                        colspan: 1,
-                        formatter: this.vcfDataFormatter,
-                        halign: "center"
-                    });
+        let fileCallers = this.clinicalAnalysis.files.filter(file => file.format === "VCF" && file.software?.name).map(file => file.software.name);
+        if (this._config.callers?.length > 0 && fileCallers?.length > 0) {
+            for (let caller of this._config.callers) {
+                if (fileCallers.includes(caller.id)) {
+                    // INFO column
+                    if (caller.info?.length > 0 ) {
+                        for (let i = 0; i < caller.info.length; i++) {
+                            vcfDataColumns.push({
+                                title: caller.info[i],
+                                field: {
+                                    vcfColumn: "info",
+                                    key: caller.info[i]
+                                },
+                                rowspan: 1,
+                                colspan: 1,
+                                formatter: this.vcfDataFormatter,
+                                halign: "center"
+                            });
+                        }
+                    }
+
+                    // FORMAT column
+                    if (caller.format?.length > 0) {
+                        for (let i = 0; i < caller.format.length; i++) {
+                            vcfDataColumns.push({
+                                title: caller.format[i],
+                                field: {
+                                    vcfColumn: "format",
+                                    sample: samples[0],
+                                    key: caller.format[i]
+                                },
+                                rowspan: 1,
+                                colspan: 1,
+                                formatter: this.vcfDataFormatter,
+                                halign: "center"
+                            });
+                        }
+                    }
                 }
             }
         }
+        // IMPORTANT: empty columns are not supported in boostrap-table,
+        // we need to create an empty not visible column when no VCF file data is configured.
+        if (!vcfDataColumns || vcfDataColumns.length === 0) {
+            vcfDataColumns = [
+                {
+                    title: "",
+                    visible: false
+                }
+            ];
+        }
 
+        // Prepare Grid columns
         let _columns = [
             [
                 {
@@ -925,7 +935,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     rowspan: 1,
                     colspan: vcfDataColumns?.length,
                     halign: "center",
-                    visible: vcfDataColumns?.length > 0
+                    visible: vcfDataColumns?.length > 1
                 },
                 {
                     title: "Variant Allele Frequency <span class='pop-preq-info-icon'><i class='fa fa-info-circle' style='color: #337ab7' aria-hidden='true'></i></span>",
@@ -1051,7 +1061,6 @@ export default class VariantInterpreterGrid extends LitElement {
 
         // update columns dynamically
         this._updateTableColumns(_columns);
-        debugger
         return _columns;
     }
 
@@ -1096,7 +1105,7 @@ export default class VariantInterpreterGrid extends LitElement {
             if (samples.length > 0) {
                 _columns[0].splice(4, 0, {
                     title: "Sample Genotypes",
-                    // field: "zygosity",
+                    field: "zygosity",
                     rowspan: 1,
                     colspan: samples.length,
                     align: "center"
@@ -1314,12 +1323,21 @@ export default class VariantInterpreterGrid extends LitElement {
                 filterByBiotype: true,
                 filterByConsequenceType: true,
             },
-
-            vcf: {
-                info: ["DP", "ASMD", "TG", "QUAL", "REP"],
-                format: []
-            }
-        };
+            callers: [
+                {
+                    id: "caveman",
+                    info: ["DP", "ASMD"],
+                },
+                {
+                    id: "pindel",
+                    info: ["QUAL", "REP"],
+                },
+                {
+                    id: "tnhaplotyper2",
+                    info: ["DP", "ECNT", "TLOD", "P_GERMLINE"],
+                }
+            ],
+        }
     }
 
     showLoading() {
