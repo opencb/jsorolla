@@ -122,7 +122,6 @@ export default class NumberFieldFilter extends LitElement {
                 }
             </style>
             
-            state ${JSON.stringify(this.state)}
             <div class="number-field-filter form-group">
                 ${this.label ? html`<div class="col-md-${this._config.layout[0]} control-label" data-toggle="tooltip" data-placement="top" title="${this.label}">
                         ${this.label}
