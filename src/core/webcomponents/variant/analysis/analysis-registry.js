@@ -24,7 +24,7 @@ export default class AnalysisRegistry {
             //return Reflect.constructor(ar.class, ar.config)
             return new ar.class(ar.config);
         } else {
-            throw new Error("Analysis Class not found");
+            throw new Error("Analysis Class not found:" + id);
         }
     }
 };

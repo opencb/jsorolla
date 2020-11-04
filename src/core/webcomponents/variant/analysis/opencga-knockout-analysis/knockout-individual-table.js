@@ -15,13 +15,12 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import {classMap} from "/web_modules/lit-html/directives/class-map.js";
 import UtilsNew from "../../../../utilsNew.js";
 import AnalysisRegistry from "../analysis-registry.js";
 import GridCommons from "../../grid-commons.js";
-import knockoutDataGene from "../test/knockout.20201103172343.kFIvpr.gene.js";
+import knockoutDataIndividuals from "../test/knockout.20201103172343.kFIvpr.individuals.js";
 
-export default class KnockoutGeneTable extends LitElement {
+export default class KnockoutIndividualTable extends LitElement {
 
     constructor() {
         super();
@@ -52,7 +51,11 @@ export default class KnockoutGeneTable extends LitElement {
 
         this._config = this.getDefaultConfig();
 
-        this.data = knockoutDataGene;
+        this.data = knockoutDataIndividuals;
+
+        this.LIMIT = 50; //temp limit for both rows and cols
+        this.colToShow = 2;
+
         this.gridId = this._prefix + "KnockoutGrid";
         this.preprocess();
     }
@@ -92,9 +95,10 @@ export default class KnockoutGeneTable extends LitElement {
 
     preprocess() {
 
-        console.log(knockoutDataGene)
+        console.log(knockoutDataIndividuals);
 
-        this.tableData = knockoutDataGene
+        this.tableData = knockoutDataIndividuals;
+
     }
 
     renderTable() {
@@ -119,59 +123,15 @@ export default class KnockoutGeneTable extends LitElement {
 
     _initTableColumns() {
         return [
-            [
-                {
-                    title: "Gene",
-                    field: "name",
-                    rowspan: 2,
-                    halign: "center",
-                    formatter: this.geneIdFormatter
-                },
-                {
-                    title: "Compound Hets",
-                    colspan: 4
-                },
-                {
-                    title: "Homs",
-                    row: 2
-                },
-                {
-                    title: "All",
-                    row: 2
-                }
-            ],
-            [
-                {
-                    title: "Tot",
-                    formatter: this.compTotalFormatter.bind(this)
-                },
-                {
-                    title: "Def."
-                },
-                {
-                    title: "Probable"
-                },
-                {
-                    title: "Possible"
-                },
-                {
-                    title: "Total"
-                },
-                {
-                    title: "Total",
-                    formatter: (val, row, index) => this.tableData[index].individuals?.length
-                }
-            ]
+            {
+                title: "Individual Id",
+                field: "sampleId"
+            },
+            {
+                title: "Compound Hets",
+                field: "sampleId"
+            }
         ];
-    }
-
-    compTotalFormatter(val, row, index) {
-        const ind = this.tableData[index].individuals
-        return "0"
-    }
-
-    geneIdFormatter(val, row) {
-        return `${row.name} <br> <span class="text-muted">${row.chromosome}:${row.start}-${row.end} (${row.strand})</span>`
     }
 
     getDefaultConfig() {
@@ -189,4 +149,4 @@ export default class KnockoutGeneTable extends LitElement {
 
 }
 
-customElements.define("knockout-gene-table", KnockoutGeneTable);
+customElements.define("knockout-individual-table", KnockoutIndividualTable);
