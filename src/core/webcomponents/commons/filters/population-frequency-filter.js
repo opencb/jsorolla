@@ -68,9 +68,8 @@ export default class PopulationFrequencyFilter extends LitElement {
     populationFrequencyAltObserver() {
         // 1kG_phase3:EUR<2;GNOMAD_GENOMES:ALL<1;GNOMAD_GENOMES:AMR<2
         let pfArray = [];
+        this.state = {};
         if (this.populationFrequencyAlt) {
-
-            this.state = {};
             if (!populationFrequencies?.studies?.length && !this.populationFrequencies) {
                 console.error("populationFrequency data not available")
             }
@@ -84,10 +83,9 @@ export default class PopulationFrequencyFilter extends LitElement {
                 }
             });
         } else {
-            this.state = {};
+            $("input[data-mode=all]").val("");
         }
         this.state = {...this.state};
-        //this.state = $.extend(true, {}, this.state);
         this.requestUpdate();
     }
 
@@ -167,7 +165,7 @@ export default class PopulationFrequencyFilter extends LitElement {
                                 <div class="col-md-3 control-label" data-toggle="tooltip" data-placement="top">Set all</div>
                                 <div class="col-md-3"></div>
                                 <div class="col-md-6">
-                                    <input id="${this._prefix}${study.id}Input" type="string" data-study="${study.id}"
+                                    <input id="${this._prefix}${study.id}Input" type="string" data-mode="all" data-study="${study.id}"
                                            class="form-control input-sm ${this._prefix}FilterTextInput"
                                            name="${study.id}Input" @input="${this.keyUpAllPopFreq}">
                                 </div>

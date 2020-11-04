@@ -82,6 +82,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
 
         // Config for the grid toolbar
         this.toolbarConfig = {
+            ...this._config.toolbar,
             columns: this._getDefaultColumns().filter( col => col.field)
         };
 
@@ -263,21 +264,38 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
     }
 
     priorityFormatter(value) {
+        const priorityMap = {
+            URGENT: "label-danger",
+            HIGH: "label-warning",
+            MEDIUM: "label-primary",
+            LOW: "label-info"
+        }
         if (UtilsNew.isEmpty(value)) {
             return "<span>-</span>";
+        } else if (OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS")) {
+            return ` <div class="dropdown">
+                    <button class="btn btn-default btn-sm dropdown-toggle one-line" type="button" data-toggle="dropdown">
+                        <span class="label ${priorityMap[value]}">
+                            ${value}
+                        </span>
+                        <span class="caret" style="margin-left: 5px"></span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        ${Object.entries(priorityMap).map( ([priority, _]) => {
+                            return `<li>
+                                        <a href="javascript: void 0" class="btn force-text-left right-icon" data-action="priorityChange" data-priority="${priority}">
+                                            <span class="label ${priorityMap[priority]}">
+                                                ${priority}
+                                            </span>
+                                            ${priority === value ? `<i class="fas fa-check"></i>` : ""}
+                                        </a>
+                                    </li>`
+                        }).join("")}         
+                    </ul>
+                </div>`
         } else {
-            switch (value) {
-                case "URGENT":
-                    return "<span class='label label-danger' style='font-size: 100%'>Urgent</span>";
-                case "HIGH":
-                    return "<span class='label label-warning' style='font-size: 100%'>High</span>";
-                case "MEDIUM":
-                    return "<span class='label label-primary' style='font-size: 100%'>Medium</span>";
-                case "LOW":
-                    return "<span class='label label-info' style='font-size: 100%'>Low</span>";
-                default:
-                    return "<span>-</span>";
-            }
+            return `<span class='label ${priorityMap[value]}' style='font-size: 100%'>${value}</span>`
+
         }
     }
 
@@ -303,7 +321,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
     }
 
     onActionClick(e, _, row) {
-        const {action} = e.target.dataset;
+        const {action} = e.currentTarget.dataset;
         if (action === "delete") {
             Swal.fire({
                 title: "Are you sure?",
@@ -348,8 +366,22 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
             UtilsNew.downloadData([JSON.stringify(row, null, "\t")], row.id + ".json")
         }
         if (action === "statusChange") {
-            const {status} = e.target.dataset;
+            const {status} = e.currentTarget.dataset;
             this.opencgaSession.opencgaClient.clinical().update(row.id, {status: {name: status}}, {study: this.opencgaSession.study.fqn})
+                .then(restResponse => {
+                    if (!restResponse.getResultEvents("ERROR").length) {
+                        this.renderTable();
+                    } else {
+                        console.error(restResponse);
+                    }
+                })
+                .catch(response => {
+                    UtilsNew.notifyError(response);
+                })
+        }
+        if (action === "priorityChange") {
+            const {priority} = e.currentTarget.dataset;
+            this.opencgaSession.opencgaClient.clinical().update(row.id, {priority}, {study: this.opencgaSession.study.fqn})
                 .then(restResponse => {
                     if (!restResponse.getResultEvents("ERROR").length) {
                         this.renderTable();
@@ -450,7 +482,10 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                 align: "center",
                 halign: this._config.header.horizontalAlign,
                 valign: "middle",
-                formatter: this.priorityFormatter,
+                formatter: this.priorityFormatter.bind(this),
+                events: {
+                    "click a": this.onActionClick.bind(this)
+                },
                 visible: !this._config.columns.hidden.includes("priority")
             },
             {
