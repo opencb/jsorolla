@@ -646,7 +646,7 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                     })
                     .catch(response => {
                         console.error(response);
-                        this.notifyError(response);
+                        UtilsNew.notifyError(response);
                     });
             } else {
                 opencgaSession.opencgaClient.clinical().update(data, {study: opencgaSession.study.fqn})
@@ -657,25 +657,12 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                     })
                     .catch(response => {
                         console.log(response);
-                        this.notifyError(response);
+                        UtilsNew.notifyError(response);
                     });
             }
         } catch (response) {
             console.log(response);
-            this.notifyError(response);
-        }
-    }
-
-    notifyError(response) {
-        if (response?.getEvents?.("ERROR")?.length) {
-            const errors = response.getEvents("ERROR");
-            errors.forEach(error => {
-                new NotificationQueue().push(error.name, error.message, "ERROR");
-            });
-        } else if (response instanceof Error) {
-            new NotificationQueue().push(response.name, response.message, "ERROR");
-        } else {
-            new NotificationQueue().push("Generic Error", JSON.stringify(response), "ERROR");
+            UtilsNew.notifyError(response);
         }
     }
 

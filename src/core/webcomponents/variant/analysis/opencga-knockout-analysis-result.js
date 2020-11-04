@@ -23,6 +23,7 @@ import AnalysisRegistry from "./analysis-registry.js";
 import knockoutData from "./test/knockout.20201029141213.SChLEA.js";
 import "../../commons/filters/select-field-filter.js";
 import "./opencga-knockout-analysis/knockout-gene-table.js";
+import "./opencga-knockout-analysis/knockout-individual-table.js";
 
 
 export default class OpencgaKnockoutAnalysisResult extends LitElement {
@@ -211,11 +212,11 @@ export default class OpencgaKnockoutAnalysisResult extends LitElement {
                     <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab["gene"]})}" @click="${this._changeTab}" data-id="gene">
                         <i class="fas fa-table icon-padding" aria-hidden="true"></i> Genes
                     </button>
+                    <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab["individual"]})}" @click="${this._changeTab}" data-id="individual">
+                        <i class="fas fa-table icon-padding" aria-hidden="true"></i> Individuals
+                    </button>
                     <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab["variant"]})}" @click="${this._changeTab}" data-id="variant">
                         <i class="fas fa-table icon-padding" aria-hidden="true"></i> Variants
-                    </button>
-                    <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab["sample"]})}" @click="${this._changeTab}" data-id="sample">
-                        <i class="fas fa-table icon-padding" aria-hidden="true"></i> Samples
                     </button>
                 </div>
                 <div class="content-tab-wrapper">
@@ -236,11 +237,11 @@ export default class OpencgaKnockoutAnalysisResult extends LitElement {
                     <div id="${this._prefix}gene" class="content-tab">
                         <knockout-gene-table></knockout-gene-table>
                     </div>
+                    <div id="${this._prefix}individual" class="content-tab">
+                        <knockout-individual-table></knockout-individual-table>
+                    </div>
                     <div id="${this._prefix}variant" class="content-tab">
                         variant
-                    </div>
-                    <div id="${this._prefix}sample" class="content-tab">
-                        sample
                     </div>
                 </div>
                 

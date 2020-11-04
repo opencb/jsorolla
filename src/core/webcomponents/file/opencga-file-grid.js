@@ -293,48 +293,23 @@ export default class OpencgaFileGrid extends LitElement {
         };
         this.opencgaSession.opencgaClient.files().search(params)
             .then(restResponse => {
-                const result = restResponse.getResults();
-                let dataString = [];
-                let mimeType = "";
-                let extension = "";
-                if (result) {
+                const results = restResponse.getResults();
+                if (results) {
                     // Check if user clicked in Tab or JSON format
                     if (e.detail.option.toLowerCase() === "tab") {
-                        dataString = [
-                            ["Name", "Path", "Format", "Bioformat", "Size", "Creation date", "Modification date", "Status"].join("\t"),
-                            ...result.map(_ => [
-                                _.id,
-                                _.path,
-                                _.format,
-                                _.bioformat,
-                                _.size,
-                                _.creationDate,
-                                _.modificationDate,
-                                _.internal?.status?.name ?? "-"
-                            ].join("\t"))];
-                        UtilsNew.downloadData([dataString.join("\n")], "files_" + this.opencgaSession.study.id + ".txt", "text/plain");
+                        let fields = ["id", "path", "format", "bioformat", "size", "creationDate", "modificationDate", "internal.status.name"];
+                        let data = UtilsNew.toTableString(results, fields);
+                        UtilsNew.downloadData(data, "files_" + this.opencgaSession.study.id + ".txt", "text/plain");
                     } else {
-                        let json = JSON.stringify(result, null, "\t");
-                        UtilsNew.downloadData(json, "files_" + this.opencgaSession.study.id + ".json", "application/json");
+                        UtilsNew.downloadData(JSON.stringify(results, null, "\t"), "files_" + this.opencgaSession.study.id + ".json", "application/json");
                     }
                 } else {
                     console.error("Error in result format");
                 }
             })
-            .catch(e => {
-                // in case it is a restResponse
-                console.log(e);
-                if (e?.getEvents?.("ERROR")?.length) {
-                    const errors = e.getEvents("ERROR");
-                    errors.forEach(error => {
-                        new NotificationQueue().push(error.name, error.message, "ERROR");
-                        console.log(error);
-                    });
-                } else if (e instanceof Error) {
-                    new NotificationQueue().push(e.name, e.message, "ERROR");
-                } else {
-                    new NotificationQueue().push("Generic Error", JSON.stringify(e), "ERROR");
-                }
+            .catch(response => {
+                console.log(response);
+                UtilsNew.notifyError(response);
             })
             .finally(() => {
                 this.toolbarConfig = {...this.toolbarConfig, downloading: false};

@@ -345,7 +345,6 @@ export default class OpencgaActiveFilters extends LitElement {
                         bubbles: true,
                         composed: true
                     }));
-                    break;
                 } else {
                     filter.active = false;
                 }

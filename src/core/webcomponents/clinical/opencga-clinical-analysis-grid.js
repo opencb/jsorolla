@@ -637,18 +637,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
             }
         } catch (e) {
             // in case it is a restResponse
-            console.log(e);
-            if (e?.getEvents?.("ERROR")?.length) {
-                const errors = e.getEvents("ERROR");
-                errors.forEach(error => {
-                    new NotificationQueue().push(error.name, error.message, "ERROR");
-                    console.log(error);
-                });
-            } else if (e instanceof Error) {
-                new NotificationQueue().push(e.name, e.message, "ERROR");
-            } else {
-                new NotificationQueue().push("Generic Error", JSON.stringify(e), "ERROR");
-            }
+            UtilsNew.notifyError(e);
         }
         this.toolbarConfig = {...this.toolbarConfig, downloading: false};
         this.requestUpdate();

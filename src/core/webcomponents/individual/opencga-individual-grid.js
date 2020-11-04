@@ -478,7 +478,6 @@ export default class OpencgaIndividualGrid extends LitElement {
     async onDownload(e) {
         this.toolbarConfig = {...this.toolbarConfig, downloading: true};
         await this.requestUpdate();
-
         const query = {
             ...this.query,
             study: this.opencgaSession.study.fqn,
@@ -497,27 +496,15 @@ export default class OpencgaIndividualGrid extends LitElement {
                         let data = UtilsNew.toTableString(results, fields);
                         UtilsNew.downloadData(data, "individuals_" + this.opencgaSession.study.id + ".txt", "text/plain");
                     } else {
-                        let json = JSON.stringify(results, null, "\t");
-                        UtilsNew.downloadData(json, this.opencgaSession.study.id + ".json", "application/json");
+                        UtilsNew.downloadData(JSON.stringify(results, null, "\t"), this.opencgaSession.study.id + ".json", "application/json");
                     }
                 } else {
                     console.error("Error in result format");
                 }
             })
-            .catch(e => {
-                console.log(e);
-                // in case it is a restResponse
-                if (e?.getEvents?.("ERROR")?.length) {
-                    const errors = e.getEvents("ERROR");
-                    errors.forEach(error => {
-                        new NotificationQueue().push(error.name, error.message, "ERROR");
-                        console.log(error);
-                    });
-                } else if (e instanceof Error) {
-                    new NotificationQueue().push(e.name, e.message, "ERROR");
-                } else {
-                    new NotificationQueue().push("Generic Error", JSON.stringify(e), "ERROR");
-                }
+            .catch(response => {
+                console.log(response);
+                UtilsNew.notifyError(response);
             })
             .finally(() => {
                 this.toolbarConfig = {...this.toolbarConfig, downloading: false};

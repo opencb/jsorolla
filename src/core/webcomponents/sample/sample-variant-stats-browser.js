@@ -160,15 +160,7 @@ export default class SampleVariantStatsBrowser extends LitElement {
             .catch(e => {
                 console.log(e);
                 this.sampleQcVariantStats = null;
-                if (e?.getEvents?.("ERROR")?.length) {
-                    this.errorState = {messages: e.getEvents("ERROR")};
-                } else if (e instanceof Error) {
-                    this.errorState = {messages: [{name: e.name, message: e.message}]
-                    };
-                } else {
-                    this.errorState = {messages: [{name: "Generic Error", message: JSON.stringify(e)}]
-                    };
-                }
+                UtilsNew.notifyError(e);
             })
             .finally(() => {
                 this.loading = false;

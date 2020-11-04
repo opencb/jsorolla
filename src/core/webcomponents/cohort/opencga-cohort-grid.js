@@ -269,10 +269,9 @@ export default class OpencgaCohortGrid extends LitElement {
         return this._columns;
     }
 
-    onDownload(e) {
-        // let urlQueryParams = this._getUrlQueryParams();
-        // let params = urlQueryParams.queryParams;
-        //console.log(this.opencgaSession);
+    async onDownload(e) {
+        this.toolbarConfig = {...this.toolbarConfig, downloading: true};
+        await this.requestUpdate();
         const params = {
             ...this.query,
             study: this.opencgaSession.study.fqn,
@@ -283,52 +282,34 @@ export default class OpencgaCohortGrid extends LitElement {
         };
         this.opencgaSession.opencgaClient.cohorts().search(params)
             .then(response => {
-                const result = response.response[0].result;
-                console.log(result);
-                let dataString = [];
-                let mimeType = "";
-                let extension = "";
-                if (result) {
+                const results = response.getResults();
+                if (results) {
                     // Check if user clicked in Tab or JSON format
                     if (e.detail.option.toLowerCase() === "tab") {
-                        dataString = [
+                        const dataString = [
                             ["Cohort", "#Samples", "Date", "Status", "Type"].join("\t"),
-                            ...result.map(_ => [
+                            ...results.map(_ => [
                                 _.id,
                                 _.samples ? _.samples.map(_ => `${_.id}`).join(",") : "",
                                 _.creationDate,
                                 _.status.name,
                                 _.type
                             ].join("\t"))];
-                        //console.log(dataString);
-                        mimeType = "text/plain";
-                        extension = ".txt";
+                        UtilsNew.downloadData(dataString, "cohort_" + this.opencgaSession.study.id + ".txt", "text/plain");
                     } else {
-                        for (const res of result) {
-                            dataString.push(JSON.stringify(res, null, "\t"));
-                        }
-                        mimeType = "application/json";
-                        extension = ".json";
+                        UtilsNew.downloadData(JSON.stringify(results, null, "\t"), this.opencgaSession.study.id + ".json", "application/json");
                     }
-
-                    // Build file and anchor link
-                    const data = new Blob([dataString.join("\n")], {type: mimeType});
-                    const file = window.URL.createObjectURL(data);
-                    const a = document.createElement("a");
-                    a.href = file;
-                    a.download = this.opencgaSession.study.alias + extension;
-                    document.body.appendChild(a);
-                    a.click();
-                    setTimeout(function () {
-                        document.body.removeChild(a);
-                    }, 0);
                 } else {
                     console.error("Error in result format");
                 }
             })
-            .then(function () {
-                //this.downloadRefreshIcon.css("display", "none");
-                //this.downloadIcon.css("display", "inline-block");
+            .catch(response => {
+                console.log(response);
+                UtilsNew.notifyError(response);
+            })
+            .finally(() => {
+                this.toolbarConfig = {...this.toolbarConfig, downloading: false};
+                this.requestUpdate();
             });
     }
 

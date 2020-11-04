@@ -66,6 +66,7 @@ export default class SelectFieldFilterAutocomplete extends LitElement {
         //MAP result => ({name: result.id, individual: result.attributes && result.attributes.OPENCGA_INDIVIDUAL ? result.attributes.OPENCGA_INDIVIDUAL.id : ""})
         this.input.typeahead({
             source: this._config.dataSource,
+            //showHintOnFocus: true,
             /*source: (query, process) => {
                 const filters = {
                     study: this.opencgaSession.study.fqn,

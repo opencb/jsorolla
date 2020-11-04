@@ -153,35 +153,16 @@ class AlignmentStatsView extends LitElement {
     }
 
     onDownload(e) {
-        console.log(e)
         const header = this._config?.columns?.length ? this._config.columns.map( col => col.name) : this.alignmentStats.map( stat => stat.sampleId)
         const d = this._config.rows.map(variable => [variable.name, ...this.alignmentStats.map(stat => stat[variable.field] ?? "N/A")].join("\t"))
-
-        let dataString, mimeType, extension;
         if (e.currentTarget.dataset.downloadOption.toLowerCase() === "tab") {
-            dataString = [
+            const dataString = [
                 ["#key", ...header].join("\t"),
                 d.join("\n")];
-            // console.log(dataString);
-            mimeType = "text/plain";
-            extension = ".txt";
+            UtilsNew.downloadData(dataString, "alignment_stats_view_" + this.opencgaSession.study.id + ".txt", "text/plain");
         } else {
-            dataString = [JSON.stringify(this.alignmentStats, null, "\t")];
-            mimeType = "application/json";
-            extension = ".json";
+            UtilsNew.downloadData(JSON.stringify(this.alignmentStats, null, "\t"), this.opencgaSession.study.id + ".json", "application/json");
         }
-
-        // Build file and anchor link
-        const data = new Blob([dataString.join("\n")], {type: mimeType});
-        const file = window.URL.createObjectURL(data);
-        const a = document.createElement("a");
-        a.href = file;
-        a.download = this.opencgaSession.study.alias + extension;
-        document.body.appendChild(a);
-        a.click();
-        setTimeout(function() {
-            document.body.removeChild(a);
-        }, 0);
     }
 
 

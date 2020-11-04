@@ -96,53 +96,31 @@ export default class OpencgaFamilyRelatednessView extends LitElement {
     }
 
     onDownload(e) {
-        let dataString = [];
-        let mimeType = "";
-        let extension = "";
         // Check if user clicked in Tab or JSON format
-        if (e.currentTarget.dataset.downloadOption.toLowerCase() === "tab") {
-
-            const relatedness = this.family?.qualityControl?.relatedness[0];
-
-            const data = relatedness.scores.map(score => {
-                return [
-                    score.sampleId1,
-                    score.sampleId2,
-                    score.inferredRelationship,
-                    score?.values?.z0,
-                    score?.values?.z1,
-                    score?.values?.z2,
-                    score?.values?.PiHat,
-                    score?.inferredRelationship
-                ].join("\t")
-            });
-
-            dataString = [
-                [
-                    "Sample ID 1", "Sample ID 2", "Reported Relationship", "IBD0",	"IBD1",	"IBD2",	"PiHat", "Inferred Relationship"
-                ].join("\t"),
-                data.join("\n")
-            ];
-            //console.log(dataString);
-            mimeType = "text/plain";
-            extension = ".txt";
-        } else {
-            dataString = [JSON.stringify(this.family?.qualityControl?.relatedness[0], null, "\t")];
-            mimeType = "application/json";
-            extension = ".json";
+        const relatedness = this.family?.qualityControl?.relatedness[0];
+        if(relatedness) {
+            if (e.currentTarget.dataset.downloadOption.toLowerCase() === "tab") {
+                const data = relatedness.scores.map(score => {
+                    return [
+                        score.sampleId1,
+                        score.sampleId2,
+                        this.family.roles[this.getIndividualId(score.sampleId1)][this.getIndividualId(score.sampleId2)] ?? "-",
+                        score?.values?.z0,
+                        score?.values?.z1,
+                        score?.values?.z2,
+                        score?.values?.PiHat,
+                        score?.inferredRelationship
+                    ].join("\t")
+                });
+                const dataString = [
+                    ["Sample ID 1", "Sample ID 2", "Reported Relationship", "IBD0",	"IBD1",	"IBD2",	"PiHat", "Inferred Relationship"].join("\t"),
+                    data.join("\n")
+                ];
+                UtilsNew.downloadData(dataString, "family_relatedness" + this.opencgaSession.study.id + ".txt", "text/plain");
+            } else {
+                UtilsNew.downloadData(JSON.stringify(relatedness, null, "\t"), this.opencgaSession.study.id + ".json", "application/json");
+            }
         }
-
-        // Build file and anchor link
-        const data = new Blob([dataString.join("\n")], {type: mimeType});
-        const file = window.URL.createObjectURL(data);
-        const a = document.createElement("a");
-        a.href = file;
-        a.download = this.opencgaSession.study.alias + extension;
-        document.body.appendChild(a);
-        a.click();
-        setTimeout(function() {
-            document.body.removeChild(a);
-        }, 0);
     }
 
     renderTable() {
