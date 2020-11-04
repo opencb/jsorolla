@@ -64,15 +64,18 @@ export default class VariantCallerInfoFilter extends LitElement {
 
     updated(changedProperties) {
         // debugger
-        if (changedProperties.has("query")) {
-            if (!this.query) {
-                this.query = {};
-            }
-        }
+        // if (changedProperties.has("query")) {
+        //     if (!this.query) {
+        //         this.query = {};
+        //     }
+        // }
     }
 
     filterChange(e) {
         debugger
+        if (!this.query) {
+            this.query = {};
+        }
         if (e.detail.value) {
             switch (e.detail.param) {
                 case "FILTER":

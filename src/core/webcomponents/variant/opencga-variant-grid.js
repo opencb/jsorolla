@@ -71,6 +71,20 @@ export default class OpencgaVariantGrid extends LitElement {
 
         this.gridId = this._prefix + "VariantBrowserGrid";
         this.checkedVariants = new Map();
+
+        // this.toolbarConfig = {
+        //     rightToolbar: {
+        //         render: () => html`<button type="button">hi</button>`
+        //     }
+        // };
+        this.rightToolbar = {
+            // visible: "",
+            render: () => html`
+                            <button type="button" class="btn btn-default ripple btn-sm dropdown-toggle" data-toggle="dropdown"
+                                    aria-haspopup="true" aria-expanded="false">
+                                <i class="fas fa-cog icon-padding"></i> Settings
+                            </button>`
+        }
     }
 
     connectedCallback() {
@@ -122,7 +136,7 @@ export default class OpencgaVariantGrid extends LitElement {
 
         // Config for the grid toolbar
         this.toolbarConfig = {
-            columns: this._createDefaultColumns().flat().filter(f => !["deleteriousness", "conservation", "popfreq", "phenotypes"].includes(f.field))
+            columns: this._createDefaultColumns().flat().filter(f => !["deleteriousness", "conservation", "popfreq", "phenotypes"].includes(f.field)),
         };
     }
 
@@ -957,6 +971,7 @@ export default class OpencgaVariantGrid extends LitElement {
             
             <div>
                 <opencb-grid-toolbar    .config="${this.toolbarConfig}"
+                                        .rightToolbar="${this.rightToolbar}"
                                         @columnChange="${this.onColumnChange}"
                                         @download="${this.onDownload}"
                                         @sharelink="${this.onShare}">

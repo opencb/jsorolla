@@ -31,6 +31,9 @@ export default class OpencbGridToolbar extends LitElement {
 
     static get properties() {
         return {
+            rightToolbar: {
+                type: Object
+            },
             config: {
                 type: Object
             }
@@ -38,17 +41,18 @@ export default class OpencbGridToolbar extends LitElement {
     }
 
     _init() {
-        this._prefix = "grid" + UtilsNew.randomString(6);
+        this._prefix = UtilsNew.randomString(8);
     }
 
     connectedCallback() {
         super.connectedCallback();
+
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
 
     updated(changedProperties) {
-        if(changedProperties.has("config")) {
+        if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
         }
     }
@@ -57,7 +61,9 @@ export default class OpencbGridToolbar extends LitElement {
         this.dispatchEvent(new CustomEvent("download", {
             detail: {
                 option: e.target.dataset.downloadOption
-            }, bubbles: true, composed: true
+            },
+            bubbles: true,
+            composed: true
         }));
     }
 
@@ -98,11 +104,17 @@ export default class OpencbGridToolbar extends LitElement {
             columns: [], // [{field: "fieldname", title: "title", visible: true, eligible: true}]
             download: ["Tab", "JSON"],
             showShareLink: false,
-            buttons: ["columns", "download"]
+            buttons: ["columns", "download"],
+            rightToolbar: {
+                // render
+            }
         };
     }
 
     render(){
+        let custom = this.rightToolbar?.render();
+        console.log(this._config)
+        debugger
         return html`
             <style>
                 .opencb-grid-toolbar .checkbox-container label:before {
@@ -122,23 +134,24 @@ export default class OpencbGridToolbar extends LitElement {
                     <div id="${this._prefix}toolbar" class="col-md-6">
                         <div class="form-inline text-right pull-right">
                             ${~this._config.buttons.indexOf("columns") && this._config.columns.length ? html`
-                                    <div class="btn-group columns-toggle-wrapper">
-                                        <button type="button" class="btn btn-default ripple btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                            <i id="${this._prefix}ColumnIcon" class="fa fa-columns icon-padding" aria-hidden="true"></i> Columns <span class="caret"></span>
-                                        </button>
-                                        <ul class="dropdown-menu btn-sm checkbox-container">
-                                            ${this._config.columns.length ?
-                                                this._config.columns.filter(item => item.eligible ?? true ).map(item => html`
-                                                    <li>
-                                                        <a data-column-id="${item.field}" @click="${this.onColumnClick}" style="cursor: pointer;">
-                                                            <input type="checkbox" @click="${this.checkboxToggle}" .checked="${this.isTrue(item.visible)}"/>
-                                                            <label class="checkmark-label">${item.title}</label>
-                                                        </a>
-                                                    </li>`)
-                                                : null}
-                                        </ul>
-                                    </div>
-                            ` : null }
+                                <div class="btn-group columns-toggle-wrapper">
+                                    <button type="button" class="btn btn-default ripple btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <i id="${this._prefix}ColumnIcon" class="fa fa-columns icon-padding" aria-hidden="true"></i> Columns <span class="caret"></span>
+                                    </button>
+                                    <ul class="dropdown-menu btn-sm checkbox-container">
+                                        ${this._config.columns.length ?
+                                            this._config.columns.filter(item => item.eligible ?? true ).map(item => html`
+                                                <li>
+                                                    <a data-column-id="${item.field}" @click="${this.onColumnClick}" style="cursor: pointer;">
+                                                        <input type="checkbox" @click="${this.checkboxToggle}" .checked="${this.isTrue(item.visible)}"/>
+                                                        <label class="checkmark-label">${item.title}</label>
+                                                    </a>
+                                                </li>`)
+                                            : null}
+                                    </ul>
+                                </div>
+                            ` : null
+                            }
             
                             ${~this._config.buttons.indexOf("download") ? html`
                                 <div class="btn-group">
@@ -153,14 +166,24 @@ export default class OpencbGridToolbar extends LitElement {
                                         `) : null}
                                     </ul>
                                 </div>
-                            ` : null}
+                            ` : null
+                            }
             
                             <!--Share URL-->
                             ${this.showShareLink ? html`
                                 <button type="button" class="btn btn-default btn-sm" data-toggle="popover" data-placement="bottom" @click="onShareLink">
                                     <i class="fa fa-share-alt icon-padding" aria-hidden="true"></i> Share
                                 </button>
-                            ` : null }
+                            ` : null 
+                            }
+                            
+                            ${this.rightToolbar?.render
+                                ? html`
+                                    <div class="btn-group">
+                                        ${custom}
+                                    </div>`
+                                : null
+                            }
                         </div>
                     </div>
                 </div>

@@ -106,6 +106,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
     }
 
     queryObserver() {
+        debugger
         if (this.opencgaSession && this.query) {
             this.preparedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
             this.executedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
