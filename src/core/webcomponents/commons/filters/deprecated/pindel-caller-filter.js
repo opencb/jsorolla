@@ -16,11 +16,11 @@
 
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../../utilsNew.js";
-import "../view/data-form.js";
+import UtilsNew from "../../../../utilsNew.js";
+import "../../view/data-form.js";
 
 
-export default class AscatCallerFilter extends LitElement {
+export default class PindelCallerFilter extends LitElement {
 
     constructor() {
         super();
@@ -35,6 +35,9 @@ export default class AscatCallerFilter extends LitElement {
 
     static get properties() {
         return {
+            fileId: {
+                type: String
+            },
             query: {
                 type: Object
             },
@@ -67,14 +70,31 @@ export default class AscatCallerFilter extends LitElement {
 
     filterChange(e) {
         if (e.detail.value) {
-            this.filter[e.detail.param] = e.detail.value;
+            if (e.detail.param === "FILTER") {
+                this.filter["FILTER"] = "PASS";
+            } else {
+                this.filter[e.detail.param] = e.detail.value;
+            }
         } else {
             delete this.filter[e.detail.param];
         }
 
+        this.notify();
+    }
+
+    notify() {
+        let filter = this.fileId ? this.fileId + ":" : "";
+        filter += Object.entries(this.filter).map(([k, v]) => {
+            if (k === "FILTER") {
+                return k + "=" + v;
+            } else {
+                return k + "" + v;
+            }
+        }).join(";");
+
         const event = new CustomEvent("filterChange", {
             detail: {
-                value: this.filter
+                value: filter
             },
             bubbles: true,
             composed: true
@@ -100,8 +120,19 @@ export default class AscatCallerFilter extends LitElement {
                     collapsed: false,
                     elements: [
                         {
-                            name: "Segment Size",
-                            field: "segmentSize",
+                            name: "PASS",
+                            field: "FILTER",
+                            type: "checkbox",
+                        },
+                        {
+                            name: "QUAL",
+                            field: "QUAL",
+                            type: "input-number",
+                            defaultValue: "",
+                        },
+                        {
+                            name: "REP",
+                            field: "REP",
                             type: "input-number",
                             defaultValue: "",
                         },
@@ -118,4 +149,4 @@ export default class AscatCallerFilter extends LitElement {
     }
 }
 
-customElements.define("ascat-caller-filter", AscatCallerFilter);
+customElements.define("pindel-caller-filter", PindelCallerFilter);

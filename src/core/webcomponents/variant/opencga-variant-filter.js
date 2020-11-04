@@ -36,13 +36,7 @@ import "../commons/filters/protein-substitution-score-filter.js";
 import "../commons/filters/sample-filter.js";
 import "../commons/filters/study-filter.js";
 import "../commons/filters/variant-type-filter.js";
-import "../commons/filters/caveman-caller-filter.js";
-import "../commons/filters/strelka-caller-filter.js";
-import "../commons/filters/pindel-caller-filter.js";
-import "../commons/filters/ascat-caller-filter.js";
-import "../commons/filters/canvas-caller-filter.js";
-import "../commons/filters/brass-caller-filter.js";
-import "../commons/filters/manta-caller-filter.js";
+import "../commons/filters/variant-caller-info-filter.js";
 
 export default class OpencgaVariantFilter extends LitElement {
 
@@ -139,6 +133,7 @@ export default class OpencgaVariantFilter extends LitElement {
     }
 
     queryObserver() {
+        debugger
         // the following line FIX the "silent" persistence of active filters once 1 is deleted, due to an inconsistence between query and preparedQuery. Step to reproduce:
         // 0. comment the line `this.preparedQuery = this.query;`
         // 1. add some filters from variant=filter
@@ -424,40 +419,21 @@ export default class OpencgaVariantFilter extends LitElement {
                 case "fullTextSearch":
                     content = html`<fulltext-search-accessions-filter .traits="${this.preparedQuery.traits}" @filterChange="${e => this.onFilterChange("traits", e.detail.value)}"></fulltext-search-accessions-filter>`;
                     break;
-                case "caveman-caller":
-                    content = html`<caveman-caller-filter .fileId="${subsection.params.fileId}" .query="${this.somaticCallerQueryMap[subsection.params.fileId]}" 
-                                        @filterChange="${e => this.onFilterChange("fileData", subsection.callback(e.detail.value, this.preparedQuery))}">
-                                   </caveman-caller-filter>`;
-                    break;
-                case "strelka-caller":
-                    content = html`<strelka-caller-filter .fileId="${subsection.params.fileId}" .query="${this.somaticCallerQueryMap[subsection.params.fileId]}" 
-                                        @filterChange="${e => this.onFilterChange("fileData", subsection.callback(e.detail.value, this.preparedQuery))}">
-                                   </strelka-caller-filter>`;
-                    break;
-                case "pindel-caller":
-                    content = html`<pindel-caller-filter .fileId="${subsection.params.fileId}" .query="${this.somaticCallerQueryMap[subsection.params.fileId]}" 
-                                        @filterChange="${e => this.onFilterChange("fileData", subsection.callback(e.detail.value, this.preparedQuery))}">
-                                   </pindel-caller-filter>`;
-                    break;
-                case "ascat-caller":
-                    content = html`<ascat-caller-filter .fileId="${subsection.params.fileId}" .query="${this.somaticCallerQueryMap[subsection.params.fileId]}" 
-                                        @filterChange="${e => this.onFilterChange("fileData", subsection.callback(e.detail.value, this.preparedQuery))}">
-                                   </ascat-caller-filter>`;
-                    break;
-                case "canvas-caller":
-                    content = html`<canvas-caller-filter .fileId="${subsection.params.fileId}" .query="${this.somaticCallerQueryMap[subsection.params.fileId]}" 
-                                        @filterChange="${e => this.onFilterChange("fileData", subsection.callback(e.detail.value, this.preparedQuery))}">
-                                   </canvas-caller-filter>`;
-                    break;
-                case "brass-caller":
-                    content = html`<brass-caller-filter .fileId="${subsection.params.fileId}" .query="${this.somaticCallerQueryMap[subsection.params.fileId]}" 
-                                        @filterChange="${e => this.onFilterChange("fileData", subsection.callback(e.detail.value, this.preparedQuery))}">
-                                   </brass-caller-filter>`;
-                    break;
-                case "manta-caller":
-                    content = html`<manta-caller-filter .fileId="${subsection.params.fileId}" .query="${this.somaticCallerQueryMap[subsection.params.fileId]}" 
-                                        @filterChange="${e => this.onFilterChange("fileData", subsection.callback(e.detail.value, this.preparedQuery))}">
-                                   </manta-caller-filter>`;
+                case "caveman":
+                case "strelka":
+                case "pindel":
+                case "ascat":
+                case "canvas":
+                case "brass":
+                case "manta":
+                case "tnhaplotyper2":
+                    // debugger
+                    content = html`
+                        <variant-caller-info-filter .caller="${subsection.id}" 
+                                                    .fileId="${subsection.params.fileId}" 
+                                                    .query="${this.somaticCallerQueryMap[subsection.params.fileId] ?? {}}"
+                                                    @filterChange="${e => this.onFilterChange("fileData", subsection.callback(e.detail.value, this.preparedQuery))}">
+                        </variant-caller-info-filter>`;
                     break;
                 default:
                     console.error("Filter component not found");

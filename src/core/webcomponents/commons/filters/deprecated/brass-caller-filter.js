@@ -16,11 +16,11 @@
 
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../../utilsNew.js";
-import "../view/data-form.js";
+import UtilsNew from "../../../../utilsNew.js";
+import "../../view/data-form.js";
 
 
-export default class CavemanCallerFilter extends LitElement {
+export default class BrassCallerFilter extends LitElement {
 
     constructor() {
         super();
@@ -35,9 +35,6 @@ export default class CavemanCallerFilter extends LitElement {
 
     static get properties() {
         return {
-            fileId: {
-                type: String
-            },
             query: {
                 type: Object
             },
@@ -70,35 +67,18 @@ export default class CavemanCallerFilter extends LitElement {
 
     filterChange(e) {
         if (e.detail.value) {
-            switch (e.detail.param) {
-                case "FILTER":
-                    this.filter[e.detail.param] = "PASS";
-                    break;
-                case "CLPM":
-                case "ASMD":
-                    this.filter[e.detail.param] = e.detail.value;
-                    break;
+            if (e.detail.param === "type") {
+                this.filter["type"] = e.detail.value;
+            } else {
+                this.filter[e.detail.param] = e.detail.value;
             }
         } else {
             delete this.filter[e.detail.param];
         }
 
-        this.notify();
-    }
-
-    notify() {
-        let filter = this.fileId ? this.fileId + ":" : "";
-        filter += Object.entries(this.filter).map(([k, v]) => {
-            if (k === "FILTER") {
-                return k + "=" + v;
-            } else {
-                return k + "" + v;
-            }
-        }).join(";");
-
         const event = new CustomEvent("filterChange", {
             detail: {
-                value: filter
+                value: this.filter
             },
             bubbles: true,
             composed: true
@@ -124,19 +104,26 @@ export default class CavemanCallerFilter extends LitElement {
                     collapsed: false,
                     elements: [
                         {
-                            name: "PASS",
-                            field: "FILTER",
-                            type: "checkbox",
-                        },
-                        {
-                            name: "CLPM",
-                            field: "CLPM",
+                            name: "Assembly Score",
+                            field: "BAS",
                             type: "input-number",
                             defaultValue: "",
                         },
                         {
-                            name: "ASMD",
-                            field: "ASMD",
+                            name: "Size",
+                            field: "size",
+                            type: "input-number",
+                            defaultValue: "",
+                        },
+                        {
+                            name: "Type",
+                            field: "type",
+                            type: "select",
+                            allowedValues: ["inversion", "translocation", "tandem duplication", "deletion"],
+                        },
+                        {
+                            name: "Readpair Count",
+                            field: "readpair count",
                             type: "input-number",
                             defaultValue: "",
                         },
@@ -153,4 +140,4 @@ export default class CavemanCallerFilter extends LitElement {
     }
 }
 
-customElements.define("caveman-caller-filter", CavemanCallerFilter);
+customElements.define("brass-caller-filter", BrassCallerFilter);

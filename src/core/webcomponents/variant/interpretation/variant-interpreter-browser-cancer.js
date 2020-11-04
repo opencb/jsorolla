@@ -26,13 +26,7 @@ import "../opencga-variant-filter.js";
 import "../../tool-header.js";
 import "../../commons/opencga-active-filters.js";
 import "../../commons/filters/sample-genotype-filter.js";
-import "../../commons/filters/caveman-caller-filter.js";
-import "../../commons/filters/strelka-caller-filter.js";
-import "../../commons/filters/pindel-caller-filter.js";
-import "../../commons/filters/ascat-caller-filter.js";
-import "../../commons/filters/canvas-caller-filter.js";
-import "../../commons/filters/brass-caller-filter.js";
-import "../../commons/filters/manta-caller-filter.js";
+import "../../commons/filters/variant-caller-info-filter.js";
 
 class VariantInterpreterBrowserCancer extends LitElement {
 
@@ -58,9 +52,9 @@ class VariantInterpreterBrowserCancer extends LitElement {
             clinicalAnalysis: {
                 type: Object
             },
-            query: {
-                type: Object
-            },
+            // query: {
+            //     type: Object
+            // },
             cellbaseClient: {
                 type: Object
             },
@@ -103,9 +97,9 @@ class VariantInterpreterBrowserCancer extends LitElement {
         if (changedProperties.has("clinicalAnalysisId")) {
             this.clinicalAnalysisIdObserver();
         }
-        if (changedProperties.has("query")) {
-            this.queryObserver();
-        }
+        // if (changedProperties.has("query")) {
+        //     this.queryObserver();
+        // }
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
         }
@@ -121,7 +115,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
 
     clinicalAnalysisObserver() {
         this.clinicalAnalysisManager = new ClinicalAnalysisManager(this.clinicalAnalysis, this.opencgaSession);
-
+        debugger
         this._sample = this.clinicalAnalysis.proband.samples.find(sample => sample.somatic);
         if (this._sample) {
             // Set query object
@@ -146,15 +140,19 @@ class VariantInterpreterBrowserCancer extends LitElement {
                         }
                     }
 
-                    // TODO Move to config object
-                    // this.query.fileData = this.callerToFile["caveman"].name + ":FILTER=PASS;CLPM>2";
+                    // Init the default caller INFO filters
+                    let fileDataFilters = [];
+                    for (let caller of this._config.filter.callers) {
+                        if (this.callerToFile[caller.id]) {
+                            fileDataFilters.push(this.callerToFile[caller.id].name + ":" + caller.queryString);
+                        }
+                    }
                     this.query = {
                         ...this.query,
-                        fileData: this.callerToFile["caveman"].name + ":FILTER=PASS;CLPM=0;ASMD>=140"
-                            + "," + this.callerToFile["pindel"].name + ":FILTER=PASS;QUAL>=250;REP<=9"
-                            + "," + this.callerToFile["brass"].name + ":BAS>=95"
+                        fileData: fileDataFilters.join(",")
                     };
-                    // this._config = {...this.getDefaultConfig(), ...this.config};
+                    // NOTE: We need to update the _config to update the dynamic VCF caller filters
+                    this._config = {...this.getDefaultConfig(), ...this.config};
                     this.queryObserver();
                 })
                 .catch(response => {
@@ -272,24 +270,25 @@ class VariantInterpreterBrowserCancer extends LitElement {
     }
 
     onActiveFilterChange(e) {
-        // this.query = {...this.predefinedFilter, ...e.detail}; // we add this.predefinedFilter in case sample field is not present
-        this.query = {...e.detail}; // we add this.predefinedFilter in case sample field is not present
-        this.preparedQuery = {...e.detail};
-        // TODO is this really needed? it seems to work without this line.
-        this.executedQuery = {...e.detail};
-        this.requestUpdate();
+        debugger
+        this.query = {...e.detail};
+        // this.preparedQuery = {...e.detail};
+        // // TODO is this really needed? it seems to work without this line.
+        // this.executedQuery = {...e.detail};
+        // this.requestUpdate();
+        this.queryObserver();
     }
 
     onActiveFilterClear() {
-        // this.query = {study: this.opencgaSession.study.fqn, ...this.predefinedFilter};
         this.query = {study: this.opencgaSession.study.fqn, sample: this._sample.id};
-        this.preparedQuery = {...this.query};
-        this.executedQuery = {...this.query};
-        this.requestUpdate();
+        // this.preparedQuery = {...this.query};
+        // this.executedQuery = {...this.query};
+        // this.requestUpdate();
+        this.queryObserver();
     }
 
     onVariantCallerFilterChange(filter, query) {
-        // debugger
+        debugger
         if (query.fileData) {
             let [fileId, fileFilter] = filter.split(":");
             let files = query.fileData.split(",");
@@ -313,6 +312,25 @@ class VariantInterpreterBrowserCancer extends LitElement {
     }
 
     getDefaultConfig() {
+        // Prepare dynamic Variant Caller INFO filters
+        let callers = ["Caveman", "strelka", "Pindel", "ASCAT", "Canvas", "BRASS", "Manta", "TNhaplotyper2"];
+        let callerFilters = [];
+        for (let caller of callers) {
+            let callerId = caller.toLowerCase();
+            callerFilters.push(
+                {
+                    id: callerId,
+                    title: caller + " Filters",
+                    description: () => html`File filters for <span style="font-style: italic; word-break: break-all">${this.callerToFile[callerId].name}</span>`,
+                    visible: () => this.callerToFile && this.callerToFile[callerId],
+                    callback: (filter, query) => this.onVariantCallerFilterChange(filter, query),
+                    params: {
+                        fileId: `${this.callerToFile ? this.callerToFile[callerId]?.name : null}`,
+                    }
+                }
+            );
+        }
+
         return {
             title: "Cancer Case Interpreter",
             icon: "fas fa-search",
@@ -334,6 +352,16 @@ class VariantInterpreterBrowserCancer extends LitElement {
                     hiddenFields: ["sample"],
                     lockedFields: [{id: "sample"}]
                 },
+                callers: [
+                    {
+                        id: "caveman",
+                        queryString: "FILTER=PASS;CLPM=0;ASMD>=140"
+                    },
+                    {
+                        id: "pindel",
+                        queryString: "FILTER=PASS;QUAL>=250;REP<=9"
+                    }
+                ],
                 sections: [     // sections and subsections, structure and order is respected
                     {
                         title: "Sample And File",
@@ -346,76 +374,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                                     <div>Genotype filter for <span style="font-style: italic; word-break: break-all">${this._sample?.id}</span></div>
                                     <sample-genotype-filter .sample="${this._sample}" @filterChange="${eventHandler}"></sample-genotype-filter>`,
                             },
-                            {
-                                id: "caveman-caller",
-                                title: "Caveman Caller",
-                                description: () => html`File filters for <span style="font-style: italic; word-break: break-all">${this.callerToFile["caveman"].name}</span>`,
-                                visible: () => this.callerToFile && this.callerToFile["caveman"],
-                                callback: (filter, query) => this.onVariantCallerFilterChange(filter, query),
-                                params: {
-                                    fileId: `${this.callerToFile ? this.callerToFile["caveman"]?.name : null}`,
-                                }
-                            },
-                            {
-                                id: "strelka-caller",
-                                title: "Strelka Caller",
-                                description: () => html`File filters for <span style="font-style: italic; word-break: break-all">${this.callerToFile["strelka"].name}</span>`,
-                                visible: () => this.callerToFile && this.callerToFile["strelka"],
-                                callback: (filter, query) => this.onVariantCallerFilterChange(filter, query),
-                                params: {
-                                    fileId: `${this.callerToFile ? this.callerToFile["strelka"]?.name : null}`,
-                                }
-                            },
-                            {
-                                id: "pindel-caller",
-                                title: "Pindel Caller",
-                                description: () => html`File filters for <span style="font-style: italic; word-break: break-all">${this.callerToFile["pindel"].name}</span>`,
-                                visible: () => this.callerToFile && this.callerToFile["pindel"],
-                                callback: (filter, query) => this.onVariantCallerFilterChange(filter, query),
-                                params: {
-                                    fileId: `${this.callerToFile ? this.callerToFile["pindel"]?.name : null}`,
-                                }
-                            },
-                            {
-                                id: "ascat-caller",
-                                title: "Ascat Caller",
-                                description: () => html`File filters for <span style="font-style: italic; word-break: break-all">${this.callerToFile["ascat"].name}</span>`,
-                                visible: () => this.callerToFile && this.callerToFile["ascat"],
-                                callback: (filter, query) => this.onVariantCallerFilterChange(filter, query),
-                                params: {
-                                    fileId: `${this.callerToFile ? this.callerToFile["ascat"]?.name : null}`,
-                                }
-                            },
-                            {
-                                id: "canvas-caller",
-                                title: "Canvas Caller",
-                                description: () => html`File filters for <span style="font-style: italic; word-break: break-all">${this.callerToFile["canvas"].name}</span>`,
-                                visible: () => this.callerToFile && this.callerToFile["canvas"],
-                                callback: (filter, query) => this.onVariantCallerFilterChange(filter, query),
-                                params: {
-                                    fileId: `${this.callerToFile ? this.callerToFile["canvas"]?.name : null}`,
-                                }
-                            },
-                            {
-                                id: "brass-caller",
-                                title: "Brass Caller",
-                                description: () => html`File filters for <span style="font-style: italic; word-break: break-all">${this.callerToFile["brass"].name}</span>`,
-                                visible: () => this.callerToFile && this.callerToFile["brass"],
-                                callback: (filter, query) => this.onVariantCallerFilterChange(filter, query),
-                                params: {
-                                    fileId: `${this.callerToFile ? this.callerToFile["brass"]?.name : null}`,
-                                }
-                            },
-                            {
-                                id: "manta-caller",
-                                title: "Manta Caller",
-                                description: () => html`File filters for <span style="font-style: italic; word-break: break-all">${this.callerToFile["manta"].name}</span>`,
-                                visible: () => this.callerToFile && this.callerToFile["manta"],
-                                callback: (filter, query) => this.onVariantCallerFilterChange(filter, query),
-                                params: {
-                                    fileId: `${this.callerToFile ? this.callerToFile["manta"]?.name : null}`,
-                                }
-                            },
+                            ...callerFilters,
                         ]
                     },
                     {
@@ -744,7 +703,5 @@ class VariantInterpreterBrowserCancer extends LitElement {
         `;
     }
 }
-// .consequenceTypes="${consequenceTypes}"
-//     .populationFrequencies="${populationFrequencies}"
-//     .proteinSubstitutionScores="${proteinSubstitutionScore}"
+
 customElements.define("variant-interpreter-browser-cancer", VariantInterpreterBrowserCancer);

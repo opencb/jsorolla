@@ -879,7 +879,6 @@ export default class VariantInterpreterGrid extends LitElement {
         if (!vcfDataColumns || vcfDataColumns.length === 0) {
             vcfDataColumns = [
                 {
-                    title: "",
                     visible: false
                 }
             ];
@@ -1326,7 +1325,7 @@ export default class VariantInterpreterGrid extends LitElement {
             callers: [
                 {
                     id: "caveman",
-                    info: ["DP", "ASMD"],
+                    info: ["CLPM", "ASMD"],
                 },
                 {
                     id: "pindel",

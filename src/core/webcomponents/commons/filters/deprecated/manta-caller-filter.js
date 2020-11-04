@@ -16,11 +16,11 @@
 
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../../utilsNew.js";
-import "../view/data-form.js";
+import UtilsNew from "../../../../utilsNew.js";
+import "../../view/data-form.js";
 
 
-export default class BrassCallerFilter extends LitElement {
+export default class MantaCallerFilter extends LitElement {
 
     constructor() {
         super();
@@ -67,8 +67,8 @@ export default class BrassCallerFilter extends LitElement {
 
     filterChange(e) {
         if (e.detail.value) {
-            if (e.detail.param === "type") {
-                this.filter["type"] = e.detail.value;
+            if (e.detail.param === "filter") {
+                this.filter["filter"] = "PASS";
             } else {
                 this.filter[e.detail.param] = e.detail.value;
             }
@@ -76,9 +76,22 @@ export default class BrassCallerFilter extends LitElement {
             delete this.filter[e.detail.param];
         }
 
+        this.notify();
+    }
+
+    notify() {
+        let filter = this.fileId ? this.fileId + ":" : "";
+        filter += Object.entries(this.filter).map(([k, v]) => {
+            if (k === "FILTER") {
+                return k + "=" + v;
+            } else {
+                return k + "" + v;
+            }
+        }).join(";");
+
         const event = new CustomEvent("filterChange", {
             detail: {
-                value: this.filter
+                value: filter
             },
             bubbles: true,
             composed: true
@@ -104,26 +117,13 @@ export default class BrassCallerFilter extends LitElement {
                     collapsed: false,
                     elements: [
                         {
-                            name: "Assembly Score",
-                            field: "BAS",
-                            type: "input-number",
-                            defaultValue: "",
+                            name: "PASS",
+                            field: "filter",
+                            type: "checkbox",
                         },
                         {
-                            name: "Size",
-                            field: "size",
-                            type: "input-number",
-                            defaultValue: "",
-                        },
-                        {
-                            name: "Type",
-                            field: "type",
-                            type: "select",
-                            allowedValues: ["inversion", "translocation", "tandem duplication", "deletion"],
-                        },
-                        {
-                            name: "Readpair Count",
-                            field: "readpair count",
+                            name: "PR",
+                            field: "pr",
                             type: "input-number",
                             defaultValue: "",
                         },
@@ -140,4 +140,4 @@ export default class BrassCallerFilter extends LitElement {
     }
 }
 
-customElements.define("brass-caller-filter", BrassCallerFilter);
+customElements.define("manta-caller-filter", MantaCallerFilter);

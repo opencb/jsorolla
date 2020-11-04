@@ -16,11 +16,11 @@
 
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../../utilsNew.js";
-import "../view/data-form.js";
+import UtilsNew from "../../../../utilsNew.js";
+import "../../view/data-form.js";
 
 
-export default class CanvasCallerFilter extends LitElement {
+export default class AscatCallerFilter extends LitElement {
 
     constructor() {
         super();
@@ -46,7 +46,6 @@ export default class CanvasCallerFilter extends LitElement {
 
     _init() {
         this._prefix = UtilsNew.randomString(8);
-        this.separator = ",";
 
         this.filter = {};
         this._config = this.getDefaultConfig();
@@ -58,33 +57,24 @@ export default class CanvasCallerFilter extends LitElement {
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
+    updated(changedProperties) {
+        if (changedProperties.has("query")) {
+            if (this.query) {
+                this.filter = this.query;
+            }
+        }
+    }
+
     filterChange(e) {
         if (e.detail.value) {
-            if (e.detail.param === "filter") {
-                this.filter["filter"] = "PASS";
-            } else {
-                this.filter[e.detail.param] = e.detail.value;
-            }
+            this.filter[e.detail.param] = e.detail.value;
         } else {
             delete this.filter[e.detail.param];
         }
 
-        this.notify();
-    }
-
-    notify() {
-        let filter = this.fileId ? this.fileId + ":" : "";
-        filter += Object.entries(this.filter).map(([k, v]) => {
-            if (k === "FILTER") {
-                return k + "=" + v;
-            } else {
-                return k + "" + v;
-            }
-        }).join(";");
-
         const event = new CustomEvent("filterChange", {
             detail: {
-                value: filter
+                value: this.filter
             },
             bubbles: true,
             composed: true
@@ -110,11 +100,6 @@ export default class CanvasCallerFilter extends LitElement {
                     collapsed: false,
                     elements: [
                         {
-                            name: "PASS",
-                            field: "filter",
-                            type: "checkbox",
-                        },
-                        {
                             name: "Segment Size",
                             field: "segmentSize",
                             type: "input-number",
@@ -133,4 +118,4 @@ export default class CanvasCallerFilter extends LitElement {
     }
 }
 
-customElements.define("canvas-caller-filter", CanvasCallerFilter);
+customElements.define("ascat-caller-filter", AscatCallerFilter);

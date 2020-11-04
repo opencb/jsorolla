@@ -16,8 +16,8 @@
 
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../../utilsNew.js";
-import "../view/data-form.js";
+import UtilsNew from "../../../../utilsNew.js";
+import "../../view/data-form.js";
 
 
 export default class StrelkaCallerFilter extends LitElement {

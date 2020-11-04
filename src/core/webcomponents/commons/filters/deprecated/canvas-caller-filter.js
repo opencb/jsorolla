@@ -16,11 +16,11 @@
 
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../../utilsNew.js";
-import "../view/data-form.js";
+import UtilsNew from "../../../../utilsNew.js";
+import "../../view/data-form.js";
 
 
-export default class MantaCallerFilter extends LitElement {
+export default class CanvasCallerFilter extends LitElement {
 
     constructor() {
         super();
@@ -46,6 +46,7 @@ export default class MantaCallerFilter extends LitElement {
 
     _init() {
         this._prefix = UtilsNew.randomString(8);
+        this.separator = ",";
 
         this.filter = {};
         this._config = this.getDefaultConfig();
@@ -55,14 +56,6 @@ export default class MantaCallerFilter extends LitElement {
         super.connectedCallback();
 
         this._config = {...this.getDefaultConfig(), ...this.config};
-    }
-
-    updated(changedProperties) {
-        if (changedProperties.has("query")) {
-            if (this.query) {
-                this.filter = this.query;
-            }
-        }
     }
 
     filterChange(e) {
@@ -122,8 +115,8 @@ export default class MantaCallerFilter extends LitElement {
                             type: "checkbox",
                         },
                         {
-                            name: "PR",
-                            field: "pr",
+                            name: "Segment Size",
+                            field: "segmentSize",
                             type: "input-number",
                             defaultValue: "",
                         },
@@ -140,4 +133,4 @@ export default class MantaCallerFilter extends LitElement {
     }
 }
 
-customElements.define("manta-caller-filter", MantaCallerFilter);
+customElements.define("canvas-caller-filter", CanvasCallerFilter);

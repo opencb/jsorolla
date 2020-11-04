@@ -21,13 +21,13 @@ import "./sample-cancer-variant-stats-plots.js";
 import "../variant/opencga-variant-filter.js";
 import "../commons/opencga-active-filters.js";
 import "../commons/view/signature-view.js";
-import "../commons/filters/caveman-caller-filter.js";
-import "../commons/filters/strelka-caller-filter.js";
-import "../commons/filters/pindel-caller-filter.js";
-import "../commons/filters/ascat-caller-filter.js";
-import "../commons/filters/canvas-caller-filter.js";
-import "../commons/filters/brass-caller-filter.js";
-import "../commons/filters/manta-caller-filter.js";
+import "../commons/filters/variant-caller-info-filter.js";
+import "../commons/filters/deprecated/strelka-caller-filter.js";
+import "../commons/filters/deprecated/pindel-caller-filter.js";
+import "../commons/filters/deprecated/ascat-caller-filter.js";
+import "../commons/filters/deprecated/canvas-caller-filter.js";
+import "../commons/filters/deprecated/brass-caller-filter.js";
+import "../commons/filters/deprecated/manta-caller-filter.js";
 import "../loading-spinner.js";
 
 export default class SampleCancerVariantStatsBrowser extends LitElement {

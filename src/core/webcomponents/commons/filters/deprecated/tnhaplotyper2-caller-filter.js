@@ -16,11 +16,11 @@
 
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../../utilsNew.js";
-import "../view/data-form.js";
+import UtilsNew from "../../../../utilsNew.js";
+import "../../view/data-form.js";
 
 
-export default class PindelCallerFilter extends LitElement {
+export default class TNhaplotyper2CallerFilter extends LitElement {
 
     constructor() {
         super();
@@ -70,10 +70,15 @@ export default class PindelCallerFilter extends LitElement {
 
     filterChange(e) {
         if (e.detail.value) {
-            if (e.detail.param === "FILTER") {
-                this.filter["FILTER"] = "PASS";
-            } else {
-                this.filter[e.detail.param] = e.detail.value;
+            switch (e.detail.param) {
+                case "FILTER":
+                    this.filter[e.detail.param] = "PASS";
+                    break;
+                case "ECNT":
+                case "TLOD":
+                case "P_GERMLINE":
+                    this.filter[e.detail.param] = e.detail.value;
+                    break;
             }
         } else {
             delete this.filter[e.detail.param];
@@ -125,17 +130,23 @@ export default class PindelCallerFilter extends LitElement {
                             type: "checkbox",
                         },
                         {
-                            name: "QUAL",
-                            field: "QUAL",
+                            name: "ECNT",
+                            field: "ECNT",
                             type: "input-number",
                             defaultValue: "",
                         },
                         {
-                            name: "REP",
-                            field: "REP",
+                            name: "TLOD",
+                            field: "TLOD",
                             type: "input-number",
                             defaultValue: "",
                         },
+                        {
+                            name: "P_GERMLINE",
+                            field: "P_GERMLINE",
+                            type: "input-number",
+                            defaultValue: "",
+                        }
                     ]
                 },
             ]
@@ -149,4 +160,4 @@ export default class PindelCallerFilter extends LitElement {
     }
 }
 
-customElements.define("pindel-caller-filter", PindelCallerFilter);
+customElements.define("tnhaplotyper2-caller-filter", TNhaplotyper2CallerFilter);
