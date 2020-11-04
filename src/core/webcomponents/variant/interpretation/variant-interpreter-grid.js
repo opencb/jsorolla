@@ -1201,12 +1201,9 @@ export default class VariantInterpreterGrid extends LitElement {
     }
 
     // TODO fix tab jsonToTabConvert isn't working!
-    onDownload(e) {
-        console.log("onDownload interpreter-grid");
-        //this.downloadRefreshIcon.css("display", "inline-block");
-        //this.downloadIcon.css("display", "none");
-
-
+    async onDownload(e) {
+        this.toolbarConfig = {...this.toolbarConfig, downloading: true};
+        await this.requestUpdate();
         if (this.clinicalAnalysis.type.toUpperCase() === "FAMILY" && this.query?.sample) {
             let samples = this.query.sample.split(";");
             let sortedSamples = [];
@@ -1230,41 +1227,23 @@ export default class VariantInterpreterGrid extends LitElement {
         };
         this.opencgaSession.opencgaClient.clinical().queryVariant(filters)
             .then(restResponse => {
-                const result = restResponse.getResults();
-                let dataString = [];
-                let mimeType = "";
-                let extension = "";
-
+                const results = restResponse.getResults();
                 // Check if user clicked in Tab or JSON format
                 if (e.detail.option.toLowerCase() === "tab") {
-                    dataString = VariantUtils.jsonToTabConvert(result, populationFrequencies.studies, this.samples, this._config.nucleotideGenotype);
+                    const dataString = VariantUtils.jsonToTabConvert(results, populationFrequencies.studies, this.samples, this._config.nucleotideGenotype);
                     console.log("dataString", dataString);
-                    mimeType = "text/plain";
-                    extension = ".txt";
+                    UtilsNew.downloadData(dataString, "variant_interpreter_" + this.opencgaSession.study.id + ".txt", "text/plain");
                 } else {
-                    for (const res of result) {
-                        dataString.push(JSON.stringify(res));
-                    }
-                    mimeType = "application/json";
-                    extension = ".json";
+                    UtilsNew.downloadData(JSON.stringify(results, null, "\t"), this.opencgaSession.study.id + ".json", "application/json");
                 }
-
-                // Build file and anchor link
-                const data = new Blob([dataString.join("\n")], {type: mimeType});
-                const file = window.URL.createObjectURL(data);
-                const a = document.createElement("a");
-                a.href = file;
-                a.download = this.opencgaSession.study.alias + extension;
-                document.body.appendChild(a);
-                a.click();
-                setTimeout(function () {
-                    document.body.removeChild(a);
-                }, 0);
-
-
             })
-            .catch(e => {
-                console.error(e);
+            .catch(response => {
+                console.log(response);
+                UtilsNew.notifyError(response);
+            })
+            .finally(() => {
+                this.toolbarConfig = {...this.toolbarConfig, downloading: false};
+                this.requestUpdate();
             });
     }
 

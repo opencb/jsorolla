@@ -410,7 +410,9 @@ export default class OpencgaFamilyGrid extends LitElement {
         return _columns;
     }
 
-    onDownload(e) {
+    async onDownload(e) {
+        this.toolbarConfig = {...this.toolbarConfig, downloading: true};
+        await this.requestUpdate();
         const params = {
             ...this.query,
             study: this.opencgaSession.study.fqn,
@@ -420,7 +422,7 @@ export default class OpencgaFamilyGrid extends LitElement {
         };
         this.opencgaSession.opencgaClient.families().search(params)
             .then(response => {
-                const results = response.responses[0].results;
+                const results = response.getResults();
                 if (results) {
                     // Check if user clicked in Tab or JSON format
                     if (e.detail.option.toUpperCase() === "TAB") {
@@ -428,15 +430,19 @@ export default class OpencgaFamilyGrid extends LitElement {
                         let data = UtilsNew.toTableString(results, fields);
                         UtilsNew.downloadData(data, "families_" + this.opencgaSession.study.id + ".txt", "text/plain");
                     } else {
-                        let json = results.map(res => JSON.stringify(res, null, "\t"));
-                        UtilsNew.downloadData(json, this.opencgaSession.study.id + ".json", "application/json");
+                        UtilsNew.downloadData(JSON.stringify(results, null, "\t"), this.opencgaSession.study.id + ".json", "application/json");
                     }
                 } else {
                     console.error("Error in result format");
                 }
             })
-            .catch(e => {
-                console.error(e);
+            .catch(response => {
+                console.log(response);
+                UtilsNew.notifyError(response);
+            })
+            .finally(() => {
+                this.toolbarConfig = {...this.toolbarConfig, downloading: false};
+                this.requestUpdate();
             });
     }
 

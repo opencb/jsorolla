@@ -373,58 +373,20 @@ export default class OpencgaVariantSamples extends LitElement {
                     sample?.attributes?.OPENCGA_INDIVIDUAL?.disorders?.map(d => d.id) ?? "-",
                     sample?.attributes?.OPENCGA_CLINICAL_ANALYSIS?.id ?? "-"
                 ].join("\t");
-
             });
-            let dataString, mimeType, extension;
             if (e.detail.option.toLowerCase() === "tab") {
-                dataString = [
+                const dataString = [
                     header.join("\t"),
                     rows.join("\n")];
-                // console.log(dataString);
-                mimeType = "text/plain";
-                extension = ".txt";
+                UtilsNew.downloadData(dataString, "variant_samples_" + this.opencgaSession.study.id + ".txt", "text/plain");
             } else {
-                dataString = [JSON.stringify(samples, null, "\t")];
-                mimeType = "application/json";
-                extension = ".json";
+                UtilsNew.downloadData(JSON.stringify(samples, null, "\t"), this.opencgaSession.study.id + ".json", "application/json");
             }
-
-            // Build file and anchor link
-            const data = new Blob([dataString.join("\n")], {type: mimeType});
-            const file = window.URL.createObjectURL(data);
-            const a = document.createElement("a");
-            a.href = file;
-            a.download = this.opencgaSession.study.alias + extension;
-            document.body.appendChild(a);
-            a.click();
-            setTimeout(function() {
-                document.body.removeChild(a);
-            }, 0);
-
-            this.toolbarConfig = {...this.toolbarConfig, downloading: false};
-            this.requestUpdate();
-
         } catch (e) {
-            console.log(e)
-            // TODO copy in all the other download methods
-            // in case it is a restResponse
-            if (e?.getEvents?.("ERROR")?.length) {
-                const errors = e.getEvents("ERROR");
-                errors.forEach(error => {
-                    new NotificationQueue().push(error.name, error.message, "ERROR");
-                    console.log(error);
-                });
-            } else if (e instanceof Error) {
-                new NotificationQueue().push(e.name, e.message, "ERROR");
-            } else {
-                new NotificationQueue().push("Generic Error", JSON.stringify(e), "ERROR");
-            }
-
+            UtilsNew.notifyError(e);
             this.toolbarConfig = {...this.toolbarConfig, downloading: false};
             this.requestUpdate();
-
         }
-
     }
 
     getDefaultConfig() {

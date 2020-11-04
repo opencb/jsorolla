@@ -853,55 +853,33 @@ export default class OpencgaVariantGrid extends LitElement {
         }
     }
 
-    onDownload(e) {
-        // const params = this._getUrlQueryParams();
-        // params.limit = 1000; // Default limit is 1000 for now
-
+    async onDownload(e) {
+        this.toolbarConfig = {...this.toolbarConfig, downloading: true};
+        await this.requestUpdate();
         let params = {
             study: this.opencgaSession.study.fqn,
             limit: 1000,
             summary: !this.query.sample && !this.query.family,
             ...this.query
         };
-
-        //this.downloadRefreshIcon.css("display", "inline-block");
-        //this.downloadIcon.css("display", "none");
-
         this.opencgaSession.opencgaClient.variants().query(params)
             .then(response => {
-                const results = response.responses[0].results;
-                let dataString = [];
-                let mimeType = "";
-                let extension = "";
-
+                const results = response.getResults();
                 // Check if user clicked in Tab or JSON format
                 if (e.detail.option.toLowerCase() === "tab") {
-                    dataString = VariantUtils.jsonToTabConvert(results, this.populationFrequencies.studies, this.samples, this._config.nucleotideGenotype);
-                    mimeType = "text/plain";
-                    extension = ".txt";
+                    const dataString = VariantUtils.jsonToTabConvert(results, this.populationFrequencies.studies, this.samples, this._config.nucleotideGenotype);
+                    UtilsNew.downloadData(dataString, "variants_" + this.opencgaSession.study.id + ".txt", "text/plain");
                 } else {
-                    for (const res of results) {
-                        dataString.push(JSON.stringify(res));
-                    }
-                    mimeType = "application/json";
-                    extension = ".json";
+                    UtilsNew.downloadData(JSON.stringify(results), "variants_" + this.opencgaSession.study.id + ".json", "application/json");
                 }
-
-                // Build file and anchor link
-                const data = new Blob([dataString.join("\n")], {type: mimeType});
-                const file = window.URL.createObjectURL(data);
-                const a = document.createElement("a");
-                a.href = file;
-                a.download = this.opencgaSession.study.alias + extension;
-                document.body.appendChild(a);
-                a.click();
-                setTimeout(function () {
-                    document.body.removeChild(a);
-                }, 0);
             })
-            .then(function () {
-                //this.downloadRefreshIcon.css("display", "none");
-                //this.downloadIcon.css("display", "inline-block");
+            .catch(response => {
+                console.log(response);
+                UtilsNew.notifyError(response);
+            })
+            .finally(() => {
+                this.toolbarConfig = {...this.toolbarConfig, downloading: false};
+                this.requestUpdate();
             });
     }
 
@@ -932,29 +910,7 @@ export default class OpencgaVariantGrid extends LitElement {
     }
 
     render() {
-        return html`
-<!--            <style>-->
-<!--                span.redText, span.orangeText {-->
-<!--                    margin-left: 0;-->
-<!--                }-->
-<!--    -->
-<!--                span.redText {-->
-<!--                    color: red;-->
-<!--                }-->
-<!--    -->
-<!--                span.orangeText {-->
-<!--                    color: orange;-->
-<!--                }-->
-<!--        -->
-<!--                .variant-link-dropdown:hover .dropdown-menu {-->
-<!--                    display: block;-->
-<!--                }-->
-<!--    -->
-<!--                .qtip-custom-class .qtip-content{-->
-<!--                    font-size: 12px;-->
-<!--                }-->
-<!--            </style>-->
-            
+        return html`           
             <div>
                 <opencb-grid-toolbar    .config="${this.toolbarConfig}"
                                         @columnChange="${this.onColumnChange}"

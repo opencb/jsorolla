@@ -389,7 +389,9 @@ export default class OpencgaSampleGrid extends LitElement {
         return _columns;
     }
 
-    onDownload(e) {
+    async onDownload(e) {
+        this.toolbarConfig = {...this.toolbarConfig, downloading: true};
+        await this.requestUpdate();
         const params = {
             ...this.query,
             limit: 1000,
@@ -408,15 +410,19 @@ export default class OpencgaSampleGrid extends LitElement {
                         let data = UtilsNew.toTableString(results, fields);
                         UtilsNew.downloadData(data, "samples_" + this.opencgaSession.study.id + ".txt", "text/plain");
                     } else {
-                        let json = results.map(res => JSON.stringify(res, null, "\t"));
-                        UtilsNew.downloadData(json, this.opencgaSession.study.id + ".json", "application/json");
+                        UtilsNew.downloadData(JSON.stringify(results, null, "\t"), this.opencgaSession.study.id + ".json", "application/json");
                     }
                 } else {
                     console.error("Error in result format");
                 }
             })
-            .catch(e => {
-                console.error(e);
+            .catch(response => {
+                console.log(response);
+                UtilsNew.notifyError(response);
+            })
+            .finally(() => {
+                this.toolbarConfig = {...this.toolbarConfig, downloading: false};
+                this.requestUpdate();
             });
     }
 

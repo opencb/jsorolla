@@ -415,8 +415,9 @@ export default class OpencgaJobGrid extends LitElement {
         return result;
     }
 
-    onDownload(e) {
-        // let params = urlQueryParams.queryParams;
+    async onDownload(e) {
+        this.toolbarConfig = {...this.toolbarConfig, downloading: true};
+        await this.requestUpdate();
         const filters = {
             limit: 1000,
             skip: 0,
@@ -426,52 +427,27 @@ export default class OpencgaJobGrid extends LitElement {
         };
         this.opencgaSession.opencgaClient.jobs().search(filters)
             .then(response => {
-                const result = response.getResults();
-                let dataString = [];
-                let mimeType = "";
-                let extension = "";
-                if (result) {
+                const results = response.getResults();
+                if (results) {
                     // Check if user clicked in Tab or JSON format
                     if (e.detail.option.toLowerCase() === "tab") {
-                        dataString = [
-                            ["Id", "Tool", "Priority", "Tags", "Creation date", "Status", "Visited"].join("\t"),
-                            ...result.map(_ => [
-                                _.id,
-                                _.tool.id,
-                                _.priority,
-                                _.tags,
-                                _.creationDate,
-                                _.internal?.status?.name ?? "",
-                                _.visited
-                            ].join("\t"))];
-                        mimeType = "text/plain";
-                        extension = ".txt";
+                        let fields = ["id", "tool.id", "priority", "tags", "creationDate", "internal.status.name", "visited"];
+                        let data = UtilsNew.toTableString(results, fields);
+                        UtilsNew.downloadData(data, "job_" + this.opencgaSession.study.id + ".txt", "text/plain");
                     } else {
-                        for (const res of result) {
-                            dataString.push(JSON.stringify(res, null, "\t"));
-                        }
-                        mimeType = "application/json";
-                        extension = ".json";
+                        UtilsNew.downloadData(JSON.stringify(results, null, "\t"), this.opencgaSession.study.id + ".json", "application/json");
                     }
-
-                    // Build file and anchor link
-                    const data = new Blob([dataString.join("\n")], {type: mimeType});
-                    const file = window.URL.createObjectURL(data);
-                    const a = document.createElement("a");
-                    a.href = file;
-                    a.download = this.opencgaSession.study.alias + "[" + new Date().toISOString() + "]" + extension;
-                    document.body.appendChild(a);
-                    a.click();
-                    setTimeout(function () {
-                        document.body.removeChild(a);
-                    }, 0);
                 } else {
                     console.error("Error in result format");
                 }
             })
-            .then(function () {
-                // this.downloadRefreshIcon.css("display", "none");
-                // this.downloadIcon.css("display", "inline-block");
+            .catch(response => {
+                console.log(response);
+                UtilsNew.notifyError(response);
+            })
+            .finally(() => {
+                this.toolbarConfig = {...this.toolbarConfig, downloading: false};
+                this.requestUpdate();
             });
     }
 
