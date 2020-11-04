@@ -72,7 +72,7 @@ export default class DirectoryAutocomplete extends LitElement {
                 };
                 this.opencgaSession.opencgaClient.files().distinct("path", filters).then(restResponse => {
                     const results = restResponse.getResults();
-                    process(results.map(this._config.fields));
+                    process(results.map(this._config.fields).filter(Boolean));
                 });
             }
         };

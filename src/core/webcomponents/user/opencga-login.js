@@ -107,18 +107,8 @@ export default class OpencgaLogin extends LitElement {
                                         composed: true
                                     }));
 
-                                    this.dispatchEvent(new CustomEvent(_this.notifyEventMessage, {
-                                        detail: {
-                                            title: "Welcome, " + user,
-                                            message: "Your session is valid until " + validTimeSessionId,
-                                            options: {
-                                                icon: "fa fa-user-circle"
-                                            },
-                                            type: UtilsNew.MESSAGE_SUCCESS
-                                        },
-                                        bubbles: true,
-                                        composed: true
-                                    }));
+                                    new NotificationQueue().push("Welcome, " + user, "Your session is valid until " + validTimeSessionId, UtilsNew.MESSAGE_SUCCESS);
+
                                 }
                             } else {
                                 this.errorState = [{name: "Generic Server Error", message: "Unexpected response format. Please check your host is up and running."}];

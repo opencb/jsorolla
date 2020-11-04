@@ -255,11 +255,9 @@ export default class OpencgaVariantSamples extends LitElement {
                 }
                 return samples;
             } else {
-                console.error("No samples found");
                 await Promise.reject("No samples found");
             }
         } catch (e) {
-            console.error(e);
             await Promise.reject(e);
         }
     }
@@ -384,9 +382,9 @@ export default class OpencgaVariantSamples extends LitElement {
             }
         } catch (e) {
             UtilsNew.notifyError(e);
-            this.toolbarConfig = {...this.toolbarConfig, downloading: false};
-            this.requestUpdate();
         }
+        this.toolbarConfig = {...this.toolbarConfig, downloading: false};
+        this.requestUpdate();
     }
 
     getDefaultConfig() {
