@@ -15,9 +15,9 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
+import {classMap} from "/web_modules/lit-html/directives/class-map.js";
 import OpencgaCatalogUtils from "../../clients/opencga/opencga-catalog-utils.js";
 import UtilsNew from "../../utilsNew.js";
-import {NotificationQueue} from "../Notification.js";
 import GridCommons from "../variant/grid-commons.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import "../commons/opencb-grid-toolbar.js";
@@ -264,42 +264,39 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
     }
 
     priorityFormatter(value) {
-        const priorityMap = {
-            URGENT: "label-danger",
-            HIGH: "label-warning",
-            MEDIUM: "label-primary",
-            LOW: "label-info"
-        }
+        const priorityRankToColor = ["label-danger", "label-warning", "label-primary", "label-info", "label-success", "label-default"];
+
         if (UtilsNew.isEmpty(value)) {
             return "<span>-</span>";
         } else if (OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS")) {
             return ` <div class="dropdown">
                     <button class="btn btn-default btn-sm dropdown-toggle one-line" type="button" data-toggle="dropdown">
-                        <span class="label ${priorityMap[value]}">
-                            ${value}
+                        <span class="label ${priorityRankToColor[value.rank]}">
+                            ${value.id}
                         </span>
                         <span class="caret" style="margin-left: 5px"></span>
                     </button>
                     <ul class="dropdown-menu">
-                        ${Object.entries(priorityMap).map( ([priority, _]) => {
+                        ${this.opencgaSession.study?.configuration.clinical.priorities.map( priority => {
                             return `<li>
-                                        <a href="javascript: void 0" class="btn force-text-left right-icon" data-action="priorityChange" data-priority="${priority}">
-                                            <span class="label ${priorityMap[priority]}">
-                                                ${priority}
+                                        <a href="javascript: void 0" class="btn force-text-left right-icon" data-action="priorityChange" data-priority="${priority.id}">
+                                            <span class="label ${priorityRankToColor[priority.rank]}">
+                                                ${priority.id}
                                             </span>
-                                            ${priority === value ? `<i class="fas fa-check"></i>` : ""}
+                                            <p class="text-muted"><small>${priority.description}</small></p>
+                                            ${priority.id === value.id ? `<i class="fas fa-check"></i>` : ""}
                                         </a>
                                     </li>`
                         }).join("")}         
                     </ul>
                 </div>`
         } else {
-            return `<span class='label ${priorityMap[value]}' style='font-size: 100%'>${value}</span>`
+            return `<span class='label ${priorityRankToColor[value.rank]}' style='font-size: 100%'>${value.id}</span>`
 
         }
     }
 
-    statusFormatter(value) {
+    statusFormatter(value, row) {
         return OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS")
             ? `
                 <div class="dropdown">
@@ -307,12 +304,14 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                         <span class="caret" style="margin-left: 5px"></span>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-right">
-                        ${["READY_FOR_INTERPRETATION", "READY_FOR_REPORT", "CLOSED", "REJECTED"].map(status => `
+                        ${this.opencgaSession.study?.configuration?.clinical?.status[row.type].map( ({id, description}) => `
                             <li>
-                                <a href="javascript: void 0" class="btn force-text-left" data-action="statusChange" data-status="${status}">
-                                    ${status === value ? `<strong>${status}</strong>` : status}
+                                <a href="javascript: void 0" class="btn force-text-left right-icon" data-action="statusChange" data-status="${id}">
+                                    ${id === value.id ? `<strong>${id}</strong>` : id}
+                                    <p class="text-muted"><small>${description}</small></p>
+                                    ${id === value ? `<i class="fas fa-check"></i>` : ""}
                                 </a>
-                            </li>
+                                </li>
                         `).join("")}
                         
                     </ul>
@@ -467,7 +466,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
             },
             {
                 title: "Status",
-                field: "status.name",
+                field: "status.id",
                 halign: this._config.header.horizontalAlign,
                 valign: "middle",
                 formatter: this.statusFormatter.bind(this),
