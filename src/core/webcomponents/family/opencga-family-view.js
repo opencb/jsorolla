@@ -42,6 +42,9 @@ export default class OpencgaFamilyView extends LitElement {
             family: {
                 type: Object
             },
+            individualId: {
+                type: Object
+            },
             config: {
                 type: Object
             }
@@ -60,7 +63,14 @@ export default class OpencgaFamilyView extends LitElement {
 
     updated(changedProperties) {
         if (changedProperties.has("familyId")) {
-            this.familyIdObserver();
+            this.individualIdObserver();
+        }
+        if (changedProperties.has("opencgaSession")) {
+            console.log("family obs!!")
+            this.individualIdObserver();
+        }
+        if (changedProperties.has("individualId")) {
+            this.individualIdObserver();
         }
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
@@ -69,11 +79,24 @@ export default class OpencgaFamilyView extends LitElement {
 
     familyIdObserver() {
         if (this.familyId) {
-            let _this = this;
             this.opencgaSession.opencgaClient.families().info(this.familyId, {study: this.opencgaSession.study.fqn})
                 .then( response => {
-                    _this.family = response.responses[0].results[0];
-                    _this.requestUpdate();
+                    this.family = response.getResult(0);
+                    this.requestUpdate();
+                })
+                .catch(function(reason) {
+                    console.error(reason);
+                });
+        }
+    }
+
+    individualIdObserver() {
+        this.individualId = "ISDBM322015";
+        if (this.individualId) {
+            this.opencgaSession.opencgaClient.families().search({members: this.individualId, study: this.opencgaSession.study.fqn})
+                .then( response => {
+                    this.family = response.getResult(0); // TODO it takes into account just the first family
+                    this.requestUpdate();
                 })
                 .catch(function(reason) {
                     console.error(reason);
