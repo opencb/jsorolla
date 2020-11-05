@@ -21,7 +21,7 @@ import AnalysisRegistry from "../analysis-registry.js";
 import GridCommons from "../../grid-commons.js";
 import knockoutDataGene from "../test/knockout.20201103172343.kFIvpr.gene.js";
 
-export default class KnockoutGeneTable extends LitElement {
+export default class KnockoutGeneGrid extends LitElement {
 
     constructor() {
         super();
@@ -38,10 +38,10 @@ export default class KnockoutGeneTable extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            config: {
+            job: {
                 type: Object
             },
-            job: {
+            config: {
                 type: Object
             }
         };
@@ -105,7 +105,7 @@ export default class KnockoutGeneTable extends LitElement {
             columns: this._initTableColumns(),
             sidePagination: "local",
             // Set table properties, these are read from config property
-            uniqueId: "variantId",
+            uniqueId: "id",
             //pagination: this._config.pagination,
             //pageSize: this._config.pageSize,
             //pageList: this._config.pageList,
@@ -189,4 +189,4 @@ export default class KnockoutGeneTable extends LitElement {
 
 }
 
-customElements.define("knockout-gene-table", KnockoutGeneTable);
+customElements.define("knockout-gene-grid", KnockoutGeneGrid);

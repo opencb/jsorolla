@@ -22,8 +22,8 @@ import "../../commons/analysis/opencga-analysis-tool.js";
 import AnalysisRegistry from "./analysis-registry.js";
 import knockoutData from "./test/knockout.20201029141213.SChLEA.js";
 import "../../commons/filters/select-field-filter.js";
-import "./opencga-knockout-analysis/knockout-gene-table.js";
-import "./opencga-knockout-analysis/knockout-individual-table.js";
+import "./opencga-knockout-analysis/knockout-gene-grid.js";
+import "./opencga-knockout-analysis/knockout-individual-view.js";
 
 
 export default class OpencgaKnockoutAnalysisResult extends LitElement {
@@ -121,7 +121,7 @@ export default class OpencgaKnockoutAnalysisResult extends LitElement {
             columns: this._initTableColumns(),
             sidePagination: "local",
             // Set table properties, these are read from config property
-            uniqueId: "variantId",
+            uniqueId: "id",
             //pagination: this._config.pagination,
             //pageSize: this._config.pageSize,
             //pageList: this._config.pageList,
@@ -204,47 +204,48 @@ export default class OpencgaKnockoutAnalysisResult extends LitElement {
 
     render() {
         return html`
-            <div id="opencga-knockout-analysis-result">
-                <div class="btn-group" role="toolbar" aria-label="toolbar">
-                    <button type="button" class="btn btn-success active ripple content-pills ${classMap({active: this.activeTab["summary"]})}" @click="${this._changeTab}" data-id="summary">
-                        <i class="fa fa-table icon-padding" aria-hidden="true"></i> Summary
-                    </button>
-                    <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab["gene"]})}" @click="${this._changeTab}" data-id="gene">
-                        <i class="fas fa-table icon-padding" aria-hidden="true"></i> Genes
-                    </button>
-                    <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab["individual"]})}" @click="${this._changeTab}" data-id="individual">
-                        <i class="fas fa-table icon-padding" aria-hidden="true"></i> Individuals
-                    </button>
-                    <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab["variant"]})}" @click="${this._changeTab}" data-id="variant">
-                        <i class="fas fa-table icon-padding" aria-hidden="true"></i> Variants
-                    </button>
-                </div>
-                <div class="content-tab-wrapper">
-                    <div id="${this._prefix}summary" class="content-tab active">
-                        <div class="container-fluid">
-                            <div class="row">
-                                <div class="col-md-2 pull-right">
-                                    <div style="padding: 20px 0">
-                                        <select-field-filter .liveSearch=${true} multiple .data="${this.samples?.map(sample => sample.sampleId)}" .value="${this.activeSamples}" @filterChange="${e => this.onColumnChange(e)}"></select-field-filter>
+            <div class="container" style="margin-top: 60px">
+                <div id="opencga-knockout-analysis-result">
+                    <div class="btn-group content-pills" role="toolbar" aria-label="toolbar">
+                        <button type="button" class="btn btn-success active ripple content-pills ${classMap({active: this.activeTab["summary"]})}" @click="${this._changeTab}" data-id="summary">
+                            <i class="fa fa-table icon-padding" aria-hidden="true"></i> Summary
+                        </button>
+                        <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab["gene"]})}" @click="${this._changeTab}" data-id="gene">
+                            <i class="fas fa-table icon-padding" aria-hidden="true"></i> Genes
+                        </button>
+                        <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab["individual"]})}" @click="${this._changeTab}" data-id="individual">
+                            <i class="fas fa-table icon-padding" aria-hidden="true"></i> Individuals
+                        </button>
+                        <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab["variant"]})}" @click="${this._changeTab}" data-id="variant">
+                            <i class="fas fa-table icon-padding" aria-hidden="true"></i> Variants
+                        </button>
+                    </div>
+                    <div class="content-tab-wrapper">
+                        <div id="${this._prefix}summary" class="content-tab active">
+                            <div class="container-fluid">
+                                <div class="row">
+                                    <div class="col-md-2 pull-right">
+                                        <div style="padding: 20px 0">
+                                            <select-field-filter .liveSearch=${true} multiple .data="${this.samples?.map(sample => sample.sampleId)}" .value="${this.activeSamples}" @filterChange="${e => this.onColumnChange(e)}"></select-field-filter>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="row">
-                                <table id="${this.gridId}"></table>
+                                <div class="row">
+                                    <table id="${this.gridId}"></table>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div id="${this._prefix}gene" class="content-tab">
-                        <knockout-gene-table></knockout-gene-table>
-                    </div>
-                    <div id="${this._prefix}individual" class="content-tab">
-                        <knockout-individual-table></knockout-individual-table>
-                    </div>
-                    <div id="${this._prefix}variant" class="content-tab">
-                        variant
+                        <div id="${this._prefix}gene" class="content-tab">
+                            <knockout-gene-grid></knockout-gene-grid>
+                        </div>
+                        <div id="${this._prefix}individual" class="content-tab">
+                            <knockout-individual-view .opencgaSession="${this.opencgaSession}"></knockout-individual-view>
+                        </div>
+                        <div id="${this._prefix}variant" class="content-tab">
+                            variant
+                        </div>
                     </div>
                 </div>
-                
             </div>
         `;
     }

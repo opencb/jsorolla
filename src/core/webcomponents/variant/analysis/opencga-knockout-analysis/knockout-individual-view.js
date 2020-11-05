@@ -19,8 +19,10 @@ import UtilsNew from "../../../../utilsNew.js";
 import AnalysisRegistry from "../analysis-registry.js";
 import GridCommons from "../../grid-commons.js";
 import knockoutDataIndividuals from "../test/knockout.20201103172343.kFIvpr.individuals.js";
+import "./knockout-individual-variants.js";
+import "../../../family/opencga-family-view.js";
 
-export default class KnockoutIndividualTable extends LitElement {
+export default class KnockoutIndividualView extends LitElement {
 
     constructor() {
         super();
@@ -37,10 +39,10 @@ export default class KnockoutIndividualTable extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            config: {
+            job: {
                 type: Object
             },
-            job: {
+            config: {
                 type: Object
             }
         };
@@ -48,16 +50,10 @@ export default class KnockoutIndividualTable extends LitElement {
 
     _init() {
         this._prefix = "oga-" + UtilsNew.randomString(6);
-
         this._config = this.getDefaultConfig();
-
         this.data = knockoutDataIndividuals;
-
-        this.LIMIT = 50; //temp limit for both rows and cols
-        this.colToShow = 2;
-
         this.gridId = this._prefix + "KnockoutGrid";
-        this.preprocess();
+        this.prepareData();
     }
 
     connectedCallback() {
@@ -65,6 +61,9 @@ export default class KnockoutIndividualTable extends LitElement {
         this._config = {...this.getDefaultConfig(), ...this.config};
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
 
+        this.detailConfig = this.getDetailConfig();
+
+        this.individual = null
     }
 
     firstUpdated(_changedProperties) {
@@ -93,12 +92,9 @@ export default class KnockoutIndividualTable extends LitElement {
         }
     }
 
-    preprocess() {
-
+    prepareData() {
         console.log(knockoutDataIndividuals);
-
         this.tableData = knockoutDataIndividuals;
-
     }
 
     renderTable() {
@@ -108,8 +104,8 @@ export default class KnockoutIndividualTable extends LitElement {
             data: this.tableData,
             columns: this._initTableColumns(),
             sidePagination: "local",
-            // Set table properties, these are read from config property
-            uniqueId: "variantId",
+            // Set table properties, these are read from config propertyparticularly tough
+            uniqueId: "id",
             //pagination: this._config.pagination,
             //pageSize: this._config.pageSize,
             //pageList: this._config.pageList,
@@ -117,7 +113,23 @@ export default class KnockoutIndividualTable extends LitElement {
             //formatShowingRows: this.gridCommons.formatShowingRows,
             gridContext: this,
             formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
-            onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement)
+            onClickRow: (row, selectedElement, field) => {
+                this.individual = {id: row.sampleId, ...row}; //TODO temp fix for missing id
+                this.gridCommons.onClickRow(row.id, row, selectedElement)
+                this.requestUpdate();
+            },
+            onLoadSuccess: data => {
+                // this is not triggered in case of static data
+            },
+            onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse),
+            onPostBody: data => {
+                // We call onLoadSuccess to select first row
+                this.gridCommons.onLoadSuccess({rows: data, total: data.length});
+                this.individual = {id: data[0].sampleId, ...data[0]}; //TODO temp fix for missing id
+                this.requestUpdate();
+
+            }
+
         });
     }
 
@@ -128,8 +140,16 @@ export default class KnockoutIndividualTable extends LitElement {
                 field: "sampleId"
             },
             {
-                title: "Compound Hets",
+                title: "Sample",
                 field: "sampleId"
+            },
+            {
+                title: "Homozygous",
+                field: "stats.byType.HOM_ALT"
+            },
+            {
+                title: "Compound Heterozygous",
+                field: "stats.byType.COMP_HET"
             }
         ];
     }
@@ -138,15 +158,41 @@ export default class KnockoutIndividualTable extends LitElement {
         return AnalysisRegistry.get("knockout").config;
     }
 
+    getDetailConfig() {
+        return {
+            title: "Individual",
+            showTitle: true,
+            items: [
+                {
+                    id: "individual-view",
+                    name: "Variants",
+                    active: true,
+                    render: (individual, active, opencgaSession) => {
+                        return html`
+                            <h3>Variants in ${individual?.id}</h3>
+                            <knockout-individual-variants .individual="${individual}"></knockout-individual-variants>
+                        `;
+                    }
+                },{
+                    id: "family-view",
+                    name: "Family",
+                    render: (individual, active, opencgaSession) => {
+                        return html`<opencga-family-view .individualId="${individual.id}" .opencgaSessoion="${opencgaSession}"></opencga-family-view>`;
+                    }
+                }
+            ]
+        };
+    }
+
     render() {
         return html`
             <div class="row">
                 <table id="${this.gridId}"></table>
             </div>
-            
+            <detail-tabs .data="${this.individual}" .config="${this.detailConfig}" .opencgaSession="${this.opencgaSession}"></detail-tabs>
         `;
     }
 
 }
 
-customElements.define("knockout-individual-table", KnockoutIndividualTable);
+customElements.define("knockout-individual-view", KnockoutIndividualView);
