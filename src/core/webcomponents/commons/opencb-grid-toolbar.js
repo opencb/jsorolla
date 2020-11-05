@@ -32,7 +32,7 @@ export default class OpencbGridToolbar extends LitElement {
     static get properties() {
         return {
             rightToolbar: {
-                type: Object
+                type: Array
             },
             config: {
                 type: Object
@@ -112,7 +112,7 @@ export default class OpencbGridToolbar extends LitElement {
     }
 
     render(){
-        let custom = this.rightToolbar?.render();
+        let custom = this.rightToolbar && this.rightToolbar.length > 0 ? this.rightToolbar[0].render() : null;
         console.log(this._config)
         debugger
         return html`
@@ -177,7 +177,7 @@ export default class OpencbGridToolbar extends LitElement {
                             ` : null 
                             }
                             
-                            ${this.rightToolbar?.render
+                            ${custom
                                 ? html`
                                     <div class="btn-group">
                                         ${custom}

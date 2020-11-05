@@ -336,7 +336,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                     const clinicalAnalysisId = row.id;
                     this.opencgaSession.opencgaClient.clinical().delete(clinicalAnalysisId, {
                         study: this.opencgaSession.study.fqn,
-                        force: row.interpretation.primaryFindings.length === 0  // Only empty Cases can be deleted for now
+                        force: row.interpretation?.primaryFindings?.length === 0  // Only empty Cases can be deleted for now
                     }).then(restResponse => {
                         if (restResponse.getResultEvents("ERROR").length) {
                             Swal.fire({
