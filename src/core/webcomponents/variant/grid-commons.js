@@ -147,13 +147,13 @@ export default class GridCommons {
             if (this.checkedRows && this.checkedRows.size > 0) {
                 for (let i = 0; i < data.rows.length; i++) {
                     if (this.checkedRows.has(data.rows[i].id)) {
-                        table.bootstrapTable('check', i);
+                        table.bootstrapTable("check", i);
                     }
                 }
             }
 
             if (table[0]) {
-                table[0].rows[firstRowIndex].setAttribute("class", "success");
+                table.find("tr[data-index=0]").addClass("success")
             }
 
             let id = idField ? idField : "id";
