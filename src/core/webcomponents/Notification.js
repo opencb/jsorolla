@@ -38,13 +38,13 @@ export class NotificationQueue {
         this.queue = [...this.queue, msg];
         await this.context.requestUpdate();
         if (autoDismiss) {
-            //await this.sleep(1000);
+            //await UtilsNew.sleep(1000);
             //$(`#notifications-queue .alert[data-id=${id}]`).removeClass("slideInDown");
             //await this.context.requestUpdate();
-            await this.sleep(5000);
+            await UtilsNew.sleep(5000);
             /*$(`#notifications-queue .alert[data-id=${id}]`).addClass("slideOutUp");
             await this.context.requestUpdate();
-            await this.sleep(500);
+            await UtilsNew.sleep(500);
             */
             this.remove(id);
             await this.context.requestUpdate();
@@ -55,10 +55,6 @@ export class NotificationQueue {
     pushRemainingTime(remainingMinutes, opencgaClient) {
         const msg = html`Your session is close to expire. <strong>${remainingMinutes} minutes remaining</strong> <a href="javascript:void 0" @click="${() => { this.refreshToken(opencgaClient)}}"> Click here to refresh </a>`
         this.push(msg)
-    }
-
-    sleep(ms) {
-        return new Promise( resolve => setTimeout( () => resolve(), ms));
     }
 
     remove(id) {

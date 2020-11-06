@@ -349,4 +349,8 @@ export default class UtilsNew {
             return string.substring(0, maxLength) + "...";
         }
     }
+
+    static sleep(ms) {
+        return new Promise(resolve => setTimeout(() => resolve(), ms));
+    }
 }
