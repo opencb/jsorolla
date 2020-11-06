@@ -113,8 +113,8 @@ export default class OpencbGridToolbar extends LitElement {
 
     render(){
         let custom = this.rightToolbar && this.rightToolbar.length > 0 ? this.rightToolbar[0].render() : null;
-        console.log(this._config)
-        debugger
+        // console.log(this._config)
+        // debugger
         return html`
             <style>
                 .opencb-grid-toolbar .checkbox-container label:before {

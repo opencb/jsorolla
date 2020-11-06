@@ -326,15 +326,29 @@ export default class VariantGridFormatter {
         }
     }
 
-    consequenceTypeFormatter(value, row, index) {
-        if (typeof row !== "undefined" && typeof row.annotation !== "undefined" && UtilsNew.isNotEmptyArray(row.annotation.consequenceTypes)) {
+    consequenceTypeFormatter(value, row, index, gridConsequenceTypeSettings, consequenceTypeColors) {
+        if (row?.annotation && row.annotation.consequenceTypes?.length > 0) {
+            // Apply transcript filters
+            let consequenceTypes = [];
+            if (gridConsequenceTypeSettings) {
+                if (gridConsequenceTypeSettings.canonicalTranscript) {
+                    // row.annotation.consequenceTypes.filter(ct => ct.biotype === "protein_coding").sort(ct => ct.)
+                }
+                if (gridConsequenceTypeSettings.highQualityTranscript) {
+                    consequenceTypes.push(...row.annotation.consequenceTypes.filter(ct => ct.transcriptAnnotationFlags?.includes("basic")));
+                }
+            }
+            debugger
+            if (consequenceTypes.length === 0) {
+                consequenceTypes = row.annotation.consequenceTypes;
+            }
+
             let consequenceTypesArr = [];
             let visited = new Set();
             let impact = {};
-            for (let i = 0; i < row.annotation.consequenceTypes.length; i++) {
-                for (let j = 0; j < row.annotation.consequenceTypes[i].sequenceOntologyTerms.length; j++) {
-
-                    let consequenceTypeName = row.annotation.consequenceTypes[i].sequenceOntologyTerms[j].name;
+            for (let i = 0; i < consequenceTypes.length; i++) {
+                for (let j = 0; j < consequenceTypes[i].sequenceOntologyTerms.length; j++) {
+                    let consequenceTypeName = consequenceTypes[i].sequenceOntologyTerms[j].name;
 
                     // FIXME This is a temporal fix for some wrong CTs. This must be removed ASAP.
                     if (consequenceTypeName === "2KB_downstream_gene_variant") {
@@ -344,16 +358,14 @@ export default class VariantGridFormatter {
                         consequenceTypeName = "2KB_upstream_variant";
                     }
 
-                    if (typeof consequenceTypeName !== "undefined" && consequenceTypeName !== "" && !visited.has(consequenceTypeName)) {
-                        if (typeof this.consequenceTypeToImpact !== "undefined"
-                            && typeof this.consequenceTypeToImpact[consequenceTypeName] !== "undefined") {
-                            let imp = this.consequenceTypeToImpact[consequenceTypeName];
-                            if (typeof impact[imp] === "undefined") {
+                    if (consequenceTypeName && !visited.has(consequenceTypeName)) {
+                        if (consequenceTypeColors.consequenceTypeToImpact && consequenceTypeColors.consequenceTypeToImpact[consequenceTypeName]) {
+                            let imp = consequenceTypeColors.consequenceTypeToImpact[consequenceTypeName];
+                            if (!impact[imp]) {
                                 impact[imp] = [];
                             }
-                            if (typeof this.consequenceTypeToColor !== "undefined"
-                                && typeof this.consequenceTypeToColor[consequenceTypeName] !== "undefined") {
-                                impact[imp].push("<span style=\"color: " + this.consequenceTypeToColor[consequenceTypeName] + "\">" + consequenceTypeName + "</span>");
+                            if (consequenceTypeColors.consequenceTypeToColor && consequenceTypeColors.consequenceTypeToColor[consequenceTypeName]) {
+                                impact[imp].push("<span style=\"color: " + consequenceTypeColors.consequenceTypeToColor[consequenceTypeName] + "\">" + consequenceTypeName + "</span>");
                             } else {
                                 impact[imp].push("<span>" + consequenceTypeName + "</span>");
                             }
