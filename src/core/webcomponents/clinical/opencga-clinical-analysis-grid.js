@@ -55,6 +55,97 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
         this._prefix = UtilsNew.randomString(8);
 
         this.gridId = this._prefix + "ClinicalAnalysisGrid";
+
+        // TODO remove this code as soon as new OpenCGA configuration is in place
+        this.status = {
+            FAMILY: [
+                {
+                    id: "READY_FOR_INTERPRETATION",
+                    description: "The Clinical Analysis is ready for interpretations"
+                },
+                {
+                    id: "READY_FOR_REPORT",
+                    description: "The Interpretation is finished and it is to create the report"
+                },
+                {
+                    id: "CLOSED",
+                    description: "The Clinical Analysis is closed"
+                },
+                {
+                    id: "REJECTED",
+                    description: "The Clinical Analysis is rejected"
+                }
+            ],
+            CANCER: [
+                {
+                    id: "READY_FOR_INTERPRETATION",
+                    description: "The Clinical Analysis is ready for interpretations"
+                },
+                {
+                    id: "READY_FOR_REPORT",
+                    description: "The Interpretation is finished and it is to create the report"
+                },
+                {
+                    id: "CLOSED",
+                    description: "The Clinical Analysis is closed"
+                },
+                {
+                    id: "REJECTED",
+                    description: "The Clinical Analysis is rejected"
+                }
+            ],
+            SINGLE: [
+                {
+                    id: "READY_FOR_INTERPRETATION",
+                    description: "The Clinical Analysis is ready for interpretations"
+                },
+                {
+                    id: "READY_FOR_REPORT",
+                    description: "The Interpretation is finished and it is to create the report"
+                },
+                {
+                    id: "CLOSED",
+                    description: "The Clinical Analysis is closed"
+                },
+                {
+                    id: "REJECTED",
+                    description: "The Clinical Analysis is rejected"
+                }
+            ]
+        };
+
+        this.priorities = [
+            {
+                id: "URGENT",
+                description: "Highest priority of all",
+                rank: 1,
+                defaultPriority: false
+            },
+            {
+                id: "HIGH",
+                description: "Second highest priority of all",
+                rank: 2,
+                defaultPriority: false
+            },
+            {
+                id: "MEDIUM",
+                description: "Intermediate priority",
+                rank: 3,
+                defaultPriority: false
+            },
+            {
+                id: "LOW",
+                description: "Low priority",
+                rank: 4,
+                defaultPriority: false
+            },
+            {
+                id: "UNKNOWN",
+                description: "Unknown priority. Treated as the lowest priority of all.",
+                rank: 5,
+                defaultPriority: true
+            }
+        ];
     }
 
     connectedCallback() {
@@ -264,6 +355,9 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
     }
 
     priorityFormatter(value) {
+        // TODO remove this code as soon as new OpenCGA configuration is in place
+        let _priorities = this.opencgaSession.study?.configuration?.clinical ? this.opencgaSession.study.configuration.clinical : this.priorities;
+
         const priorityRankToColor = ["label-danger", "label-warning", "label-primary", "label-info", "label-success", "label-default"];
 
         if (UtilsNew.isEmpty(value)) {
@@ -277,7 +371,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                         <span class="caret" style="margin-left: 5px"></span>
                     </button>
                     <ul class="dropdown-menu">
-                        ${this.opencgaSession.study?.configuration.clinical.priorities.map( priority => {
+                        ${_priorities.map( priority => {
                             return `<li>
                                         <a href="javascript: void 0" class="btn force-text-left right-icon" data-action="priorityChange" data-priority="${priority.id}">
                                             <span class="label ${priorityRankToColor[priority.rank]}">
@@ -297,26 +391,30 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
     }
 
     statusFormatter(value, row) {
+        debugger
+        // TODO remove this code as soon as new OpenCGA configuration is in place
+        let _status = this.opencgaSession.study?.configuration?.clinical?.status ? this.opencgaSession.study.configuration.clinical.status : this.status;
+
         return OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS")
             ? `
                 <div class="dropdown">
-                    <button class="btn btn-default btn-sm dropdown-toggle one-line" type="button" data-toggle="dropdown">${value}
+                    <button class="btn btn-default btn-sm dropdown-toggle one-line" type="button" data-toggle="dropdown">${value.id}
                         <span class="caret" style="margin-left: 5px"></span>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-right">
-                        ${this.opencgaSession.study?.configuration?.clinical?.status[row.type].map( ({id, description}) => `
+                        ${_status[row.type].map( ({id, description}) => `
                             <li>
                                 <a href="javascript: void 0" class="btn force-text-left right-icon" data-action="statusChange" data-status="${id}">
                                     ${id === value.id ? `<strong>${id}</strong>` : id}
                                     <p class="text-muted"><small>${description}</small></p>
-                                    ${id === value ? `<i class="fas fa-check"></i>` : ""}
+                                    ${id === value.id ? `<i class="fas fa-check"></i>` : ""}
                                 </a>
-                                </li>
+                            </li>
                         `).join("")}
                         
                     </ul>
                 </div>`
-            : value;
+            : value.id;
     }
 
     onActionClick(e, _, row) {
@@ -466,7 +564,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
             },
             {
                 title: "Status",
-                field: "status.id",
+                field: "status",
                 halign: this._config.header.horizontalAlign,
                 valign: "middle",
                 formatter: this.statusFormatter.bind(this),
