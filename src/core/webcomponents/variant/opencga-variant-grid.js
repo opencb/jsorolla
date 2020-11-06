@@ -929,8 +929,6 @@ export default class OpencgaVariantGrid extends LitElement {
         this.gridConsequenceTypeSettings[filter] = e.currentTarget.checked;
         // switch (filter) {
         //     case "canonicalTranscript":
-        //
-        //         break;
         //     case "proteinCodingTranscript":
         //         break;
         //     case "worstConsequenceType":

@@ -108,6 +108,7 @@ export default class VariantInterpreterGrid extends LitElement {
         // FIXME Re-think this code
         const colors = this.variantGridFormatter.assignColors(consequenceTypes, proteinSubstitutionScore);
         Object.assign(this, colors);
+        this.consequenceTypeColors = colors;
     }
 
     clinicalAnalysisObserver() {
@@ -917,7 +918,8 @@ export default class VariantInterpreterGrid extends LitElement {
                     field: "consequenceType",
                     rowspan: 2,
                     colspan: 1,
-                    formatter: this.variantGridFormatter.consequenceTypeFormatter.bind(this),
+                    // formatter: this.variantGridFormatter.consequenceTypeFormatter.bind(this),
+                    formatter:(value, row, index) => this.variantGridFormatter.consequenceTypeFormatter(value, row, index, this.gridConsequenceTypeSettings, this.consequenceTypeColors),
                     halign: "center"
                 },
                 {
@@ -1322,6 +1324,92 @@ export default class VariantInterpreterGrid extends LitElement {
         $("#" + this.gridId).bootstrapTable("showLoading");
     }
 
+    onChangeSettings(filter, e) {
+        if (!this.gridConsequenceTypeSettings) {
+            this.gridConsequenceTypeSettings = {};
+        }
+        this.gridConsequenceTypeSettings[filter] = e.currentTarget.checked;
+        // switch (filter) {
+        //     case "canonicalTranscript":
+        //     case "proteinCodingTranscript":
+        //         break;
+        //     case "worstConsequenceType":
+        //         break;
+        //     case "loftConsequenceType":
+        //         break;
+        //
+        // }
+    }
+
+    onApplySettings(e) {
+        // console.log(e)
+        // this.table = $("#" + this.gridId);
+        // this.table.bootstrapTable("refresh");
+        this.renderVariants();
+        // debugger
+    }
+
+    getRightToolbar() {
+        return [
+            {
+                // visible: "",
+                render: () => html`
+                    <button type="button" class="btn btn-default btn-sm dropdown-toggle ripple" data-toggle="dropdown"
+                            aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-cog icon-padding"></i> Settings
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="${this._prefix}SaveMenu" style="width: 360px">
+                    <li style="margin: 5px 10px">
+                        <h4>Consequence Types</h4>
+                        <span class="help-block">You can filter which transcripts and consequence types are displayed in the variant grid</span>
+                        <div style="margin: 0px 5px">
+                            <label class="control-label">Select Transcripts</label>
+                        </div>
+                        <div style="margin: 0px 10px">
+                            <div>
+                                <input type="checkbox" class="form-control" @click="${e => this.onChangeSettings("canonicalTranscript", e)}">
+                                <span style="margin: 0px 5px">Canonical Transcript</span>
+                            </div>
+                            <div>
+                                <input type="checkbox" class="form-control" @click="${e => this.onChangeSettings("highQualityTranscript", e)}">
+                                <span style="margin: 0px 5px">High Quality Transcript</span>
+                            </div>
+                            <div>
+                                <input type="checkbox" class="form-control" @click="${e => this.onChangeSettings("proteinCodingTranscript", e)}">
+                                <span style="margin: 0px 5px">Protein Coding</span>
+                            </div>
+                        </div>
+                        
+                        <div style="margin: 5px 5px">
+                            <label>Select Consequence Types</label>
+                        </div>
+                        <div style="margin: 0px 10px">
+                            <div>
+                                <input type="checkbox" class="form-control" @click="${e => this.onChangeSettings("worstConsequenceType", e)}">
+                                <span style="margin: 0px 5px">Worst Consequence Type</span>
+                            </div>
+                            <div>
+                                <input type="checkbox" class="form-control" @click="${e => this.onChangeSettings("loftConsequenceType", e)}">
+                                <span style="margin: 0px 5px">Loss-of-Function</span>
+                            </div>
+                        </div>
+                    </li>
+                    <li role="separator" class="divider"></li>
+                    <li style="margin: 5px 10px">
+                        <div style="float: right">
+                            <button type="button" class="btn btn-primary" 
+                                @click="${e => this.onApplySettings(e)}" style="margin: 5px">Apply
+                            </button>
+                            <button type="button" class="btn btn-primary disabled" 
+                                @click="${this.onSaveInterpretation}" style="margin: 5px">Save
+                            </button>
+                        </div>
+                    </li>
+                </ul>`
+            }
+        ];
+    }
+
     render() {
         return html`
             <style>
@@ -1338,6 +1426,7 @@ export default class VariantInterpreterGrid extends LitElement {
             </style>
     
             <opencb-grid-toolbar .config="${this.toolbarConfig}"
+                                .rightToolbar="${this.getRightToolbar()}"
                                  @columnChange="${this.onColumnChange}"
                                  @download="${this.onDownload}"
                                  @sharelink="${this.onShare}">
