@@ -357,6 +357,14 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
     priorityFormatter(value) {
         // TODO remove this code as soon as new OpenCGA configuration is in place
         let _priorities = this.opencgaSession.study?.configuration?.clinical ? this.opencgaSession.study.configuration.clinical.priorities : this.priorities;
+        const priorityMap = {
+            URGENT: "label-danger",
+            HIGH: "label-warning",
+            MEDIUM: "label-primary",
+            LOW: "label-info"
+        }
+        // TODO /remove this code as soon as new OpenCGA configuration is in place
+
 
         const priorityRankToColor = ["label-danger", "label-warning", "label-primary", "label-info", "label-success", "label-default"];
 
@@ -365,8 +373,8 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
         } else if (OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS")) {
             return ` <div class="dropdown">
                     <button class="btn btn-default btn-sm dropdown-toggle one-line" type="button" data-toggle="dropdown">
-                        <span class="label ${priorityRankToColor[value.rank]}">
-                            ${value.id}
+                        <span class="label ${priorityRankToColor[value.rank] ?? priorityMap[value]}">
+                            ${value.id ?? value}
                         </span>
                         <span class="caret" style="margin-left: 5px"></span>
                     </button>
@@ -393,6 +401,8 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
     statusFormatter(value, row) {
         // TODO remove this code as soon as new OpenCGA configuration is in place
         let _status = this.opencgaSession.study?.configuration?.clinical?.status ? this.opencgaSession.study.configuration.clinical.status : this.status;
+        value = {id: value.name, ...value};
+        // TODO /remove this code as soon as new OpenCGA configuration is in place
 
         return OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS")
             ? `
