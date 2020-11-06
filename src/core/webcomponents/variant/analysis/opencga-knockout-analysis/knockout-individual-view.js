@@ -16,6 +16,7 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../../utilsNew.js";
+import CatalogGridFormatter from "../../../commons/catalog-grid-formatter.js";
 import AnalysisRegistry from "../analysis-registry.js";
 import GridCommons from "../../grid-commons.js";
 import knockoutDataIndividuals from "../test/knockout.20201103172343.kFIvpr.individuals.js";
@@ -60,10 +61,12 @@ export default class KnockoutIndividualView extends LitElement {
         super.connectedCallback();
         this._config = {...this.getDefaultConfig(), ...this.config};
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
-
+        this.catalogGridFormatter = new CatalogGridFormatter(this.opencgaSession);
         this.detailConfig = this.getDetailConfig();
-
-        this.individual = null
+        this.individual = null;
+        this.toolbarConfig = {
+            columns: this._initTableColumns()[0]
+        };
     }
 
     firstUpdated(_changedProperties) {
@@ -93,7 +96,6 @@ export default class KnockoutIndividualView extends LitElement {
     }
 
     prepareData() {
-        console.log(knockoutDataIndividuals);
         this.tableData = knockoutDataIndividuals;
     }
 
@@ -115,7 +117,7 @@ export default class KnockoutIndividualView extends LitElement {
             formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
             onClickRow: (row, selectedElement, field) => {
                 this.individual = {id: row.sampleId, ...row}; //TODO temp fix for missing id
-                this.gridCommons.onClickRow(row.id, row, selectedElement)
+                this.gridCommons.onClickRow(row.id, row, selectedElement);
                 this.requestUpdate();
             },
             onLoadSuccess: data => {
@@ -133,25 +135,99 @@ export default class KnockoutIndividualView extends LitElement {
         });
     }
 
+    onColumnChange(e) {
+        this.gridCommons.onColumnChange(e);
+    }
+
     _initTableColumns() {
         return [
-            {
-                title: "Individual Id",
-                field: "sampleId"
-            },
-            {
-                title: "Sample",
-                field: "sampleId"
-            },
-            {
-                title: "Homozygous",
-                field: "stats.byType.HOM_ALT"
-            },
-            {
-                title: "Compound Heterozygous",
-                field: "stats.byType.COMP_HET"
-            }
+            [
+                {
+                    title: "Individual Id",
+                    field: "sampleId",
+                    rowspan: 2
+                },
+                {
+                    title: "Sample",
+                    field: "sampleId",
+                    rowspan: 2
+                },
+                {
+                    title: "Gene",
+                    field: "genes",
+                    rowspan: 2,
+                    formatter: genes => genes.length ? genes.map(gene => gene.name) : "-"
+                },
+                {
+                    title: "Homozygous",
+                    field: "stats.byType.HOM_ALT"
+                },
+                {
+                    title: "Compound Heterozygous",
+                    field: "stats.byType.COMP_HET",
+                    colspan: 4
+                },
+                {
+                    title: "Disorders",
+                    field: "disorders",
+                    rowspan: 2,
+                    formatter: disorders => disorders.length ? disorders.map(this.catalogGridFormatter.disorderFormatter) : "-"
+
+                },
+                {
+                    title: "Phenotypes",
+                    field: "phenotypes",
+                    rowspan: 2,
+                    formatter: this.catalogGridFormatter.phenotypesFormatter
+
+                }
+            ], [
+                {
+                    title: "Total",
+                    field: "stats.byType.HOM_ALT"
+                },
+                {
+                    title: "Total",
+                    field: "stats.byType.COMP_HET"
+                },
+                {
+                    title: "Definitely",
+                    field: "stats.byType.COMP_HET.def"
+                },
+                {
+                    title: "Probable",
+                    field: "stats.byType.COMP_HET.prob"
+                },
+                {
+                    title: "Possible",
+                    field: "stats.byType.COMP_HET.poss"
+                }
+            ]
         ];
+    }
+
+    onDownload(e) {
+        console.log(e)
+        const header = ["Individual Id", "Sample","Gene","HOM_ALT","COMP_HET.total","COMP_HET.def","COMP_HET.prob","COMP_HET.poss","Disorders","Phenotypes"];
+        if (e.detail.option.toLowerCase() === "tab") {
+            const dataString = [
+                header.join("\t"),
+                ...this.tableData.map(_ => [
+                    _.sampleId,
+                    _.sampleId,
+                    _.genes.length ? _.genes.map(gene => gene.name).join(",") : "-",
+                    _.stats.byType.HOM_ALT,
+                    _.stats.byType.COMP_HET,
+                    _.stats.byType.COMP_HET.def,
+                    _.stats.byType.COMP_HET.prob,
+                    _.stats.byType.COMP_HET.poss,
+                    _.disorders.length ? _.disorders.map(disorder => disorder.name).join(",") : "-",
+                    _.phenotypes.length ? _.phenotypes.map(disorder => disorder.name).join(",") : "-"
+                ].join("\t"))];
+            UtilsNew.downloadData(dataString, "knockout_individual_view" + this.opencgaSession.study.id + ".txt", "text/plain");
+        } else {
+            UtilsNew.downloadData(JSON.stringify(this.tableData, null, "\t"), this.opencgaSession.study.id + ".json", "application/json");
+        }
     }
 
     getDefaultConfig() {
@@ -173,11 +249,11 @@ export default class KnockoutIndividualView extends LitElement {
                             <knockout-individual-variants .individual="${individual}"></knockout-individual-variants>
                         `;
                     }
-                },{
+                }, {
                     id: "family-view",
                     name: "Family",
                     render: (individual, active, opencgaSession) => {
-                        return html`<opencga-family-view .individualId="${individual.id}" .opencgaSessoion="${opencgaSession}"></opencga-family-view>`;
+                        return html`<opencga-family-view .individualId="${individual.id}" .opencgaSession="${opencgaSession}"></opencga-family-view>`;
                     }
                 }
             ]
@@ -186,6 +262,10 @@ export default class KnockoutIndividualView extends LitElement {
 
     render() {
         return html`
+            <opencb-grid-toolbar .config="${this.toolbarConfig}"
+                                 @columnChange="${this.onColumnChange}"
+                                 @download="${this.onDownload}">
+            </opencb-grid-toolbar>
             <div class="row">
                 <table id="${this.gridId}"></table>
             </div>

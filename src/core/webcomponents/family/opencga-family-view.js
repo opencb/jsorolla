@@ -62,13 +62,14 @@ export default class OpencgaFamilyView extends LitElement {
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("familyId")) {
-            this.individualIdObserver();
-        }
         if (changedProperties.has("opencgaSession")) {
-            console.log("family obs!!")
-            this.individualIdObserver();
+            //this.individualIdObserver();
         }
+
+        if (changedProperties.has("familyId")) {
+            this.familyIdObserver();
+        }
+
         if (changedProperties.has("individualId")) {
             this.individualIdObserver();
         }
@@ -78,7 +79,7 @@ export default class OpencgaFamilyView extends LitElement {
     }
 
     familyIdObserver() {
-        if (this.familyId) {
+        if (this.opencgaSession && this.familyId) {
             this.opencgaSession.opencgaClient.families().info(this.familyId, {study: this.opencgaSession.study.fqn})
                 .then( response => {
                     this.family = response.getResult(0);
@@ -91,11 +92,10 @@ export default class OpencgaFamilyView extends LitElement {
     }
 
     individualIdObserver() {
-        this.individualId = "ISDBM322015";
-        if (this.individualId) {
+        if (this.opencgaSession && this.individualId) {
             this.opencgaSession.opencgaClient.families().search({members: this.individualId, study: this.opencgaSession.study.fqn})
                 .then( response => {
-                    this.family = response.getResult(0); // TODO it takes into account just the first family
+                    this.family = response.getResult(0); // TODO FIXME it takes into account just the first family
                     this.requestUpdate();
                 })
                 .catch(function(reason) {

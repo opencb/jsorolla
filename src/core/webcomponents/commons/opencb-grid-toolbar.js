@@ -61,9 +61,7 @@ export default class OpencbGridToolbar extends LitElement {
         this.dispatchEvent(new CustomEvent("download", {
             detail: {
                 option: e.target.dataset.downloadOption
-            },
-            bubbles: true,
-            composed: true
+            }
         }));
     }
 
