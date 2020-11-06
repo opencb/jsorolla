@@ -356,7 +356,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
 
     priorityFormatter(value) {
         // TODO remove this code as soon as new OpenCGA configuration is in place
-        let _priorities = this.opencgaSession.study?.configuration?.clinical ? this.opencgaSession.study.configuration.clinical : this.priorities;
+        let _priorities = this.opencgaSession.study?.configuration?.clinical ? this.opencgaSession.study.configuration.clinical.priorities : this.priorities;
 
         const priorityRankToColor = ["label-danger", "label-warning", "label-primary", "label-info", "label-success", "label-default"];
 
@@ -391,7 +391,6 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
     }
 
     statusFormatter(value, row) {
-        debugger
         // TODO remove this code as soon as new OpenCGA configuration is in place
         let _status = this.opencgaSession.study?.configuration?.clinical?.status ? this.opencgaSession.study.configuration.clinical.status : this.status;
 
