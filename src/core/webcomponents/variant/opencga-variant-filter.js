@@ -133,7 +133,6 @@ export default class OpencgaVariantFilter extends LitElement {
     }
 
     queryObserver() {
-        debugger
         // the following line FIX the "silent" persistence of active filters once 1 is deleted, due to an inconsistence between query and preparedQuery. Step to reproduce:
         // 0. comment the line `this.preparedQuery = this.query;`
         // 1. add some filters from variant=filter
@@ -150,28 +149,28 @@ export default class OpencgaVariantFilter extends LitElement {
 
         // This section parse query.filedata and stores the filters for each file.
         // This is use for the somatic caller filters
-        this.somaticCallerQueryMap = {};
-        if (this.preparedQuery.fileData) {
-            let fileDataFilters = this.preparedQuery.fileData.split(",");
-            for (let fileDataFilter of fileDataFilters) {
-                let [fileName, fileFilter] = fileDataFilter.split(":");
-                let filters = fileFilter.split(";");
-                let query = {};
-                for (let filter of filters) {
-                    let key, comparator, value;
-                    if (filter.includes("<") || filter.includes("<=") || filter.includes(">") || filter.includes(">=")) {
-                        [, key, comparator, value] = filter.match(/(\w*)(<=?|>=?|=)(-?\d*\.?\d+)/);
-                    } else {
-                        [key, value] = filter.split("=");
-                        // number-field-filter needs the equal operator
-                        isNaN(value) ? comparator = "" : comparator = "=";
-                    }
-                    query[key] = comparator + value;
-                }
-                this.somaticCallerQueryMap[fileName] = query;
-            }
-        }
-
+//         this.somaticCallerQueryMap = {};
+//         if (this.preparedQuery.fileData) {
+//             let fileDataFilters = this.preparedQuery.fileData.split(",");
+//             for (let fileDataFilter of fileDataFilters) {
+//                 let [fileName, fileFilter] = fileDataFilter.split(":");
+//                 let filters = fileFilter.split(";");
+//                 let query = {};
+//                 for (let filter of filters) {
+//                     let key, comparator, value;
+//                     if (filter.includes("<") || filter.includes("<=") || filter.includes(">") || filter.includes(">=")) {
+//                         [, key, comparator, value] = filter.match(/(\w*)(<=?|>=?|=)(-?\d*\.?\d+)/);
+//                     } else {
+//                         [key, value] = filter.split("=");
+//                         // number-field-filter needs the equal operator
+//                         isNaN(value) ? comparator = "" : comparator = "=";
+//                     }
+//                     query[key] = comparator + value;
+//                 }
+//                 this.somaticCallerQueryMap[fileName] = query;
+//             }
+//         }
+// debugger
         this.requestUpdate();
     }
 
@@ -206,6 +205,7 @@ export default class OpencgaVariantFilter extends LitElement {
      * @param value the new value of the property
      */
     onFilterChange(key, value) {
+        debugger
         /* Some filters may return more than parameter, in this case key and value are objects with all the keys and filters
              - key: an object mapping filter name with the one returned
              - value: and object with the filter
@@ -235,7 +235,7 @@ export default class OpencgaVariantFilter extends LitElement {
         }
 
         this.notifyQuery(this.preparedQuery);
-        this.requestUpdate();
+        // this.requestUpdate();
     }
 
     /**
@@ -253,10 +253,31 @@ export default class OpencgaVariantFilter extends LitElement {
             delete this.preparedQuery.includeSample;
         }
         this.preparedQuery = {...this.preparedQuery, ...sampleFields};
-        debugger
+        // debugger
         this.notifyQuery(this.preparedQuery);
 
         this.requestUpdate(); // NOTE: this causes the bug in sample-filter / variant-filter-clinical (clicking the checkboxes on variant-filter-clinical)
+    }
+
+    onVariantCallerInfoFilter(fileId, fileDataFilter) {
+        let fileDataArray = [];
+        if (this.preparedQuery.fileData) {
+            fileDataArray = this.preparedQuery.fileData.split(",");
+            let fileDataIndex = fileDataArray.findIndex(e => e.startsWith(fileId));
+            if (fileDataIndex >= 0) {
+                fileDataArray[fileDataIndex] = fileDataFilter;
+            } else {
+                fileDataArray.push(fileDataFilter);
+            }
+        } else {
+            fileDataArray.push(fileDataFilter);
+        }
+
+        this.preparedQuery = {
+            ...this.preparedQuery,
+            fileData: fileDataArray.join(",")
+        };
+        this.notifyQuery(this.preparedQuery);
     }
 
     _isFilterVisible(filter) {
@@ -427,12 +448,11 @@ export default class OpencgaVariantFilter extends LitElement {
                 case "brass":
                 case "manta":
                 case "tnhaplotyper2":
-                    // debugger
                     content = html`
                         <variant-caller-info-filter .caller="${subsection.id}" 
                                                     .fileId="${subsection.params.fileId}" 
-                                                    .query="${this.somaticCallerQueryMap[subsection.params.fileId] ?? {}}"
-                                                    @filterChange="${e => this.onFilterChange("fileData", subsection.callback(e.detail.value, this.preparedQuery))}">
+                                                    .fileData="${this.preparedQuery.fileData}" 
+                                                    @filterChange="${e => this.onVariantCallerInfoFilter(subsection.params.fileId, e.detail.value)}">
                         </variant-caller-info-filter>`;
                     break;
                 default:

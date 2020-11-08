@@ -35,13 +35,14 @@ export default class VariantCallerInfoFilter extends LitElement {
 
     static get properties() {
         return {
+            // Mandatory
+            caller: {
+                type: String
+            },
             fileId: {
                 type: String
             },
-            query: {
-                type: Object
-            },
-            caller: {
+            fileData: {
                 type: String
             },
             config: {
@@ -53,6 +54,7 @@ export default class VariantCallerInfoFilter extends LitElement {
     _init() {
         this._prefix = UtilsNew.randomString(8);
 
+        this.fileDataSeparator = ",";
         this._config = this.getDefaultConfig();
     }
 
@@ -63,44 +65,108 @@ export default class VariantCallerInfoFilter extends LitElement {
     }
 
     updated(changedProperties) {
-        // debugger
-        // if (changedProperties.has("query")) {
-        //     if (!this.query) {
-        //         this.query = {};
-        //     }
-        // }
+        if (changedProperties.has("fileData")) {
+            this.fileDataObserver();
+        }
+    }
+
+    /**
+     * This observer process the fileData string and prepares the query object for data-form
+     * and stores some variables for notifying the new fileData.
+     */
+    fileDataObserver() {
+        if (this.fileData) {
+            // Let's keep the fileData split in an array format, this will be used later
+            this.fileDataArray = this.fileData.split(this.fileDataSeparator);
+
+            // First, check if fileId has been provided, this is only mandatory when more than fileData exists.
+            if (this.fileId) {
+                // Let's store the fileData index for the current fileId, this will be used later
+                this.fileDataIndex = this.fileDataArray.findIndex(e => e.startsWith(this.fileId));
+            } else {
+                if (this.fileDataArray.length === 1) {
+                    this.fileDataIndex = 0;
+                } else {
+                    console.error("No fileId provided and more than fileData found", this.fileDataArray);
+                    return;
+                }
+            }
+
+            // Check if the fileId provided exists in fileData, it can be absent if not filter has been ever selected
+            if (this.fileDataIndex >= 0) {
+                // fileId is optional in the fileData filter when one single file exist
+                this.fileDataInfoFilters = "";
+                if (this.fileDataArray[this.fileDataIndex].includes(":")) {
+                    this.fileDataInfoFilters = this.fileDataArray[this.fileDataIndex].split(":")[1];
+                } else {
+                    this.fileDataInfoFilters = this.fileDataArray[this.fileDataIndex];
+                }
+
+                // Let's get the key values filters, we assume an AND here
+                this.fileDataQuery = {};
+                let filters = this.fileDataInfoFilters.split(";");
+                for (let filter of filters) {
+                    let key, comparator, value;
+                    if (filter.includes("<") || filter.includes("<=") || filter.includes(">") || filter.includes(">=")) {
+                        [, key, comparator, value] = filter.match(/(\w*)(<=?|>=?|=)(-?\d*\.?\d+)/);
+                    } else {
+                        [key, value] = filter.split("=");
+                        // number-field-filter needs the equal operator
+                        isNaN(value) ? comparator = "" : comparator = "=";
+                    }
+                    this.fileDataQuery[key] = comparator + value;
+                }
+            } else {
+                // fileData does not contain an entry for this file, so no filters are applied
+                this.fileDataArray = [];
+                this.fileDataIndex = -1;
+                this.fileDataInfoFilters = "";
+                this.fileDataQuery = {};
+            }
+        } else {
+            // fileData can be empty in different situations such as after executing clear()
+            this.fileDataArray = [];
+            this.fileDataIndex = -1;
+            this.fileDataInfoFilters = "";
+            this.fileDataQuery = {};
+        }
+
+        this.requestUpdate();
     }
 
     filterChange(e) {
-        debugger
-        if (!this.query) {
-            this.query = {};
+        let filters = [];
+        // Fetch existing filters
+        if (this.fileDataInfoFilters) {
+            filters = this.fileDataInfoFilters.split(";");
         }
+
+        let filterIndex = filters.findIndex(filter => filter.startsWith(e.detail.param));
         if (e.detail.value) {
+            let filter = "";
             switch (e.detail.param) {
                 case "FILTER":
-                    this.query[e.detail.param] = "PASS";
+                    filter = "FILTER=PASS";
                     break;
                 default:
-                    this.query[e.detail.param] = e.detail.value;
+                    filter = e.detail.param + "" + e.detail.value;
                     break;
             }
+
+            // Check if we are editing an existing filter (index >= 0) or adding a new filter
+            if (filterIndex >= 0) {
+                filters[filterIndex] = filter;
+            } else {
+                filters.push(filter);
+            }
         } else {
-            delete this.query[e.detail.param];
+            // If value is empty we must delete the filter
+            filters.splice(filterIndex, 1);
         }
 
-        this.notify();
-    }
-
-    notify() {
+        // Build the fileData ONLY FOR THIS PARTICULAR FILE
         let filter = this.fileId ? this.fileId + ":" : "";
-        filter += Object.entries(this.query).map(([k, v]) => {
-            if (k === "FILTER") {
-                return k + "=" + v;
-            } else {
-                return k + "" + v;
-            }
-        }).join(";");
+        filter += filters.join(";");
 
         const event = new CustomEvent("filterChange", {
             detail: {
@@ -314,9 +380,8 @@ export default class VariantCallerInfoFilter extends LitElement {
     }
 
     render() {
-        // debugger
         return html`
-            <data-form .data=${this.query ?? {}} .config="${this._config}" @fieldChange="${this.filterChange}"></data-form>
+            <data-form .data=${this.fileDataQuery} .config="${this._config}" @fieldChange="${this.filterChange}"></data-form>
         `;
     }
 }

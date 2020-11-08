@@ -106,7 +106,6 @@ class VariantInterpreterBrowserCancer extends LitElement {
     }
 
     queryObserver() {
-        debugger
         if (this.opencgaSession && this.query) {
             this.preparedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
             this.executedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
@@ -116,7 +115,6 @@ class VariantInterpreterBrowserCancer extends LitElement {
 
     clinicalAnalysisObserver() {
         this.clinicalAnalysisManager = new ClinicalAnalysisManager(this.clinicalAnalysis, this.opencgaSession);
-        debugger
         this._sample = this.clinicalAnalysis.proband.samples.find(sample => sample.somatic);
         if (this._sample) {
             // Set query object
@@ -271,7 +269,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
     }
 
     onActiveFilterChange(e) {
-        debugger
+        // debugger
         this.query = {...e.detail};
         // this.preparedQuery = {...e.detail};
         // // TODO is this really needed? it seems to work without this line.
@@ -288,30 +286,6 @@ class VariantInterpreterBrowserCancer extends LitElement {
         this.queryObserver();
     }
 
-    onVariantCallerFilterChange(filter, query) {
-        debugger
-        if (query.fileData) {
-            let [fileId, fileFilter] = filter.split(":");
-            let files = query.fileData.split(",");
-            let fileIndex = files.findIndex(e => e.startsWith(fileId));
-            if (fileIndex >= 0) {
-                if (fileFilter) {
-                    files[fileIndex] = filter;
-                } else {
-                    files.splice(fileIndex, 1);
-                }
-            } else {
-                if (fileFilter) {
-                    files.push(filter);
-                }
-            }
-            return files.join(",");
-        } else {
-            return filter;
-        }
-        // this.requestUpdate();
-    }
-
     getDefaultConfig() {
         // Prepare dynamic Variant Caller INFO filters
         let callers = ["Caveman", "strelka", "Pindel", "ASCAT", "Canvas", "BRASS", "Manta", "TNhaplotyper2"];
@@ -324,7 +298,6 @@ class VariantInterpreterBrowserCancer extends LitElement {
                     title: caller + " Filters",
                     description: () => html`File filters for <span style="font-style: italic; word-break: break-all">${this.callerToFile[callerId].name}</span>`,
                     visible: () => this.callerToFile && this.callerToFile[callerId],
-                    callback: (filter, query) => this.onVariantCallerFilterChange(filter, query),
                     params: {
                         fileId: `${this.callerToFile ? this.callerToFile[callerId]?.name : null}`,
                     }
