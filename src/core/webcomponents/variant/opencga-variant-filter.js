@@ -118,6 +118,7 @@ export default class OpencgaVariantFilter extends LitElement {
         if (changedProperties.has("opencgaSession")) {
             this.opencgaSessionObserver();
         }
+
         if (changedProperties.has("query")) {
             this.queryObserver();
         }
@@ -147,30 +148,6 @@ export default class OpencgaVariantFilter extends LitElement {
             this.skipClinicalFilterQueryUpdate = true;
         }
 
-        // This section parse query.filedata and stores the filters for each file.
-        // This is use for the somatic caller filters
-//         this.somaticCallerQueryMap = {};
-//         if (this.preparedQuery.fileData) {
-//             let fileDataFilters = this.preparedQuery.fileData.split(",");
-//             for (let fileDataFilter of fileDataFilters) {
-//                 let [fileName, fileFilter] = fileDataFilter.split(":");
-//                 let filters = fileFilter.split(";");
-//                 let query = {};
-//                 for (let filter of filters) {
-//                     let key, comparator, value;
-//                     if (filter.includes("<") || filter.includes("<=") || filter.includes(">") || filter.includes(">=")) {
-//                         [, key, comparator, value] = filter.match(/(\w*)(<=?|>=?|=)(-?\d*\.?\d+)/);
-//                     } else {
-//                         [key, value] = filter.split("=");
-//                         // number-field-filter needs the equal operator
-//                         isNaN(value) ? comparator = "" : comparator = "=";
-//                     }
-//                     query[key] = comparator + value;
-//                 }
-//                 this.somaticCallerQueryMap[fileName] = query;
-//             }
-//         }
-// debugger
         this.requestUpdate();
     }
 
@@ -205,7 +182,6 @@ export default class OpencgaVariantFilter extends LitElement {
      * @param value the new value of the property
      */
     onFilterChange(key, value) {
-        debugger
         /* Some filters may return more than parameter, in this case key and value are objects with all the keys and filters
              - key: an object mapping filter name with the one returned
              - value: and object with the filter
