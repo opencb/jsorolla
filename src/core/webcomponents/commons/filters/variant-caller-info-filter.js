@@ -160,8 +160,10 @@ export default class VariantCallerInfoFilter extends LitElement {
                 filters.push(filter);
             }
         } else {
-            // If value is empty we must delete the filter
-            filters.splice(filterIndex, 1);
+            // If value is empty we must delete the filter if exist
+            if (filterIndex >= 0) {
+                filters.splice(filterIndex, 1);
+            }
         }
 
         // Build the fileData ONLY FOR THIS PARTICULAR FILE

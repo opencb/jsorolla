@@ -278,6 +278,7 @@ export default class OpencgaVariantFilter extends LitElement {
             fileData: fileDataArray.join(",")
         };
         this.notifyQuery(this.preparedQuery);
+        this.requestUpdate();
     }
 
     _isFilterVisible(filter) {
