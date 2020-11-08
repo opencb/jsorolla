@@ -167,8 +167,12 @@ export default class VariantCallerInfoFilter extends LitElement {
         }
 
         // Build the fileData ONLY FOR THIS PARTICULAR FILE
-        let filter = this.fileId ? this.fileId + ":" : "";
-        filter += filters.join(";");
+        let filter = "";
+        if (filters.length > 0) {
+            filter = this.fileId ? this.fileId + ":" : "";
+            filter += filters.join(";");
+        }
+        
 
         const event = new CustomEvent("filterChange", {
             detail: {
