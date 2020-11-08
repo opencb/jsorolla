@@ -58,14 +58,11 @@ export default class OpencgaKnockoutAnalysisResult extends LitElement {
         this._config = this.getDefaultConfig();
 
         this.data = knockoutData;
-
         this.LIMIT = 50; //temp limit for both rows and cols
         this.colToShow = 2;
-
         this.gridId = this._prefix + "KnockoutGrid";
-
-        this.activeTab = {summary:true};
-        this.preprocess()
+        this.activeTab = {summary: true};
+        this.preprocess();
     }
 
     connectedCallback() {
@@ -75,14 +72,22 @@ export default class OpencgaKnockoutAnalysisResult extends LitElement {
 
     }
 
-    firstUpdated(_changedProperties) {
-        this.renderTable()
+    updated(changedProperties) {
+        if (changedProperties.has("opencgaSession")) {
+            console.log("opencgaSession avail")
+            this.renderTable();
+            this.requestUpdate();
+        }
+        if (changedProperties.has("config")) {
+            this._config = {...this.getDefaultConfig(), ...this.config};
+            this.requestUpdate();
+        }
     }
 
     preprocess() {
         let i = 0;
         this._data = {};
-        this.samples = []
+        this.samples = [];
         for (let a = 0; a < this.data.length; a++) {
             const sample = this.data[a];
             for (let b = 0; b < sample.genes.length; b++) {
@@ -92,24 +97,24 @@ export default class OpencgaKnockoutAnalysisResult extends LitElement {
                     for (let d = 0; d < transcript.variants.length; d++) {
                         const variant = transcript.variants[d];
                         //console.log(variant.id)
-                        this.samples.push(sample)
+                        this.samples.push(sample);
                         if (this._data[variant.id]) {
                             this._data[variant.id].push({sampleId: sample.sampleId, variant: variant});
                         } else {
                             this._data[variant.id] = [{sampleId: sample.sampleId, variant: variant}];
                         }
-                        i++
+                        i++;
                     }
                 }
             }
         }
         this.samples = [...new Set(this.samples)];
-        this.activeSamples = this.samples.slice(0,this.colToShow).map(sample => sample.sampleId);
-        this.tableData = Object.entries(this._data).splice(0,this.LIMIT).map( ([variant, samples]) => ({
+        this.activeSamples = this.samples.slice(0, this.colToShow).map(sample => sample.sampleId);
+        this.tableData = Object.entries(this._data).splice(0, this.LIMIT).map(([variant, samples]) => ({
             variantId: variant,
             data: samples
-        }))
-        this.renderTable()
+        }));
+        this.renderTable();
 
     }
 
@@ -128,7 +133,7 @@ export default class OpencgaKnockoutAnalysisResult extends LitElement {
             paginationVAlign: "both",
             //formatShowingRows: this.gridCommons.formatShowingRows,
             gridContext: this,
-            formatLoadingMessage: () =>"<div><loading-spinner></loading-spinner></div>",
+            formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
             onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement)
         });
     }
@@ -144,41 +149,19 @@ export default class OpencgaKnockoutAnalysisResult extends LitElement {
                     field: sample.sampleId,
                     visible: !!~this.activeSamples.indexOf(sample.sampleId),
                     formatter: (v, row) => {
-                        return row.data.find( a => a.sampleId === sample.sampleId)?.variant?.knockoutType
+                        return row.data.find(a => a.sampleId === sample.sampleId)?.variant?.knockoutType;
                         //return JSON.stringify(v)
                     }
-                }
+                };
             })];
-    }
-
-    updated(changedProperties) {
-        if (changedProperties.has("opencgaSession")) {
-            this.job = null;
-        }
-
-        /*if (changedProperties.has("job") && this.opencgaSession) {
-            this.job = null;
-            let query = {study: "demo@family:corpasome", job: "knockout.20201021003108.inXESR"};
-            this.opencgaSession.opencgaClient.variants().queryKnockoutIndividual(query).then(restResponse => {
-                console.log(restResponse.getResults())
-                this.data = restResponse.getResults()
-
-            })
-        }*/
-
-
-        if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
-            this.requestUpdate();
-        }
     }
 
     onColumnChange(e) {
         const ids = e.detail.value ?? "";
         this.table.bootstrapTable("hideAllColumns");
-        this.table.bootstrapTable("showColumn", ["variantId","dbSNP","consequenceType"]);
+        this.table.bootstrapTable("showColumn", ["variantId", "dbSNP", "consequenceType"]);
         if (ids) {
-            ids.split(",").forEach( id => this.table.bootstrapTable("showColumn", id));
+            ids.split(",").forEach(id => this.table.bootstrapTable("showColumn", id));
         }
 
     }
@@ -203,7 +186,8 @@ export default class OpencgaKnockoutAnalysisResult extends LitElement {
     }
 
     render() {
-        return html`
+        //wait for opencgaSession to be available because inner components use it
+        return this.opencgaSession ? html`
             <div class="container" style="margin-top: 60px">
                 <div id="opencga-knockout-analysis-result">
                     <div class="btn-group content-pills" role="toolbar" aria-label="toolbar">
@@ -236,7 +220,7 @@ export default class OpencgaKnockoutAnalysisResult extends LitElement {
                             </div>
                         </div>
                         <div id="${this._prefix}gene" class="content-tab">
-                            <knockout-gene-grid></knockout-gene-grid>
+                            <knockout-gene-grid .opencgaSession="${this.opencgaSession}"></knockout-gene-grid>
                         </div>
                         <div id="${this._prefix}individual" class="content-tab">
                             <knockout-individual-view .opencgaSession="${this.opencgaSession}"></knockout-individual-view>
@@ -247,7 +231,7 @@ export default class OpencgaKnockoutAnalysisResult extends LitElement {
                     </div>
                 </div>
             </div>
-        `;
+        ` : null;
     }
 
 }

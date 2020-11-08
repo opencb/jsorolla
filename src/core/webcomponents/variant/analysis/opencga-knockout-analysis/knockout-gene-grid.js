@@ -49,18 +49,19 @@ export default class KnockoutGeneGrid extends LitElement {
 
     _init() {
         this._prefix = "oga-" + UtilsNew.randomString(6);
-
         this._config = this.getDefaultConfig();
-
         this.data = knockoutDataGene;
         this.gridId = this._prefix + "KnockoutGrid";
-        this.preprocess();
+        this.prepareData();
     }
 
     connectedCallback() {
         super.connectedCallback();
         this._config = {...this.getDefaultConfig(), ...this.config};
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
+        this.toolbarConfig = {
+            columns: this._initTableColumns()[0]
+        };
 
     }
 
@@ -90,10 +91,7 @@ export default class KnockoutGeneGrid extends LitElement {
         }
     }
 
-    preprocess() {
-
-        console.log(knockoutDataGene)
-
+    prepareData() {
         this.tableData = knockoutDataGene
     }
 
@@ -128,16 +126,14 @@ export default class KnockoutGeneGrid extends LitElement {
                     formatter: this.geneIdFormatter
                 },
                 {
-                    title: "Compound Hets",
+                    title: "Compound Heterozygous",
                     colspan: 4
                 },
                 {
-                    title: "Homs",
-                    row: 2
+                    title: "Homozygous",
                 },
                 {
                     title: "All",
-                    row: 2
                 }
             ],
             [
@@ -174,12 +170,41 @@ export default class KnockoutGeneGrid extends LitElement {
         return `${row.name} <br> <span class="text-muted">${row.chromosome}:${row.start}-${row.end} (${row.strand})</span>`
     }
 
+    onColumnChange(e) {
+        this.gridCommons.onColumnChange(e);
+    }
+
+    onDownload(e) {
+        console.log(e)
+        const header = ["Gene", "HOM_ALT","COMP_HET.total","COMP_HET.def","COMP_HET.prob","COMP_HET.poss","Individuals"];
+        if (e.detail.option.toLowerCase() === "tab") {
+            const dataString = [
+                header.join("\t"),
+                ...this.tableData.map(_ => [
+                    _.name,
+                    _.stats.byType.HOM_ALT,
+                    _.stats.byType.COMP_HET,
+                    _.stats.byType.COMP_HET.def,
+                    _.stats.byType.COMP_HET.prob,
+                    _.stats.byType.COMP_HET.poss,
+                    _.individuals.length
+                ].join("\t"))];
+            UtilsNew.downloadData(dataString, this.opencgaSession.study.id + "_knockout_gene_view.txt", "text/plain");
+        } else {
+            UtilsNew.downloadData(JSON.stringify(this.tableData, null, "\t"), this.opencgaSession.study.id + "_knockout_gene_view.json", "application/json");
+        }
+    }
+
     getDefaultConfig() {
         return AnalysisRegistry.get("knockout").config;
     }
 
     render() {
         return html`
+            <opencb-grid-toolbar .config="${this.toolbarConfig}"
+                                 @columnChange="${this.onColumnChange}"
+                                 @download="${this.onDownload}">
+            </opencb-grid-toolbar>
             <div class="row">
                 <table id="${this.gridId}"></table>
             </div>
