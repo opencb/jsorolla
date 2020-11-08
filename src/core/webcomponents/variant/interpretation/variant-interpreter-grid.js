@@ -1285,7 +1285,7 @@ export default class VariantInterpreterGrid extends LitElement {
             alleleStringLengthMax: 10,
 
             genotype: {
-                type: "circle"
+                type: "bar"
             },
             header: {
                 horizontalAlign: "center",

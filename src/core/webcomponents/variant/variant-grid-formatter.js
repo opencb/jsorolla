@@ -339,7 +339,7 @@ export default class VariantGridFormatter {
                     consequenceTypes.push(...row.annotation.consequenceTypes.filter(ct => ct.transcriptAnnotationFlags?.includes("basic")));
                 }
             }
-            debugger
+            // debugger
             if (consequenceTypes.length === 0) {
                 consequenceTypes = row.annotation.consequenceTypes;
             }

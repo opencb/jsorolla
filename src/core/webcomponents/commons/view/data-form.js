@@ -66,7 +66,7 @@ export default class DataForm extends LitElement {
 
     updated(changedProperties) {
         if (changedProperties.has("data")) {
-            this.requestUpdate();
+            // this.requestUpdate();
         }
     }
 
@@ -485,12 +485,13 @@ export default class DataForm extends LitElement {
     _createInputNumberElement(element) {
         let value = this.getValue(element.field) ?? this._getDefaultValue(element);
         let disabled = this._getBooleanValue(element?.display?.disabled, false);
-        const [min = "", max = ""] = element.allowedValues || [];
-
+        let [min = "", max = ""] = element.allowedValues || [];
+        let step = element.step || "1";
+// debugger
         return html`
             <div class="">
-                <number-field-filter label="Value" value="${value !== undefined ? value : ""}" 
-                    min=${min} max=${max} step="0.01" placeholder="${element.display?.placeholder || ""}" 
+                <number-field-filter .label="Value" .value="${value ? value : ""}" 
+                    .min=${min} .max=${max} .step="${step}" .placeholder="${element.display?.placeholder || ""}" 
                     @filterChange="${e => this.onFilterChange(element.field, e.detail.value)}">
                 </number-field-filter>
             </div>

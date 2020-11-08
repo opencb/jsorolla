@@ -62,6 +62,7 @@ export default class NumberFieldFilter extends LitElement {
 
     _init() {
         this._prefix = UtilsNew.randomString(8);
+
         this.state = {
             comparator: "<"
         };
@@ -69,6 +70,7 @@ export default class NumberFieldFilter extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
+
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 

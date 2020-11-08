@@ -137,6 +137,9 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                             this.callerToFile[softwareName] = file;
                         }
                     }
+
+                    // NOTE: We need to update the _config to update the dynamic VCF caller filters
+                    this._config = {...this.getDefaultConfig(), ...this.config};
                     this.requestUpdate();
                 })
                 .catch(response => {
@@ -146,6 +149,7 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
     }
 
     onVariantFilterChange(e) {
+        debugger
         this.preparedQuery = e.detail.query;
         this.requestUpdate();
     }
@@ -153,7 +157,7 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
     onVariantFilterSearch(e) {
         this.preparedQuery = e.detail.query;
         this.executedQuery = e.detail.query;
-
+debugger
         this._queries = {};
         let types = ["SNV", "INDEL", "CNV", "REARRANGEMENT"];
         for (let type of types) {
@@ -413,6 +417,9 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
         }
     }
 
+    /*
+        DEPRECATED
+     */
     onFilterChange(type, caller, value) {
         if (value) {
             if (!this.queries[type]) {
@@ -422,6 +429,49 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
             this.queries[type][caller] = value.detail.value;
         } else {
             delete this.queries[type][caller];
+        }
+    }
+
+    onVariantCallerFilterChange(type, caller, filter, query) {
+        debugger
+        if (filter) {
+            let [fileId, fileFilter] = filter.split(":");
+
+            if (fileFilter) {
+                if (!this.queries[type]) {
+                    this.queries[type] = {};
+                }
+                // this.queries[type][caller] = Object.entries(value.detail.value).map(([k, v]) => k + v).join(";");
+                if (this.queries[type][caller]) {
+                    this.queries[type][caller] += "," + fileFilter;
+                } else {
+                    this.queries[type][caller] = fileFilter;
+                }
+            } else {
+                delete this.queries[type][caller];
+            }
+        } else {
+            delete this.queries[type][caller];
+        }
+
+        if (query.fileData) {
+            let [fileId, fileFilter] = filter.split(":");
+            let files = query.fileData.split(",");
+            let fileIndex = files.findIndex(e => e.startsWith(fileId));
+            if (fileIndex >= 0) {
+                if (fileFilter) {
+                    files[fileIndex] = filter;
+                } else {
+                    files.splice(fileIndex, 1);
+                }
+            } else {
+                if (fileFilter) {
+                    files.push(filter);
+                }
+            }
+            return files.join(",");
+        } else {
+            return filter;
         }
     }
 
@@ -481,99 +531,169 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                         title: "SNV Filters",
                         collapsed: false,
                         fields: [
-                            {
-                                id: "caveman-caller",
-                                title: "Caveman",
-                                render: (eventHandler, query) => html`<caveman-caller-filter @filterChange="${e => this.onFilterChange("SNV", "caveman", e)}"></caveman-caller-filter>`,
-                                visible: () => this.callerToFile
-                                    ? typeof this.callerToFile["caveman"] !== "undefined" || this.callerToFile["caveman"] != null
-                                    : false
-                            },
-                            {
-                                id: "strelka-caller",
-                                title: "Strelka",
-                                render: (eventHandler, query) => html`<strelka-caller-filter @filterChange="${e => this.onFilterChange("SNV", "strelka", e)}"></strelka-caller-filter>`,
-                                visible: () => this.callerToFile
-                                    ? typeof this.callerToFile["strelka"] !== "undefined" || this.callerToFile["strelka"] != null
-                                    : false
-                            },
                             // {
                             //     id: "caveman-caller",
                             //     title: "Caveman",
+                            //     render: (eventHandler, query) => html`<caveman-caller-filter @filterChange="${e => this.onFilterChange("SNV", "caveman", e)}"></caveman-caller-filter>`,
                             //     visible: () => this.callerToFile
                             //         ? typeof this.callerToFile["caveman"] !== "undefined" || this.callerToFile["caveman"] != null
-                            //         : false,
-                            //     callback: (filter, query) => this.onFilterChange("SNV", "caveman", query),
-                            //     params: {
-                            //         fileId: `${this.callerToFile ? this.callerToFile["caveman"]?.name : null}`,
-                            //     }
+                            //         : false
                             // },
+                            // {
+                            //     id: "strelka-caller",
+                            //     title: "Strelka",
+                            //     render: (eventHandler, query) => html`<strelka-caller-filter @filterChange="${e => this.onFilterChange("SNV", "strelka", e)}"></strelka-caller-filter>`,
+                            //     visible: () => this.callerToFile
+                            //         ? typeof this.callerToFile["strelka"] !== "undefined" || this.callerToFile["strelka"] != null
+                            //         : false
+                            // },
+                            {
+                                id: "caveman",
+                                title: "Caveman Filters",
+                                description: () => html`File filters for <span style="font-style: italic; word-break: break-all">${this.callerToFile["caveman"].name}</span>`,
+                                visible: () => this.callerToFile && this.callerToFile["caveman"],
+                                callback: (filter, query) => this.onVariantCallerFilterChange("SNV", "caveman", filter, query),
+                                // callback: (filter, query) => this.onFilterChange("SNV", "caveman", e.detail.value),
+                                params: {
+                                    fileId: `${this.callerToFile ? this.callerToFile["caveman"]?.name : null}`,
+                                }
+                            },
+                            {
+                                id: "strelka",
+                                title: "Strelka Filters",
+                                description: () => html`File filters for <span style="font-style: italic; word-break: break-all">${this.callerToFile["strelka"].name}</span>`,
+                                visible: () => this.callerToFile && this.callerToFile["strelka"],
+                                callback: (filter, query) => this.onVariantCallerFilterChange("SNV", "strelka", filter, query),
+                                params: {
+                                    fileId: `${this.callerToFile ? this.callerToFile["strelka"]?.name : null}`,
+                                }
+                            }
                         ]
                     },
                     {
                         title: "INDEL Filters",
                         collapsed: true,
                         fields: [
+                            // {
+                            //     id: "pindel-caller",
+                            //     title: "Pindel",
+                            //     render: (eventHandler, query) => html`<pindel-caller-filter @filterChange="${e => this.onFilterChange("INDEL", "pindel", e)}"></pindel-caller-filter>`,
+                            //     visible: () => this.callerToFile
+                            //         ? typeof this.callerToFile["pindel"] !== "undefined" || this.callerToFile["pindel"] != null
+                            //         : false
+                            // },
+                            // {
+                            //     id: "strelka-caller",
+                            //     title: "Strelka",
+                            //     render: (eventHandler, query) => html`<strelka-caller-filter @filterChange="${e => this.onFilterChange("INDEL", "strelka", e)}"></strelka-caller-filter>`,
+                            //     visible: () => this.callerToFile
+                            //         ? typeof this.callerToFile["strelka"] !== "undefined" || this.callerToFile["strelka"] != null
+                            //         : false
+                            // },
                             {
-                                id: "pindel-caller",
-                                title: "Pindel",
-                                render: (eventHandler, query) => html`<pindel-caller-filter @filterChange="${e => this.onFilterChange("INDEL", "pindel", e)}"></pindel-caller-filter>`,
-                                visible: () => this.callerToFile
-                                    ? typeof this.callerToFile["pindel"] !== "undefined" || this.callerToFile["pindel"] != null
-                                    : false
+                                id: "pindel",
+                                title: "Pindel Filters",
+                                description: () => html`File filters for <span style="font-style: italic; word-break: break-all">${this.callerToFile["pindel"].name}</span>`,
+                                visible: () => this.callerToFile && this.callerToFile["pindel"],
+                                callback: (filter, query) => this.onVariantCallerFilterChange("INDEL", "pindel", filter, query),
+                                params: {
+                                    fileId: `${this.callerToFile ? this.callerToFile["pindel"]?.name : null}`,
+                                }
                             },
                             {
-                                id: "strelka-caller",
-                                title: "Strelka",
-                                render: (eventHandler, query) => html`<strelka-caller-filter @filterChange="${e => this.onFilterChange("INDEL", "strelka", e)}"></strelka-caller-filter>`,
-                                visible: () => this.callerToFile
-                                    ? typeof this.callerToFile["strelka"] !== "undefined" || this.callerToFile["strelka"] != null
-                                    : false
-                            },
+                                id: "strelka",
+                                title: "Strelka Filters",
+                                description: () => html`File filters for <span style="font-style: italic; word-break: break-all">${this.callerToFile["strelka"].name}</span>`,
+                                visible: () => this.callerToFile && this.callerToFile["strelka"],
+                                callback: (filter, query) => this.onVariantCallerFilterChange("INDEL", "strelka", filter, query),
+                                params: {
+                                    fileId: `${this.callerToFile ? this.callerToFile["strelka"]?.name : null}`,
+                                }
+                            }
                         ]
                     },
                     {
                         title: "CNV Filters",
                         collapsed: true,
                         fields: [
+                            // {
+                            //     id: "ascat-caller",
+                            //     title: "Ascat",
+                            //     render: (eventHandler, query) => html`<ascat-caller-filter @filterChange="${e => this.onFilterChange("CNV", "ascat", e)}"></ascat-caller-filter>`,
+                            //     visible: () => this.callerToFile
+                            //         ? typeof this.callerToFile["ascat"] !== "undefined" || this.callerToFile["ascat"] != null
+                            //         : false
+                            // },
+                            // {
+                            //     id: "canvas-caller",
+                            //     title: "Canvas",
+                            //     render: (eventHandler, query) => html`<canvas-caller-filter @filterChange="${e => this.onFilterChange("CNV", "canvas", e)}"></canvas-caller-filter>`,
+                            //     visible:() => this.callerToFile
+                            //         ? typeof this.callerToFile["canvas"] !== "undefined" || this.callerToFile["canvas"] != null
+                            //         : false
+                            // },
                             {
-                                id: "ascat-caller",
-                                title: "Ascat",
-                                render: (eventHandler, query) => html`<ascat-caller-filter @filterChange="${e => this.onFilterChange("CNV", "ascat", e)}"></ascat-caller-filter>`,
-                                visible: () => this.callerToFile
-                                    ? typeof this.callerToFile["ascat"] !== "undefined" || this.callerToFile["ascat"] != null
-                                    : false
+                                id: "ascat",
+                                title: "ASCAT Filters",
+                                description: () => html`File filters for <span style="font-style: italic; word-break: break-all">${this.callerToFile["ascat"].name}</span>`,
+                                visible: () => this.callerToFile && this.callerToFile["ascat"],
+                                callback: (filter, query) => this.onVariantCallerFilterChange("CNV", "ascat", filter, query),
+                                params: {
+                                    fileId: `${this.callerToFile ? this.callerToFile["ascat"]?.name : null}`,
+                                }
                             },
                             {
-                                id: "canvas-caller",
-                                title: "Canvas",
-                                render: (eventHandler, query) => html`<canvas-caller-filter @filterChange="${e => this.onFilterChange("CNV", "canvas", e)}"></canvas-caller-filter>`,
-                                visible:() => this.callerToFile
-                                    ? typeof this.callerToFile["canvas"] !== "undefined" || this.callerToFile["canvas"] != null
-                                    : false
-                            },
+                                id: "canvas",
+                                title: "Canvas Filters",
+                                description: () => html`File filters for <span style="font-style: italic; word-break: break-all">${this.callerToFile["canvas"].name}</span>`,
+                                visible: () => this.callerToFile && this.callerToFile["canvas"],
+                                callback: (filter, query) => this.onVariantCallerFilterChange("CNV", "canvas", filter, query),
+                                params: {
+                                    fileId: `${this.callerToFile ? this.callerToFile["canvas"]?.name : null}`,
+                                }
+                            }
                         ]
                     },
                     {
                         title: "Rearrangement Filters",
                         collapsed: true,
                         fields: [
+                            // {
+                            //     id: "brass-caller",
+                            //     title: "Brass",
+                            //     render: (eventHandler, query) => html`<brass-caller-filter @filterChange="${e => this.onFilterChange("REARRANGEMENT", "brass", e)}"></brass-caller-filter>`,
+                            //     visible: () => this.callerToFile
+                            //         ? typeof this.callerToFile["brass"] !== "undefined" || this.callerToFile["brass"] != null
+                            //         : false
+                            // },
+                            // {
+                            //     id: "manta-caller",
+                            //     title: "Manta",
+                            //     render: (eventHandler, query) => html`<manta-caller-filter @filterChange="${e => this.onFilterChange("REARRANGEMENT", "manta", e)}"></manta-caller-filter>`,
+                            //     visible: () => this.callerToFile
+                            //         ? typeof this.callerToFile["manta"] !== "undefined" || this.callerToFile["manta"] != null
+                            //         : false
+                            // },
                             {
-                                id: "brass-caller",
-                                title: "Brass",
-                                render: (eventHandler, query) => html`<brass-caller-filter @filterChange="${e => this.onFilterChange("REARRANGEMENT", "brass", e)}"></brass-caller-filter>`,
-                                visible: () => this.callerToFile
-                                    ? typeof this.callerToFile["brass"] !== "undefined" || this.callerToFile["brass"] != null
-                                    : false
+                                id: "brass",
+                                title: "BRASS Filters",
+                                description: () => html`File filters for <span style="font-style: italic; word-break: break-all">${this.callerToFile["brass"].name}</span>`,
+                                visible: () => this.callerToFile && this.callerToFile["brass"],
+                                callback: (filter, query) => this.onVariantCallerFilterChange("REARRANGEMENT", "brass", filter, query),
+                                params: {
+                                    fileId: `${this.callerToFile ? this.callerToFile["brass"]?.name : null}`,
+                                }
                             },
                             {
-                                id: "manta-caller",
-                                title: "Manta",
-                                render: (eventHandler, query) => html`<manta-caller-filter @filterChange="${e => this.onFilterChange("REARRANGEMENT", "manta", e)}"></manta-caller-filter>`,
-                                visible: () => this.callerToFile
-                                    ? typeof this.callerToFile["manta"] !== "undefined" || this.callerToFile["manta"] != null
-                                    : false
-                            },
+                                id: "manta",
+                                title: "Manta Filters",
+                                description: () => html`File filters for <span style="font-style: italic; word-break: break-all">${this.callerToFile["manta"].name}</span>`,
+                                visible: () => this.callerToFile && this.callerToFile["manta"],
+                                callback: (filter, query) => this.onVariantCallerFilterChange("REARRANGEMENT", "manta",  filter, query),
+                                params: {
+                                    fileId: `${this.callerToFile ? this.callerToFile["manta"]?.name : null}`,
+                                }
+                            }
                         ]
                     }
                 ],
