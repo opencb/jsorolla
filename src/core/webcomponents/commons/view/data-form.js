@@ -51,11 +51,12 @@ export default class DataForm extends LitElement {
     }
 
     _init() {
-        this._prefix = "dc-" + UtilsNew.randomString(6);
+        this._prefix = UtilsNew.randomString(8);
+
+        this.data = {};
     }
 
     firstUpdated(_changedProperties) {
-
         $("#" + this._prefix + "DuePickerDate").datetimepicker({
             format: "DD/MM/YYYY"
         });
@@ -930,20 +931,21 @@ export default class DataForm extends LitElement {
             `;
         }
 
-        if (!this.data) {
-            // in this case equality (==) is better than identity (===) because undefined == null
-            if(this.config.nullData == null) {
-                return html`${this.config.nullData}`
-            } else {
-                return html`
-                <div class="guard-page">
-                    <i class="fas fa-lock fa-5x"></i>
-                    <h3>No valid data provided: ${this.data}</h3>
-                </div>
-                `;
-            }
-
-        }
+        // TODO discuss this with Antonio (8/11/2020)
+        // if (!this.data) {
+        //     // in this case equality (==) is better than identity (===) because undefined == null
+        //     if (this.config.nullData == null) {
+        //         return html`${this.config.nullData}`
+        //     } else {
+        //         return html`
+        //         <div class="guard-page">
+        //             <i class="fas fa-lock fa-5x"></i>
+        //             <h3>No valid data provided: ${this.data}</h3>
+        //         </div>
+        //         `;
+        //     }
+        //
+        // }
 
         const sectionTitleIcon = this.config.display?.title?.class ?? "";
 

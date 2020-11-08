@@ -235,7 +235,7 @@ export default class OpencgaVariantFilter extends LitElement {
         this.requestUpdate(); // NOTE: this causes the bug in sample-filter / variant-filter-clinical (clicking the checkboxes on variant-filter-clinical)
     }
 
-    onVariantCallerInfoFilter(fileId, fileDataFilter) {
+    onVariantCallerInfoFilter(fileId, fileDataFilter, callback) {
         let fileDataArray = [];
         if (this.preparedQuery.fileData) {
             fileDataArray = this.preparedQuery.fileData.split(",");
@@ -255,6 +255,10 @@ export default class OpencgaVariantFilter extends LitElement {
         };
         this.notifyQuery(this.preparedQuery);
         this.requestUpdate();
+
+        if (callback) {
+            callback(fileDataFilter);
+        }
     }
 
     _isFilterVisible(filter) {
@@ -425,11 +429,13 @@ export default class OpencgaVariantFilter extends LitElement {
                 case "brass":
                 case "manta":
                 case "tnhaplotyper2":
+                    // this.preparedQuery;
+                    // debugger
                     content = html`
                         <variant-caller-info-filter .caller="${subsection.id}" 
                                                     .fileId="${subsection.params.fileId}" 
                                                     .fileData="${this.preparedQuery.fileData}" 
-                                                    @filterChange="${e => this.onVariantCallerInfoFilter(subsection.params.fileId, e.detail.value)}">
+                                                    @filterChange="${e => this.onVariantCallerInfoFilter(subsection.params.fileId, e.detail.value, subsection.callback)}">
                         </variant-caller-info-filter>`;
                     break;
                 default:

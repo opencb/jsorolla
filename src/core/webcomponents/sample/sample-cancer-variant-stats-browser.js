@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {html, LitElement} from "/web_modules/lit-element.js";
+import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
 import OpencgaCatalogUtils from "../../clients/opencga/opencga-catalog-utils.js";
 import "./sample-cancer-variant-stats-plots.js";
@@ -22,12 +22,12 @@ import "../variant/opencga-variant-filter.js";
 import "../commons/opencga-active-filters.js";
 import "../commons/view/signature-view.js";
 import "../commons/filters/variant-caller-info-filter.js";
-import "../commons/filters/deprecated/strelka-caller-filter.js";
-import "../commons/filters/deprecated/pindel-caller-filter.js";
-import "../commons/filters/deprecated/ascat-caller-filter.js";
-import "../commons/filters/deprecated/canvas-caller-filter.js";
-import "../commons/filters/deprecated/brass-caller-filter.js";
-import "../commons/filters/deprecated/manta-caller-filter.js";
+// import "../commons/filters/deprecated/strelka-caller-filter.js";
+// import "../commons/filters/deprecated/pindel-caller-filter.js";
+// import "../commons/filters/deprecated/ascat-caller-filter.js";
+// import "../commons/filters/deprecated/canvas-caller-filter.js";
+// import "../commons/filters/deprecated/brass-caller-filter.js";
+// import "../commons/filters/deprecated/manta-caller-filter.js";
 import "../loading-spinner.js";
 
 export default class SampleCancerVariantStatsBrowser extends LitElement {
@@ -453,26 +453,6 @@ debugger
         } else {
             delete this.queries[type][caller];
         }
-
-        if (query.fileData) {
-            let [fileId, fileFilter] = filter.split(":");
-            let files = query.fileData.split(",");
-            let fileIndex = files.findIndex(e => e.startsWith(fileId));
-            if (fileIndex >= 0) {
-                if (fileFilter) {
-                    files[fileIndex] = filter;
-                } else {
-                    files.splice(fileIndex, 1);
-                }
-            } else {
-                if (fileFilter) {
-                    files.push(filter);
-                }
-            }
-            return files.join(",");
-        } else {
-            return filter;
-        }
     }
 
     getDefaultConfig() {
@@ -529,7 +509,6 @@ debugger
                     },
                     {
                         title: "SNV Filters",
-                        collapsed: false,
                         fields: [
                             // {
                             //     id: "caveman-caller",
@@ -553,7 +532,6 @@ debugger
                                 description: () => html`File filters for <span style="font-style: italic; word-break: break-all">${this.callerToFile["caveman"].name}</span>`,
                                 visible: () => this.callerToFile && this.callerToFile["caveman"],
                                 callback: (filter, query) => this.onVariantCallerFilterChange("SNV", "caveman", filter, query),
-                                // callback: (filter, query) => this.onFilterChange("SNV", "caveman", e.detail.value),
                                 params: {
                                     fileId: `${this.callerToFile ? this.callerToFile["caveman"]?.name : null}`,
                                 }
@@ -563,7 +541,6 @@ debugger
                                 title: "Strelka Filters",
                                 description: () => html`File filters for <span style="font-style: italic; word-break: break-all">${this.callerToFile["strelka"].name}</span>`,
                                 visible: () => this.callerToFile && this.callerToFile["strelka"],
-                                callback: (filter, query) => this.onVariantCallerFilterChange("SNV", "strelka", filter, query),
                                 params: {
                                     fileId: `${this.callerToFile ? this.callerToFile["strelka"]?.name : null}`,
                                 }
@@ -605,7 +582,7 @@ debugger
                                 title: "Strelka Filters",
                                 description: () => html`File filters for <span style="font-style: italic; word-break: break-all">${this.callerToFile["strelka"].name}</span>`,
                                 visible: () => this.callerToFile && this.callerToFile["strelka"],
-                                callback: (filter, query) => this.onVariantCallerFilterChange("INDEL", "strelka", filter, query),
+                                // callback: (filter, query) => this.onVariantCallerFilterChange("INDEL", "strelka", filter, query),
                                 params: {
                                     fileId: `${this.callerToFile ? this.callerToFile["strelka"]?.name : null}`,
                                 }
