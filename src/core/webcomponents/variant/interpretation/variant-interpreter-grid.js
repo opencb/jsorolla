@@ -1356,7 +1356,7 @@ export default class VariantInterpreterGrid extends LitElement {
                 render: () => html`
                     <button type="button" class="btn btn-default btn-sm dropdown-toggle ripple" data-toggle="dropdown"
                             aria-haspopup="true" aria-expanded="false">
-                        <i class="fas fa-cog icon-padding"></i> Settings
+                        <i class="fas fa-cog icon-padding"></i> Settings <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="${this._prefix}SaveMenu" style="width: 360px">
                     <li style="margin: 5px 10px">

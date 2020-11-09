@@ -271,7 +271,7 @@ class VariantInterpreter extends LitElement {
                             <div>
                                 <!-- Controls aligned to the LEFT -->
                                 <div class="row hi-icon-wrap wizard hi-icon-animation">
-                                ${this._config.tools && this._config.tools.map( item => html`
+                                ${this._config.tools && this._config.tools.map(item => html`
                                     ${!item.hidden ? html`
                                         <a class="icon-wrapper clinical-portal-step ${!this.clinicalAnalysis && item.id !== "select" || item.disabled ? "disabled" : ""}" href="javascript: void 0" data-view="${item.id}" @click="${this.onClickSection}">
                                             <div class="hi-icon ${item.icon}"></div>
