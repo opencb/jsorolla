@@ -84,19 +84,19 @@ export default class VariantInterpreterDetail extends LitElement {
         let _this = this;
         if (typeof this.cellbaseClient !== "undefined" && UtilsNew.isNotEmpty(this.variantId)) {
             this.cellbaseClient.get("genomic", "variant", this.variantId, "annotation", {assembly: this.opencgaSession.project.organism.assembly}, {})
-                .then(function(response) {
-                    _this.variant = {id: _this.variantId, annotation: response.response[0].result[0]};
-                    _this.variantAnnotation = response.response[0].result[0];
-                    _this.numberConsequenceTypes = 0;
-                    _this.numberPopulationFrequencies = 0;
-                    _this.numberVTA = 0;
-                    _this.numberGTA = 0;
+                .then(restReponse => {
+                    this.variant = {id: this.variantId, annotation: restReponse.getResult(0)};
+                    this.variantAnnotation = restReponse.getResult(0);
+                    this.numberConsequenceTypes = 0;
+                    this.numberPopulationFrequencies = 0;
+                    this.numberVTA = 0;
+                    this.numberGTA = 0;
 
-                    if (_this.variantAnnotation.geneTraitAssociation != null) {
-                        _this.numberConsequenceTypes = _this.variantAnnotation.consequenceTypes.length;
-                        _this.numberPopulationFrequencies = UtilsNew.isNotEmptyArray(_this.variantAnnotation.populationFrequencies) ? _this.variantAnnotation.populationFrequencies.length : 0;
-                        _this.numberVTA = UtilsNew.isNotUndefinedOrNull(_this.variantAnnotation.traitAssociation) ? _this.variantAnnotation.traitAssociation.length : 0;
-                        _this.numberGTA = UtilsNew.isNotUndefinedOrNull(_this.variantAnnotation.geneTraitAssociation) ? _this.variantAnnotation.geneTraitAssociation.length : 0;
+                    if (this.variantAnnotation.geneTraitAssociation != null) {
+                        this.numberConsequenceTypes = this.variantAnnotation.consequenceTypes.length;
+                        this.numberPopulationFrequencies = UtilsNew.isNotEmptyArray(_this.variantAnnotation.populationFrequencies) ? this.variantAnnotation.populationFrequencies.length : 0;
+                        this.numberVTA = UtilsNew.isNotUndefinedOrNull(this.variantAnnotation.traitAssociation) ? this.variantAnnotation.traitAssociation.length : 0;
+                        this.numberGTA = UtilsNew.isNotUndefinedOrNull(this.variantAnnotation.geneTraitAssociation) ? this.variantAnnotation.geneTraitAssociation.length : 0;
                     }
                 });
         }

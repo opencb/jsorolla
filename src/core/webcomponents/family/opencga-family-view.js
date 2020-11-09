@@ -57,7 +57,7 @@ export default class OpencgaFamilyView extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
-
+        this.family = {};
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 

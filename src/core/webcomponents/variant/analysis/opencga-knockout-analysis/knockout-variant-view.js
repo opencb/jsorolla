@@ -19,11 +19,12 @@ import UtilsNew from "../../../../utilsNew.js";
 import CatalogGridFormatter from "../../../commons/catalog-grid-formatter.js";
 import AnalysisRegistry from "../analysis-registry.js";
 import GridCommons from "../../grid-commons.js";
-import knockoutDataIndividuals from "../test/knockout.20201103172343.kFIvpr.individuals.js";
+import knockoutData from "../test/knockout.20201029141213.SChLEA.js";
 import "./knockout-individual-variants.js";
 import "../../../family/opencga-family-view.js";
 
-export default class KnockoutIndividualView extends LitElement {
+
+export default class KnockoutVariantView extends LitElement {
 
     constructor() {
         super();
@@ -52,7 +53,9 @@ export default class KnockoutIndividualView extends LitElement {
     _init() {
         this._prefix = "oga-" + UtilsNew.randomString(6);
         this._config = this.getDefaultConfig();
-        this.data = knockoutDataIndividuals;
+        this.data = knockoutData;
+        this.LIMIT = 50; //temp limit for both rows and cols
+        this.colToShow = 2;
         this.gridId = this._prefix + "KnockoutGrid";
         this.prepareData();
     }
@@ -75,7 +78,8 @@ export default class KnockoutIndividualView extends LitElement {
 
     updated(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
-            this.job = null;
+            this.renderTable();
+            this.requestUpdate();
         }
 
         if (changedProperties.has("config")) {
@@ -85,7 +89,68 @@ export default class KnockoutIndividualView extends LitElement {
     }
 
     prepareData() {
-        this.tableData = knockoutDataIndividuals;
+        let i = 0;
+        this._data = {};
+        this.samples = [];
+        for (let a = 0; a < this.data.length; a++) {
+            const sample = this.data[a];
+            for (let b = 0; b < sample.genes.length; b++) {
+                const gene = sample.genes[b];
+                for (let c = 0; c < gene.transcripts.length; c++) {
+                    const transcript = gene.transcripts[c];
+                    for (let d = 0; d < transcript.variants.length; d++) {
+                        const variant = transcript.variants[d];
+                        //console.log(variant.id)
+                        this.samples.push(sample);
+                        if (this._data[variant.id]) {
+                            this._data[variant.id].push({sampleId: sample.sampleId, variant: variant});
+                        } else {
+                            this._data[variant.id] = [{sampleId: sample.sampleId, variant: variant}];
+                        }
+                        i++;
+                    }
+                }
+            }
+        }
+        this.samples = [...new Set(this.samples)];
+        this.activeSamples = this.samples.slice(0, this.colToShow).map(sample => sample.sampleId);
+        this.tableData = Object.entries(this._data).splice(0, this.LIMIT).map(([variant, samples]) => ({
+            variantId: variant,
+            data: samples
+        }));
+        this.renderTable();
+
+    }
+
+    _initTableColumns() {
+        return [
+            {title: "Variant", field: "variantId"},
+            {title: "dbSNP", field: "dbSNP"},
+            {title: "Alt allele freq.", field: ""},
+            {title: "Variant type", field: ""},
+            {title: "Consequence Type", field: "consequenceType"},
+            {title: "ClinVar", field: ""},
+            ...this.samples.map(sample => {
+                return {
+                    title: `Sample ${sample.sampleId}`,
+                    field: sample.sampleId,
+                    visible: !!~this.activeSamples.indexOf(sample.sampleId),
+                    formatter: (v, row) => {
+                        return row.data.find(a => a.sampleId === sample.sampleId)?.variant?.knockoutType;
+                        //return JSON.stringify(v)
+                    }
+                };
+            })];
+    }
+
+    onColumnChange(e) {
+        const ids = e.detail.value ?? "";
+        this.table.bootstrapTable("hideAllColumns");
+        this.table.bootstrapTable("showColumn", ["variantId", "dbSNP", "consequenceType"]);
+        if (ids) {
+            ids.split(",").forEach(id => this.table.bootstrapTable("showColumn", id));
+        }
+
     }
 
     renderTable() {
@@ -105,7 +170,7 @@ export default class KnockoutIndividualView extends LitElement {
             gridContext: this,
             formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
             onClickRow: (row, selectedElement, field) => {
-                this.individual = {id: row.sampleId, ...row}; //TODO temp fix for missing id
+                //this.individual = {id: row.sampleId, ...row}; //TODO temp fix for missing id
                 this.gridCommons.onClickRow(row.id, row, selectedElement);
                 this.requestUpdate();
             },
@@ -116,7 +181,7 @@ export default class KnockoutIndividualView extends LitElement {
             onPostBody: data => {
                 // We call onLoadSuccess to select first row
                 this.gridCommons.onLoadSuccess({rows: data, total: data.length});
-                this.individual = {id: data[0].sampleId, ...data[0]}; //TODO temp fix for missing id
+                //this.individual = {id: data[0].sampleId, ...data[0]}; //TODO temp fix for missing id
                 this.requestUpdate();
 
             }
@@ -124,98 +189,19 @@ export default class KnockoutIndividualView extends LitElement {
         });
     }
 
-    onColumnChange(e) {
-        this.gridCommons.onColumnChange(e);
-    }
-
-    _initTableColumns() {
-        return [
-            [
-                {
-                    title: "Individual Id",
-                    field: "sampleId",
-                    rowspan: 2
-                },
-                {
-                    title: "Sample",
-                    field: "sampleId",
-                    rowspan: 2
-                },
-                {
-                    title: "Gene",
-                    field: "genes",
-                    rowspan: 2,
-                    formatter: genes => genes.length ? genes.map(gene => gene.name) : "-"
-                },
-                {
-                    title: "Homozygous",
-                    field: "stats.byType.HOM_ALT"
-                },
-                {
-                    title: "Compound Heterozygous",
-                    field: "stats.byType.COMP_HET",
-                    colspan: 4
-                },
-                {
-                    title: "Disorders",
-                    field: "disorders",
-                    rowspan: 2,
-                    formatter: disorders => disorders.length ? disorders.map(this.catalogGridFormatter.disorderFormatter) : "-"
-
-                },
-                {
-                    title: "Phenotypes",
-                    field: "phenotypes",
-                    rowspan: 2,
-                    formatter: this.catalogGridFormatter.phenotypesFormatter
-
-                }
-            ], [
-                {
-                    title: "Total",
-                    field: "stats.byType.HOM_ALT"
-                },
-                {
-                    title: "Total",
-                    field: "stats.byType.COMP_HET"
-                },
-                {
-                    title: "Definitely",
-                    field: "stats.byType.COMP_HET.def"
-                },
-                {
-                    title: "Probable",
-                    field: "stats.byType.COMP_HET.prob"
-                },
-                {
-                    title: "Possible",
-                    field: "stats.byType.COMP_HET.poss"
-                }
-            ]
-        ];
-    }
-
     onDownload(e) {
         console.log(e)
-        const header = ["Individual Id", "Sample","Gene","HOM_ALT","COMP_HET.total","COMP_HET.def","COMP_HET.prob","COMP_HET.poss","Disorders","Phenotypes"];
+        const header = ["Variant", "dbSNP"];
         if (e.detail.option.toLowerCase() === "tab") {
             const dataString = [
                 header.join("\t"),
                 ...this.tableData.map(_ => [
-                    _.sampleId,
-                    _.sampleId,
-                    _.genes.length ? _.genes.map(gene => gene.name).join(",") : "-",
-                    _.stats.byType.HOM_ALT,
-                    _.stats.byType.COMP_HET,
-                    _.stats.byType.COMP_HET.def,
-                    _.stats.byType.COMP_HET.prob,
-                    _.stats.byType.COMP_HET.poss,
-                    _.disorders.length ? _.disorders.map(disorder => disorder.name).join(",") : "-",
-                    _.phenotypes.length ? _.phenotypes.map(disorder => disorder.name).join(",") : "-"
+                    _.variantId,
+                    _.dbSNP
                 ].join("\t"))];
-            UtilsNew.downloadData(dataString, "knockout_individual_view" + this.opencgaSession.study.id + ".txt", "text/plain");
+            UtilsNew.downloadData(dataString, "knockout_variant_view" + this.opencgaSession.study.id + ".txt", "text/plain");
         } else {
-            UtilsNew.downloadData(JSON.stringify(this.tableData, null, "\t"), this.opencgaSession.study.id + ".json", "application/json");
+            UtilsNew.downloadData(JSON.stringify(this.tableData, null, "\t"), "knockout_variant_view" + this.opencgaSession.study.id + ".json", "application/json");
         }
     }
 
@@ -223,7 +209,7 @@ export default class KnockoutIndividualView extends LitElement {
         return AnalysisRegistry.get("knockout").config;
     }
 
-    getDetailConfig() {
+    /*getDetailConfig() {
         return {
             title: "Individual",
             showTitle: true,
@@ -246,26 +232,41 @@ export default class KnockoutIndividualView extends LitElement {
                     }
                 }, {
                     render: (individual, active, opencgaSession) => {
-                        return html`<cellbase-population-frequency-grid .populationFrequencies="${1}" .active="${active}"></cellbase-population-frequency-grid>`
+                        return html`<cellbase-population-frequency-grid .populationFrequencies="${1 || this.variant.annotation.populationFrequencies}"
+                                                                        .active="${active}">
+                                    </cellbase-population-frequency-grid>`
                     }
                 }
             ]
         };
-    }
+    }*/
 
     render() {
         return html`
-            <opencb-grid-toolbar .config="${this.toolbarConfig}"
+
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-2 pull-right">
+                        <div style="padding: 20px 0">
+                            <select-field-filter .liveSearch=${true} multiple .data="${this.samples?.map(sample => sample.sampleId)}" .value="${this.activeSamples}" @filterChange="${e => this.onColumnChange(e)}"></select-field-filter>
+                        </div>
+                    </div>
+                </div>
+                
+                <opencb-grid-toolbar .config="${this.toolbarConfig}"
                                  @columnChange="${this.onColumnChange}"
                                  @download="${this.onDownload}">
-            </opencb-grid-toolbar>
-            <div class="row">
-                <table id="${this.gridId}"></table>
+                </opencb-grid-toolbar>
+            
+                <div class="row">
+                    <table id="${this.gridId}"></table>
+                </div>
+                <!--<detail-tabs .data="${this.individual}" .config="${this.detailConfig}" .opencgaSession="${this.opencgaSession}"></detail-tabs> -->
+
             </div>
-            <detail-tabs .data="${this.individual}" .config="${this.detailConfig}" .opencgaSession="${this.opencgaSession}"></detail-tabs>
         `;
     }
 
 }
 
-customElements.define("knockout-individual-view", KnockoutIndividualView);
+customElements.define("knockout-variant-view", KnockoutVariantView);
