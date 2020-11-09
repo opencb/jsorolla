@@ -211,11 +211,12 @@ export default class OpencgaVariantFilter extends LitElement {
         }
 
         this.notifyQuery(this.preparedQuery);
-        this.requestUpdate();
+        // TODO Confirm this can be deleted, each filter component must handle the refresh
+        // this.requestUpdate();
     }
 
     /**
-     * Deprecated: use funciton above.
+     * Deprecated: use function above.
      * @param sampleFields
      */
     onSampleFilterChange(sampleFields) {
@@ -229,9 +230,8 @@ export default class OpencgaVariantFilter extends LitElement {
             delete this.preparedQuery.includeSample;
         }
         this.preparedQuery = {...this.preparedQuery, ...sampleFields};
-        // debugger
-        this.notifyQuery(this.preparedQuery);
 
+        this.notifyQuery(this.preparedQuery);
         this.requestUpdate(); // NOTE: this causes the bug in sample-filter / variant-filter-clinical (clicking the checkboxes on variant-filter-clinical)
     }
 
@@ -253,12 +253,14 @@ export default class OpencgaVariantFilter extends LitElement {
             ...this.preparedQuery,
             fileData: fileDataArray.join(",")
         };
+
         this.notifyQuery(this.preparedQuery);
-        this.requestUpdate();
 
         if (callback) {
             callback(fileDataFilter);
         }
+
+        this.requestUpdate();
     }
 
     _isFilterVisible(filter) {
@@ -356,28 +358,32 @@ export default class OpencgaVariantFilter extends LitElement {
                         let sampleDataFilters = this.preparedQuery.sampleData.split(";");
                         depth = sampleDataFilters.find(filter => filter.startsWith("DP")).split(">=")[1];
                     }
-                    content = html`
-                                <file-quality-filter .filter="${this.preparedQuery.filter}" .depth="${depth}" .qual="${this.preparedQuery.qual}" 
-                                    @filterChange="${e => this.onFilterChange({
-                                        filter: "filter",
-                                        sampleData: "sampleData",
-                                        qual: "qual"
-                                    }, e.detail.value)}" .config="${subsection}">
-                                </file-quality-filter>
+                    content = html`<file-quality-filter .filter="${this.preparedQuery.filter}" .depth="${depth}" .qual="${this.preparedQuery.qual}" 
+                                                        @filterChange="${e => this.onFilterChange({
+                                                                filter: "filter",
+                                                                sampleData: "sampleData",
+                                                                qual: "qual"
+                                                            }, e.detail.value)}" .config="${subsection}">
+                                    </file-quality-filter>
                             `;
                     break;
                 case "region":
-                    content = html`<region-filter .cellbaseClient="${this.cellbaseClient}" .region="${this.preparedQuery.region}" 
-                                           @filterChange="${e => this.onFilterChange("region", e.detail.value)}"></region-filter>`;
+                    content = html`<region-filter  .cellbaseClient="${this.cellbaseClient}" .region="${this.preparedQuery.region}" 
+                                                    @filterChange="${e => this.onFilterChange("region", e.detail.value)}">
+                                    </region-filter>`;
                     break;
                 case "feature":
-                    content = html`<feature-filter .cellbaseClient="${this.cellbaseClient}" .query=${this.preparedQuery}
-                                            @filterChange="${e => this.onFilterChange("xref", e.detail.value)}"></feature-filter>`;
+                    content = html`<feature-filter  .cellbaseClient="${this.cellbaseClient}" .query=${this.preparedQuery}
+                                                    @filterChange="${e => this.onFilterChange("xref", e.detail.value)}">
+                                    </feature-filter>`;
                     break;
                 case "diseasePanels":
-                    content = html`<disease-filter .opencgaSession="${this.opencgaSession}" .config="${this.config}" 
-                                    .diseasePanels="${this.opencgaSession.study.panels}" .panel="${this.preparedQuery.panel}" 
-                                @filterChange="${e => this.onFilterChange("panel", e.detail.value)}"></disease-filter>`;
+                    content = html`<disease-filter  .opencgaSession="${this.opencgaSession}" 
+                                                    .diseasePanels="${this.opencgaSession.study.panels}" 
+                                                    .panel="${this.preparedQuery.panel}" 
+                                                    .config="${this.config}" 
+                                                    @filterChange="${e => this.onFilterChange("panel", e.detail.value)}">
+                                    </disease-filter>`;
                     break;
                 case "biotype":
                     content = html`<biotype-filter .config="${this.config}" .biotype=${this.preparedQuery.biotype} @filterChange="${e => this.onFilterChange("biotype", e.detail.value)}"></biotype-filter>`;
@@ -398,10 +404,9 @@ export default class OpencgaVariantFilter extends LitElement {
                     content = html`<protein-substitution-score-filter .protein_substitution="${this.preparedQuery.protein_substitution}" @filterChange="${e => this.onFilterChange("protein_substitution", e.detail.value)}"></protein-substitution-score-filter>`;
                     break;
                 case "cadd":
-                    if (this.opencgaSession.project.organism.assembly.toLowerCase() === "grch38") {
-                        return "";
+                    if (this.opencgaSession.project.organism.assembly.toLowerCase() === "grch37") {
+                        content = html`<cadd-filter .annot-functional-score="${this.preparedQuery["annot-functional-score"]}" @filterChange="${e => this.onFilterChange("annot-functional-score", e.detail.value)}"></cadd-filter>`;
                     }
-                    content = html`<cadd-filter .annot-functional-score="${this.preparedQuery["annot-functional-score"]}" @filterChange="${e => this.onFilterChange("annot-functional-score", e.detail.value)}"></cadd-filter>`;
                     break;
                 case "conservation":
                     content = html`<conservation-filter .conservation="${this.preparedQuery.conservation}" @filterChange="${e => this.onFilterChange("conservation", e.detail.value)}"></conservation-filter>`;
@@ -413,10 +418,13 @@ export default class OpencgaVariantFilter extends LitElement {
                     content = html`<hpo-accessions-filter .annot-hpo="${this.preparedQuery["annot-hpo"]}" @ontologyModalOpen="${this.onOntologyModalOpen}" @filterChange="${e => this.onFilterChange("annot-hpo", e.detail.value)}"></hpo-accessions-filter>`;
                     break;
                 case "clinvar":
-                    content = html`<clinvar-accessions-filter .clinvar="${this.preparedQuery.clinvar}" .clinicalSignificance="${this.preparedQuery.clinicalSignificance}" @filterChange="${e => this.onFilterChange({
-                        clinvar: "clinvar",
-                        clinicalSignificance: "clinicalSignificance"
-                    }, e.detail.value)}"></clinvar-accessions-filter>`;
+                    content = html`<clinvar-accessions-filter  .clinvar="${this.preparedQuery.clinvar}" 
+                                                               .clinicalSignificance="${this.preparedQuery.clinicalSignificance}" 
+                                                               @filterChange="${e => this.onFilterChange({
+                                                                    clinvar: "clinvar",
+                                                                    clinicalSignificance: "clinicalSignificance"
+                                                                }, e.detail.value)}">
+                                    </clinvar-accessions-filter>`;
                     break;
                 case "fullTextSearch":
                     content = html`<fulltext-search-accessions-filter .traits="${this.preparedQuery.traits}" @filterChange="${e => this.onFilterChange("traits", e.detail.value)}"></fulltext-search-accessions-filter>`;
@@ -429,8 +437,6 @@ export default class OpencgaVariantFilter extends LitElement {
                 case "brass":
                 case "manta":
                 case "tnhaplotyper2":
-                    // this.preparedQuery;
-                    // debugger
                     content = html`
                         <variant-caller-info-filter .caller="${subsection.id}" 
                                                     .fileId="${subsection.params.fileId}" 

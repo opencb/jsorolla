@@ -384,7 +384,7 @@ export default class OpencgaVariantBrowser extends LitElement {
                     },
                     {
                         title: "Consequence Type",
-                        collapsed: true,
+                        collapsed: false,
                         fields: [
                             // {
                             //     id: "consequenceType",

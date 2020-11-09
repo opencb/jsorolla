@@ -135,8 +135,8 @@ export default class VariantCallerInfoFilter extends LitElement {
     }
 
     filterChange(e) {
-        let filters = [];
         // Fetch existing filters
+        let filters = [];
         if (this.fileDataInfoFilters) {
             filters = this.fileDataInfoFilters.split(";");
         }
@@ -172,7 +172,6 @@ export default class VariantCallerInfoFilter extends LitElement {
             filter = this.fileId ? this.fileId + ":" : "";
             filter += filters.join(";");
         }
-        
 
         const event = new CustomEvent("filterChange", {
             detail: {

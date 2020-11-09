@@ -54,26 +54,23 @@ export default class ConsequenceTypeSelectFilter extends LitElement {
         super.connectedCallback();
 
         this._config = {...this.getDefaultConfig(), ...this.config};
-        this.options = this._config.categories.map( item => (
-            item.title
-                ?
-                    {
-                        id: item.title.toUpperCase(),
-                        fields:  item.terms.map( term => ({id: term.name, name: `${term.name} (${term.id})`}))
-                    }
-                :
-                    {
-                        id: item.id,
-                        name: `${item.name} ${item.id}`
-                    }
-        ));
+        this.options = this._config.categories.map(item => item.title ?
+            {
+                id: item.title.toUpperCase(),
+                fields: item.terms.map(term => ({id: term.name, name: `${term.name} (${term.id})`}))
+            } :
+            {
+                id: item.id,
+                name: `${item.name} ${item.id}`
+            }
+        );
     }
 
     updated(changedProperties) {
         if (changedProperties.has("ct")) {
             if (this.ct) {
                 this._ct = this.ct.split(",");
-                // this.LofEnabled = this._config.lof.every(v => this._ct.indexOf(v) > -1);
+                // Select the checkboxes
                 for (let alias of this._config.alias) {
                     this.isChecked[alias.name] = alias.terms.every(v => this._ct.indexOf(v) > -1);
                 }
@@ -86,7 +83,7 @@ export default class ConsequenceTypeSelectFilter extends LitElement {
     }
 
     onFilterChange(e) {
-        this.notify(e.detail.value)
+        this.filterChange(e.detail.value);
     }
 
     onPresetSelect(preset, e) {
@@ -97,25 +94,25 @@ export default class ConsequenceTypeSelectFilter extends LitElement {
                 if (e.currentTarget.checked) {
                     let ctSet = new Set(this._ct);
                     for (let term of aliasSelect.terms) {
-                        ctSet.add(term)
+                        ctSet.add(term);
                     }
                     this._ct = [...ctSet];
                 } else {
                     this._ct = this._ct.filter(selected => !aliasSelect.terms.includes(selected));
-                    for (let alias of this._config.alias) {
-                        this.isChecked[alias.name] = alias.terms.every(v => this._ct.indexOf(v) > -1);
-                    }
+                    // for (let alias of this._config.alias) {
+                    //     this.isChecked[alias.name] = alias.terms.every(v => this._ct.indexOf(v) > -1);
+                    // }
                 }
 
-                this.notify(this._ct.join(","));
-                // this.requestUpdate();
+                this.filterChange(this._ct.join(","));
+                this.requestUpdate();
             } else {
-                console.error("Consequence type rpeset not found: ", preset)
+                console.error("Consequence type rpeset not found: ", preset);
             }
         }
     }
 
-    notify(cts) {
+    filterChange(cts) {
         let event = new CustomEvent("filterChange", {
             detail: {
                 value: cts
@@ -128,26 +125,37 @@ export default class ConsequenceTypeSelectFilter extends LitElement {
         return {
             alias: [
                 {
-                    name: "LoF",
+                    name: "Loss-of-Function (LoF)",
                     description: "LoF description",
                     terms: ["transcript_ablation", "splice_acceptor_variant", "splice_donor_variant", "stop_gained", "frameshift_variant",
                         "stop_lost", "start_lost", "transcript_amplification", "inframe_insertion", "inframe_deletion"]
                 },
                 {
-                    name: "Nonsynonymous",
+                    name: "Missense",
                     description: "Missense variant description",
                     terms: ["missense_variant"]
                 },
                 {
+                    name: "Protein Truncating",
+                    description: "Protein Truncating variants",
+                    terms: ["splice_acceptor_variant", "splice_donor_variant", "stop_gained", "frameshift_variant"]
+                },
+                {
+                    name: "Protein Altering",
+                    description: "Protein Truncating variants",
+                    terms: ["missense_variant", "frameshift_variant", "inframe_insertion", "inframe_deletion", "incomplete_terminal_codon_variant"]
+                },
+                {
                     name: "Coding Sequence",
                     description: "LoF description",
-                    terms: ["missense_variant", "synonymous_variant", "initiator_codon_variant", "terminator_codon_variant"]
-                }
+                    terms: ["missense_variant", "synonymous_variant", "stop_lost", "start_lost", "initiator_codon_variant",
+                        "terminator_codon_variant", "frameshift_variant", "inframe_insertion", "inframe_deletion", "incomplete_terminal_codon_variant"]
+                },
             ],
 
             // DEPRECATED Loss-of-function SO terms
-            lof: ["transcript_ablation", "splice_acceptor_variant", "splice_donor_variant", "stop_gained", "frameshift_variant",
-                "stop_lost", "start_lost", "transcript_amplification", "inframe_insertion", "inframe_deletion"],
+            // lof: ["transcript_ablation", "splice_acceptor_variant", "splice_donor_variant", "stop_gained", "frameshift_variant",
+            //     "stop_lost", "start_lost", "transcript_amplification", "inframe_insertion", "inframe_deletion"],
 
             // 'Title' is optional. if there is not title provided then 'name' will be used.
             //  There are two more optional properties - 'checked' and 'impact'. They can be set to display them default in web application.
@@ -427,22 +435,20 @@ export default class ConsequenceTypeSelectFilter extends LitElement {
         return html`
             <!-- Render the different aliases configured -->
             <div class="form-group">
-                ${this._config.alias && this._config.alias.length > 0 
-                    ? html`
+                ${this._config.alias && this._config.alias.length > 0 ? html`
+                    <div style="margin: 5px 0px">
+                        <span>Select a preset configuration:</span>
+                    </div>
+                    ${this._config.alias.map(alias => html`
                         <div style="margin: 5px 0px">
-                            <span>Select a preset configuration:</span>
-                        </div>
-                        ${this._config.alias.map(alias => html`
-                            <div style="margin: 5px 0px">
-                                <input type="checkbox" id="${this._prefix}${alias.name}" name="layout" value="${alias.name}" .checked="${this.isChecked[alias.name]}"
-                                    @click="${e => this.onPresetSelect(alias.name, e)}">
-                                <label class="text" for="${this._prefix}${alias.name}" style="font-weight: normal">
-                                    <span style="margin: 0px 5px">${alias.name}</span> (<span title="${alias.terms.join(", ")}" style="color: #286090"> ${alias.terms?.length} terms </span>)
-                                </label>                            
-                            </div>
-                        `)}
-                    ` 
-                    : null
+                            <input type="checkbox" id="${this._prefix}${alias.name}" name="layout" value="${alias.name}" .checked="${this.isChecked[alias.name]}"
+                                @click="${e => this.onPresetSelect(alias.name, e)}">
+                            <label class="text" for="${this._prefix}${alias.name}" style="font-weight: normal">
+                                <span style="margin: 0px 5px">${alias.name}</span> (<span title="${alias.terms.join(", ")}" style="color: #286090"> ${alias.terms?.length} terms </span>)
+                            </label>                            
+                        </div>`)
+                    }
+                    ` : null
                 }    
             </div>
 
@@ -453,15 +459,6 @@ export default class ConsequenceTypeSelectFilter extends LitElement {
                 <select-field-filter multiple liveSearch=${"true"} .data="${this.options}" .value=${this._ct} 
                     @filterChange="${this.onFilterChange}">
                 </select-field-filter>            
-            </div>
-            
-            <div class="form-group">
-                <!-- TODO magic-checkbox doesnt work in variant-interpreter-browser-rd (but it works in Variant browser). CSS debug
-                    <input class="" type="checkbox" name="layout" id="lof" value="lof" @click="${this.toggleLof}" .checked="${this.LofEnabled}" >
-                    <label class="text" for="lof">
-                        Loss of Functions
-                    </label>
-                -->
             </div>
         `;
     }
