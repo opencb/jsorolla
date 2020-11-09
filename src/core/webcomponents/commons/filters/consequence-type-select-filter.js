@@ -43,64 +43,109 @@ export default class ConsequenceTypeSelectFilter extends LitElement {
     }
 
     _init() {
-        this._prefix = "crf-" + UtilsNew.randomString(6) + "_";
-        this._ct = []; //this.ct is a comma separated list, this._ct is an array of the same data
+        this._prefix = UtilsNew.randomString(8);
+
+        this._ct = [];  // this.ct is a comma separated list, this._ct is an array of the same data
+        this.isChecked = {};
         this.options = [];
-        this.LofEnabled = false;
     }
 
     connectedCallback() {
         super.connectedCallback();
+
         this._config = {...this.getDefaultConfig(), ...this.config};
         this.options = this._config.categories.map( item => (
-            item.title ? {
-                id: item.title.toUpperCase(),
-                fields:  item.terms.map( term => ({id: term.name, name: `${term.name} ${term.id}`}))
-            } : {id: item.id, name: `${item.name} ${item.id}`}
-        ))
+            item.title
+                ?
+                    {
+                        id: item.title.toUpperCase(),
+                        fields:  item.terms.map( term => ({id: term.name, name: `${term.name} (${term.id})`}))
+                    }
+                :
+                    {
+                        id: item.id,
+                        name: `${item.name} ${item.id}`
+                    }
+        ));
     }
 
-    updated(_changedProperties) {
-        if (_changedProperties.has("ct")) {
+    updated(changedProperties) {
+        if (changedProperties.has("ct")) {
             if (this.ct) {
-                //console.log("updated", this.ct.split(","));
                 this._ct = this.ct.split(",");
-                //console.log(this._config.lof.every(v => this._ct.indexOf(v) > -1));
-                this.LofEnabled = this._config.lof.every(v => this._ct.indexOf(v) > -1);
-                // check all this.ct for this._config.lof
+                // this.LofEnabled = this._config.lof.every(v => this._ct.indexOf(v) > -1);
+                for (let alias of this._config.alias) {
+                    this.isChecked[alias.name] = alias.terms.every(v => this._ct.indexOf(v) > -1);
+                }
             } else {
                 this._ct = [];
-                this.LofEnabled = false;
-                // uncheck checkbox
+                this.isChecked = {};
             }
             this.requestUpdate();
         }
     }
 
-    filterChange(e) {
-        //e?.stopPropagation?.();
-        //console.log("filterChange", e.detail.value);
-        const event = new CustomEvent("filterChange", {
+    onFilterChange(e) {
+        this.notify(e.detail.value)
+    }
+
+    onPresetSelect(preset, e) {
+        if (preset && this._config.alias) {
+            let aliasSelect = this._config.alias.find(alias => alias.name === preset);
+
+            if (aliasSelect) {
+                if (e.currentTarget.checked) {
+                    let ctSet = new Set(this._ct);
+                    for (let term of aliasSelect.terms) {
+                        ctSet.add(term)
+                    }
+                    this._ct = [...ctSet];
+                } else {
+                    this._ct = this._ct.filter(selected => !aliasSelect.terms.includes(selected));
+                    for (let alias of this._config.alias) {
+                        this.isChecked[alias.name] = alias.terms.every(v => this._ct.indexOf(v) > -1);
+                    }
+                }
+
+                this.notify(this._ct.join(","));
+                // this.requestUpdate();
+            } else {
+                console.error("Consequence type rpeset not found: ", preset)
+            }
+        }
+    }
+
+    notify(cts) {
+        let event = new CustomEvent("filterChange", {
             detail: {
-                value: e.detail.value
+                value: cts
             }
         });
         this.dispatchEvent(event);
     }
 
-    toggleLof(e) {
-        if (e.currentTarget.checked) {
-            this._ct = [...this._ct, ...this._config.lof];
-        } else {
-            this._ct = this._ct.filter(selected => !this._config.lof.includes(selected));
-        }
-
-        this.filterChange({detail: {value: [...new Set(this._ct)].join(",")}});
-    }
-
     getDefaultConfig() {
         return {
-            // Loss-of-function SO terms
+            alias: [
+                {
+                    name: "LoF",
+                    description: "LoF description",
+                    terms: ["transcript_ablation", "splice_acceptor_variant", "splice_donor_variant", "stop_gained", "frameshift_variant",
+                        "stop_lost", "start_lost", "transcript_amplification", "inframe_insertion", "inframe_deletion"]
+                },
+                {
+                    name: "Nonsynonymous",
+                    description: "Missense variant description",
+                    terms: ["missense_variant"]
+                },
+                {
+                    name: "Coding Sequence",
+                    description: "LoF description",
+                    terms: ["missense_variant", "synonymous_variant", "initiator_codon_variant", "terminator_codon_variant"]
+                }
+            ],
+
+            // DEPRECATED Loss-of-function SO terms
             lof: ["transcript_ablation", "splice_acceptor_variant", "splice_donor_variant", "stop_gained", "frameshift_variant",
                 "stop_lost", "start_lost", "transcript_amplification", "inframe_insertion", "inframe_deletion"],
 
@@ -380,14 +425,43 @@ export default class ConsequenceTypeSelectFilter extends LitElement {
 
     render() {
         return html`
-            <select-field-filter multiple liveSearch=${"true"} .data="${this.options}" .value=${this._ct} @filterChange="${this.filterChange}"></select-field-filter>            
+            <!-- Render the different aliases configured -->
+            <div class="form-group">
+                ${this._config.alias && this._config.alias.length > 0 
+                    ? html`
+                        <div style="margin: 5px 0px">
+                            <span>Select a preset configuration:</span>
+                        </div>
+                        ${this._config.alias.map(alias => html`
+                            <div style="margin: 5px 0px">
+                                <input type="checkbox" id="${this._prefix}${alias.name}" name="layout" value="${alias.name}" .checked="${this.isChecked[alias.name]}"
+                                    @click="${e => this.onPresetSelect(alias.name, e)}">
+                                <label class="text" for="${this._prefix}${alias.name}" style="font-weight: normal">
+                                    <span style="margin: 0px 5px">${alias.name}</span> (<span title="${alias.terms.join(", ")}" style="color: #286090"> ${alias.terms?.length} terms </span>)
+                                </label>                            
+                            </div>
+                        `)}
+                    ` 
+                    : null
+                }    
+            </div>
+
+            <div class="form-group">
+                <div style="margin: 5px 0px">
+                    <span>Custom consequence types selection:</span>
+                </div>
+                <select-field-filter multiple liveSearch=${"true"} .data="${this.options}" .value=${this._ct} 
+                    @filterChange="${this.onFilterChange}">
+                </select-field-filter>            
+            </div>
             
             <div class="form-group">
-                <!-- TODO magic-checkbox doesnt work in variant-interpreter-browser-rd (but it works in Variant browser). CSS debug-->
-                <input class="" type="checkbox" name="layout" id="lof" value="lof" @click="${this.toggleLof}" .checked="${this.LofEnabled}" >
-                <label class="text" for="lof">
-                    Loss of Functions
-                </label>
+                <!-- TODO magic-checkbox doesnt work in variant-interpreter-browser-rd (but it works in Variant browser). CSS debug
+                    <input class="" type="checkbox" name="layout" id="lof" value="lof" @click="${this.toggleLof}" .checked="${this.LofEnabled}" >
+                    <label class="text" for="lof">
+                        Loss of Functions
+                    </label>
+                -->
             </div>
         `;
     }

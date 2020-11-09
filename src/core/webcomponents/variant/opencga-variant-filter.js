@@ -211,7 +211,7 @@ export default class OpencgaVariantFilter extends LitElement {
         }
 
         this.notifyQuery(this.preparedQuery);
-        // this.requestUpdate();
+        this.requestUpdate();
     }
 
     /**
