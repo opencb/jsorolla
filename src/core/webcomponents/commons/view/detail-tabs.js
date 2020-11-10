@@ -43,10 +43,10 @@ export default class DetailTabs extends LitElement {
             config: {
                 type: Object
             }
-        }
+        };
     }
 
-    _init(){
+    _init() {
         this._prefix = "sf-" + UtilsNew.randomString(6) + "_";
     }
 
@@ -57,7 +57,7 @@ export default class DetailTabs extends LitElement {
     }
 
     updated(changedProperties) {
-        if(changedProperties.has("property")) {
+        if (changedProperties.has("property")) {
             this.propertyObserver();
         }
     }
@@ -76,17 +76,17 @@ export default class DetailTabs extends LitElement {
         return {
             title: "",
             showTitle: true
-        }
+        };
     }
 
     render() {
         return html`
-            ${this._config.showTitle 
-                ? html`
+            ${this._config.showTitle ?
+                html`
                     <div class="panel">
                         <h3>&nbsp;${this._config.title} ${this.data?.id}</h3>
-                    </div>` 
-                : null
+                    </div>` :
+                null
             }
             <div class="detail-tabs">
                 <ul class="nav nav-tabs" role="tablist">
@@ -97,7 +97,7 @@ export default class DetailTabs extends LitElement {
                                     <a href="#${this._prefix}${item.id}" role="tab" data-toggle="tab" data-id="${item.id}" @click="${this._changeBottomTab}">
                                         <span>${item.name}</span>
                                     </a>
-                                </li>`
+                                </li>`;
                         }
                     })}
                 </ul>
@@ -106,14 +106,15 @@ export default class DetailTabs extends LitElement {
                         if (typeof item.mode === "undefined" || item.mode === this.opencgaSession.mode) {
                             return html`
                                 <div id="${item.id}-tab" class="tab-pane ${classMap({active: item.active})}" role="tabpanel">
-                                    ${item.render(this.data, this.activeTab[item.id], this.opencgaSession)}
-                                </div>`
+                                    ${item.render(this.data, this.activeTab[item.id], this.opencgaSession, this.cellbaseClient)}
+                                </div>`;
                         }
                     })}
                 </div>
             </div>
         `;
     }
+
 }
 
 customElements.define("detail-tabs", DetailTabs);
