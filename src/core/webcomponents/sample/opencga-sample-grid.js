@@ -86,10 +86,8 @@ export default class OpencgaSampleGrid extends LitElement {
 
     propertyObserver() {
         // With each property change we must updated config and create the columns again. No extra checks are needed.
-        //this._config = Object.assign(this.getDefaultConfig(), this.config);
-        //this._columns = this._initTableColumns();
-
-        this.catalogGridFormatter = new CatalogGridFormatter(this.opencgaSession);
+        // this._config = Object.assign(this.getDefaultConfig(), this.config);
+        // this._columns = this._initTableColumns();
 
         // Config for the grid toolbar
         this.toolbarConfig = {
@@ -112,7 +110,7 @@ export default class OpencgaSampleGrid extends LitElement {
     renderRemoteTable() {
         if (this.opencgaSession.opencgaClient && this.opencgaSession.study) {
             const filters = {...this.query};
-            //TODO fix and replicate this in all browsers (the current filter is not "filters", it is actually built in the ajax() function in bootstrapTable)
+            // TODO fix and replicate this in all browsers (the current filter is not "filters", it is actually built in the ajax() function in bootstrapTable)
             if (UtilsNew.isNotUndefinedOrNull(this.lastFilters) &&
                 JSON.stringify(this.lastFilters) === JSON.stringify(filters)) {
                 // Abort destroying and creating again the grid. The filters have not changed
@@ -151,7 +149,7 @@ export default class OpencgaSampleGrid extends LitElement {
                     this.opencgaSession.opencgaClient.samples().search(_filters)
                         .then(sampleResponse => {
                             // Fetch clinical analysis to display the Case ID
-                            let individualIds = sampleResponse.responses[0].results.map(sample => sample.individualId).join(",");
+                            const individualIds = sampleResponse.responses[0].results.map(sample => sample.individualId).join(",");
                             if (individualIds) {
                                 this.opencgaSession.opencgaClient.clinical().search(
                                     {
@@ -163,14 +161,14 @@ export default class OpencgaSampleGrid extends LitElement {
                                         // We store the Case ID in the individual attribute
                                         // Note clinical search results are not sorted
                                         // FIXME at the moment we only search by proband
-                                        let map = {};
-                                        for (let clinicalAnalysis of caseResponse.responses[0].results) {
+                                        const map = {};
+                                        for (const clinicalAnalysis of caseResponse.responses[0].results) {
                                             if (!map[clinicalAnalysis.proband.id]) {
                                                 map[clinicalAnalysis.proband.id] = [];
                                             }
                                             map[clinicalAnalysis.proband.id].push(clinicalAnalysis);
                                         }
-                                        for (let sample of sampleResponse.responses[0].results) {
+                                        for (const sample of sampleResponse.responses[0].results) {
                                             sample.attributes.OPENCGA_CLINICAL_ANALYSIS = map[sample.individualId];
                                         }
                                         params.success(sampleResponse);
@@ -218,7 +216,7 @@ export default class OpencgaSampleGrid extends LitElement {
                     this.gridCommons.onLoadSuccess(data, 1);
                 },
                 onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse),
-                onPostBody: (data) => {
+                onPostBody: data => {
                     // Add tooltips?
                 }
             });
@@ -253,7 +251,7 @@ export default class OpencgaSampleGrid extends LitElement {
             //     this.from = result.from || this.from;
             //     this.to = result.to || this.to;
             // },
-            onPostBody: (data) => {
+            onPostBody: data => {
                 // We call onLoadSuccess to select first row
                 this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 1);
             }
@@ -278,7 +276,7 @@ export default class OpencgaSampleGrid extends LitElement {
     }
 
     _getDefaultColumns() {
-        let _columns = [
+        const _columns = [
             {
                 title: "Sample ID",
                 field: "id"
@@ -290,12 +288,12 @@ export default class OpencgaSampleGrid extends LitElement {
             {
                 title: "Files (VCF, BAM)",
                 field: "fileIds",
-                formatter: fileIds => this.catalogGridFormatter.fileFormatter(fileIds, ["vcf", "vcf.gz", "bam"])
+                formatter: fileIds => CatalogGridFormatter.fileFormatter(fileIds, ["vcf", "vcf.gz", "bam"])
             },
             {
                 title: "Case ID",
                 field: "attributes.OPENCGA_CLINICAL_ANALYSIS",
-                formatter: (value, row) => this.catalogGridFormatter.caseFormatter(value, row, row.individualId, this.opencgaSession),
+                formatter: (value, row) => CatalogGridFormatter.caseFormatter(value, row, row.individualId, this.opencgaSession)
             },
             {
                 title: "Collection Method",
@@ -312,8 +310,8 @@ export default class OpencgaSampleGrid extends LitElement {
             {
                 title: "Creation Date",
                 field: "creationDate",
-                formatter: this.catalogGridFormatter.dateFormatter
-            },
+                formatter: CatalogGridFormatter.dateFormatter
+            }
         ];
 
         if (this._config.showSelectCheckbox) {
@@ -397,7 +395,7 @@ export default class OpencgaSampleGrid extends LitElement {
             limit: 1000,
             skip: 0,
             count: false,
-            exclude: "qualityControl,annotationSets",
+            exclude: "qualityControl,annotationSets"
         };
 
         this.opencgaSession.opencgaClient.samples().search(params)
@@ -406,8 +404,8 @@ export default class OpencgaSampleGrid extends LitElement {
                 if (results) {
                     // Check if user clicked in Tab or JSON format
                     if (e.detail.option.toUpperCase() === "TAB") {
-                        let fields = ["id", "individualId", "fileIds", "collection.method", "processing.preparationMethod", "somatic", "creationDate"];
-                        let data = UtilsNew.toTableString(results, fields);
+                        const fields = ["id", "individualId", "fileIds", "collection.method", "processing.preparationMethod", "somatic", "creationDate"];
+                        const data = UtilsNew.toTableString(results, fields);
                         UtilsNew.downloadData(data, "samples_" + this.opencgaSession.study.id + ".txt", "text/plain");
                     } else {
                         UtilsNew.downloadData(JSON.stringify(results, null, "\t"), this.opencgaSession.study.id + ".json", "application/json");
@@ -437,19 +435,19 @@ export default class OpencgaSampleGrid extends LitElement {
             multiSelection: false,
             showSelectCheckbox: true,
             showToolbar: true,
-            showActions: true,
+            showActions: true
         };
     }
 
     render() {
         return html`
-            ${this._config.showToolbar
-                ? html`
+            ${this._config.showToolbar ?
+                html`
                     <opencb-grid-toolbar    .config="${this.toolbarConfig}"
                                             @columnChange="${this.onColumnChange}"
                                             @download="${this.onDownload}">
-                    </opencb-grid-toolbar>`
-                : null
+                    </opencb-grid-toolbar>` :
+                null
             }
     
             <div id="${this._prefix}GridTableDiv">

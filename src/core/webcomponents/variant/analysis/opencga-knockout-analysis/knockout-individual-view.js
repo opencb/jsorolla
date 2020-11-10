@@ -64,7 +64,6 @@ export default class KnockoutIndividualView extends LitElement {
         super.connectedCallback();
         this._config = {...this.getDefaultConfig(), ...this.config};
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
-        this.catalogGridFormatter = new CatalogGridFormatter(this.opencgaSession);
         this.detailConfig = this.getDetailConfig();
         this.individual = null;
         this.toolbarConfig = {
@@ -162,14 +161,14 @@ export default class KnockoutIndividualView extends LitElement {
                     title: "Disorders",
                     field: "disorders",
                     rowspan: 2,
-                    formatter: disorders => disorders.length ? disorders.map(this.catalogGridFormatter.disorderFormatter) : "-"
+                    formatter: disorders => disorders.length ? disorders.map(CatalogGridFormatter.disorderFormatter) : "-"
 
                 },
                 {
                     title: "Phenotypes",
                     field: "phenotypes",
                     rowspan: 2,
-                    formatter: this.catalogGridFormatter.phenotypesFormatter
+                    formatter: CatalogGridFormatter.phenotypesFormatter
 
                 }
             ], [

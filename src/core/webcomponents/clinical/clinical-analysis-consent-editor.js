@@ -60,7 +60,6 @@ class ClinicalAnalysisConsentEditor extends LitElement {
         super.connectedCallback();
 
         this.updateParams = {};
-        this.catalogGridFormatter = new CatalogGridFormatter(this.opencgaSession);
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 

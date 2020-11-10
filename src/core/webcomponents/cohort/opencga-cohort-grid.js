@@ -77,11 +77,7 @@ export default class OpencgaCohortGrid extends LitElement {
     propertyObserver() {
         // With each property change we must updated config and create the columns again. No extra checks are needed.
         this._config = Object.assign(this.getDefaultConfig(), this.config);
-
-        this.catalogGridFormatter = new CatalogGridFormatter(this.opencgaSession);
-
         this._columns = this._initTableColumns();
-
         // Config for the grid toolbar
         this.toolbarConfig = {
             columns: this._columns[0]
@@ -250,7 +246,7 @@ export default class OpencgaCohortGrid extends LitElement {
                 {
                     title: "Date",
                     field: "creationDate",
-                    formatter: this.catalogGridFormatter.dateFormatter,
+                    formatter: CatalogGridFormatter.dateFormatter,
                     halign: this._config.header.horizontalAlign
                 },
                 // {

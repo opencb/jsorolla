@@ -86,9 +86,6 @@ export default class OpencgaFamilyGrid extends LitElement {
     propertyObserver() {
         // With each property change we must updated config and create the columns again. No extra checks are needed.
         this._config = {...this.getDefaultConfig(), ...this.config};
-
-        this.catalogGridFormatter = new CatalogGridFormatter(this.opencgaSession);
-
         // Config for the grid toolbar
         this.toolbarConfig = {
             columns: this._getDefaultColumns()
@@ -365,19 +362,19 @@ export default class OpencgaFamilyGrid extends LitElement {
             {
                 title: "Disorders",
                 field: "disorders",
-                formatter: disorders => disorders.map(disorder => this.catalogGridFormatter.disorderFormatter(disorder)).join("<br>"),
+                formatter: disorders => disorders.map(disorder => CatalogGridFormatter.disorderFormatter(disorder)).join("<br>"),
                 halign: this._config.header.horizontalAlign
             },
             {
                 title: "Phenotypes",
                 field: "phenotypes",
-                formatter: this.catalogGridFormatter.phenotypesFormatter,
+                formatter: CatalogGridFormatter.phenotypesFormatter,
                 halign: this._config.header.horizontalAlign
             },
             {
                 title: "Case ID",
                 field: "attributes.OPENCGA_CLINICAL_ANALYSIS",
-                formatter: (value, row) => this.catalogGridFormatter.caseFormatter(value, row, row.id, this.opencgaSession),
+                formatter: (value, row) => CatalogGridFormatter.caseFormatter(value, row, row.id, this.opencgaSession),
                 halign: this._config.header.horizontalAlign
             },
             {
@@ -390,7 +387,7 @@ export default class OpencgaFamilyGrid extends LitElement {
             {
                 title: "Creation Date",
                 field: "creationDate",
-                formatter: this.catalogGridFormatter.dateFormatter,
+                formatter: CatalogGridFormatter.dateFormatter,
                 sortable: true,
                 halign: this._config.header.horizontalAlign,
                 visible: application.appConfig === "opencb"

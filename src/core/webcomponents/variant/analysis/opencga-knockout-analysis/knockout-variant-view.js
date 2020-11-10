@@ -70,7 +70,6 @@ export default class KnockoutVariantView extends LitElement {
         super.connectedCallback();
         this._config = {...this.getDefaultConfig(), ...this.config};
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
-        this.catalogGridFormatter = new CatalogGridFormatter(this.opencgaSession);
         this.detailConfig = this.getDetailConfig();
         this.individual = null;
         this.toolbarConfig = {

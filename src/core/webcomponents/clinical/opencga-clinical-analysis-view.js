@@ -58,7 +58,6 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
         super.connectedCallback();
 
         this._config = {...this.getDefaultConfig(), ...this.config};
-        this.catalogGridFormatter = new CatalogGridFormatter(this.opencgaSession);
     }
 
     updated(changedProperties) {
@@ -182,7 +181,7 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                             field: "disorder",
                             type: "custom",
                             display: {
-                                render: disorder => UtilsNew.renderHTML(this.catalogGridFormatter.disorderFormatter(disorder))
+                                render: disorder => UtilsNew.renderHTML(CatalogGridFormatter.disorderFormatter(disorder))
                             }
                         },
                         {
