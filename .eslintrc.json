@@ -1,5 +1,5 @@
 {
-  "extends": ["eslint:recommended", "google"],
+  "extends": ["eslint:recommended", "google", "plugin:cypress/recommended"],
   "parser": "babel-eslint",
   "parserOptions": {
     "ecmaVersion": 6,
@@ -27,12 +27,16 @@
     "babel/object-curly-spacing": 1,
     "object-curly-spacing": 1,
     "valid-jsdoc": [2, {"prefer": {"return": "returns"}}],
-    "require-jsdoc": 0
+    "require-jsdoc": 0,
+    "space-before-function-paren": ["error", {
+      "anonymous": "always",
+      "named": "never",
+      "asyncArrow": "always"
+    }],
+    "space-after-keywords": "error",
+    "space-in-parens": ["error", "never"]
   },
   "plugins": [
     "cypress"
-  ],
-  "extends": [
-    "plugin:cypress/recommended"
   ]
 }
