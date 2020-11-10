@@ -111,7 +111,7 @@ export default class CatalogGridFormatter {
     }
 
     // TODO remove
-    static addTooltip(selector, title, content, config) {
+    /*static addTooltip(selector, title, content, config) {
         $(selector).qtip({
             content: {
                 title: title,
@@ -128,6 +128,6 @@ export default class CatalogGridFormatter {
             show: {delay: 200},
             hide: {fixed: true, delay: 300}
         });
-    }
+    }*/
 
 }

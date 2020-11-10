@@ -54,7 +54,7 @@ export default class VariantAnnotationClinicalView extends LitElement {
 
     firstUpdated(_changedProperties) {
         //super.firstUpdated(_changedProperties);
-        //this.renderVariantTraitTable();
+        this.renderVariantTraitTable();
     }
 
     updated(changedProperties) {
