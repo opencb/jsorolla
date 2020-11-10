@@ -135,6 +135,11 @@ export default class KnockoutVariantView extends LitElement {
             {title: "Variant type", field: ""},
             {title: "Consequence Type", field: "consequenceType"},
             {title: "ClinVar", field: ""},
+            {
+                title: "Individuals",
+                formatter: this.individualFormatter
+
+            },
             ...this.samples.map(sample => {
                 return {
                     title: `Sample ${sample.sampleId}`,
@@ -156,6 +161,17 @@ export default class KnockoutVariantView extends LitElement {
             ids.split(",").forEach(id => this.table.bootstrapTable("showColumn", id));
         }
 
+    }
+
+    individualFormatter() {
+        return `
+            <table>
+                <tr>
+                    <td style="width: 15px; background: red; border-right: 1px solid white;">&nbsp;</td>
+                    <td style="width: 15px; background: black; border-right: 1px solid white;">&nbsp;</td>
+                    <td style="width: 15px; background: black; border-right: 1px solid white;">&nbsp;</td>                
+                </tr>
+            </table>`;
     }
 
     renderTable() {
@@ -247,7 +263,7 @@ export default class KnockoutVariantView extends LitElement {
                     name: "ClinVar",
                     render: (variant, active, opencgaSession, cellbaseClient) => {
                         return html`
-                            <variant-annotation-clinical-view   .variantId="${variant}" 
+                            <variant-annotation-clinical-view   .variantId="${variant}"
                                                                 .opencgaSession="${opencgaSession}"
                                                                 .cellbaseClient="${cellbaseClient}">
                                 </variant-annotation-clinical-view>
