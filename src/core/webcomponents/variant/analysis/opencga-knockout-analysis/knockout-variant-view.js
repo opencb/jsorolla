@@ -22,6 +22,8 @@ import GridCommons from "../../grid-commons.js";
 import knockoutData from "../test/knockout.20201029141213.SChLEA.js";
 import "./knockout-individual-variants.js";
 import "../../../family/opencga-family-view.js";
+import "../../annotation/cellbase-population-frequency-grid.js";
+import "../../annotation/variant-annotation-clinical-view.js";
 
 
 export default class KnockoutVariantView extends LitElement {
@@ -41,6 +43,9 @@ export default class KnockoutVariantView extends LitElement {
             opencgaSession: {
                 type: Object
             },
+            cellbaseClient: {
+                type: Object
+            },
             job: {
                 type: Object
             },
@@ -54,9 +59,10 @@ export default class KnockoutVariantView extends LitElement {
         this._prefix = "oga-" + UtilsNew.randomString(6);
         this._config = this.getDefaultConfig();
         this.data = knockoutData;
-        this.LIMIT = 50; //temp limit for both rows and cols
+        this.LIMIT = 50; // temp limit for both rows and cols
         this.colToShow = 2;
         this.gridId = this._prefix + "KnockoutGrid";
+        this.variantId = null;
         this.prepareData();
     }
 
@@ -100,7 +106,7 @@ export default class KnockoutVariantView extends LitElement {
                     const transcript = gene.transcripts[c];
                     for (let d = 0; d < transcript.variants.length; d++) {
                         const variant = transcript.variants[d];
-                        //console.log(variant.id)
+                        // console.log(variant.id)
                         this.samples.push(sample);
                         if (this._data[variant.id]) {
                             this._data[variant.id].push({sampleId: sample.sampleId, variant: variant});
@@ -115,7 +121,7 @@ export default class KnockoutVariantView extends LitElement {
         this.samples = [...new Set(this.samples)];
         this.activeSamples = this.samples.slice(0, this.colToShow).map(sample => sample.sampleId);
         this.tableData = Object.entries(this._data).splice(0, this.LIMIT).map(([variant, samples]) => ({
-            variantId: variant,
+            id: variant,
             data: samples
         }));
         this.renderTable();
@@ -124,7 +130,7 @@ export default class KnockoutVariantView extends LitElement {
 
     _initTableColumns() {
         return [
-            {title: "Variant", field: "variantId"},
+            {title: "Variant", field: "id"},
             {title: "dbSNP", field: "dbSNP"},
             {title: "Alt allele freq.", field: ""},
             {title: "Variant type", field: ""},
@@ -137,7 +143,7 @@ export default class KnockoutVariantView extends LitElement {
                     visible: !!~this.activeSamples.indexOf(sample.sampleId),
                     formatter: (v, row) => {
                         return row.data.find(a => a.sampleId === sample.sampleId)?.variant?.knockoutType;
-                        //return JSON.stringify(v)
+                        // return JSON.stringify(v)
                     }
                 };
             })];
@@ -146,7 +152,7 @@ export default class KnockoutVariantView extends LitElement {
     onColumnChange(e) {
         const ids = e.detail.value ?? "";
         this.table.bootstrapTable("hideAllColumns");
-        this.table.bootstrapTable("showColumn", ["variantId", "dbSNP", "consequenceType"]);
+        this.table.bootstrapTable("showColumn", ["id", "dbSNP", "consequenceType"]);
         if (ids) {
             ids.split(",").forEach(id => this.table.bootstrapTable("showColumn", id));
         }
@@ -162,15 +168,16 @@ export default class KnockoutVariantView extends LitElement {
             sidePagination: "local",
             // Set table properties, these are read from config propertyparticularly tough
             uniqueId: "id",
-            //pagination: this._config.pagination,
-            //pageSize: this._config.pageSize,
-            //pageList: this._config.pageList,
+            // pagination: this._config.pagination,
+            // pageSize: this._config.pageSize,
+            // pageList: this._config.pageList,
             paginationVAlign: "both",
-            //formatShowingRows: this.gridCommons.formatShowingRows,
+            // formatShowingRows: this.gridCommons.formatShowingRows,
             gridContext: this,
             formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
             onClickRow: (row, selectedElement, field) => {
-                //this.individual = {id: row.sampleId, ...row}; //TODO temp fix for missing id
+                console.log(row);
+                this.variantId = row.id;
                 this.gridCommons.onClickRow(row.id, row, selectedElement);
                 this.requestUpdate();
             },
@@ -181,8 +188,11 @@ export default class KnockoutVariantView extends LitElement {
             onPostBody: data => {
                 // We call onLoadSuccess to select first row
                 this.gridCommons.onLoadSuccess({rows: data, total: data.length});
-                //this.individual = {id: data[0].sampleId, ...data[0]}; //TODO temp fix for missing id
-                this.requestUpdate();
+                if (data) {
+                    this.variantId = data[0].id;
+                    this.requestUpdate();
+                }
+
 
             }
 
@@ -190,13 +200,13 @@ export default class KnockoutVariantView extends LitElement {
     }
 
     onDownload(e) {
-        console.log(e)
+        console.log(e);
         const header = ["Variant", "dbSNP"];
         if (e.detail.option.toLowerCase() === "tab") {
             const dataString = [
                 header.join("\t"),
                 ...this.tableData.map(_ => [
-                    _.variantId,
+                    _.id,
                     _.dbSNP
                 ].join("\t"))];
             UtilsNew.downloadData(dataString, "knockout_variant_view" + this.opencgaSession.study.id + ".txt", "text/plain");
@@ -209,37 +219,56 @@ export default class KnockoutVariantView extends LitElement {
         return AnalysisRegistry.get("knockout").config;
     }
 
-    /*getDetailConfig() {
+    getDetailConfig() {
         return {
             title: "Individual",
             showTitle: true,
             items: [
                 {
                     id: "individual-view",
-                    name: "Variants",
+                    name: "Individuals",
                     active: true,
-                    render: (individual, active, opencgaSession) => {
+                    render: (variant, active, opencgaSession) => {
                         return html`
-                            <h3>Variants in ${individual?.id}</h3>
-                            <knockout-individual-variants .individual="${individual}"></knockout-individual-variants>
+                            individual-view
                         `;
                     }
-                }, {
-                    id: "family-view",
-                    name: "Family",
-                    render: (individual, active, opencgaSession) => {
-                        return html`<opencga-family-view .individualId="${individual.id}" .opencgaSession="${opencgaSession}"></opencga-family-view>`;
+                },
+                {
+                    id: "allele-view",
+                    name: "Allele pairs",
+                    render: (variant, active, opencgaSession) => {
+                        return html`
+                            allele-view
+                        `;
                     }
-                }, {
-                    render: (individual, active, opencgaSession) => {
-                        return html`<cellbase-population-frequency-grid .populationFrequencies="${1 || this.variant.annotation.populationFrequencies}"
+                },
+                {
+                    id: "clinvar-view",
+                    name: "ClinVar",
+                    render: (variant, active, opencgaSession, cellbaseClient) => {
+                        return html`
+                            <variant-annotation-clinical-view   .variantId="${variant}" 
+                                                                .opencgaSession="${opencgaSession}"
+                                                                .cellbaseClient="${cellbaseClient}">
+                                </variant-annotation-clinical-view>
+                        `;
+                    }
+                },
+                {
+                    id: "popfreq-view",
+                    name: "Population Frequencies",
+                    render: (variant, active, opencgaSession, cellbaseClient) => {
+                        return html`<cellbase-population-frequency-grid .variantId="${variant}"
+                                                                        .opencgaSession="${opencgaSession}"
+                                                                        .cellbaseClient="${cellbaseClient}"
                                                                         .active="${active}">
-                                    </cellbase-population-frequency-grid>`
+                                    </cellbase-population-frequency-grid>`;
                     }
                 }
             ]
         };
-    }*/
+    }
 
     render() {
         return html`
@@ -261,7 +290,7 @@ export default class KnockoutVariantView extends LitElement {
                 <div class="row">
                     <table id="${this.gridId}"></table>
                 </div>
-                <!--<detail-tabs .data="${this.individual}" .config="${this.detailConfig}" .opencgaSession="${this.opencgaSession}"></detail-tabs> -->
+                <detail-tabs .data="${this.variantId}" .config="${this.detailConfig}" .opencgaSession="${this.opencgaSession}" .cellbaseClient="${this.cellbaseClient}"></detail-tabs>
 
             </div>
         `;
