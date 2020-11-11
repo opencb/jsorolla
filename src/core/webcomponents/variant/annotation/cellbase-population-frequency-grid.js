@@ -31,13 +31,22 @@ export default class CellbasePopulationFrequencyGrid extends LitElement {
 
     static get properties() {
         return {
+            opencgaSession: {
+                type: Object
+            },
+            cellbaseClient: {
+                type: Object
+            },
+            variantId: {
+                type: String
+            },
             populationFrequencies: {
                 type: Array
             },
             active: {
                 type: Boolean
             }
-        }
+        };
     }
 
     _init() {
@@ -51,6 +60,38 @@ export default class CellbasePopulationFrequencyGrid extends LitElement {
             this.renderPlot();
             this.renderTable();
         }
+        if ((changedProperties.has("variantId") || changedProperties.has("active")) && this.active) {
+            this.variantIdObserver();
+        }
+    }
+
+    variantIdObserver() {
+        console.log("variantIdObserver", this.variantId, this.cellbaseClient);
+        if (this.cellbaseClient) {
+            if (this.variantId) {
+                this.cellbaseClient.get("genomic", "variant", this.variantId, "annotation", {assembly: this.opencgaSession.project.organism.assembly}, {})
+                    .then(restResponse => {
+                        this.populationFrequencies = restResponse.getResult(0).populationFrequencies;
+                        this.requestUpdate();
+
+                        // this.variant = {id: this.variantId, annotation: response.responses[0].results[0]};
+                        // this.variantAnnotation = response.response[0].result[0];
+                        /* this.numberConsequenceTypes = 0;
+                        this.numberPopulationFrequencies = 0;
+                        this.numberVTA = 0;
+                        this.numberGTA = 0;
+
+                        if (this.variantAnnotation.geneTraitAssociation != null) {
+                            this.numberConsequenceTypes = this.variantAnnotation.consequenceTypes.length;
+                            this.numberPopulationFrequencies = UtilsNew.isNotEmptyArray(this.variantAnnotation.populationFrequencies) ? this.variantAnnotation.populationFrequencies.length : 0;
+                            this.numberVTA = UtilsNew.isNotUndefinedOrNull(this.variantAnnotation.traitAssociation) ? this.variantAnnotation.traitAssociation.length : 0;
+                            this.numberGTA = UtilsNew.isNotUndefinedOrNull(this.variantAnnotation.geneTraitAssociation) ? this.variantAnnotation.geneTraitAssociation.length : 0;
+                        }*/
+                    });
+            } else {
+                // this.populationFrequencies = null;
+            }
+        }
     }
 
     alleleFormatter(value, row, index) {
@@ -62,8 +103,8 @@ export default class CellbasePopulationFrequencyGrid extends LitElement {
     }
 
     renderPlot() {
-        let popArray = [];
-        let mafArray = [];
+        const popArray = [];
+        const mafArray = [];
         if (typeof this.populationFrequencies !== "undefined") {
             for (let i = 0; i < this.populationFrequencies.length; i++) {
                 popArray.push(this.populationFrequencies[i].study + "-" + this.populationFrequencies[i].population);
@@ -127,10 +168,9 @@ export default class CellbasePopulationFrequencyGrid extends LitElement {
     }
 
     renderTable() {
-        let _this = this;
         $("#" + this.gridId).bootstrapTable("destroy");
         $("#" + this.gridId).bootstrapTable({
-            data: _this.populationFrequencies,
+            data: this.populationFrequencies,
             pageSize: 5,
             showPaginationSwitch: true,
             search: true,
@@ -151,28 +191,28 @@ export default class CellbasePopulationFrequencyGrid extends LitElement {
                         title: "Population",
                         field: "population",
                         rowspan: 2,
-                        colspan: 1,
+                        colspan: 1
                     },
                     {
                         title: "Ref/Alt",
-                        formatter: _this.alleleFormatter,
+                        formatter: this.alleleFormatter,
                         rowspan: 2,
-                        colspan: 1,
+                        colspan: 1
                     },
                     {
                         title: "Allele Frequency",
                         rowspan: 1,
                         colspan: 2,
-                        formatter: _this.alleleFormatter,
+                        formatter: this.alleleFormatter,
                         halign: "center"
                     },
                     {
                         title: "Genotype Frequency",
                         rowspan: 1,
                         colspan: 3,
-                        formatter: _this.alleleFormatter,
+                        formatter: this.alleleFormatter,
                         halign: "center"
-                    },
+                    }
                 ],
                 [
                     {
@@ -181,7 +221,7 @@ export default class CellbasePopulationFrequencyGrid extends LitElement {
                         rowspan: 1,
                         colspan: 1,
                         sortable: true,
-                        formatter: _this.freqFormatter,
+                        formatter: this.freqFormatter,
                         halign: "center",
                         align: "right"
                     },
@@ -191,7 +231,7 @@ export default class CellbasePopulationFrequencyGrid extends LitElement {
                         rowspan: 1,
                         colspan: 1,
                         sortable: true,
-                        formatter: _this.freqFormatter,
+                        formatter: this.freqFormatter,
                         halign: "center",
                         align: "right"
                     },
@@ -201,7 +241,7 @@ export default class CellbasePopulationFrequencyGrid extends LitElement {
                         rowspan: 1,
                         colspan: 1,
                         sortable: true,
-                        formatter: _this.freqFormatter,
+                        formatter: this.freqFormatter,
                         halign: "center",
                         align: "right"
                     },
@@ -211,7 +251,7 @@ export default class CellbasePopulationFrequencyGrid extends LitElement {
                         rowspan: 1,
                         colspan: 1,
                         sortable: true,
-                        formatter: _this.freqFormatter,
+                        formatter: this.freqFormatter,
                         halign: "center",
                         align: "right"
                     },
@@ -221,7 +261,7 @@ export default class CellbasePopulationFrequencyGrid extends LitElement {
                         rowspan: 1,
                         colspan: 1,
                         sortable: true,
-                        formatter: _this.freqFormatter,
+                        formatter: this.freqFormatter,
                         halign: "center",
                         align: "right"
                     }
@@ -241,6 +281,7 @@ export default class CellbasePopulationFrequencyGrid extends LitElement {
             </div>
         `;
     }
+
 }
 
 customElements.define("cellbase-population-frequency-grid", CellbasePopulationFrequencyGrid);

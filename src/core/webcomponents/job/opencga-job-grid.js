@@ -89,13 +89,11 @@ export default class OpencgaJobGrid extends LitElement {
         }
 
         if (changedProperties.has("filteredVariables")) {
-            //this.calculateFilters(); // TODO whats this?
+            // this.calculateFilters(); // TODO whats this?
         }
     }
 
     propertyObserver() {
-        this.catalogGridFormatter = new CatalogGridFormatter(this.opencgaSession);
-
         this.toolbarConfig = {
             columns: this._initTableColumns().filter(col => col.field)
         };
@@ -196,7 +194,7 @@ export default class OpencgaJobGrid extends LitElement {
                 onLoadSuccess: data => {
                     this.gridCommons.onLoadSuccess(data, 1);
                 },
-                onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse),
+                onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse)
             });
         } else {
             // Delete table
@@ -205,14 +203,14 @@ export default class OpencgaJobGrid extends LitElement {
         }
     }
 
-    /*/!**
+    /* /!**
      * If filters have been removed, clean the values from the forms.
      *!/
     onFilterUpdate() {
         this.updateForms(this.filters); //TODO recheck, this shouldn't be necessary anymore (and it seems not)
     }*/
 
-    /*// TODO adapt to jobs
+    /* // TODO adapt to jobs
     onSearch() {
         // Convert the filters to an objectParam that can be directly send to the file search
         const filterParams = {};
@@ -284,9 +282,9 @@ export default class OpencgaJobGrid extends LitElement {
             {
                 title: "Output Files",
                 field: "output",
-                formatter: (value) => {
-                    let fileIds = value?.map(file => file.name);
-                    return this.catalogGridFormatter.fileFormatter(fileIds);
+                formatter: value => {
+                    const fileIds = value?.map(file => file.name);
+                    return CatalogGridFormatter.fileFormatter(fileIds);
                 }
             },
             // {
@@ -300,8 +298,8 @@ export default class OpencgaJobGrid extends LitElement {
                 formatter: execution => {
                     if (execution?.start) {
                         const duration = moment.duration((execution.end ? execution.end : moment().valueOf()) - execution.start);
-                        const f = moment.utc(duration.asMilliseconds()).format("HH:mm:ss")
-                        return `<a tooltip-title="Runtime"  tooltip-text="${f}"> ${duration.humanize()} </a>`
+                        const f = moment.utc(duration.asMilliseconds()).format("HH:mm:ss");
+                        return `<a tooltip-title="Runtime"  tooltip-text="${f}"> ${duration.humanize()} </a>`;
                     }
                 }
 
@@ -309,15 +307,15 @@ export default class OpencgaJobGrid extends LitElement {
             {
                 title: "Start/End Date",
                 field: "execution",
-                formatter: execution => execution?.start
-                    ? moment(execution.start).format("D MMM YYYY, h:mm:ss a") + " / " + (execution?.end ? moment(execution.end).format("D MMM YYYY, h:mm:ss a") : "-")
-                    : "-"
+                formatter: execution => execution?.start ?
+                    moment(execution.start).format("D MMM YYYY, h:mm:ss a") + " / " + (execution?.end ? moment(execution.end).format("D MMM YYYY, h:mm:ss a") : "-") :
+                    "-"
             },
             {
                 title: "Creation Date",
                 field: "creationDate",
-                formatter: this.catalogGridFormatter.dateFormatter
-            },
+                formatter: CatalogGridFormatter.dateFormatter
+            }
             // {
             //     title: "Visited",
             //     field: "visited"
@@ -431,8 +429,8 @@ export default class OpencgaJobGrid extends LitElement {
                 if (results) {
                     // Check if user clicked in Tab or JSON format
                     if (e.detail.option.toLowerCase() === "tab") {
-                        let fields = ["id", "tool.id", "priority", "tags", "creationDate", "internal.status.name", "visited"];
-                        let data = UtilsNew.toTableString(results, fields);
+                        const fields = ["id", "tool.id", "priority", "tags", "creationDate", "internal.status.name", "visited"];
+                        const data = UtilsNew.toTableString(results, fields);
                         UtilsNew.downloadData(data, "job_" + this.opencgaSession.study.id + ".txt", "text/plain");
                     } else {
                         UtilsNew.downloadData(JSON.stringify(results, null, "\t"), this.opencgaSession.study.id + ".json", "application/json");
@@ -478,8 +476,8 @@ export default class OpencgaJobGrid extends LitElement {
                 <opencb-grid-toolbar .config="${this.toolbarConfig}"
                                     @columnChange="${this.onColumnChange}"
                                     @download="${this.onDownload}">
-                </opencb-grid-toolbar>`
-            : null}
+                </opencb-grid-toolbar>` :
+            null}
             <div>
                 <table id="${this.gridId}"></table>
             </div>

@@ -195,7 +195,7 @@ class OpencbFacetResults extends LitElement {
                 margin-top: 40px;
             }
         </style>
-        <div>
+        <div>            
             ${this.loading ? html`
                 <div id="loading">
                     <loading-spinner></loading-spinner>
@@ -206,7 +206,15 @@ class OpencbFacetResults extends LitElement {
                     ${this.errorState}
                 </div>
             ` : null}
-            ${this.facetResults.length ? this.facetResults.map(item => html`
+            ${this.facetResults.length ? this.facetResults.map(item => item.aggregationName && item.aggregationValues ? html`
+                <div>
+                    <h3>${item.name}</h3>
+                    <div class="facet-result-single-value">
+                        <span class="aggregation-name">${item.aggregationName}</span>
+                        <span class="aggregation-values">${item.aggregationValues}</span>
+                    </div>
+                </div>
+            ` : html`
                 <div>
                     <h3>${item.name}</h3>
                     <opencga-facet-result-view .facetResult="${item}"

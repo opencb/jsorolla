@@ -81,6 +81,7 @@ export default class CatalogUtils {
         return displayVariables;
     }
 
+    //TODO remove
     addTooltip(selector, title, config) {
         $(selector).qtip({
             content: {

@@ -40,6 +40,9 @@ export default class KnockoutIndividualView extends LitElement {
             opencgaSession: {
                 type: Object
             },
+            cellbaseClient: {
+                type: Object
+            },
             job: {
                 type: Object
             },
@@ -61,7 +64,6 @@ export default class KnockoutIndividualView extends LitElement {
         super.connectedCallback();
         this._config = {...this.getDefaultConfig(), ...this.config};
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
-        this.catalogGridFormatter = new CatalogGridFormatter(this.opencgaSession);
         this.detailConfig = this.getDetailConfig();
         this.individual = null;
         this.toolbarConfig = {
@@ -97,15 +99,15 @@ export default class KnockoutIndividualView extends LitElement {
             sidePagination: "local",
             // Set table properties, these are read from config propertyparticularly tough
             uniqueId: "id",
-            //pagination: this._config.pagination,
-            //pageSize: this._config.pageSize,
-            //pageList: this._config.pageList,
+            // pagination: this._config.pagination,
+            // pageSize: this._config.pageSize,
+            // pageList: this._config.pageList,
             paginationVAlign: "both",
-            //formatShowingRows: this.gridCommons.formatShowingRows,
+            // formatShowingRows: this.gridCommons.formatShowingRows,
             gridContext: this,
             formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
             onClickRow: (row, selectedElement, field) => {
-                this.individual = {id: row.sampleId, ...row}; //TODO temp fix for missing id
+                this.individual = {id: row.sampleId, ...row}; // TODO temp fix for missing id
                 this.gridCommons.onClickRow(row.id, row, selectedElement);
                 this.requestUpdate();
             },
@@ -116,9 +118,8 @@ export default class KnockoutIndividualView extends LitElement {
             onPostBody: data => {
                 // We call onLoadSuccess to select first row
                 this.gridCommons.onLoadSuccess({rows: data, total: data.length});
-                this.individual = {id: data[0].sampleId, ...data[0]}; //TODO temp fix for missing id
+                this.individual = {id: data[0].sampleId, ...data[0]}; // TODO temp fix for missing id
                 this.requestUpdate();
-
             }
 
         });
@@ -160,14 +161,14 @@ export default class KnockoutIndividualView extends LitElement {
                     title: "Disorders",
                     field: "disorders",
                     rowspan: 2,
-                    formatter: disorders => disorders.length ? disorders.map(this.catalogGridFormatter.disorderFormatter) : "-"
+                    formatter: disorders => disorders.length ? disorders.map(CatalogGridFormatter.disorderFormatter) : "-"
 
                 },
                 {
                     title: "Phenotypes",
                     field: "phenotypes",
                     rowspan: 2,
-                    formatter: this.catalogGridFormatter.phenotypesFormatter
+                    formatter: CatalogGridFormatter.phenotypesFormatter
 
                 }
             ], [
@@ -196,8 +197,7 @@ export default class KnockoutIndividualView extends LitElement {
     }
 
     onDownload(e) {
-        console.log(e)
-        const header = ["Individual Id", "Sample","Gene","HOM_ALT","COMP_HET.total","COMP_HET.def","COMP_HET.prob","COMP_HET.poss","Disorders","Phenotypes"];
+        const header = ["Individual Id", "Sample", "Gene", "HOM_ALT", "COMP_HET.total", "COMP_HET.def", "COMP_HET.prob", "COMP_HET.poss", "Disorders", "Phenotypes"];
         if (e.detail.option.toLowerCase() === "tab") {
             const dataString = [
                 header.join("\t"),
@@ -243,10 +243,6 @@ export default class KnockoutIndividualView extends LitElement {
                     name: "Family",
                     render: (individual, active, opencgaSession) => {
                         return html`<opencga-family-view .individualId="${individual.id}" .opencgaSession="${opencgaSession}"></opencga-family-view>`;
-                    }
-                }, {
-                    render: (individual, active, opencgaSession) => {
-                        return html`<cellbase-population-frequency-grid .populationFrequencies="${1}" .active="${active}"></cellbase-population-frequency-grid>`
                     }
                 }
             ]

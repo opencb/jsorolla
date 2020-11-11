@@ -169,8 +169,6 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
         // With each property change we must updated config and create the columns again. No extra checks are needed.
         this._config = Object.assign({}, this.getDefaultConfig(), this.config);
 
-        this.catalogGridFormatter = new CatalogGridFormatter(this.opencgaSession);
-
         // Config for the grid toolbar
         this.toolbarConfig = {
             ...this._config.toolbar,
@@ -554,7 +552,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                 field: "disorder",
                 halign: this._config.header.horizontalAlign,
                 valign: "middle",
-                formatter: this.catalogGridFormatter.disorderFormatter,
+                formatter: CatalogGridFormatter.disorderFormatter,
                 visible: !this._config.columns.hidden.includes("disorderId")
             },
             // {
@@ -625,14 +623,14 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
             //     title: "Due Date",
             //     field: "dueDate",
             //     valign: "middle",
-            //     formatter: this.catalogGridFormatter.dateFormatter,
+            //     formatter: CatalogGridFormatter.dateFormatter,
             //     visible: !this._config.columns.hidden.includes("dueDate")
             // },
             // {
             //     title: "Creation Date",
             //     field: "creationDate",
             //     valign: "middle",
-            //     formatter: this.catalogGridFormatter.dateFormatter,
+            //     formatter: CatalogGridFormatter.dateFormatter,
             //     visible: !this._config.columns.hidden.includes("creationDate")
             // },
             {

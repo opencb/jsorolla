@@ -43,6 +43,9 @@ export default class OpencgaKnockoutAnalysisResult extends LitElement {
             opencgaSession: {
                 type: Object
             },
+            cellbaseClient: {
+                type: Object
+            },
             config: {
                 type: Object
             },
@@ -119,7 +122,7 @@ export default class OpencgaKnockoutAnalysisResult extends LitElement {
                             <knockout-individual-view .opencgaSession="${this.opencgaSession}"></knockout-individual-view>
                         </div>
                         <div id="${this._prefix}variant" class="content-tab">
-                            <knockout-variant-view .opencgaSession="${this.opencgaSession}"></knockout-variant-view>
+                            <knockout-variant-view .opencgaSession="${this.opencgaSession}" .cellbaseClient="${this.cellbaseClient}"></knockout-variant-view>
                         </div>
                     </div>
                 </div>

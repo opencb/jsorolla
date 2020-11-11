@@ -62,7 +62,6 @@ class ClinicalInterpretationSummaryEditor extends LitElement {
         super.connectedCallback();
 
         this.updateParams = {};
-        this.catalogGridFormatter = new CatalogGridFormatter(this.opencgaSession);
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
@@ -227,7 +226,7 @@ class ClinicalInterpretationSummaryEditor extends LitElement {
                             field: "disorder",
                             type: "custom",
                             display: {
-                                render: disorder => UtilsNew.renderHTML(this.catalogGridFormatter.disorderFormatter(disorder))
+                                render: disorder => UtilsNew.renderHTML(CatalogGridFormatter.disorderFormatter(disorder))
                             }
                         },
                         {

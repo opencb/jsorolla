@@ -83,8 +83,6 @@ export default class OpencgaFileGrid extends LitElement {
     }
 
     propertyObserver() {
-        this.catalogGridFormatter = new CatalogGridFormatter(this.opencgaSession);
-
         this.toolbarConfig = {
             columns: this._getDefaultColumns()
         };
@@ -250,7 +248,7 @@ export default class OpencgaFileGrid extends LitElement {
             {
                 title: "Creation date",
                 field: "creationDate",
-                formatter: this.catalogGridFormatter.dateFormatter
+                formatter: CatalogGridFormatter.dateFormatter
             },
             {
                 title: "Actions",

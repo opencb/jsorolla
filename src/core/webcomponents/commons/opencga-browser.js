@@ -132,6 +132,8 @@ export default class OpencgaBrowser extends LitElement {
         if (this.opencgaSession && this.opencgaSession.project) {
             this.checkProjects = true;
             this.query = {study: this.opencgaSession.study.fqn};
+            this.onRun(); // TODO temp fix: when you switch study this.facetQuery contains the old study when you perform a new Aggregation query
+
             //this.requestUpdate().then(() => $(".bootstrap-select", this).selectpicker());
         } else {
             this.checkProjects = false;

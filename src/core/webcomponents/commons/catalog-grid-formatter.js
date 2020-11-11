@@ -19,14 +19,7 @@ import UtilsNew from "../../utilsNew.js";
 
 export default class CatalogGridFormatter {
 
-    constructor(opencgaSession, config) {
-        this.opencgaSession = opencgaSession;
-        this.config = config;
-
-        this._prefix = UtilsNew.randomString(8);
-    }
-
-    phenotypesFormatter(value, row) {
+    static phenotypesFormatter(value, row) {
         if (value && value.length > 0) {
             const tooltip = [...value].sort( (a,b) => a.status === "OBSERVED" ? -1 : 1).map(phenotype => {
                 return `
@@ -42,7 +35,7 @@ export default class CatalogGridFormatter {
         }
     }
 
-    disorderFormatter(value, row) {
+    static disorderFormatter(value, row) {
         if (value && value.id) {
             let idHtml = value.id.startsWith("OMIM:")
                 ? `<a href="https://omim.org/entry/${value.id.split(":")[1]}" target="_blank">${value.id}
@@ -59,7 +52,7 @@ export default class CatalogGridFormatter {
         }
     }
 
-    fileFormatter(fileIds, extensions) {
+    static fileFormatter(fileIds, extensions) {
         if (fileIds && fileIds.length > 0) {
             let results = [];
             for (let fileId of fileIds) {
@@ -92,14 +85,14 @@ export default class CatalogGridFormatter {
         //     : "-";
     }
 
-    dateFormatter(value, row) {
+    static dateFormatter(value, row) {
         if (value) {
             return moment(value, "YYYYMMDDHHmmss").format("D MMM YYYY");
         }
         return "-";
     }
 
-    caseFormatter(clinicalAnalysisArray, row, individualId, opencgaSession) {
+    static caseFormatter(clinicalAnalysisArray, row, individualId, opencgaSession) {
         if (clinicalAnalysisArray && clinicalAnalysisArray.length > 0) {
             let result = "";
             for (let clinicalAnalysis of clinicalAnalysisArray) {
@@ -117,7 +110,8 @@ export default class CatalogGridFormatter {
         }
     }
 
-    addTooltip(selector, title, content, config) {
+    // TODO remove
+    /*static addTooltip(selector, title, content, config) {
         $(selector).qtip({
             content: {
                 title: title,
@@ -134,6 +128,6 @@ export default class CatalogGridFormatter {
             show: {delay: 200},
             hide: {fixed: true, delay: 300}
         });
-    }
+    }*/
 
 }

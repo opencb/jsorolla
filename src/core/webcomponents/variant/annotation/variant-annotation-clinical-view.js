@@ -30,13 +30,22 @@ export default class VariantAnnotationClinicalView extends LitElement {
 
     static get properties() {
         return {
+            opencgaSession: {
+                type: Object
+            },
+            cellbaseClient: {
+                type: Object
+            },
+            variantId: {
+                type: String
+            },
             traitAssociation: {
                 type: Array
             },
             geneTraitAssociation: {
                 type: Array
             }
-        }
+        };
     }
 
     _init() {
@@ -44,24 +53,63 @@ export default class VariantAnnotationClinicalView extends LitElement {
     }
 
     firstUpdated(_changedProperties) {
-        super.firstUpdated(_changedProperties);
-
+        //super.firstUpdated(_changedProperties);
         this.renderVariantTraitTable();
     }
 
     updated(changedProperties) {
+        if (changedProperties.has("variantId")) {
+            this.variantIdObserver();
+        }
+
         if (changedProperties.has("traitAssociation")) {
             this.renderVariantTraitTable();
         }
+
         if (changedProperties.has("geneTraitAssociation")) {
+            console.log("geneTraitAssociation obs")
             this.renderGeneTraitTable();
+        }
+    }
+
+    variantIdObserver() {
+        console.log("variantIdObserver", this.variantId, this.cellbaseClient);
+        if (this.cellbaseClient) {
+            if (this.variantId) {
+                this.cellbaseClient.get("genomic", "variant", "22:18905964:C:T", "annotation", {assembly: this.opencgaSession.project.organism.assembly}, {})
+                    .then(restResponse => {
+                        this.populationFrequencies = restResponse.getResult(0).populationFrequencies;
+                        // this.variant = {id: this.variantId, annotation: response.responses[0].results[0]};
+                        this.variantAnnotation = restResponse.getResult(0);
+                        this.numberConsequenceTypes = 0;
+                        this.numberPopulationFrequencies = 0;
+                        this.numberVTA = 0;
+                        this.numberGTA = 0;
+
+                        //TODO review
+                        if (this.variantAnnotation.geneTraitAssociation != null) {
+
+                            this.geneTraitAssociation = this.variantAnnotation.geneTraitAssociation;
+                            this.traitAssociation = this.variantAnnotation.traitAssociation;
+
+                            this.numberConsequenceTypes = this.variantAnnotation.consequenceTypes.length;
+                            this.numberPopulationFrequencies = UtilsNew.isNotEmptyArray(this.variantAnnotation.populationFrequencies) ? this.variantAnnotation.populationFrequencies.length : 0;
+                            this.numberVTA = UtilsNew.isNotUndefinedOrNull(this.variantAnnotation.traitAssociation) ? this.variantAnnotation.traitAssociation.length : 0;
+                            this.numberGTA = UtilsNew.isNotUndefinedOrNull(this.variantAnnotation.geneTraitAssociation) ? this.variantAnnotation.geneTraitAssociation.length : 0;
+                        }
+                        //this.requestUpdate();
+
+                    });
+            } else {
+
+            }
         }
     }
 
     idFormatter(value, row, index) {
         let html = "-";
         if (row) {
-            switch(row.source.name.toLowerCase()) {
+            switch (row.source.name.toLowerCase()) {
                 case "clinvar":
                     if (row.id.startsWith("RCV")) {
                         html = `<a href="https://www.ncbi.nlm.nih.gov/clinvar/${row.id}" target="_blank">${row.id}</a>`;
@@ -80,7 +128,7 @@ export default class VariantAnnotationClinicalView extends LitElement {
     sourceFormatter(value, row, index) {
         let name = "-";
         if (value) {
-            switch(value.name) {
+            switch (value.name) {
                 case "clinvar":
                     name = "ClinVar";
                     break;
@@ -93,9 +141,9 @@ export default class VariantAnnotationClinicalView extends LitElement {
     }
 
     geneFormatter(value, row, index) {
-        let genes = [];
+        const genes = [];
         if (value) {
-            for (let geneIndex in value) {
+            for (const geneIndex in value) {
                 if (value[geneIndex].featureType === "gene") {
                     genes.push(value[geneIndex].xrefs.symbol);
                 }
@@ -104,14 +152,14 @@ export default class VariantAnnotationClinicalView extends LitElement {
         if (genes.length === 0) {
             return "-";
         } else {
-            return genes.join(", ")
+            return genes.join(", ");
         }
     }
 
     heritableTraitsFormatter(value, row, index) {
-        let traits = [];
+        const traits = [];
         if (value) {
-            for (let traitIndex in value) {
+            for (const traitIndex in value) {
                 if (value[traitIndex].trait !== "not specified" && value[traitIndex].trait !== "not provided") {
                     traits.push(value[traitIndex].trait);
                 }
@@ -120,7 +168,7 @@ export default class VariantAnnotationClinicalView extends LitElement {
         if (traits.length === 0) {
             return "-";
         } else {
-            return traits.join("<br>")
+            return traits.join("<br>");
         }
     }
 
@@ -135,7 +183,7 @@ export default class VariantAnnotationClinicalView extends LitElement {
     inheritanceModeFormatter(value, row, index) {
         let result = "-";
         if (value) {
-            for (let moi of value) {
+            for (const moi of value) {
                 if (moi.inheritanceMode) {
                     result += moi.inheritanceMode + "<br>";
                 }
@@ -153,8 +201,8 @@ export default class VariantAnnotationClinicalView extends LitElement {
     tumourSiteFormatter(value, row, index) {
         let result = "-";
         if (value) {
-            let primary = value.primarySite ? value.primarySite : "";
-            let subtype = value.siteSubtype ? value.siteSubtype : "";
+            const primary = value.primarySite ? value.primarySite : "";
+            const subtype = value.siteSubtype ? value.siteSubtype : "";
             if (primary !== "") {
                 result = primary;
             }
@@ -168,8 +216,8 @@ export default class VariantAnnotationClinicalView extends LitElement {
     tumourHistologyFormatter(value, row, index) {
         let result = "-";
         if (value) {
-            let primary = value.primaryHistology ? value.primaryHistology : "";
-            let subtype = value.histologySubtype ? value.histologySubtype : "";
+            const primary = value.primaryHistology ? value.primaryHistology : "";
+            const subtype = value.histologySubtype ? value.histologySubtype : "";
             if (primary !== "") {
                 result = primary;
             }
@@ -186,76 +234,76 @@ export default class VariantAnnotationClinicalView extends LitElement {
             this.traitAssociation = [];
         }
 
-        $('#' + this._prefix + 'ConsequenceTypeTable').bootstrapTable('destroy');
-        $('#' + this._prefix + 'ConsequenceTypeTable').bootstrapTable({
+        $("#" + this._prefix + "ConsequenceTypeTable").bootstrapTable("destroy");
+        $("#" + this._prefix + "ConsequenceTypeTable").bootstrapTable({
             data: this.traitAssociation,
             pagination: false,
             columns: [
                 [
                     {
-                        title: 'ID',
+                        title: "ID",
                         rowspan: 2,
                         colspan: 1,
                         formatter: this.idFormatter,
                         halign: "center"
                     },
                     {
-                        title: 'Source',
-                        field: 'source',
+                        title: "Source",
+                        field: "source",
                         rowspan: 2,
                         colspan: 1,
                         formatter: this.sourceFormatter,
                         halign: "center"
                     },
                     {
-                        title: 'Gene',
-                        field: 'genomicFeatures',
+                        title: "Gene",
+                        field: "genomicFeatures",
                         rowspan: 2,
                         colspan: 1,
                         formatter: this.geneFormatter,
                         halign: "center"
                     },
                     {
-                        title: 'Heritable Traits',
-                        field: 'heritableTraits',
+                        title: "Heritable Traits",
+                        field: "heritableTraits",
                         rowspan: 2,
                         colspan: 1,
                         formatter: this.heritableTraitsFormatter,
                         halign: "center"
                     },
                     {
-                        title: 'Mode of Inheritance',
-                        field: 'heritableTraits',
+                        title: "Mode of Inheritance",
+                        field: "heritableTraits",
                         rowspan: 2,
                         colspan: 1,
                         formatter: this.inheritanceModeFormatter,
                         halign: "center"
                     },
                     {
-                        title: 'Clinical Significance',
-                        field: 'variantClassification',
+                        title: "Clinical Significance",
+                        field: "variantClassification",
                         rowspan: 2,
                         colspan: 1,
                         formatter: this.clinicalSignificanceFormatter,
                         halign: "center"
                     },
                     {
-                        title: 'Origin Type',
-                        field: 'alleleOrigin',
+                        title: "Origin Type",
+                        field: "alleleOrigin",
                         rowspan: 2,
                         colspan: 1,
                         formatter: this.alleleOriginFormatter,
                         halign: "center"
                     },
                     {
-                        title: 'Cancer',
+                        title: "Cancer",
                         rowspan: 1,
                         colspan: 3,
                         halign: "center"
-                    },
+                    }
                 ], [
                     {
-                        title: 'Tumour Site',
+                        title: "Tumour Site",
                         field: "somaticInformation",
                         formatter: this.tumourSiteFormatter,
                         rowspan: 1,
@@ -263,7 +311,7 @@ export default class VariantAnnotationClinicalView extends LitElement {
                         halign: "center"
                     },
                     {
-                        title: 'Tumour Histology',
+                        title: "Tumour Histology",
                         field: "somaticInformation",
                         formatter: this.tumourHistologyFormatter,
                         rowspan: 1,
@@ -271,14 +319,14 @@ export default class VariantAnnotationClinicalView extends LitElement {
                         halign: "center"
                     },
                     {
-                        title: 'Tumour Origin',
+                        title: "Tumour Origin",
                         field: "somaticInformation.tumourOrigin",
                         rowspan: 1,
                         colspan: 1,
                         halign: "center"
-                    },
+                    }
                 ]
-            ],
+            ]
         });
     }
 
@@ -293,6 +341,7 @@ export default class VariantAnnotationClinicalView extends LitElement {
             </div>
         `;
     }
+
 }
 
-customElements.define('variant-annotation-clinical-view', VariantAnnotationClinicalView);
+customElements.define("variant-annotation-clinical-view", VariantAnnotationClinicalView);
