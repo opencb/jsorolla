@@ -165,10 +165,9 @@ export default class UtilsNew {
                 position: {
                     target: "mouse",
                     adjust: {x: 2, y: 2, mouse: false},
-                    //at: "left bottom", my: " right top",
                     my: $(this).attr("tooltip-position-my") ?? "top left",
                     at: $(this).attr("tooltip-position-at") ?? "bottom right"},
-                style: {width: true, classes: "qtip-light qtip-rounded qtip-shadow qtip-custom-class"},
+                style: {width: true, classes: "qtip-light qtip-rounded qtip-shadow"},
                 show: {delay: 200},
                 hide: {fixed: true, delay: 300}
             });
