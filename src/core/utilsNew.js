@@ -119,7 +119,7 @@ export default class UtilsNew {
         let result = "";
         const _length = length || 6;
         const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-        for (let i = 0; i < _length; i++ ) {
+        for (let i = 0; i < _length; i++) {
             result += characters.charAt(Math.floor(Math.random() * characters.length));
         }
         return result;
@@ -134,18 +134,18 @@ export default class UtilsNew {
         if (bytes === 0) {
             return "0 Byte";
         }
-        let k = 1000;
-        let dm = numDecimals ? numDecimals : 2;
-        let sizes = [" Bytes", " KB", " MB", " GB", " TB", " PB", " EB", " ZB", " YB"];
-        let i = Math.floor(Math.log(bytes) / Math.log(k));
+        const k = 1000;
+        const dm = numDecimals ? numDecimals : 2;
+        const sizes = [" Bytes", " KB", " MB", " GB", " TB", " PB", " EB", " ZB", " YB"];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
         return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + sizes[i];
     }
 
     static getDatetime(timestamp) {
-        function pad2(n) {  // always returns a string
+        function pad2(n) { // always returns a string
             return (n < 10 ? "0" : "") + n;
         }
-        let date = timestamp ? new Date(timestamp) : new Date();
+        const date = timestamp ? new Date(timestamp) : new Date();
         return date.getFullYear() +
             pad2(date.getMonth() + 1) +
             pad2(date.getDate()) +
@@ -155,13 +155,19 @@ export default class UtilsNew {
     }
 
     static initTooltip(scope) {
-        $("a[tooltip-title]", scope).each(function() {
+        $("a[tooltip-title]", scope).each(function () {
             $(this).qtip({
                 content: {
                     title: $(this).attr("tooltip-title"),
                     text: $(this).attr("tooltip-text")
                 },
-                position: {target: "mouse", adjust: {x: 2, y: 2, mouse: false}},
+                // jQuery UI Position plugin
+                position: {
+                    target: "mouse",
+                    adjust: {x: 2, y: 2, mouse: false},
+                    //at: "left bottom", my: " right top",
+                    my: $(this).attr("tooltip-position-my") ?? "top left",
+                    at: $(this).attr("tooltip-position-at") ?? "bottom right"},
                 style: {width: true, classes: "qtip-light qtip-rounded qtip-shadow qtip-custom-class"},
                 show: {delay: 200},
                 hide: {fixed: true, delay: 300}
@@ -170,13 +176,13 @@ export default class UtilsNew {
     }
 
     static dateFormatter(date, format) {
-        let _format = format ? format : "D MMM YYYY";
+        const _format = format ? format : "D MMM YYYY";
         return moment(date, "YYYYMMDDHHmmss").format(_format);
     }
 
     static arrayDimension(array) {
-        const shape = (array, i) => Array.isArray(array) ? shape(array[0],i+1) : i;
-        return shape(array,0);
+        const shape = (array, i) => Array.isArray(array) ? shape(array[0], i+1) : i;
+        return shape(array, 0);
     }
 
     static renderHTML(html) {
@@ -189,11 +195,11 @@ export default class UtilsNew {
             case "QUEUED":
             case "REGISTERING":
             case "UNREGISTERED":
-                return `<span class="text-primary"><i class="far fa-clock"></i> ${status}</span>`
+                return `<span class="text-primary"><i class="far fa-clock"></i> ${status}</span>`;
             case "RUNNING":
-                return `<span class="text-primary"><i class="fas fa-sync-alt anim-rotate"></i> ${status}</span>`
+                return `<span class="text-primary"><i class="fas fa-sync-alt anim-rotate"></i> ${status}</span>`;
             case "DONE":
-                return `<span class="text-success"><i class="fas fa-check-circle"></i> ${status}</span>`
+                return `<span class="text-success"><i class="fas fa-check-circle"></i> ${status}</span>`;
             case "ERROR":
                 return `<span class="text-danger"><i class="fas fa-exclamation-circle"></i> ${status}</span>`;
             case "UNKNOWN":
@@ -207,13 +213,12 @@ export default class UtilsNew {
     }
 
 
-
     /*
      * This function creates a table (rows and columns) a given Object or array of Objects using the fields provided.
      * Id fields is not defined or empty then it uses the Object keys. Fields can contain arrays and nested arrays.
      */
     static toTableString(objects, fields) {
-        let table = [];
+        const table = [];
         if (objects) {
             // Make sure objects is an array
             if (!Array.isArray(objects)) {
@@ -227,18 +232,18 @@ export default class UtilsNew {
 
             // Print headers and get the rows and columns
             table.push(fields);
-            for (let object of objects) {
-                let row = [];
-                for (let field of fields) {
+            for (const object of objects) {
+                const row = [];
+                for (const field of fields) {
                     let value;
-                    let subfields = field.split(".");
+                    const subfields = field.split(".");
                     // Check if subfields are arrays, eg. samples.id
                     if (subfields.length > 1) {
                         // Get the last subfield which is an array
                         for (let i = 0; i < subfields.length - 1; i++) {
                             value = subfields.slice(0, i + 1).reduce((res, prop) => res?.[prop], object);
                             if (!Array.isArray(value)) {
-                                break
+                                break;
                             }
                         }
                         // Check if any subfield was an array
@@ -281,7 +286,7 @@ export default class UtilsNew {
         a.download = filename;
         document.body.appendChild(a);
         a.click();
-        setTimeout(function() {
+        setTimeout(function () {
             document.body.removeChild(a);
         }, 0);
     }
@@ -291,7 +296,9 @@ export default class UtilsNew {
     }
 
     static ErrorStringify(error) {
-        return (err => JSON.stringify(Object.getOwnPropertyNames(Object.getPrototypeOf(err)).reduce(function(accumulator, currentValue) { return accumulator[currentValue] = err[currentValue], accumulator}, {})))(error);
+        return (err => JSON.stringify(Object.getOwnPropertyNames(Object.getPrototypeOf(err)).reduce(function (accumulator, currentValue) {
+            return accumulator[currentValue] = err[currentValue], accumulator;
+        }, {})))(error);
     }
 
     static notifyError(response) {
@@ -323,15 +330,15 @@ export default class UtilsNew {
             return unordered;
         }
 
-        let ordered = {};
-        for (let key of keys) {
+        const ordered = {};
+        for (const key of keys) {
             if (typeof unordered[key] !== "undefined") {
                 ordered[key] = unordered[key];
             }
         }
         // We check if there is any other unordered key not present in the keys array
         if (addMissingKeys && Object.keys(unordered).length !== keys.length) {
-            for (let unorderedKey of Object.keys(unordered)) {
+            for (const unorderedKey of Object.keys(unordered)) {
                 if (!keys.includes(unorderedKey)) {
                     ordered[unorderedKey] = unordered[unorderedKey];
                 }
@@ -353,4 +360,5 @@ export default class UtilsNew {
     static sleep(ms) {
         return new Promise(resolve => setTimeout(() => resolve(), ms));
     }
+
 }

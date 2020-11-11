@@ -271,7 +271,7 @@ export default class OpencgaVariantGrid extends LitElement {
                     document.getElementById(this._prefix + row.id + "ShowCt").addEventListener("click", this.variantGridFormatter.toggleDetailConsequenceType.bind(this));
                     document.getElementById(this._prefix + row.id + "HideCt").addEventListener("click", this.variantGridFormatter.toggleDetailConsequenceType.bind(this));
                 },
-                onPostBody: function (data) {
+                onPostBody: (data) => {
                     $("span.sampleGenotype").qtip({
                         content: {
                             title: "More info",
@@ -301,14 +301,15 @@ export default class OpencgaVariantGrid extends LitElement {
                     // TODO continue. remove the following lines and use UtilsNew.initTooltip
                     // Add tooltips
                     //_this.variantGridFormatter.addTooltip("div.variant-tooltip", "Links");
-                    _this.variantGridFormatter.addTooltip("span.gene-tooltip", "Links");
-                    _this.variantGridFormatter.addCohortStatsInfoTooltip("cohortStatsInfoIcon", _this.populationFrequencies);
-                    _this.variantGridFormatter.addPopulationFrequenciesTooltip("table.populationFrequenciesTable", _this.populationFrequencies);
-                    _this.variantGridFormatter.addPopulationFrequenciesTooltip("table.cohortStatsTable", _this.populationFrequencies);
-                    _this.variantGridFormatter.addPopulationFrequenciesInfoTooltip("span.popFreqInfoIcon", _this.populationFrequencies);
-                    _this.variantGridFormatter.addPhenotypesInfoTooltip("phenotypesInfoIcon");
-                    _this.variantGridFormatter.addTooltip("span.cosmic-tooltip", "Links");
-                    _this.variantGridFormatter.addTooltip("div.clinvar-tooltip", "Links");
+                    //_this.variantGridFormatter.addTooltip("span.gene-tooltip", "Links");
+                    //this.variantGridFormatter.addCohortStatsInfoTooltip("cohortStatsInfoIcon", _this.populationFrequencies);
+                    //this.variantGridFormatter.addPopulationFrequenciesInfoTooltip("span.popFreqInfoIcon", _this.populationFrequencies);
+                    //this.variantGridFormatter.addPhenotypesInfoTooltip("phenotypesInfoIcon");
+                    //this.variantGridFormatter.addTooltip("span.cosmic-tooltip", "Links");
+                    //this.variantGridFormatter.addTooltip("div.clinvar-tooltip", "Links");
+                    this.variantGridFormatter.addPopulationFrequenciesTooltip("table.populationFrequenciesTable", _this.populationFrequencies);
+                    this.variantGridFormatter.addPopulationFrequenciesTooltip("table.cohortStatsTable", _this.populationFrequencies);
+
                 }
             });
         }
@@ -673,7 +674,15 @@ export default class OpencgaVariantGrid extends LitElement {
                     align: "center"
                 },
                 {
-                    title: "Phenotypes <span id=\"phenotypesInfoIcon\"><i class=\"fa fa-info-circle\" style=\"color: #337ab7\" aria-hidden=\"true\"></i></span>",
+                    title: `Phenotypes <a id="phenotypesInfoIcon" tooltip-title="Phenotypes" tooltip-text="
+                            <div>
+                                <span style='font-weight: bold'>ClinVar</span> is a freely accessible, public archive of reports of the relationships among human variations 
+                                and phenotypes, with supporting evidence.
+                            </div>
+                            <div style='padding-top: 10px'>
+                                <span style='font-weight: bold'>COSMIC</span> is the world's largest and most comprehensive resource for exploring the impact of somatic mutations in human cancer.
+                            </div>"
+                        tooltip-position-at="left bottom" tooltip-position-my="right top"><i class="fa fa-info-circle" aria-hidden="true"></i></a>`,
                     field: "phenotypes",
                     rowspan: 1,
                     colspan: 2,
@@ -781,7 +790,7 @@ export default class OpencgaVariantGrid extends LitElement {
 
             this._columns[0].splice(cohortStudyIdx, 0, {
                 // title: this.opencgaSession.project.name,
-                title: "Cohort Stats <span id=\"cohortStatsInfoIcon\"><i class=\"fa fa-info-circle\" style=\"color: #337ab7\" aria-hidden=\"true\"></i></span>",
+                title: `Cohort Stats <a id="cohortStatsInfoIcon" tooltip-title="Cohort Stats" tooltip-text="${this.variantGridFormatter.cohortStatsInfoTooltipContent(this.populationFrequencies)}"><i class="fa fa-info-circle" aria-hidden="true"></i></a>`,
                 field: "cohorts",
                 rowspan: 1,
                 colspan: cohortStudies.length,
@@ -813,7 +822,7 @@ export default class OpencgaVariantGrid extends LitElement {
 
             // Just one column called 'Population Frequencies'
             this._columns[0].splice(popIdx, 0, {
-                title: "Population Frequencies <span class=\"popFreqInfoIcon\"><i class=\"fa fa-info-circle\" style=\"color: #337ab7\" aria-hidden=\"true\"></i></span>",
+                title: `Population Frequencies <a class="popFreqInfoIcon" tooltip-title="Population Frequencies" tooltip-text="${this.variantGridFormatter.populationFrequenciesInfoTooltipContent(this.populationFrequencies)}" tooltip-position-at="left bottom" tooltip-position-my="right top"><i class="fa fa-info-circle" aria-hidden="true"></i></a>`,
                 field: "popfreq",
                 rowspan: 1,
                 colspan: this.populationFrequencies.studies.length,

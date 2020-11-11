@@ -243,25 +243,19 @@ export default class VariantGridFormatter {
 
                         // If gene contains one of the query.ct
                         if (geneContainSo) {
-                            geneWithSoLinks.push(`<span class="gene-tooltip" data-tooltip-text='${tooltipText}' style="margin-left: 2px;">
-                                                    <a>
+                            geneWithSoLinks.push(`<a class="gene-tooltip" tooltip-title="Links" tooltip-text='${tooltipText}' style="margin-left: 2px;">
                                                         ${geneName}
-                                                    </a>
-                                                 </span>`);
+                                                 </a>`);
                         } else {
-                            geneLinks.push(`<span class="gene-tooltip" data-tooltip-text='${tooltipText}' style="margin-left: 2px;color: darkgray;font-style: italic">
-                                                <span>
+                            geneLinks.push(`<a class="gene-tooltip" tooltip-title="Links" tooltip-text='${tooltipText}' style="margin-left: 2px;color: darkgray;font-style: italic">
                                                     ${geneName}
-                                                </span>
-                                            </span>`);
+                                            </a>`);
                         }
                     } else {
                         // No query.ct passed
-                        geneLinks.push(`<span class="gene-tooltip" data-tooltip-text='${tooltipText}' style="margin-left: 2px">
-                                            <a>
+                        geneLinks.push(`<a class="gene-tooltip" tooltip-title="Links" tooltip-text='${tooltipText}' style="margin-left: 2px">
                                                 ${geneName}
-                                            </a>
-                                        </span>`);
+                                        </a>`);
                     }
                     visited[geneName] = true;
                 }
@@ -546,29 +540,18 @@ export default class VariantGridFormatter {
         return "-";
     }
 
-    addCohortStatsInfoTooltip(div, populationFrequencies) {
-        $("#" + div).qtip({
-            content: {
-                title: "Cohort Stats",
-                text: function (event, api) {
-                    return `One coloured square is shown for each cohort. Frequencies are coded with colours which classify values 
-                            into 'very rare', 'rare', 'average', 'common' or 'missing', see 
-                            <a href="http://www.dialogues-cns.com/wp-content/uploads/2015/03/DialoguesClinNeurosci-17-69-g001.jpg" target="_blank">
-                                http://www.dialogues-cns.com/wp-content/uploads/2015/03/DialoguesClinNeurosci-17-69-g001.jpg
-                            </a>. Please, leave the cursor over each square to visualize the actual frequency values.
-                            <div style="padding: 10px 0px 0px 0px"><label>Legend: </label></div>
-                            <div><span><i class="fa fa-square" style="color: ${populationFrequencies.style.veryRare}" aria-hidden="true"></i> Very rare:  freq < 0.001</span></div>
-                            <div><span><i class="fa fa-square" style="color: ${populationFrequencies.style.rare}" aria-hidden="true"></i> Rare:  freq < 0.005</span></div>
-                            <div><span><i class="fa fa-square" style="color: ${populationFrequencies.style.average}" aria-hidden="true"></i> Average:  freq < 0.05</span></div>
-                            <div><span><i class="fa fa-square" style="color: ${populationFrequencies.style.common}" aria-hidden="true"></i> Common:  freq >= 0.05</span></div>
-                            <div><span><i class="fa fa-square" style="color: black" aria-hidden="true"></i> Not observed</span></div>`;
-                },
-            },
-            position: {target: "mouse", adjust: {x: 2, y: 2, mouse: false}},
-            style: {width: true, classes: "qtip-light qtip-rounded qtip-shadow qtip-custom-class"},
-            show: {delay: 200},
-            hide: {fixed: true, delay: 300}
-        });
+    cohortStatsInfoTooltipContent(populationFrequencies) {
+        return `One coloured square is shown for each cohort. Frequencies are coded with colours which classify values 
+                into 'very rare', 'rare', 'average', 'common' or 'missing', see 
+                <a href='http://www.dialogues-cns.com/wp-content/uploads/2015/03/DialoguesClinNeurosci-17-69-g001.jpg' target='_blank'>
+                    http://www.dialogues-cns.com/wp-content/uploads/2015/03/DialoguesClinNeurosci-17-69-g001.jpg
+                </a>. Please, leave the cursor over each square to visualize the actual frequency values.
+                <div style='padding: 10px 0px 0px 0px'><label>Legend: </label></div>
+                <div><span><i class='fa fa-square' style='color: ${populationFrequencies.style.veryRare}' aria-hidden='true'></i> Very rare:  freq < 0.001</span></div>
+                <div><span><i class='fa fa-square' style='color: ${populationFrequencies.style.rare}' aria-hidden='true'></i> Rare:  freq < 0.005</span></div>
+                <div><span><i class='fa fa-square' style='color: ${populationFrequencies.style.average}' aria-hidden='true'></i> Average:  freq < 0.05</span></div>
+                <div><span><i class='fa fa-square' style='color: ${populationFrequencies.style.common}' aria-hidden='true'></i> Common:  freq >= 0.05</span></div>
+                <div><span><i class='fa fa-square' style='color: black' aria-hidden='true'></i> Not observed</span></div>`;
     }
 
     /**
@@ -601,6 +584,7 @@ export default class VariantGridFormatter {
         return htmlPopFreqTable;
     }
 
+    // TODO remove this from variant-interpreter-grid
     addPopulationFrequenciesInfoTooltip(selector, populationFrequencies) {
         $(selector).qtip({
             content: {
@@ -624,6 +608,20 @@ export default class VariantGridFormatter {
             show: {delay: 200},
             hide: {fixed: true, delay: 300}
         });
+    }
+
+    populationFrequenciesInfoTooltipContent(populationFrequencies) {
+        return `One coloured square is shown for each population. Frequencies are coded with colours which classify values 
+                into 'very rare', 'rare', 'average', 'common' or 'missing', see 
+                <a href='https://www.nature.com/scitable/topicpage/multifactorial-inheritance-and-genetic-disease-919' target='_blank'>
+                    https://www.nature.com/scitable/topicpage/multifactorial-inheritance-and-genetic-disease-919
+                </a>. Please, leave the cursor over each square to display the actual frequency value.
+                <div style='padding: 10px 0px 0px 0px'><label>Legend: </label></div>
+                <div><span><i class='fa fa-square' style='color: ${populationFrequencies.style.veryRare}' aria-hidden='true'></i> Very rare:  freq < 0.001</span></div>
+                <div><span><i class='fa fa-square' style='color: ${populationFrequencies.style.rare}' aria-hidden='true'></i> Rare:  freq < 0.005</span></div>
+                <div><span><i class='fa fa-square' style='color: ${populationFrequencies.style.average}' aria-hidden='true'></i> Average:  freq < 0.05</span></div>
+                <div><span><i class='fa fa-square' style='color: ${populationFrequencies.style.common}' aria-hidden='true'></i> Common:  freq >= 0.05</span></div>
+                <div><span><i class='fa fa-square' style='color: black' aria-hidden='true'></i> Not observed</span></div>`;
     }
 
     /**
@@ -777,7 +775,7 @@ export default class VariantGridFormatter {
                     return `<span style="color: grey" title="ClinVar submissions without an interpretation of clinical significance">NP</span>`;
                 }
 
-                return `<div class="clinvar-tooltip" data-tooltip-text='${tooltipText}'>${results.join("<br>")}</div>`;
+                return `<a class="clinvar-tooltip" tooltip-title='Links' tooltip-text='${tooltipText}' tooltip-position-at="left bottom" tooltip-position-my="right top">${results.join("<br>")}</a>`;
             } else {
                 if (this.field === "cosmic") {
                     // Prepare the tooltip links
@@ -792,7 +790,7 @@ export default class VariantGridFormatter {
                         }
                     }
 
-                    return `<span class="cosmic-tooltip" data-tooltip-text='${tooltipText}'><i class='fa fa-check' style='color: green'></i></span>`;
+                    return `<a class="cosmic-tooltip" tooltip-title='Links' tooltip-text='${tooltipText}' tooltip-position-at="left bottom" tooltip-position-my="right top"><i class='fa fa-check' style='color: green'></i></a>`;
 
                 } else {
                     console.error("Wrong clinical source : " + this.field);
@@ -802,13 +800,13 @@ export default class VariantGridFormatter {
         return phenotypeHtml;
     }
 
-    addPhenotypesInfoTooltip(div) {
+    /*addPhenotypesInfoTooltip(div) {
         $("#" + div).qtip({
             content: {
                 title: "Phenotypes",
                 text: function (event, api) {
                     return `<div>
-                                <span style="font-weight: bold">ClinVar</span> is a freely accessible, public archive of reports of the relationships among human variations 
+                                <span style="font-weight: bold">ClinVar</span> is a freely accessible, public archive of reports of the relationships among human variations
                                 and phenotypes, with supporting evidence.
                             </div>
                             <div style="padding-top: 10px">
@@ -823,7 +821,7 @@ export default class VariantGridFormatter {
             show: {delay: 200},
             hide: {fixed: true, delay: 300}
         });
-    }
+    }*/
 
     getRightToolbar() {
         return [
