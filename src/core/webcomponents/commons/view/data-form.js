@@ -426,7 +426,7 @@ export default class DataForm extends LitElement {
                 const sectionWidth = element?.display?.width ? `col-md-${element.display.width}` : `col-md-${this.config?.display?.width ?? 12}`;
                 return html`
                     <div class="form-group">
-                        <div class="${sectionWidth}">
+                        <div class="${sectionWidth}" style="margin: 5px 0px">
                             <label class="control-label ${elementLabelClasses}" style="${elementLabelStyle}">${title}</label>
                             <div>
                                 ${content}
@@ -491,7 +491,7 @@ export default class DataForm extends LitElement {
 // debugger
         return html`
             <div class="">
-                <number-field-filter .label="Value" .value="${value ? value : ""}" 
+                <number-field-filter label="Value" .value="${value ? value : ""}" 
                     .min=${min} .max=${max} .step="${step}" .placeholder="${element.display?.placeholder || ""}" 
                     @filterChange="${e => this.onFilterChange(element.field, e.detail.value)}">
                 </number-field-filter>

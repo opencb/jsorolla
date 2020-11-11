@@ -301,6 +301,10 @@ export default class VariantInterpreterGrid extends LitElement {
             this.variantGridFormatter.addTooltip("div.zygositySampleTooltip", "Variant Call Information", "", {style: {classes: "qtip-rounded qtip-shadow qtip-custom-class"}});
             this.variantGridFormatter.addPopulationFrequenciesTooltip("table.populationFrequenciesTable", populationFrequencies);
             this.variantGridFormatter.addPopulationFrequenciesInfoTooltip("span.pop-preq-info-icon", populationFrequencies);
+
+            this.variantGridFormatter.addTooltip("span.cosmic-tooltip", "Links");
+            this.variantGridFormatter.addTooltip("div.clinvar-tooltip", "Links");
+
             const predictionTooltipContent = "<span style='font-weight: bold'>Prediction</span> column shows the Clinical Significance prediction and Tier following the ACMG guide recommendations";
             this.variantGridFormatter.addTooltip("span.interpretation-info-icon", "Interpretation", predictionTooltipContent, {
                 position: {my: "top right"},
@@ -311,6 +315,7 @@ export default class VariantInterpreterGrid extends LitElement {
                 style: {classes: "qtip-rounded qtip-shadow qtip-custom-class"},
                 width: "360px"
             });
+
         }
     }
 

@@ -47,6 +47,14 @@ export default class BioinfoUtils {
         }
     }
 
+    static getCosmicVariantLink(variantId) {
+        return "https://cancer.sanger.ac.uk/cosmic/search?q=" + variantId;
+    }
+
+    static getClinvarVariationLink(variantId) {
+        return "https://www.ncbi.nlm.nih.gov/clinvar/variation/" + variantId;
+    }
+
     static getUniprotLink(featureId, species = "Homo sapiens") {
         return "https://www.uniprot.org/uniprot/?sort=score&query=" + featureId + "+organism:" + species;
     }

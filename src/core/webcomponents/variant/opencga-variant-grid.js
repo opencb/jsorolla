@@ -307,6 +307,8 @@ export default class OpencgaVariantGrid extends LitElement {
                     _this.variantGridFormatter.addPopulationFrequenciesTooltip("table.cohortStatsTable", _this.populationFrequencies);
                     _this.variantGridFormatter.addPopulationFrequenciesInfoTooltip("span.popFreqInfoIcon", _this.populationFrequencies);
                     _this.variantGridFormatter.addPhenotypesInfoTooltip("phenotypesInfoIcon");
+                    _this.variantGridFormatter.addTooltip("span.cosmic-tooltip", "Links");
+                    _this.variantGridFormatter.addTooltip("div.clinvar-tooltip", "Links");
                 }
             });
         }

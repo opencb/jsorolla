@@ -107,7 +107,7 @@ export default class NumberFieldFilter extends LitElement {
 
     getDefaultConfig() {
         return {
-            layout: [4, 4, 4], // in case the label is not needed the expected value of the first element is 0
+            layout: [3, 4, 5], // in case the label is not needed the expected value of the first element is 0
             comparator: true,
             values: ["=", "<", "<=", ">", ">="]
         };

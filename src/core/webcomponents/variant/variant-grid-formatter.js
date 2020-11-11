@@ -195,7 +195,7 @@ export default class VariantGridFormatter {
             }
         }
 
-        if (typeof row !== "undefined" && row.annotation !== undefined && UtilsNew.isNotEmptyArray(row.annotation.consequenceTypes)) {
+        if (row && row.annotation && row.annotation.consequenceTypes?.length > 0) {
             let visited = {};
             let geneLinks = [];
             let geneWithSoLinks = [];
@@ -203,7 +203,7 @@ export default class VariantGridFormatter {
                 let geneName = row.annotation.consequenceTypes[i].geneName;
 
                 // We process Genes just one time
-                if (UtilsNew.isNotEmpty(geneName) && typeof visited[geneName] === "undefined") {
+                if (geneName && !visited[geneName]) {
                     let geneViewMenuLink = "";
                     let genomeBrowserMenuLink = "";
 
@@ -710,15 +710,16 @@ export default class VariantGridFormatter {
     clinicalPhenotypeFormatter(value, row, index) {
         let phenotypeHtml = "<span><i class='fa fa-times' style='color: red'></i></span>";
         if (row?.annotation?.traitAssociation) {
-            // Filter the traits for this column
+            // Filter the traits for this column and check the number of existing traits
             const traits = row.annotation.traitAssociation.filter(trait => trait.source.name.toUpperCase() === this.field.toUpperCase());
+            if (traits.length === 0) {
+                return "<span title='No clinical records found for this variant'><i class='fa fa-times' style='color: gray'></i></span>";
+            }
+
             if (this.field === "clinvar") {
                 let results = [];
-                if (traits.length === 0) {
-                    return "<span title='No ClinVar record found for this variant'><i class='fa fa-times' style='color: gray'></i></span>";
-                }
-                // There are some clinvar traits
-                let clinicalSignificanceVisited = {};
+                let tooltipText = "";
+                let clinicalSignificanceVisited = new Set();
                 for (let trait of traits) {
                     let clinicalSignificance = trait?.variantClassification?.clinicalSignificance || "UNKNOWN";
                     let code = "";
@@ -758,35 +759,40 @@ export default class VariantGridFormatter {
                             break;
                     }
 
-                    if (code !== "NP") {
-                        if (typeof clinicalSignificanceVisited[code] === "undefined") {
-                            if (code === "BB" || code === "LB") {
-                                results.push(`<span style="color: ${color}" title="${tooltip}">${code}</span>`);
-                            } else {
-                                results.push(`<span style="color: ${color}" title="${tooltip}">${code}</span>`);
-                            }
-                            clinicalSignificanceVisited[code] = true;
-                        }
+                    if (code !== "NP" && !clinicalSignificanceVisited.has(code)) {
+                        results.push(`<span style="color: ${color}">${code}</span>`);
+                        clinicalSignificanceVisited.add(code);
+                    }
+
+                    // Prepare the tooltip links
+                    if (!trait.id?.startsWith("RCV")) {
+                        tooltipText += `<div style="margin: 10px 5px">
+                                            <a href="${BioinfoUtils.getClinvarVariationLink(trait.id)}" target="_blank">${trait.id}</a>
+                                        </div>`;
                     }
                 }
 
                 // This can only be shown if nothing else exists
                 if (results.length === 0) {
-                    results.push(`<span style="color: grey" title="ClinVar submissions without an interpretation of clinical significance">NP</span>`);
+                    return `<span style="color: grey" title="ClinVar submissions without an interpretation of clinical significance">NP</span>`;
                 }
-                return results.join("<br>");
+
+                return `<div class="clinvar-tooltip" data-tooltip-text='${tooltipText}'>${results.join("<br>")}</div>`;
             } else {
                 if (this.field === "cosmic") {
-                    if (traits.length === 0) {
-                        return "<span title='No Cosmic record found for this variant'><i class='fa fa-times' style='color: gray'></i></span>";
-                    }
-                    let tooltip = [];
+                    // Prepare the tooltip links
+                    let tooltipText = "";
+                    let visited = new Set();
                     for (let trait of traits) {
-                        if (trait?.somaticInformation) {
-                            tooltip.push(trait?.somaticInformation?.primaryHistology);
+                        if (!visited.has(trait.id)) {
+                            tooltipText += `<div style="margin: 10px 5px">
+                                                <a href="${BioinfoUtils.getCosmicVariantLink(trait.id)}" target="_blank">${trait.id}</a>
+                                            </div>`;
+                            visited.add(trait.id);
                         }
                     }
-                    return `<span data-toggle="tooltip" data-placement="bottom" title="${tooltip.join(", ")}"><i class='fa fa-check' style='color: green'></i></span>`;
+
+                    return `<span class="cosmic-tooltip" data-tooltip-text='${tooltipText}'><i class='fa fa-check' style='color: green'></i></span>`;
 
                 } else {
                     console.error("Wrong clinical source : " + this.field);
@@ -1330,6 +1336,12 @@ export default class VariantGridFormatter {
                 }
             },
             position: {target: "mouse", adjust: {x: 2, y: 2, mouse: false}},
+            // position : {
+            //     corner: {
+            //         target: 'topLeft',
+            //         tooltip: 'middleLeft'
+            //     }
+            // },
             style: {classes: "qtip-light qtip-rounded qtip-shadow qtip-custom-class"},
             show: {delay: 200},
             hide: {fixed: true, delay: 300}

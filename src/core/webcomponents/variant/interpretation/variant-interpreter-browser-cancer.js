@@ -411,7 +411,11 @@ class VariantInterpreterBrowserCancer extends LitElement {
                         title: "Phenotype-Disease",
                         collapsed: true,
                         fields: [
-
+                            {
+                                id: "clinvar",
+                                title: "ClinVar Accessions",
+                                tooltip: tooltips.clinvar
+                            },
                             {
                                 id: "go",
                                 title: "GO Accessions (max. 100 terms)",
@@ -421,11 +425,6 @@ class VariantInterpreterBrowserCancer extends LitElement {
                                 id: "hpo",
                                 title: "HPO Accessions",
                                 tooltip: tooltips.hpo
-                            },
-                            {
-                                id: "clinvar",
-                                title: "ClinVar Accessions",
-                                tooltip: tooltips.clinvar
                             },
                         ]
                     },
