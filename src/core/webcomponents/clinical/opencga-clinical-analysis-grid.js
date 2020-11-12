@@ -329,14 +329,12 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
 
     caseFormatter(value, row) {
         if (row?.id) {
-            return `<div style="margin: 5px 0">
-                        <a title="Go to Case Interpreter" href="#interpreter/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}">
-                            <span>${row.id}</span>
-                        </a>
-                    </div>
-                    <div style="margin: 5px 0">
-                        <span>${row.type}</span>
-                    </div>`;
+            return `<p style="margin: 5px 0">
+                        <a title="Go to Case Interpreter" href="#interpreter/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}" data-cy="case-id">${row.id}</a>
+                    </p>
+                    <p style="margin: 5px 0">
+                        ${row.type}
+                    </p>`;
         } else {
             return "-";
         }
@@ -602,6 +600,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
             },
             {
                 title: "Due / Creation Date",
+                field: "Dates",
                 halign: this._config.header.horizontalAlign,
                 valign: "middle",
                 formatter: (field, clinicalAnalysis) => {
