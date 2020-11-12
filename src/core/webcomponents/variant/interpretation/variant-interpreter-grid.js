@@ -302,25 +302,26 @@ export default class VariantInterpreterGrid extends LitElement {
         // Add tooltips
         if (this.variantGridFormatter) {
             // TODO remove the following lines and use UtilsNew.initTooltip
-            this.variantGridFormatter.addTooltip("div.variant-tooltip", "Links");
-            this.variantGridFormatter.addTooltip("span.gene-tooltip", "Links");
-            this.variantGridFormatter.addTooltip("div.zygositySampleTooltip", "Variant Call Information", "", {style: {classes: "qtip-rounded qtip-shadow qtip-custom-class"}});
-            this.variantGridFormatter.addPopulationFrequenciesTooltip("table.populationFrequenciesTable", populationFrequencies);
-            this.variantGridFormatter.addPopulationFrequenciesInfoTooltip("span.pop-preq-info-icon", populationFrequencies);
+            //this.variantGridFormatter.addTooltip("div.variant-tooltip", "Links");
+            //this.variantGridFormatter.addTooltip("span.gene-tooltip", "Links");
+            //this.variantGridFormatter.addTooltip("div.zygositySampleTooltip", "Variant Call Information", "", {style: {classes: "qtip-rounded qtip-shadow qtip-custom-class"}});
+            //this.variantGridFormatter.addPopulationFrequenciesTooltip("table.populationFrequenciesTable", populationFrequencies);
 
-            this.variantGridFormatter.addTooltip("span.cosmic-tooltip", "Links");
-            this.variantGridFormatter.addTooltip("div.clinvar-tooltip", "Links");
+            //this.variantGridFormatter.addPopulationFrequenciesInfoTooltip("span.pop-preq-info-icon", populationFrequencies);
 
-            const predictionTooltipContent = "<span style='font-weight: bold'>Prediction</span> column shows the Clinical Significance prediction and Tier following the ACMG guide recommendations";
+            //this.variantGridFormatter.addTooltip("span.cosmic-tooltip", "Links");
+            //this.variantGridFormatter.addTooltip("div.clinvar-tooltip", "Links");
+
+            /*const predictionTooltipContent = "<span style='font-weight: bold'>Prediction</span> column shows the Clinical Significance prediction and Tier following the ACMG guide recommendations";
             this.variantGridFormatter.addTooltip("span.interpretation-info-icon", "Interpretation", predictionTooltipContent, {
                 position: {my: "top right"},
                 style: {classes: "qtip-rounded qtip-shadow qtip-custom-class"}
-            });
-            this.variantGridFormatter.addTooltip("div.predictionTooltip", "Classification", "", {
+            });*/
+            /*this.variantGridFormatter.addTooltip("div.predictionTooltip", "Classification", "", {
                 position: {my: "top right"},
                 style: {classes: "qtip-rounded qtip-shadow qtip-custom-class"},
                 width: "360px"
-            });
+            });*/
 
         }
     }
@@ -677,32 +678,32 @@ export default class VariantInterpreterGrid extends LitElement {
                         let altWidth = widthPx - refWidth;
                         let altColor = altFreq !== 0 ? "red" : "black";
                         let opacity = file?.data?.FILTER === "PASS" ? 100 : 50;
-                        resultHtml += `<div class="zygositySampleTooltip" data-tooltip-text='${tooltipText}' align="center">
+                        resultHtml += `<a class="zygositySampleTooltip" tooltip-title="Variant Call Information" tooltip-text='${tooltipText}'>
                                         <table style="width: ${widthPx}px">
                                             <tr>
                                                 <td style="width: ${refWidth}px; background-color: ${refColor}; border-right: 1px solid white; opacity: ${opacity}%">&nbsp;</td>
                                                 <td style="width: ${altWidth}px; background-color: ${altColor}; border-right: 1px solid white; opacity: ${opacity}%">&nbsp;</td>
                                             </tr>
                                     `;
-                        resultHtml += `</table></div>`;
+                        resultHtml += `</table></a>`;
                     } else {
                         // Just in case we cannot render freqs, this should never happen.
                         resultHtml += `
-                            <div class='zygositySampleTooltip' data-tooltip-text='${tooltipText}' style="width: 70px" align="center">
+                            <a class='zygositySampleTooltip' tooltip-title="Variant Call Information" tooltip-text='${tooltipText}' style="width: 70px" align="center">
                                 <svg viewBox="0 0 70 30" xmlns="http://www.w3.org/2000/svg">
                                     <circle cx="20" cy="15" r="${leftRadio}" style="stroke: black;fill: ${left}"/>
                                     <circle cx="50" cy="15" r="${rightRadio}" style="stroke: black;fill: ${right}"/>
                                 </svg>
-                            </div>`;
+                            </a>`;
                     }
                 } else {
                     resultHtml += `
-                        <div class='zygositySampleTooltip' data-tooltip-text='${tooltipText}' style="width: 70px" align="center">
+                        <a class='zygositySampleTooltip'  tooltip-title="Variant Call Information" tooltip-text='${tooltipText}' style="width: 70px" align="center">
                             <svg viewBox="0 0 70 30" xmlns="http://www.w3.org/2000/svg">
                                 <circle cx="20" cy="15" r="${leftRadio}" style="stroke: black;fill: ${left}"/>
                                 <circle cx="50" cy="15" r="${rightRadio}" style="stroke: black;fill: ${right}"/>
                             </svg>
-                        </div>`;
+                        </a>`;
                 }
             }
         }
@@ -808,23 +809,23 @@ export default class VariantInterpreterGrid extends LitElement {
                 clinicalSignificanceCode = clinicalSignificanceCodes[re.classification.clinicalSignificance].code;
                 let clinicalSignificance = re.classification.clinicalSignificance.replace("_", " ");
                 clinicalSignificanceHtml = `<span style="color: ${clinicalSignificanceCodes[re.classification.clinicalSignificance].color}">${clinicalSignificance}</span>`;
-                clinicalSignificanceTooltipText = `<div class="col-md-12 predictionTooltip-inner" style="padding: 0px">
-                                                        <form class="form-horizontal">
-                                                            <div class="form-group" style="margin: 0px 2px">
-                                                                <label class="col-md-5">ACMG</label>
-                                                                <div class="col-md-7">${re.classification.acmg.join(", ")}</div>
+                clinicalSignificanceTooltipText = `<div class='col-md-12 predictionTooltip-inner' style='padding: 0px'>
+                                                        <form class='form-horizontal'>
+                                                            <div class='form-group' style='margin: 0px 2px'>
+                                                                <label class='col-md-5'>ACMG</label>
+                                                                <div class='col-md-7'>${re.classification.acmg.join(', ')}</div>
                                                             </div>
-                                                            <div class="form-group" style="margin: 0px 2px">
-                                                                <label class="col-md-5">ACMG Tier</label>
-                                                                <div class="col-md-7">${re.classification.tier}</div>
+                                                            <div class='form-group' style='margin: 0px 2px'>
+                                                                <label class='col-md-5'>ACMG Tier</label>
+                                                                <div class='col-md-7'>${re.classification.tier}</div>
                                                             </div>
                                                         </form>
                                                    </div>`;
             }
         }
-        return `<div class='predictionTooltip' data-tooltip-text='${clinicalSignificanceTooltipText}'>
+        return `<a class='predictionTooltip' tooltip-title="Classification" tooltip-text='${clinicalSignificanceTooltipText}'>
                     ${clinicalSignificanceHtml}
-                </div>`;
+                </a>`;
     }
 
     checkFormatter(value, row, index) {
@@ -954,7 +955,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     visible: vcfDataColumns?.length > 1
                 },
                 {
-                    title: "Variant Allele Frequency <span class='pop-preq-info-icon'><i class='fa fa-info-circle' style='color: #337ab7' aria-hidden='true'></i></span>",
+                    title: `Variant Allele Frequency <a class="pop-preq-info-icon" tooltip-title="Population Frequencies" tooltip-text="${this.variantGridFormatter.populationFrequenciesInfoTooltipContent(populationFrequencies)}" tooltip-position-at="left bottom" tooltip-position-my="right top"><i class="fa fa-info-circle" aria-hidden="true"></i></a>`,
                     field: "frequencies",
                     rowspan: 1,
                     colspan: 2,
@@ -967,7 +968,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     align: "center"
                 },
                 {
-                    title: "Interpretation <span class='interpretation-info-icon'><i class='fa fa-info-circle' style='color: #337ab7' aria-hidden='true'></i></span>",
+                    title: `Interpretation <a class='interpretation-info-icon' tooltip-title='Interpretation' tooltip-text="<span style='font-weight: bold'>Prediction</span> column shows the Clinical Significance prediction and Tier following the ACMG guide recommendations" tooltip-position-at="left bottom" tooltip-position-my="right top"><i class='fa fa-info-circle' aria-hidden='true'></i></a>`,
                     field: "interpretation",
                     rowspan: 1,
                     colspan: 2,
