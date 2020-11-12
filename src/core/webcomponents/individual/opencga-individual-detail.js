@@ -101,6 +101,7 @@ export default class OpencgaIndividualDetail extends LitElement {
                     name: "Clinical Analysis",
                     render: (individual, active, opencgaSession) => {
                         const config = {
+                            readOnlyMode: true,
                             columns: {
                                 hidden: ["actions"]
                             }

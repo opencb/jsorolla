@@ -530,30 +530,30 @@ export default class VariantInterpreterGrid extends LitElement {
                     secondaryAlternates.push(html);
                 }
 
-                const tooltipText = `<div class="" style="padding: 5px">
+                const tooltipText = `<div class="zygosity-formatter">
                                         <form class="form-horizontal">
                                             <div class="form-group" style="margin: 2px 2px">
                                                 <label class="col-md-12" style="color: darkgray;padding: 10px 0px 5px 0px">SUMMARY</label>
                                             </div>
                                             <div class="form-group" style="margin: 2px 2px">
-                                                <label class="col-md-5">Sample ID</label>
-                                                <div class="col-md-7">${sampleId ? sampleId : "-"}</div>
+                                                <label class="col-md-4">Sample ID</label>
+                                                <div class="col-md-8">${sampleId ? sampleId : "-"}</div>
                                             </div>
                                             <div class="form-group" style="margin: 2px 2px">
-                                                <label class="col-md-5">File Name</label>
-                                                <div class="col-md-7">${file && file.fileId ? file.fileId : "-"}</div>
+                                                <label class="col-md-4">File Name</label>
+                                                <div class="col-md-8">${file && file.fileId ? file.fileId : "-"}</div>
                                             </div>
                                             <div class="form-group" style="margin: 2px 2px">
-                                                <label class="col-md-5">File FILTER</label>
-                                                <div class="col-md-7">${filter}</div>
+                                                <label class="col-md-4">File FILTER</label>
+                                                <div class="col-md-8">${filter}</div>
                                             </div>
                                             <div class="form-group" style="margin: 2px 2px">
-                                                <label class="col-md-5">File QUAL</label>
-                                                <div class="col-md-7">${qual}</div>
+                                                <label class="col-md-4">File QUAL</label>
+                                                <div class="col-md-8">${qual}</div>
                                             </div>
                                             <div class="form-group" style="margin: 2px 2px">
-                                                <label class="col-md-5">File VCF call</label>
-                                                <div class="col-md-7">${originalCall}</div>
+                                                <label class="col-md-4">File VCF call</label>
+                                                <div class="col-md-8">${originalCall}</div>
                                             </div>
                                             <div class="form-group" style="margin: 2px 2px">
                                                 <label class="col-md-12" style="color: darkgray;padding: 10px 0px 5px 0px">SAMPLE DATA</label>
@@ -1476,14 +1476,19 @@ export default class VariantInterpreterGrid extends LitElement {
                 </div>
             </div>
             
-             <div class="modal fade" id="${this._prefix}ConfigModal" data-backdrop="static" data-keyboard="false" tabindex="-1"
+            <div class="modal fade" id="${this._prefix}ConfigModal" data-backdrop="static" data-keyboard="false" tabindex="-1"
                  role="dialog" aria-hidden="true" style="padding-top:0; overflow-y: visible">
                 <div class="modal-dialog" style="width: 1024px">
                     <div class="modal-content">
                         <div class="modal-header" style="padding: 5px 15px">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
                             <h3>Settings</h3>
                         </div>
-                        <variant-interpreter-grid-config .config="${this._config}"></variant-interpreter-grid-config>
+                        <div class="modal-body">
+                            <div class="container-fluid">
+                                <variant-interpreter-grid-config .config="${this._config}"></variant-interpreter-grid-config>
+                            </div>
+                        </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-primary" data-dismiss="modal">Apply</button>
                             <button type="button" class="btn btn-primary" data-dismiss="modal">Save</button>
