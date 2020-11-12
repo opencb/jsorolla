@@ -224,9 +224,9 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                             type: "custom",
                             display: {
                                 visible: !this._config?.hiddenFields?.includes("priority"),
-                                render: clinicalAnalysis => {
+                                render: priority => {
                                     let colors = {"URGENT": "red", "HIGH": "darkorange"};
-                                    return html`<span style="color: ${colors[clinicalAnalysis.priority]}">${clinicalAnalysis.priority}</span>`
+                                    return html`<span style="color: ${colors[priority.id]}">${priority.id}</span>`
                                 }
                             }
                         },
@@ -304,11 +304,13 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                             type: "custom",
                             display: {
                                 render: phenotypes => {
-                                    return [...phenotypes].sort( (a,b) => a.status === "OBSERVED" ? -1 : 1).map(phenotype => html`
-                                        ${phenotype.source && phenotype.source.toUpperCase() === "HPO"
-                                        ? html`<li>${phenotype.name} (<a target="_blank" href="https://hpo.jax.org/app/browse/term/${phenotype.id}">${phenotype.id}</a>) - ${phenotype.status}</li>`
-                                        : html`<li>${phenotype.id} - ${phenotype.status}</li>`}`
-                                    )
+                                    if (phenotypes) {
+                                        return [...phenotypes].sort( (a,b) => a.status === "OBSERVED" ? -1 : 1).map(phenotype => html`
+                                            ${phenotype.source && phenotype.source.toUpperCase() === "HPO"
+                                                ? html`<li>${phenotype.name} (<a target="_blank" href="https://hpo.jax.org/app/browse/term/${phenotype.id}">${phenotype.id}</a>) - ${phenotype.status}</li>`
+                                                : html`<li>${phenotype.id} - ${phenotype.status}</li>`}`
+                                            )
+                                    }
                                 },
                                 defaultValue: "N/A"
                             }

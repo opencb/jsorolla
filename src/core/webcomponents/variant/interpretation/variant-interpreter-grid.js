@@ -211,7 +211,7 @@ export default class VariantInterpreterGrid extends LitElement {
                         // approximateCount: true,
                         // approximateCountSamplingSize: 100,
 
-                        ...this.query
+                        ...this.query,
                     };
 
                     this.opencgaSession.opencgaClient.clinical().queryVariant(filters)
