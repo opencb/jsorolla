@@ -18,6 +18,8 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
 import "../commons/filters/date-filter.js";
 import "../commons/filters/clinical-analysis-id-autocomplete.js";
+import "../commons/filters/clinical-priority-filter.js";
+
 
 export default class OpencgaClinicalAnalysisFilter extends LitElement {
 
@@ -130,6 +132,8 @@ export default class OpencgaClinicalAnalysisFilter extends LitElement {
                 content = html`<text-field-filter placeholder="${subsection.placeholder}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></text-field-filter>`;
                 break;
             case "priority":
+                content = html`<clinical-priority-filter .opencgaSession="${this.opencgaSession}" .priority="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></clinical-priority-filter>`;
+                break;
             case "type":
                 content = html`<select-field-filter ?multiple="${subsection.multiple}" .data="${subsection.allowedValues}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></select-field-filter>`;
                 break;
