@@ -21,7 +21,7 @@ import {NotificationQueue} from "../Notification.js";
 import PolymerUtils from "../PolymerUtils.js";
 import "./opencga-clinical-analysis-grid.js";
 import "./opencga-clinical-analysis-view.js";
-import GridCommons from "../variant/grid-commons.js";
+import "../commons/filters/clinical-analysis-id-autocomplete.js";
 
 
 export default class OpencgaClinicalReviewCases extends LitElement {
@@ -113,7 +113,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
     }
 
     clear(e) {
-        //FIXME monkey patch to reset button (text) fields. TODO complete refactor.
+        // FIXME monkey patch to reset button (text) fields. TODO complete refactor.
         this.case = "All";
         if (this.querySelector(`#${this._prefix}caseInput`)) {
             this.querySelector(`#${this._prefix}caseInput`).value = "";
@@ -150,7 +150,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
         this.requestUpdate();
     }
 
-    /*onFilterChange(e) {
+    /* onFilterChange(e) {
         console.log("onFilterChange", e);
         for (const filter of this._filters) {
             if (e.currentTarget.dataset.filterId === filter.id) {
@@ -191,7 +191,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                 };
                 this.opencgaSession.opencgaClient.users().updateFilters(this.opencgaSession.user.id, data, {action: "REMOVE"})
                     .then(restResponse => {
-                        console.log("restResponse", restResponse)
+                        console.log("restResponse", restResponse);
                         Swal.fire(
                             "Filter Deleted",
                             "Filter has been deleted.",
@@ -243,17 +243,17 @@ export default class OpencgaClinicalReviewCases extends LitElement {
         const filterName = PolymerUtils.getValue(this._prefix + "filterName");
         const filterDescription = PolymerUtils.getValue(this._prefix + "filterDescription");
 
-        let query = this.query;
+        const query = this.query;
         if (query.study) {
             // filters out the current active study
-            const studies = query.study.split(",").filter( fqn => fqn !== this.opencgaSession.study.fqn);
+            const studies = query.study.split(",").filter(fqn => fqn !== this.opencgaSession.study.fqn);
             if (studies.length) {
                 query.study = studies.join(",");
             } else {
                 delete query.study;
             }
         }
-        //console.log("QUERY SAVED:", query)
+        // console.log("QUERY SAVED:", query)
 
         this.opencgaSession.opencgaClient.users().filters(this.opencgaSession.user.id)
             .then(restResponse => {
@@ -366,8 +366,8 @@ export default class OpencgaClinicalReviewCases extends LitElement {
 
     updateInputTextMenuItem(filterId, value) {
         const buttonElem = PolymerUtils.getElementById(this._prefix + filterId + "Menu");
-        //console.log(buttonElem);
-        //console.log(filterId, value, this[filterId]);
+        // console.log(buttonElem);
+        // console.log(filterId, value, this[filterId]);
         if (UtilsNew.isNotEmpty(value)) {
             this[filterId] = value;
             buttonElem.style.color = "#333";
@@ -475,7 +475,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
         $("#" + this._prefix + "-assigned").validator("update");
     }
 
-    //TODO better adapt config to the a dynamic view
+    // TODO better adapt config to the a dynamic view
     getDefaultConfig() {
         return {
             title: "Review Cases",
@@ -594,11 +594,11 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                             <li>
                                                 <a><i class="fas fa-cloud-upload-alt icon-padding"></i> <strong>Saved Filters</strong></a>
                                             </li>
-                                            ${this._filters && this._filters.length
-                                                ? this._filters.map(item => item.separator
-                                                    ? html`
-                                                        <li role="separator" class="divider"></li>`
-                                                    : html`
+                                            ${this._filters && this._filters.length ?
+                                                this._filters.map(item => item.separator ?
+                                                    html`
+                                                        <li role="separator" class="divider"></li>` :
+                                                    html`
                                                         <li>
                                                             <a data-filter-id="${item.id}" class="filtersLink" style="cursor: pointer;color: ${!item.active ? "black" : "green"}" 
                                                                     @click="${this.onServerFilterChange}">
@@ -608,8 +608,8 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                                                 </span>
                                                             </a>
                                                         </li>`
-                                                    )
-                                                : html`<li><a class="help-block">No filters found</a></li>`
+                                                    ) :
+                                                html`<li><a class="help-block">No filters found</a></li>`
                                             }
                                             
                                             <li role="separator" class="divider"></li>
@@ -628,6 +628,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
         
                                     ${~this._config.filter.sections[0].fields.findIndex(field => field.id === "case") ? html`
                                         <!-- Case ID -->
+                                        <!--<clinical-analysis-id-autocomplete .opencgaSession="${this.opencgaSession}" @filterChange="${e => this.onFilterChange("sample", e.detail.value)}"></clinical-analysis-id-autocomplete>-->
                                         <div class="btn-group" data-cy="form-case">
                                             <button type="button" class="dropdown-toggle btn btn-default filter-button" style="width:125px; color: rgb(153, 153, 153);"
                                                     id="${this._prefix}caseMenu"
@@ -797,8 +798,8 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                             </button>
                                             <ul class="dropdown-menu">
                                                 <li><a style="font-weight: bold">Saved Filters</a></li>
-                                                ${this._filters && this._filters.length
-                                                    ? this._filters.map(item => item.separator ? html`
+                                                ${this._filters && this._filters.length ?
+                                                    this._filters.map(item => item.separator ? html`
                                                         <li role="separator" class="divider"></li>
                                                     ` : html`
                                                         <li>
@@ -806,8 +807,8 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                                                 <span class="id-filter-button">&nbsp;&nbsp;${item.id}</span>
                                                                 <span class="delete-filter-button" title="Delete filter" data-filter-id="${item.id}" @click="${this.serverFilterDelete}"><i class="fas fa-times"></i></span>
                                                             </a>
-                                                        </li>`)
-                                                    : null }
+                                                        </li>`) :
+                                                    null }
     
                                                 ${this.opencgaSession?.token ? html`
                                                     <li role="separator" class="divider"></li>
@@ -901,6 +902,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
         </div>
         `;
     }
+
 }
 
 customElements.define("opencga-clinical-review-cases", OpencgaClinicalReviewCases);

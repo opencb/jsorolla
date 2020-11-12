@@ -19,7 +19,7 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../utilsNew.js";
 
 
-export default class ClinicalPriorityFilter extends LitElement {
+export default class ClinicalStatusFilter extends LitElement {
 
     constructor() {
         super();
@@ -34,10 +34,10 @@ export default class ClinicalPriorityFilter extends LitElement {
 
     static get properties() {
         return {
-            priorities: {
+            statuses: {
                 type: Array
             },
-            priority: {
+            status: {
                 type: String
             },
             config: {
@@ -56,7 +56,8 @@ export default class ClinicalPriorityFilter extends LitElement {
     }
 
     update(changedProperties) {
-        if (changedProperties.has("priority")) {
+        if (changedProperties.has("statuses")) {
+            this.data = [...new Set(Object.values(this.statuses).flatMap(status=>status).map(status => status.id))];
         }
         super.update(changedProperties);
     }
@@ -73,16 +74,15 @@ export default class ClinicalPriorityFilter extends LitElement {
 
     getDefaultConfig() {
         return {
-            priorities: ["URGENT", "HIGH", "MEDIUM", "LOW"]
         };
     }
 
     render() {
         return html`
-            <select-field-filter .data="${this.priorities}" .value=${this.priority} multiple @filterChange="${e => this.filterChange(e)}"></select-field-filter>
+            <select-field-filter .data="${this.data}" .value=${this.status} multiple @filterChange="${e => this.filterChange(e)}"></select-field-filter>
         `;
     }
 
 }
 
-customElements.define("clinical-priority-filter", ClinicalPriorityFilter);
+customElements.define("clinical-status-filter", ClinicalStatusFilter);
