@@ -110,7 +110,13 @@ export default class OpencbGridToolbar extends LitElement {
     }
 
     render(){
-        let custom = this.rightToolbar && this.rightToolbar.length > 0 ? this.rightToolbar[0].render() : null;
+        let rightButtons = []
+        if (this.rightToolbar && this.rightToolbar.length > 0) {
+            for (let rightButton of this.rightToolbar) {
+                rightButtons.push(rightButton.render());
+            }
+        }
+
         // console.log(this._config)
         // debugger
         return html`
@@ -175,12 +181,11 @@ export default class OpencbGridToolbar extends LitElement {
                             ` : null 
                             }
                             
-                            ${custom
-                                ? html`
-                                    <div class="btn-group">
-                                        ${custom}
-                                    </div>`
-                                : null
+                            ${rightButtons && rightButtons.length > 0 ? rightButtons.map(rightButton => html`
+                                <div class="btn-group">
+                                        ${rightButton}
+                                </div>`
+                                ) : null
                             }
                         </div>
                     </div>

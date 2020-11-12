@@ -278,8 +278,8 @@ export default class DataForm extends LitElement {
 
         // Get some default values
         const titleHeader = section?.display?.titleHeader ?? "h3";
-        const sectionTitleClass = section?.display?.title?.class ?? "";
-        const sectionTitleStyle = section?.display?.title?.style ?? "";
+        const sectionTitleClass = section?.display?.titleClass ?? "";
+        const sectionTitleStyle = section?.display?.titleStyle ?? "";
         const sectionClasses = section?.display?.classes ?? "";
         const sectionStyle = section?.display?.style ?? "";
 
@@ -290,6 +290,11 @@ export default class DataForm extends LitElement {
             return html`
                 <div class="row" style="">
                     ${section.title ? this._getTitleHeader(titleHeader, section.title, sectionTitleClass, sectionTitleStyle) : null}
+                    ${section.text ? html`
+                        <div class="${section.display?.textClass ? section.display.textClass : ""}" style="${section.display?.textStyle ? section.display.textStyle : ""}">
+                            <span>${section.text}</span>
+                        </div>` : null
+                    }
                     <div class="${sectionWidth} ${sectionClasses}" style="${sectionStyle}">    
                         <div class="">
                             ${section.elements.map(element => this._createElement(element, section))}
@@ -323,8 +328,8 @@ export default class DataForm extends LitElement {
             return;
         }
 
-        const elementLabelClasses = element?.display?.labelClasses ?? section?.display?.elementLabelClasses ?? "";
-        const elementLabelStyle = element?.display?.labelStyle ?? section?.display?.elementLabelStyle ?? "";
+        let elementLabelClasses = element?.display?.labelClasses ?? section?.display?.elementLabelClasses ?? "";
+        let elementLabelStyle = element?.display?.labelStyle ?? section?.display?.elementLabelStyle ?? "";
 
         // Check if type is 'separator', this is a special case, no need to parse 'name' and 'content'
         if (element.type === "separator") {
@@ -353,6 +358,9 @@ export default class DataForm extends LitElement {
         } else {
             // Other 'type' are rendered by specific functions
             switch (element.type) {
+                case "title":
+                    content = this._createTitleElement(element);
+                    break;
                 case "input-text":
                     content = this._createInputTextElement(element);
                     break;
@@ -427,10 +435,12 @@ export default class DataForm extends LitElement {
                 return html`
                     <div class="form-group">
                         <div class="${sectionWidth}" style="margin: 5px 0px">
-                            <label class="control-label ${elementLabelClasses}" style="${elementLabelStyle}">${title}</label>
-                            <div>
-                                ${content}
-                            </div>
+                            ${title ? html`<label class="control-label ${elementLabelClasses}" style="${elementLabelStyle}">${title}</label>` : null}
+                            ${content ? html`
+                                <div>
+                                    ${content}
+                                </div>` : null
+                            }
                         </div>
                     </div>
                 `;
@@ -467,6 +477,14 @@ export default class DataForm extends LitElement {
                 `;
             }
         }
+    }
+
+    _createTitleElement(element) {
+        return html`
+            <div class="${element.display.textClass ? element.display.textClass : ""}" style="${element.display?.textStyle ? element.display.textStyle : ""}">
+                <span>${element.text}</span>
+            </div>
+        `;
     }
 
     _createInputTextElement(element) {
@@ -525,19 +543,24 @@ export default class DataForm extends LitElement {
     }
 
     _createCheckboxElement(element) {
-        let value = this.getValue(element.field) || this._getDefaultValue(element);
-        // let checked = value === "PASS" ? "checked" : "";
+        let value = this.getValue(element.field); // || this._getDefaultValue(element);
+
+        // TODO to be fixed.
+        if (element.field === "FILTER") {
+            value = value === "PASS";
+            element.text = "Include only PASS variants";
+        }
         return html`
             <div class="">
-                <input type="checkbox" class="${this._prefix}FilterCheckbox" 
-                        @click="${e => this.onFilterChange(element.field, e.currentTarget.checked)}" .checked="${value === "PASS"}" style="margin-right: 5px">
-                <span>Include only <span style="font-weight: bold;">PASS</span> variants</span>
+                <input type="checkbox" class="${this._prefix}FilterCheckbox" .checked="${value}"
+                        @click="${e => this.onFilterChange(element.field, e.currentTarget.checked)}" style="margin-right: 5px">
+                <span>${element.text}</span>
             </div>
         `;
     }
 
     /**
-     * This element accepts 4 main parameters: onText, offTxt, activeClass and inactiveClass.
+     * This element accepts 4 main parameters: onText, offText, activeClass and inactiveClass.
      * Default values are: ON, OFF, btn-primary and btn-default, respectively.
      * @param element
      * @returns {TemplateResult}

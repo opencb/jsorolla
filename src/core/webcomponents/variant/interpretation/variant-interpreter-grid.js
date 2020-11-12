@@ -19,6 +19,7 @@ import UtilsNew from "../../../utilsNew.js";
 import VariantGridFormatter from "../variant-grid-formatter.js";
 import GridCommons from "../grid-commons.js";
 import VariantUtils from "../variant-utils.js";
+import "./variant-interpreter-grid-config.js";
 import "./opencga-interpretation-variant-review.js";
 import "../../commons/opencb-grid-toolbar.js";
 import "../../loading-spinner.js";
@@ -97,6 +98,7 @@ export default class VariantInterpreterGrid extends LitElement {
 
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
+            this.requestUpdate();
         }
     }
 
@@ -205,6 +207,10 @@ export default class VariantInterpreterGrid extends LitElement {
                         skip: params.data.offset || 0,
                         count: !tableOptions.pageNumber || tableOptions.pageNumber === 1,
                         includeSampleId: "true",
+
+                        // approximateCount: true,
+                        // approximateCountSamplingSize: 100,
+
                         ...this.query
                     };
 
@@ -350,6 +356,10 @@ export default class VariantInterpreterGrid extends LitElement {
             this.variantReview = this.checkedVariants.get(e.currentTarget.dataset.variantId);
             $("#" + this._prefix + "ReviewSampleModal").modal("show");
         }
+    }
+
+    onConfigClick(e) {
+        $("#" + this._prefix + "ConfigModal").modal("show");
     }
 
     /*
@@ -1411,6 +1421,12 @@ export default class VariantInterpreterGrid extends LitElement {
                         </div>
                     </li>
                 </ul>`
+            },
+            {
+                render: () => html`
+                    <button type="button" class="btn btn-default btn-sm ripple" aria-haspopup="true" aria-expanded="false" @click="${e => this.onConfigClick(e)}">
+                        <i class="fas fa-cog icon-padding"></i> Settings ...
+                    </button>`
             }
         ];
     }
@@ -1454,6 +1470,22 @@ export default class VariantInterpreterGrid extends LitElement {
                         <div class="modal-footer">
                             <button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
                             <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+             <div class="modal fade" id="${this._prefix}ConfigModal" data-backdrop="static" data-keyboard="false" tabindex="-1"
+                 role="dialog" aria-hidden="true" style="padding-top:0; overflow-y: visible">
+                <div class="modal-dialog" style="width: 1024px">
+                    <div class="modal-content">
+                        <div class="modal-header" style="padding: 5px 15px">
+                            <h3>Settings</h3>
+                        </div>
+                        <variant-interpreter-grid-config .config="${this._config}"></variant-interpreter-grid-config>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary" data-dismiss="modal">Apply</button>
+                            <button type="button" class="btn btn-primary" data-dismiss="modal">Save</button>
                         </div>
                     </div>
                 </div>
