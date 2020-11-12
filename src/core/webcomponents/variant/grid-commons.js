@@ -139,6 +139,7 @@ export default class GridCommons {
         }));
     }
 
+    // TODO rename in onPostBody??
     onLoadSuccess(data, firstRowIndex = 2, idField) {
         // TODO the event `selectrow` with null values is fired in case of empty result and in case of error both. Create a common method.
         if (data.rows && data.rows.length > 0) {

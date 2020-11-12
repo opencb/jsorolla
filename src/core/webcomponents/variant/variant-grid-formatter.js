@@ -20,6 +20,8 @@ import BioinfoUtils from "../../bioinfo-utils.js";
 
 
 // TODO urgent review of the whole class
+// TODO turn this into a static class
+
 
 export default class VariantGridFormatter {
 

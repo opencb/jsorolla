@@ -116,9 +116,13 @@ export default class OpencgaClinicalAnalysisBrowser extends LitElement {
                                 description: ""
                             },
                             {
+                                id: "status",
+                                name: "Status",
+                                description: ""
+                            },
+                            {
                                 id: "priority",
                                 name: "Priority",
-                                allowedValues: ["URGENT", "HIGH", "MEDIUM", "LOW"],
                                 description: ""
                             },
                             {

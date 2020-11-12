@@ -18,6 +18,9 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
 import "../commons/filters/date-filter.js";
 import "../commons/filters/clinical-analysis-id-autocomplete.js";
+import "../commons/filters/clinical-priority-filter.js";
+import "../commons/filters/clinical-status-filter.js";
+
 
 export default class OpencgaClinicalAnalysisFilter extends LitElement {
 
@@ -130,6 +133,11 @@ export default class OpencgaClinicalAnalysisFilter extends LitElement {
                 content = html`<text-field-filter placeholder="${subsection.placeholder}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></text-field-filter>`;
                 break;
             case "priority":
+                content = html`<clinical-priority-filter .priorities="${Object.values(this.opencgaSession.study.configuration?.clinical?.priorities)}" .priority="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></clinical-priority-filter>`;
+                break;
+            case "status":
+                content = html`<clinical-status-filter .statuses="${this.opencgaSession.study.configuration?.clinical?.status}" .status="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></clinical-status-filter>`;
+                break;
             case "type":
                 content = html`<select-field-filter ?multiple="${subsection.multiple}" .data="${subsection.allowedValues}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></select-field-filter>`;
                 break;
@@ -166,7 +174,7 @@ export default class OpencgaClinicalAnalysisFilter extends LitElement {
 
         <div class="panel-group" id="${this._prefix}Accordion" role="tablist" aria-multiselectable="true">
             <div class="">
-                ${this.config.sections && this.config.sections.length ? this.config.sections.map( section => this._createSection(section)) : html`No filter has been configured.`}
+                ${this.config.sections && this.config.sections.length ? this.config.sections.map(section => this._createSection(section)) : html`No filter has been configured.`}
             </div>
         </div>
         `;

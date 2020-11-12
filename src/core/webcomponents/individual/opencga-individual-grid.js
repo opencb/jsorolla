@@ -134,7 +134,6 @@ export default class OpencgaIndividualGrid extends LitElement {
                 detailFormatter: this._config.detailFormatter,
                 gridContext: this,
                 formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
-
                 ajax: params => {
                     const _filters = {
                         study: this.opencgaSession.study.fqn,
