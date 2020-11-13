@@ -137,7 +137,8 @@ export default class KnockoutVariantView extends LitElement {
             {title: "ClinVar", field: ""},
             {
                 title: "Individuals",
-                formatter: this.individualFormatter
+                field: "individuals",
+                formatter: this.individualFormatter.bind(this)
 
             },
             ...this.samples.map(sample => {
@@ -156,20 +157,31 @@ export default class KnockoutVariantView extends LitElement {
     onColumnChange(e) {
         const ids = e.detail.value ?? "";
         this.table.bootstrapTable("hideAllColumns");
-        this.table.bootstrapTable("showColumn", ["id", "dbSNP", "consequenceType"]);
+        this.table.bootstrapTable("showColumn", ["id", "dbSNP", "consequenceType", "individuals"]);
         if (ids) {
             ids.split(",").forEach(id => this.table.bootstrapTable("showColumn", id));
         }
 
     }
 
-    individualFormatter() {
+    individualFormatter(value, row) {
+        const typeToColor = {
+            "HOM_ALT": "lightblue",
+            "CH": "blue"
+        };
+        const samplesTableData = this.samples.map(sample => ({id: sample.sampleId}));
+        for (const {sampleId, variant} of row.data) {
+            if (variant.id === row.id) {
+                const c = samplesTableData.find(sample => sample.id === sampleId);
+                c.knockoutType = variant.knockoutType;
+            }
+        }
         return `
             <table>
                 <tr>
-                    <td style="width: 15px; background: red; border-right: 1px solid white;">&nbsp;</td>
-                    <td style="width: 15px; background: black; border-right: 1px solid white;">&nbsp;</td>
-                    <td style="width: 15px; background: black; border-right: 1px solid white;">&nbsp;</td>                
+                    ${samplesTableData.map(sample => `
+                        <td style="width: 15px; background: ${typeToColor[sample.knockoutType] ?? "#d0d0d0"}; border-right: 1px solid white;"><a style="display: block" tooltip-title="${sample.id}" tooltip-text="${sample.id}">&nbsp;</a></td>
+                    `).join("")}
                 </tr>
             </table>`;
     }
@@ -260,7 +272,7 @@ export default class KnockoutVariantView extends LitElement {
                 },
                 {
                     id: "clinvar-view",
-                    name: "ClinVar",
+                    name: "Clinical",
                     render: (variant, active, opencgaSession, cellbaseClient) => {
                         return html`
                             <variant-annotation-clinical-view   .variantId="${variant}"
@@ -275,7 +287,7 @@ export default class KnockoutVariantView extends LitElement {
                     name: "Population Frequencies",
                     render: (variant, active, opencgaSession, cellbaseClient) => {
                         return html`<cellbase-population-frequency-grid .variantId="${variant}"
-                                                                        .opencgaSession="${opencgaSession}"
+                                                                        .assembly="${opencgaSession.project.organism.assembly}"
                                                                         .cellbaseClient="${cellbaseClient}"
                                                                         .active="${active}">
                                     </cellbase-population-frequency-grid>`;

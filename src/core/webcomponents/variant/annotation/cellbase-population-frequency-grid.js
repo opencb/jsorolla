@@ -31,9 +31,6 @@ export default class CellbasePopulationFrequencyGrid extends LitElement {
 
     static get properties() {
         return {
-            opencgaSession: {
-                type: Object
-            },
             cellbaseClient: {
                 type: Object
             },
@@ -42,6 +39,9 @@ export default class CellbasePopulationFrequencyGrid extends LitElement {
             },
             populationFrequencies: {
                 type: Array
+            },
+            assembly: {
+                type: String
             },
             active: {
                 type: Boolean
@@ -69,7 +69,7 @@ export default class CellbasePopulationFrequencyGrid extends LitElement {
         console.log("variantIdObserver", this.variantId, this.cellbaseClient);
         if (this.cellbaseClient) {
             if (this.variantId) {
-                this.cellbaseClient.get("genomic", "variant", this.variantId, "annotation", {assembly: this.opencgaSession.project.organism.assembly}, {})
+                this.cellbaseClient.get("genomic", "variant", this.variantId, "annotation", {assembly: this.assembly}, {})
                     .then(restResponse => {
                         this.populationFrequencies = restResponse.getResult(0).populationFrequencies;
                         this.requestUpdate();
