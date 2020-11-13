@@ -578,8 +578,8 @@ export default class VariantInterpreterGrid extends LitElement {
                 // SECOND, prepare the visual representation of genotypes
                 let left;
                 let right;
-                let leftRadio = 8;
-                let rightRadio = 8;
+                let leftRadio = 6;
+                let rightRadio = 6;
                 const genotypeSplitRegExp = new RegExp("[/|]");
                 let sampleGT;
                 // Make sure we always render somatic sample first
@@ -689,7 +689,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     } else {
                         // Just in case we cannot render freqs, this should never happen.
                         resultHtml += `
-                            <a class='zygositySampleTooltip' tooltip-title="Variant Call Information" tooltip-text='${tooltipText}' style="width: 70px" align="center">
+                            <a class='zygositySampleTooltip' tooltip-title="Variant Call Information" tooltip-text='${tooltipText}' style="width: 50px" align="center">
                                 <svg viewBox="0 0 70 30" xmlns="http://www.w3.org/2000/svg">
                                     <circle cx="20" cy="15" r="${leftRadio}" style="stroke: black;fill: ${left}"/>
                                     <circle cx="50" cy="15" r="${rightRadio}" style="stroke: black;fill: ${right}"/>
@@ -698,7 +698,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     }
                 } else {
                     resultHtml += `
-                        <a class='zygositySampleTooltip'  tooltip-title="Variant Call Information" tooltip-text='${tooltipText}' style="width: 70px" align="center">
+                        <a class='zygositySampleTooltip'  tooltip-title="Variant Call Information" tooltip-text='${tooltipText}' style="width: 50px" align="center">
                             <svg viewBox="0 0 70 30" xmlns="http://www.w3.org/2000/svg">
                                 <circle cx="20" cy="15" r="${leftRadio}" style="stroke: black;fill: ${left}"/>
                                 <circle cx="50" cy="15" r="${rightRadio}" style="stroke: black;fill: ${right}"/>
@@ -935,7 +935,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     rowspan: 2,
                     colspan: 1,
                     // formatter: this.variantGridFormatter.consequenceTypeFormatter.bind(this),
-                    formatter:(value, row, index) => this.variantGridFormatter.consequenceTypeFormatter(value, row, index, this.gridConsequenceTypeSettings, this.consequenceTypeColors),
+                    formatter:(value, row, index) => this.variantGridFormatter.consequenceTypeFormatter(value, row, index, this._config.consequenceType, this.consequenceTypeColors),
                     halign: "center"
                 },
                 {
@@ -1318,6 +1318,11 @@ export default class VariantInterpreterGrid extends LitElement {
                 gencodeBasic: true,
                 filterByBiotype: true,
                 filterByConsequenceType: true,
+
+                canonicalTranscript: true,
+                highQualityTranscripts: true,
+                proteinCodingTranscripts: true,
+                worstConsequenceTypes: true,
             },
             callers: [
                 {
@@ -1358,71 +1363,17 @@ export default class VariantInterpreterGrid extends LitElement {
     }
 
     onApplySettings(e) {
-        // console.log(e)
-        // this.table = $("#" + this.gridId);
-        // this.table.bootstrapTable("refresh");
+        this._config = this.__config;
+        this.requestUpdate();
         this.renderVariants();
-        // debugger
+    }
+
+    onGridConfigChange(e) {
+        this.__config = e.detail.value;
     }
 
     getRightToolbar() {
         return [
-            {
-                // visible: "",
-                render: () => html`
-                    <button type="button" class="btn btn-default btn-sm dropdown-toggle ripple" data-toggle="dropdown"
-                            aria-haspopup="true" aria-expanded="false">
-                        <i class="fas fa-cog icon-padding"></i> Settings <span class="caret"></span>
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="${this._prefix}SaveMenu" style="width: 360px">
-                    <li style="margin: 5px 10px">
-                        <h4>Consequence Types</h4>
-                        <span class="help-block">You can filter which transcripts and consequence types are displayed in the variant grid</span>
-                        <div style="margin: 0px 5px">
-                            <label class="control-label">Select Transcripts</label>
-                        </div>
-                        <div style="margin: 0px 10px">
-                            <div>
-                                <input type="checkbox" class="form-control" @click="${e => this.onChangeSettings("canonicalTranscript", e)}">
-                                <span style="margin: 0px 5px">Canonical Transcript</span>
-                            </div>
-                            <div>
-                                <input type="checkbox" class="form-control" @click="${e => this.onChangeSettings("highQualityTranscript", e)}">
-                                <span style="margin: 0px 5px">High Quality Transcript</span>
-                            </div>
-                            <div>
-                                <input type="checkbox" class="form-control" @click="${e => this.onChangeSettings("proteinCodingTranscript", e)}">
-                                <span style="margin: 0px 5px">Protein Coding</span>
-                            </div>
-                        </div>
-                        
-                        <div style="margin: 5px 5px">
-                            <label>Select Consequence Types</label>
-                        </div>
-                        <div style="margin: 0px 10px">
-                            <div>
-                                <input type="checkbox" class="form-control" @click="${e => this.onChangeSettings("worstConsequenceType", e)}">
-                                <span style="margin: 0px 5px">Worst Consequence Type</span>
-                            </div>
-                            <div>
-                                <input type="checkbox" class="form-control" @click="${e => this.onChangeSettings("loftConsequenceType", e)}">
-                                <span style="margin: 0px 5px">Loss-of-Function</span>
-                            </div>
-                        </div>
-                    </li>
-                    <li role="separator" class="divider"></li>
-                    <li style="margin: 5px 10px">
-                        <div style="float: right">
-                            <button type="button" class="btn btn-primary" 
-                                @click="${e => this.onApplySettings(e)}" style="margin: 5px">Apply
-                            </button>
-                            <button type="button" class="btn btn-primary disabled" 
-                                @click="${this.onSaveInterpretation}" style="margin: 5px">Save
-                            </button>
-                        </div>
-                    </li>
-                </ul>`
-            },
             {
                 render: () => html`
                     <button type="button" class="btn btn-default btn-sm ripple" aria-haspopup="true" aria-expanded="false" @click="${e => this.onConfigClick(e)}">
@@ -1486,11 +1437,11 @@ export default class VariantInterpreterGrid extends LitElement {
                         </div>
                         <div class="modal-body">
                             <div class="container-fluid">
-                                <variant-interpreter-grid-config .config="${this._config}"></variant-interpreter-grid-config>
+                                <variant-interpreter-grid-config .config="${this._config}" @configChange="${this.onGridConfigChange}"></variant-interpreter-grid-config>
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-primary" data-dismiss="modal">Apply</button>
+                            <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${e => this.onApplySettings(e)}">Apply</button>
                             <button type="button" class="btn btn-primary" data-dismiss="modal">Save</button>
                         </div>
                     </div>

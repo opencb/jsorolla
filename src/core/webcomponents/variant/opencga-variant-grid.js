@@ -926,7 +926,7 @@ export default class OpencgaVariantGrid extends LitElement {
                 verticalAlign: "bottom"
             },
             consequenceType: {
-                gencodeBasic: true,
+                gencodeBasic: false,
                 filterByBiotype: true,
                 filterByConsequenceType: true,
             }

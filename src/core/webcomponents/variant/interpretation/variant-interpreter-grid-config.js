@@ -53,23 +53,43 @@ export default class VariantInterpreterGridConfig extends LitElement {
 
     updated(changedProperties) {
         if (changedProperties.has("config")) {
-            this._config = this.config;
-            this.requestUpdate();
+            // this._config = {...this.config};
+            // this.requestUpdate();
         }
     }
 
     onFieldChange(e) {
-        // switch (e.detail.param) {
-        //     case "description":
-        //         break;
-        // }
+        // console.log(e)
+        // debugger
+
+        switch (e.detail.param) {
+            case "consequenceType.canonicalTranscript":
+            case "consequenceType.highQualityTranscripts":
+            case "consequenceType.proteinCodingTranscripts":
+            case "consequenceType.worstConsequenceTypes":
+                let field = e.detail.param.split(".")[1];
+                this.config.consequenceType[field] = e.detail.value;
+                break;
+            case "genotype.type":
+                this.config.genotype.type = e.detail.value;
+                break;
+        }
+        // this.config = {...this.config};
         // this.requestUpdate();
+debugger
+        this.dispatchEvent(new CustomEvent("configChange", {
+            detail: {
+                value: this.config
+            },
+            bubbles: true,
+            composed: true
+        }));
     }
 
     getConfigForm() {
         return {
-            id: "clinical-analysis",
-            title: "Case Editor",
+            id: "interpreter-grid-config",
+            title: "",
             icon: "fas fa-user-md",
             type: "form",
             display: {
@@ -86,8 +106,9 @@ export default class VariantInterpreterGridConfig extends LitElement {
                     title: "Consequence Type",
                     text: "You can filter which transcripts and consequence types are displayed in the variant grid",
                     display: {
+                        titleStyle: "margin: 0px 5px",
                         textClass: "help-block",
-                        textStyle: "margin: 0px"
+                        textStyle: "margin: 0px 10px"
                     },
                     elements: [
                         {
@@ -98,23 +119,30 @@ export default class VariantInterpreterGridConfig extends LitElement {
                             }
                         },
                         {
-                            field: "consequenceType.canonical",
+                            field: "consequenceType.canonicalTranscript",
                             type: "checkbox",
-                            text: "Canonical Transcript",
+                            text: "Include canonical transcript",
                             display: {
                             }
                         },
                         {
-                            field: "consequenceType.gencodeBasic",
+                            field: "consequenceType.highQualityTranscripts",
                             type: "checkbox",
-                            text: "High Quality Transcript",
+                            text: "Filter high quality transcript",
                             display: {
                             }
                         },
                         {
-                            field: "consequenceType.proteinCodig",
+                            field: "consequenceType.proteinCodingTranscripts",
                             type: "checkbox",
-                            text: "High Quality Transcript",
+                            text: "Filter protein coding transcripts",
+                            display: {
+                            }
+                        },
+                        {
+                            field: "consequenceType.worstConsequenceTypes",
+                            type: "checkbox",
+                            text: "Show only worst consequence types",
                             display: {
                             }
                         },
@@ -125,9 +153,9 @@ export default class VariantInterpreterGridConfig extends LitElement {
                     title: "Sample Genotype",
                     text: "You can filter which transcripts and consequence types are displayed in the variant grid",
                     display: {
-                        titleStyle: "padding-top: 20px",
+                        titleStyle: "margin: 20px 5px 0px 5px",
                         textClass: "help-block",
-                        textStyle: "margin: 0px"
+                        textStyle: "margin: 0px 10px"
                     },
                     elements: [
                         {
@@ -147,7 +175,7 @@ export default class VariantInterpreterGridConfig extends LitElement {
 
     render() {
         return html`
-            <data-form  .data="${this._config}" 
+            <data-form  .data="${this.config}" 
                         .config="${this.getConfigForm()}" 
                         @fieldChange="${e => this.onFieldChange(e)}" 
                         @clear="${this.onClear}" 

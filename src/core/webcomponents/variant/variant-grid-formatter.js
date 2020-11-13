@@ -323,20 +323,39 @@ export default class VariantGridFormatter {
         }
     }
 
-    consequenceTypeFormatter(value, row, index, gridConsequenceTypeSettings, consequenceTypeColors) {
+    consequenceTypeFormatter(value, row, index, gridCtSettings, consequenceTypeColors) {
         if (row?.annotation && row.annotation.consequenceTypes?.length > 0) {
             // Apply transcript filters
             let consequenceTypes = [];
-            if (gridConsequenceTypeSettings) {
-                if (gridConsequenceTypeSettings.canonicalTranscript) {
-                    // row.annotation.consequenceTypes.filter(ct => ct.biotype === "protein_coding").sort(ct => ct.)
+            if (gridCtSettings?.canonicalTranscript || gridCtSettings?.highQualityTranscripts || gridCtSettings?.proteinCodingTranscripts) {
+                let visited = new Set();
+
+                if (gridCtSettings.canonicalTranscript) {
+                    let ct = row.annotation.consequenceTypes.find(ct => ct.biotype === "protein_coding");
+                    if (ct) {
+                        consequenceTypes.push(ct);
+                        visited.add(ct.ensemblTranscriptId);
+                    }
                 }
-                if (gridConsequenceTypeSettings.highQualityTranscript) {
-                    consequenceTypes.push(...row.annotation.consequenceTypes.filter(ct => ct.transcriptAnnotationFlags?.includes("basic")));
+
+                for (let ct of row.annotation.consequenceTypes) {
+                    let hqPass = false;
+                    if (gridCtSettings.highQualityTranscripts) {
+                        hqPass = ct.transcriptAnnotationFlags?.includes("basic");
+                    }
+
+                    let pcPass = false;
+                    if (gridCtSettings.proteinCodingTranscripts) {
+                        pcPass = ct.biotype === "protein_coding";
+                    }
+
+                    if (hqPass && pcPass && !visited.has(ct)) {
+                        consequenceTypes.push(ct);
+                        visited.add(ct.ensemblTranscriptId);
+                    }
                 }
-            }
-            // debugger
-            if (consequenceTypes.length === 0) {
+            } else {
+                // If not transcript is filtered or selected we get use consequence types
                 consequenceTypes = row.annotation.consequenceTypes;
             }
 
