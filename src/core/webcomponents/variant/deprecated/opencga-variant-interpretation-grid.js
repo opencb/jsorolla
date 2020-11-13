@@ -64,7 +64,7 @@ export default class OpencgaVariantInterpretationGrid extends LitElement {
         };
     }
 
-    _init() {
+    /*_init() {
         this._prefix = "ovig-" + UtilsNew.randomString(6) + "_";
 
         this._initialised = false;
@@ -579,9 +579,9 @@ export default class OpencgaVariantInterpretationGrid extends LitElement {
         }));
     }
 
-    /*
+    /!*
      *  GRID FORMATTERS
-     */
+     *!/
     detailFormatter(value, row, a) {
         let result = "<div class='row' style='padding-bottom: 20px'>";
         let detailHtml = "";
@@ -796,12 +796,12 @@ export default class OpencgaVariantInterpretationGrid extends LitElement {
         return val;
     }
 
-    /**
+    /!**
      * Create a color table with ALL cohort for all studies.
      * @param value
      * @param row
      * @return {*}
-     */
+     *!/
     studyCohortsFormatter(value, row) {
         if (typeof row !== "undefined" && typeof row.studies !== "undefined") {
             const cohorts = [];
@@ -1315,9 +1315,9 @@ export default class OpencgaVariantInterpretationGrid extends LitElement {
                 </div>
             </div>
         </div>
-        
+
         `;
-    }
+    }*/
 
 }
 

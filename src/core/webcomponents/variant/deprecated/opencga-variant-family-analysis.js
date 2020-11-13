@@ -31,7 +31,7 @@ export default class OpencgaVariantFamilyAnalysis extends LitElement {
     createRenderRoot() {
         return this;
     }
-
+    /*
     static get properties() {
         return {
             opencgaSession: {
@@ -155,19 +155,19 @@ export default class OpencgaVariantFamilyAnalysis extends LitElement {
             switch (this.mode) {
                 case "interactive":
                     const _genotypes = this._sampleIds.map( id => this.clinicalAnalysis.proband.samples[0].id === id ? id + ":0/1,1/1" : id + ":0/0,0/1,1/1");
-                    /*for (const sampleId of this._sampleIds) {
+                    /!*for (const sampleId of this._sampleIds) {
                         if (this.clinicalAnalysis.proband.samples[0].id === sampleId) {
                             _genotypes.push(sampleId + ":0/1,1/1");
                         } else {
                             _genotypes.push(sampleId + ":0/0,0/1,1/1");
                         }
-                    }*/
+                    }*!/
                     _query.genotype = _genotypes.join(";");
                     break;
-                /*case "compoundHeterozygous":
+                /!*case "compoundHeterozygous":
                 // _query.biotype = "protein_coding";
                     _query.ct = "missense_variant," + this._config.filter.lof.join(",");
-                    break;*/
+                    break;*!/
             }
 
             // Reset query when new session or clinical analysis is provided
@@ -220,11 +220,11 @@ export default class OpencgaVariantFamilyAnalysis extends LitElement {
         this.requestUpdate();
     }
 
-/*    onSampleChange(e) {
+/!*    onSampleChange(e) {
         console.error("onSampleChange")
         this.samples = e.detail.samples;
         this.dispatchEvent(new CustomEvent("samplechange", {detail: {samples: this.samples}, bubbles: true, composed: true}));
-    }*/
+    }*!/
 
     onSelectVariant(e) {
         this.variant = e.detail.variant;
@@ -431,9 +431,9 @@ export default class OpencgaVariantFamilyAnalysis extends LitElement {
                     </div>
 
                     <div class="col-md-10">
-                    
-                    
-                    
+
+
+
                         <opencga-active-filters .opencgaSession="${this.opencgaSession}"
                                                 .clinicalAnalysis="${this.clinicalAnalysis}"
                                                 .defaultStudy="${this.opencgaSession.study.fqn}"
@@ -486,7 +486,7 @@ export default class OpencgaVariantFamilyAnalysis extends LitElement {
             `}
         </div>
         `;
-    }
+    }*/
 
 }
 

@@ -1,4 +1,4 @@
-/*<link rel="import" href="variant-clinical-upload-new.html">
+/* <link rel="import" href="variant-clinical-upload-new.html">
 <link rel="import" href="variant-clinical-samples.html">
 <link rel="import" href="../../variant/opencga-variant-interpretation.html">
 <link rel="import" href="../report/variant-clinical-report.html">
@@ -13,120 +13,120 @@ import UtilsNew from "../../../utilsNew.js";
 
 class OpencgaVariantClinical extends LitElement {
 
-            constructor() {
-                super();
+    constructor() {
+        super();
 
-                // Set status and init private properties
-                this._init();
-            }
+        // Set status and init private properties
+        this._init();
+    }
 
-            static get properties() {
-                return {
-                    opencgaSession: {
-                        type: Object
-                    },
-                    toolTitle: {
-                        type: String
-                    },
-                    samples: {
-                        type: Array,
-                        notify: true
-                    },
-                    opencgaClient: {
-                        type: Object
-                    },
-                    cellbaseClient: {
-                        type: Object
-                    },
-                    populationFrequencies: {
-                        type: Object
-                    },
-                    consequenceTypes: {
-                        type: Object
-                    },
-                    config: {
-                        type: Object
-                    },
-                    proteinSubstitutionScores: {
-                        type: Object
-                    },
-                    query: {
-                        type: Object
-                    },
-                    search: {
-                        type: Object
-                    },
-                    analysisSelected: {
-                        type: Object,
-                    },
-                    clinicalAnalysis: {
-                        type: Object,
-                    },
-                    showMessageModal: {
-                        type: Boolean,
-                        notify: true
-                    },
-                    settingsMessageModal: {
-                        type: Object,
-                        notify: true
-                    },
-                    checkPermissions: {
-                        type: Boolean,
-                        computed: '_checkPermissions(opencgaSession.project)'
-                    },
-                    eventNotifyName: {
-                        type: String,
-                        value: "messageevent"
-                    },
-                    panelExamples: {
-                        type: Array
-                    }
-                }
+    /*static get properties() {
+        return {
+            opencgaSession: {
+                type: Object
+            },
+            toolTitle: {
+                type: String
+            },
+            samples: {
+                type: Array,
+                notify: true
+            },
+            opencgaClient: {
+                type: Object
+            },
+            cellbaseClient: {
+                type: Object
+            },
+            populationFrequencies: {
+                type: Object
+            },
+            consequenceTypes: {
+                type: Object
+            },
+            config: {
+                type: Object
+            },
+            proteinSubstitutionScores: {
+                type: Object
+            },
+            query: {
+                type: Object
+            },
+            search: {
+                type: Object
+            },
+            analysisSelected: {
+                type: Object
+            },
+            clinicalAnalysis: {
+                type: Object
+            },
+            showMessageModal: {
+                type: Boolean,
+                notify: true
+            },
+            settingsMessageModal: {
+                type: Object,
+                notify: true
+            },
+            checkPermissions: {
+                type: Boolean,
+                computed: "_checkPermissions(opencgaSession.project)"
+            },
+            eventNotifyName: {
+                type: String,
+                value: "messageevent"
+            },
+            panelExamples: {
+                type: Array
             }
+        };
+    }
 
     createRenderRoot() {
         return this;
     }
 
-            _init() {
-                this.prefix = "clinical-analysis-view-" + UtilsNew.randomString(6) + "_";
+    _init() {
+        this.prefix = "clinical-analysis-view-" + UtilsNew.randomString(6) + "_";
 
-                this.toolTitle = "Clinical Analysis";
-                this.mode = "clinical";
-                this.activePrioritization = false;
-                this.activeReport = false;
-                this.checkExistsRecentInterpretations = false;
-                this.checkExistsRecentAnalysis = false;
-                this.activesTab = {
-                    uploadTab: true,
-                    analysisTab: false,
-                    prioritizationTab: false,
-                    reportTab: false
-                };
+        this.toolTitle = "Clinical Analysis";
+        this.mode = "clinical";
+        this.activePrioritization = false;
+        this.activeReport = false;
+        this.checkExistsRecentInterpretations = false;
+        this.checkExistsRecentAnalysis = false;
+        this.activesTab = {
+            uploadTab: true,
+            analysisTab: false,
+            prioritizationTab: false,
+            reportTab: false
+        };
 
-                this.interactive = false;
-                this.clinicalAnalysisQuery = {sort: "id", limit: 5};
-                this.clinicalAnalysisGridConfig = {pagination: false, pageSize: 2, pageList: [1, 2]};
-                this.showLastRecent = true;
-                this.showLastRecentInterpretation = true;
-                // TODO REMOVE IT!!!!!
-                if (typeof PANELS !== "undefined") {
-                    let panelList = PANELS.slice();
-                    panelList.sort((a, b) => {
-                        if (a.title === b.title) {
-                            return 0;
-                        }
-                        return a.title < b.title ? -1 : 1;
-                    });
-                    this.set("panelList", panelList);
+        this.interactive = false;
+        this.clinicalAnalysisQuery = {sort: "id", limit: 5};
+        this.clinicalAnalysisGridConfig = {pagination: false, pageSize: 2, pageList: [1, 2]};
+        this.showLastRecent = true;
+        this.showLastRecentInterpretation = true;
+        // TODO REMOVE IT!!!!!
+        if (typeof PANELS !== "undefined") {
+            const panelList = PANELS.slice();
+            panelList.sort((a, b) => {
+                if (a.title === b.title) {
+                    return 0;
                 }
-                window.icons = {
-                    refresh: 'fa-refresh',
-                    columns: 'fa-th',
-                    paginationSwitchDown: 'fa-caret-square-o-down',
-                    paginationSwitchUp: 'fa-caret-square-o-up'
-                };
-            }
+                return a.title < b.title ? -1 : 1;
+            });
+            this.set("panelList", panelList);
+        }
+        window.icons = {
+            refresh: "fa-refresh",
+            columns: "fa-th",
+            paginationSwitchDown: "fa-caret-square-o-down",
+            paginationSwitchUp: "fa-caret-square-o-up"
+        };
+    }
 
     updated(changedProperties) {
         if (changedProperties.has("getRecentInterpretations")) {
@@ -139,271 +139,271 @@ class OpencgaVariantClinical extends LitElement {
             this.fetchVariants();
         }
     }
-            connectedCallback() {
-                super.connectedCallback();
+    connectedCallback() {
+        super.connectedCallback();
 
-                // Initialise the default mode
-                for (let alg of this.config.interpretation.algorithms) {
-                    if (alg.id === "interactive" && alg.checked) {
-                        this.interactive = true;
-                    }
+        // Initialise the default mode
+        for (const alg of this.config.interpretation.algorithms) {
+            if (alg.id === "interactive" && alg.checked) {
+                this.interactive = true;
+            }
+        }
+
+        $("select.selectpicker").selectpicker("render");
+        this.config.interpretation = JSON.parse(JSON.stringify(this.config.interpretation));
+        this.config.interpretation.filter.menu.sections = this.config.interpretation.filter.menu.sections.map(section => {
+            section.subsections = section.subsections.map(subsection => {
+                if (subsection.id === "sample") {
+                    subsection.showSelectSamples = false;
                 }
+                return subsection;
+            });
+            return section;
+        });
+        // if (UtilsNew.isNotUndefinedOrNull(this.panelList)) {
+        //     let options = "";
+        //     this.panelList.sort((a, b) => {
+        //         if (a.title === b.title) {
+        //             return 0;
+        //         }
+        //         return a.title < b.title ? -1 : 1;
+        //     }).forEach((item) => {
+        //         options += `<option value="${item.name}">${item.title} (${item.genes.length})</option>`;
+        //     });
+        //
+        //     let html = `
+        //          <select id="${prefix}PanelApps" class="selectpicker show-tick ${prefix}FilterSelect" data-size="10" data-live-search="true"
+        //                 data-max-options="1" data-selected-text-format="count" multiple>
+        //             ${options}
+        //         </select>
+        //         <div style="padding-top: 5px">
+        //             <textarea id="${prefix}PanelAppsTextarea" name="panelAppsTextarea"
+        //                       class="form-control clearable ${prefix}FilterTextInput"
+        //                       rows="3" placeholder="No panel selected"></textarea>
+        //         </div>
+        //     `;
+        //
+        //     // PolymerUtils.getElementById(this.)
+        // }
+    }
 
-                $('select.selectpicker').selectpicker('render');
-                this.config.interpretation = JSON.parse(JSON.stringify(this.config.interpretation));
-                this.config.interpretation.filter.menu.sections = this.config.interpretation.filter.menu.sections.map((section) => {
-                    section.subsections = section.subsections.map((subsection) => {
-                        if (subsection.id === "sample") {
-                            subsection.showSelectSamples = false;
-                        }
-                        return subsection
-                    })
-                    return section;
-                });
-                // if (UtilsNew.isNotUndefinedOrNull(this.panelList)) {
-                //     let options = "";
-                //     this.panelList.sort((a, b) => {
-                //         if (a.title === b.title) {
-                //             return 0;
-                //         }
-                //         return a.title < b.title ? -1 : 1;
-                //     }).forEach((item) => {
-                //         options += `<option value="${item.name}">${item.title} (${item.genes.length})</option>`;
-                //     });
-                //
-                //     let html = `
-                //          <select id="${prefix}PanelApps" class="selectpicker show-tick ${prefix}FilterSelect" data-size="10" data-live-search="true"
-                //                 data-max-options="1" data-selected-text-format="count" multiple>
-                //             ${options}
-                //         </select>
-                //         <div style="padding-top: 5px">
-                //             <textarea id="${prefix}PanelAppsTextarea" name="panelAppsTextarea"
-                //                       class="form-control clearable ${prefix}FilterTextInput"
-                //                       rows="3" placeholder="No panel selected"></textarea>
-                //         </div>
-                //     `;
-                //
-                //     // PolymerUtils.getElementById(this.)
-                // }
+    changeTool(e) {
+        e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
+        for (const property in this.activesTab) {
+            this.set("activesTab." + property, false);
+        }
+
+        let id = this.prefix;
+        if (UtilsNew.isNotUndefinedOrNull(e.detail.idTab) && UtilsNew.isNotUndefinedOrNull(e.detail.idTab)) {
+            id += e.detail.idTab;
+        } else {
+            id += e.target.getAttribute("data-id");
+        }
+
+        this.changeToolById(id);
+    }
+
+    changeToolById(id) {
+        if (id === this.prefix + "SamplesButton") {
+            this.set("activesTab.analysisTab", true);
+            this.activePrioritization = false;
+            this.activeReport = false;
+        }
+
+        if (id === this.prefix + "UploadButton") {
+            this.set("activesTab.uploadTab", true);
+            this.activePrioritization = false;
+            this.activeReport = false;
+        }
+
+        if (id === this.prefix + "PrioritizationButton") {
+            this.set("activesTab.prioritizationTab", true);
+            this.activePrioritization = false;
+            this.activeReport = false;
+            // this.getRecentAnalysis();
+        }
+
+        if (id === this.prefix + "ReportButton") {
+            this.set("activesTab.reportTab", true);
+            this.activePrioritization = false;
+            this.activeReport = false;
+            this.getRecentInterpretations();
+        }
+    }
+
+    computedClassTabs(isActive) {
+        return !isActive ? "btn-success" : "btn-primary";
+    }
+
+    onClear() {
+        this.query = {studies: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias};
+        this.search = {};
+    }
+
+    showClinicalSelector(e) {
+        e.preventDefault();
+        this.analysisModal = UtilsNew.isUndefined(this.analysisModal) ? true : !this.analysisModal;
+        this.checkExistsRecentAnalysis = false;
+        $("#" + this.prefix + "AnalysisBrowser").modal("show");
+    }
+
+
+    onRecentAnalysisSelected(e) {
+        e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
+        this.clinicalAnalysis = e.detail;
+        this.clinicalAnalysisId = this.clinicalAnalysis.id;
+
+        this.checkTypeAnalysisSelected(this.clinicalAnalysis);
+    }
+
+    onAnalysisSelected(e) {
+        e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
+        this.clinicalAnalysis = this.analysisSelected;
+        this.clinicalAnalysisId = this.analysisSelected.id;
+        this.showLastRecent = false;
+        this.showLastRecentInterpretation = false;
+        this.checkTypeAnalysisSelected(this.clinicalAnalysis);
+    }
+
+    analysisSelectedObserver() {
+        this.clinicalAnalysis = null;
+        this.clinicalAnalysisId = null;
+    }
+
+    selectAnalysisMode(e) {
+        this.interactive = e.target.value === "interactive";
+        this.checkTypeAnalysisSelected(this.clinicalAnalysis);
+    }
+    onClickOkPrioritization() {
+        if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis)) {
+
+            if (!this.interactive && UtilsNew.isUndefinedOrNull(this.diseasePanelId)) {
+                const _message = "You must select a panel to continue.";
+
+                this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
+                    detail: {
+                        message: _message,
+                        type: UtilsNew.MESSAGE_INFO
+                    },
+                    bubbles: true,
+                    composed: true
+                }));
+            } else {
+                this.activePrioritization = true;
+                $("select.selectpicker").selectpicker("render");
             }
+        } else {
+            const _message = "You must select an analysis to continue.";
 
-            changeTool(e) {
-                e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
-                for (let property in this.activesTab) {
-                    this.set("activesTab." + property, false);
-                }
+            this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
+                detail: {
+                    message: _message,
+                    type: UtilsNew.MESSAGE_INFO
+                },
+                bubbles: true,
+                composed: true
+            }));
+        }
+    }
 
-                let id = this.prefix;
-                if (UtilsNew.isNotUndefinedOrNull(e.detail.idTab) && UtilsNew.isNotUndefinedOrNull(e.detail.idTab)){
-                    id += e.detail.idTab;
-                } else {
-                    id += e.target.getAttribute("data-id");
-                }
-
-                this.changeToolById(id);
+    getRecentInterpretations() {
+        if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis)) {
+            this.recentInterpretations = this.clinicalAnalysis.interpretations;
+            this.interpretationId = null;
+            if (UtilsNew.isNotUndefinedOrNull(this.recentInterpretations) && UtilsNew.isNotEmptyArray(this.recentInterpretations)) {
+                this.interpretationId = this.clinicalAnalysis.interpretations[0].id;
             }
+            this.checkExistsRecentInterpretations = !UtilsNew.isEmptyArray(this.recentInterpretations);
+        }
+    }
 
-            changeToolById(id) {
-                if (id === this.prefix + "SamplesButton") {
-                    this.set("activesTab.analysisTab", true);
-                    this.activePrioritization = false;
-                    this.activeReport = false;
-                }
 
-                if (id === this.prefix + "UploadButton") {
-                    this.set("activesTab.uploadTab", true);
-                    this.activePrioritization = false;
-                    this.activeReport = false;
-                }
+    selectInterpretationRecent(e) {
+        if (UtilsNew.isNotUndefinedOrNull(this.recentAnalysis) && UtilsNew.isNotUndefinedOrNull(e.target.value)) {
+            this.interpretationId = e.target.value;
+        }
+    }
 
-                if (id === this.prefix + "PrioritizationButton") {
-                    this.set("activesTab.prioritizationTab", true);
-                    this.activePrioritization = false;
-                    this.activeReport = false;
-                    // this.getRecentAnalysis();
-                }
+    isCheckedDefaultAnalysis(clinicalAnalysisId) {
+        if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysisId) && this.clinicalAnalysisId === clinicalAnalysisId) {
+            return true;
+        }
+        return false;
+    }
 
-                if (id === this.prefix + "ReportButton") {
-                    this.set("activesTab.reportTab", true);
-                    this.activePrioritization = false;
-                    this.activeReport = false;
-                    this.getRecentInterpretations();
-                }
+    isCheckedDefaultInterpretation(currentIndex, interpretationId) {
+        if (currentIndex === 0) {
+            this.interpretationId = interpretationId;
+            return true;
+        } else if (UtilsNew.isNotUndefinedOrNull(this.interpretationId) && this.interpretationId === interpretationId) {
+            return true;
+        }
+
+        return false;
+    }
+
+    onCreateReport(e, data) {
+        this.interpretationReport = data.interpretation;
+        this.activeReport = true;
+    }
+
+    _checkPermissions(project) {
+        return UtilsNew.checkPermissions(project);
+    }
+
+    _formatDate(date) {
+        return moment(date, "YYYYMMDDHHmmss").format("D MMM YY");
+    }
+
+    isAutomaticMode(mode) {
+        return mode === "automatic";
+    }
+    updateSelectPicker() {
+        $("select.selectpicker").selectpicker("render");
+    }
+
+    clearSelectedAnalysis() {
+        this.showLastRecent = true;
+        this.showLastRecentInterpretation = true;
+        this.analysisSelectedObserver();
+    }
+
+    onDiseasePanelChange(e) {
+        this.diseasePanelId = e.target.value;
+    }
+
+    checkTypeAnalysisSelected(analysis) {
+        // Disabled by default Diseases Panel
+        PolymerUtils.setPropertyById(this.prefix + "DiseasePanels", "disabled", true);
+
+        // If analysis type selected is not single we disabled automatic mode completely and we checked interactive mode by default
+        if (analysis.type.toLowerCase() !== "single") {
+            PolymerUtils.setPropertyById(this.prefix + "automaticMode", "disabled", true);
+            PolymerUtils.setPropertyById(this.prefix + "automaticMode", "checked", false);
+            PolymerUtils.setPropertyById(this.prefix + "interactiveMode", "checked", true);
+            // This remove the selected panel
+            $(PolymerUtils.getElementById(this.prefix + "DiseasePanels")).val("default");
+            this.diseasePanelId = undefined;
+            this.interactive = true;
+        } else {
+            PolymerUtils.setPropertyById(this.prefix + "automaticMode", "disabled", false);
+            if (!this.interactive) {
+                PolymerUtils.setPropertyById(this.prefix + "DiseasePanels", "disabled", false);
+            } else {
+                $(PolymerUtils.getElementById(this.prefix + "DiseasePanels")).val("default");
+                this.diseasePanelId = undefined;
+                this.interactive = true;
             }
+        }
+        // Refresh Boostrap Select component
+        $(PolymerUtils.getElementById(this.prefix + "DiseasePanels")).selectpicker("refresh");
+    }
 
-            computedClassTabs(isActive) {
-                return !isActive ? "btn-success" : "btn-primary";
-            }
-
-            onClear() {
-                this.query = {studies: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias};
-                this.search = {};
-            }
-
-            showClinicalSelector(e) {
-                e.preventDefault();
-                this.analysisModal = UtilsNew.isUndefined(this.analysisModal) ? true : !this.analysisModal;
-                this.checkExistsRecentAnalysis = false;
-                $("#" + this.prefix + "AnalysisBrowser").modal('show');
-            }
-
-
-            onRecentAnalysisSelected(e) {
-                e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
-                this.clinicalAnalysis = e.detail;
-                this.clinicalAnalysisId = this.clinicalAnalysis.id;
-
-                this.checkTypeAnalysisSelected(this.clinicalAnalysis);
-            }
-
-            onAnalysisSelected(e) {
-                e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
-                this.clinicalAnalysis = this.analysisSelected;
-                this.clinicalAnalysisId = this.analysisSelected.id;
-                this.showLastRecent = false;
-                this.showLastRecentInterpretation = false;
-                this.checkTypeAnalysisSelected(this.clinicalAnalysis);
-            }
-
-            analysisSelectedObserver() {
-                this.clinicalAnalysis = null;
-                this.clinicalAnalysisId = null;
-            }
-
-            selectAnalysisMode(e) {
-                this.interactive = e.target.value === "interactive";
-                this.checkTypeAnalysisSelected(this.clinicalAnalysis);
-            }
-            onClickOkPrioritization() {
-                if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis)) {
-
-                    if (!this.interactive && UtilsNew.isUndefinedOrNull(this.diseasePanelId)) {
-                        let _message = "You must select a panel to continue.";
-
-                        this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
-                            detail: {
-                                message: _message,
-                                type: UtilsNew.MESSAGE_INFO
-                            },
-                            bubbles: true,
-                            composed: true
-                        }));
-                    } else {
-                        this.activePrioritization = true;
-                        $('select.selectpicker').selectpicker('render');
-                    }
-                } else {
-                    let _message = "You must select an analysis to continue.";
-
-                    this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
-                        detail: {
-                            message: _message,
-                            type: UtilsNew.MESSAGE_INFO
-                        },
-                        bubbles: true,
-                        composed: true
-                    }));
-                }
-            }
-
-            getRecentInterpretations() {
-                if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis)) {
-                    this.recentInterpretations = this.clinicalAnalysis.interpretations;
-                    this.interpretationId = null;
-                    if (UtilsNew.isNotUndefinedOrNull(this.recentInterpretations) && UtilsNew.isNotEmptyArray(this.recentInterpretations)){
-                        this.interpretationId = this.clinicalAnalysis.interpretations[0].id;
-                    }
-                    this.checkExistsRecentInterpretations = !UtilsNew.isEmptyArray(this.recentInterpretations);
-                }
-            }
-
-
-            selectInterpretationRecent(e) {
-                if (UtilsNew.isNotUndefinedOrNull(this.recentAnalysis) && UtilsNew.isNotUndefinedOrNull(e.target.value)) {
-                    this.interpretationId = e.target.value;
-                }
-            }
-
-            isCheckedDefaultAnalysis(clinicalAnalysisId) {
-                if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysisId) && this.clinicalAnalysisId === clinicalAnalysisId) {
-                    return true;
-                }
-                return false
-            }
-
-            isCheckedDefaultInterpretation(currentIndex, interpretationId) {
-                if (currentIndex === 0) {
-                    this.interpretationId = interpretationId;
-                    return true;
-                } else if (UtilsNew.isNotUndefinedOrNull(this.interpretationId) && this.interpretationId === interpretationId) {
-                    return true;
-                }
-
-                return false
-            }
-
-            onCreateReport(e, data) {
-                this.interpretationReport = data.interpretation;
-                this.activeReport = true;
-            }
-
-            _checkPermissions(project) {
-                return UtilsNew.checkPermissions(project);
-            }
-
-            _formatDate(date) {
-                return moment(date, "YYYYMMDDHHmmss").format('D MMM YY');
-            }
-
-            isAutomaticMode(mode) {
-                return mode === "automatic";
-            }
-            updateSelectPicker(){
-                $('select.selectpicker').selectpicker('render');
-            }
-
-            clearSelectedAnalysis(){
-                this.showLastRecent = true;
-                this.showLastRecentInterpretation = true;
-                this.analysisSelectedObserver();
-            }
-
-            onDiseasePanelChange(e) {
-                this.diseasePanelId = e.target.value;
-            }
-
-            checkTypeAnalysisSelected(analysis) {
-                // Disabled by default Diseases Panel
-                PolymerUtils.setPropertyById(this.prefix + "DiseasePanels", "disabled", true);
-
-                // If analysis type selected is not single we disabled automatic mode completely and we checked interactive mode by default
-                if (analysis.type.toLowerCase() !== "single") {
-                    PolymerUtils.setPropertyById(this.prefix + "automaticMode", "disabled", true);
-                    PolymerUtils.setPropertyById(this.prefix + "automaticMode", "checked", false);
-                    PolymerUtils.setPropertyById(this.prefix + "interactiveMode", "checked", true);
-                    // This remove the selected panel
-                    $(PolymerUtils.getElementById(this.prefix + "DiseasePanels")).val("default");
-                    this.diseasePanelId = undefined;
-                    this.interactive = true;
-                } else {
-                    PolymerUtils.setPropertyById(this.prefix + "automaticMode", "disabled", false);
-                    if (!this.interactive) {
-                        PolymerUtils.setPropertyById(this.prefix + "DiseasePanels", "disabled", false);
-                    } else {
-                        $(PolymerUtils.getElementById(this.prefix + "DiseasePanels")).val("default");
-                        this.diseasePanelId = undefined;
-                        this.interactive = true;
-                    }
-                }
-                // Refresh Boostrap Select component
-                $(PolymerUtils.getElementById(this.prefix + "DiseasePanels")).selectpicker("refresh");
-            }
-
-            render() {
-                return html`
+    render() {
+        return html`
                 <template>
         <style>
-            /* From http://code-chunk.com/chunks/543df4c394758/bootstrap-arrow-shaped-buttons */
+            /!* From http://code-chunk.com/chunks/543df4c394758/bootstrap-arrow-shaped-buttons *!/
             .analysis-button.btn-arrow-right,
             .analysis-button.btn-arrow-left {
                 position: relative;
@@ -422,24 +422,24 @@ class OpencgaVariantClinical extends LitElement {
             .btn-arrow-right:before,
             .btn-arrow-right:after,
             .btn-arrow-left:before,
-            .btn-arrow-left:after { /* make two squares (before and after), looking similar to the button */
+            .btn-arrow-left:after { /!* make two squares (before and after), looking similar to the button *!/
                 content: "";
                 position: absolute;
-                top: 5px; /* move it down because of rounded corners */
-                width: 22px; /* same as height */
-                height: 22px; /* button_outer_height / sqrt(2) */
-                background: inherit; /* use parent background */
-                border: inherit; /* use parent border */
-                border-left-color: transparent; /* hide left border */
-                border-bottom-color: transparent; /* hide bottom border */
-                border-radius: 0px 4px 0px 0px; /* round arrow corner, the shorthand property doesn't accept "inherit" so it is set to 4px */
+                top: 5px; /!* move it down because of rounded corners *!/
+                width: 22px; /!* same as height *!/
+                height: 22px; /!* button_outer_height / sqrt(2) *!/
+                background: inherit; /!* use parent background *!/
+                border: inherit; /!* use parent border *!/
+                border-left-color: transparent; /!* hide left border *!/
+                border-bottom-color: transparent; /!* hide bottom border *!/
+                border-radius: 0px 4px 0px 0px; /!* round arrow corner, the shorthand property doesn't accept "inherit" so it is set to 4px *!/
                 -webkit-border-radius: 0px 4px 0px 0px;
                 -moz-border-radius: 0px 4px 0px 0px;
             }
 
             .btn-arrow-right:before,
             .btn-arrow-right:after {
-                transform: rotate(45deg); /* rotate right arrow squares 45 deg to point right */
+                transform: rotate(45deg); /!* rotate right arrow squares 45 deg to point right *!/
                 -webkit-transform: rotate(45deg);
                 -moz-transform: rotate(45deg);
                 -o-transform: rotate(45deg);
@@ -448,7 +448,7 @@ class OpencgaVariantClinical extends LitElement {
 
             .btn-arrow-left:before,
             .btn-arrow-left:after {
-                transform: rotate(225deg); /* rotate left arrow squares 225 deg to point left */
+                transform: rotate(225deg); /!* rotate left arrow squares 225 deg to point left *!/
                 -webkit-transform: rotate(225deg);
                 -moz-transform: rotate(225deg);
                 -o-transform: rotate(225deg);
@@ -456,22 +456,22 @@ class OpencgaVariantClinical extends LitElement {
             }
 
             .btn-arrow-right:before,
-            .btn-arrow-left:before { /* align the "before" square to the left */
+            .btn-arrow-left:before { /!* align the "before" square to the left *!/
                 left: -11px;
             }
 
             .btn-arrow-right:after,
-            .btn-arrow-left:after { /* align the "after" square to the right */
+            .btn-arrow-left:after { /!* align the "after" square to the right *!/
                 right: -11px;
             }
 
             .btn-arrow-right:after,
-            .btn-arrow-left:before { /* bring arrow pointers to front */
+            .btn-arrow-left:before { /!* bring arrow pointers to front *!/
                 z-index: 1;
             }
 
             .btn-arrow-right:before,
-            .btn-arrow-left:after { /* hide arrow tails background */
+            .btn-arrow-left:after { /!* hide arrow tails background *!/
                 background-color: white;
             }
             .btn:focus,
@@ -759,8 +759,9 @@ class OpencgaVariantClinical extends LitElement {
     </div>
     </template>
     </template>
-`
-            }
-        }
+`;
+    }*/
+
+}
 
 customElements.define("opencga-variant-clinical", OpencgaVariantClinical);

@@ -37,7 +37,7 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
         return this;
     }
 
-    static get properties() {
+    /*static get properties() {
         return {
             opencgaSession: {
                 type: Object
@@ -72,9 +72,9 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
 //             showTitle: true,
 //             showAggregationStats: false,
 //             showComparator: false,
-// /*            filter: {
+// /!*            filter: {
 //
-//             },*/
+//             },*!/
 //             grid: {
 //                 pageSize: 5,
 //                 pageList: [5, 10],
@@ -90,9 +90,9 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
             showTitle: true,
             showAggregationStats: false,
             showComparator: false,
-/*            filter: {
+/!*            filter: {
 
-            },*/
+            },*!/
             grid: {
                 pageSize: 5,
                 pageList: [5, 10],
@@ -552,9 +552,9 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
             });
     }
 
-    /*
+    /!*
      * TABLE AND FORMATTERS
-     */
+     *!/
 
     renderTable() {
         const columns = this._initTableColumns();
@@ -581,11 +581,11 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
             onPostBody: function(data) {
                 $(".selectpicker", this).selectpicker("refresh");
 
-                /**
+                /!**
                  *  returning a lit-html element in a formatter cause the print of [object Object].
                  *  the following listeners are necessary as temp solution.
                  *  TODO find a better way to make bootstrap-table formatters and lit-html works together.
-                 */
+                 *!/
 
                 const removeIndividualButtons = PolymerUtils.querySelectorAll(".removeIndividualButton");
                 for (let i = 0; i < removeIndividualButtons.length; i++) {
@@ -766,7 +766,7 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
     }
 
     //not used, not converted in litElement
-/*    flagsFormatter(value, row) {
+/!*    flagsFormatter(value, row) {
         const html = `<select class="selectpicker" data-id=${row.id}  data-width="100%" on-change="updateQuery"
                                     on-dom-change="renderDomRepeat" multiple data-selected-text-format="count > 1">
                                 <template is="dom-repeat" items="${this._config.flags}">
@@ -774,7 +774,7 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
                                 </template>
                             </select>`;
         return html;
-    }*/
+    }*!/
 
     removeButtonFormatter(value, row) {
         return `<button data-id=${row.id} class='btn btn-sm btn-danger removeIndividualButton' @click="${this.removeIndividualButtonClicked}">
@@ -892,28 +892,28 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
 
         <div class="page-title">
             <h2>
-               ${this._config.showTitle 
+               ${this._config.showTitle
                     ? html`<i class="${this._config.icon}" aria-hidden="true"></i>&nbsp;${this._config.title}`
                     : null
                 }
             </h2>
         </div>
-            
+
         <div class="container-fluid">
                 <div class="row">
                     <div class="col-md-12">
-        
+
                         <!--<div>-->
                             <!--<h2 style="margin-top: 10px"></i> {{_config.title}}</h2>-->
                         <!--</div>-->
-        
+
                         <div style="padding: 10px 10px;">
                             <div>
                                 <h4 class="form-section-title">Case Information</h4>
                             </div>
-        
+
                             <div class="form-horizontal" style="padding: 5px 10px">
-        
+
                                 <div class="form-group" style="padding-top: 10px">
                                     <label class="control-label col-md-1 jso-label-title">Analysis ID</label>
                                     <div class="col-md-3">
@@ -933,7 +933,7 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
                                         `}
                                     </div>
                                 </div>
-        
+
                                 <div class="form-group">
                                     <label class="control-label col-md-1 jso-label-title">Analysis Type</label>
                                     <div class="col-md-3">
@@ -947,7 +947,7 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
                                         </select>
                                     </div>
                                 </div>
-        
+
                                 <div class="form-group">
                                     <label class="control-label col-md-1 jso-label-title">Interpretation Flags</label>
                                     <div class="col-md-3">
@@ -959,7 +959,7 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
                                         </select>
                                     </div>
                                 </div>
-        
+
                                 <div class="form-group">
                                     <label class="control-label col-md-1 jso-label-title">Priority</label>
                                     <div class="col-md-3">
@@ -972,7 +972,7 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
                                         </select>
                                     </div>
                                 </div>
-        
+
                                 <div class="form-group">
                                     <label class="control-label col-md-1 jso-label-title">Assigned To</label>
                                     <div class="col-md-3">
@@ -984,7 +984,7 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
                                         </select>
                                     </div>
                                 </div>
-        
+
                                 <div class="form-group">
                                     <label class="control-label col-md-1 jso-label-title">Due Date</label>
                                     <div class="date col-md-3">
@@ -996,7 +996,7 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
                                         </div>
                                     </div>
                                 </div>
-        
+
                                 <div class="form-group">
                                     <label class="control-label col-md-1 jso-label-title">Description</label>
                                     <div class="col-md-3">
@@ -1005,12 +1005,12 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
                                     </div>
                                 </div>
                             </div>
-        
-        
+
+
                             <div>
                                 <h4 class="form-section-title">Proband and Disease</h4>
                             </div>
-        
+
                             <div class="form-horizontal" style="padding: 10px 10px">
                                 ${this.isFamilyAnalysis(this._clinicalAnalysis.type) ? html`
                                     <div class="form-group" style="padding-top: 10px">
@@ -1037,7 +1037,7 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
                                         </div>
                                     </div>
                                 `}
-                                
+
                                 <div class="form-group">
                                     <label class="control-label col-md-1 jso-label-title">Disorder</label>
                                     <div class="col-md-3">
@@ -1050,7 +1050,7 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
                                         </select>
                                     </div>
                                 </div>
-        
+
                                 <div class="form-group">
                                     <label class="control-label col-md-1 jso-label-title">Sample Configuration:</label>
                                     <div id="${this._prefix}GridTableDiv" class="col-md-11 col-md-offset-1" style="padding: 10px 20px">
@@ -1059,11 +1059,11 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
                                     </div>
                                 </div>
                             </div>
-        
-        
+
+
                         </div>
                     </div>
-        
+
                     <div class="col-md-2 col-md-offset-2">
                         <!--<div class="form-group">-->
                         <!--<div class="col-md-2" style="float: right">-->
@@ -1073,7 +1073,7 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
                         <!--</div>-->
                     </div>
                 </div>
-        
+
                 <!-- Modal: Individual browser -->
                 <div class="modal fade" id="${this._prefix}IndividualBrowser" tabindex="-1" role="dialog" aria-labelledby="individualBrowserLabel">
                     <div class="modal-dialog modal-lg" role="document" style="width: 90%;">
@@ -1096,7 +1096,7 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
                         </div>
                     </div>
                 </div>
-        
+
                 <!-- Modal: Family browser -->
                 <div class="modal fade" id="${this._prefix}FamilyBrowser" tabindex="-1" role="dialog" aria-labelledby="familyBrowserLabel">
                     <div class="modal-dialog modal-lg" role="document" style="width: 90%;">
@@ -1120,7 +1120,7 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
                 </div>
         </div>
         `;
-    }
+    }*/
 
 }
 
