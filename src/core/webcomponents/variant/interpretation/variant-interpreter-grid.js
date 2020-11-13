@@ -762,7 +762,7 @@ export default class VariantInterpreterGrid extends LitElement {
                 cohorts.push(s);
                 cohortMap.set(s, study.stats.length ? Number(study.stats[0].altAlleleFreq).toFixed(4) : "-");
             }
-            return this.variantGridFormatter.createPopulationFrequenciesTable(cohorts, cohortMap, populationFrequencies?.style);
+            return VariantGridFormatter.createPopulationFrequenciesTable(cohorts, cohortMap, populationFrequencies?.style);
         } else {
             return "-";
         }
@@ -776,7 +776,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     popFreqMap.set(popFreq.study + ":" + popFreq.population, Number(popFreq.altAlleleFreq).toFixed(4));
                 }
             }
-            return this.variantGridFormatter.createPopulationFrequenciesTable(this._config.populationFrequencies, popFreqMap, populationFrequencies.style);
+            return VariantGridFormatter.createPopulationFrequenciesTable(this._config.populationFrequencies, popFreqMap, populationFrequencies.style);
         } else {
             return "-";
         }

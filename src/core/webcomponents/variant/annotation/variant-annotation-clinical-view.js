@@ -67,7 +67,6 @@ export default class VariantAnnotationClinicalView extends LitElement {
         }
 
         if (changedProperties.has("geneTraitAssociation")) {
-            console.log("geneTraitAssociation obs")
             this.renderGeneTraitTable();
         }
     }

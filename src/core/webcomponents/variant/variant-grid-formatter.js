@@ -414,7 +414,7 @@ export default class VariantGridFormatter {
         return "-";
     }
 
-    _consequenceTypeDetailFormatterFilter(cts, query, filter) {
+    static _consequenceTypeDetailFormatterFilter(cts, query, filter) {
         const showArrayIndexes = [];
         for (let i = 0; i < cts.length; i++) {
             const ct = cts[i];

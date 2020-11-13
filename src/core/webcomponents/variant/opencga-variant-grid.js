@@ -492,8 +492,7 @@ export default class OpencgaVariantGrid extends LitElement {
                     popFreqMap.set(popFreq.population, Number(popFreq.altAlleleFreq).toFixed(4));
                 }
             }
-            return VariantGridFormatter.createPopulationFrequenciesTable(this.meta.populations,
-                popFreqMap, this.meta.context.populationFrequencies.style);
+            return VariantGridFormatter.createPopulationFrequenciesTable(this.meta.populations, popFreqMap, this.meta.context.populationFrequencies.style);
         } else {
             return "-";
         }
