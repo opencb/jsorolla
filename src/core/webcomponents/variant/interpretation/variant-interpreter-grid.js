@@ -107,9 +107,8 @@ export default class VariantInterpreterGrid extends LitElement {
         this.variantGridFormatter = new VariantGridFormatter(this.opencgaSession, this._config);
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
 
-        // FIXME Re-think this code
-        const colors = this.variantGridFormatter.assignColors(consequenceTypes, proteinSubstitutionScore);
-        Object.assign(this, colors);
+        const colors = VariantGridFormatter.assignColors(consequenceTypes, proteinSubstitutionScore);
+        //Object.assign(this, colors);
         this.consequenceTypeColors = colors;
     }
 
@@ -238,6 +237,8 @@ export default class VariantInterpreterGrid extends LitElement {
                 onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse),
                 onExpandRow: (index, row, $detail) => {
                     // Listen to Show/Hide link in the detail formatter consequence type table
+
+                    // TODO remove this
                     document.getElementById(this._prefix + row.id + "ShowEvidence").addEventListener("click", this.variantGridFormatter.toggleDetailClinicalEvidence.bind(this));
                     document.getElementById(this._prefix + row.id + "HideEvidence").addEventListener("click", this.variantGridFormatter.toggleDetailClinicalEvidence.bind(this));
 
@@ -373,18 +374,18 @@ export default class VariantInterpreterGrid extends LitElement {
             if (this.variantGrid.clinicalAnalysis.type.toUpperCase() !== "CANCER") {
                 detailHtml = "<div style='padding: 10px 0px 5px 25px'><h4>Variant Allele Frequency</h4></div>";
                 detailHtml += "<div style='padding: 5px 50px'>";
-                detailHtml += this.variantGrid.variantGridFormatter.variantAlleleFrequencyDetailFormatter(value, row, this.variantGrid);
+                detailHtml += VariantGridFormatter.variantAlleleFrequencyDetailFormatter(value, row, this.variantGrid);
                 detailHtml += "</div>";
             }
 
             detailHtml += "<div style='padding: 10px 0px 5px 25px'><h4>Clinical Mutation Evidence</h4></div>";
             detailHtml += "<div style='padding: 5px 50px'>";
-            detailHtml += this.variantGrid.variantGridFormatter.reportedEventDetailFormatter(value, row, this.variantGrid, this.variantGrid.query, this.variantGrid._config);
+            detailHtml += VariantGridFormatter.reportedEventDetailFormatter(value, row, this.variantGrid, this.variantGrid.query, this.variantGrid._config);
             detailHtml += "</div>";
 
             detailHtml += "<div style='padding: 25px 0px 5px 25px'><h4>Consequence Types</h4></div>";
             detailHtml += "<div style='padding: 5px 50px'>";
-            detailHtml += this.variantGrid.variantGridFormatter.consequenceTypeDetailFormatter(value, row, this.variantGrid, this.variantGrid.query, this.variantGrid._config);
+            detailHtml += VariantGridFormatter.consequenceTypeDetailFormatter(value, row, this.variantGrid, this.variantGrid.query, this.variantGrid._config);
             detailHtml += "</div>";
 
             detailHtml += "<div style='padding: 20px 0px 5px 25px'><h4>Clinical Phenotypes</h4></div>";
@@ -427,8 +428,8 @@ export default class VariantInterpreterGrid extends LitElement {
     }
 
     variantFormatter(value, row, index) {
-        const variantHtmlDiv = this.variantGridFormatter.variantFormatter(value, row, this._config);
-        const snptHtmlAnchor = this.variantGridFormatter.snpFormatter(value, row, index);
+        const variantHtmlDiv = VariantGridFormatter.variantFormatter(value, row, this._config);
+        const snptHtmlAnchor = VariantGridFormatter.snpFormatter(value, row, index, this.opencgaSession.project.organism.assembly);
         return `${variantHtmlDiv}<div style='padding-top: 10px'>${snptHtmlAnchor && snptHtmlAnchor !== "-" ? snptHtmlAnchor : ""}</div>`;
     }
 
@@ -918,7 +919,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     field: "genes",
                     rowspan: 2,
                     colspan: 1,
-                    formatter: this.variantGridFormatter.geneFormatter.bind(this),
+                    formatter: (value, row, index) => VariantGridFormatter.geneFormatter(value, row, index, this.opencgaSession),
                     halign: "center"
                 },
                 {
@@ -926,7 +927,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     field: "type",
                     rowspan: 2,
                     colspan: 1,
-                    formatter: this.variantGridFormatter.typeFormatter.bind(this),
+                    formatter: VariantGridFormatter.typeFormatter.bind(this),
                     halign: "center"
                 },
                 {
@@ -935,7 +936,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     rowspan: 2,
                     colspan: 1,
                     // formatter: this.variantGridFormatter.consequenceTypeFormatter.bind(this),
-                    formatter:(value, row, index) => this.variantGridFormatter.consequenceTypeFormatter(value, row, index, this._config.consequenceType, this.consequenceTypeColors),
+                    formatter: (value, row, index) => VariantGridFormatter.consequenceTypeFormatter(value, row, index, this._config.consequenceType, this.consequenceTypeColors),
                     halign: "center"
                 },
                 {
@@ -955,7 +956,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     visible: vcfDataColumns?.length > 1
                 },
                 {
-                    title: `Variant Allele Frequency <a class="pop-preq-info-icon" tooltip-title="Population Frequencies" tooltip-text="${this.variantGridFormatter.populationFrequenciesInfoTooltipContent(populationFrequencies)}" tooltip-position-at="left bottom" tooltip-position-my="right top"><i class="fa fa-info-circle" aria-hidden="true"></i></a>`,
+                    title: `Variant Allele Frequency <a class="pop-preq-info-icon" tooltip-title="Population Frequencies" tooltip-text="${VariantGridFormatter.populationFrequenciesInfoTooltipContent(populationFrequencies)}" tooltip-position-at="left bottom" tooltip-position-my="right top"><i class="fa fa-info-circle" aria-hidden="true"></i></a>`,
                     field: "frequencies",
                     rowspan: 1,
                     colspan: 2,
@@ -1042,7 +1043,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     field: "clinvar",
                     colspan: 1,
                     rowspan: 1,
-                    formatter: this.variantGridFormatter.clinicalPhenotypeFormatter,
+                    formatter: VariantGridFormatter.clinicalPhenotypeFormatter,
                     align: "center"
                 },
                 {
@@ -1050,7 +1051,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     field: "cosmic",
                     colspan: 1,
                     rowspan: 1,
-                    formatter: this.variantGridFormatter.clinicalPhenotypeFormatter,
+                    formatter: VariantGridFormatter.clinicalPhenotypeFormatter,
                     align: "center"
                 },
                 {
@@ -1409,7 +1410,7 @@ export default class VariantInterpreterGrid extends LitElement {
                 <table id="${this._prefix}VariantBrowserGrid"></table>
             </div>
             
-            <div class="modal fade" id="${this._prefix}ReviewSampleModal" data-backdrop="static" data-keyboard="false" tabindex="-1"
+            <div class="modal fade" id="${this._prefix}ReviewSampleModal" tabindex="-1"
                  role="dialog" aria-hidden="true" style="padding-top:0; overflow-y: visible">
                 <div class="modal-dialog" style="width: 768px">
                     <div class="modal-content">
@@ -1427,7 +1428,7 @@ export default class VariantInterpreterGrid extends LitElement {
                 </div>
             </div>
             
-            <div class="modal fade" id="${this._prefix}ConfigModal" data-backdrop="static" data-keyboard="false" tabindex="-1"
+            <div class="modal fade" id="${this._prefix}ConfigModal" tabindex="-1"
                  role="dialog" aria-hidden="true" style="padding-top:0; overflow-y: visible">
                 <div class="modal-dialog" style="width: 1024px">
                     <div class="modal-content">

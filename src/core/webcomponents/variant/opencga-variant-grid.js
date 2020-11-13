@@ -127,9 +127,9 @@ export default class OpencgaVariantGrid extends LitElement {
         this.samples = _samples;
 
         // Set colors
-        const colors = this.variantGridFormatter.assignColors(this.consequenceTypes, this.proteinSubstitutionScores);
+        const colors = VariantGridFormatter.assignColors(this.consequenceTypes, this.proteinSubstitutionScores);
         // TODO proper fix
-        Object.assign(this, colors);
+        //Object.assign(this, colors);
         this.consequenceTypeColors = colors;
 
         // Config for the grid toolbar
@@ -268,10 +268,12 @@ export default class OpencgaVariantGrid extends LitElement {
                 },
                 onExpandRow: (index, row, $detail) => {
                     // Listen to Show/Hide link in the detail formatter consequence type table
+                    // TODO Remove this
                     document.getElementById(this._prefix + row.id + "ShowCt").addEventListener("click", this.variantGridFormatter.toggleDetailConsequenceType.bind(this));
                     document.getElementById(this._prefix + row.id + "HideCt").addEventListener("click", this.variantGridFormatter.toggleDetailConsequenceType.bind(this));
                 },
                 onPostBody: (data) => {
+                    // TODO remove (review this.sampleFormatter)
                     $("span.sampleGenotype").qtip({
                         content: {
                             title: "More info",
@@ -329,13 +331,14 @@ export default class OpencgaVariantGrid extends LitElement {
         });
     }
 
+    // TODO is this being used?
     detailFormatter(index, row, a) {
         let result = "<div class='row' style='padding-bottom: 20px'>";
         let detailHtml = "";
         if (typeof row !== "undefined" && typeof row.annotation !== "undefined") {
             detailHtml = "<div style='padding: 10px 0px 10px 25px'><h4>Consequence Types</h4></div>";
             detailHtml += "<div style='padding: 5px 50px'>";
-            detailHtml += this.variantGrid.variantGridFormatter.consequenceTypeDetailFormatter(index, row, this.variantGrid, this.variantGrid.query, this.variantGrid._config);
+            detailHtml += VariantGridFormatter.consequenceTypeDetailFormatter(index, row, this.variantGrid, this.variantGrid.query, this.variantGrid._config);
             detailHtml += "</div>";
 
             detailHtml += "<div style='padding: 20px 0px 15px 25px'><h4>Clinical Phenotypes</h4></div>";
@@ -382,7 +385,7 @@ export default class OpencgaVariantGrid extends LitElement {
     }
 
     variantFormatter(value, row, index) {
-        return this.variantGridFormatter.variantFormatter(value, row, this._config);
+        return VariantGridFormatter.variantFormatter(value, row, this._config);
     }
 
     siftPproteinScoreFormatter(value, row, index) {
@@ -461,7 +464,9 @@ export default class OpencgaVariantGrid extends LitElement {
     }
 
     cohortFormatter(value, row, index) {
-        //console.error(this)
+        // TODO where does meta comes from?
+        //console.error(this.meta)
+
         if (row && row.studies?.length > 0 && row.studies[0].stats) {
             const cohortStats = new Map();
             for (const study of row.studies) {
@@ -472,8 +477,7 @@ export default class OpencgaVariantGrid extends LitElement {
                     break;
                 }
             }
-            return this.meta.context.variantGridFormatter.createCohortStatsTable(this.meta.cohorts, cohortStats,
-                this.meta.context.populationFrequencies.style);
+            return VariantGridFormatter.createCohortStatsTable(this.meta.cohorts, cohortStats, this.meta.context.populationFrequencies.style);
         } else {
             return "-";
         }
@@ -488,7 +492,7 @@ export default class OpencgaVariantGrid extends LitElement {
                     popFreqMap.set(popFreq.population, Number(popFreq.altAlleleFreq).toFixed(4));
                 }
             }
-            return this.meta.context.variantGridFormatter.createPopulationFrequenciesTable(this.meta.populations,
+            return VariantGridFormatter.createPopulationFrequenciesTable(this.meta.populations,
                 popFreqMap, this.meta.context.populationFrequencies.style);
         } else {
             return "-";
@@ -626,7 +630,7 @@ export default class OpencgaVariantGrid extends LitElement {
                     field: "dbSNP",
                     rowspan: 2,
                     colspan: 1,
-                    formatter: this.variantGridFormatter.snpFormatter.bind(this),
+                    formatter: (value, row, index) => VariantGridFormatter.snpFormatter(value, row, index, this.opencgaSession.project.organism.assembly),
                     halign: "center"
                 },
                 {
@@ -634,7 +638,7 @@ export default class OpencgaVariantGrid extends LitElement {
                     field: "gene",
                     rowspan: 2,
                     colspan: 1,
-                    formatter: this.variantGridFormatter.geneFormatter.bind(this),
+                    formatter: (value, row, index) => VariantGridFormatter.geneFormatter(value, row, index, this.opencgaSession),
                     halign: "center"
                 },
                 {
@@ -642,7 +646,7 @@ export default class OpencgaVariantGrid extends LitElement {
                     field: "type",
                     rowspan: 2,
                     colspan: 1,
-                    formatter: this.variantGridFormatter.typeFormatter.bind(this),
+                    formatter: VariantGridFormatter.typeFormatter.bind(this),
                     halign: "center"
                 },
                 {
@@ -651,7 +655,7 @@ export default class OpencgaVariantGrid extends LitElement {
                     rowspan: 2,
                     colspan: 1,
                     // formatteformatter: this.variantGridFormatter.consequenceTypeFormatter.bind(this),
-                    formatter:(value, row, index) => this.variantGridFormatter.consequenceTypeFormatter(value, row, index, this.gridConsequenceTypeSettings, this.consequenceTypeColors),
+                    formatter:(value, row, index) => VariantGridFormatter.consequenceTypeFormatter(value, row, index, this.gridConsequenceTypeSettings, this.consequenceTypeColors),
                     halign: "center"
                 },
                 {
@@ -747,7 +751,7 @@ export default class OpencgaVariantGrid extends LitElement {
                     field: "clinvar",
                     colspan: 1,
                     rowspan: 1,
-                    formatter: this.variantGridFormatter.clinicalPhenotypeFormatter,
+                    formatter: VariantGridFormatter.clinicalPhenotypeFormatter,
                     align: "center"
                 },
                 {
@@ -755,7 +759,7 @@ export default class OpencgaVariantGrid extends LitElement {
                     field: "cosmic",
                     colspan: 1,
                     rowspan: 1,
-                    formatter: this.variantGridFormatter.clinicalPhenotypeFormatter,
+                    formatter: VariantGridFormatter.clinicalPhenotypeFormatter,
                     align: "center"
                 }
             ]
@@ -790,7 +794,7 @@ export default class OpencgaVariantGrid extends LitElement {
 
             this._columns[0].splice(cohortStudyIdx, 0, {
                 // title: this.opencgaSession.project.name,
-                title: `Cohort Stats <a id="cohortStatsInfoIcon" tooltip-title="Cohort Stats" tooltip-text="${this.variantGridFormatter.cohortStatsInfoTooltipContent(this.populationFrequencies)}"><i class="fa fa-info-circle" aria-hidden="true"></i></a>`,
+                title: `Cohort Stats <a id="cohortStatsInfoIcon" tooltip-title="Cohort Stats" tooltip-text="${VariantGridFormatter.cohortStatsInfoTooltipContent(this.populationFrequencies)}"><i class="fa fa-info-circle" aria-hidden="true"></i></a>`,
                 field: "cohorts",
                 rowspan: 1,
                 colspan: cohortStudies.length,
@@ -822,7 +826,7 @@ export default class OpencgaVariantGrid extends LitElement {
 
             // Just one column called 'Population Frequencies'
             this._columns[0].splice(popIdx, 0, {
-                title: `Population Frequencies <a class="popFreqInfoIcon" tooltip-title="Population Frequencies" tooltip-text="${this.variantGridFormatter.populationFrequenciesInfoTooltipContent(this.populationFrequencies)}" tooltip-position-at="left bottom" tooltip-position-my="right top"><i class="fa fa-info-circle" aria-hidden="true"></i></a>`,
+                title: `Population Frequencies <a class="popFreqInfoIcon" tooltip-title="Population Frequencies" tooltip-text="${VariantGridFormatter.populationFrequenciesInfoTooltipContent(this.populationFrequencies)}" tooltip-position-at="left bottom" tooltip-position-my="right top"><i class="fa fa-info-circle" aria-hidden="true"></i></a>`,
                 field: "popfreq",
                 rowspan: 1,
                 colspan: this.populationFrequencies.studies.length,
