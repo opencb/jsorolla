@@ -150,7 +150,7 @@ export default class OpencgaIndividualGrid extends LitElement {
                             const individualIds = individualResponse.responses[0].results.map(individual => individual.id).join(",");
                             this.opencgaSession.opencgaClient.clinical().search(
                                 {
-                                    member: individualIds,
+                                    individual: individualIds,
                                     study: this.opencgaSession.study.fqn,
                                     exclude: "proband.samples,family,interpretation,files"
                                 })

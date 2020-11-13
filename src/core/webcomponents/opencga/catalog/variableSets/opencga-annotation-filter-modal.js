@@ -403,7 +403,10 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
                     margin: 2em auto;
                 }
                 .variable-object {
-                    padding: 0 0 0 20px;
+                    padding: 10px;
+                    margin: 5px 0;
+                    border: 1px solid #d2d2d2;
+                    border-radius: 3px;
                 } 
                 .variable-object-title {
                     font-size: 1.5em;
