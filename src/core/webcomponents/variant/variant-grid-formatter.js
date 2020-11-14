@@ -859,66 +859,66 @@ export default class VariantGridFormatter {
         });
     }*/
 
-    getRightToolbar() {
-        return [
-            {
-                // visible: "",
-                render: () => html`
-                    <button type="button" class="btn btn-default btn-sm dropdown-toggle ripple" data-toggle="dropdown"
-                            aria-haspopup="true" aria-expanded="false">
-                        <i class="fas fa-cog icon-padding"></i> Settings
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="${this._prefix}SaveMenu" style="width: 360px">
-                    <li style="margin: 5px 10px">
-                        <h4>Consequence Types</h4>
-                        <span class="help-block">You can filter which transcripts and consequence types are displayed in the variant grid</span>
-                        <div style="margin: 0px 5px">
-                            <label class="control-label">Select Transcripts</label>
-                        </div>
-                        <div style="margin: 0px 10px">
-                            <div>
-                                <input type="checkbox" class="form-control" @click="${e => this.onChangeSettings("canonicalTranscript", e)}">
-                                <span style="margin: 0px 5px">Canonical Transcript</span>
-                            </div>
-                            <div>
-                                <input type="checkbox" class="form-control" @click="${e => this.onChangeSettings("highQualityTranscript", e)}">
-                                <span style="margin: 0px 5px">High Quality Transcript</span>
-                            </div>
-                            <div>
-                                <input type="checkbox" class="form-control" @click="${e => this.onChangeSettings("proteinCodingTranscript", e)}">
-                                <span style="margin: 0px 5px">Protein Coding</span>
-                            </div>
-                        </div>
-                        
-                        <div style="margin: 5px 5px">
-                            <label>Select Consequence Types</label>
-                        </div>
-                        <div style="margin: 0px 10px">
-                            <div>
-                                <input type="checkbox" class="form-control" @click="${e => this.onChangeSettings("worstConsequenceType", e)}">
-                                <span style="margin: 0px 5px">Worst Consequence Type</span>
-                            </div>
-                            <div>
-                                <input type="checkbox" class="form-control" @click="${e => this.onChangeSettings("loftConsequenceType", e)}">
-                                <span style="margin: 0px 5px">Loss-of-Function</span>
-                            </div>
-                        </div>
-                    </li>
-                    <li role="separator" class="divider"></li>
-                    <li style="margin: 5px 10px">
-                        <div style="float: right">
-                            <button type="button" class="btn btn-primary" 
-                                @click="${e => this.onApplySettings(e)}" style="margin: 5px">Apply
-                            </button>
-                            <button type="button" class="btn btn-primary disabled" 
-                                @click="${this.onSaveInterpretation}" style="margin: 5px">Save
-                            </button>
-                        </div>
-                    </li>
-                </ul>`
-            }
-        ];
-    }
+    // getRightToolbar() {
+    //     return [
+    //         {
+    //             // visible: "",
+    //             render: () => html`
+    //                 <button type="button" class="btn btn-default btn-sm dropdown-toggle ripple" data-toggle="dropdown"
+    //                         aria-haspopup="true" aria-expanded="false">
+    //                     <i class="fas fa-cog icon-padding"></i> Settings
+    //                 </button>
+    //                 <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="${this._prefix}SaveMenu" style="width: 360px">
+    //                 <li style="margin: 5px 10px">
+    //                     <h4>Consequence Types</h4>
+    //                     <span class="help-block">You can filter which transcripts and consequence types are displayed in the variant grid</span>
+    //                     <div style="margin: 0px 5px">
+    //                         <label class="control-label">Select Transcripts</label>
+    //                     </div>
+    //                     <div style="margin: 0px 10px">
+    //                         <div>
+    //                             <input type="checkbox" class="form-control" @click="${e => this.onChangeSettings("canonicalTranscript", e)}">
+    //                             <span style="margin: 0px 5px">Canonical Transcript</span>
+    //                         </div>
+    //                         <div>
+    //                             <input type="checkbox" class="form-control" @click="${e => this.onChangeSettings("highQualityTranscript", e)}">
+    //                             <span style="margin: 0px 5px">High Quality Transcript</span>
+    //                         </div>
+    //                         <div>
+    //                             <input type="checkbox" class="form-control" @click="${e => this.onChangeSettings("proteinCodingTranscript", e)}">
+    //                             <span style="margin: 0px 5px">Protein Coding</span>
+    //                         </div>
+    //                     </div>
+    //
+    //                     <div style="margin: 5px 5px">
+    //                         <label>Select Consequence Types</label>
+    //                     </div>
+    //                     <div style="margin: 0px 10px">
+    //                         <div>
+    //                             <input type="checkbox" class="form-control" @click="${e => this.onChangeSettings("worstConsequenceType", e)}">
+    //                             <span style="margin: 0px 5px">Worst Consequence Type</span>
+    //                         </div>
+    //                         <div>
+    //                             <input type="checkbox" class="form-control" @click="${e => this.onChangeSettings("loftConsequenceType", e)}">
+    //                             <span style="margin: 0px 5px">Loss-of-Function</span>
+    //                         </div>
+    //                     </div>
+    //                 </li>
+    //                 <li role="separator" class="divider"></li>
+    //                 <li style="margin: 5px 10px">
+    //                     <div style="float: right">
+    //                         <button type="button" class="btn btn-primary"
+    //                             @click="${e => this.onApplySettings(e)}" style="margin: 5px">Apply
+    //                         </button>
+    //                         <button type="button" class="btn btn-primary disabled"
+    //                             @click="${this.onSaveInterpretation}" style="margin: 5px">Save
+    //                         </button>
+    //                     </div>
+    //                 </li>
+    //             </ul>`
+    //         }
+    //     ];
+    // }
 
 
     /*

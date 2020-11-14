@@ -1,4 +1,4 @@
-/**
+ /**
  * Copyright 2015-2019 OpenCB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -54,12 +54,6 @@ export default class VariantBrowserGrid extends LitElement {
             consequenceTypes: {
                 type: Object
             },
-            populationFrequencies: {
-                type: Object
-            },
-            proteinSubstitutionScores: {
-                type: Object
-            },
             config: {
                 type: Object
             }
@@ -73,7 +67,7 @@ export default class VariantBrowserGrid extends LitElement {
         this.checkedVariants = new Map();
 
         // Set colors
-        this.consequenceTypeColors = VariantGridFormatter.assignColors(this.consequenceTypes, this.proteinSubstitutionScores);
+        this.consequenceTypeColors = VariantGridFormatter.assignColors(consequenceTypes, proteinSubstitutionScore);
     }
 
     connectedCallback() {
@@ -389,7 +383,7 @@ export default class VariantBrowserGrid extends LitElement {
         }
 
         if (min < 10) {
-            return `<span style="color: ${this.pssColor.get(description)}" title=${min}>${description}</span>`;
+            return `<span style="color: ${this.consequenceTypeColors.pssColor.get(description)}" title=${min}>${description}</span>`;
         }
         return "-";
     }
@@ -412,7 +406,7 @@ export default class VariantBrowserGrid extends LitElement {
         }
 
         if (max > 0) {
-            return `<span style="color: ${this.pssColor.get(description)}" title=${max}>${description}</span>`;
+            return `<span style="color: ${this.consequenceTypeColors.pssColor.get(description)}" title=${max}>${description}</span>`;
         }
         return "-";
     }
