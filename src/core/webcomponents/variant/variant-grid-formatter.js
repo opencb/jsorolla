@@ -20,44 +20,34 @@ import BioinfoUtils from "../../bioinfo-utils.js";
 
 
 // TODO urgent review of the whole class
-// TODO turn this into a static class
-
 
 export default class VariantGridFormatter {
 
-    constructor(opencgaSession, config) {
-        this.opencgaSession = opencgaSession;
-        // this.config = config;
-        // this.CT = consequenceTypes; // global var
-        // this.prefix = UtilsNew.randomString(8);
-    }
-
     static assignColors(consequenceTypes, proteinSubstitutionScores) {
-
         let result = {};
-        if (typeof consequenceTypes !== "undefined") {
+        if (consequenceTypes) {
             const consequenceTypeToColor = {};
             const consequenceTypeToImpact = {};
-            for (let i = 0; i < consequenceTypes.categories.length; i++) {
-                if (typeof consequenceTypes.categories[i].terms !== "undefined") {
-                    for (let j = 0; j < consequenceTypes.categories[i].terms.length; j++) {
-                        consequenceTypeToColor[consequenceTypes.categories[i].terms[j].name] = consequenceTypes.style[consequenceTypes.categories[i].terms[j].impact];
-                        consequenceTypeToImpact[consequenceTypes.categories[i].terms[j].name] = consequenceTypes.categories[i].terms[j].impact;
+            for (let category of consequenceTypes.categories) {
+                if (category.terms) {
+                    for (let term of category.terms) {
+                        consequenceTypeToColor[term.name] = consequenceTypes.style[term.impact];
+                        consequenceTypeToImpact[term.name] = term.impact;
                     }
-                } else if (typeof consequenceTypes.categories[i].id !== "undefined" && typeof consequenceTypes.categories[i].name !== "undefined") {
-                    consequenceTypeToColor[consequenceTypes.categories[i].name] = consequenceTypes[consequenceTypes.categories[i].impact];
-                    consequenceTypeToImpact[consequenceTypes.categories[i].name] = consequenceTypes.categories[i].impact;
+                } else {
+                    if (category.id && category.name) {
+                        consequenceTypeToColor[category.name] = consequenceTypes[category.impact];
+                        consequenceTypeToImpact[category.name] = category.impact;
+                    }
                 }
             }
-            // this.consequenceTypeToColor = consequenceTypeToColor;
-            // this.consequenceTypeToImpact = consequenceTypeToImpact;
             result = {
                 consequenceTypeToColor: consequenceTypeToColor,
                 consequenceTypeToImpact: consequenceTypeToImpact
             };
         }
 
-        if (typeof proteinSubstitutionScores !== "undefined") {
+        if (proteinSubstitutionScores) {
             const pssColor = new Map();
             for (const i in proteinSubstitutionScores) {
                 const obj = proteinSubstitutionScores[i];
@@ -65,7 +55,6 @@ export default class VariantGridFormatter {
                     pssColor.set(key, obj[key]);
                 });
             }
-            // this.pssColor = pssColor;
             result.pssColor = pssColor;
         }
 
@@ -209,22 +198,11 @@ export default class VariantGridFormatter {
                 // We process Genes just one time
                 if (geneName && !visited[geneName]) {
                     let geneViewMenuLink = "";
-                    const genomeBrowserMenuLink = "";
-
-                    /* if (config && config.showGenomeBrowser) {
-                        genomeBrowserMenuLink = `<div>
-                                                    <a class="genome-browser-option" data-variant-position="${row.chromosome}:${row.start}-${row.end}" style="cursor: pointer">
-                                                        Genome Browser
-                                                    </a>
-                                                 </div>`;
-                    }*/
-
                     if (opencgaSession.project && opencgaSession.study) {
                         geneViewMenuLink = `<div style="padding: 5px"><a style="cursor: pointer" href="#gene/${opencgaSession.project.id}/${opencgaSession.study.id}/${geneName}">Gene View</a></div>`;
                     }
 
                     const tooltipText = `${geneViewMenuLink}
-                                       ${genomeBrowserMenuLink}
                                        <div class="dropdown-header" style="padding-left: 10px">External Links</div>
                                        <div style="padding: 5px">
                                             <a target="_blank" href="${BioinfoUtils.getEnsemblLink(geneName, "gene", opencgaSession.project.organism.assembly)}">Ensembl</a>
@@ -233,7 +211,8 @@ export default class VariantGridFormatter {
                                             <a target="_blank" href="${BioinfoUtils.getCosmicLink(geneName, opencgaSession.project.organism.assembly)}">COSMIC</a>
                                        </div>
                                        <div style="padding: 5px">
-                                            <a target="_blank" href="${BioinfoUtils.getUniprotLink(geneName)}">UniProt</a></div>`;
+                                            <a target="_blank" href="${BioinfoUtils.getUniprotLink(geneName)}">UniProt</a>
+                                       </div>`;
 
                     // If query.ct exists
                     if (geneToSo) {
@@ -292,7 +271,6 @@ export default class VariantGridFormatter {
                     }
                 }
             }
-
             return resultHtml;
         } else {
             return "-";
@@ -300,19 +278,27 @@ export default class VariantGridFormatter {
     }
 
     static typeFormatter(value, row, index) {
-        if (row !== undefined) {
+        if (row) {
             let type = row.type;
             let color = "";
             switch (row.type) {
-                case "SNP":
+                case "SNP":     // Deprecated
                     type = "SNV";
                     break;
                 case "INDEL":
+                case "CNV":     // Deprecated
+                case "COPY_NUMBER":
+                case "COPY_NUMBER_GAIN":
+                case "COPY_NUMBER_LOSS":
                 case "MNV":
                     color = "darkorange";
                     break;
+                case "SV":
                 case "INSERTION":
                 case "DELETION":
+                case "DUPLICATION":
+                case "TANDEM_DUPLICATION":
+                case "BREAKEND":
                     color = "red";
                     break;
                 default:
@@ -446,7 +432,7 @@ export default class VariantGridFormatter {
         return showArrayIndexes;
     }
 
-    toggleDetailConsequenceType(e) {
+    static toggleDetailConsequenceType(e) {
         const id = e.target.dataset.id;
         const elements = document.getElementsByClassName(this._prefix + id + "Filtered");
         for (const element of elements) {
@@ -458,7 +444,7 @@ export default class VariantGridFormatter {
         }
     }
 
-    static consequenceTypeDetailFormatter(value, row, variantGrid, query, filter) {
+    static consequenceTypeDetailFormatter(value, row, variantGrid, query, filter, assembly) {
         if (row?.annotation?.consequenceTypes && row.annotation.consequenceTypes.length > 0) {
             // Sort and group CTs by Gene name
             row.annotation.consequenceTypes.sort(function (a, b) {
@@ -519,8 +505,8 @@ export default class VariantGridFormatter {
 
                 // Prepare data info for columns
                 const geneName = ct.geneName ? `<a href="https://www.genenames.org/tools/search/#!/all?query=${ct.geneName}" target="_blank">${ct.geneName}</a>` : "-";
-                const geneId = ct.ensemblGeneId ? `<a href="${BioinfoUtils.getEnsemblLink(ct.ensemblGeneId, "gene", this.opencgaSession.project.organism.assembly)}" target="_blank">${ct.ensemblGeneId}</a>` : "-";
-                const transcriptId = ct.ensemblTranscriptId ? `<a href="${BioinfoUtils.getEnsemblLink(ct.ensemblTranscriptId, "transcript", this.opencgaSession.project.organism.assembly)}" target="_blank">${ct.ensemblTranscriptId}</a>` : "-";
+                const geneId = ct.ensemblGeneId ? `<a href="${BioinfoUtils.getEnsemblLink(ct.ensemblGeneId, "gene", assembly)}" target="_blank">${ct.ensemblGeneId}</a>` : "-";
+                const transcriptId = ct.ensemblTranscriptId ? `<a href="${BioinfoUtils.getEnsemblLink(ct.ensemblTranscriptId, "transcript", assembly)}" target="_blank">${ct.ensemblTranscriptId}</a>` : "-";
 
                 let transcriptAnnotationFlags = "-";
                 if (ct.ensemblTranscriptId) {
@@ -530,9 +516,8 @@ export default class VariantGridFormatter {
                 const soArray = [];
                 for (const so of ct.sequenceOntologyTerms) {
                     let color = "black";
-                    if (typeof variantGrid.consequenceTypeToColor !== "undefined" &&
-                        typeof variantGrid.consequenceTypeToColor[so.name] !== "undefined") {
-                        color = variantGrid.consequenceTypeToColor[so.name];
+                    if (variantGrid.consequenceTypeColors?.consequenceTypeToColor && variantGrid.consequenceTypeColors?.consequenceTypeToColor[so.name]) {
+                        color = variantGrid.consequenceTypeColors.consequenceTypeToColor[so.name];
                     }
                     soArray.push(`<div style="color: ${color}">
                                     ${so.name} (<a href="http://www.sequenceontology.org/browser/current_svn/term/${so.accession}" target="_blank">${so.accession}</a>)
@@ -1053,7 +1038,7 @@ export default class VariantGridFormatter {
     /*
      * Reported Variant formatters
      */
-    toggleDetailClinicalEvidence(e) {
+    static toggleDetailClinicalEvidence(e) {
         const id = e.target.dataset.id;
         const elements = document.getElementsByClassName(this._prefix + id + "EvidenceFiltered");
         for (const element of elements) {

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "/web_modules/lit-element.js";
+import {html, LitElement} from "/web_modules/lit-element.js";
 import UtilsNew from "./../../utilsNew.js";
 import VariantGridFormatter from "./variant-grid-formatter.js";
 import GridCommons from "./grid-commons.js";
@@ -72,27 +72,20 @@ export default class OpencgaVariantGrid extends LitElement {
         this.gridId = this._prefix + "VariantBrowserGrid";
         this.checkedVariants = new Map();
 
-        // this.rightToolbar = [
-        //     {
-        //         // visible: "",
-        //         render: () => html`
-        //                     <button type="button" class="btn btn-default ripple btn-sm dropdown-toggle" data-toggle="dropdown"
-        //                             aria-haspopup="true" aria-expanded="false">
-        //                         <i class="fas fa-cog icon-padding"></i> Settings
-        //                     </button>`
-        //     }
-        // ];
+        // Set colors
+        this.consequenceTypeColors = VariantGridFormatter.assignColors(this.consequenceTypes, this.proteinSubstitutionScores);
     }
 
     connectedCallback() {
         super.connectedCallback();
+
         this.downloadRefreshIcon = $("#" + this._prefix + "DownloadRefresh");
         this.downloadIcon = $("#" + this._prefix + "DownloadIcon");
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
     firstUpdated(_changedProperties) {
-        this.gridCommons = new GridCommons(this.gridId, this, this._config);
+        // this.gridCommons = new GridCommons(this.gridId, this, this._config);
         this.table = this.querySelector("#" + this.gridId);
     }
 
@@ -109,7 +102,7 @@ export default class OpencgaVariantGrid extends LitElement {
     propertyObserver() {
         // With each property change we must updated config and create the columns again. No extra checks are needed.
         this._config = Object.assign(this.getDefaultConfig(), this.config);
-        this.variantGridFormatter = new VariantGridFormatter(this.opencgaSession, this._config);
+        // this.variantGridFormatter = new VariantGridFormatter(this.opencgaSession, this._config);
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
 
         // We check query.sample and query.genotype to check if samples exist.
@@ -125,12 +118,6 @@ export default class OpencgaVariantGrid extends LitElement {
             }
         }
         this.samples = _samples;
-
-        // Set colors
-        const colors = VariantGridFormatter.assignColors(this.consequenceTypes, this.proteinSubstitutionScores);
-        // TODO proper fix
-        //Object.assign(this, colors);
-        this.consequenceTypeColors = colors;
 
         // Config for the grid toolbar
         this.toolbarConfig = {
@@ -269,8 +256,8 @@ export default class OpencgaVariantGrid extends LitElement {
                 onExpandRow: (index, row, $detail) => {
                     // Listen to Show/Hide link in the detail formatter consequence type table
                     // TODO Remove this
-                    document.getElementById(this._prefix + row.id + "ShowCt").addEventListener("click", this.variantGridFormatter.toggleDetailConsequenceType.bind(this));
-                    document.getElementById(this._prefix + row.id + "HideCt").addEventListener("click", this.variantGridFormatter.toggleDetailConsequenceType.bind(this));
+                    document.getElementById(this._prefix + row.id + "ShowCt").addEventListener("click", VariantGridFormatter.toggleDetailConsequenceType.bind(this));
+                    document.getElementById(this._prefix + row.id + "HideCt").addEventListener("click", VariantGridFormatter.toggleDetailConsequenceType.bind(this));
                 },
                 onPostBody: (data) => {
                     // TODO remove (review this.sampleFormatter)
@@ -338,7 +325,7 @@ export default class OpencgaVariantGrid extends LitElement {
         if (typeof row !== "undefined" && typeof row.annotation !== "undefined") {
             detailHtml = "<div style='padding: 10px 0px 10px 25px'><h4>Consequence Types</h4></div>";
             detailHtml += "<div style='padding: 5px 50px'>";
-            detailHtml += VariantGridFormatter.consequenceTypeDetailFormatter(index, row, this.variantGrid, this.variantGrid.query, this.variantGrid._config);
+            detailHtml += VariantGridFormatter.consequenceTypeDetailFormatter(index, row, this.variantGrid, this.variantGrid.query, this.variantGrid._config, this.variantGrid.opencgaSession.project.organism.assembly);
             detailHtml += "</div>";
 
             detailHtml += "<div style='padding: 20px 0px 15px 25px'><h4>Clinical Phenotypes</h4></div>";
@@ -610,10 +597,6 @@ export default class OpencgaVariantGrid extends LitElement {
     }
 
     _createDefaultColumns() {
-        if (this.variantGridFormatter === undefined) {
-            return;
-        }
-
         this._columns = [
             [
                 {
@@ -653,7 +636,6 @@ export default class OpencgaVariantGrid extends LitElement {
                     field: "consequenceType",
                     rowspan: 2,
                     colspan: 1,
-                    // formatteformatter: this.variantGridFormatter.consequenceTypeFormatter.bind(this),
                     formatter:(value, row, index) => VariantGridFormatter.consequenceTypeFormatter(value, row, index, this.gridConsequenceTypeSettings, this.consequenceTypeColors),
                     halign: "center"
                 },
@@ -929,7 +911,7 @@ export default class OpencgaVariantGrid extends LitElement {
                 verticalAlign: "bottom"
             },
             consequenceType: {
-                gencodeBasic: false,
+                gencodeBasic: true,
                 filterByBiotype: true,
                 filterByConsequenceType: true,
             }

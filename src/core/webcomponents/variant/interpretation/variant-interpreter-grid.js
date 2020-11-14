@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "/web_modules/lit-element.js";
+import {html, LitElement} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../utilsNew.js";
 import VariantGridFormatter from "../variant-grid-formatter.js";
 import GridCommons from "../grid-commons.js";
@@ -67,15 +67,19 @@ export default class VariantInterpreterGrid extends LitElement {
                 {title: "Gene Annotations", field: "consequenceType"}
             ]
         };
+
         this.gridId = this._prefix + "VariantBrowserGrid";
         this.checkedVariants = new Map();
+
+        // Set colors
+        this.consequenceTypeColors = VariantGridFormatter.assignColors(consequenceTypes, proteinSubstitutionScore);
     }
 
     connectedCallback() {
         super.connectedCallback();
 
         this._config = {...this.getDefaultConfig(), ...this.config};
-        this.gridCommons = new GridCommons(this.gridId, this, this._config);
+        // this.gridCommons = new GridCommons(this.gridId, this, this._config);
     }
 
     firstUpdated(_changedProperties) {
@@ -98,18 +102,14 @@ export default class VariantInterpreterGrid extends LitElement {
 
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
-            this.requestUpdate();
+            // Nacho (14/11/2020) - Commented since it does not look necessary
+            // this.requestUpdate();
         }
     }
 
     opencgaSessionObserver() {
         this._config = {...this.getDefaultConfig(), ...this.config};
-        this.variantGridFormatter = new VariantGridFormatter(this.opencgaSession, this._config);
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
-
-        const colors = VariantGridFormatter.assignColors(consequenceTypes, proteinSubstitutionScore);
-        //Object.assign(this, colors);
-        this.consequenceTypeColors = colors;
     }
 
     clinicalAnalysisObserver() {
@@ -239,11 +239,11 @@ export default class VariantInterpreterGrid extends LitElement {
                     // Listen to Show/Hide link in the detail formatter consequence type table
 
                     // TODO remove this
-                    document.getElementById(this._prefix + row.id + "ShowEvidence").addEventListener("click", this.variantGridFormatter.toggleDetailClinicalEvidence.bind(this));
-                    document.getElementById(this._prefix + row.id + "HideEvidence").addEventListener("click", this.variantGridFormatter.toggleDetailClinicalEvidence.bind(this));
+                    document.getElementById(this._prefix + row.id + "ShowEvidence").addEventListener("click", VariantGridFormatter.toggleDetailClinicalEvidence.bind(this));
+                    document.getElementById(this._prefix + row.id + "HideEvidence").addEventListener("click", VariantGridFormatter.toggleDetailClinicalEvidence.bind(this));
 
-                    document.getElementById(this._prefix + row.id + "ShowCt").addEventListener("click", this.variantGridFormatter.toggleDetailConsequenceType.bind(this));
-                    document.getElementById(this._prefix + row.id + "HideCt").addEventListener("click", this.variantGridFormatter.toggleDetailConsequenceType.bind(this));
+                    document.getElementById(this._prefix + row.id + "ShowCt").addEventListener("click", VariantGridFormatter.toggleDetailConsequenceType.bind(this));
+                    document.getElementById(this._prefix + row.id + "HideCt").addEventListener("click", VariantGridFormatter.toggleDetailConsequenceType.bind(this));
                 },
                 onPostBody: (data) => {
                     this._onPostBody();
@@ -284,11 +284,11 @@ export default class VariantInterpreterGrid extends LitElement {
             onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
             onExpandRow: (index, row, $detail) => {
                 // Listen to Show/Hide link in the detail formatter consequence type table
-                document.getElementById(this._prefix + row.id + "ShowEvidence").addEventListener("click", this.variantGridFormatter.toggleDetailClinicalEvidence.bind(this));
-                document.getElementById(this._prefix + row.id + "HideEvidence").addEventListener("click", this.variantGridFormatter.toggleDetailClinicalEvidence.bind(this));
+                document.getElementById(this._prefix + row.id + "ShowEvidence").addEventListener("click", VariantGridFormatter.toggleDetailClinicalEvidence.bind(this));
+                document.getElementById(this._prefix + row.id + "HideEvidence").addEventListener("click", VariantGridFormatter.toggleDetailClinicalEvidence.bind(this));
 
-                document.getElementById(this._prefix + row.id + "ShowCt").addEventListener("click", this.variantGridFormatter.toggleDetailConsequenceType.bind(this));
-                document.getElementById(this._prefix + row.id + "HideCt").addEventListener("click", this.variantGridFormatter.toggleDetailConsequenceType.bind(this));
+                document.getElementById(this._prefix + row.id + "ShowCt").addEventListener("click", VariantGridFormatter.toggleDetailConsequenceType.bind(this));
+                document.getElementById(this._prefix + row.id + "HideCt").addEventListener("click", VariantGridFormatter.toggleDetailConsequenceType.bind(this));
             },
             onPostBody: (data) => {
                 // We call onLoadSuccess to select first row, this is only needed when rendering from local
@@ -385,7 +385,7 @@ export default class VariantInterpreterGrid extends LitElement {
 
             detailHtml += "<div style='padding: 25px 0px 5px 25px'><h4>Consequence Types</h4></div>";
             detailHtml += "<div style='padding: 5px 50px'>";
-            detailHtml += VariantGridFormatter.consequenceTypeDetailFormatter(value, row, this.variantGrid, this.variantGrid.query, this.variantGrid._config);
+            detailHtml += VariantGridFormatter.consequenceTypeDetailFormatter(value, row, this.variantGrid, this.variantGrid.query, this.variantGrid._config, this.variantGrid.opencgaSession.project.organism.assembly);
             detailHtml += "</div>";
 
             detailHtml += "<div style='padding: 20px 0px 5px 25px'><h4>Clinical Phenotypes</h4></div>";
@@ -753,7 +753,7 @@ export default class VariantInterpreterGrid extends LitElement {
     }
 
     studyCohortsFormatter(value, row) {
-        if (row?.studies && this.variantGridFormatter) {
+        if (row?.studies) {
             const cohorts = [];
             const cohortMap = new Map();
             for (const study of row.studies) {
@@ -844,10 +844,6 @@ export default class VariantInterpreterGrid extends LitElement {
     }
 
     _createDefaultColumns() {
-        if (this.variantGridFormatter === undefined) {
-            return;
-        }
-
         // This code creates dynamically the columns for the VCF INFO and FORMAT column data.
         // Multiple file callers are supported.
         let vcfDataColumns = [];
@@ -935,7 +931,6 @@ export default class VariantInterpreterGrid extends LitElement {
                     field: "consequenceType",
                     rowspan: 2,
                     colspan: 1,
-                    // formatter: this.variantGridFormatter.consequenceTypeFormatter.bind(this),
                     formatter: (value, row, index) => VariantGridFormatter.consequenceTypeFormatter(value, row, index, this._config.consequenceType, this.consequenceTypeColors),
                     halign: "center"
                 },
@@ -1442,8 +1437,8 @@ export default class VariantInterpreterGrid extends LitElement {
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${e => this.onApplySettings(e)}">Apply</button>
-                            <button type="button" class="btn btn-primary" data-dismiss="modal">Save</button>
+                            <button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
+                            <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${e => this.onApplySettings(e)}">OK</button>
                         </div>
                     </div>
                 </div>
