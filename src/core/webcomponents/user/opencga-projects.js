@@ -17,9 +17,9 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import {RestResponse} from "../../clients/rest-response.js";
 import UtilsNew from "../../utilsNew.js";
-import "../tool-header.js";
+import "../commons/tool-header.js";
 import {CountUp} from "/node_modules/countup.js/dist/countUp.min.js";
-import "../simple-chart.js";
+import "../commons/simple-chart.js";
 
 export default class OpencgaProjects extends LitElement {
 

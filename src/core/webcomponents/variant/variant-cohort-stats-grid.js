@@ -18,7 +18,7 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
 
 
-class CohortVariantStats extends LitElement {
+class VariantCohortStatsGrid extends LitElement {
 
     constructor() {
         super();
@@ -48,7 +48,7 @@ class CohortVariantStats extends LitElement {
     }
 
     _init() {
-        this._prefix = "cvs-" + UtilsNew.randomString(6);
+        this._prefix = UtilsNew.randomString(8);
     }
 
     connectedCallback() {
@@ -291,4 +291,4 @@ class CohortVariantStats extends LitElement {
     }
 }
 
-customElements.define("opencga-cohort-variant-stats", CohortVariantStats);
+customElements.define("variant-cohort-stats-grid", VariantCohortStatsGrid);

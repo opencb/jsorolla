@@ -2,7 +2,7 @@ export {OpenCGAClient} from "./core/clients/opencga/opencga-client.js";
 export {CellBaseClient} from "./core/clients/cellbase/cellbase-client.js";
 export {ReactomeClient} from "./core/clients/reactome/reactome-client.js";
 
-export OpencgaVariantBrowser from "./core/webcomponents/variant/opencga-variant-browser.js";
+export OpencgaVariantBrowser from "./core/webcomponents/variant/variant-browser.js";
 export PpencgaClinicalPortal from "./core/webcomponents/clinical/opencga-clinical-portal.js";
 export VariantBeacon from "./core/webcomponents/variant/variant-beacon.js";
 export OpencgaProjects from "./core/webcomponents/user/opencga-projects.js";

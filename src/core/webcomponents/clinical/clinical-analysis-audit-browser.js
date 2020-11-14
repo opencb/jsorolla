@@ -17,11 +17,11 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import {classMap} from "/web_modules/lit-html/directives/class-map.js";
 import UtilsNew from "../../utilsNew.js";
-import "../tool-header.js";
+import "../commons/tool-header.js";
 import "../variant/interpretation/variant-interpreter-grid.js";
 import "../variant/interpretation/variant-interpreter-detail.js";
 import "../variant/opencga-variant-filter.js";
-import GridCommons from "../variant/grid-commons.js";
+import GridCommons from "../commons/grid-commons.js";
 
 class ClinicalAnalysisAuditBrowser extends LitElement {
 

@@ -22,7 +22,7 @@ import "./filters/select-field-filter.js";
 import "./opencb-facet-results.js";
 import "./facet-filter.js";
 import "../loading-spinner.js";
-import "../tool-header.js";
+import "./tool-header.js";
 import "../file/opencga-file-grid.js";
 import "../file/opencga-file-filter.js";
 import "../file/opencga-file-detail.js";

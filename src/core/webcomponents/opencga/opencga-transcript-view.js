@@ -17,7 +17,7 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
 import PolymerUtils from "../PolymerUtils.js";
-import "../variant/opencga-variant-grid.js";
+import "../variant/variant-browser-grid.js";
 import "../variant/variant-protein-view.js";
 
 

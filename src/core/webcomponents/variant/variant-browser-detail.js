@@ -20,11 +20,11 @@ import "./annotation/cellbase-variant-annotation-summary.js";
 import "./annotation/variant-consequence-type-view.js";
 import "./annotation/cellbase-population-frequency-grid.js";
 import "./annotation/variant-annotation-clinical-view.js";
-import "./opencga-variant-cohort-stats.js";
+import "./variant-cohort-stats.js";
 import "./opencga-variant-samples.js";
 
 
-export default class OpenCGAVariantDetailView extends LitElement {
+export default class VariantBrowserDetail extends LitElement {
 
     constructor() {
         super();
@@ -241,11 +241,11 @@ export default class OpenCGAVariantDetailView extends LitElement {
                                         <!-- Cohort Stats Tab -->
                                         <div id="${this._prefix}cohortStats" role="tabpanel" class="tab-pane">
                                             <div style="width: 90%;padding: 15px">
-                                                <opencga-variant-cohort-stats   .opencgaSession="${this.opencgaSession}"
-                                                                                variantId="${this.variant.id}"
-                                                                                .active="${this.detailActiveTabs.cohortStats}"
-                                                                                .config="${this.cohortConfig}">
-                                                </opencga-variant-cohort-stats>
+                                                <variant-cohort-stats   .opencgaSession="${this.opencgaSession}"
+                                                                        .variantId="${this.variant.id}"
+                                                                        .active="${this.detailActiveTabs.cohortStats}"
+                                                                        .config="${this.cohortConfig}">
+                                                </variant-cohort-stats>
                                             </div>
                                         </div>
 
@@ -301,4 +301,4 @@ export default class OpenCGAVariantDetailView extends LitElement {
 
 }
 
-customElements.define("opencga-variant-detail-view", OpenCGAVariantDetailView);
+customElements.define("variant-browser-detail", VariantBrowserDetail);

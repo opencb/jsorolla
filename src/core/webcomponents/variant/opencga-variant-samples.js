@@ -18,7 +18,7 @@ import {html, LitElement} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
 import "../loading-spinner.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
-import GridCommons from "./grid-commons.js";
+import GridCommons from "../commons/grid-commons.js";
 import "../commons/opencb-grid-toolbar.js";
 
 export default class OpencgaVariantSamples extends LitElement {

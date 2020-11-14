@@ -16,8 +16,8 @@
 
 import {html, LitElement} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../utilsNew.js";
-import "../../simple-chart.js";
-import "../../json-viewer.js";
+import "../simple-chart.js";
+import "../json-viewer.js";
 import "../../tree-viewer.js";
 import "../../download-button.js";
 import "../../commons/filters/text-field-filter.js";

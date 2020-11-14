@@ -17,7 +17,7 @@
 import {html, LitElement} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../utilsNew.js";
 import VariantGridFormatter from "../variant-grid-formatter.js";
-import GridCommons from "../grid-commons.js";
+import GridCommons from "../../commons/grid-commons.js";
 import VariantUtils from "../variant-utils.js";
 import "./variant-interpreter-grid-config.js";
 import "./opencga-interpretation-variant-review.js";
@@ -237,7 +237,6 @@ export default class VariantInterpreterGrid extends LitElement {
                 onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse),
                 onExpandRow: (index, row, $detail) => {
                     // Listen to Show/Hide link in the detail formatter consequence type table
-
                     // TODO remove this
                     document.getElementById(this._prefix + row.id + "ShowEvidence").addEventListener("click", VariantGridFormatter.toggleDetailClinicalEvidence.bind(this));
                     document.getElementById(this._prefix + row.id + "HideEvidence").addEventListener("click", VariantGridFormatter.toggleDetailClinicalEvidence.bind(this));
@@ -246,7 +245,6 @@ export default class VariantInterpreterGrid extends LitElement {
                     document.getElementById(this._prefix + row.id + "HideCt").addEventListener("click", VariantGridFormatter.toggleDetailConsequenceType.bind(this));
                 },
                 onPostBody: (data) => {
-                    this._onPostBody();
                 }
             });
         }
@@ -293,38 +291,8 @@ export default class VariantInterpreterGrid extends LitElement {
             onPostBody: (data) => {
                 // We call onLoadSuccess to select first row, this is only needed when rendering from local
                 this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 2);
-
-                this._onPostBody();
             }
         });
-    }
-
-    _onPostBody() {
-        // Add tooltips
-        if (this.variantGridFormatter) {
-            // TODO remove the following lines and use UtilsNew.initTooltip
-            //this.variantGridFormatter.addTooltip("div.variant-tooltip", "Links");
-            //this.variantGridFormatter.addTooltip("span.gene-tooltip", "Links");
-            //this.variantGridFormatter.addTooltip("div.zygositySampleTooltip", "Variant Call Information", "", {style: {classes: "qtip-rounded qtip-shadow qtip-custom-class"}});
-            //this.variantGridFormatter.addPopulationFrequenciesTooltip("table.populationFrequenciesTable", populationFrequencies);
-
-            //this.variantGridFormatter.addPopulationFrequenciesInfoTooltip("span.pop-preq-info-icon", populationFrequencies);
-
-            //this.variantGridFormatter.addTooltip("span.cosmic-tooltip", "Links");
-            //this.variantGridFormatter.addTooltip("div.clinvar-tooltip", "Links");
-
-            /*const predictionTooltipContent = "<span style='font-weight: bold'>Prediction</span> column shows the Clinical Significance prediction and Tier following the ACMG guide recommendations";
-            this.variantGridFormatter.addTooltip("span.interpretation-info-icon", "Interpretation", predictionTooltipContent, {
-                position: {my: "top right"},
-                style: {classes: "qtip-rounded qtip-shadow qtip-custom-class"}
-            });*/
-            /*this.variantGridFormatter.addTooltip("div.predictionTooltip", "Classification", "", {
-                position: {my: "top right"},
-                style: {classes: "qtip-rounded qtip-shadow qtip-custom-class"},
-                width: "360px"
-            });*/
-
-        }
     }
 
     onCheck(e) {
@@ -348,12 +316,6 @@ export default class VariantInterpreterGrid extends LitElement {
     }
 
     onReviewClick(e) {
-        // this.dispatchEvent(new CustomEvent('reviewvariant', {
-        //     detail: {
-        //         variant: e.currentTarget.dataset.variant
-        //     }
-        // }));
-
         if (this.checkedVariants) {
             this.variantReview = this.checkedVariants.get(e.currentTarget.dataset.variantId);
             $("#" + this._prefix + "ReviewSampleModal").modal("show");
@@ -429,8 +391,8 @@ export default class VariantInterpreterGrid extends LitElement {
 
     variantFormatter(value, row, index) {
         const variantHtmlDiv = VariantGridFormatter.variantFormatter(value, row, this._config);
-        const snptHtmlAnchor = VariantGridFormatter.snpFormatter(value, row, index, this.opencgaSession.project.organism.assembly);
-        return `${variantHtmlDiv}<div style='padding-top: 10px'>${snptHtmlAnchor && snptHtmlAnchor !== "-" ? snptHtmlAnchor : ""}</div>`;
+        const snpHtmlAnchor = VariantGridFormatter.snpFormatter(value, row, index, this.opencgaSession.project.organism.assembly);
+        return `${variantHtmlDiv}<div style='padding-top: 10px'>${snpHtmlAnchor && snpHtmlAnchor !== "-" ? snpHtmlAnchor : ""}</div>`;
     }
 
     roleInCancerFormatter(value, row, index) {

@@ -18,7 +18,7 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../../utilsNew.js";
 import CatalogGridFormatter from "../../../commons/catalog-grid-formatter.js";
 import AnalysisRegistry from "../analysis-registry.js";
-import GridCommons from "../../grid-commons.js";
+import GridCommons from "../../../commons/grid-commons.js";
 import knockoutDataIndividuals from "../test/knockout.20201103172343.kFIvpr.individuals.js";
 import "./knockout-individual-variants.js";
 import "../../../family/opencga-family-view.js";

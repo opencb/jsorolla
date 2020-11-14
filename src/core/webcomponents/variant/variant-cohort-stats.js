@@ -16,9 +16,9 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
-import "./opencga-cohort-variant-stats.js";
+import "./variant-cohort-stats-grid.js";
 
-export default class OpencgaVariantCohortStats extends LitElement {
+export default class VariantCohortStats extends LitElement {
 
     constructor() {
         super();
@@ -100,11 +100,11 @@ export default class OpencgaVariantCohortStats extends LitElement {
                     ${studyNames[study.studyId]}
                 </h3>
                 <div style="padding: 10px">
-                    <opencga-cohort-variant-stats .stats="${study.stats}"></opencga-cohort-variant-stats>
+                    <variant-cohort-stats-grid .stats="${study.stats}"></variant-cohort-stats-grid>
                 </div>
             `)}
         `;
     }
 }
 
-customElements.define("opencga-variant-cohort-stats", OpencgaVariantCohortStats);
+customElements.define("variant-cohort-stats", VariantCohortStats);

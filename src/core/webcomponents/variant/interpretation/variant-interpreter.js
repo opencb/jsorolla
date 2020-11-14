@@ -16,7 +16,7 @@
 
 import {html, LitElement} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../utilsNew.js";
-import "../../tool-header.js";
+import "../../commons/tool-header.js";
 import "./variant-interpreter-landing.js";
 import "./variant-interpreter-qc.js";
 import "./variant-interpreter-browser.js";

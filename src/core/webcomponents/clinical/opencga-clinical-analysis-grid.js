@@ -18,7 +18,7 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import {classMap} from "/web_modules/lit-html/directives/class-map.js";
 import OpencgaCatalogUtils from "../../clients/opencga/opencga-catalog-utils.js";
 import UtilsNew from "../../utilsNew.js";
-import GridCommons from "../variant/grid-commons.js";
+import GridCommons from "../commons/grid-commons.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import "../commons/opencb-grid-toolbar.js";
 

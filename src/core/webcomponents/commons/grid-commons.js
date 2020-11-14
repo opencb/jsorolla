@@ -172,6 +172,8 @@ export default class GridCommons {
                 }
             }));
         }
+
+        // This init all grid tooltips
         UtilsNew.initTooltip(this.context);
     }
 

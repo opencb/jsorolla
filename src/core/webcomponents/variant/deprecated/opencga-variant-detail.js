@@ -15,13 +15,13 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "./../../utilsNew.js";
-import "./annotation/cellbase-variant-annotation-summary.js";
-import "./annotation/variant-consequence-type-view.js";
-import "./annotation/cellbase-population-frequency-grid.js";
-import "./annotation/variant-annotation-clinical-view.js";
-import "./opencga-variant-cohort-stats.js";
-import "./opencga-variant-samples.js";
+import UtilsNew from "../../../utilsNew.js";
+import "../annotation/cellbase-variant-annotation-summary.js";
+import "../annotation/variant-consequence-type-view.js";
+import "../annotation/cellbase-population-frequency-grid.js";
+import "../annotation/variant-annotation-clinical-view.js";
+import "../variant-cohort-stats.js";
+import "../opencga-variant-samples.js";
 
 /**
  * @deprecated

@@ -244,10 +244,10 @@ export default class VariantInterpreterDetail extends LitElement {
                         <!-- Cohort Stats Tab -->
                         <div id="${this._prefix}cohortStats" role="tabpanel" class="tab-pane">
                             <div style="width: 90%;padding: 15px">
-                                <opencga-variant-cohort-stats .opencgaSession="${this.opencgaSession}"
-                                                              .variantId="${this.variant.id}"
-                                                              .active="${this.detailActiveTabs.cohortStats}">
-                                </opencga-variant-cohort-stats>
+                                <variant-cohort-stats .opencgaSession="${this.opencgaSession}"
+                                                      .variantId="${this.variant.id}"
+                                                      .active="${this.detailActiveTabs.cohortStats}">
+                                </variant-cohort-stats>
                             </div>
                         </div>
     

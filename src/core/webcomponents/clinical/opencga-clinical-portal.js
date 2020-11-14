@@ -18,7 +18,7 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import OpencgaCatalogUtils from "../../clients/opencga/opencga-catalog-utils.js";
 import UtilsNew from "../../utilsNew.js";
 import PolymerUtils from "../PolymerUtils.js";
-import "../tool-header.js";
+import "../commons/tool-header.js";
 import "./opencga-clinical-review-cases.js";
 import "./opencga-clinical-analysis-writer.js";
 import "./../opencga/catalog/panel/opencga-panel-browser.js";

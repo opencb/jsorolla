@@ -16,15 +16,15 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "./../../utilsNew.js";
-import "./../tool-header.js";
+import "../commons/tool-header.js";
 import "./opencga-variant-filter.js";
-import "./opencga-variant-grid.js";
-import "./opencga-variant-detail-view.js";
+import "./variant-browser-grid.js";
+import "./variant-browser-detail.js";
 import "../commons/opencga-facet-result-view.js";
 import "../commons/facet-filter.js";
 import "../commons/opencga-active-filters.js";
 
-export default class OpencgaVariantBrowser extends LitElement {
+export default class VariantBrowser extends LitElement {
 
     constructor() {
         super();
@@ -693,7 +693,7 @@ export default class OpencgaVariantBrowser extends LitElement {
                         
                         <div class="main-view">
                             <div id="table-tab" class="content-tab active">
-                                <opencga-variant-grid .opencgaSession="${this.opencgaSession}"
+                                <variant-browser-grid .opencgaSession="${this.opencgaSession}"
                                                       .query="${this.executedQuery}"
                                                       .cohorts="${this.cohorts}"
                                                       .cellbaseClient="${this.cellbaseClient}"
@@ -702,14 +702,14 @@ export default class OpencgaVariantBrowser extends LitElement {
                                                       .consequenceTypes="${this.consequenceTypes}"
                                                       .config="${this._config.filter}"
                                                       @selectrow="${this.onSelectVariant}">
-                                </opencga-variant-grid>
+                                </variant-browser-grid>
                 
                                 <!-- Bottom tabs with specific variant information -->
-                                <opencga-variant-detail-view    .opencgaSession="${this.opencgaSession}" 
-                                                                .cellbaseClient="${this.cellbaseClient}"
-                                                                .variantId="${this.variantId}"
-                                                                .config="${this._config.filter.detail}">
-                                </opencga-variant-detail-view>
+                                <variant-browser-detail     .opencgaSession="${this.opencgaSession}" 
+                                                            .cellbaseClient="${this.cellbaseClient}"
+                                                            .variantId="${this.variantId}"
+                                                            .config="${this._config.filter.detail}">
+                                </variant-browser-detail-view>
                             </div>
                             
                             <div id="facet-tab" class="content-tab">
@@ -729,4 +729,4 @@ export default class OpencgaVariantBrowser extends LitElement {
     }
 }
 
-customElements.define("opencga-variant-browser", OpencgaVariantBrowser);
+customElements.define("variant-browser", VariantBrowser);

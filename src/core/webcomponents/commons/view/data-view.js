@@ -17,8 +17,8 @@
 import {html, LitElement} from "/web_modules/lit-element.js";
 // import {directive} from "/web_modules/lit-html.js";
 import UtilsNew from "../../../utilsNew.js";
-import "../../simple-chart.js";
-import "../../json-viewer.js";
+import "../simple-chart.js";
+import "../json-viewer.js";
 import "../../download-button.js";
 
 export default class DataView extends LitElement {

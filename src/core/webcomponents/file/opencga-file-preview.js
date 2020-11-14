@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import "../json-viewer.js";
+import "../commons/json-viewer.js";
 import UtilsNew from "../../utilsNew.js";
 
 

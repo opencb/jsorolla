@@ -23,7 +23,7 @@ import "./variant-interpreter-browser-toolbar.js";
 import "./variant-interpreter-grid.js";
 import "./variant-interpreter-detail.js";
 import "../opencga-variant-filter.js";
-import "../../tool-header.js";
+import "../../commons/tool-header.js";
 import "../../commons/opencga-active-filters.js";
 import "../../commons/filters/sample-genotype-filter.js";
 import "../../commons/filters/variant-caller-info-filter.js";

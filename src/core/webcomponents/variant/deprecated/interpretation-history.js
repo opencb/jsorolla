@@ -18,7 +18,7 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import ClinicalAnalysisUtils from "../../clinical/clinical-analysis-utils.js";
 import UtilsNew from "../../../utilsNew.js";
 import PolymerUtils from "../../PolymerUtils.js";
-import "../../tool-header.js";
+import "../../commons/tool-header.js";
 import "../interpretation/variant-interpreter-grid.js";
 import "../interpretation/variant-interpreter-detail.js";
 import "../opencga-variant-filter.js";
@@ -31,7 +31,7 @@ import "../../commons/filters/deprecated/ascat-caller-filter.js";
 import "../../commons/filters/deprecated/canvas-caller-filter.js";
 import "../../commons/filters/deprecated/brass-caller-filter.js";
 import "../../commons/filters/deprecated/manta-caller-filter.js";
-import GridCommons from "../grid-commons.js";
+import GridCommons from "../../commons/grid-commons.js";
 
 class InterpretationHistory extends LitElement {
 
