@@ -353,7 +353,7 @@ export default class VariantInterpreterGrid extends LitElement {
 
             detailHtml += "<div style='padding: 20px 0px 5px 25px'><h4>Clinical Phenotypes</h4></div>";
             detailHtml += "<div style='padding: 5px 50px'>";
-            detailHtml += VariantGridFormatter.clinicalDetail(value, row);
+            detailHtml += VariantGridFormatter.clinicalTableDetail(value, row);
             detailHtml += "</div>";
         }
         result += detailHtml + "</div>";

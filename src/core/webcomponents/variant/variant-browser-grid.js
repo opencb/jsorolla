@@ -299,7 +299,7 @@ export default class VariantBrowserGrid extends LitElement {
 
             detailHtml += "<div style='padding: 20px 0px 15px 25px'><h4>Clinical Phenotypes</h4></div>";
             detailHtml += "<div style='padding: 5px 50px'>";
-            detailHtml += VariantGridFormatter.clinicalDetail(index, row);
+            detailHtml += VariantGridFormatter.clinicalTableDetail(index, row);
             detailHtml += "</div>";
         }
         result += detailHtml + "</div>";

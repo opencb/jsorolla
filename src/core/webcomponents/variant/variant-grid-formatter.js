@@ -448,7 +448,7 @@ export default class VariantGridFormatter {
         columns: [
             {
                 title: "", classes: "", style: "",
-                columns: [
+                columns: [      // nested column
                     {
                         title: "", classes: "", style: ""
                     }
@@ -457,10 +457,13 @@ export default class VariantGridFormatter {
         ]
 
         rows: [
-            {values: ["", ""], classes, style: ""}
+            {values: ["", ""], classes: "", style: ""}
         ]
      */
     static renderTable(id, columns, rows, config) {
+        if (!rows || rows.length === 0) {
+            return `<span>${config?.defaultMessage ? config.defaultMessage : "No data found"}</span>`;
+        }
 
         let tr = "";
         let nestedColumnIndex = columns.findIndex(col => col.columns?.length > 0);
@@ -469,7 +472,7 @@ export default class VariantGridFormatter {
             let thBottom = "";
             for (let column of columns) {
                 if (column.columns?.length > 0) {
-                    thTop += `<th rowspan="1" class="${column.classes ?? ""}" style="${column.style ?? ""}">${column.title}</th>`;
+                    thTop += `<th rowspan="1" colspan="${column.columns.length}" class="${column.classes ?? ""}" style="text-align: center; ${column.style ?? ""}">${column.title}</th>`;
                     for (let bottomColumn of column.columns) {
                         thBottom += `<th rowspan="1">${bottomColumn.title}</th>`;
                     }
@@ -484,19 +487,21 @@ export default class VariantGridFormatter {
             tr = `<tr>${th}</tr>`;
         }
 
-        let html = `<table id="${id ? id : ""}" class="table table-hover table-no-bordered">
-                              <thead>
-                                  ${tr}
-                              </thead>
-                              <tbody>`;
+        let html = `<table id="${id ? id : null}" class="table ${config?.classes ? config.classes : "table-hover table-no-bordered"}">
+                        <thead>
+                            ${tr}
+                        </thead>
+                        <tbody>`;
+        // Render rows
         for (let row of rows) {
             let td = "";
             for (let value of row.values) {
                 td += `<td>${value}</td>`;
             }
-            html += `<tr class="detail-view-row ${row.classes ?? ""}" style="${row.style ?? ""}">${td}</tr>`;
+            html += `<tr class="${row.classes ?? ""}" style="${row.style ?? ""}">${td}</tr>`;
         }
         html += `</tbody></table>`;
+
         return html;
     }
 
@@ -892,11 +897,9 @@ export default class VariantGridFormatter {
         return phenotypeHtml;
     }
 
-    static clinicalDetail(value, row, index) {
+    static clinicalTableDetail(value, row, index) {
         let clinvar = [];
         let cosmic = [];
-        let clinvarTable;
-        let cosmicTable;
         if (row.annotation.traitAssociation && row.annotation.traitAssociation.length > 0) {
             for (let trait of row.annotation.traitAssociation) {
                 let values = [];
@@ -907,8 +910,7 @@ export default class VariantGridFormatter {
                     clinvar.push({
                         values: values
                     });
-                } else {
-                    // COSMIC section
+                } else {    // COSMIC section
                     values.push(`<a href="${trait.url ?? BioinfoUtils.getCosmicVariantLink(trait.id)}" target="_blank">${trait.id}</a>`);
                     values.push(trait.somaticInformation.primaryHistology);
                     values.push(trait.somaticInformation.histologySubtype);
@@ -917,33 +919,35 @@ export default class VariantGridFormatter {
                     });
                 }
             }
-
-            let clinvarColumns = [
-                {title: "id"},
-                {title: "Clinical Significance"},
-                {title: "Traits"},
-            ];
-            clinvarTable = VariantGridFormatter.renderTable("", clinvarColumns, clinvar);
-
-            let cosmicColumns = [
-                {title: "id"},
-                {title: "Primary Histology"},
-                {title: "Histology Subtype"},
-            ];
-            cosmicTable = VariantGridFormatter.renderTable("", cosmicColumns, cosmic);
         }
 
-        // Prepare html
+        // Clinvar
+        let clinvarColumns = [
+            {title: "id"},
+            {title: "Clinical Significance"},
+            {title: "Traits"},
+        ];
+        let clinvarTable = VariantGridFormatter.renderTable("", clinvarColumns, clinvar, {defaultMessage: "No ClinVar data found"});
         let clinvarTraits = `<div style="margin: 10px 5px">
-                                <label style='padding-right: 10px'>ClinVar</label>
-                                <div>${clinvar.length > 0 ? clinvarTable : "No Clinvar data found"}</div>
+                                <label>ClinVar</label>
+                                <div>${clinvarTable}</div>
                              </div>`;
+
+        // Cosmic
+        let cosmicColumns = [
+            {title: "id"},
+            {title: "Primary Histology"},
+            {title: "Histology Subtype"},
+        ];
+        let cosmicTable = VariantGridFormatter.renderTable("", cosmicColumns, cosmic, {defaultMessage: "No Cosmic data found"});
         let cosmicTraits = `<div style="margin: 10px 5px">
-                                <label style='padding-right: 10px'>Cosmic</label>
-                                <div>${cosmic.length > 0 ? cosmicTable : "No Cosmic data found"}</div>
+                                <label>Cosmic</label>
+                                <div>${cosmicTable}</div>
                             </div>`;
-        return  clinvarTraits + cosmicTraits;
+
+        return clinvarTraits + cosmicTraits;
     }
+
     /*
      * Reported Variant formatters
      */
