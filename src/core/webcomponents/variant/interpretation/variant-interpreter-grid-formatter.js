@@ -116,6 +116,428 @@ export default class VariantInterpreterGridFormatter {
                 </a>`;
     }
 
+
+
+    /*
+    * File attributes formatters
+    */
+    static variantAlleleFrequencyDetailFormatter(value, row, variantGrid) {
+        let fileAttrHtml = "";
+        if (row && row.studies?.length > 0) {
+            fileAttrHtml = `<table class="table table-hover table-no-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th rowspan="2" style="padding: 0px 10px"><span style="white-space: nowrap">Sample ID</span></th>
+                                            <th rowspan="2" style="padding: 0px 10px">VCF Call</th>
+                                            <th rowspan="2" style="padding: 0px 10px">Genotype</th>
+                                            <th rowspan="1" colspan="2" style="text-align:center;padding: 0px 10px">Reference</th>
+                                            <th rowspan="1" colspan="2" style="text-align:center;padding: 0px 10px">Alternate</th>
+                                            <th rowspan="2" style="padding: 0px 10px">Secondary Alternate</th>
+                                            <th rowspan="2" style="padding: 0px 10px">Other</th>
+                                        </tr>
+                                        <tr>
+                                            <th rowspan="1" style="padding: 0px 10px">Allele</th>
+                                            <th rowspan="1" style="padding: 0px 10px"><span style="white-space: nowrap">Frequency (Depth)</span></th>
+                                            <th rowspan="1" style="padding: 0px 10px">Allele</th>
+                                            <th rowspan="1" style="padding: 0px 10px"><span style="white-space: nowrap">Frequency (Depth)</span></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>`;
+
+            const study = row.studies[0];
+            for (const sample of study.samples) {
+                const file = study.files?.length > sample.fileIndex ? study.files[sample.fileIndex] : null;
+
+                let referenceFreq; let referenceCount;
+                let alternateFreq; let alternateCount;
+                let secondaryAlternate = "-";
+                let secondaryAlternateFreq;
+                let originalCall;
+
+                let ad; let af; let dp;
+                // Get DP value
+                const dpIdx = study.sampleDataKeys.findIndex(e => e === "DP");
+                if (dpIdx !== -1) {
+                    dp = Number.parseInt(sample.data[dpIdx]);
+                } else {
+                    dp = file.data.DP ? Number.parseInt(file.data.DP) : null;
+                }
+
+                // Sample format can contain AD or AF
+                const adIdx = study.sampleDataKeys.findIndex(e => e === "AD");
+                if (adIdx !== -1) {
+                    ad = sample.data[adIdx]?.split(",");
+                    referenceCount = Number.parseInt(ad[0]);
+                    alternateCount = Number.parseInt(ad[1]);
+                    if (ad > 1) {
+                        secondaryAlternateFreq = ad[2];
+                    }
+                    if (dp) {
+                        referenceFreq = referenceCount !== 0 && referenceCount !== dp ? Number.parseFloat(referenceCount / dp).toFixed(3) : referenceCount / dp;
+                        alternateFreq = alternateCount !== 0 && alternateCount !== dp ? Number.parseFloat(alternateCount / dp).toFixed(3) : alternateCount / dp;
+                    }
+                } else {
+                    const afIdx = study.sampleDataKeys.findIndex(e => e === "AF");
+                    if (afIdx !== -1) {
+                        af = sample.data[afIdx]?.split(",");
+                        referenceFreq = af[0];
+                        alternateFreq = af[1];
+                        if (af > 1) {
+                            secondaryAlternateFreq = af[2];
+                        }
+                        referenceCount = "NA";
+                        alternateCount = "NA";
+                    }
+                }
+
+                if (file.call?.variantId) {
+                    originalCall = file.call.variantId.replace("<", "&lt;").replace(">", "&gt;");
+                    if (originalCall.includes(",")) {
+                        const split = originalCall.split(",");
+                        secondaryAlternate = split[1] !== "&lt;NON_REF&gt;" ? split[1] : "none";
+                    }
+                } else {
+                    originalCall = `${row.chromosome}:${row.position}:${row.reference}:${row.alternate}`;
+                }
+
+                const format = [];
+                for (let i = 0; i < study.sampleDataKeys.length; i++) {
+                    format.push(study.sampleDataKeys[i] + ": " + sample.data[i]);
+                }
+
+                let genotypeColor = "black";
+                if (sample.data[0] === "0/1" || sample.data[0] === "0|1" && sample.data[0] === "1|0") {
+                    genotypeColor = "darkorange";
+                } else {
+                    if (sample.data[0] === "1/1" || sample.data[0] === "1|1") {
+                        genotypeColor = "red";
+                    }
+                }
+                const sampleIdColor = variantGrid?.clinicalAnalysis?.proband?.samples[0]?.id === sample.sampleId ? "darkred" : "black";
+                fileAttrHtml += `<tr class="detail-view-row">
+                                    <td><span style="font-weight: bold; color: ${sampleIdColor}">${sample.sampleId}</span></td>
+                                    <td><span style="white-space: nowrap">${originalCall}</span></td>
+                                    <td><span style="color: ${genotypeColor}">${sample.data[0]}</span></td>
+                                    <td>${row.reference}</td>
+                                    <td>${referenceFreq} (${referenceCount})</td>
+                                    <td>${row.alternate}</td>
+                                    <td>${alternateFreq} (${alternateCount})</td>
+                                    <td>${secondaryAlternate}</td>
+                                    <td>${format.join("; ")}</td>
+                                 </tr>`;
+            }
+
+            fileAttrHtml += "</tbody></table>";
+        }
+        return fileAttrHtml;
+    }
+
+    static reportedEventDetailFormatter(value, row, variantGrid, query, filter) {
+        if (row && row.evidences.length > 0) {
+            // Sort by Tier level
+            row.evidences.sort(function (a, b) {
+                if (a.tier === null || b.tier !== null) {
+                    return 1;
+                }
+                if (a.tier !== null || b.tier === null) {
+                    return -1;
+                }
+                if (a.tier < b.tier) {
+                    return -1;
+                }
+                if (a.tier > b.tier) {
+                    return 1;
+                }
+                return 0;
+            });
+
+            // let selectColumnHtml = "";
+            // if (variantGrid._config.showSelectCheckbox) {
+            //     selectColumnHtml = "<th rowspan=\"2\">Select</th>";
+            // }
+
+            const showArrayIndexes = VariantGridFormatter._consequenceTypeDetailFormatterFilter(row.annotation.consequenceTypes, query, filter);
+            let message = "";
+            if (filter) {
+                // Create two different divs to 'show all' or 'apply filter' title
+                message = `<div class="${variantGrid._prefix}${row.id}EvidenceFiltered">Showing <span style="font-weight: bold; color: red">${showArrayIndexes.length}</span> of 
+                                <span style="font-weight: bold; color: red">${row.annotation.consequenceTypes.length}</span> clinical evidences, 
+                                <a id="${variantGrid._prefix}${row.id}ShowEvidence" data-id="${row.id}" style="cursor: pointer">show all...</a>
+                            </div>
+                            <div class="${variantGrid._prefix}${row.id}EvidenceFiltered" style="display: none">Showing <span style="font-weight: bold; color: red">${row.annotation.consequenceTypes.length}</span> of 
+                                <span style="font-weight: bold; color: red">${row.annotation.consequenceTypes.length}</span> clinical evidences, 
+                                <a id="${variantGrid._prefix}${row.id}HideEvidence" data-id="${row.id}" style="cursor: pointer">apply filters...</a>
+                           </div>
+                            `;
+            }
+
+            let ctHtml = `<div style="padding-bottom: 5px">
+                                ${message}
+                           </div>
+                           <table id="ConsqTypeTable" class="table table-hover table-no-bordered">`;
+
+            if (variantGrid.clinicalAnalysis.type.toUpperCase() !== "CANCER") {
+                ctHtml += `<thead>
+                                    <tr>
+                                        <th rowspan="2">Gene</th>
+                                        <th rowspan="2">Transcript</th>
+                                        <th rowspan="2">HGVS</th>
+                                        <th rowspan="2">Gencode</th>
+                                        <th rowspan="2">Consequence Type (SO Term)</th>
+                                        <th rowspan="2">Panel</th>
+                                        <th rowspan="2">Mode of Inheritance</th>
+                                        <th rowspan="2">Actionable</th>
+                                        <th rowspan="1" colspan="3" style="text-align: center">Classification</th>
+                                    </tr>
+                                    <tr>
+                                        <th rowspan="1">ACMG</th>
+                                        <th rowspan="1">Tier</th>
+                                        <th rowspan="1">Clinical Significance</th>
+                                    </tr>
+                                </thead>
+                                <tbody>`;
+            } else {
+                ctHtml += `<thead>
+                                <tr>
+                                    <th rowspan="2">Gene</th>
+                                    <th rowspan="2">Transcript</th>
+                                    <th rowspan="2">HGVS</th>
+                                    <th rowspan="2">Gencode</th>
+                                    <th rowspan="2">Consequence Type (SO Term)</th>
+                                    <th rowspan="2">Panel</th>
+                                    <th rowspan="2">Role in Cancer</th>
+                                    <th rowspan="2">Actionable</th>
+                                    <th rowspan="1" colspan="1" style="text-align: center">Classification</th>
+                                </tr>
+                                <tr>
+                                    <th rowspan="1" style="text-align: center">Tier</th>
+                                </tr>
+                            </thead>
+                            <tbody>`;
+            }
+
+            // FIXME Maybe this should happen in the server?
+            // let biotypeSet = new Set();
+            let consequenceTypeSet = new Set();
+            if (UtilsNew.isNotUndefinedOrNull(variantGrid.query)) {
+                // if (UtilsNew.isNotUndefinedOrNull(variantGrid.query.biotype)) {
+                //     biotypeSet = new Set(variantGrid.query.biotype.split(","));
+                // }
+                if (UtilsNew.isNotUndefinedOrNull(variantGrid.query.ct)) {
+                    consequenceTypeSet = new Set(variantGrid.query.ct.split(","));
+                }
+            }
+
+            for (let i = 0; i < row.evidences.length; i++) {
+                const re = row.evidences[i];
+
+                // FIXME Maybe this should happen in the server?
+                // If ct exist and there are some consequenceTypeIds then we check that the report event matches the query
+                if (UtilsNew.isNotEmptyArray(re.consequenceTypeIds) && consequenceTypeSet.size > 0) {
+                    let hasConsequenceType = false;
+                    for (const ct of re.consequenceTypeIds) {
+                        if (consequenceTypeSet.has(ct)) {
+                            hasConsequenceType = true;
+                        }
+                    }
+                    if (!hasConsequenceType) {
+                        continue;
+                    }
+                }
+
+                // Prepare data info for columns
+                let gene = "-";
+                if (UtilsNew.isNotEmpty(re.genomicFeature.id)) {
+                    gene = `<div>
+                                <a href="https://www.genenames.org/tools/search/#!/all?query=${re.genomicFeature.geneName}" target="_blank">
+                                    ${re.genomicFeature.geneName}
+                                </a>
+                            </div>
+                            <div style="padding-top: 5px">
+                                <a href="http://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=${re.genomicFeature.id}" target="_blank">
+                                    ${re.genomicFeature.id}
+                                </a>
+                            </div>`;
+                }
+
+
+                let hgvsHtml = "-";
+                let transcriptId = "-";
+                if (UtilsNew.isNotEmpty(re.genomicFeature.transcriptId)) {
+                    let biotype = "-";
+                    if (row.annotation && row.annotation.consequenceTypes) {
+                        for (const ct of row.annotation.consequenceTypes) {
+                            if (ct.ensemblTranscriptId === re.genomicFeature.transcriptId) {
+                                biotype = ct.biotype;
+                                break;
+                            }
+                        }
+                    }
+
+                    transcriptId = `<div>
+                                        <a href="http://www.ensembl.org/Homo_sapiens/Transcript/Idhistory?t=${re.genomicFeature.transcriptId}" target="_blank">
+                                            ${re.genomicFeature.transcriptId}
+                                        </a>
+                                    </div>
+                                    <div style="padding-top: 5px">
+                                        ${biotype}
+                                    </div>`;
+
+                    if (row.annotation && row.annotation.hgvs) {
+                        hgvsHtml = row.annotation.hgvs.filter(hgvs => hgvs.startsWith(re.genomicFeature.transcriptId));
+                    }
+                }
+
+                let transcriptFlag = "";
+                let transcriptFlagChecked = false;
+                if (UtilsNew.isNotEmptyArray(row.annotation.consequenceTypes)) {
+                    for (const ct of row.annotation.consequenceTypes) {
+                        if (re.genomicFeature.transcriptId === ct.ensemblTranscriptId) {
+                            if (ct.transcriptAnnotationFlags !== undefined && ct.transcriptAnnotationFlags.includes("basic")) {
+                                transcriptFlag = `<span data-toggle="tooltip" data-placement="bottom" title="Proband">
+                                                    <i class='fa fa-check' style='color: green'></i>
+                                                  </span>`;
+                                transcriptFlagChecked = true;
+                            } else {
+                                if (re.genomicFeature.transcriptId) {
+                                    transcriptFlag = "<span><i class='fa fa-times' style='color: red'></i></span>";
+                                } else {
+                                    transcriptFlag = "-";
+                                }
+                            }
+                            break;
+                        }
+                    }
+                }
+
+                const soArray = [];
+                if (re.genomicFeature.consequenceTypes && re.genomicFeature.consequenceTypes.length > 0) {
+                    for (const so of re.genomicFeature.consequenceTypes) {
+                        let color = "black";
+                        if (typeof variantGrid.consequenceTypeToColor !== "undefined" && typeof variantGrid.consequenceTypeToColor[so.name] !== "undefined") {
+                            color = variantGrid.consequenceTypeToColor[so.name];
+                        }
+                        soArray.push(`<div style="color: ${color}">
+                                    ${so.name} (<a href="http://www.sequenceontology.org/browser/current_svn/term/${so.accession}" target="_blank">${so.accession}</a>)
+                                  </div>`);
+                    }
+                }
+
+
+                let panel = "-";
+                if (UtilsNew.isNotUndefinedOrNull(re.panelId)) {
+                    panel = re.panelId;
+                }
+
+                let moi = "-";
+                if (UtilsNew.isNotUndefinedOrNull(re.modeOfInheritance)) {
+                    moi = re.modeOfInheritance;
+                }
+
+                let roleInCancer = "-";
+                if (UtilsNew.isNotUndefinedOrNull(re.roleInCancer)) {
+                    roleInCancer = re.roleInCancer === "TUMOR_SUPRESSOR_GENE" || re.roleInCancer === "TUMOR_SUPPRESSOR_GENE" ? "TSG" : re.roleInCancer;
+                    // roleInCancer = re.roleInCancer;
+                }
+
+                let actionable = "-";
+                if (UtilsNew.isNotUndefinedOrNull(re.actionable) && re.actionable) {
+                    actionable = "Yes";
+                }
+
+                let acmg = "-";
+                if (UtilsNew.isNotEmptyArray(re.classification.acmg)) {
+                    acmg = re.classification.acmg.join(", ");
+                }
+
+                let tier = "-";
+                let color = "black";
+                if (UtilsNew.isNotUndefinedOrNull(re.tier)) {
+                    color = (re.tier === "Tier1" || re.tier === "Tier 1") ? "red" : color;
+                    color = (re.tier === "Tier2" || re.tier === "Tier 2") ? "darkorange" : color;
+                    color = (re.tier === "Tier3" || re.tier === "Tier 3") ? "blue" : color;
+                    tier = `<span style="color: ${color}">${re.tier}</span>`;
+                }
+
+                let clinicalSignificance = "-";
+                if (re.classification.clinicalSignificance) {
+                    clinicalSignificance = re.classification.clinicalSignificance;
+                    switch (clinicalSignificance) {
+                        case "PATHOGENIC":
+                        case "PATHOGENIC_VARIANT":
+                        case "LIKELY_PATHOGENIC":
+                        case "LIKELY_PATHOGENIC_VARIANT":
+                            clinicalSignificance = `<span style='color: red'>${clinicalSignificance.replace("_", " ")}</span>`;
+                            break;
+                        case "UNCERTAIN_SIGNIFICANCE":
+                        case "VARIANT_OF_UNKNOWN_CLINICAL_SIGNIFICANCE":
+                            clinicalSignificance = `<span style='color: darkorange'>${clinicalSignificance.replace("_", " ")}</span>`;
+                            break;
+                        case "LIKELY_BENIGN":
+                        case "LIKELY_BENIGN_VARIANT":
+                        case "BENIGN":
+                        case "BENIGN_VARIANT":
+                            clinicalSignificance = `<span style='color: blue'>${clinicalSignificance.replace("_", " ")}</span>`;
+                            break;
+                        case "NOT_ASSESSED":
+                            clinicalSignificance = `<span style='color: black'>${clinicalSignificance.replace("_", " ")}</span>`;
+                            break;
+                        default:
+                            clinicalSignificance = "NA";
+                            break;
+                    }
+                }
+
+                // let checboxHtml = "";
+                // if (variantGrid._config.showSelectCheckbox) {
+                //     let checked = "";
+                //     if (transcriptFlagChecked && tier !== "-") {
+                //         checked = "checked";
+                //     }
+                //     checboxHtml = `<td><input type="checkbox" ${checked}></td>`;
+                // }
+
+                // Create the table row
+                const hideClass = showArrayIndexes.includes(i) ? "" : `${variantGrid._prefix}${row.id}EvidenceFiltered`;
+                const displayStyle = showArrayIndexes.includes(i) ? "" : "display: none";
+
+                // Create the table row
+                if (variantGrid.clinicalAnalysis.type.toUpperCase() !== "CANCER") {
+                    ctHtml += `
+                        <tr class="detail-view-row ${hideClass}" style="${displayStyle}">
+                            <td>${gene}</td>
+                            <td>${transcriptId}</td>
+                            <td>${hgvsHtml}</td>
+                            <td>${transcriptFlag}</td>
+                            <td>${soArray.join("")}</td>
+                            <td>${panel}</td>
+                            <td>${moi}</td>
+                            <td>${actionable}</td>
+                            <td>${acmg}</td>
+                            <td>${tier}</td>
+                            <td>${clinicalSignificance}</td>
+                        </tr>`;
+                } else {
+                    ctHtml += `
+                        <tr class="detail-view-row ${hideClass}" style="${displayStyle}">
+                            <td>${gene}</td>
+                            <td>${transcriptId}</td>
+                            <td>${hgvsHtml}</td>
+                            <td>${transcriptFlag}</td>
+                            <td>${soArray.join("")}</td>
+                            <td>${panel}</td>
+                            <td>${roleInCancer}</td>
+                            <td>${actionable}</td>
+                            <td>${tier}</td>
+                        </tr>`;
+                }
+            }
+            ctHtml += "</tbody></table>";
+            return ctHtml;
+        }
+        return "-";
+    }
+
     static zygosityFormatter(value, row, index) {
         let resultHtml = "";
 
@@ -378,4 +800,113 @@ export default class VariantInterpreterGridFormatter {
         return resultHtml;
     }
 
+    sampleFormatter(value, row, index) {
+        let res = "-";
+
+        if (typeof row !== "undefined" && typeof row.studies !== "undefined" && row.studies.length > 0) {
+            // NOTE: There are always 4 columns before the samples
+            // This context is for row
+            if (this.nucleotideGenotype) {
+                const alternateSequence = row.alternate;
+                const referenceSequence = row.reference;
+                const genotypeMatch = new Map();
+                let colText = "";
+                let referenceValueColText = "-";
+                let alternateValueColText = "-";
+
+                genotypeMatch.set(0, referenceSequence === "" ? "-" : referenceSequence);
+                genotypeMatch.set(1, alternateSequence === "" ? "-" : alternateSequence);
+
+                row.studies.forEach(study => {
+                    if (UtilsNew.isNotUndefinedOrNull(study.secondaryAlternates) && UtilsNew.isNotEmptyArray(study.secondaryAlternates)) {
+                        study.secondaryAlternates.forEach(secondary => {
+                            genotypeMatch.set(genotypeMatch.size, secondary.alternate === "" ? "-" : secondary.alternate);
+                        });
+                    }
+                    if (UtilsNew.isNotUndefinedOrNull(study.samplesData) && UtilsNew.isNotEmptyArray(study.samplesData)) {
+                        if (UtilsNew.isNotUndefinedOrNull(study.samplesData[this.fieldIndex - 4])) {
+                            const currentGenotype = study.samplesData[this.fieldIndex - 4][0];
+                            let reference = currentGenotype.split("/")[0];
+                            let alternate = currentGenotype.split("/")[1];
+                            let tooltipText = reference + " / " + alternate;
+                            if (UtilsNew.isNotEqual(reference, ".") && UtilsNew.isNotEqual(alternate, ".")) {
+                                reference = parseInt(reference);
+                                alternate = parseInt(alternate);
+                                const referenceValue = genotypeMatch.get(reference);
+                                const alternateValue = genotypeMatch.get(alternate);
+                                // Cases which this will cover.
+                                // referenceValue.length <= 5 && alternateVAlue.length <= 5
+                                // referenceValue.length <= 10 && alternateValue == "-"
+                                // alternateValue.length <= 10 && referenceValue == "-"
+                                referenceValueColText = referenceValue;
+                                alternateValueColText = alternateValue;
+
+                                // Not equal X/- or -/X
+                                if (UtilsNew.isNotEqual(referenceValue, "-") && UtilsNew.isNotEqual(alternateValue, "-")) {
+                                    if ((referenceValue.length <= 5 && alternateValue.length > 5) || (referenceValue.length > 5 && alternateValue.length <= 5)) {
+                                        if (referenceValue.length > 5) {
+                                            // referenceValue > 5
+                                            referenceValueColText = referenceValue.substring(0, 3) + "...";
+                                            //                                                    tooltipText += "<br>" + referenceValue +" / " + alternateValue;
+                                        } else {
+                                            // alternateValue > 5
+                                            alternateValueColText = alternateValue.substring(0, 3) + "...";
+                                            //                                                    tooltipText += "<br>" + referenceValue +" / " + alternateValue;
+                                        }
+                                    } else if (referenceValue.length > 5 && alternateValue.length > 5) {
+                                        // Both > 5 It will never happen
+                                        referenceValueColText = referenceValue.substring(0, 3) + "...";
+                                        alternateValueColText = alternateValue.substring(0, 3) + "...";
+                                        //                                                tooltipText += "<br>" +   referenceValue +" / " + alternateValue;
+                                    }
+                                } else if (UtilsNew.isNotEqual(referenceValue, "-") && referenceValue.length > 10) {
+                                    // X/-
+                                    const substringReference = referenceValue.substring(0, 5) + "...";
+                                    referenceValueColText = substringReference;
+                                    alternateValueColText = "-";
+                                    //                                                tooltipText += "<br>" +   referenceValue +" / " + alternateValue;
+                                } else if (UtilsNew.isNotEqual(alternateValue, "-") && alternateValue.length > 10) {
+                                    // -/X
+                                    const substringAlternate = alternateValue.substring(0, 5) + "...";
+                                    alternateValueColText = substringAlternate;
+                                    referenceValueColText = "-";
+                                    //                                                tooltipText += "<br>" +   referenceValue + " / " + alternateValue;
+                                }
+                                tooltipText += "<br>" + referenceValue + " / " + alternateValue;
+                            } else {
+                                referenceValueColText = reference;
+                                alternateValueColText = alternate;
+                                tooltipText += "<br>" + reference + " / " + alternate;
+                            }
+
+                            const referenceIndex = parseInt(reference);
+                            const alternateIndex = parseInt(alternate);
+                            if (referenceIndex === 1 && (referenceValueColText !== "-" && referenceValueColText !== "*")) {
+                                referenceValueColText = "<span class='orangeText'>" + referenceValueColText + "</span>";
+                            } else if (referenceIndex > 1 && (referenceValueColText !== "-" && referenceValueColText !== "*")) {
+                                referenceValueColText = "<span class='redText'>" + referenceValueColText + "</span>";
+                            }
+                            if (alternateIndex === 1 && (alternateValueColText !== "-" && alternateValueColText !== "*")) {
+                                alternateValueColText = "<span class='orangeText'>" + alternateValueColText + "</span>";
+                            } else if (alternateIndex > 1 && (alternateValueColText !== "-" && alternateValueColText !== "*")) {
+                                alternateValueColText = "<span class='redText'>" + alternateValueColText + "</span>";
+                            }
+                            colText = referenceValueColText + " / " + alternateValueColText;
+                            res = "<a><span class='sampleGenotype' tooltip-text='" + tooltipText + "'> " + colText + " </span></a>";
+                        }
+                    }
+                });
+            } else {
+                row.studies.forEach(study => {
+                    if (study.samplesData.length > 0) {
+                        const currentGenotype = study.samplesData[this.fieldIndex - 4];
+                        if (UtilsNew.isNotUndefinedOrNull(currentGenotype)) {
+                            res = currentGenotype[0];
+                        }
+                    }
+                });
+            }
+        }
+        return res;
+    }
 }

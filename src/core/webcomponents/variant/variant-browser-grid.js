@@ -21,6 +21,7 @@ import GridCommons from "../commons/grid-commons.js";
 import VariantUtils from "./variant-utils.js";
 import "../commons/opencb-grid-toolbar.js";
 import "../loading-spinner.js";
+ import BioinfoUtils from "../../bioinfo-utils.js";
 
 
 export default class VariantBrowserGrid extends LitElement {
@@ -45,13 +46,10 @@ export default class VariantBrowserGrid extends LitElement {
             query: {
                 type: Object
             },
-            data: {
+            variants: {
                 type: Array
             },
             cohorts: {
-                type: Object
-            },
-            consequenceTypes: {
                 type: Object
             },
             config: {
@@ -84,7 +82,7 @@ export default class VariantBrowserGrid extends LitElement {
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("opencgaSession") || changedProperties.has("query") || changedProperties.has("data")) {
+        if (changedProperties.has("opencgaSession") || changedProperties.has("query") || changedProperties.has("variants")) {
             this.propertyObserver();
             this.renderVariants();
         }
@@ -96,19 +94,15 @@ export default class VariantBrowserGrid extends LitElement {
     propertyObserver() {
         // With each property change we must updated config and create the columns again. No extra checks are needed.
         this._config = Object.assign(this.getDefaultConfig(), this.config);
-        // this.variantGridFormatter = new VariantGridFormatter(this.opencgaSession, this._config);
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
 
-        // We check query.sample and query.genotype to check if samples exist.
         // We parse query fields and store a samples object array for convenience
         const _samples = [];
-        if (this.query) {
-            if (this.query.sample) {
-                for (const sampleId of this.query.sample.split("[,;]")) {
-                    _samples.push({
-                        id: sampleId.split(":")[0]
-                    });
-                }
+        if (this.query?.sample) {
+            for (const sampleId of this.query.sample.split("[,;]")) {
+                _samples.push({
+                    id: sampleId.split(":")[0]
+                });
             }
         }
         this.samples = _samples;
@@ -124,16 +118,15 @@ export default class VariantBrowserGrid extends LitElement {
     }
 
     renderVariants() {
-        this.renderVariantTable();
-        // if (this._config.renderLocal) {
-        //     this.renderFromLocal();
-        // } else {
-        //     this.renderVariantTable();
-        // }
+        if (this.variants && this.variants.length > 0) {
+            this.renderFromLocal();
+        } else {
+            this.renderRemoteVariants()
+        }
         this.requestUpdate();
     }
 
-    renderVariantTable() {
+    renderRemoteVariants() {
         this.from = 1;
         this.to = this._config.pageSize;
         this.approximateCountResult = false;
@@ -147,29 +140,26 @@ export default class VariantBrowserGrid extends LitElement {
                 columns: this._createDefaultColumns().flat().filter(f => !["deleteriousness", "cohorts", "conservation", "popfreq", "phenotypes"].includes(f.field))
             };
 
-            const _this = this;
             this.table = $("#" + this.gridId);
             this.table.bootstrapTable("destroy");
             this.table.bootstrapTable({
-                columns: _this._columns,
+                columns: this._columns,
                 method: "get",
                 sidePagination: "server",
 
                 // Set table properties, these are read from config property
                 uniqueId: "id",
-                pagination: _this._config.pagination,
-                pageSize: _this._config.pageSize,
-                pageList: _this._config.pageList,
+                pagination: this._config.pagination,
+                pageSize: this._config.pageSize,
+                pageList: this._config.pageList,
                 paginationVAlign: "both",
                 formatShowingRows: this.gridCommons.formatShowingRows,
-                showExport: _this._config.showExport,
-                detailView: _this._config.detailView,
-                detailFormatter: _this._config.detailFormatter,
-                // showColumns : false,
-                // showColumnsToggleAll: false,
+                showExport: this._config.showExport,
+                detailView: this._config.detailView,
+                detailFormatter: this._config.detailFormatter,
                 formatLoadingMessage: () => "<loading-spinner></loading-spinner>",
                 // this makes the opencga-variant-grid properties available in the bootstrap-table detail formatter
-                variantGrid: _this,
+                variantGrid: this,
                 ajax: params => {
                     // TODO We must decide i this component support a porperty:  mode = {opencga | cellbase}
                     let tableOptions = $(this.table).bootstrapTable("getOptions");
@@ -199,14 +189,14 @@ export default class VariantBrowserGrid extends LitElement {
                     return result.response;
                 },
                 onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
-                onDblClickRow: function (row, element, field) {
+                onDblClickRow: (row, element, field) => {
                     // We detail view is active we expand the row automatically.
                     // FIXME: Note that we use a CSS class way of knowing if the row is expand or collapse, this is not ideal but works.
-                    if (_this._config.detailView) {
+                    if (this._config.detailView) {
                         if (element[0].innerHTML.includes("icon-plus")) {
-                            $("#" + _this.gridId).bootstrapTable("expandRow", element[0].dataset.index);
+                            $("#" + this.gridId).bootstrapTable("expandRow", element[0].dataset.index);
                         } else {
-                            $("#" + _this.gridId).bootstrapTable("collapseRow", element[0].dataset.index);
+                            $("#" + this.gridId).bootstrapTable("collapseRow", element[0].dataset.index);
                         }
                     }
                 },
@@ -254,45 +244,33 @@ export default class VariantBrowserGrid extends LitElement {
                     document.getElementById(this._prefix + row.id + "HideCt").addEventListener("click", VariantGridFormatter.toggleDetailConsequenceType.bind(this));
                 },
                 onPostBody: (data) => {
-                    // TODO remove (review this.sampleFormatter)
-                    $("span.sampleGenotype").qtip({
-                        content: {
-                            title: "More info",
-                            text: function (event, api) {
-                                return $(this).attr("data-text");
-                            }
-                        },
-                        position: {
-                            target: "mouse",
-                            adjust: {
-                                x: 2, y: 2,
-                                mouse: false
-                            }
-                        },
-                        style: {
-                            width: true
-                        },
-                        show: {
-                            delay: 200
-                        },
-                        hide: {
-                            fixed: true,
-                            delay: 300
-                        }
-                    });
                 }
             });
         }
     }
 
     renderFromLocal() {
-        const _this = this;
         $("#" + this.gridId).bootstrapTable("destroy");
         $("#" + this.gridId).bootstrapTable({
-            data: this.data,
-            columns: this.cols,
-            onClickRow: function (row, $element) {
-                _this.variant = row.chromosome + ":" + row.start + ":" + row.reference + ":" + row.alternate;
+            data: this.variants,
+            columns: this._createDefaultColumns(),
+            sidePagination: "local",
+
+            // Set table properties, these are read from config property
+            uniqueId: "id",
+            pagination: this._config.pagination,
+            pageSize: this._config.pageSize,
+            pageList: this._config.pageList,
+            paginationVAlign: "both",
+            formatShowingRows: this.gridCommons.formatShowingRows,
+            showExport: this._config.showExport,
+            detailView: this._config.detailView,
+            detailFormatter: this._config.detailFormatter,
+            formatLoadingMessage: () => "<loading-spinner></loading-spinner>",
+            // this makes the opencga-variant-grid properties available in the bootstrap-table detail formatter
+            variantGrid: this,
+            onClickRow: (row, $element) => {
+                this.variant = row.chromosome + ":" + row.start + ":" + row.reference + ":" + row.alternate;
                 $(".success").removeClass("success");
                 $($element).addClass("success");
             },
@@ -312,6 +290,7 @@ export default class VariantBrowserGrid extends LitElement {
     detailFormatter(index, row, a) {
         let result = "<div class='row' style='padding-bottom: 20px'>";
         let detailHtml = "";
+
         if (typeof row !== "undefined" && typeof row.annotation !== "undefined") {
             detailHtml = "<div style='padding: 10px 0px 10px 25px'><h4>Consequence Types</h4></div>";
             detailHtml += "<div style='padding: 5px 50px'>";
@@ -320,41 +299,7 @@ export default class VariantBrowserGrid extends LitElement {
 
             detailHtml += "<div style='padding: 20px 0px 15px 25px'><h4>Clinical Phenotypes</h4></div>";
             detailHtml += "<div style='padding: 5px 50px'>";
-            let clinvarTraits = "";
-            let cosmicTraits = "";
-            if (typeof row.annotation.variantTraitAssociation !== "undefined" && row.annotation.variantTraitAssociation != null) {
-                const traits = {
-                    clinvar: [],
-                    cosmic: []
-                };
-                const fields = ["clinvar", "cosmic"];
-                for (const field of fields) {
-                    const clinicalData = row.annotation.variantTraitAssociation[field];
-                    if (typeof clinicalData !== "undefined" && clinicalData.length > 0) {
-                        for (let j = 0; j < clinicalData.length; j++) {
-                            if (field === "clinvar" && traits.clinvar.indexOf(clinicalData[j].traits[0]) === -1 &&
-                                clinicalData[j].traits[0] !== "not specified" && clinicalData[j].traits[0] !== "not provided") {
-                                traits.clinvar.push(clinicalData[j].traits[0]);
-                            } else if (field === "cosmic" && traits.cosmic.indexOf(clinicalData[j].primaryHistology) === -1) {
-                                const histologySubtype = (UtilsNew.isNotEmpty(clinicalData[j].histologySubtype)) ? clinicalData[j].histologySubtype : "-";
-                                traits.cosmic.push(clinicalData[j].primaryHistology + " (" + histologySubtype + ")");
-                            }
-                        }
-                    }
-                }
-
-                if (traits.clinvar.length > 0) {
-                    clinvarTraits = "<div><label style='padding-right: 10px'>ClinVar: </label>" + traits.clinvar.join(", ") + "</div>";
-                } else {
-                    clinvarTraits = "<div><label style='padding-right: 10px'>ClinVar: </label>-</div>";
-                }
-                if (traits.cosmic.length > 0) {
-                    cosmicTraits = "<div><label style='padding-right: 10px'>Cosmic: </label>" + traits.cosmic.join(", ") + "</div>";
-                } else {
-                    cosmicTraits = "<div><label style='padding-right: 10px'>Cosmic: </label>-</div>";
-                }
-            }
-            detailHtml += clinvarTraits + cosmicTraits;
+            detailHtml += VariantGridFormatter.clinicalDetail(index, row);
             detailHtml += "</div>";
         }
         result += detailHtml + "</div>";
@@ -475,117 +420,6 @@ export default class VariantBrowserGrid extends LitElement {
         }
     }
 
-    // TODO Nacho to review and improve this function
-    sampleFormatter(value, row, index) {
-        let res = "-";
-
-        if (typeof row !== "undefined" && typeof row.studies !== "undefined" && row.studies.length > 0) {
-            // NOTE: There are always 4 columns before the samples
-            // This context is for row
-            if (this.nucleotideGenotype) {
-                const alternateSequence = row.alternate;
-                const referenceSequence = row.reference;
-                const genotypeMatch = new Map();
-                let colText = "";
-                let referenceValueColText = "-";
-                let alternateValueColText = "-";
-
-                genotypeMatch.set(0, referenceSequence === "" ? "-" : referenceSequence);
-                genotypeMatch.set(1, alternateSequence === "" ? "-" : alternateSequence);
-
-                row.studies.forEach(study => {
-                    if (UtilsNew.isNotUndefinedOrNull(study.secondaryAlternates) && UtilsNew.isNotEmptyArray(study.secondaryAlternates)) {
-                        study.secondaryAlternates.forEach(secondary => {
-                            genotypeMatch.set(genotypeMatch.size, secondary.alternate === "" ? "-" : secondary.alternate);
-                        });
-                    }
-                    if (UtilsNew.isNotUndefinedOrNull(study.samplesData) && UtilsNew.isNotEmptyArray(study.samplesData)) {
-                        if (UtilsNew.isNotUndefinedOrNull(study.samplesData[this.fieldIndex - 4])) {
-                            const currentGenotype = study.samplesData[this.fieldIndex - 4][0];
-                            let reference = currentGenotype.split("/")[0];
-                            let alternate = currentGenotype.split("/")[1];
-                            let tooltipText = reference + " / " + alternate;
-                            if (UtilsNew.isNotEqual(reference, ".") && UtilsNew.isNotEqual(alternate, ".")) {
-                                reference = parseInt(reference);
-                                alternate = parseInt(alternate);
-                                const referenceValue = genotypeMatch.get(reference);
-                                const alternateValue = genotypeMatch.get(alternate);
-                                // Cases which this will cover.
-                                // referenceValue.length <= 5 && alternateVAlue.length <= 5
-                                // referenceValue.length <= 10 && alternateValue == "-"
-                                // alternateValue.length <= 10 && referenceValue == "-"
-                                referenceValueColText = referenceValue;
-                                alternateValueColText = alternateValue;
-
-                                // Not equal X/- or -/X
-                                if (UtilsNew.isNotEqual(referenceValue, "-") && UtilsNew.isNotEqual(alternateValue, "-")) {
-                                    if ((referenceValue.length <= 5 && alternateValue.length > 5) || (referenceValue.length > 5 && alternateValue.length <= 5)) {
-                                        if (referenceValue.length > 5) {
-                                            // referenceValue > 5
-                                            referenceValueColText = referenceValue.substring(0, 3) + "...";
-                                            //                                                    tooltipText += "<br>" + referenceValue +" / " + alternateValue;
-                                        } else {
-                                            // alternateValue > 5
-                                            alternateValueColText = alternateValue.substring(0, 3) + "...";
-                                            //                                                    tooltipText += "<br>" + referenceValue +" / " + alternateValue;
-                                        }
-                                    } else if (referenceValue.length > 5 && alternateValue.length > 5) {
-                                        // Both > 5 It will never happen
-                                        referenceValueColText = referenceValue.substring(0, 3) + "...";
-                                        alternateValueColText = alternateValue.substring(0, 3) + "...";
-                                        //                                                tooltipText += "<br>" +   referenceValue +" / " + alternateValue;
-                                    }
-                                } else if (UtilsNew.isNotEqual(referenceValue, "-") && referenceValue.length > 10) {
-                                    // X/-
-                                    const substringReference = referenceValue.substring(0, 5) + "...";
-                                    referenceValueColText = substringReference;
-                                    alternateValueColText = "-";
-                                    //                                                tooltipText += "<br>" +   referenceValue +" / " + alternateValue;
-                                } else if (UtilsNew.isNotEqual(alternateValue, "-") && alternateValue.length > 10) {
-                                    // -/X
-                                    const substringAlternate = alternateValue.substring(0, 5) + "...";
-                                    alternateValueColText = substringAlternate;
-                                    referenceValueColText = "-";
-                                    //                                                tooltipText += "<br>" +   referenceValue + " / " + alternateValue;
-                                }
-                                tooltipText += "<br>" + referenceValue + " / " + alternateValue;
-                            } else {
-                                referenceValueColText = reference;
-                                alternateValueColText = alternate;
-                                tooltipText += "<br>" + reference + " / " + alternate;
-                            }
-
-                            const referenceIndex = parseInt(reference);
-                            const alternateIndex = parseInt(alternate);
-                            if (referenceIndex === 1 && (referenceValueColText !== "-" && referenceValueColText !== "*")) {
-                                referenceValueColText = "<span class='orangeText'>" + referenceValueColText + "</span>";
-                            } else if (referenceIndex > 1 && (referenceValueColText !== "-" && referenceValueColText !== "*")) {
-                                referenceValueColText = "<span class='redText'>" + referenceValueColText + "</span>";
-                            }
-                            if (alternateIndex === 1 && (alternateValueColText !== "-" && alternateValueColText !== "*")) {
-                                alternateValueColText = "<span class='orangeText'>" + alternateValueColText + "</span>";
-                            } else if (alternateIndex > 1 && (alternateValueColText !== "-" && alternateValueColText !== "*")) {
-                                alternateValueColText = "<span class='redText'>" + alternateValueColText + "</span>";
-                            }
-                            colText = referenceValueColText + " / " + alternateValueColText;
-                            res = "<span class='sampleGenotype' data-text='" + tooltipText + "'> " + colText + " </span>";
-                        }
-                    }
-                });
-            } else {
-                row.studies.forEach(study => {
-                    if (study.samplesData.length > 0) {
-                        const currentGenotype = study.samplesData[this.fieldIndex - 4];
-                        if (UtilsNew.isNotUndefinedOrNull(currentGenotype)) {
-                            res = currentGenotype[0];
-                        }
-                    }
-                });
-            }
-        }
-        return res;
-    }
-
     _createDefaultColumns() {
         this._columns = [
             [
@@ -649,16 +483,16 @@ export default class VariantBrowserGrid extends LitElement {
                     align: "center"
                 },
                 {
-                    title: `Phenotypes <a id="phenotypesInfoIcon" tooltip-title="Phenotypes" tooltip-text="
-                            <div>
-                                <span style='font-weight: bold'>ClinVar</span> is a freely accessible, public archive of reports of the relationships among human variations 
-                                and phenotypes, with supporting evidence.
-                            </div>
-                            <div style='padding-top: 10px'>
-                                <span style='font-weight: bold'>COSMIC</span> is the world's largest and most comprehensive resource for exploring the impact of somatic mutations in human cancer.
-                            </div>"
-                        tooltip-position-at="left bottom" tooltip-position-my="right top"><i class="fa fa-info-circle" aria-hidden="true"></i></a>`,
-                    field: "phenotypes",
+                    title: `Clinical Info <a id="phenotypesInfoIcon" tooltip-title="Phenotypes" tooltip-text="
+                                <div>
+                                    <span style='font-weight: bold'>ClinVar</span> is a freely accessible, public archive of reports of the relationships among human variations 
+                                    and phenotypes, with supporting evidence.
+                                </div>
+                                <div style='padding-top: 10px'>
+                                    <span style='font-weight: bold'>COSMIC</span> is the world's largest and most comprehensive resource for exploring the impact of somatic mutations in human cancer.
+                                </div>"
+                            tooltip-position-at="left bottom" tooltip-position-my="right top"><i class="fa fa-info-circle" aria-hidden="true"></i></a>`,
+                    // field: "phenotypes",
                     rowspan: 1,
                     colspan: 2,
                     align: "center"

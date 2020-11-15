@@ -337,13 +337,13 @@ export default class VariantInterpreterGrid extends LitElement {
             if (this.variantGrid.clinicalAnalysis.type.toUpperCase() !== "CANCER") {
                 detailHtml = "<div style='padding: 10px 0px 5px 25px'><h4>Variant Allele Frequency</h4></div>";
                 detailHtml += "<div style='padding: 5px 50px'>";
-                detailHtml += VariantGridFormatter.variantAlleleFrequencyDetailFormatter(value, row, this.variantGrid);
+                detailHtml += VariantInterpreterGridFormatter.variantAlleleFrequencyDetailFormatter(value, row, this.variantGrid);
                 detailHtml += "</div>";
             }
 
             detailHtml += "<div style='padding: 10px 0px 5px 25px'><h4>Clinical Mutation Evidence</h4></div>";
             detailHtml += "<div style='padding: 5px 50px'>";
-            detailHtml += VariantGridFormatter.reportedEventDetailFormatter(value, row, this.variantGrid, this.variantGrid.query, this.variantGrid._config);
+            detailHtml += VariantInterpreterGridFormatter.reportedEventDetailFormatter(value, row, this.variantGrid, this.variantGrid.query, this.variantGrid._config);
             detailHtml += "</div>";
 
             detailHtml += "<div style='padding: 25px 0px 5px 25px'><h4>Consequence Types</h4></div>";
@@ -353,37 +353,7 @@ export default class VariantInterpreterGrid extends LitElement {
 
             detailHtml += "<div style='padding: 20px 0px 5px 25px'><h4>Clinical Phenotypes</h4></div>";
             detailHtml += "<div style='padding: 5px 50px'>";
-            let clinvarTraits = "<div><label style='padding-right: 10px'>ClinVar: </label>-</div>";
-            let cosmicTraits = "<div><label style='padding-right: 10px'>Cosmic: </label>-</div>";
-            if (typeof row.annotation.traitAssociation !== "undefined" && row.annotation.traitAssociation != null) {
-                const traits = {
-                    clinvar: [],
-                    cosmic: []
-                };
-                const fields = ["clinvar", "cosmic"];
-                for (const field of fields) {
-                    const clinicalData = row.annotation.traitAssociation[field];
-                    if (UtilsNew.isNotEmptyArray(clinicalData)) {
-                        for (let j = 0; j < clinicalData.length; j++) {
-                            if (field === "clinvar" && traits.clinvar.indexOf(clinicalData[j].traits[0]) === -1 &&
-                                clinicalData[j].traits[0] !== "not specified" && clinicalData[j].traits[0] !== "not provided") {
-                                traits.clinvar.push(clinicalData[j].traits[0]);
-                            } else if (field === "cosmic" && traits.cosmic.indexOf(clinicalData[j].primaryHistology) === -1) {
-                                const histologySubtype = (UtilsNew.isNotEmpty(clinicalData[j].histologySubtype)) ? clinicalData[j].histologySubtype : "-";
-                                traits.cosmic.push(clinicalData[j].primaryHistology + " (" + histologySubtype + ")");
-                            }
-                        }
-                    }
-                }
-
-                if (traits.clinvar.length > 0) {
-                    clinvarTraits = "<div><label style='padding-right: 10px'>ClinVar: </label>" + traits.clinvar.join(", ") + "</div>";
-                }
-                if (traits.cosmic.length > 0) {
-                    cosmicTraits = "<div><label style='padding-right: 10px'>Cosmic: </label>" + traits.cosmic.join(", ") + "</div>";
-                }
-            }
-            detailHtml += clinvarTraits + cosmicTraits;
+            detailHtml += VariantGridFormatter.clinicalDetail(value, row);
             detailHtml += "</div>";
         }
         result += detailHtml + "</div>";
@@ -563,7 +533,15 @@ export default class VariantInterpreterGrid extends LitElement {
                     align: "center"
                 },
                 {
-                    title: "Clinical",
+                    title: `Clinical Info <a id="phenotypesInfoIcon" tooltip-title="Phenotypes" tooltip-text="
+                                <div>
+                                    <span style='font-weight: bold'>ClinVar</span> is a freely accessible, public archive of reports of the relationships among human variations 
+                                    and phenotypes, with supporting evidence.
+                                </div>
+                                <div style='padding-top: 10px'>
+                                    <span style='font-weight: bold'>COSMIC</span> is the world's largest and most comprehensive resource for exploring the impact of somatic mutations in human cancer.
+                                </div>"
+                            tooltip-position-at="left bottom" tooltip-position-my="right top"><i class="fa fa-info-circle" aria-hidden="true"></i></a>`,
                     rowspan: 1,
                     colspan: 2,
                     align: "center"
