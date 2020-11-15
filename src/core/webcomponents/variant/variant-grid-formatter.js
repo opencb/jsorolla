@@ -893,11 +893,11 @@ export default class VariantGridFormatter {
     }
 
     static clinicalDetail(value, row, index) {
-        let clinvarTraits = "";
-        let cosmicTraits = "";
+        let clinvar = [];
+        let cosmic = [];
+        let clinvarTable;
+        let cosmicTable;
         if (row.annotation.traitAssociation && row.annotation.traitAssociation.length > 0) {
-            let clinvar = [];
-            let cosmic = [];
             for (let trait of row.annotation.traitAssociation) {
                 let values = [];
                 if (trait.source.name.toUpperCase() === "CLINVAR") {
@@ -923,24 +923,25 @@ export default class VariantGridFormatter {
                 {title: "Clinical Significance"},
                 {title: "Traits"},
             ];
-            let table = VariantGridFormatter.renderTable("", clinvarColumns, clinvar);
-            clinvarTraits = `<div style="margin: 10px 5px">
-                                <label style='padding-right: 10px'>ClinVar</label>
-                                <div>${clinvar.length > 0 ? table : "No Clinvar data found"}</div>
-                             </div>`;
+            clinvarTable = VariantGridFormatter.renderTable("", clinvarColumns, clinvar);
 
             let cosmicColumns = [
                 {title: "id"},
                 {title: "Primary Histology"},
                 {title: "Histology Subtype"},
             ];
-            table = VariantGridFormatter.renderTable("", cosmicColumns, cosmic);
-            cosmicTraits = `<div style="margin: 10px 5px">
-                                    <label style='padding-right: 10px'>Cosmic</label>
-                                    <div>${cosmic.length > 0 ? table : "No Cosmic data found"}</div>
-                                 </div>`;
-
+            cosmicTable = VariantGridFormatter.renderTable("", cosmicColumns, cosmic);
         }
+
+        // Prepare html
+        let clinvarTraits = `<div style="margin: 10px 5px">
+                                <label style='padding-right: 10px'>ClinVar</label>
+                                <div>${clinvar.length > 0 ? clinvarTable : "No Clinvar data found"}</div>
+                             </div>`;
+        let cosmicTraits = `<div style="margin: 10px 5px">
+                                <label style='padding-right: 10px'>Cosmic</label>
+                                <div>${cosmic.length > 0 ? cosmicTable : "No Cosmic data found"}</div>
+                            </div>`;
         return  clinvarTraits + cosmicTraits;
     }
     /*
