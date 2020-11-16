@@ -21,6 +21,7 @@ import AnalysisRegistry from "../analysis-registry.js";
 import GridCommons from "../../../commons/grid-commons.js";
 import knockoutData from "../test/knockout.20201029141213.SChLEA.js";
 import "./knockout-individual-variants.js";
+import "./knockout-variant-allele-pairs.js";
 import "../../../family/opencga-family-view.js";
 import "../../annotation/cellbase-population-frequency-grid.js";
 import "../../annotation/variant-annotation-clinical-view.js";
@@ -266,7 +267,7 @@ export default class KnockoutVariantView extends LitElement {
                     name: "Allele pairs",
                     render: (variant, active, opencgaSession) => {
                         return html`
-                            allele-view
+                            <knockout-variant-allele-pairs .variantId="${variant}"></knockout-variant-allele-pairs>
                         `;
                     }
                 },
