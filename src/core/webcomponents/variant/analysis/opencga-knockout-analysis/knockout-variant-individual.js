@@ -20,7 +20,7 @@ import "./../../../commons/view/detail-tabs.js";
 import knockoutDataIndividuals from "../test/knockout.20201103172343.kFIvpr.individuals.js";
 
 
-export default class KnockoutVariantAllelePairs extends LitElement {
+export default class KnockoutVariantIndividual extends LitElement {
 
     constructor() {
         super();
@@ -99,45 +99,46 @@ export default class KnockoutVariantAllelePairs extends LitElement {
     _initTableColumns() {
         return [
             {
-                title: "Allele",
-                field: "variant"
+                title: "Individual",
+                field: "id"
             },
             {
-                title: "Pair type",
-                field: "pair"
+                title: "Sample",
+                field: "sample"
             },
             {
                 title: "Type",
                 field: "type"
             },
             {
-                title: "Alt. freq",
-                field: "freq"
+                title: "GT",
+                field: "genotype"
             },
             {
-                title: "Consequence Type",
-                field: "consequenceType"
+                title: "DP",
+                field: "dp"
             },
             {
-                title: "ClinVar",
-                field: "clinvar"
+                title: "Filter",
+                field: "filter"
             },
             {
-                title: "Num. Individuals",
-                field: "individuals"
+                title: "Qual",
+                field: "qual"
             }
         ];
     }
 
     getDefaultConfig() {
         return {
-            title: "Allele Pairs"
+            title: "Individual"
 
         };
     }
 
     render() {
-        return html`   
+        return html`
+            <h3>Individual presenting ${this.variantId}</h3>
             <div class="row">
                 <table id="${this.gridId}"></table>
             </div>
@@ -146,4 +147,4 @@ export default class KnockoutVariantAllelePairs extends LitElement {
 
 }
 
-customElements.define("knockout-variant-allele-pairs", KnockoutVariantAllelePairs);
+customElements.define("knockout-variant-individual", KnockoutVariantIndividual);
