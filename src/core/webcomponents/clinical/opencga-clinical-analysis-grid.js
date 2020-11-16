@@ -172,7 +172,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
         // Config for the grid toolbar
         this.toolbarConfig = {
             ...this._config.toolbar,
-            columns: this._getDefaultColumns().filter(col => col.field)
+            columns: this._getDefaultColumns().filter(col => col.field && col.visible)
         };
 
         this.renderTable();
@@ -576,7 +576,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                 events: {
                     "click a": this.onActionClick.bind(this)
                 },
-                visible: !this._config.columns.hidden.includes("status")
+                visible: !this._config.columns.hidden.includes("status") && !!this.opencgaSession.study?.configuration?.clinical?.status
             },
             {
                 title: "Priority",
@@ -588,7 +588,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                 events: {
                     "click a": this.onActionClick.bind(this)
                 },
-                visible: !this._config.columns.hidden.includes("priority")
+                visible: !this._config.columns.hidden.includes("priority") && !!this.opencgaSession.study?.configuration?.clinical?.priority
             },
             {
                 title: "Analyst",

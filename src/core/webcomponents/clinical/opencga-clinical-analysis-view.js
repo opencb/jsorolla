@@ -207,7 +207,7 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                             name: "Status",
                             field: "status.name",
                             display: {
-                                visible: !this._config?.hiddenFields?.includes("status.name"),
+                                visible: !this._config?.hiddenFields?.includes("status.name") && !!this.opencgaSession?.study?.configuration?.clinical?.status,
                             }
                         },
                         {
@@ -223,10 +223,12 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                             field: "priority",
                             type: "custom",
                             display: {
-                                visible: !this._config?.hiddenFields?.includes("priority"),
+                                visible: !this._config?.hiddenFields?.includes("priority") && !!this.opencgaSession?.study?.configuration?.clinical?.priority,
                                 render: priority => {
-                                    let colors = {"URGENT": "red", "HIGH": "darkorange"};
-                                    return html`<span style="color: ${colors[priority.id]}">${priority.id}</span>`
+                                    const priorityRankToColor = ["label-danger", "label-warning", "label-primary", "label-info", "label-success", "label-default"];
+                                    return html`<span class="label ${priorityRankToColor[priority.rank]}">
+                                        ${priority.id}
+                                    </span>`;
                                 }
                             }
                         },
