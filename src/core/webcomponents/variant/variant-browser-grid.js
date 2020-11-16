@@ -17,11 +17,11 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "./../../utilsNew.js";
 import VariantGridFormatter from "./variant-grid-formatter.js";
+import VariantInterpreterGridFormatter from "./interpretation/variant-interpreter-grid-formatter.js";
 import GridCommons from "../commons/grid-commons.js";
 import VariantUtils from "./variant-utils.js";
 import "../commons/opencb-grid-toolbar.js";
 import "../loading-spinner.js";
- import BioinfoUtils from "../../bioinfo-utils.js";
 
 
 export default class VariantBrowserGrid extends LitElement {
@@ -292,12 +292,12 @@ export default class VariantBrowserGrid extends LitElement {
         let detailHtml = "";
 
         if (typeof row !== "undefined" && typeof row.annotation !== "undefined") {
-            detailHtml = "<div style='padding: 10px 0px 10px 25px'><h4>Consequence Types</h4></div>";
+            detailHtml = "<div style='padding: 10px 0px 5px 25px'><h4>Consequence Types</h4></div>";
             detailHtml += "<div style='padding: 5px 50px'>";
             detailHtml += VariantGridFormatter.consequenceTypeDetailFormatter(index, row, this.variantGrid, this.variantGrid.query, this.variantGrid._config, this.variantGrid.opencgaSession.project.organism.assembly);
             detailHtml += "</div>";
 
-            detailHtml += "<div style='padding: 20px 0px 15px 25px'><h4>Clinical Phenotypes</h4></div>";
+            detailHtml += "<div style='padding: 10px 0px 5px 25px'><h4>Clinical Phenotypes</h4></div>";
             detailHtml += "<div style='padding: 5px 50px'>";
             detailHtml += VariantGridFormatter.clinicalTableDetail(index, row);
             detailHtml += "</div>";
@@ -678,7 +678,7 @@ export default class VariantBrowserGrid extends LitElement {
                     field: "samples",
                     rowspan: 1,
                     colspan: 1,
-                    formatter: this.sampleFormatter,
+                    formatter: VariantInterpreterGridFormatter.sampleGenotypeFormatter,
                     align: "center",
                     nucleotideGenotype: true
                 });

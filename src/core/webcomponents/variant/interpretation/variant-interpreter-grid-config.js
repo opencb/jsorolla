@@ -162,7 +162,7 @@ debugger
                             name: "Select Render Mode",
                             field: "genotype.type",
                             type: "select",
-                            allowedValues: ["circle", "bar", "vaf"],
+                            allowedValues: ["Circle", "VAF", "VAF Bar", "GT"],
                             display: {
                                 width: "6"
                             }

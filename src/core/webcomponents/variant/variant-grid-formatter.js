@@ -928,7 +928,7 @@ export default class VariantGridFormatter {
             {title: "Traits"},
         ];
         let clinvarTable = VariantGridFormatter.renderTable("", clinvarColumns, clinvar, {defaultMessage: "No ClinVar data found"});
-        let clinvarTraits = `<div style="margin: 10px 5px">
+        let clinvarTraits = `<div>
                                 <label>ClinVar</label>
                                 <div>${clinvarTable}</div>
                              </div>`;
@@ -940,7 +940,7 @@ export default class VariantGridFormatter {
             {title: "Histology Subtype"},
         ];
         let cosmicTable = VariantGridFormatter.renderTable("", cosmicColumns, cosmic, {defaultMessage: "No Cosmic data found"});
-        let cosmicTraits = `<div style="margin: 10px 5px">
+        let cosmicTraits = `<div style="margin-top: 15px">
                                 <label>Cosmic</label>
                                 <div>${cosmicTable}</div>
                             </div>`;

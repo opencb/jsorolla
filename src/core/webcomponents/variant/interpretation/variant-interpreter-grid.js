@@ -735,7 +735,7 @@ export default class VariantInterpreterGrid extends LitElement {
                         },
                         rowspan: 1,
                         colspan: 1,
-                        formatter: VariantInterpreterGridFormatter.zygosityFormatter,
+                        formatter: VariantInterpreterGridFormatter.sampleGenotypeFormatter,
                         align: "center",
                         nucleotideGenotype: true
                     });
@@ -780,7 +780,7 @@ export default class VariantInterpreterGrid extends LitElement {
                         },
                         rowspan: 1,
                         colspan: 1,
-                        formatter: VariantInterpreterGridFormatter.zygosityFormatter,
+                        formatter: VariantInterpreterGridFormatter.sampleGenotypeFormatter,
                         align: "center",
                         nucleotideGenotype: true
                     });
@@ -879,7 +879,7 @@ export default class VariantInterpreterGrid extends LitElement {
             alleleStringLengthMax: 10,
 
             genotype: {
-                type: "bar"
+                type: "Circle"
             },
             header: {
                 horizontalAlign: "center",
