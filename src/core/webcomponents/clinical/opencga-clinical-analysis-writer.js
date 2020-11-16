@@ -19,7 +19,7 @@ import UtilsNew from "../../utilsNew.js";
 import "../commons/view/data-form.js";
 import {NotificationQueue} from "../Notification.js";
 import CatalogUtils from "../commons/catalog-utils.js";
-
+import "../commons/filters/clinical-priority-filter.js";
 
 export default class OpencgaClinicalAnalysisWriter extends LitElement {
 
@@ -122,6 +122,10 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
 
         this.clinicalAnalysis = {...this.clinicalAnalysis};
         this.requestUpdate();
+    }
+
+    onCustomFieldChange(field, e) {
+        this.onFieldChange({detail: {value: e.detail.value, param: field}});
     }
 
     onIndividualChange(e) {
@@ -567,10 +571,11 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                         {
                             name: "Priority",
                             field: "priority",
-                            type: "select",
+                            type: "custom",
                             allowedValues: ["URGENT", "HIGH", "MEDIUM", "LOW"],
                             defaultValue: "MEDIUM",
                             display: {
+                                render: priority => html`<clinical-priority-filter .config=${{multiple: false}} .priorities="${[...Object.values(this.opencgaSession.study.configuration?.clinical?.priorities)]}" @filterChange="${e => this.onCustomFieldChange("priority", e)}" .priority="${priority}""></clinical-priority-filter>`
                             }
                         },
                         {

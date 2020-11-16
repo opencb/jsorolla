@@ -17,7 +17,7 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../utilsNew.js";
-
+import "./select-field-filter.js";
 
 export default class ClinicalPriorityFilter extends LitElement {
 
@@ -73,13 +73,14 @@ export default class ClinicalPriorityFilter extends LitElement {
 
     getDefaultConfig() {
         return {
-            priorities: ["URGENT", "HIGH", "MEDIUM", "LOW"]
+            priorities: ["URGENT", "HIGH", "MEDIUM", "LOW"],
+            multiple: true
         };
     }
 
     render() {
         return html`
-            <select-field-filter .data="${this.priorities}" .value=${this.priority} multiple @filterChange="${e => this.filterChange(e)}"></select-field-filter>
+            <select-field-filter ?multiple="${this._config.multiple}" .data="${this.priorities}" .value=${this.priority} multiple @filterChange="${e => this.filterChange(e)}"></select-field-filter>
         `;
     }
 
