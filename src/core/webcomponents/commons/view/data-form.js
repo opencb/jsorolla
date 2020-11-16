@@ -60,8 +60,8 @@ export default class DataForm extends LitElement {
         $("#" + this._prefix + "DuePickerDate").datetimepicker({
             format: "DD/MM/YYYY"
         });
-        $("#" + this._prefix + "DuePickerDate").on("dp.change", (e) => {
-             this.onFilterChange(e.currentTarget.dataset.field, e.date.format("YYYYMMDDHHmmss"));
+        $("#" + this._prefix + "DuePickerDate").on("dp.change", e => {
+            this.onFilterChange(e.currentTarget.dataset.field, e.date.format("YYYYMMDDHHmmss"));
         });
     }
 
@@ -74,7 +74,7 @@ export default class DataForm extends LitElement {
     getValue(field, object, defaultValue, format) {
         let value = object;
         if (field) {
-            let _object = object ? object : this.data;
+            const _object = object ? object : this.data;
             // optional chaining is needed when "res" is undefined
             value = field.split(".").reduce((res, prop) => res?.[prop], _object);
 
@@ -102,8 +102,8 @@ export default class DataForm extends LitElement {
         if (!matches) {
             matches = template.match(/\$\{[a-zA-Z_.\[\]]+\}/g).map(elem => elem.substring(2, elem.length - 1));
         }
-        for (let match of matches) {
-            let v = this.getValue(match, object, defaultValue);
+        for (const match of matches) {
+            const v = this.getValue(match, object, defaultValue);
             template = template.replace("${" + match + "}", v);
         }
 
@@ -198,52 +198,52 @@ export default class DataForm extends LitElement {
 
 
     renderData() {
-        let classes = this.config?.display?.classes ?? "";
-        let style = this.config?.display?.style ?? "";
+        const classes = this.config?.display?.classes ?? "";
+        const style = this.config?.display?.style ?? "";
 
         // Render custom display.layout array when provided
         if (this.config?.display && this.config?.display.layout && Array.isArray(this.config?.display.layout)) {
             return html`
                 <div class="${classes}" style="${style}">
-                    ${this.config?.display.layout.map(section => section.id 
-                        ? html`
+                    ${this.config?.display.layout.map(section => section.id ?
+                        html`
                             <div class="${section.classes}" style="${section.style}">
-                                ${this.config.type === "form" 
-                                    ? html`
+                                ${this.config.type === "form" ?
+                                    html`
                                         <section>
                                             <form class="${this.config?.display?.defaultLayout === "horizontal" ? "form-horizontal" : ""} ${classes}" style="${style}">
                                                 ${this._createSection(this.config.sections.find(s => s.id === section.id))}
                                             </form>
-                                        </section>` 
-                                    : html`
+                                        </section>` :
+                                    html`
                                         <section>
                                             <div class="${classes}" style="${style}">
                                                 ${this._createSection(this.config.sections.find(s => s.id === section.id))}
                                             </div>
                                         </section>`
                                 }
-                            </div>` 
-                        : html`
+                            </div>` :
+                        html`
                             <div class="${section.classes}" style="${section.style}">
-                                ${section.sections.map(subsection => subsection.id
-                                    ? html`
+                                ${section.sections.map(subsection => subsection.id ?
+                                    html`
                                         <div class="${subsection.classes}">
-                                            ${this.config.type === "form"
-                                                ? html`
+                                            ${this.config.type === "form" ?
+                                                html`
                                                     <section>
                                                         <form class="${this.config?.display?.defaultLayout === "horizontal" ? "form-horizontal" : ""} ${classes}" style="${style}">
                                                             ${this._createSection(this.config.sections.find(s => s.id === subsection.id))}
                                                         </form>
-                                                    </section>`
-                                                : html`
+                                                    </section>` :
+                                                html`
                                                     <section>
                                                         <div class="${classes}" style="${style}">
                                                             ${this._createSection(this.config.sections.find(s => s.id === subsection.id))}
                                                         </div>
                                                     </section>`
                                             }
-                                        </div>` 
-                                    : null
+                                        </div>` :
+                                    null
                                 )}
                             </div>`
                     )}
@@ -302,10 +302,10 @@ export default class DataForm extends LitElement {
                     </div>
                 </div>
             `;
-        } else {    // Field 'elements' array has two dimensions
-            let leftColumnWidth = section?.display?.leftColumnWith ? section.display.leftColumnWith : 6;
-            let rightColumnWidth = section?.display?.rightColumnWith ? section.display.rightColumnWith : 6;
-            let columnSeparatorStyle = (section.display && section.display.columnSeparatorStyle) ? section.display.columnSeparatorStyle : "";
+        } else { // Field 'elements' array has two dimensions
+            const leftColumnWidth = section?.display?.leftColumnWith ? section.display.leftColumnWith : 6;
+            const rightColumnWidth = section?.display?.rightColumnWith ? section.display.rightColumnWith : 6;
+            const columnSeparatorStyle = (section.display && section.display.columnSeparatorStyle) ? section.display.columnSeparatorStyle : "";
             return html`
                 <div>
                     <div class="row" style="">
@@ -328,8 +328,8 @@ export default class DataForm extends LitElement {
             return;
         }
 
-        let elementLabelClasses = element?.display?.labelClasses ?? section?.display?.elementLabelClasses ?? "";
-        let elementLabelStyle = element?.display?.labelStyle ?? section?.display?.elementLabelStyle ?? "";
+        const elementLabelClasses = element?.display?.labelClasses ?? section?.display?.elementLabelClasses ?? "";
+        const elementLabelStyle = element?.display?.labelStyle ?? section?.display?.elementLabelStyle ?? "";
 
         // Check if type is 'separator', this is a special case, no need to parse 'name' and 'content'
         if (element.type === "separator") {
@@ -350,11 +350,11 @@ export default class DataForm extends LitElement {
         // if not 'type' is defined we assumed is 'basic' and therefore field exist
         if (!element.type || element.type === "basic") {
             content = html`
-                ${this.getValue(element.field, this.data, this._getDefaultValue(element), element.display 
-                    ? element.display
+                ${this.getValue(element.field, this.data, this._getDefaultValue(element), element.display ?
+                    element.display :
                     // 'format' is the old way, to be removed
-                    : element.display?.format
-                )}`
+                    element.display?.format
+                )}`;
         } else {
             // Other 'type' are rendered by specific functions
             switch (element.type) {
@@ -412,9 +412,9 @@ export default class DataForm extends LitElement {
             }
         }
 
-        let layout = element?.display?.defaultLayout ?? this.config?.display?.defaultLayout ?? "horizontal";
-        let showLabel = element?.showLabel ?? true;
-        let labelWidth = showLabel ? this._getLabelWidth(element, section) : 0;
+        const layout = element?.display?.defaultLayout ?? this.config?.display?.defaultLayout ?? "horizontal";
+        const showLabel = element?.showLabel ?? true;
+        const labelWidth = showLabel ? this._getLabelWidth(element, section) : 0;
         let width = this._getWidth(element);
         width = width ? width : 12;
 
@@ -454,8 +454,8 @@ export default class DataForm extends LitElement {
                         ${showLabel ? html`
                             <div class="col-md-${labelWidth} text-${this.config.display?.labelAlign || "left"}">
                                 <label>${title}</label>
-                            </div>`
-                        : null}
+                            </div>` :
+                        null}
                         <div class="col-md-${width - labelWidth}">
                             ${content}
                         </div>
@@ -468,8 +468,8 @@ export default class DataForm extends LitElement {
                         ${showLabel ? html`
                             <div class="col-md-12">
                                 <label>${title}</label>
-                            </div>`
-                        : null}
+                            </div>` :
+                        null}
                         <div class="col-md-${sectionWidth}">
                             ${content}
                         </div>
@@ -488,9 +488,9 @@ export default class DataForm extends LitElement {
     }
 
     _createInputTextElement(element) {
-        let value = this.getValue(element.field) || this._getDefaultValue(element);
-        let disabled = this._getBooleanValue(element.display?.disabled, false);
-        let rows = element.display && element.display.rows ? element.display.rows : 1;
+        const value = this.getValue(element.field) || this._getDefaultValue(element);
+        const disabled = this._getBooleanValue(element.display?.disabled, false);
+        const rows = element.display && element.display.rows ? element.display.rows : 1;
 
         return html`
             <div class="">
@@ -502,11 +502,11 @@ export default class DataForm extends LitElement {
     }
 
     _createInputNumberElement(element) {
-        let value = this.getValue(element.field) ?? this._getDefaultValue(element);
-        let disabled = this._getBooleanValue(element?.display?.disabled, false);
-        let [min = "", max = ""] = element.allowedValues || [];
-        let step = element.step || "1";
-// debugger
+        const value = this.getValue(element.field) ?? this._getDefaultValue(element);
+        const disabled = this._getBooleanValue(element?.display?.disabled, false);
+        const [min = "", max = ""] = element.allowedValues || [];
+        const step = element.step || "1";
+        // debugger
         return html`
             <div class="">
                 <number-field-filter label="Value" .value="${value ? value : ""}" 
@@ -518,19 +518,19 @@ export default class DataForm extends LitElement {
     }
 
     _createInputDateElement(element) {
-        let value = this.getValue(element.field) || this._getDefaultValue(element);
+        const value = this.getValue(element.field) || this._getDefaultValue(element);
         if (typeof value !== "undefined" && value !== null) {
-            let inputDate = this.querySelector("#" + this._prefix + "DueDate");
+            const inputDate = this.querySelector("#" + this._prefix + "DueDate");
             if (inputDate) {
-                if(typeof element?.display?.render === "function") {
+                if (typeof element?.display?.render === "function") {
                     inputDate.value = element.display.render(value);
                 } else {
                     inputDate.value = value;
                 }
             }
         }
-        let disabled = this._getBooleanValue(element.display.disabled, false);
-        let width = this._getWidth(element);
+        const disabled = this._getBooleanValue(element.display.disabled, false);
+        const width = this._getWidth(element);
 
         return html`
             <div class='input-group date' id="${this._prefix}DuePickerDate" data-field="${element.field}">
@@ -567,7 +567,7 @@ export default class DataForm extends LitElement {
      * @private
      */
     _createToggleSwitchElement(element) {
-        let value = this.getValue(element.field); // || this._getDefaultValue(element);
+        const value = this.getValue(element.field); // || this._getDefaultValue(element);
 
         return html`
             <div class="">
@@ -580,8 +580,8 @@ export default class DataForm extends LitElement {
     }
 
     _createToggleButtonsElement(element) {
-        let value = this.getValue(element.field) || this._getDefaultValue(element);
-        let names = element.allowedValues;
+        const value = this.getValue(element.field) || this._getDefaultValue(element);
+        const names = element.allowedValues;
 
         return html`
             <div class="">
@@ -610,7 +610,7 @@ export default class DataForm extends LitElement {
         if (element.allowedValues) {
             if (Array.isArray(element.allowedValues)) {
                 if (element.display?.apply) {
-                    for (let value of element.allowedValues) {
+                    for (const value of element.allowedValues) {
                         allowedValues.push(element.display.apply(value));
                     }
                 } else {
@@ -618,9 +618,9 @@ export default class DataForm extends LitElement {
                 }
             } else {
                 if (typeof element.allowedValues === "string") {
-                    let values = this.getValue(element.allowedValues);
+                    const values = this.getValue(element.allowedValues);
                     if (values && element.display.apply) {
-                        for (let value of values) {
+                        for (const value of values) {
                             allowedValues.push(element.display.apply(value));
                         }
                     } else {
@@ -628,7 +628,7 @@ export default class DataForm extends LitElement {
                     }
                 } else {
                     if (typeof element.allowedValues === "function") {
-                        let values = element.allowedValues(this.data);
+                        const values = element.allowedValues(this.data);
                         if (values) {
                             allowedValues = values;
                             if (values.defaultValue) {
@@ -651,7 +651,7 @@ export default class DataForm extends LitElement {
             if (defaultValue) {
                 // If apply is defined we need to apply the same transformation to be selected
                 if (element.display.apply) {
-                    for (let allowedValue of allowedValues) {
+                    for (const allowedValue of allowedValues) {
                         if (allowedValue.includes(defaultValue)) {
                             defaultValue = allowedValue;
                             break;
@@ -672,8 +672,8 @@ export default class DataForm extends LitElement {
         }
 
         // Default values
-        let disabled = this._getBooleanValue(element?.display?.disabled, false);
-        let width = this._getWidth(element);
+        const disabled = this._getBooleanValue(element?.display?.disabled, false);
+        const width = this._getWidth(element);
         if (allowedValues && allowedValues.length > 0) {
             return html`
                 <div class="">
@@ -696,8 +696,8 @@ export default class DataForm extends LitElement {
 
     _createListElement(element) {
         // Get values
-        let array = this.getValue(element.field);
-        let contentLayout = (element.display && element.display.contentLayout) ? element.display.contentLayout : "horizontal";
+        const array = this.getValue(element.field);
+        const contentLayout = (element.display && element.display.contentLayout) ? element.display.contentLayout : "horizontal";
 
         // Check values
         if (!array || !array.length) {
@@ -717,15 +717,15 @@ export default class DataForm extends LitElement {
         // Apply the template to all Array elements and store them in 'values'
         let values = [];
         if (element.display.render) {
-            for (let object of array) {
-                let value = element.display.render(object);
+            for (const object of array) {
+                const value = element.display.render(object);
                 values.push(value);
             }
         } else {
             if (element.display.template) {
-                let matches = element.display.template.match(/\$\{[a-zA-Z_.\[\]]+\}/g).map(elem => elem.substring(2, elem.length - 1));
-                for (let object of array) {
-                    let value = this.applyTemplate(element.display.template, object, matches, this._getDefaultValue(element));
+                const matches = element.display.template.match(/\$\{[a-zA-Z_.\[\]]+\}/g).map(elem => elem.substring(2, elem.length - 1));
+                for (const object of array) {
+                    const value = this.applyTemplate(element.display.template, object, matches, this._getDefaultValue(element));
                     values.push(value);
                 }
             } else {
@@ -762,9 +762,9 @@ export default class DataForm extends LitElement {
 
     _createTableElement(element) {
         // Get values
-        let array = this.getValue(element.field);
-        let errorMessage = this._getErrorMessage(element);
-        let errorClasses = element.display.errorClasses ?? "text-danger";
+        const array = this.getValue(element.field);
+        const errorMessage = this._getErrorMessage(element);
+        const errorClasses = element.display.errorClasses ?? "text-danger";
 
         // Check values
         if (!array) {
@@ -795,9 +795,9 @@ export default class DataForm extends LitElement {
                         <tr scope="row">
                             ${element.display.columns.map(elem => html`
                                 <td>
-                                   ${elem.type === "complex" ? this._createComplexElement(elem, row)
-                                    : elem.type === "custom" ? elem.display.render(this.getValue(elem.field, row))
-                                    : this.getValue(elem.field, row, elem.defaultValue, elem.format)}
+                                   ${elem.type === "complex" ? this._createComplexElement(elem, row) :
+                                    elem.type === "custom" ? elem.display.render(this.getValue(elem.field, row)) :
+                                    this.getValue(elem.field, row, elem.defaultValue, elem.format)}
                                 </td>
                             `)}
                         </tr>
@@ -815,10 +815,10 @@ export default class DataForm extends LitElement {
         let value = this.getValue(element.field);
         if (value) {
             if (Array.isArray(value)) {
-                let _data = {};
-                for (let val of value) {
-                    let k = val[element.display.data.key];
-                    let v = val[element.display.data.value];
+                const _data = {};
+                for (const val of value) {
+                    const k = val[element.display.data.key];
+                    const v = val[element.display.data.value];
                     _data[k] = v;
                 }
                 data = _data;
@@ -862,7 +862,7 @@ export default class DataForm extends LitElement {
     _createTreeElement(element) {
         const json = this.getValue(element.field, this.data, this._getDefaultValue(element));
         if (typeof element.display.apply !== "function") {
-            return `<span class="text-danger">apply() function that provides a "text" property is mandatory in Tree-Viewer elements</span>`;
+            return "<span class=\"text-danger\">apply() function that provides a \"text\" property is mandatory in Tree-Viewer elements</span>";
         } else {
             if (Array.isArray(json)) {
                 if (json.length > 0) {
@@ -892,10 +892,10 @@ export default class DataForm extends LitElement {
 
         // Call to render function if defined
         // It covers the case the result of this.getValue is actually undefined
-        let result = element.display.render(data);
+        const result = element.display.render(data);
         if (result) {
-            let width = this._getWidth(element);
-            let style = element.display.style ? element.display.style : "";
+            const width = this._getWidth(element);
+            const style = element.display.style ? element.display.style : "";
             // return html`<div class="col-md-${width}" style="${style}">${result}</div>`;
             return html`<div class="" style="">${result}</div>`;
         } else {
@@ -909,7 +909,7 @@ export default class DataForm extends LitElement {
 
     postRender() {
         // init any jquery plugin we might have used
-        //$('.json-renderer').jsonViewer(data);
+        // $('.json-renderer').jsonViewer(data);
     }
 
 
@@ -974,8 +974,8 @@ export default class DataForm extends LitElement {
         }
 
         if (this.config.display && this.config.display?.mode?.type === "modal") {
-            let title = this.config.display.mode.title ? this.config.display.mode.title : this.config.title;
-            let buttonClass = this.config.display.mode.buttonClass ? this.config.display.mode.buttonClass : "btn-primary";
+            const title = this.config.display.mode.title ? this.config.display.mode.title : this.config.title;
+            const buttonClass = this.config.display.mode.buttonClass ? this.config.display.mode.buttonClass : "btn-primary";
             return html`
                 <button type="button" class="btn ${buttonClass} ${this.config.display.mode.disabled ? "disabled" : null}" data-toggle="modal" data-target="#${this._prefix}DataModal">
                     <i class="${this.config.icon ? this.config.icon : "fas fa-info-circle"} icon-padding" aria-hidden="true"></i> ${this.config.title}
@@ -989,8 +989,8 @@ export default class DataForm extends LitElement {
                             <div class="modal-body">
                                 ${this.renderData()}
                             </div>
-                            ${this.config.buttons && this.config.buttons.show
-                                ? html`
+                            ${this.config.buttons && this.config.buttons.show ?
+                                html`
                                         <div class="modal-footer">
                                             <button type="button" class="${this.config.buttons.classes ? this.config.buttons.classes : "btn btn-primary ripple"}" data-dismiss="modal" @click="${this.onClear}">
                                                 ${this.config.buttons.cancelText ? this.config.buttons.cancelText : "Cancel"}
@@ -998,8 +998,8 @@ export default class DataForm extends LitElement {
                                             <button type="button" class="${this.config.buttons.classes ? this.config.buttons.classes : "btn btn-primary ripple"}" data-dismiss="modal" @click="${this.onSubmit}">
                                                 ${this.config.buttons.okText ? this.config.buttons.okText : "OK"}
                                             </button>
-                                        </div>`
-                                : null
+                                        </div>` :
+                                null
                             }
                         </div>
                     </div>
@@ -1009,20 +1009,20 @@ export default class DataForm extends LitElement {
 
         return html`
             <!-- Header -->
-            ${this.config.title && this.config.display && this.config.display.showTitle
-                ? html`
+            ${this.config.title && this.config.display && this.config.display.showTitle ?
+                html`
                     <div>
                         <h2 class="${sectionTitleIcon}" >${this.config.title}</h2>
-                    </div>`
-                : null
+                    </div>` :
+                null
             }
             
             <!-- Render data form -->
             ${this.renderData()}
             
             <!-- Render buttons -->
-            ${this.config.buttons && this.config.buttons.show
-                ? html`
+            ${this.config.buttons && this.config.buttons.show ?
+                html`
                     <div class="row">
                         <div class="${this.config.buttons.classes ? this.config.buttons.classes : "col-md-12"}" style="padding: 10px 20px">
                             <button type="button" class="btn btn-primary ripple" @click="${this.onClear}">
@@ -1032,11 +1032,12 @@ export default class DataForm extends LitElement {
                                 ${this.config.buttons.okText ? this.config.buttons.okText : "OK"}
                             </button>
                         </div>
-                    </div>`
-                : null
+                    </div>` :
+                null
             }
         `;
     }
+
 }
 
 customElements.define("data-form", DataForm);
