@@ -52,8 +52,7 @@ export default class DataForm extends LitElement {
 
     _init() {
         this._prefix = UtilsNew.randomString(8);
-
-        this.data = {};
+        //this.data = {};
     }
 
     firstUpdated(_changedProperties) {
@@ -1018,7 +1017,7 @@ export default class DataForm extends LitElement {
             }
             
             <!-- Render data form -->
-            ${this.renderData()}
+            ${this.data ? this.renderData() : null}
             
             <!-- Render buttons -->
             ${this.config.buttons && this.config.buttons.show ?
