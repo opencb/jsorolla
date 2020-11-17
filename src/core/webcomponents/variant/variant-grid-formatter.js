@@ -166,24 +166,18 @@ export default class VariantGridFormatter {
         return "-";
     }
 
-    // TODO config is being used just for enabling GenomeBrowser. At the moment it is commented
-    static geneFormatter(value, row, index, opencgaSession) {
-        let geneToSo = null;
-        let queryCtArray = null;
+    static geneFormatter(value, row, index, query, opencgaSession) {
 
-        // Check 'query' is passed through formatter bind()
         // Keep a map of genes and the SO accessions and names
-        if (this.query?.ct) {
-            queryCtArray = this.query.ct.split(",");
-            geneToSo = {};
+        let geneHasQueryCt = new Set();
+        if (query?.ct) {
+            let queryCtArray = query.ct.split(",");
             for (const ct of row.annotation.consequenceTypes) {
-                const geneName = ct.geneName;
-                if (typeof geneToSo[geneName] === "undefined") {
-                    geneToSo[geneName] = [];
-                }
                 for (const so of ct.sequenceOntologyTerms) {
-                    geneToSo[geneName].push(so.accession);
-                    geneToSo[geneName].push(so.name);
+                    if (queryCtArray.includes(so.name)) {
+                        geneHasQueryCt.add(ct.geneName);
+                        break;
+                    }
                 }
             }
         }
@@ -191,7 +185,7 @@ export default class VariantGridFormatter {
         if (row && row.annotation && row.annotation.consequenceTypes?.length > 0) {
             const visited = {};
             const geneLinks = [];
-            const geneWithSoLinks = [];
+            const geneWithCtLinks = [];
             for (let i = 0; i < row.annotation.consequenceTypes.length; i++) {
                 const geneName = row.annotation.consequenceTypes[i].geneName;
 
@@ -203,32 +197,24 @@ export default class VariantGridFormatter {
                     }
 
                     const tooltipText = `${geneViewMenuLink}
-                                       <div class="dropdown-header" style="padding-left: 10px">External Links</div>
-                                       <div style="padding: 5px">
-                                            <a target="_blank" href="${BioinfoUtils.getEnsemblLink(geneName, "gene", opencgaSession.project.organism.assembly)}">Ensembl</a>
-                                       </div>
-                                       <div style="padding: 5px">
-                                            <a target="_blank" href="${BioinfoUtils.getCosmicLink(geneName, opencgaSession.project.organism.assembly)}">COSMIC</a>
-                                       </div>
-                                       <div style="padding: 5px">
-                                            <a target="_blank" href="${BioinfoUtils.getUniprotLink(geneName)}">UniProt</a>
-                                       </div>`;
+                                         <div class="dropdown-header" style="padding-left: 10px">External Links</div>
+                                         <div style="padding: 5px">
+                                              <a target="_blank" href="${BioinfoUtils.getEnsemblLink(geneName, "gene", opencgaSession.project.organism.assembly)}">Ensembl</a>
+                                         </div>
+                                         <div style="padding: 5px">
+                                              <a target="_blank" href="${BioinfoUtils.getCosmicLink(geneName, opencgaSession.project.organism.assembly)}">COSMIC</a>
+                                         </div>
+                                         <div style="padding: 5px">
+                                              <a target="_blank" href="${BioinfoUtils.getUniprotLink(geneName)}">UniProt</a>
+                                         </div>`;
 
                     // If query.ct exists
-                    if (geneToSo) {
-                        let geneContainSo = false;
-                        for (const so of queryCtArray) {
-                            if (geneToSo[geneName].includes(so)) {
-                                geneContainSo = true;
-                                break;
-                            }
-                        }
-
+                    if (query?.ct) {
                         // If gene contains one of the query.ct
-                        if (geneContainSo) {
-                            geneWithSoLinks.push(`<a class="gene-tooltip" tooltip-title="Links" tooltip-text='${tooltipText}' style="margin-left: 2px;">
+                        if (geneHasQueryCt.has(geneName)) {
+                            geneWithCtLinks.push(`<a class="gene-tooltip" tooltip-title="Links" tooltip-text='${tooltipText}' style="margin-left: 2px;">
                                                         ${geneName}
-                                                 </a>`);
+                                                  </a>`);
                         } else {
                             geneLinks.push(`<a class="gene-tooltip" tooltip-title="Links" tooltip-text='${tooltipText}' style="margin-left: 2px;color: darkgray;font-style: italic">
                                                     ${geneName}
@@ -248,10 +234,10 @@ export default class VariantGridFormatter {
             let resultHtml = "";
 
             // First, print Genes with query CT
-            if (geneToSo) {
-                for (let i = 0; i < geneWithSoLinks.length; i++) {
-                    resultHtml += geneWithSoLinks[i];
-                    if (i + 1 !== geneWithSoLinks.length) {
+            if (query?.ct) {
+                for (let i = 0; i < geneWithCtLinks.length; i++) {
+                    resultHtml += geneWithCtLinks[i];
+                    if (i + 1 !== geneWithCtLinks.length) {
                         resultHtml += ",";
                     }
                 }

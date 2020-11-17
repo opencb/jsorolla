@@ -491,7 +491,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     field: "genes",
                     rowspan: 2,
                     colspan: 1,
-                    formatter: (value, row, index) => VariantGridFormatter.geneFormatter(value, row, index, this.opencgaSession),
+                    formatter: (value, row, index) => VariantGridFormatter.geneFormatter(value, row, index, this.query, this.opencgaSession),
                     halign: "center"
                 },
                 {

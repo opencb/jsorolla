@@ -444,7 +444,7 @@ export default class VariantBrowserGrid extends LitElement {
                     field: "gene",
                     rowspan: 2,
                     colspan: 1,
-                    formatter: (value, row, index) => VariantGridFormatter.geneFormatter(value, row, index, this.opencgaSession),
+                    formatter: (value, row, index) => VariantGridFormatter.geneFormatter(value, row, index, this.query, this.opencgaSession),
                     halign: "center"
                 },
                 {
@@ -460,7 +460,7 @@ export default class VariantBrowserGrid extends LitElement {
                     field: "consequenceType",
                     rowspan: 2,
                     colspan: 1,
-                    formatter:(value, row, index) => VariantGridFormatter.consequenceTypeFormatter(value, row, index, this.gridConsequenceTypeSettings, this.consequenceTypeColors),
+                    formatter:(value, row, index) => VariantGridFormatter.consequenceTypeFormatter(value, row, index, this._config.consequenceType, this.consequenceTypeColors),
                     halign: "center"
                 },
                 {
@@ -738,6 +738,11 @@ export default class VariantBrowserGrid extends LitElement {
                 gencodeBasic: true,
                 filterByBiotype: true,
                 filterByConsequenceType: true,
+
+                canonicalTranscript: true,
+                highQualityTranscripts: true,
+                proteinCodingTranscripts: true,
+                worstConsequenceTypes: true,
             }
         };
     }
