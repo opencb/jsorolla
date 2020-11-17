@@ -103,14 +103,15 @@ export default class VariantInterpreterGrid extends LitElement {
 
         if (changedProperties.has("config")) {
             // NOTE: This component allow the user to change the config, we need to keep users changes.
-            this._config = {...this.getDefaultConfig(), ...this.config, ...this._config};
+            // FIXME
+            this._config = {...this.getDefaultConfig(), ...this.config, ...this.opencgaSession.user.configs?.IVA?.interpreterGrid, ...this._config};
             // Nacho (14/11/2020) - Commented since it does not look necessary
             // this.requestUpdate();
         }
     }
 
     opencgaSessionObserver() {
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this._config = {...this.getDefaultConfig(), ...this.config, ...this.opencgaSession.user.configs?.IVA?.interpreterGrid};
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
     }
 
@@ -924,11 +925,20 @@ export default class VariantInterpreterGrid extends LitElement {
         $("#" + this.gridId).bootstrapTable("showLoading");
     }
 
-    onApplySettings(e) {
-        this._config = this.__config;
+    async onApplySettings(e) {
         // this.requestUpdate();
         // call to user config:  "iva.interpreter.grid": this_config
-        this.renderVariants();
+        try {
+            // id:"IVA" is defined in opencgaClient.updateUserConfigs
+            const userConfig = await this.opencgaSession.opencgaClient.updateUserConfigs({
+                interpreterGrid: this.__config
+            });
+            // this._config = this.__config;
+            this._config = {...this.getDefaultConfig(), ...this.config, ...userConfig.interpreterGrid};
+            this.renderVariants();
+        } catch (e) {
+            UtilsNew.notifyError(e);
+        }
     }
 
     onGridConfigChange(e) {

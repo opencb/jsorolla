@@ -177,9 +177,7 @@ export default class VariantInterpreterGridConfig extends LitElement {
         return html`
             <data-form  .data="${this.config}" 
                         .config="${this.getConfigForm()}" 
-                        @fieldChange="${e => this.onFieldChange(e)}" 
-                        @clear="${this.onClear}" 
-                        @submit="${this.onRun}">
+                        @fieldChange="${e => this.onFieldChange(e)}">
             </data-form>
         `;
     }
