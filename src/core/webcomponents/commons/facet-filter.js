@@ -420,9 +420,9 @@ export default class FacetFilter extends LitElement {
                 const [, nstart, nstop, nstep] = facet.value ? [...facet.value.matchAll(/\[(.*)\.\.(.*)]:(.*)/gim)][0] : "";
 
                 return html`
-                    <div class="number-field">
-                        <div class="col-md-9">
-                            <div class="row facet-row ">
+                    <div class="row facet-row number-field">
+                        <div class="col-md-8">
+                            <div class="row facet-row">
                                 <div class="col-md-4">
                                     <input type="text" class="form-control" placeholder="Start" data-parent-facet="${parent}" id="${this._prefix}${parent}_Nested_range_start" .disabled="${facet.fn}" data-id="${facet.id}" data-type="range_start" .value="${nstart || ""}" @input="${this.onNestedFacetRangeChange}" />
                                 </div>
@@ -435,7 +435,7 @@ export default class FacetFilter extends LitElement {
                             </div>
                             <!--<input type="text" class="form-control" placeholder="Include values or set range" data-parent-facet="${parent}" .disabled="${!(facet.facet)}" id="${this._prefix}${parent}_NestedValue" .value="${num_value || ""}"  @input="${this.onNestedFacetValueChange}"  />-->
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-4">
                             <select-field-filter .disabled="${false}" .data="${this.selectFns}" .value="${facet.fn ?? "range"}" id="${parent}_NestedFnSelect" data-parent-facet="${parent}" @filterChange="${this.onNestedFacetFnChange}"></select-field-filter>
                         </div>
                     </div>
