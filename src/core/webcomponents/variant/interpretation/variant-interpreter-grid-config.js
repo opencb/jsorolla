@@ -76,7 +76,7 @@ export default class VariantInterpreterGridConfig extends LitElement {
         }
         // this.config = {...this.config};
         // this.requestUpdate();
-debugger
+
         this.dispatchEvent(new CustomEvent("configChange", {
             detail: {
                 value: this.config
@@ -162,7 +162,7 @@ debugger
                             name: "Select Render Mode",
                             field: "genotype.type",
                             type: "select",
-                            allowedValues: ["Circle", "VAF", "VAF Bar", "GT"],
+                            allowedValues: ["ALLELES", "CIRCLE", "VAF", "ALLELE_FREQUENCY"],
                             display: {
                                 width: "6"
                             }

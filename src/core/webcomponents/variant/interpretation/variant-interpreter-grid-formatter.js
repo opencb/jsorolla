@@ -541,12 +541,10 @@ export default class VariantInterpreterGridFormatter {
     /*
      *  SAMPLE GENOTYPE RENDERER
      */
-
-
     static sampleGenotypeFormatter(value, row, index) {
         let resultHtml = "";
 
-        if (row.studies?.length > 0 && row.studies[0].samples?.length > 0) {
+        if (row && row.studies?.length > 0 && row.studies[0].samples?.length > 0) {
             const sampleId = this.field.sampleId;
             let sampleEntries = [row.studies[0].samples.find(s => s.sampleId === sampleId)];
 
@@ -557,7 +555,7 @@ export default class VariantInterpreterGridFormatter {
             }
 
             for (let sampleEntry of sampleEntries) {
-                // FIRST, we need to get and check info fields QUAL, FILTER; and format fields DP, AD and GQ
+                // Get the file for this sample
                 let file;
                 if (row.studies[0].files) {
                     let fileIdx = sampleEntry?.fileIndex ?? 0;
@@ -566,97 +564,66 @@ export default class VariantInterpreterGridFormatter {
                     }
                 }
 
+                // Render genotypes
+                let content;
+                switch (this.field.config.genotype.type.toUpperCase()) {
+                    case "ALLELES":
+                        content = VariantInterpreterGridFormatter._alleleGenotypeRenderer(row, sampleEntry);
+                        break;
+                    case "CIRCLE":
+                        content = VariantInterpreterGridFormatter._circleGenotypeRenderer(sampleEntry, file, 6);
+                        break;
+                    case "VAF":
+                        let vaf = VariantInterpreterGridFormatter._getVariantAlleleFraction(row, sampleEntry, file);
+                        if (vaf && vaf.vaf >= 0 && vaf.depth >= 0) {
+                            content = VariantInterpreterGridFormatter._vafGenotypeRenderer(vaf.vaf, vaf.depth, file, {});
+                        } else {    // Just in case we cannot render freqs, this should never happen.
+                            content = VariantInterpreterGridFormatter._circleGenotypeRenderer(sampleEntry, file, 6);
+                        }
+                        break;
+                    case "ALLELE_FREQUENCY":
+                        let alleleFreqs = VariantInterpreterGridFormatter._getAlleleFrequencies(row, sampleEntry, file);
+                        if (alleleFreqs && alleleFreqs.ref >= 0 && alleleFreqs.alt >= 0) {
+                            content = VariantInterpreterGridFormatter._alleleFrequencyGenotypeRenderer(alleleFreqs.ref, alleleFreqs.alt, file, {width: 80});
+                        } else {    // Just in case we cannot render freqs, this should never happen.
+                            content = VariantInterpreterGridFormatter._alleleGenotypeRenderer(row);
+                        }
+                        break;
+                    default:
+                        console.error("No valid genotype render option:", this.field.config.genotype.type.toUpperCase());
+                        break;
+                }
+
                 // Get tooltip text
-                const tooltipText = VariantInterpreterGridFormatter._getSampleGenotypeTooltipText(row, sampleEntry);
-
-                // SECOND, prepare the visual representation of genotypes
-                let sampleGT;
-                if (this.field.clinicalAnalysis.type.toUpperCase() === "SINGLE" || this.field.clinicalAnalysis.type.toUpperCase() === "FAMILY") {
-                    sampleGT = sampleEntry.data[0];
-                } else {
-                    // Make sure we always render somatic sample first
-                    // FIXME check GT exists in sampleDataKeys to avoid issues with somatic VAF
-                    if (row.studies[0].samples.length === 2) {
-                        sampleGT = sampleEntry.data[0];
-                    } else {
-                        sampleGT = sampleEntry.data[0];
-                    }
-                }
-
-                // THIRD, render genotypes
-                if (this.field.config.genotype.type === "bar") {
-                    let af, ad, dp;
-                    let afIndex, adIndex, dpIndex;
-                    let refFreq, altFreq;
-
-                    // Find and get the DP
-                    dpIndex = row.studies[0].sampleDataKeys.findIndex(e => e === "DP");
-                    if (dpIndex === -1) {
-                        dp = file ? file.DP : null;
-                    } else {
-                        dp = Number.parseInt(sampleEntry.data[dpIndex]);
-                    }
-
-                    // Get Allele Frequencies
-                    adIndex = row.studies[0].sampleDataKeys.findIndex(e => e === "AD");
-                    if (adIndex !== -1) {
-                        ad = sampleEntry.data[adIndex];
-                        let adCounts = ad.split(",");
-                        if (!dp && adCounts.length > 1) {
-                            dp = Number.parseInt(adCounts[0]) + Number.parseInt(adCounts[1]);
-                        }
-                        if (dp > 0) {
-                            refFreq = Number.parseInt(adCounts[0]) / dp;
-                            altFreq = Number.parseInt(adCounts[1]) / dp;
-                        }
-                    } else {
-                        // In cancer data AF has just one single value for the ALT
-                        afIndex = row.studies[0].sampleDataKeys.findIndex(e => e === "AF");
-                        if (afIndex !== -1) {
-                            af = Number.parseFloat(sampleEntry.data[afIndex]);
-                            refFreq = 1 - af;
-                            altFreq = af;
-                        }
-                    }
-
-                    if (refFreq >= 0 && altFreq >= 0) {
-                        resultHtml += `<a class="zygositySampleTooltip" tooltip-title="Variant Call Information" tooltip-text='${tooltipText}'>
-                                            ${VariantInterpreterGridFormatter._genotypeVafBarRenderer(refFreq, altFreq, 80, file.data.FILTER)}
-                                       </a>
-                                    `;
-                    } else {
-                        // Just in case we cannot render freqs, this should never happen.
-                        resultHtml += `
-                            <a class='zygositySampleTooltip' tooltip-title="Variant Call Information" tooltip-text='${tooltipText}' style="width: 50px" align="center">
-                                ${VariantInterpreterGridFormatter._genotypeCircleRenderer(sampleGT, 6, file.data.FILTER)}
-                            </a>`;
-                    }
-                } else {
-                    resultHtml += `
-                        <a class='zygositySampleTooltip'  tooltip-title="Variant Call Information" tooltip-text='${tooltipText}' style="width: 50px" align="center">
-                            ${VariantInterpreterGridFormatter._genotypeCircleRenderer(sampleGT, 6, file.data.FILTER)}
-                        </a>`;
-                }
+                const tooltipText = VariantInterpreterGridFormatter._getSampleGenotypeTooltipText(row, sampleEntry, file);
+                resultHtml = `<a class="zygositySampleTooltip" tooltip-title="Variant Call Information" tooltip-text='${tooltipText}'>
+                                ${content}
+                              </a>`;
             }
         }
 
         return resultHtml;
     }
 
-    static _genotypeCircleRenderer(gt, radius, filter) {
-        let {left, right} = VariantInterpreterGridFormatter._getLeftRightColors(gt, filter);
+    static _circleGenotypeRenderer(sampleEntry, file, radius) {
+        let {left, right} = VariantInterpreterGridFormatter._getLeftRightColors(sampleEntry.data[0], file.data.FILTER);
         return `<svg viewBox="0 0 70 30" xmlns="http://www.w3.org/2000/svg">
                     <circle cx="20" cy="15" r="${radius ?? 6}" style="stroke: black;fill: ${left}"/>
                     <circle cx="50" cy="15" r="${radius ?? 6}" style="stroke: black;fill: ${right}"/>
                 </svg>`;
     }
 
-    static _genotypeVafBarRenderer(refFreq, altFreq, widthPx = 80, filter) {
+    static _vafGenotypeRenderer(vaf, depth, file, config) {
+        return `<span>${vaf.toFixed(4)} / ${depth}</span>`;
+    }
+
+    static _alleleFrequencyGenotypeRenderer(refFreq, altFreq, file, config) {
+        let widthPx = config?.width ? config.width : 80;
         let refWidth = Math.max(widthPx * refFreq, 1);
         let refColor = refFreq !== 0 ? "blue" : "black";
         let altWidth = widthPx - refWidth;
         let altColor = altFreq !== 0 ? "red" : "black";
-        let opacity = filter && filter === "PASS" ? 100 : 50;
+        let opacity = file?.data && file.data.FILTER === "PASS" ? 100 : 60;
         return `<table style="width: ${widthPx}px">
                     <tr>
                         <td style="width: ${refWidth}px; background-color: ${refColor}; border-right: 1px solid white; opacity: ${opacity}%">&nbsp;</td>
@@ -665,115 +632,80 @@ export default class VariantInterpreterGridFormatter {
                 </table>`;
     }
 
-    static _genotypeVafTextRenderer() {
-
-    }
-
-    static _genotypeTextRenderer(value, row, index) {
+    static _alleleGenotypeRenderer(variant, sampleEntry) {
         let res = "-";
 
-        if (typeof row !== "undefined" && typeof row.studies !== "undefined" && row.studies.length > 0) {
-            // NOTE: There are always 4 columns before the samples
-            // This context is for row
-            if (this.nucleotideGenotype) {
-                const alternateSequence = row.alternate;
-                const referenceSequence = row.reference;
-                const genotypeMatch = new Map();
-                let colText = "";
-                let referenceValueColText = "-";
-                let alternateValueColText = "-";
+        if (variant && variant.studies?.length > 0) {
+            let leftAlleleText = "-";
+            let rightAlleleText = "-";
 
-                genotypeMatch.set(0, referenceSequence === "" ? "-" : referenceSequence);
-                genotypeMatch.set(1, alternateSequence === "" ? "-" : alternateSequence);
+            const genotypeMatch = new Map();
+            genotypeMatch.set(0, variant.reference !== "" ? variant.reference : "-");
+            genotypeMatch.set(1, variant.alternate !== "" ? variant.alternate : "-");
 
-                row.studies.forEach(study => {
-                    if (UtilsNew.isNotUndefinedOrNull(study.secondaryAlternates) && UtilsNew.isNotEmptyArray(study.secondaryAlternates)) {
-                        study.secondaryAlternates.forEach(secondary => {
-                            genotypeMatch.set(genotypeMatch.size, secondary.alternate === "" ? "-" : secondary.alternate);
-                        });
-                    }
-                    if (UtilsNew.isNotUndefinedOrNull(study.samplesData) && UtilsNew.isNotEmptyArray(study.samplesData)) {
-                        if (UtilsNew.isNotUndefinedOrNull(study.samplesData[this.fieldIndex - 4])) {
-                            const currentGenotype = study.samplesData[this.fieldIndex - 4][0];
-                            let reference = currentGenotype.split("/")[0];
-                            let alternate = currentGenotype.split("/")[1];
-                            let tooltipText = reference + " / " + alternate;
-                            if (UtilsNew.isNotEqual(reference, ".") && UtilsNew.isNotEqual(alternate, ".")) {
-                                reference = parseInt(reference);
-                                alternate = parseInt(alternate);
-                                const referenceValue = genotypeMatch.get(reference);
-                                const alternateValue = genotypeMatch.get(alternate);
-                                // Cases which this will cover.
-                                // referenceValue.length <= 5 && alternateVAlue.length <= 5
-                                // referenceValue.length <= 10 && alternateValue == "-"
-                                // alternateValue.length <= 10 && referenceValue == "-"
-                                referenceValueColText = referenceValue;
-                                alternateValueColText = alternateValue;
+            if (sampleEntry?.data && sampleEntry.data.length > 0) {
+                const genotype = sampleEntry.data[0];
 
-                                // Not equal X/- or -/X
-                                if (UtilsNew.isNotEqual(referenceValue, "-") && UtilsNew.isNotEqual(alternateValue, "-")) {
-                                    if ((referenceValue.length <= 5 && alternateValue.length > 5) || (referenceValue.length > 5 && alternateValue.length <= 5)) {
-                                        if (referenceValue.length > 5) {
-                                            // referenceValue > 5
-                                            referenceValueColText = referenceValue.substring(0, 3) + "...";
-                                            //                                                    tooltipText += "<br>" + referenceValue +" / " + alternateValue;
-                                        } else {
-                                            // alternateValue > 5
-                                            alternateValueColText = alternateValue.substring(0, 3) + "...";
-                                            //                                                    tooltipText += "<br>" + referenceValue +" / " + alternateValue;
-                                        }
-                                    } else if (referenceValue.length > 5 && alternateValue.length > 5) {
-                                        // Both > 5 It will never happen
-                                        referenceValueColText = referenceValue.substring(0, 3) + "...";
-                                        alternateValueColText = alternateValue.substring(0, 3) + "...";
-                                        //                                                tooltipText += "<br>" +   referenceValue +" / " + alternateValue;
-                                    }
-                                } else if (UtilsNew.isNotEqual(referenceValue, "-") && referenceValue.length > 10) {
-                                    // X/-
-                                    const substringReference = referenceValue.substring(0, 5) + "...";
-                                    referenceValueColText = substringReference;
-                                    alternateValueColText = "-";
-                                    //                                                tooltipText += "<br>" +   referenceValue +" / " + alternateValue;
-                                } else if (UtilsNew.isNotEqual(alternateValue, "-") && alternateValue.length > 10) {
-                                    // -/X
-                                    const substringAlternate = alternateValue.substring(0, 5) + "...";
-                                    alternateValueColText = substringAlternate;
-                                    referenceValueColText = "-";
-                                    //                                                tooltipText += "<br>" +   referenceValue + " / " + alternateValue;
-                                }
-                                tooltipText += "<br>" + referenceValue + " / " + alternateValue;
-                            } else {
-                                referenceValueColText = reference;
-                                alternateValueColText = alternate;
-                                tooltipText += "<br>" + reference + " / " + alternate;
-                            }
+                // Check special cases
+                if (genotype === "NA") {
+                    return `<span style='color: darkorange'>${genotype}</span>`;
+                }
 
-                            const referenceIndex = parseInt(reference);
-                            const alternateIndex = parseInt(alternate);
-                            if (referenceIndex === 1 && (referenceValueColText !== "-" && referenceValueColText !== "*")) {
-                                referenceValueColText = "<span class='orangeText'>" + referenceValueColText + "</span>";
-                            } else if (referenceIndex > 1 && (referenceValueColText !== "-" && referenceValueColText !== "*")) {
-                                referenceValueColText = "<span class='redText'>" + referenceValueColText + "</span>";
-                            }
-                            if (alternateIndex === 1 && (alternateValueColText !== "-" && alternateValueColText !== "*")) {
-                                alternateValueColText = "<span class='orangeText'>" + alternateValueColText + "</span>";
-                            } else if (alternateIndex > 1 && (alternateValueColText !== "-" && alternateValueColText !== "*")) {
-                                alternateValueColText = "<span class='redText'>" + alternateValueColText + "</span>";
-                            }
-                            colText = referenceValueColText + " / " + alternateValueColText;
-                            res = "<a><span class='sampleGenotype' tooltip-text='" + tooltipText + "'> " + colText + " </span></a>";
+                if (genotype === "./." || genotype === ".|.") {
+                    return `<span style='color: darkorange'>${genotype}</span>`;
+                }
+
+                let allelesArray = genotype.split(new RegExp("[/|]"));
+                let leftAlleleCode = Number.parseInt(allelesArray[0]);
+                let rightAlleleCode = Number.parseInt(allelesArray[1]);
+
+                const leftAllele = genotypeMatch.get(leftAlleleCode);
+                const rightAllele = genotypeMatch.get(rightAlleleCode);
+
+                // Init
+                leftAlleleText = leftAllele;
+                rightAlleleText = rightAllele;
+
+                // Not equal X/- or -/X
+                if (leftAllele !== "-" && rightAllele !== "-") {
+                    if ((leftAllele.length <= 5 && rightAllele.length > 5) || (leftAllele.length > 5 && rightAllele.length <= 5)) {
+                        if (leftAllele.length > 5) {
+                            leftAlleleText = leftAllele.substring(0, 3) + "...";
+                        } else {
+                            rightAlleleText = rightAllele.substring(0, 3) + "...";
+                        }
+                    } else {
+                        // Both > 5 should never happen
+                        if (leftAllele.length > 5 && rightAllele.length > 5) {
+                            leftAlleleText = leftAllele.substring(0, 3) + "...";
+                            rightAlleleText = rightAllele.substring(0, 3) + "...";
                         }
                     }
-                });
-            } else {
-                row.studies.forEach(study => {
-                    if (study.samplesData.length > 0) {
-                        const currentGenotype = study.samplesData[this.fieldIndex - 4];
-                        if (UtilsNew.isNotUndefinedOrNull(currentGenotype)) {
-                            res = currentGenotype[0];
+                } else {
+                    if (leftAllele !== "-" && leftAllele.length > 10) {
+                        const substringReference = leftAllele.substring(0, 5) + "...";
+                        leftAlleleText = substringReference;
+                        rightAlleleText = "-";
+                    } else {
+                        if (rightAllele !== "-" && rightAllele.length > 10) {
+                            const substringAlternate = rightAllele.substring(0, 5) + "...";
+                            rightAlleleText = substringAlternate;
+                            leftAlleleText = "-";
                         }
                     }
-                });
+                }
+
+                if (leftAlleleCode === 1 && (leftAlleleText !== "-" && leftAlleleText !== "*")) {
+                    leftAlleleText = "<span style='color: darkorange'>" + leftAlleleText + "</span>";
+                } else if (leftAlleleCode > 1 && (leftAlleleText !== "-" && leftAlleleText !== "*")) {
+                    leftAlleleText = "<span style='color: darkred'>" + leftAlleleText + "</span>";
+                }
+                if (rightAlleleCode === 1 && (rightAlleleText !== "-" && rightAlleleText !== "*")) {
+                    rightAlleleText = "<span style='color: darkorange'>" + rightAlleleText + "</span>";
+                } else if (rightAlleleCode > 1 && (rightAlleleText !== "-" && rightAlleleText !== "*")) {
+                    rightAlleleText = "<span style='color: darkred'>" + rightAlleleText + "</span>";
+                }
+                res = `<span>${leftAlleleText} / ${rightAlleleText}</span>`;
             }
         }
         return res;
@@ -828,17 +760,82 @@ export default class VariantInterpreterGridFormatter {
         return {left: leftColor, right: rightColor};
     }
 
-    static _getSampleGenotypeTooltipText(variant, sampleEntry) {
-        // Fetch sampleFormat and file to simplify code
-        const sampleFormat = sampleEntry.data;
+    static _getVariantAlleleFraction(variant, sampleEntry, file) {
+        let vaf, depth;
 
-        let file;
-        if (variant.studies[0].files) {
-            let fileIdx = sampleEntry?.fileIndex ?? 0;
-            if (fileIdx >= 0) {
-                file = variant.studies[0].files[fileIdx];
+        // Try to guess the variant caller used.
+        // Check if is Caveman by looking to specific sample FORMAT fields
+        if (file.data.ASMD && file.data.CLPM) {
+            let set = new Set(["FAZ", "FCZ", "FGZ", "FTZ", "RAZ", "RCZ", "RGZ", "RTZ"]);
+            depth = 0;
+            for (let i in variant.studies[0].sampleDataKeys) {
+                if (set.has(variant.studies[0].sampleDataKeys[i])) {
+                    depth += Number.parseInt(sampleEntry.data[i]);
+                } else {
+                    if (variant.studies[0].sampleDataKeys[i] === "PM") {
+                        vaf = Number.parseFloat(sampleEntry.data[i]);
+                    }
+                }
             }
         }
+
+        // Check if is Pindel by looking to specific sample FORMAT fields
+        if (file.data.PC && file.data.VT) {
+            let values = {};
+            let fields = ["PU", "NU", "PR", "NR"];
+            for (let field of fields) {
+                let index = variant.studies[0].sampleDataKeys.findIndex(elem => elem === field);
+                values[field] = Number.parseInt(sampleEntry.data[index]);
+            }
+            vaf = (values.PU + values.NU) / (values.PR + values.NR);
+            depth = values.PR + values.NR;
+
+        }
+
+        return {vaf: vaf, depth: depth};
+    }
+
+    static _getAlleleFrequencies(variant, sampleEntry, file) {
+        let af, ad, dp;
+        let afIndex, adIndex, dpIndex;
+        let refFreq, altFreq;
+
+
+        // Find and get the DP
+        dpIndex = variant.studies[0].sampleDataKeys.findIndex(e => e === "DP");
+        if (dpIndex === -1) {
+            dp = file ? file.DP : null;
+        } else {
+            dp = Number.parseInt(sampleEntry.data[dpIndex]);
+        }
+
+        // Get Allele Frequencies
+        adIndex = variant.studies[0].sampleDataKeys.findIndex(e => e === "AD");
+        if (adIndex !== -1) {
+            ad = sampleEntry.data[adIndex];
+            let adCounts = ad.split(",");
+            if (!dp && adCounts.length > 1) {
+                dp = Number.parseInt(adCounts[0]) + Number.parseInt(adCounts[1]);
+            }
+            if (dp > 0) {
+                refFreq = Number.parseInt(adCounts[0]) / dp;
+                altFreq = Number.parseInt(adCounts[1]) / dp;
+            }
+        } else {
+            // In cancer data AF has just one single value for the ALT
+            afIndex = variant.studies[0].sampleDataKeys.findIndex(e => e === "AF");
+            if (afIndex !== -1) {
+                af = Number.parseFloat(sampleEntry.data[afIndex]);
+                refFreq = 1 - af;
+                altFreq = af;
+            }
+        }
+        return {ref: refFreq, alt: altFreq, depth: dp};
+    }
+
+    static _getSampleGenotypeTooltipText(variant, sampleEntry, file) {
+        // Fetch sampleFormat and file to simplify code
+        const sampleFormat = sampleEntry.data;
 
         // 1. Get INFO fields
         const infoFields = [];

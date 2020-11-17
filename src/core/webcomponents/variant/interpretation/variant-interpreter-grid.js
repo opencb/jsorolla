@@ -96,13 +96,14 @@ export default class VariantInterpreterGrid extends LitElement {
         }
 
         if (changedProperties.has("clinicalAnalysis") || changedProperties.has("query")) {
-            this.opencgaSessionObserver();
+            // this.opencgaSessionObserver();
             this.clinicalAnalysisObserver();
             this.renderVariants();
         }
 
         if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
+            // NOTE: This component allow the user to change the config, we need to keep users changes.
+            this._config = {...this.getDefaultConfig(), ...this.config, ...this._config};
             // Nacho (14/11/2020) - Commented since it does not look necessary
             // this.requestUpdate();
         }
@@ -879,7 +880,7 @@ export default class VariantInterpreterGrid extends LitElement {
             alleleStringLengthMax: 10,
 
             genotype: {
-                type: "Circle"
+                type: "ALLELES"
             },
             header: {
                 horizontalAlign: "center",
@@ -923,26 +924,10 @@ export default class VariantInterpreterGrid extends LitElement {
         $("#" + this.gridId).bootstrapTable("showLoading");
     }
 
-    onChangeSettings(filter, e) {
-        if (!this.gridConsequenceTypeSettings) {
-            this.gridConsequenceTypeSettings = {};
-        }
-        this.gridConsequenceTypeSettings[filter] = e.currentTarget.checked;
-        // switch (filter) {
-        //     case "canonicalTranscript":
-        //     case "proteinCodingTranscript":
-        //         break;
-        //     case "worstConsequenceType":
-        //         break;
-        //     case "loftConsequenceType":
-        //         break;
-        //
-        // }
-    }
-
     onApplySettings(e) {
         this._config = this.__config;
-        this.requestUpdate();
+        // this.requestUpdate();
+        // call to user config:  "iva.interpreter.grid": this_config
         this.renderVariants();
     }
 
