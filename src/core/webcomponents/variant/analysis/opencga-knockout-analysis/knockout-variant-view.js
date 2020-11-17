@@ -22,6 +22,7 @@ import GridCommons from "../../../commons/grid-commons.js";
 import knockoutData from "../test/knockout.20201029141213.SChLEA.js";
 import "./knockout-individual-variants.js";
 import "./knockout-variant-allele-pairs.js";
+import "./knockout-variant-individual.js";
 import "../../../family/opencga-family-view.js";
 import "../../annotation/cellbase-population-frequency-grid.js";
 import "../../annotation/variant-annotation-clinical-view.js";
@@ -167,7 +168,7 @@ export default class KnockoutVariantView extends LitElement {
 
     individualFormatter(value, row) {
         const typeToColor = {
-            "HOM_ALT": "lightblue",
+            "HOM_ALT": "#5b5bff",
             "CH": "blue"
         };
         const samplesTableData = this.samples.map(sample => ({id: sample.sampleId}));
@@ -181,7 +182,9 @@ export default class KnockoutVariantView extends LitElement {
             <table>
                 <tr>
                     ${samplesTableData.map(sample => `
-                        <td style="width: 15px; background: ${typeToColor[sample.knockoutType] ?? "#d0d0d0"}; border-right: 1px solid white;"><a style="display: block" tooltip-title="${sample.id}" tooltip-text="${sample.id}">&nbsp;</a></td>
+                        <td style="width: 15px; background: ${typeToColor[sample.knockoutType] ?? "#fff"}; border-right: 1px solid white;">
+                            <a style="border:1px solid #b7b7b7;display: block" tooltip-title="${sample.id}" tooltip-text="${sample.id}">&nbsp;</a>
+                        </td>
                     `).join("")}
                 </tr>
             </table>`;
@@ -258,7 +261,7 @@ export default class KnockoutVariantView extends LitElement {
                     active: true,
                     render: (variant, active, opencgaSession) => {
                         return html`
-                            individual-view
+                            <knockout-variant-individual .variantId="${variant}"></knockout-variant-individual>
                         `;
                     }
                 },

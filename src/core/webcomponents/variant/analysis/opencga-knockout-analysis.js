@@ -24,7 +24,7 @@ class OpencgaKnockoutAnalysisConfig {
     static get() {
         return {
             id: "knockout",
-            title: "Recessive gene Analysis",
+            title: "Knockout Analysis",
             icon: "",
             requires: "2.0.0",
             description: "Returns individuals with bialleic variants in a given gene, in either homozygous or compound heterozygous conformation. These patterns of variation often increase the risk of recessive disorders.”",
