@@ -588,7 +588,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                 events: {
                     "click a": this.onActionClick.bind(this)
                 },
-                visible: !this._config.columns.hidden.includes("priority") && !!this.opencgaSession.study?.configuration?.clinical?.priority
+                visible: !this._config.columns.hidden.includes("priority") && !!this.opencgaSession.study?.configuration?.clinical?.priorities
             },
             {
                 title: "Analyst",

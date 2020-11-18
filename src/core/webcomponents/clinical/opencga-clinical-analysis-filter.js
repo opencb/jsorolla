@@ -18,6 +18,7 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
 import "../commons/filters/date-filter.js";
 import "../commons/filters/clinical-analysis-id-autocomplete.js";
+import "../commons/filters/proband-id-autocomplete.js";
 import "../commons/filters/clinical-priority-filter.js";
 import "../commons/filters/clinical-status-filter.js";
 
@@ -127,8 +128,10 @@ export default class OpencgaClinicalAnalysisFilter extends LitElement {
             case "id":
                 content = html`<clinical-analysis-id-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></clinical-analysis-id-autocomplete>`;
                 break;
-            case "family":
             case "proband":
+                content = html`<proband-id-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></proband-id-autocomplete>`;
+                break;
+            case "family":
             case "sample":
                 content = html`<text-field-filter placeholder="${subsection.placeholder}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></text-field-filter>`;
                 break;

@@ -223,7 +223,7 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                             field: "priority",
                             type: "custom",
                             display: {
-                                visible: !this._config?.hiddenFields?.includes("priority") && !!this.opencgaSession?.study?.configuration?.clinical?.priority,
+                                visible: !this._config?.hiddenFields?.includes("priority") && !!this.opencgaSession?.study?.configuration?.clinical?.priorities,
                                 render: priority => {
                                     const priorityRankToColor = ["label-danger", "label-warning", "label-primary", "label-info", "label-success", "label-default"];
                                     return html`<span class="label ${priorityRankToColor[priority.rank]}">

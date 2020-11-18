@@ -140,6 +140,7 @@ export default class OpencgaClinicalAnalysisBrowser extends LitElement {
                     }
                 ],
                 grid: {
+                    readOnlyMode: true,
                     pageSize: 10,
                     pageList: [10, 25, 50],
                     detailView: false,

@@ -24,6 +24,7 @@ import "../commons/filters/clinical-analysis-id-autocomplete.js";
 import "../commons/filters/sample-id-autocomplete.js";
 import "../commons/filters/family-id-autocomplete.js";
 import "../commons/filters/disorder-id-autocomplete.js";
+import "../commons/filters/proband-id-autocomplete.js";
 import "../commons/filters/clinical-priority-filter.js";
 import "../commons/filters/clinical-status-filter.js";
 
@@ -512,7 +513,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                             <li style="padding: 5px;">
                                                 <div style="display: inline-flex;width: 300px">
                                                     <label class="filter-label">Proband ID:</label>
-                                                    <text-field-filter placeholder="Proband ID" @filterChange="${e => this.onFilterChange("proband", e.detail.value)}"></text-field-filter>
+                                                    <proband-id-autocomplete .opencgaSession="${this.opencgaSession}" @filterChange="${e => this.onFilterChange("proband", e.detail.value)}"></proband-id-autocomplete>
                                                 </div>
                                             </li>
                                         </ul>
@@ -578,7 +579,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                     ${~this._config.filter.sections[0].fields.findIndex(field => field.id === "assignee") ? html`
                                     <!-- Assignees -->
                                     <div class="btn-group">
-                                        <select-field-filter placeholder="Assignee" multiple .data="${this.users}" @filterChange="${e => this.onFilterChange("analystAssignee", e.detail.value)}"></select-field-filter>
+                                        <select-field-filter placeholder="Assignee: All" multiple .data="${this.users}" @filterChange="${e => this.onFilterChange("analystAssignee", e.detail.value)}"></select-field-filter>
                                     </div>
                                     ` : null}
                                     
