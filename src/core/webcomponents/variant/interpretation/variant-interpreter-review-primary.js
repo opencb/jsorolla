@@ -245,134 +245,134 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
         // }
     }
 
-    _createInterpretation() {
-        try {
-            // let userID = this.opencgaSession.opencgaClient._config.userId;
-            // let interpretation = {};
-            // interpretation.id = this.clinicalAnalysis.id + "_" + PolymerUtils.getValue(this._prefix + "IDInterpretation");
-            // // interpretation.name = PolymerUtils.getValue(this._prefix + "NameInterpretation");
-            // interpretation.description = PolymerUtils.getValue(this._prefix + "DescriptionInterpretation");
-            // interpretation.clinicalAnalysisId = this.clinicalAnalysisId;
-            // interpretation.software = {
-            //     name: "TEAM",
-            //     version: "2.0",
-            //     website: "https://www.ncbi.nlm.nih.gov/pubmed/24861626",
-            //     repository: "https://github.com/opencb/opencga",
-            //     commit: "f43372aa",
-            //     params: {}
-            // };
-            // interpretation.analyst = {
-            //     name: userID,
-            //     email: "",
-            //     company: ""
-            // };
-            // interpretation.dependencies = [
-            //     {
-            //         name: "CellBase", repository: "https://github.com/opencb/cellbase", version: this.cellbaseVersion
-            //     }
-            // ];
-            // interpretation.filters = this.query;
-            // //                interpretation.creationDate = Date();
-            // interpretation.comments = [{
-            //     author: userID,
-            //     type: "comment",
-            //     text: PolymerUtils.getValue(this._prefix + "CommentInterpretation"),
-            //     date: moment(new Date(), "YYYYMMDDHHmmss").format('D MMM YY')
-            // }];
-            //
-            // // Remove 'stateCheckbox' from the variant list. When we receive the list from the grid, we are getting
-            // // an additional field that should not be present in a reported variant.
-            // let reportedVariants = [];
-            // for (let i in this.reportedVariants) {
-            //     let variant = Object.assign({}, this.reportedVariants[i]);
-            //     delete variant['stateCheckBox'];
-            //     reportedVariants.push(variant);
-            // }
-            // interpretation.primaryFindings = reportedVariants;
-            // interpretation.attributes = {};
-            // // interpretation.creationDate = moment(new Date(), "YYYYMMDDHHmmss").format('D MMM YY');
-
-
-            let params = {
-                study: this.opencgaSession.study.fqn
-            };
-
-            const _this = this;
-            console.error("new client recheck");
-            this.opencgaSession.opencgaClient.interpretations().create(this.clinicalAnalysis.id, params, interpretation)
-                .then(response => {
-                    console.log(response);
-                    // TODO We should update here clinicalAnalysis and add to interpretation list this file with its name from save interpertation form.
-                    console.error("interpretation ref is not defined");
-                    if (UtilsNew.isNotUndefinedOrNull(this.interpretation) && UtilsNew.isNotUndefinedOrNull(this.interpretation.clinicalAnalysis)) {
-                        if (UtilsNew.isEmptyArray(this.interpretation.clinicalAnalysis.interpretations)) {
-                            this.interpretation.clinicalAnalysis.interpretations = [];
-                        } else {
-                            this.interpretation.clinicalAnalysis.interpretations = this.interpretation.clinicalAnalysis.interpretations.map(interpretation => {
-                                return {id: interpretation.id, name: interpretation.name, file: interpretation.file.id};
-                            });
-                        }
-                        this.interpretation.clinicalAnalysis.interpretations.push({
-                            id: this.interpretation.id,
-                            name: this.interpretation.name,
-                            file: response.response[0].result[0].id
-                        });
-                    }
-
-                    params = {
-                        study: _this.opencgaSession.study.fqn,
-                    };
-                    const interpretations = {interpretations: this.interpretation.clinicalAnalysis.interpretations};
-                    console.log("new clients change")
-                    _this.opencgaSession.opencgaClient.clinical().update(this.interpretation.clinicalAnalysis.id, interpretations, params)
-                        .then(response => {
-                            this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
-                                detail: {
-                                    message: this.interpretation.id + " interpretation has been created correctly.",
-                                    type: UtilsNew.MESSAGE_SUCCESS
-                                },
-                                bubbles: true,
-                                composed: true
-                            }));
-
-                            _this.cleanSaveInterpretation();
-                            console.log(response);
-                            // Update analysis with new interpretations
-                            _this.getAnalysisInterpretations();
-                        })
-                        .catch(err => {
-                            this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
-                                detail: {
-                                    message: err.error,
-                                    type: UtilsNew.MESSAGE_ERROR
-                                },
-                                bubbles: true,
-                                composed: true
-                            }));
-                        });
-                })
-                .catch(err => {
-                    this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
-                        detail: {
-                            message: err.error,
-                            type: UtilsNew.MESSAGE_ERROR
-                        },
-                        bubbles: true,
-                        composed: true
-                    }));
-                });
-
-        } catch (err) {
-            this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
-                detail: {
-                    message: err,
-                    type: UtilsNew.MESSAGE_ERROR
-                },
-                bubbles: true,
-                composed: true
-            }));
-        }
-    }
+    // _createInterpretation() {
+    //     try {
+    //         // let userID = this.opencgaSession.opencgaClient._config.userId;
+    //         // let interpretation = {};
+    //         // interpretation.id = this.clinicalAnalysis.id + "_" + PolymerUtils.getValue(this._prefix + "IDInterpretation");
+    //         // // interpretation.name = PolymerUtils.getValue(this._prefix + "NameInterpretation");
+    //         // interpretation.description = PolymerUtils.getValue(this._prefix + "DescriptionInterpretation");
+    //         // interpretation.clinicalAnalysisId = this.clinicalAnalysisId;
+    //         // interpretation.software = {
+    //         //     name: "TEAM",
+    //         //     version: "2.0",
+    //         //     website: "https://www.ncbi.nlm.nih.gov/pubmed/24861626",
+    //         //     repository: "https://github.com/opencb/opencga",
+    //         //     commit: "f43372aa",
+    //         //     params: {}
+    //         // };
+    //         // interpretation.analyst = {
+    //         //     name: userID,
+    //         //     email: "",
+    //         //     company: ""
+    //         // };
+    //         // interpretation.dependencies = [
+    //         //     {
+    //         //         name: "CellBase", repository: "https://github.com/opencb/cellbase", version: this.cellbaseVersion
+    //         //     }
+    //         // ];
+    //         // interpretation.filters = this.query;
+    //         // //                interpretation.creationDate = Date();
+    //         // interpretation.comments = [{
+    //         //     author: userID,
+    //         //     type: "comment",
+    //         //     text: PolymerUtils.getValue(this._prefix + "CommentInterpretation"),
+    //         //     date: moment(new Date(), "YYYYMMDDHHmmss").format('D MMM YY')
+    //         // }];
+    //         //
+    //         // // Remove 'stateCheckbox' from the variant list. When we receive the list from the grid, we are getting
+    //         // // an additional field that should not be present in a reported variant.
+    //         // let reportedVariants = [];
+    //         // for (let i in this.reportedVariants) {
+    //         //     let variant = Object.assign({}, this.reportedVariants[i]);
+    //         //     delete variant['stateCheckBox'];
+    //         //     reportedVariants.push(variant);
+    //         // }
+    //         // interpretation.primaryFindings = reportedVariants;
+    //         // interpretation.attributes = {};
+    //         // // interpretation.creationDate = moment(new Date(), "YYYYMMDDHHmmss").format('D MMM YY');
+    //
+    //
+    //         let params = {
+    //             study: this.opencgaSession.study.fqn
+    //         };
+    //
+    //         const _this = this;
+    //         console.error("new client recheck");
+    //         this.opencgaSession.opencgaClient.interpretations().create(this.clinicalAnalysis.id, params, interpretation)
+    //             .then(response => {
+    //                 console.log(response);
+    //                 // TODO We should update here clinicalAnalysis and add to interpretation list this file with its name from save interpertation form.
+    //                 console.error("interpretation ref is not defined");
+    //                 if (UtilsNew.isNotUndefinedOrNull(this.interpretation) && UtilsNew.isNotUndefinedOrNull(this.interpretation.clinicalAnalysis)) {
+    //                     if (UtilsNew.isEmptyArray(this.interpretation.clinicalAnalysis.interpretations)) {
+    //                         this.interpretation.clinicalAnalysis.interpretations = [];
+    //                     } else {
+    //                         this.interpretation.clinicalAnalysis.interpretations = this.interpretation.clinicalAnalysis.interpretations.map(interpretation => {
+    //                             return {id: interpretation.id, name: interpretation.name, file: interpretation.file.id};
+    //                         });
+    //                     }
+    //                     this.interpretation.clinicalAnalysis.interpretations.push({
+    //                         id: this.interpretation.id,
+    //                         name: this.interpretation.name,
+    //                         file: response.response[0].result[0].id
+    //                     });
+    //                 }
+    //
+    //                 params = {
+    //                     study: _this.opencgaSession.study.fqn,
+    //                 };
+    //                 const interpretations = {interpretations: this.interpretation.clinicalAnalysis.interpretations};
+    //                 console.log("new clients change")
+    //                 _this.opencgaSession.opencgaClient.clinical().update(this.interpretation.clinicalAnalysis.id, interpretations, params)
+    //                     .then(response => {
+    //                         this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
+    //                             detail: {
+    //                                 message: this.interpretation.id + " interpretation has been created correctly.",
+    //                                 type: UtilsNew.MESSAGE_SUCCESS
+    //                             },
+    //                             bubbles: true,
+    //                             composed: true
+    //                         }));
+    //
+    //                         _this.cleanSaveInterpretation();
+    //                         console.log(response);
+    //                         // Update analysis with new interpretations
+    //                         _this.getAnalysisInterpretations();
+    //                     })
+    //                     .catch(err => {
+    //                         this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
+    //                             detail: {
+    //                                 message: err.error,
+    //                                 type: UtilsNew.MESSAGE_ERROR
+    //                             },
+    //                             bubbles: true,
+    //                             composed: true
+    //                         }));
+    //                     });
+    //             })
+    //             .catch(err => {
+    //                 this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
+    //                     detail: {
+    //                         message: err.error,
+    //                         type: UtilsNew.MESSAGE_ERROR
+    //                     },
+    //                     bubbles: true,
+    //                     composed: true
+    //                 }));
+    //             });
+    //
+    //     } catch (err) {
+    //         this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
+    //             detail: {
+    //                 message: err,
+    //                 type: UtilsNew.MESSAGE_ERROR
+    //             },
+    //             bubbles: true,
+    //             composed: true
+    //         }));
+    //     }
+    // }
 
     cleanSaveInterpretation() {
         PolymerUtils.setValue(this._prefix + "IDInterpretation", "");
@@ -532,7 +532,7 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                         <div style="padding-top: 5px">
     
                             <div id="${this._prefix}collapsibleVariants" class="collapse in">
-                                ${this.clinicalAnalysis && false && this.clinicalAnalysis.interpretation 
+                                ${this.clinicalAnalysis && this.clinicalAnalysis.interpretation 
                                     ? html`
                                         <variant-interpreter-grid .opencgaSession="${this.opencgaSession}"
                                                                   .clinicalAnalysis="${this.clinicalAnalysis}"
