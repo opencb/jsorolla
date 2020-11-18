@@ -118,7 +118,7 @@ export default class SelectFieldFilter extends LitElement {
         let val;
         if (selection && selection.length) {
             if (this.multiple) {
-                val = selection.join(",")
+                val = selection.join(",");
             } else {
                 if (this.forceSelection) {
                     // single mode that DOESN'T allow deselection
@@ -131,7 +131,7 @@ export default class SelectFieldFilter extends LitElement {
             }
         }
 
-        //this.value = val ? val : null; // this allow users to get the selected values using DOMElement.value
+        // this.value = val ? val : null; // this allow users to get the selected values using DOMElement.value
         const event = new CustomEvent("filterChange", {
             detail: {
                 value: val ? val : null
@@ -151,29 +151,29 @@ export default class SelectFieldFilter extends LitElement {
                         ?disabled=${this.disabled}
                         ?required=${this.required}
                         data-live-search=${this.liveSearch ? "true" : "false"}
-                        title="${this.placeholder ?? this.multiple ? "Select option(s)" : "Select an option"}"
+                        title="${this.placeholder ?? (this.multiple ? "Select option(s)" : "Select an option")}"
                         data-max-options="${!this.multiple ? 1 : this.maxOptions ? this.maxOptions : false}" 
                         @change="${this.filterChange}" data-width="100%">
                     ${this.data?.map(opt => html`
-                        ${opt.separator 
-                            ? html`<option data-divider="true"></option>` 
-                            : html`
-                                ${opt.fields 
-                                    ? html`
+                        ${opt.separator ?
+                            html`<option data-divider="true"></option>` :
+                            html`
+                                ${opt.fields ?
+                                    html`
                                         <optgroup label="${opt.id ?? opt.name}">${opt.fields.map(subopt => html`
-                                            ${UtilsNew.isObject(subopt) 
-                                                ? html`
-                                                    <option ?disabled="${subopt.disabled}" ?selected="${subopt.selected}" .value="${subopt.id ?? subopt.name}">${subopt.name}</option>` 
-                                                : html`
+                                            ${UtilsNew.isObject(subopt) ?
+                                                html`
+                                                    <option ?disabled="${subopt.disabled}" ?selected="${subopt.selected}" .value="${subopt.id ?? subopt.name}">${subopt.name}</option>` :
+                                                html`
                                                     <option>${subopt}</option>
                                                 `}
                                             `)}
-                                        </optgroup>` 
-                                    : html` 
-                                        ${UtilsNew.isObject(opt) 
-                                            ? html`
-                                                <option ?disabled="${opt.disabled}" ?selected="${opt.selected}" .value="${opt.id ?? opt.name}">${opt.name ?? opt.id}</option>` 
-                                            : html`
+                                        </optgroup>` :
+                                    html` 
+                                        ${UtilsNew.isObject(opt) ?
+                                            html`
+                                                <option ?disabled="${opt.disabled}" ?selected="${opt.selected}" .value="${opt.id ?? opt.name}">${opt.name ?? opt.id}</option>` :
+                                            html`
                                                 <option>${opt}</option>
                                         `}
                                 `}

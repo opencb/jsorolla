@@ -40,6 +40,9 @@ export default class ClinicalStatusFilter extends LitElement {
             status: {
                 type: String
             },
+            placeholder: {
+                type: String
+            },
             config: {
                 type: Object
             }
@@ -79,7 +82,7 @@ export default class ClinicalStatusFilter extends LitElement {
 
     render() {
         return html`
-            <select-field-filter .data="${this.data}" .value=${this.status} multiple @filterChange="${e => this.filterChange(e)}"></select-field-filter>
+            <select-field-filter placeholder="${this.placeholder}" .data="${this.data}" .value=${this.status} multiple @filterChange="${e => this.filterChange(e)}"></select-field-filter>
         `;
     }
 
