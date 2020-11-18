@@ -316,7 +316,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
     // TODO better adapt config to the a dynamic view
     getDefaultConfig() {
         return {
-            title: "Review Cases",
+            title: "Review Portal",
             showTitle: true,
             filter: {
                 sections: [
@@ -566,13 +566,13 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                     ${~this._config.filter.sections[0].fields.findIndex(field => field.id === "status") ? html`
                                     <!-- Status -->
                                     <div class="btn-group">
-                                        <clinical-status-filter placeholder="${"Status: All"}" .statuses="${this.opencgaSession?.study?.configuration?.clinical?.status}" @filterChange="${e => this.onFilterChange("status", e.detail.value)}"></clinical-status-filter>
+                                        <clinical-status-filter placeholder="${"Status: All"}" .statuses="${this.opencgaSession?.study?.configuration?.clinical?.status ?? []}" @filterChange="${e => this.onFilterChange("status", e.detail.value)}"></clinical-status-filter>
                                     ` : null}
                                     
                                     ${~this._config.filter.sections[0].fields.findIndex(field => field.id === "priority") ? html`
                                     <!-- Priority -->
                                     <div class="btn-group" data-cy="form-priority">
-                                        <clinical-priority-filter placeholder="${"Priority: All"}" .priorities="${Object.values(this.opencgaSession?.study?.configuration?.clinical?.priorities)}" @filterChange="${e => this.onFilterChange("priority", e.detail.value)}"></clinical-priority-filter>
+                                        <clinical-priority-filter placeholder="${"Priority: All"}" .priorities="${Object.values(this.opencgaSession?.study?.configuration?.clinical?.priorities ?? {}) ?? []}" @filterChange="${e => this.onFilterChange("priority", e.detail.value)}"></clinical-priority-filter>
                                     </div>
                                     ` : null}
                                     
