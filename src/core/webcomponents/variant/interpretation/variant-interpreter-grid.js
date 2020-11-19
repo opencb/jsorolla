@@ -901,8 +901,10 @@ export default class VariantInterpreterGrid extends LitElement {
 
                 canonicalTranscript: true,
                 highQualityTranscripts: true,
-                proteinCodingTranscripts: true,
+                proteinCodingTranscripts: false,
                 worstConsequenceTypes: true,
+
+                showNegativeConsequenceTypes: true
             },
             callers: [
                 {

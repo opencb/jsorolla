@@ -67,6 +67,7 @@ export default class VariantInterpreterGridConfig extends LitElement {
             case "consequenceType.highQualityTranscripts":
             case "consequenceType.proteinCodingTranscripts":
             case "consequenceType.worstConsequenceTypes":
+            case "consequenceType.showNegativeConsequenceTypes":
                 let field = e.detail.param.split(".")[1];
                 this.config.consequenceType[field] = e.detail.value;
                 break;
@@ -121,28 +122,42 @@ export default class VariantInterpreterGridConfig extends LitElement {
                         {
                             field: "consequenceType.canonicalTranscript",
                             type: "checkbox",
-                            text: "Include canonical transcript",
+                            text: "Add canonical transcript",
                             display: {
                             }
                         },
                         {
                             field: "consequenceType.highQualityTranscripts",
                             type: "checkbox",
-                            text: "Filter high quality transcript",
+                            text: "Add high-quality transcripts",
                             display: {
                             }
                         },
                         {
                             field: "consequenceType.proteinCodingTranscripts",
                             type: "checkbox",
-                            text: "Filter protein coding transcripts",
+                            text: "Add protein coding transcripts",
                             display: {
                             }
                         },
                         {
                             field: "consequenceType.worstConsequenceTypes",
                             type: "checkbox",
-                            text: "Show only worst consequence types",
+                            text: "Add transcripts with high impact consequence types",
+                            display: {
+                            }
+                        },
+                        {
+                            name: "Consequence Options",
+                            type: "title",
+                            display: {
+                                labelStyle: "margin: 10px 0px 0px 0px",
+                            }
+                        },
+                        {
+                            field: "consequenceType.showNegativeConsequenceTypes",
+                            type: "checkbox",
+                            text: "Show filtered consequence types",
                             display: {
                             }
                         },

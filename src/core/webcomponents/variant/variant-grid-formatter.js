@@ -298,90 +298,139 @@ export default class VariantGridFormatter {
     }
 
     static consequenceTypeFormatter(value, row, index, gridCtSettings, consequenceTypeColors) {
+        // debugger
+
         if (row?.annotation && row.annotation.consequenceTypes?.length > 0) {
             // Apply transcript filters
-            let consequenceTypes = [];
-            if (gridCtSettings?.canonicalTranscript || gridCtSettings?.highQualityTranscripts || gridCtSettings?.proteinCodingTranscripts) {
-                const visited = new Set();
+            const selectedTranscripts = new Set();
+            let selectedConsequenceTypes = [];
+            let notSelectedConsequenceTypes = [];
+            if (gridCtSettings?.canonicalTranscript || gridCtSettings?.highQualityTranscripts
+                    || gridCtSettings?.proteinCodingTranscripts || gridCtSettings.worstConsequenceTypes) {
 
-                if (gridCtSettings.canonicalTranscript) {
-                    const ct = row.annotation.consequenceTypes.find(ct => ct.biotype === "protein_coding");
-                    if (ct) {
-                        consequenceTypes.push(ct);
-                        visited.add(ct.ensemblTranscriptId);
+                let canonicalFound = false;
+                const impactToTranscripts = {
+                    high: [],
+                    moderate: [],
+                    low: [],
+                    modifier: []
+                };
+
+                for (const ct of row.annotation.consequenceTypes) {
+                    let consequenceTypeSelected = false;
+// if (ct.geneName === "AL732372.2") debugger
+                    // TODO Remove canonicalFound boolean once 'canonical' is added to flags
+                    if (gridCtSettings.canonicalTranscript && !canonicalFound) {
+                        if (ct.biotype === "protein_coding") {
+                            canonicalFound = true;
+                            consequenceTypeSelected = true;
+                        }
+                    }
+
+                    if (gridCtSettings.highQualityTranscripts) {
+                        if (ct.transcriptAnnotationFlags?.includes("basic") || ct.transcriptAnnotationFlags?.includes("TSL:1")) {
+                            consequenceTypeSelected = true;
+                        }
+                    }
+
+                    if (gridCtSettings.proteinCodingTranscripts && ct.biotype === "protein_coding") {
+                        consequenceTypeSelected = true;
+                    }
+
+                    if (gridCtSettings.worstConsequenceTypes) {
+                        for (let so of ct.sequenceOntologyTerms) {
+                            const impact = consequenceTypeColors.consequenceTypeToImpact[so.name];
+                            if (impactToTranscripts[impact]) {
+                                impactToTranscripts[impact].push(ct);
+                            }
+                        }
+                    }
+
+                    if (consequenceTypeSelected) {
+                        selectedConsequenceTypes.push(ct);
+                        selectedTranscripts.add(ct.ensemblTranscriptId);
+                    } else {
+                        notSelectedConsequenceTypes.push(ct);
                     }
                 }
 
-                for (const ct of row.annotation.consequenceTypes) {
-                    let hqPass = false;
-                    if (gridCtSettings.highQualityTranscripts) {
-                        hqPass = ct.transcriptAnnotationFlags?.includes("basic");
+                // Add transcripts with worst consequence types: high and moderate.
+                // If any high and moderate is added then we stop
+                for (let impact of ["high", "moderate", "low", "modifier"]) {  // , "low", "modifier"
+                    if (impactToTranscripts[impact].length > 0) {
+                        for (let ct of impactToTranscripts[impact]) {
+                            // Add ct with worst consequence type if they have not been added yet
+                            if (!selectedTranscripts.has(ct.ensemblTranscriptId) && ct.ensemblTranscriptId) {
+                                selectedConsequenceTypes.push(ct);
+                                selectedTranscripts.add(ct.ensemblTranscriptId);
+                            }
+                        }
                     }
-
-                    let pcPass = false;
-                    if (gridCtSettings.proteinCodingTranscripts) {
-                        pcPass = ct.biotype === "protein_coding";
-                    }
-
-                    if (hqPass && pcPass && !visited.has(ct)) {
-                        consequenceTypes.push(ct);
-                        visited.add(ct.ensemblTranscriptId);
+                    // If we have printed any hugh or moderate then we stop
+                    if (impact === "moderate" && (impactToTranscripts["high"].length > 0 || impactToTranscripts["moderate"].length > 0)) {
+                        break;
                     }
                 }
             } else {
                 // If not transcript is filtered or selected we get use consequence types
-                consequenceTypes = row.annotation.consequenceTypes;
+                selectedConsequenceTypes = row.annotation.consequenceTypes;
             }
 
-            const consequenceTypesArr = [];
-            const visited = new Set();
-            const impact = {};
-            for (let i = 0; i < consequenceTypes.length; i++) {
-                for (let j = 0; j < consequenceTypes[i].sequenceOntologyTerms.length; j++) {
-                    let consequenceTypeName = consequenceTypes[i].sequenceOntologyTerms[j].name;
+            const positiveConsequenceTypes = [];
+            const negativeConsequenceTypes = [];
+            const soVisited = new Set();
+            for (let ct of selectedConsequenceTypes) {
+                for (let so of ct.sequenceOntologyTerms) {
+                    let soName = so.name;
 
                     // FIXME This is a temporal fix for some wrong CTs. This must be removed ASAP.
-                    if (consequenceTypeName === "2KB_downstream_gene_variant") {
-                        consequenceTypeName = "2KB_downstream_variant";
+                    if (soName === "2KB_downstream_gene_variant") {
+                        soName = "2KB_downstream_variant";
                     }
-                    if (consequenceTypeName === "2KB_upstream_gene_variant") {
-                        consequenceTypeName = "2KB_upstream_variant";
+                    if (soName === "2KB_upstream_gene_variant") {
+                        soName = "2KB_upstream_variant";
                     }
 
-                    if (consequenceTypeName && !visited.has(consequenceTypeName)) {
-                        if (consequenceTypeColors.consequenceTypeToImpact && consequenceTypeColors.consequenceTypeToImpact[consequenceTypeName]) {
-                            const imp = consequenceTypeColors.consequenceTypeToImpact[consequenceTypeName];
-                            if (!impact[imp]) {
-                                impact[imp] = [];
-                            }
-                            if (consequenceTypeColors.consequenceTypeToColor && consequenceTypeColors.consequenceTypeToColor[consequenceTypeName]) {
-                                impact[imp].push("<span style=\"color: " + consequenceTypeColors.consequenceTypeToColor[consequenceTypeName] + "\">" + consequenceTypeName + "</span>");
-                            } else {
-                                impact[imp].push("<span>" + consequenceTypeName + "</span>");
-                            }
-
+                    if (!soVisited.has(soName)) {
+                        if (consequenceTypeColors.consequenceTypeToColor && consequenceTypeColors.consequenceTypeToColor[soName]) {
+                            positiveConsequenceTypes.push(`<span style="color: ${consequenceTypeColors.consequenceTypeToColor[soName]}">${soName}</span>`);
+                        } else {
+                            positiveConsequenceTypes.push(`<span>${soName}</span>`);
                         }
-                        visited.add(consequenceTypeName);
+                        soVisited.add(soName);
                     }
                 }
             }
 
-            if (Object.keys(impact).length > 0) {
-                if (typeof impact["high"] !== "undefined" || typeof impact["moderate"] !== "undefined") {
-                    if (typeof impact["high"] !== "undefined") {
-                        Array.prototype.push.apply(consequenceTypesArr, impact["high"]);
+            // Print negative SO, if not printed as positive
+            let negativeConsequenceTypesText = "";
+            if (gridCtSettings.showNegativeConsequenceTypes) {
+                for (let ct of notSelectedConsequenceTypes) {
+                    for (let so of ct.sequenceOntologyTerms) {
+                        let soName = so.name;
+                        if (!soVisited.has(soName)) {
+                            // negativeConsequenceTypes.push(`<span style="color: darkgray;font-style: italic">${soName}</span>`);
+                            negativeConsequenceTypes.push(`<div style="color: ${consequenceTypeColors.consequenceTypeToColor[soName]}; margin: 5px">${soName}</div>`);
+                            soVisited.add(soName);
+                        }
                     }
-                    if (typeof impact["moderate"] !== "undefined") {
-                        Array.prototype.push.apply(consequenceTypesArr, impact["moderate"]);
-                    }
-                } else if (typeof impact["low"] !== "undefined") {
-                    Array.prototype.push.apply(consequenceTypesArr, impact["low"]);
-                } else if (typeof impact["modifier"] !== "undefined") {
-                    Array.prototype.push.apply(consequenceTypesArr, impact["modifier"]);
+                }
+                if (negativeConsequenceTypes.length > 0) {
+                    negativeConsequenceTypesText = `
+                        <a tooltip-title="Terms Filtered" tooltip-text='${negativeConsequenceTypes.join("")}'>
+                            <span style="color: darkgray;font-style: italic">${negativeConsequenceTypes.length} terms filtered</span>
+                        </a>`;
                 }
             }
 
-            return consequenceTypesArr.join("<br>");
+            return `
+                <div>
+                    ${positiveConsequenceTypes.join("<br>")}
+                </div>
+                <div>
+                    ${negativeConsequenceTypesText}
+                </div>
+            `;
         }
         return "-";
     }

@@ -739,10 +739,12 @@ export default class VariantBrowserGrid extends LitElement {
                 filterByBiotype: true,
                 filterByConsequenceType: true,
 
-                canonicalTranscript: true,
-                highQualityTranscripts: true,
-                proteinCodingTranscripts: true,
+                canonicalTranscript: false,
+                highQualityTranscripts: false,
+                proteinCodingTranscripts: false,
                 worstConsequenceTypes: true,
+
+                showNegativeConsequenceTypes: true
             }
         };
     }
