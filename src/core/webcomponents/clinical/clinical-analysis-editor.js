@@ -92,12 +92,18 @@ class ClinicalAnalysisEditor extends LitElement {
                     this._users.push(...group.userIds.filter(user => user !== "*"));
                 }
             }
+
+
+
         }
     }
 
     clinicalAnalysisObserver() {
         if (this.opencgaSession && this.clinicalAnalysis) {
             this._clinicalAnalysis = JSON.parse(JSON.stringify(this.clinicalAnalysis));
+
+            this.flags = this.opencgaSession.study.configuration.clinical.flags[this.clinicalAnalysis.type.toUpperCase()].map(flag => flag.id);
+            this.requestUpdate();
         }
     }
 
@@ -127,10 +133,20 @@ class ClinicalAnalysisEditor extends LitElement {
             </div>`;
     }
 
+    renderFlags(flags) {
+        let studyFlags = this.opencgaSession.study.configuration.clinical.flags[this.clinicalAnalysis.type.toUpperCase()].map(flag => flag.id);
+        let selectedValues = flags.map(flag => flag.id).join(",");
+        return html`
+            <div class="">
+                <select-field-filter .data="${studyFlags}" .value="${selectedValues}"
+                        @filterChange="${e => {e.detail.param = "flags.id"; this.onFieldChange(e)}}">
+                </select-field-filter>
+            </div>`;
+    }
+
     onFieldChange(e) {
         switch (e.detail.param) {
             case "locked":
-            case "priority":
             case "description":
                 if (this._clinicalAnalysis[e.detail.param] !== e.detail.value && e.detail.value !== null) {
                     this.clinicalAnalysis[e.detail.param] = e.detail.value;
@@ -139,27 +155,44 @@ class ClinicalAnalysisEditor extends LitElement {
                     delete this.updateParams[e.detail.param];
                 }
                 break;
+            case "flags.id":
+                if (!this._clinicalAnalysis?.flags) {
+                    this._clinicalAnalysis = {
+                        flags: []
+                    };
+                }
+
+                let index = this._clinicalAnalysis.flags.findIndex(flag => flag.id === e.detail.value);
+                if (index === -1 && e.detail.value !== null) {
+                    this.clinicalAnalysis.flags.push({id: e.detail.value});
+                    if (!this.updateParams?.flags) {
+                        this.updateParams.flags = [];
+                    }
+                    for (let flag of this.clinicalAnalysis.flags) {
+                        this.updateParams.flags.push({id: flag.id});
+                    }
+                } else {
+                    this.updateParams.flags.splice(index, 1);
+                }
+                if (this.updateParams.flags?.length === 0) {
+                    delete this.updateParams.flags;
+                }
+
+                break;
+            case "status.id":
+            case "priority.id":
             case "analyst.id":
-                if (this._clinicalAnalysis?.analyst.id !== e.detail.value && e.detail.value !== null) {
-                    this.clinicalAnalysis.analyst.id = e.detail.value;
-                    this.updateParams.analyst = {
+                let field = e.detail.param.split(".")[0];
+                if (this._clinicalAnalysis[field] && this._clinicalAnalysis[field].id !== e.detail.value && e.detail.value !== null) {
+                    this.clinicalAnalysis[field].id = e.detail.value;
+                    this.updateParams[field] = {
                         id: e.detail.value
                     };
                 } else {
-                    delete this.updateParams["analyst"];
+                    delete this.updateParams[field].id;
                 }
-                break;
-            case "status.name":
-                if (this._clinicalAnalysis?.status.name !== e.detail.value && e.detail.value !== null) {
-                    this.clinicalAnalysis.status.name = e.detail.value;
-                    this.updateParams.status = {
-                        name: e.detail.value
-                    };
-                } else {
-                    delete this.updateParams.status.name;
-                }
-                if (UtilsNew.isEmpty(this.updateParams.status)) {
-                    delete this.updateParams.status;
+                if (UtilsNew.isEmpty(this.updateParams[field])) {
+                    delete this.updateParams[field];
                 }
                 break;
         }
@@ -260,7 +293,7 @@ class ClinicalAnalysisEditor extends LitElement {
                         },
                         {
                             name: "Priority",
-                            field: "priority",
+                            field: "priority.id",
                             type: "select",
                             allowedValues: ["URGENT", "HIGH", "MEDIUM", "LOW"],
                             defaultValue: "MEDIUM",
@@ -301,23 +334,12 @@ class ClinicalAnalysisEditor extends LitElement {
                                 render: status => this.renderStatus(status)
                             }
                         },
-                        // {
-                        //     name: "Status2",
-                        //     field: "status",
-                        //     type: "select",
-                        //     allowedValues: "status",
-                        //     display: {
-                        //         apply: (status) => status.name
-                        //     }
-                        // },
                         {
-                            name: "Interpretation Flags",
+                            name: "Flags",
                             field: "flags",
-                            type: "select",
-                            multiple: true,
-                            allowedValues: ["mixed_chemistries", "low_tumour_purity", "uniparental_isodisomy", "uniparental_heterodisomy",
-                                "unusual_karyotype", "suspected_mosaicism", "low_quality_sample"],
+                            type: "custom",
                             display: {
+                                render: flags => this.renderFlags(flags)
                             }
                         },
                         {

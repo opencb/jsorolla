@@ -138,6 +138,10 @@ export default class VariantInterpreterDetail extends LitElement {
                     // cohorts: this.cohorts
                 },
                 {
+                    id: "samples",
+                    title: "Samples"
+                },
+                {
                     id: "beacon",
                     title: "Beacon"
                     // Uncomment and edit Beacon hosts to change default hosts
@@ -255,7 +259,7 @@ export default class VariantInterpreterDetail extends LitElement {
                         <div id="${this._prefix}samples" role="tabpanel" class="tab-pane">
                             <div style="width: 90%;padding-top: 8px">
                                 <opencga-variant-samples .opencgaSession="${this.opencgaSession}"
-                                                         .variant="${this.variant.id}"
+                                                         .variantId="${this.variant.id}"
                                                          .active="${this.detailActiveTabs.samples}">
                                 </opencga-variant-samples>
                             </div>

@@ -119,7 +119,7 @@ class ClinicalAnalysisCommentEditor extends LitElement {
                         <div style="margin: 5px 10px">
                             <text-field-filter placeholder="Add tags..." .rows=${1} @filterChange="${e => this.onFilterChange(e)}"></text-field-filter>
                         </div>
-                        <div style="margin: 5px 10px">
+                        <div style="margin: 5px 10px; float: right">
                             <span>
                                 <button type="button" class="btn btn-default">Cancel</button>
                             </span>

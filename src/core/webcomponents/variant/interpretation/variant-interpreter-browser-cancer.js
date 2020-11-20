@@ -534,6 +534,10 @@ class VariantInterpreterBrowserCancer extends LitElement {
                             cohorts: this.cohorts
                         },
                         {
+                            id: "samples",
+                            title: "Samples"
+                        },
+                        {
                             id: "beacon",
                             title: "Beacon"
                         }
