@@ -68,15 +68,15 @@ class ClinicalAnalysisCommentEditor extends LitElement {
     }
 
     render() {
-        if (!this.comments) {
-            return html`
-                <div>
-                    <h3><i class="fas fa-lock"></i> No available comments</h3>
-                </div>`;
-        }
+        // if (!this.comments) {
+        //     return html`
+        //         <div>
+        //             <h3><i class="fas fa-lock"></i> No available comments</h3>
+        //         </div>`;
+        // }
 
         return html`
-            ${this.comments.map(comment => html`
+            ${this.comments?.map(comment => html`
                 <div style="border-left: 2px solid #0c2f4c; margin: 15px 0px">
                     <div style="margin: 5px 10px">
                         <span style="font-weight: bold">${comment.author}</span>

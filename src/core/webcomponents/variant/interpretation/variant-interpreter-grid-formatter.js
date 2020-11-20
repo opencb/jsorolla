@@ -232,7 +232,8 @@ export default class VariantInterpreterGridFormatter {
         return fileAttrHtml;
     }
 
-    static reportedEventDetailFormatter(value, row, variantGrid, query, filter, consequenceTypeColors) {
+    static reportedEventDetailFormatter(value, row, variantGrid, query, config, consequenceTypeColors) {
+        debugger
         if (row && row.evidences.length > 0) {
             // Sort by Tier level
             row.evidences.sort(function (a, b) {
@@ -256,9 +257,9 @@ export default class VariantInterpreterGridFormatter {
             //     selectColumnHtml = "<th rowspan=\"2\">Select</th>";
             // }
 
-            const showArrayIndexes = VariantGridFormatter._consequenceTypeDetailFormatterFilter(row.annotation.consequenceTypes, query, filter);
+            const showArrayIndexes = VariantGridFormatter._consequenceTypeDetailFormatterFilter(row.annotation.consequenceTypes, query, config);
             let message = "";
-            if (filter) {
+            if (config) {
                 // Create two different divs to 'show all' or 'apply filter' title
                 message = `<div class="${variantGrid._prefix}${row.id}EvidenceFiltered">Showing <span style="font-weight: bold; color: red">${showArrayIndexes.length}</span> of 
                                 <span style="font-weight: bold; color: red">${row.annotation.consequenceTypes.length}</span> clinical evidences, 
@@ -286,12 +287,14 @@ export default class VariantInterpreterGridFormatter {
                                         <th rowspan="2">Panel</th>
                                         <th rowspan="2">Mode of Inheritance</th>
                                         <th rowspan="2">Actionable</th>
-                                        <th rowspan="1" colspan="3" style="text-align: center; padding-top: 5px">Classification</th>
+                                        <th rowspan="1" colspan="${config.evidences?.showSelectCheckbox ? 5 : 3}" style="text-align: center; padding-top: 5px">Classification</th>
                                     </tr>
                                     <tr>
                                         <th rowspan="1" style="padding-top: 5px">ACMG</th>
-                                        <th rowspan="1">Tier</th>
                                         <th rowspan="1">Clinical Significance</th>
+                                        <th rowspan="1">Tier</th>
+                                        ${config.evidences?.showSelectCheckbox ? `<th rowspan="1">Select</th>` : ""}
+                                        ${config.evidences?.showSelectCheckbox ? `<th rowspan="1">Edit</th>` : ""}
                                     </tr>
                                 </thead>
                                 <tbody>`;
@@ -305,10 +308,12 @@ export default class VariantInterpreterGridFormatter {
                                     <th rowspan="2">Panel</th>
                                     <th rowspan="2">Role in Cancer</th>
                                     <th rowspan="2">Actionable</th>
-                                    <th rowspan="1" colspan="1" style="text-align: center; padding-top: 5px">Classification</th>
+                                    <th rowspan="1" colspan="${config.evidences?.showSelectCheckbox ? 3 : 1}" style="text-align: center; padding-top: 5px">Classification</th>
                                 </tr>
                                 <tr>
                                     <th rowspan="1" style="text-align: center; padding-top: 5px">Tier</th>
+                                    ${config.evidences?.showSelectCheckbox ? `<th rowspan="1">Select</th>` : ""}
+                                    ${config.evidences?.showSelectCheckbox ? `<th rowspan="1">Edit</th>` : ""}
                                 </tr>
                             </thead>
                             <tbody>`;
@@ -483,14 +488,18 @@ export default class VariantInterpreterGridFormatter {
                     }
                 }
 
-                // let checboxHtml = "";
-                // if (variantGrid._config.showSelectCheckbox) {
-                //     let checked = "";
-                //     if (transcriptFlagChecked && tier !== "-") {
-                //         checked = "checked";
-                //     }
-                //     checboxHtml = `<td><input type="checkbox" ${checked}></td>`;
-                // }
+                let checboxHtml = "";
+                if (config.evidences?.showSelectCheckbox) {
+                    let checked = "";
+                    // if (transcriptFlagChecked && tier !== "-") {
+                    //     checked = "checked";
+                    // }
+                    checboxHtml = `<input type="checkbox" ${checked}>`;
+                }
+                 let editButtonLink = `
+                        <button class="btn btn-link reviewButton" data-variant-id="${row.id}">
+                            <i class="fa fa-edit icon-padding reviewButton" aria-hidden="true"></i>Edit
+                        </button>`;
 
                 // Create the table row
                 const hideClass = showArrayIndexes.includes(i) ? "" : `${variantGrid._prefix}${row.id}EvidenceFiltered`;
@@ -508,8 +517,9 @@ export default class VariantInterpreterGridFormatter {
                             <td>${moi}</td>
                             <td>${actionable}</td>
                             <td>${acmg}</td>
-                            <td>${tier}</td>
                             <td>${clinicalSignificance}</td>
+                            <td>${tier}</td>
+                            ${config.evidences?.showSelectCheckbox ? `<td>${checboxHtml}</td><td>${editButtonLink}</td>` : ""}
                         </tr>`;
                 } else {
                     ctHtml += `
@@ -522,6 +532,7 @@ export default class VariantInterpreterGridFormatter {
                             <td>${roleInCancer}</td>
                             <td>${actionable}</td>
                             <td>${tier}</td>
+                            ${config.evidences?.showSelectCheckbox ? `<td>${checboxHtml}</td><td>${editButtonLink}</td>` : ""}
                         </tr>`;
                 }
             }
@@ -782,7 +793,20 @@ export default class VariantInterpreterGridFormatter {
             }
             vaf = (values.PU + values.NU) / (values.PR + values.NR);
             depth = values.PR + values.NR;
+        }
 
+        if (file?.fileId.includes("tnhaplotyper2")) {
+            // let index = variant.studies[0].sampleDataKeys.findIndex(key => key === "AF");
+            let index = variant.studies[0].sampleDataKeys.findIndex(key => key === "AD");
+            if (index >= 0) {
+                let AD = sampleEntry.data[index];
+                let ads = AD.split(",");
+                depth = 0;
+                for (let ad of ads) {
+                    depth += Number.parseInt(ad);
+                }
+                vaf = Number.parseInt(ads[1]) / depth;
+            }
         }
 
         return {vaf: vaf, depth: depth};

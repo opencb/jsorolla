@@ -81,14 +81,14 @@ export default class OpencgaInterpretationVariantReview extends LitElement {
             sections: [
                 {
                     elements: [
-                        {
-                            name: "Tier",
-                            field: "id",
-                            type: "input-text",
-                            display: {
-                                placeholder: "Add a filter ID",
-                            }
-                        },
+                        // {
+                        //     name: "Tier",
+                        //     field: "id",
+                        //     type: "input-text",
+                        //     display: {
+                        //         placeholder: "Add a filter ID",
+                        //     }
+                        // },
                         {
                             name: "Status",
                             field: "status",
@@ -98,14 +98,23 @@ export default class OpencgaInterpretationVariantReview extends LitElement {
                             }
                         },
                         {
-                            name: "Comment",
-                            field: "description",
+                            name: "Discussion",
+                            field: "discussion",
                             type: "input-text",
                             display: {
                                 placeholder: "Add a filter description",
                                 rows: 2
                             }
-                        }
+                        },
+                        {
+                            name: "Comments",
+                            field: "comments",
+                            type: "custom",
+                            display: {
+                                render: comments => html`
+                                    <clinical-analysis-comment-editor .comments="${comments}" .opencgaSession="${this.opencgaSession}"></clinical-analysis-comment-editor>`
+                            }
+                        },
                     ]
                 }
             ]

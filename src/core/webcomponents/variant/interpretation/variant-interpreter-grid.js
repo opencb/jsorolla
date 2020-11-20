@@ -116,6 +116,9 @@ export default class VariantInterpreterGrid extends LitElement {
     }
 
     clinicalAnalysisObserver() {
+        // We need to load server config always.
+        this._config = {...this.getDefaultConfig(), ...this.config, ...this._config, ...this.opencgaSession.user.configs?.IVA?.interpreterGrid};
+
         // Make sure somatic sample is the first one
         if (this.clinicalAnalysis) {
             if (!this.clinicalAnalysis.interpretation) {
@@ -920,6 +923,10 @@ export default class VariantInterpreterGrid extends LitElement {
                     info: ["DP", "ECNT", "TLOD", "P_GERMLINE"],
                 }
             ],
+
+            evidences: {
+                showSelectCheckbox: false
+            }
         }
     }
 
@@ -932,11 +939,13 @@ export default class VariantInterpreterGrid extends LitElement {
         // call to user config:  "iva.interpreter.grid": this_config
         try {
             // id:"IVA" is defined in opencgaClient.updateUserConfigs
+            this._config = {...this.getDefaultConfig(), ...this.opencgaSession.user.configs?.IVA?.interpreterGrid, ...this.__config};
             const userConfig = await this.opencgaSession.opencgaClient.updateUserConfigs({
-                interpreterGrid: this.__config
+                interpreterGrid: this._config
             });
+            // this._config = {...this.getDefaultConfig(), ...this.config, ...userConfig.interpreterGrid};
             // this._config = this.__config;
-            this._config = {...this.getDefaultConfig(), ...this.config, ...userConfig.interpreterGrid};
+
             this.renderVariants();
         } catch (e) {
             UtilsNew.notifyError(e);

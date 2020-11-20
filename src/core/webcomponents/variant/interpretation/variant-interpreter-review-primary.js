@@ -204,8 +204,7 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
     }
 
     onViewInterpretation(e) {
-        // this.interpretationView = this._createInterpretation();
-        this.interpretationView = this._interpretation;
+        $("#" + this._prefix + "PreviewModal").modal("show");
     }
 
     onSaveInterpretation(e, obj) {
@@ -426,6 +425,9 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                         dp: 20
                     },
                     // populationFrequencies: ["1kG_phase3:ALL", "GNOMAD_GENOMES:ALL", "GNOMAD_EXOMES:ALL", "UK10K:ALL", "GONL:ALL", "ESP6500:ALL", "EXAC:ALL"]
+                    evidences: {
+                        showSelectCheckbox: true
+                    }
                 }
             },
             detail: {
@@ -456,6 +458,10 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                         id: "cohortStats",
                         title: "Cohort Stats",
                         cohorts: this.cohorts
+                    },
+                    {
+                        id: "samples",
+                        title: "Samples"
                     },
                     {
                         id: "beacon",
@@ -577,6 +583,26 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                 </div>
             </div>
         </div>
+        
+         <div class="modal fade" id="${this._prefix}PreviewModal" tabindex="-1"
+                 role="dialog" aria-hidden="true" style="padding-top:0; overflow-y: visible">
+                <div class="modal-dialog" style="width: 1024px">
+                    <div class="modal-content">
+                        <div class="modal-header" style="padding: 5px 15px">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h3>Settings</h3>
+                        </div>
+                        <div class="modal-body">
+                            <div class="container-fluid">
+                                <json-viewer .data="${this.clinicalAnalysis.interpretation}"></json-viewer>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
     `;
     }
 

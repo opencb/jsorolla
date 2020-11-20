@@ -321,7 +321,7 @@ export default class VariantGridFormatter {
 // if (ct.geneName === "AL732372.2") debugger
                     // TODO Remove canonicalFound boolean once 'canonical' is added to flags
                     if (gridCtSettings.canonicalTranscript && !canonicalFound) {
-                        if (ct.biotype === "protein_coding") {
+                        if (ct.biotype === "protein_coding" && ct.transcriptAnnotationFlags?.includes("basic")) {
                             canonicalFound = true;
                             consequenceTypeSelected = true;
                         }
@@ -917,7 +917,7 @@ export default class VariantGridFormatter {
                     }
 
                     // Prepare the tooltip links
-                    if (!trait.id?.startsWith("RCV")) {
+                    if (!trait.id?.startsWith("RCV") && !trait.id?.startsWith("SCV")) {
                         tooltipText += `<div style="margin: 10px 5px">
                                             <a href="${BioinfoUtils.getClinvarVariationLink(trait.id)}" target="_blank">${trait.id}</a>
                                         </div>`;
