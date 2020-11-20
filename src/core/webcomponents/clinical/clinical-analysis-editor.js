@@ -117,8 +117,8 @@ class ClinicalAnalysisEditor extends LitElement {
     renderStatus(status) {
         return html`
             <div class="">
-                <select-field-filter .data="${ClinicalAnalysisUtils.getStatuses()}" .value="${status.name}" 
-                        @filterChange="${e => {e.detail.param = "status.name"; this.onFieldChange(e)}}">
+                <select-field-filter .data="${ClinicalAnalysisUtils.getStatuses()}" .value="${status.id}" 
+                        @filterChange="${e => {e.detail.param = "status.id"; this.onFieldChange(e)}}">
                 </select-field-filter>
                 ${status.description
                     ? html`<span class="help-block" style="padding: 0px 5px">${status.description}</span>`

@@ -343,7 +343,7 @@ export default class VariantInterpreterGrid extends LitElement {
                 detailHtml += "</div>";
             }
 
-            detailHtml += "<div style='padding: 10px 0px 5px 25px'><h4>Clinical Mutation Evidence</h4></div>";
+            detailHtml += "<div style='padding: 10px 0px 5px 25px'><h4>Molecular Consequence</h4></div>";
             detailHtml += "<div style='padding: 5px 50px'>";
             detailHtml += VariantInterpreterGridFormatter.reportedEventDetailFormatter(value, row, this.variantGrid, this.variantGrid.query, this.variantGrid._config);
             detailHtml += "</div>";

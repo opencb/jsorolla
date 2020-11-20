@@ -580,15 +580,17 @@ export default class VariantGridFormatter {
                           <table id="ConsqTypeTable" class="table table-hover table-no-bordered">
                               <thead>
                                   <tr>
-                                      <th rowspan="2">Gene Name</th>
-                                      <th rowspan="2">Ensembl Gene</th>                                     
-                                      <th rowspan="2">Ensembl Transcript</th>
-                                      <th rowspan="2">Biotype</th>
+                                      <th rowspan="2">Gene</th>
+                                      <th rowspan="2">Transcript</th>
+                                      <th rowspan="2">Consequence Type</th>
                                       <th rowspan="2">Transcript Flags</th>
-                                      <th rowspan="2">Consequence Types (SO Term)</th>
-                                      <th rowspan="1" colspan="3" style="text-align: center">Protein Variant Annotation</th>
+                                      <th rowspan="1" colspan="3" style="text-align: center; padding-top: 5px">Transcript Variant Annotation</th>
+                                      <th rowspan="1" colspan="3" style="text-align: center; padding-top: 5px">Protein Variant Annotation</th>
                                   </tr>
-                                  <tr>
+                                  <tr style="margin: 5px">
+                                      <th rowspan="1" style="padding-top: 5px">cDNA/CDS Position</th>
+                                      <th rowspan="1">Codon</th>
+                                      <th rowspan="1">Exon (Overlap %)</th>
                                       <th rowspan="1">UniProt Acc</th>
                                       <th rowspan="1">Position</th>
                                       <th rowspan="1">Ref/Alt</th>
@@ -600,14 +602,20 @@ export default class VariantGridFormatter {
                 const ct = row.annotation.consequenceTypes[i];
 
                 // Prepare data info for columns
-                const geneName = ct.geneName ? `<a href="https://www.genenames.org/tools/search/#!/all?query=${ct.geneName}" target="_blank">${ct.geneName}</a>` : "-";
-                const geneId = ct.ensemblGeneId ? `<a href="${BioinfoUtils.getEnsemblLink(ct.ensemblGeneId, "gene", assembly)}" target="_blank">${ct.ensemblGeneId}</a>` : "-";
-                const transcriptId = ct.ensemblTranscriptId ? `<a href="${BioinfoUtils.getEnsemblLink(ct.ensemblTranscriptId, "transcript", assembly)}" target="_blank">${ct.ensemblTranscriptId}</a>` : "-";
+                const geneName = ct.geneName ? `<a href="${BioinfoUtils.getGeneNameLink(ct.geneName)}" target="_blank">${ct.geneName}</a>` : "-";
+                const ensemblGeneId = ct.ensemblGeneId ? `<a href="${BioinfoUtils.getEnsemblLink(ct.ensemblGeneId, "gene", assembly)}" target="_blank">${ct.ensemblGeneId}</a>` : "-";
+                let geneHtml = `
+                    <div>${geneName}</div>
+                    <div style="margin: 5px 0px">${ensemblGeneId}</div>
+                `;
 
-                let transcriptAnnotationFlags = "-";
-                if (ct.ensemblTranscriptId) {
-                    transcriptAnnotationFlags = ct.transcriptAnnotationFlags && ct.transcriptAnnotationFlags.length ? ct.transcriptAnnotationFlags.join(", ") : "NA";
-                }
+                // const transcriptId = ct.ensemblTranscriptId ? `<a href="${BioinfoUtils.getEnsemblLink(ct.ensemblTranscriptId, "transcript", assembly)}" target="_blank">${ct.ensemblTranscriptId}</a>` : "-";
+                const transcriptId = `<div style="">
+                                        ${ct.biotype ? ct.biotype : "-"}
+                                      </div>
+                                      <div style="margin: 5px 0px">
+                                        ${ct.ensemblTranscriptId ? `<a href="${BioinfoUtils.getEnsemblLink(ct.ensemblTranscriptId, "transcript", assembly)}" target="_blank">${ct.ensemblTranscriptId}</a>` : "-"}
+                                      </div>`;
 
                 const soArray = [];
                 for (const so of ct.sequenceOntologyTerms) {
@@ -615,11 +623,22 @@ export default class VariantGridFormatter {
                     if (variantGrid.consequenceTypeColors?.consequenceTypeToColor && variantGrid.consequenceTypeColors?.consequenceTypeToColor[so.name]) {
                         color = variantGrid.consequenceTypeColors.consequenceTypeToColor[so.name];
                     }
-                    soArray.push(`<div style="color: ${color}">
+                    soArray.push(`<div style="color: ${color}; margin-bottom: 5px">
                                     ${so.name} (<a href="http://www.sequenceontology.org/browser/current_svn/term/${so.accession}" target="_blank">${so.accession}</a>)
                                   </div>`);
                 }
 
+                let transcriptAnnotationFlags = ["-"];
+                if (ct.ensemblTranscriptId && ct.transcriptAnnotationFlags && ct.transcriptAnnotationFlags.length > 0) {
+                    transcriptAnnotationFlags = ct.transcriptAnnotationFlags.map(flag => `<div style="margin-bottom: 5px">${flag}</div>`);
+                }
+
+                let exons = ["-"];
+                if (ct.exonOverlap && ct.exonOverlap.length > 0) {
+                    exons = ct.exonOverlap.map(exon => `<div style="margin-bottom: 5px">${exon.number} (${exon?.percentage.toFixed(4) ?? "-"})</div>`)
+                }
+
+                
                 const pva = ct.proteinVariantAnnotation ? ct.proteinVariantAnnotation : {};
                 const uniprotAccession = pva.uniprotAccession ? `<a href="https://www.uniprot.org/uniprot/${pva.uniprotAccession}" target="_blank">${pva.uniprotAccession}</a>` : "-";
 
@@ -627,12 +646,15 @@ export default class VariantGridFormatter {
                 const hideClass = showArrayIndexes.includes(i) ? "" : `${variantGrid._prefix}${row.id}Filtered`;
                 const displayStyle = showArrayIndexes.includes(i) ? "" : "display: none";
                 ctHtml += `<tr class="detail-view-row ${hideClass}" style="${displayStyle}">
-                                <td>${geneName}</td>
-                                <td>${geneId}</td>
+                                <td>${geneHtml}</td>
                                 <td>${transcriptId}</td>
-                                <td>${UtilsNew.isNotEmpty(ct.biotype) ? ct.biotype : "-"}</td>
-                                <td>${transcriptAnnotationFlags}</td>
                                 <td>${soArray.join("")}</td>
+                                <td>${transcriptAnnotationFlags.join("")}</td>
+                                
+                                <td>${ct.cdnaPosition ?? "-"} / ${ct.cdsPosition ?? "-"}</td>
+                                <td>${ct.codon ?? "-"}</td>
+                                <td>${exons.join("<br>")}</td>
+                                
                                 <td>${uniprotAccession}</td>
                                 <td>${pva.position !== undefined ? pva.position : "-"}</td>
                                 <td>${pva.reference !== undefined ? pva.reference + "/" + pva.alternate : "-"}</td>

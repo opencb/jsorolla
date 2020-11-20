@@ -468,7 +468,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
         }
         if (action === "statusChange") {
             const {status} = e.currentTarget.dataset;
-            this.opencgaSession.opencgaClient.clinical().update(row.id, {status: {name: status}}, {study: this.opencgaSession.study.fqn})
+            this.opencgaSession.opencgaClient.clinical().update(row.id, {status: {id: status}}, {study: this.opencgaSession.study.fqn})
                 .then(restResponse => {
                     if (!restResponse.getResultEvents("ERROR").length) {
                         this.renderTable();

@@ -16,6 +16,10 @@
 
 export default class BioinfoUtils {
 
+    static getGeneNameLink(geneName) {
+        return "https://www.genenames.org/tools/search/#!/all?query=" + geneName;
+    }
+
     static getEnsemblLink(featureId, type = "gene", assembly = "GRCh38") {
         let ensemblLink;
         switch (type.toUpperCase()) {

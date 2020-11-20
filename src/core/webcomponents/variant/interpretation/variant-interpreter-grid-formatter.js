@@ -232,7 +232,7 @@ export default class VariantInterpreterGridFormatter {
         return fileAttrHtml;
     }
 
-    static reportedEventDetailFormatter(value, row, variantGrid, query, filter) {
+    static reportedEventDetailFormatter(value, row, variantGrid, query, filter, consequenceTypeColors) {
         if (row && row.evidences.length > 0) {
             // Sort by Tier level
             row.evidences.sort(function (a, b) {
@@ -281,16 +281,15 @@ export default class VariantInterpreterGridFormatter {
                                     <tr>
                                         <th rowspan="2">Gene</th>
                                         <th rowspan="2">Transcript</th>
-                                        <th rowspan="2">HGVS</th>
+                                        <th rowspan="2">Consequence Type</th>
                                         <th rowspan="2">Gencode</th>
-                                        <th rowspan="2">Consequence Type (SO Term)</th>
                                         <th rowspan="2">Panel</th>
                                         <th rowspan="2">Mode of Inheritance</th>
                                         <th rowspan="2">Actionable</th>
-                                        <th rowspan="1" colspan="3" style="text-align: center">Classification</th>
+                                        <th rowspan="1" colspan="3" style="text-align: center; padding-top: 5px">Classification</th>
                                     </tr>
                                     <tr>
-                                        <th rowspan="1">ACMG</th>
+                                        <th rowspan="1" style="padding-top: 5px">ACMG</th>
                                         <th rowspan="1">Tier</th>
                                         <th rowspan="1">Clinical Significance</th>
                                     </tr>
@@ -301,16 +300,15 @@ export default class VariantInterpreterGridFormatter {
                                 <tr>
                                     <th rowspan="2">Gene</th>
                                     <th rowspan="2">Transcript</th>
-                                    <th rowspan="2">HGVS</th>
+                                    <th rowspan="2">Consequence Type</th>
                                     <th rowspan="2">Gencode</th>
-                                    <th rowspan="2">Consequence Type (SO Term)</th>
                                     <th rowspan="2">Panel</th>
                                     <th rowspan="2">Role in Cancer</th>
                                     <th rowspan="2">Actionable</th>
-                                    <th rowspan="1" colspan="1" style="text-align: center">Classification</th>
+                                    <th rowspan="1" colspan="1" style="text-align: center; padding-top: 5px">Classification</th>
                                 </tr>
                                 <tr>
-                                    <th rowspan="1" style="text-align: center">Tier</th>
+                                    <th rowspan="1" style="text-align: center; padding-top: 5px">Tier</th>
                                 </tr>
                             </thead>
                             <tbody>`;
@@ -347,44 +345,56 @@ export default class VariantInterpreterGridFormatter {
 
                 // Prepare data info for columns
                 let gene = "-";
-                if (UtilsNew.isNotEmpty(re.genomicFeature.id)) {
+                if (re.genomicFeature.id) {
                     gene = `<div>
-                                <a href="https://www.genenames.org/tools/search/#!/all?query=${re.genomicFeature.geneName}" target="_blank">
+                                <a href="${BioinfoUtils.getGeneNameLink(re.genomicFeature.geneName)}" target="_blank">
                                     ${re.genomicFeature.geneName}
                                 </a>
                             </div>
-                            <div style="padding-top: 5px">
-                                <a href="http://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=${re.genomicFeature.id}" target="_blank">
+                            <div style="margin: 5px 0px">
+                                <a href="${BioinfoUtils.getEnsemblLink(re.genomicFeature.id)}" target="_blank">
                                     ${re.genomicFeature.id}
                                 </a>
                             </div>`;
                 }
 
 
-                let hgvsHtml = "-";
                 let transcriptId = "-";
                 if (UtilsNew.isNotEmpty(re.genomicFeature.transcriptId)) {
                     let biotype = "-";
                     if (row.annotation && row.annotation.consequenceTypes) {
-                        for (const ct of row.annotation.consequenceTypes) {
-                            if (ct.ensemblTranscriptId === re.genomicFeature.transcriptId) {
-                                biotype = ct.biotype;
-                                break;
-                            }
+                        let ct = row.annotation.consequenceTypes.find(ct => ct.ensemblTranscriptId === re.genomicFeature.transcriptId);
+                        biotype = ct?.biotype ?? "-";
+                    }
+
+                    let hgvsHtml = [];
+                    if (row.annotation && row.annotation.hgvs) {
+                        let hgvsArray = row.annotation.hgvs.filter(hgvs => hgvs.startsWith(re.genomicFeature.transcriptId));
+                        for (let hgvs of hgvsArray) {
+                            let hgvsTranscript = hgvs.split(new RegExp("[(:]"));
+                            let link = BioinfoUtils.getEnsemblLink(hgvsTranscript[0], "transcript");
+                            hgvsHtml.push(`<a href=${link}>${hgvsTranscript[0]}</a>:${hgvsTranscript[hgvsTranscript.length - 1]}`);
                         }
                     }
 
-                    transcriptId = `<div>
-                                        <a href="http://www.ensembl.org/Homo_sapiens/Transcript/Idhistory?t=${re.genomicFeature.transcriptId}" target="_blank">
-                                            ${re.genomicFeature.transcriptId}
-                                        </a>
-                                    </div>
-                                    <div style="padding-top: 5px">
+                    transcriptId = `<div style="">
                                         ${biotype}
-                                    </div>`;
+                                    </div>
+                                    ${hgvsHtml.map(hgvs => `
+                                        <div style="margin: 5px 0px">${hgvs}</div>
+                                    `)}`;
+                }
 
-                    if (row.annotation && row.annotation.hgvs) {
-                        hgvsHtml = row.annotation.hgvs.filter(hgvs => hgvs.startsWith(re.genomicFeature.transcriptId));
+                const soArray = [];
+                if (re.genomicFeature.consequenceTypes && re.genomicFeature.consequenceTypes.length > 0) {
+                    for (const so of re.genomicFeature.consequenceTypes) {
+                        let color = "black";
+                        if (variantGrid.consequenceTypeColors?.consequenceTypeToColor && variantGrid.consequenceTypeColors?.consequenceTypeToColor[so.name]) {
+                            color = variantGrid.consequenceTypeColors?.consequenceTypeToColor[so.name];
+                        }
+                        soArray.push(`<div style="color: ${color}; margin-bottom: 5px">
+                                    ${so.name} (<a href="http://www.sequenceontology.org/browser/current_svn/term/${so.accession}" target="_blank">${so.accession}</a>)
+                                  </div>`);
                     }
                 }
 
@@ -410,20 +420,6 @@ export default class VariantInterpreterGridFormatter {
                     }
                 }
 
-                const soArray = [];
-                if (re.genomicFeature.consequenceTypes && re.genomicFeature.consequenceTypes.length > 0) {
-                    for (const so of re.genomicFeature.consequenceTypes) {
-                        let color = "black";
-                        if (typeof variantGrid.consequenceTypeToColor !== "undefined" && typeof variantGrid.consequenceTypeToColor[so.name] !== "undefined") {
-                            color = variantGrid.consequenceTypeToColor[so.name];
-                        }
-                        soArray.push(`<div style="color: ${color}">
-                                    ${so.name} (<a href="http://www.sequenceontology.org/browser/current_svn/term/${so.accession}" target="_blank">${so.accession}</a>)
-                                  </div>`);
-                    }
-                }
-
-
                 let panel = "-";
                 if (UtilsNew.isNotUndefinedOrNull(re.panelId)) {
                     panel = re.panelId;
@@ -437,7 +433,6 @@ export default class VariantInterpreterGridFormatter {
                 let roleInCancer = "-";
                 if (UtilsNew.isNotUndefinedOrNull(re.roleInCancer)) {
                     roleInCancer = re.roleInCancer === "TUMOR_SUPRESSOR_GENE" || re.roleInCancer === "TUMOR_SUPPRESSOR_GENE" ? "TSG" : re.roleInCancer;
-                    // roleInCancer = re.roleInCancer;
                 }
 
                 let actionable = "-";
@@ -507,9 +502,8 @@ export default class VariantInterpreterGridFormatter {
                         <tr class="detail-view-row ${hideClass}" style="${displayStyle}">
                             <td>${gene}</td>
                             <td>${transcriptId}</td>
-                            <td>${hgvsHtml}</td>
-                            <td>${transcriptFlag}</td>
                             <td>${soArray.join("")}</td>
+                            <td>${transcriptFlag}</td>
                             <td>${panel}</td>
                             <td>${moi}</td>
                             <td>${actionable}</td>
@@ -522,9 +516,8 @@ export default class VariantInterpreterGridFormatter {
                         <tr class="detail-view-row ${hideClass}" style="${displayStyle}">
                             <td>${gene}</td>
                             <td>${transcriptId}</td>
-                            <td>${hgvsHtml}</td>
-                            <td>${transcriptFlag}</td>
                             <td>${soArray.join("")}</td>
+                            <td>${transcriptFlag}</td>
                             <td>${panel}</td>
                             <td>${roleInCancer}</td>
                             <td>${actionable}</td>
@@ -596,9 +589,9 @@ export default class VariantInterpreterGridFormatter {
 
                 // Get tooltip text
                 const tooltipText = VariantInterpreterGridFormatter._getSampleGenotypeTooltipText(row, sampleEntry, file);
-                resultHtml = `<a class="zygositySampleTooltip" tooltip-title="Variant Call Information" tooltip-text='${tooltipText}'>
+                resultHtml += `<a class="zygositySampleTooltip" tooltip-title="Variant Call Information" tooltip-text='${tooltipText}'>
                                 ${content}
-                              </a>`;
+                              </a><br>`;
             }
         }
 
