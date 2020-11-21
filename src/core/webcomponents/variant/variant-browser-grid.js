@@ -306,10 +306,6 @@ export default class VariantBrowserGrid extends LitElement {
         return result;
     }
 
-    // variantFormatter(value, row, index) {
-    //     return VariantGridFormatter.variantFormatter(value, row, this._config);
-    // }
-
     siftPproteinScoreFormatter(value, row, index) {
         let min = 10;
         let description = "";
@@ -421,6 +417,77 @@ export default class VariantBrowserGrid extends LitElement {
     }
 
     _createDefaultColumns() {
+        // IMPORTANT: empty columns are not supported in boostrap-table,
+        let sampleColumns = [{visible: false}];
+        if (this._columns && this.samples && this.samples.length > 0) {
+            sampleColumns = [];
+            for (let i = 0; i < this.samples.length; i++) {
+                sampleColumns.push({
+                    title: this.samples[i].id,
+                    field: "samples",
+                    rowspan: 1,
+                    colspan: 1,
+                    formatter: VariantInterpreterGridFormatter.sampleGenotypeFormatter,
+                    align: "center",
+                    nucleotideGenotype: true
+                });
+            }
+        }
+
+        // IMPORTANT: empty columns are not supported in boostrap-table,
+        let cohortColumns = [{visible: false}];
+        if (this.cohorts && Object.keys(this.cohorts).length > 0 && this.cohorts[this.opencgaSession.project.id]) {
+            const cohortStudies = Object.keys(this.cohorts[this.opencgaSession.project.id]);
+            cohortColumns = [];
+            for (let i = 0; i < cohortStudies.length; i++) {
+                cohortColumns.push({
+                    title: cohortStudies[i],
+                    field: cohortStudies[i],
+                    meta: {
+                        study: cohortStudies[i],
+                        cohorts: this.cohorts[this.opencgaSession.project.id][cohortStudies[i]],
+                        colors: this.populationFrequencies.style,
+                        context: this
+                    },
+                    rowspan: 1,
+                    colspan: 1,
+                    formatter: this.cohortFormatter,
+                    align: "center",
+                    eligible: false
+                });
+            }
+        }
+
+        // IMPORTANT: empty columns are not supported in boostrap-table,
+        let populationFrequencyColumns = [{visible: false}];
+        if (this.populationFrequencies && this.populationFrequencies.studies && this.populationFrequencies.studies.length > 0) {
+            populationFrequencyColumns = [];
+            for (let j = 0; j < this.populationFrequencies.studies.length; j++) {
+                const populations = [];
+                const populationMap = {};
+                for (const pop in this.populationFrequencies.studies[j].populations) {
+                    populations.push(this.populationFrequencies.studies[j].populations[pop].id);
+                    populationMap[this.populationFrequencies.studies[j].populations[pop].id] = true;
+                }
+
+                populationFrequencyColumns.push({
+                    title: this.populationFrequencies.studies[j].title,
+                    field: this.populationFrequencies.studies[j].id,
+                    meta: {
+                        study: this.populationFrequencies.studies[j].id,
+                        populations: populations,
+                        populationMap: populationMap,
+                        colors: this.populationFrequencies.style,
+                        context: this
+                    },
+                    rowspan: 1,
+                    colspan: 1,
+                    formatter: this.populationFrequenciesFormatter,
+                    align: "center"
+                });
+            }
+        }
+
         this._columns = [
             [
                 {
@@ -429,14 +496,6 @@ export default class VariantBrowserGrid extends LitElement {
                     rowspan: 2,
                     colspan: 1,
                     formatter: (value, row, index) => VariantGridFormatter.variantFormatter(value, row, index, this.opencgaSession.project.organism.assembly, this._config),
-                    halign: "center"
-                },
-                {
-                    title: "dbSNP Id",
-                    field: "dbSNP",
-                    rowspan: 2,
-                    colspan: 1,
-                    formatter: (value, row, index) => VariantGridFormatter.snpFormatter(value, row, index, this.opencgaSession.project.organism.assembly),
                     halign: "center"
                 },
                 {
@@ -480,7 +539,32 @@ export default class VariantBrowserGrid extends LitElement {
                     field: "conservation",
                     rowspan: 1,
                     colspan: 3,
+                    // colspan: this.opencgaSession.project.organism.assembly.toUpperCase() === "GRCH37" ? 3 : 2,
                     align: "center"
+                },
+                {
+                    title: "Samples",
+                    field: "samples",
+                    rowspan: 1,
+                    colspan: sampleColumns.length,
+                    align: "center",
+                    visible: sampleColumns.length > 0 && sampleColumns[0].visible === undefined
+                },
+                {
+                    title: `Cohort Stats <a id="cohortStatsInfoIcon" tooltip-title="Cohort Stats" tooltip-text="${VariantGridFormatter.cohortStatsInfoTooltipContent(this.populationFrequencies)}"><i class="fa fa-info-circle" aria-hidden="true"></i></a>`,
+                    field: "cohorts",
+                    rowspan: 1,
+                    colspan: cohortColumns.length,
+                    align: "center",
+                    visible: cohortColumns.length > 0 && cohortColumns[0].visible === undefined
+                },
+                {
+                    title: `Population Frequencies <a class="popFreqInfoIcon" tooltip-title="Population Frequencies" tooltip-text="${VariantGridFormatter.populationFrequenciesInfoTooltipContent(this.populationFrequencies)}" tooltip-position-at="left bottom" tooltip-position-my="right top"><i class="fa fa-info-circle" aria-hidden="true"></i></a>`,
+                    field: "popfreq",
+                    rowspan: 1,
+                    colspan: populationFrequencyColumns.length,
+                    align: "center",
+                    visible: populationFrequencyColumns.length > 0 && populationFrequencyColumns[0].visible === undefined
                 },
                 {
                     title: `Clinical Info <a id="phenotypesInfoIcon" tooltip-title="Phenotypes" tooltip-text="
@@ -549,8 +633,12 @@ export default class VariantBrowserGrid extends LitElement {
                     rowspan: 1,
                     formatter: this.conservationFormatter,
                     align: "right",
-                    halign: "center"
+                    halign: "center",
+                    visible: this.opencgaSession.project.organism.assembly.toUpperCase() === "GRCH37"
                 },
+                ...sampleColumns,
+                ...cohortColumns,
+                ...populationFrequencyColumns,
                 {
                     title: "ClinVar",
                     field: "clinvar",
@@ -566,124 +654,18 @@ export default class VariantBrowserGrid extends LitElement {
                     rowspan: 1,
                     formatter: VariantGridFormatter.clinicalPhenotypeFormatter,
                     align: "center"
+                },
+                {
+                    field: "stateCheckBox",
+                    checkbox: true,
+                    rowspan: 1,
+                    colspan: 1,
+                    visible: this._config.showSelectCheckbox
                 }
             ]
         ];
 
-        // update columns dynamically
-        this._updateTableColumns();
-
         return this._columns;
-    }
-
-    _updateTableColumns() {
-        // add last checkbox column
-        if (this._config.showSelectCheckbox) {
-            this._columns[1].push({
-                field: "stateCheckBox",
-                checkbox: true,
-                rowspan: 1,
-                colspan: 1
-            });
-        }
-
-        let isCohortPresent = false;
-        // if (typeof this._columns !== "undefined" && typeof this.cohorts !== "undefined" && Object.keys(this.cohorts).length > 0
-        //     && this.config.filter.menu.skipSubsections !== undefined && !this.config.filter.menu.skipSubsections.includes("cohort")) {
-        if (typeof this._columns !== "undefined" && typeof this.cohorts !== "undefined" && Object.keys(this.cohorts).length > 0 &&
-            typeof this.cohorts[this.opencgaSession.project.id] !== "undefined") {
-            isCohortPresent = true;
-            const cohortStudyIdx = 7;
-            const cohortIdx = 6;
-            const cohortStudies = Object.keys(this.cohorts[this.opencgaSession.project.id]);
-
-            this._columns[0].splice(cohortStudyIdx, 0, {
-                // title: this.opencgaSession.project.name,
-                title: `Cohort Stats <a id="cohortStatsInfoIcon" tooltip-title="Cohort Stats" tooltip-text="${VariantGridFormatter.cohortStatsInfoTooltipContent(this.populationFrequencies)}"><i class="fa fa-info-circle" aria-hidden="true"></i></a>`,
-                field: "cohorts",
-                rowspan: 1,
-                colspan: cohortStudies.length,
-                align: "center"
-            });
-
-            for (let i = 0; i < cohortStudies.length; i++) {
-                this._columns[1].splice(i + cohortIdx, 0, {
-                    title: cohortStudies[i],
-                    field: cohortStudies[i],
-                    meta: {
-                        study: cohortStudies[i],
-                        cohorts: this.cohorts[this.opencgaSession.project.id][cohortStudies[i]],
-                        colors: this.populationFrequencies.style,
-                        context: this
-                    },
-                    rowspan: 1,
-                    colspan: 1,
-                    formatter: this.cohortFormatter,
-                    align: "center",
-                    eligible: false
-                });
-            }
-        }
-
-        if (typeof this.populationFrequencies !== "undefined" && typeof this.populationFrequencies.studies !== "undefined" && this.populationFrequencies.studies.length > 0) {
-            const popIdx = isCohortPresent ? 8 : 7;
-            const subPopIdx = isCohortPresent ? 6 + Object.keys(this.cohorts[this.opencgaSession.project.id]).length : 6;
-
-            // Just one column called 'Population Frequencies'
-            this._columns[0].splice(popIdx, 0, {
-                title: `Population Frequencies <a class="popFreqInfoIcon" tooltip-title="Population Frequencies" tooltip-text="${VariantGridFormatter.populationFrequenciesInfoTooltipContent(this.populationFrequencies)}" tooltip-position-at="left bottom" tooltip-position-my="right top"><i class="fa fa-info-circle" aria-hidden="true"></i></a>`,
-                field: "popfreq",
-                rowspan: 1,
-                colspan: this.populationFrequencies.studies.length,
-                align: "center"
-            });
-
-            for (let j = 0; j < this.populationFrequencies.studies.length; j++) {
-                const populations = [];
-                const populationMap = {};
-                for (const pop in this.populationFrequencies.studies[j].populations) {
-                    populations.push(this.populationFrequencies.studies[j].populations[pop].id);
-                    populationMap[this.populationFrequencies.studies[j].populations[pop].id] = true;
-                }
-
-                this._columns[1].splice(j + subPopIdx, 0, {
-                    title: this.populationFrequencies.studies[j].title,
-                    field: this.populationFrequencies.studies[j].id,
-                    meta: {
-                        study: this.populationFrequencies.studies[j].id,
-                        populations: populations,
-                        populationMap: populationMap,
-                        colors: this.populationFrequencies.style,
-                        context: this
-                    },
-                    rowspan: 1,
-                    colspan: 1,
-                    formatter: this.populationFrequenciesFormatter,
-                    align: "center"
-                });
-            }
-        }
-
-        if (typeof this._columns !== "undefined" && typeof this.samples !== "undefined" && this.samples.length > 0) {
-            this._columns[0].splice(4, 0, {
-                title: "Samples",
-                field: "samples",
-                rowspan: 1,
-                colspan: this.samples.length,
-                align: "center"
-            });
-            for (let i = 0; i < this.samples.length; i++) {
-                this._columns[1].splice(i, 0, {
-                    title: this.samples[i].id,
-                    field: "samples",
-                    rowspan: 1,
-                    colspan: 1,
-                    formatter: VariantInterpreterGridFormatter.sampleGenotypeFormatter,
-                    align: "center",
-                    nucleotideGenotype: true
-                });
-            }
-        }
     }
 
     async onDownload(e) {
