@@ -61,78 +61,46 @@ export default class VariantGridFormatter {
         return result;
     }
 
-    static variantFormatter(value, row, config) {
-        if (row === undefined) {
+    static variantFormatter(value, row, index, assembly, config) {
+        if (!row) {
             return;
         }
 
-        // If REF/ALT is greater than maxAlleleLength we display the first and last 5 bp
-        let ref = (UtilsNew.isNotEmpty(row.reference)) ? row.reference : "-";
-        let alt = (UtilsNew.isNotEmpty(row.alternate)) ? row.alternate : "-";
-        let maxAlleleLength = 15;
-        if (UtilsNew.isNotUndefinedOrNull(config) && UtilsNew.isNotUndefinedOrNull(config.alleleStringLengthMax)) {
-            maxAlleleLength = config.alleleStringLengthMax;
-        }
-        ref = (ref.length > maxAlleleLength) ? ref.substring(0, 5) + "..." + ref.substring(ref.length - 5) : ref;
-        alt = (alt.length > maxAlleleLength) ? alt.substring(0, 5) + "..." + alt.substring(alt.length - 5) : alt;
+        let ref = row.reference ? row.reference : "-";
+        let alt = row.alternate ? row.alternate : "-";
 
-        let id = row.id;
-        if (UtilsNew.isEmpty(id)) {
-            console.warn("row.id is empty: " + row);
-            id = `${row.chromosome}:${row.start}:${ref}:${alt}`;
-        }
+        // Check size
+        let maxAlleleLength = config?.alleleStringLengthMax ? config.alleleStringLengthMax : 10;
+        ref = (ref.length > maxAlleleLength) ? ref.substring(0, 4) + "..." + ref.substring(ref.length - 4) : ref;
+        alt = (alt.length > maxAlleleLength) ? alt.substring(0, 4) + "..." + alt.substring(alt.length - 4) : alt;
 
-        if (typeof row.annotation !== "undefined" && UtilsNew.isNotEmptyArray(row.annotation.xrefs)) {
-            row.annotation.xrefs.find(function (element) {
-                if (element.source === "dbSNP") {
-                    id = element.id;
-                }
-            });
-        }
+        // Ww need to escape < and > symbols from <INS>, <DEL>, ...
+        alt = alt.replaceAll("<", "&lt;").replaceAll(">", "&gt;");
 
-        let genomeBrowserMenuLink = "";
-        if (UtilsNew.isNotUndefinedOrNull(config) && config.showGenomeBrowser) {
-            genomeBrowserMenuLink = `<div>
-                                        <a class="genome-browser-option" data-variant-position="${row.chromosome}:${row.start}-${row.end}" style="cursor: pointer">
-                                            <i class="fa fa-list" aria-hidden="true"></i> Genome Browser
-                                        </a>
-                                     </div>`;
-        }
+        // Create links for tooltip
+        const ensemblLinkHtml = "http://www.ensembl.org/Homo_sapiens/Location/View?r=" + row.chromosome + ":" + row.start + "-" + row.end;
+        const tooltipText = `
+            <div style="padding: 5px">
+                <a target="_blank" href="${ensemblLinkHtml}">Ensembl</a>
+            </div>`;
 
-        const ensemblLinkHtml = id.startsWith("rs") ?
-            "https://www.ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v=" + id :
-            "http://www.ensembl.org/Homo_sapiens/Location/View?r=" + row.chromosome + ":" + row.start + "-" + row.end;
+        let snpHtml = VariantGridFormatter.snpFormatter(value, row, index, assembly);
 
-        let snpLinkHtml = "";
-        if (id.startsWith("rs")) {
-            snpLinkHtml = `<div class="pad5"><a target="_blank" href="https://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?searchType=adhoc_search&type=rs&rs=${id}">dbSNP</a></div>
-                           ${application.appConfig === "opencb" ? `<div class="pad5"><a target="_blank" href="https://www.snpedia.com/index.php/${id}">SNPedia</a></div>` : ""}
-                           <div class="pad5"><a target="_blank" href="https://www.ncbi.nlm.nih.gov/clinvar/?term=${id}">ClinVar</a></div>
-                `;
-        }
-
-        // <div style="padding: 5px 15px; color: darkgray; font-weight: bolder">External Links</div>
-        const tooltipText = `${genomeBrowserMenuLink}
-                            <div style="padding: 5px">
-                                <a target="_blank" href="${ensemblLinkHtml}">Ensembl</a>
-                            </div>
-                            ${snpLinkHtml}
-                `;
-
-        return `<div>
-                    <a tooltip-title='Links' tooltip-text='${tooltipText}'>
-                        ${row.chromosome}:${row.start}&nbsp;&nbsp;${ref}/${alt}
-                    </a>
-                </div>`;
+        return `
+            <div style="margin: 5px 0px">
+                <a tooltip-title='Links' tooltip-text='${tooltipText}'>
+                    ${row.chromosome}:${row.start}&nbsp;&nbsp;${ref}/${alt}
+                </a>
+            </div>
+            ${snpHtml ? `<div style="margin: 5px 0px">${snpHtml}</div>` : ""}
+            `;
     }
 
     static snpFormatter(value, row, index, assembly) {
-        /*
-            We try first to read SNP ID from the 'names' of the variant (this identifier comes from the file).
-            If this ID is not a "rs..." then we search the rs in the CellBase XRef annotations.
-            This field is in annotation.xref when source: "dbSNP".
-        */
-        let snpId = null;
+        // We try first to read SNP ID from the 'names' of the variant (this identifier comes from the file).
+        // If this ID is not a "rs..." then we search the rs in the CellBase XRef annotations.
+        // This field is in annotation.xref when source: "dbSNP".
+        let snpId = "";
         if (row.names && row.names.length > 0) {
             for (const name of row.names) {
                 if (name.startsWith("rs")) {
@@ -156,6 +124,7 @@ export default class VariantGridFormatter {
                 }
             }
         }
+
         if (snpId) {
             if (assembly.toUpperCase() === "GRCH37") {
                 return "<a target='_blank' href='http://grch37.ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v=" + snpId + "'>" + snpId + "</a>";
@@ -163,11 +132,10 @@ export default class VariantGridFormatter {
                 return "<a target='_blank' href='http://www.ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v=" + snpId + "'>" + snpId + "</a>";
             }
         }
-        return "-";
+        return snpId;
     }
 
     static geneFormatter(value, row, index, query, opencgaSession) {
-
         // Keep a map of genes and the SO accessions and names
         let geneHasQueryCt = new Set();
         if (query?.ct) {

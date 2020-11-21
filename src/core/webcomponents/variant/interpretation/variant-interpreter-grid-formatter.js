@@ -582,7 +582,7 @@ export default class VariantInterpreterGridFormatter {
                         if (vaf && vaf.vaf >= 0 && vaf.depth >= 0) {
                             content = VariantInterpreterGridFormatter._vafGenotypeRenderer(vaf.vaf, vaf.depth, file, {});
                         } else {    // Just in case we cannot render freqs, this should never happen.
-                            content = VariantInterpreterGridFormatter._circleGenotypeRenderer(sampleEntry, file, 6);
+                            content = VariantInterpreterGridFormatter._alleleGenotypeRenderer(row, sampleEntry);
                         }
                         break;
                     case "ALLELE_FREQUENCY":
@@ -590,7 +590,7 @@ export default class VariantInterpreterGridFormatter {
                         if (alleleFreqs && alleleFreqs.ref >= 0 && alleleFreqs.alt >= 0) {
                             content = VariantInterpreterGridFormatter._alleleFrequencyGenotypeRenderer(alleleFreqs.ref, alleleFreqs.alt, file, {width: 80});
                         } else {    // Just in case we cannot render freqs, this should never happen.
-                            content = VariantInterpreterGridFormatter._alleleGenotypeRenderer(row);
+                            content = VariantInterpreterGridFormatter._alleleGenotypeRenderer(row, sampleEntry);
                         }
                         break;
                     default:
@@ -640,13 +640,6 @@ export default class VariantInterpreterGridFormatter {
         let res = "-";
 
         if (variant && variant.studies?.length > 0) {
-            let leftAlleleText = "-";
-            let rightAlleleText = "-";
-
-            const genotypeMatch = new Map();
-            genotypeMatch.set(0, variant.reference !== "" ? variant.reference : "-");
-            genotypeMatch.set(1, variant.alternate !== "" ? variant.alternate : "-");
-
             if (sampleEntry?.data && sampleEntry.data.length > 0) {
                 const genotype = sampleEntry.data[0];
 
@@ -654,62 +647,45 @@ export default class VariantInterpreterGridFormatter {
                 if (genotype === "NA") {
                     return `<span style='color: darkorange'>${genotype}</span>`;
                 }
-
                 if (genotype === "./." || genotype === ".|.") {
                     return `<span style='color: darkorange'>${genotype}</span>`;
                 }
 
                 let allelesArray = genotype.split(new RegExp("[/|]"));
-                let leftAlleleCode = Number.parseInt(allelesArray[0]);
-                let rightAlleleCode = Number.parseInt(allelesArray[1]);
-
-                const leftAllele = genotypeMatch.get(leftAlleleCode);
-                const rightAllele = genotypeMatch.get(rightAlleleCode);
-
-                // Init
-                leftAlleleText = leftAllele;
-                rightAlleleText = rightAllele;
-
-                // Not equal X/- or -/X
-                if (leftAllele !== "-" && rightAllele !== "-") {
-                    if ((leftAllele.length <= 5 && rightAllele.length > 5) || (leftAllele.length > 5 && rightAllele.length <= 5)) {
-                        if (leftAllele.length > 5) {
-                            leftAlleleText = leftAllele.substring(0, 3) + "...";
-                        } else {
-                            rightAlleleText = rightAllele.substring(0, 3) + "...";
-                        }
-                    } else {
-                        // Both > 5 should never happen
-                        if (leftAllele.length > 5 && rightAllele.length > 5) {
-                            leftAlleleText = leftAllele.substring(0, 3) + "...";
-                            rightAlleleText = rightAllele.substring(0, 3) + "...";
-                        }
-                    }
-                } else {
-                    if (leftAllele !== "-" && leftAllele.length > 10) {
-                        const substringReference = leftAllele.substring(0, 5) + "...";
-                        leftAlleleText = substringReference;
-                        rightAlleleText = "-";
-                    } else {
-                        if (rightAllele !== "-" && rightAllele.length > 10) {
-                            const substringAlternate = rightAllele.substring(0, 5) + "...";
-                            rightAlleleText = substringAlternate;
-                            leftAlleleText = "-";
-                        }
+                let alleles = [];
+                for (let allele of allelesArray) {
+                    switch (allele) {
+                        case ".":
+                            alleles.push(".");
+                            break;
+                        case "0":
+                            alleles.push(variant.reference ? variant.reference : "-");
+                            break;
+                        case "1":
+                            alleles.push(variant.alternate ? variant.alternate : "-");
+                            break;
                     }
                 }
 
-                if (leftAlleleCode === 1 && (leftAlleleText !== "-" && leftAlleleText !== "*")) {
-                    leftAlleleText = "<span style='color: darkorange'>" + leftAlleleText + "</span>";
-                } else if (leftAlleleCode > 1 && (leftAlleleText !== "-" && leftAlleleText !== "*")) {
-                    leftAlleleText = "<span style='color: darkred'>" + leftAlleleText + "</span>";
+                let allelesSeq = [];
+                for (let allele of alleles) {
+                    let alleleSeq = allele;
+                    // Check size
+                    if (allele.length > 10) {
+                        alleleSeq = allele.substring(0, 4) + "...";
+                    }
+                    // Ww need to escape < and > symbols from <INS>, <DEL>, ...
+                    alleleSeq = alleleSeq.replaceAll("<", "&lt;").replaceAll(">", "&gt;");
+                    allelesSeq.push(alleleSeq);
                 }
-                if (rightAlleleCode === 1 && (rightAlleleText !== "-" && rightAlleleText !== "*")) {
-                    rightAlleleText = "<span style='color: darkorange'>" + rightAlleleText + "</span>";
-                } else if (rightAlleleCode > 1 && (rightAlleleText !== "-" && rightAlleleText !== "*")) {
-                    rightAlleleText = "<span style='color: darkred'>" + rightAlleleText + "</span>";
+
+                let allelesHtml = [];
+                for (let i = 0; i < allelesSeq.length; i++) {
+                    let color = allelesArray[i] === "0" ? "black" : "darkorange";
+                    allelesHtml.push(`<span style="color: ${color}">${allelesSeq[i]}</span>`);
                 }
-                res = `<span>${leftAlleleText} / ${rightAlleleText}</span>`;
+
+                res = `<span>${allelesHtml[0]} / ${allelesHtml[1]}</span>`;
             }
         }
         return res;
@@ -911,15 +887,15 @@ export default class VariantInterpreterGridFormatter {
                                     </div>
                                     <div class="form-group" style="margin: 2px 2px">
                                         <label class="col-md-4">File FILTER</label>
-                                        <div class="col-md-8">${file.data.FILTER}</div>
+                                        <div class="col-md-8">${file?.data.FILTER}</div>
                                     </div>
                                     <div class="form-group" style="margin: 2px 2px">
                                         <label class="col-md-4">File QUAL</label>
-                                        <div class="col-md-8">${Number(file.data.QUAL).toFixed(2)}</div>
+                                        <div class="col-md-8">${Number(file?.data.QUAL).toFixed(2)}</div>
                                     </div>
                                     <div class="form-group" style="margin: 2px 2px">
                                         <label class="col-md-4">File VCF call</label>
-                                        <div class="col-md-8">${file.call?.variantId ? file.call.variantId 
+                                        <div class="col-md-8">${file?.call?.variantId ? file.call.variantId
                                             : `${variant.chromosome}:${variant.start}:${variant.reference}:${variant.alternate}`}
                                         </div>
                                     </div>

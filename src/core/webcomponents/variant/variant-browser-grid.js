@@ -306,9 +306,9 @@ export default class VariantBrowserGrid extends LitElement {
         return result;
     }
 
-    variantFormatter(value, row, index) {
-        return VariantGridFormatter.variantFormatter(value, row, this._config);
-    }
+    // variantFormatter(value, row, index) {
+    //     return VariantGridFormatter.variantFormatter(value, row, this._config);
+    // }
 
     siftPproteinScoreFormatter(value, row, index) {
         let min = 10;
@@ -428,7 +428,7 @@ export default class VariantBrowserGrid extends LitElement {
                     field: "id",
                     rowspan: 2,
                     colspan: 1,
-                    formatter: this.variantFormatter.bind(this),
+                    formatter: (value, row, index) => VariantGridFormatter.variantFormatter(value, row, index, this.opencgaSession.project.organism.assembly, this._config),
                     halign: "center"
                 },
                 {

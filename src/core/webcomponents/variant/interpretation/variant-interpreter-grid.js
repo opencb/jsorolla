@@ -217,6 +217,8 @@ export default class VariantInterpreterGrid extends LitElement {
                         // approximateCountSamplingSize: 100,
 
                         ...this.query,
+                        // sample: this.clinicalAnalysis.proband.samples[0].id + ":0/0,0/1,1/1",
+                        // unknownGenotype: "0/0"
                     };
 
                     this.opencgaSession.opencgaClient.clinical().queryVariant(filters)
@@ -365,12 +367,6 @@ export default class VariantInterpreterGrid extends LitElement {
         return result;
     }
 
-    variantFormatter(value, row, index) {
-        const variantHtmlDiv = VariantGridFormatter.variantFormatter(value, row, this._config);
-        const snpHtmlAnchor = VariantGridFormatter.snpFormatter(value, row, index, this.opencgaSession.project.organism.assembly);
-        return `${variantHtmlDiv}<div style='padding-top: 10px'>${snpHtmlAnchor && snpHtmlAnchor !== "-" ? snpHtmlAnchor : ""}</div>`;
-    }
-
     vcfDataFormatter(value, row, index) {
         if (this.field.vcfColumn === "info") {
             for (let file of row.studies[0].files) {
@@ -486,7 +482,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     field: "id",
                     rowspan: 2,
                     colspan: 1,
-                    formatter: this.variantFormatter.bind(this),
+                    formatter: (value, row, index) => VariantGridFormatter.variantFormatter(value, row, index, this.opencgaSession.project.organism.assembly, this._config),
                     halign: "center",
                     sortable: true
                 },

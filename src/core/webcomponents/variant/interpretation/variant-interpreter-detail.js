@@ -165,7 +165,7 @@ export default class VariantInterpreterDetail extends LitElement {
 
         return html`
             <div style="padding-top: 20px">
-                <h3>${this._config.title}: ${this.variant.id}</h3>
+                <h3 style="overflow-wrap: break-word">${this._config.title}: ${this.variant.id}</h3>
     
                 <div style="padding-top: 20px">
                     <!-- Dynamically create the Detail Tabs from Browser config -->
