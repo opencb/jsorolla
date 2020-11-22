@@ -36,7 +36,7 @@ export class CellBaseClient {
 
     getDefaultConfig() {
         return {
-            hosts: ["bioinfo.hpc.cam.ac.uk/cellbase"],
+            hosts: ["https://ws.opencb.org/cellbase-4.8.2"],
             version: "v4",
             species: "hsapiens",
             query: {
