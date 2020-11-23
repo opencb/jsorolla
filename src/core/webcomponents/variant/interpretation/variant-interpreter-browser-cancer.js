@@ -121,7 +121,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
             if (!this.query?.sample) {
                 this.query = {
                     ...this.query,
-                    sample: this._sample.id + ":0/1,1/1",
+                    sample: this._sample.id + ":0/1,1/1,NA",
                 }
                 // this.predefinedFilter = {...this.query};
             }
@@ -335,8 +335,8 @@ class VariantInterpreterBrowserCancer extends LitElement {
                     },
                     {
                         id: "pindel",
-                        // queryString: "FILTER=PASS;QUAL>=250;REP<=9"
-                        queryString: "FILTER=PASS;QUAL>=250"
+                        queryString: "FILTER=PASS;QUAL>=250;REP<=9"
+                        // queryString: "FILTER=PASS;QUAL>=250"
                     }
                 ],
                 sections: [     // sections and subsections, structure and order is respected
