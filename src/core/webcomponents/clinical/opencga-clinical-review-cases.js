@@ -380,6 +380,11 @@ export default class OpencgaClinicalReviewCases extends LitElement {
     render() {
         return this.opencgaSession ? html`
         <style>
+        
+            .filter-button {
+                color: rgb(153,153,153);
+            }
+            
             .ocap-text-button {
                 display: inline-block;
                 overflow: hidden;
@@ -467,7 +472,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                     ${~this._config.filter.sections[0].fields.findIndex(field => field.id === "case") ? html`
                                         <!-- Case ID -->
                                         <div class="btn-group" data-cy="form-case">
-                                            <button type="button" class="dropdown-toggle btn btn-default filter-button" style="width:125px; color: rgb(153, 153, 153);"
+                                            <button type="button" class="dropdown-toggle btn btn-default filter-button"
                                                     id="${this._prefix}caseMenu"
                                                     data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                                                 <span class="ocap-text-button">Case: <span>${this.query.id ?? "All"}</span></span>&nbsp;<span class="caret"></span>
@@ -486,7 +491,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                     ${~this._config.filter.sections[0].fields.findIndex(field => field.id === "sample") ? html`
                                     <!-- Sample -->
                                     <div class="btn-group" data-cy="form-sample">
-                                        <button type="button" class="dropdown-toggle btn btn-default filter-button" style="width:125px; color: rgb(153, 153, 153);"
+                                        <button type="button" class="dropdown-toggle btn btn-default filter-button"
                                                 id="${this._prefix}sampleMenu"
                                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                                             <span class="ocap-text-button">Sample: <span>${this.query.sample ?? "All"}</span></span>&nbsp;<span class="caret"></span>
@@ -505,7 +510,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                     ${~this._config.filter.sections[0].fields.findIndex(field => field.id === "proband") ? html`
                                     <!-- Proband -->
                                     <div class="btn-group" data-cy="form-proband">
-                                        <button type="button" class="btn btn-default dropdown-toggle filter-button" style="width:125px; color: rgb(153, 153, 153);"
+                                        <button type="button" class="btn btn-default dropdown-toggle filter-button"
                                                 id="${this._prefix}probandMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                                             <span class="ocap-text-button">Proband: <span>${this.query.proband ?? "All"}</span></span>&nbsp; <span class="caret"></span>
                                         </button>
@@ -523,7 +528,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                     ${~this._config.filter.sections[0].fields.findIndex(field => field.id === "family") ? html`                                    
                                     <!-- Family -->
                                     <div class="btn-group">
-                                        <button type="button" class="dropdown-toggle btn btn-default filter-button" style="width:125px; color: rgb(153, 153, 153);"
+                                        <button type="button" class="dropdown-toggle btn btn-default filter-button"
                                                 id="${this._prefix}familyMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                                             <span class="ocap-text-button">Family: <span>${this.query.family ?? "All"}</span></span>&nbsp; <span class="caret"></span>
                                         </button>
@@ -541,7 +546,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                     ${~this._config.filter.sections[0].fields.findIndex(field => field.id === "disorder") ? html`
                                     <!-- Disorder -->
                                     <div class="btn-group">
-                                        <button type="button" class="dropdown-toggle btn btn-default filter-button" style="width:125px; color: rgb(153, 153, 153);"
+                                        <button type="button" class="dropdown-toggle btn btn-default filter-button"
                                                 id="${this._prefix}disorderMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                                             <span class="ocap-text-button">Disorder: <span>${this.query.disorder ?? "All"}</span></span>&nbsp; <span class="caret"></span>
                                         </button>
