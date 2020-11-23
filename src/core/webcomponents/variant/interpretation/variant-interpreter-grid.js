@@ -213,8 +213,8 @@ debugger
                         count: !tableOptions.pageNumber || tableOptions.pageNumber === 1,
                         includeSampleId: "true",
 
-                        // approximateCount: true,
-                        // approximateCountSamplingSize: 100,
+                        approximateCount: true,
+                        approximateCountSamplingSize: 1000,
 
                         ...this.query,
                         // sample: this.clinicalAnalysis.proband.samples[0].id + ":0/0,0/1,1/1",

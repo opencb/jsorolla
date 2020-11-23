@@ -66,7 +66,7 @@ export default class SampleGenotypeFilter extends LitElement {
                 } else {
                     // No genotypes provided
                     this.sampleId = keyValue[0];
-                    this.genotypes = ["0/1", "1/1"];
+                    this.genotypes = ["0/1", "1/1", "NA"];
                 }
                 this.requestUpdate();
             }

@@ -121,7 +121,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
             if (!this.query?.sample) {
                 this.query = {
                     ...this.query,
-                    sample: this._sample.id + ":0/1,1/1",
+                    sample: this._sample.id + ":0/1,1/1,NA",
                 }
                 // this.predefinedFilter = {...this.query};
             }
