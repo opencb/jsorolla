@@ -38,8 +38,8 @@ export default class KnockoutGeneGrid extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            job: {
-                type: Object
+            jobId: {
+                type: String
             },
             config: {
                 type: Object
@@ -52,7 +52,8 @@ export default class KnockoutGeneGrid extends LitElement {
         this._config = this.getDefaultConfig();
         this.data = knockoutDataGene;
         this.gridId = this._prefix + "KnockoutGrid";
-        this.prepareData();
+        // this.prepareData();
+        this.tableData = knockoutDataGene;
     }
 
     connectedCallback() {
@@ -74,7 +75,16 @@ export default class KnockoutGeneGrid extends LitElement {
             this.job = null;
         }
 
-        /*if (changedProperties.has("job") && this.opencgaSession) {
+        if (changedProperties.has("jobId")) {
+            this.opencgaSession.opencgaClient.variants().queryKnockoutGene({job: this.jobId}).then(restResponse => {
+                // console.log(restResponse.getResults())
+                // console.log(knockoutDataGene)
+                this.tableData = restResponse.getResults();
+                this.renderTable();
+            });
+        }
+
+        /* if (changedProperties.has("job") && this.opencgaSession) {
             this.job = null;
             let query = {study: "demo@family:corpasome", job: "knockout.20201021003108.inXESR"};
             this.opencgaSession.opencgaClient.variants().queryKnockoutIndividual(query).then(restResponse => {
@@ -92,7 +102,7 @@ export default class KnockoutGeneGrid extends LitElement {
     }
 
     prepareData() {
-        this.tableData = knockoutDataGene
+        this.tableData = knockoutDataGene;
     }
 
     renderTable() {
@@ -104,11 +114,11 @@ export default class KnockoutGeneGrid extends LitElement {
             sidePagination: "local",
             // Set table properties, these are read from config property
             uniqueId: "id",
-            //pagination: this._config.pagination,
-            //pageSize: this._config.pageSize,
-            //pageList: this._config.pageList,
+            // pagination: this._config.pagination,
+            // pageSize: this._config.pageSize,
+            // pageList: this._config.pageList,
             paginationVAlign: "both",
-            //formatShowingRows: this.gridCommons.formatShowingRows,
+            // formatShowingRows: this.gridCommons.formatShowingRows,
             gridContext: this,
             formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
             onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement)
@@ -130,10 +140,10 @@ export default class KnockoutGeneGrid extends LitElement {
                     colspan: 4
                 },
                 {
-                    title: "Homozygous",
+                    title: "Homozygous"
                 },
                 {
-                    title: "All",
+                    title: "All"
                 }
             ],
             [
@@ -162,12 +172,12 @@ export default class KnockoutGeneGrid extends LitElement {
     }
 
     compTotalFormatter(val, row, index) {
-        const ind = this.tableData[index].individuals
-        return "0"
+        const ind = this.tableData[index].individuals;
+        return "0";
     }
 
     geneIdFormatter(val, row) {
-        return `${row.name} <br> <span class="text-muted">${row.chromosome}:${row.start}-${row.end} (${row.strand})</span>`
+        return `${row.name} <br> <span class="text-muted">${row.chromosome}:${row.start}-${row.end} (${row.strand})</span>`;
     }
 
     onColumnChange(e) {
@@ -175,8 +185,8 @@ export default class KnockoutGeneGrid extends LitElement {
     }
 
     onDownload(e) {
-        console.log(e)
-        const header = ["Gene", "HOM_ALT","COMP_HET.total","COMP_HET.def","COMP_HET.prob","COMP_HET.poss","Individuals"];
+        console.log(e);
+        const header = ["Gene", "HOM_ALT", "COMP_HET.total", "COMP_HET.def", "COMP_HET.prob", "COMP_HET.poss", "Individuals"];
         if (e.detail.option.toLowerCase() === "tab") {
             const dataString = [
                 header.join("\t"),

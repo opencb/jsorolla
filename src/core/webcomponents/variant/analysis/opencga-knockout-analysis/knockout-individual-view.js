@@ -43,8 +43,8 @@ export default class KnockoutIndividualView extends LitElement {
             cellbaseClient: {
                 type: Object
             },
-            job: {
-                type: Object
+            jobId: {
+                type: String
             },
             config: {
                 type: Object

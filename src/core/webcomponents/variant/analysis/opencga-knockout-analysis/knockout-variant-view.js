@@ -48,8 +48,8 @@ export default class KnockoutVariantView extends LitElement {
             cellbaseClient: {
                 type: Object
             },
-            job: {
-                type: Object
+            jobId: {
+                type: String
             },
             config: {
                 type: Object

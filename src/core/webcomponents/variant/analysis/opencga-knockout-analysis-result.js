@@ -116,13 +116,13 @@ export default class OpencgaKnockoutAnalysisResult extends LitElement {
                     </div>
                     <div class="content-tab-wrapper">
                         <div id="${this._prefix}gene" class="content-tab active">
-                            <knockout-gene-grid .opencgaSession="${this.opencgaSession}"></knockout-gene-grid>
+                            <knockout-gene-grid jobId="knockout.20201123193430.41bxx8" .opencgaSession="${this.opencgaSession}"></knockout-gene-grid>
                         </div>
                         <div id="${this._prefix}individual" class="content-tab">
-                            <knockout-individual-view .opencgaSession="${this.opencgaSession}"></knockout-individual-view>
+                            <knockout-individual-view jobId="knockout.20201123193430.41bxx8" .opencgaSession="${this.opencgaSession}"></knockout-individual-view>
                         </div>
                         <div id="${this._prefix}variant" class="content-tab">
-                            <knockout-variant-view .opencgaSession="${this.opencgaSession}" .cellbaseClient="${this.cellbaseClient}"></knockout-variant-view>
+                            <knockout-variant-view jobId="knockout.20201123193430.41bxx8" .opencgaSession="${this.opencgaSession}" .cellbaseClient="${this.cellbaseClient}"></knockout-variant-view>
                         </div>
                     </div>
                 </div>

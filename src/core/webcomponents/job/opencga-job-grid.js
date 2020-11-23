@@ -283,8 +283,12 @@ export default class OpencgaJobGrid extends LitElement {
                 title: "Output Files",
                 field: "output",
                 formatter: value => {
-                    const fileIds = value?.map(file => file.name);
-                    return CatalogGridFormatter.fileFormatter(fileIds);
+                    if (value) {
+                        const fileIds = value?.map(file => file);
+                        return CatalogGridFormatter.fileFormatter(fileIds);
+                    } else {
+                        return "-";
+                    }
                 }
             },
             // {
