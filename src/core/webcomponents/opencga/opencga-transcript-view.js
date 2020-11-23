@@ -260,14 +260,14 @@ export default class OpencgaTranscriptView extends LitElement {
                 <br>
                 <br>
                 
-                <opencga-variant-grid .opencgaSession="${this.opencgaSession}"
+                <variant-browser-grid .opencgaSession="${this.opencgaSession}"
                                                   .query="${this.query}"
                                                   .populationFrequencies="${this.populationFrequencies}"
                                                   .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
                                                   .consequenceTypes="${this.consequenceTypes}"
                                                   .config="${this.config}"
                                                   @selectrow="${this.onSelectVariant}">
-                </opencga-variant-grid>
+                </variant-browser-grid>
 
                 ${this.checkVariant(this.variantId) ? html`
                     <!-- Bottom tabs with specific variant information -->

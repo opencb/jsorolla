@@ -346,7 +346,7 @@ export default class OpencgaProteinView extends LitElement {
 
                 <br>
                 <br>
-                <opencga-variant-grid .opencgaSession="${this.opencgaSession}"
+                <variant-browser-grid .opencgaSession="${this.opencgaSession}"
                                         .project="${this.project}"
                                         .study="${this.study}"
                                         .opencgaClient="${this.opencgaClient}"
@@ -359,7 +359,7 @@ export default class OpencgaProteinView extends LitElement {
                                         .summary="${this.summary}"
                                         style="font-size: 12px"
                                         @selectvariant="onSelectVariant">
-                </opencga-variant-grid>
+                </variant-browser-grid>
                 
                  <!-- Bottom tabs with specific variant information -->
                 ${this.checkVariant(this.variant) ? html`

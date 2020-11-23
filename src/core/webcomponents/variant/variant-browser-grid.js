@@ -158,7 +158,7 @@ export default class VariantBrowserGrid extends LitElement {
                 detailView: this._config.detailView,
                 detailFormatter: this._config.detailFormatter,
                 formatLoadingMessage: () => "<loading-spinner></loading-spinner>",
-                // this makes the opencga-variant-grid properties available in the bootstrap-table detail formatter
+                // this makes the variant-browser-grid properties available in the bootstrap-table detail formatter
                 variantGrid: this,
                 ajax: params => {
                     // TODO We must decide i this component support a porperty:  mode = {opencga | cellbase}
@@ -267,7 +267,7 @@ export default class VariantBrowserGrid extends LitElement {
             detailView: this._config.detailView,
             detailFormatter: this._config.detailFormatter,
             formatLoadingMessage: () => "<loading-spinner></loading-spinner>",
-            // this makes the opencga-variant-grid properties available in the bootstrap-table detail formatter
+            // this makes the variant-browser-grid properties available in the bootstrap-table detail formatter
             variantGrid: this,
             onClickRow: (row, $element) => {
                 this.variant = row.chromosome + ":" + row.start + ":" + row.reference + ":" + row.alternate;
