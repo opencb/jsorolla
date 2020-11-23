@@ -121,7 +121,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
             if (!this.query?.sample) {
                 this.query = {
                     ...this.query,
-                    sample: this._sample.id,
+                    sample: this._sample.id + ":0/1,1/1",
                 }
                 // this.predefinedFilter = {...this.query};
             }
@@ -253,7 +253,9 @@ class VariantInterpreterBrowserCancer extends LitElement {
     }
 
     onVariantFilterChange(e) {
+        console.trace(e)
         this.preparedQuery = e.detail.query;
+        debugger
         // TODO quick fix to avoid warning message on sample
         // if (!this.predefinedFilter) {
         //     this.executedQuery = e.detail.query;
@@ -323,7 +325,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                         "ct": "Consequence Types",
                     },
                     complexFields: ["sample", "fileData"],
-                    hiddenFields: ["sample"],
+                    hiddenFields: [],
                     lockedFields: [{id: "sample"}]
                 },
                 callers: [
@@ -345,9 +347,9 @@ class VariantInterpreterBrowserCancer extends LitElement {
                             {
                                 id: "sample-genotype",
                                 title: "Sample Genotype",
-                                render: (eventHandler, query) => html`
-                                    <div>Genotype filter for <span style="font-style: italic; word-break: break-all">${this._sample?.id}</span></div>
-                                    <sample-genotype-filter .sample="${this._sample}" @filterChange="${eventHandler}"></sample-genotype-filter>`,
+                                // render: (eventHandler, query) => html`
+                                //     <div>Genotype filter for <span style="font-style: italic; word-break: break-all">${this._sample?.id}</span></div>
+                                //     <sample-genotype-filter .sample="${this._sample}" @filterChange="${eventHandler}"></sample-genotype-filter>`,
                             },
                             ...callerFilters,
                         ]

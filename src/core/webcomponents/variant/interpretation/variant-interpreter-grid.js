@@ -204,7 +204,7 @@ export default class VariantInterpreterGrid extends LitElement {
                         }
                         this.query.sample = sortedSamples.join(";");
                     }
-
+debugger
                     let tableOptions = $(this.table).bootstrapTable("getOptions");
                     let filters = {
                         study: this.opencgaSession.study.fqn,

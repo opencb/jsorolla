@@ -567,7 +567,7 @@ export default class OpencgaActiveFilters extends LitElement {
                 "region": "Region",
                 "gene": "Gene",
                 "genotype": "Sample Genotype",
-                "sample": "Samples",
+                "sample": "Sample Genotype",
                 "maf": "Cohort Stat MAF",
                 "cohortStatsAlt": "Cohort ALT Stats",
                 "xref": "XRef",

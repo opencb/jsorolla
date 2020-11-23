@@ -351,6 +351,9 @@ export default class OpencgaVariantFilter extends LitElement {
                 case "sample":
                     content = html`<sample-filter .opencgaSession="${this.opencgaSession}" .clinicalAnalysis="${subsection.clinicalAnalysis}" .query="${this.preparedQuery}" @sampleFilterChange="${e => this.onSampleFilterChange(e.detail.value)}"></sample-filter>`;
                     break;
+                case "sample-genotype":
+                    content = html`<sample-genotype-filter .sample="${this.preparedQuery.sample}" @filterChange="${e => this.onFilterChange("sample", e.detail.value)}"></sample-genotype-filter>`;
+                    break;
                 case "file-quality":
                     // content = html`<file-qual-filter .qual="${this.preparedQuery.qual}" @filterChange="${e => this.onFilterChange("qual", e.detail.value)}"></file-qual-filter>`;
                     let depth;

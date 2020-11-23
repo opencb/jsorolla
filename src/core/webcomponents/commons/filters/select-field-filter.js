@@ -136,8 +136,8 @@ export default class SelectFieldFilter extends LitElement {
             detail: {
                 value: val ? val : null
             },
-            bubbles: true,
-            composed: true
+            // bubbles: true,
+            // composed: true
         });
         this.dispatchEvent(event);
     }

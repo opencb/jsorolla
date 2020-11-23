@@ -78,7 +78,7 @@ export default class VariantTypeFilter extends LitElement {
 
     getDefaultConfig() {
         return {
-            types: types,
+            types: VARIANT_TYPES,
             layout: "vertical"
         };
     }
