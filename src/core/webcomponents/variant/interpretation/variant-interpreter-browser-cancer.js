@@ -335,8 +335,8 @@ class VariantInterpreterBrowserCancer extends LitElement {
                     },
                     {
                         id: "pindel",
-                        // queryString: "FILTER=PASS;QUAL>=250;REP<=9"
-                        queryString: "FILTER=PASS;QUAL>=250"
+                        queryString: "FILTER=PASS;QUAL>=250;REP<=9"
+                        // queryString: "FILTER=PASS;QUAL>=250"
                     }
                 ],
                 sections: [     // sections and subsections, structure and order is respected
