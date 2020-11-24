@@ -45,7 +45,7 @@ export default class ConsequenceTypeSelectFilter extends LitElement {
     _init() {
         this._prefix = UtilsNew.randomString(8);
 
-        this._ct = [];  // this.ct is a comma separated list, this._ct is an array of the same data
+        this._ct = []; // this.ct is a comma separated list, this._ct is an array of the same data
         this.isChecked = {};
         this.options = [];
     }
@@ -71,7 +71,7 @@ export default class ConsequenceTypeSelectFilter extends LitElement {
             if (this.ct) {
                 this._ct = this.ct.split(",");
                 // Select the checkboxes
-                for (let alias of this._config.alias) {
+                for (const alias of this._config.alias) {
                     this.isChecked[alias.name] = alias.terms.every(v => this._ct.indexOf(v) > -1);
                 }
             } else {
@@ -88,12 +88,12 @@ export default class ConsequenceTypeSelectFilter extends LitElement {
 
     onPresetSelect(preset, e) {
         if (preset && this._config.alias) {
-            let aliasSelect = this._config.alias.find(alias => alias.name === preset);
+            const aliasSelect = this._config.alias.find(alias => alias.name === preset);
 
             if (aliasSelect) {
                 if (e.currentTarget.checked) {
-                    let ctSet = new Set(this._ct);
-                    for (let term of aliasSelect.terms) {
+                    const ctSet = new Set(this._ct);
+                    for (const term of aliasSelect.terms) {
                         ctSet.add(term);
                     }
                     this._ct = [...ctSet];
@@ -113,7 +113,7 @@ export default class ConsequenceTypeSelectFilter extends LitElement {
     }
 
     filterChange(cts) {
-        let event = new CustomEvent("filterChange", {
+        const event = new CustomEvent("filterChange", {
             detail: {
                 value: cts
             }
@@ -150,7 +150,7 @@ export default class ConsequenceTypeSelectFilter extends LitElement {
                     description: "LoF description",
                     terms: ["missense_variant", "synonymous_variant", "stop_lost", "start_lost", "initiator_codon_variant",
                         "terminator_codon_variant", "frameshift_variant", "inframe_insertion", "inframe_deletion", "incomplete_terminal_codon_variant"]
-                },
+                }
             ],
 
             // DEPRECATED Loss-of-function SO terms
@@ -462,6 +462,7 @@ export default class ConsequenceTypeSelectFilter extends LitElement {
             </div>
         `;
     }
+
 }
 
 customElements.define("consequence-type-select-filter", ConsequenceTypeSelectFilter);

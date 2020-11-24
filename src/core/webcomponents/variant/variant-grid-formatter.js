@@ -161,36 +161,36 @@ export default class VariantGridFormatter {
                 if (geneName && !visited[geneName]) {
                     let geneViewMenuLink = "";
                     if (opencgaSession.project && opencgaSession.study) {
-                        geneViewMenuLink = `<div style="padding: 5px"><a style="cursor: pointer" href="#gene/${opencgaSession.project.id}/${opencgaSession.study.id}/${geneName}">Gene View</a></div>`;
+                        geneViewMenuLink = `<div style='padding: 5px'><a style='cursor: pointer' href='#gene/${opencgaSession.project.id}/${opencgaSession.study.id}/${geneName}' data-cy='gene-view'>Gene View</a></div>`;
                     }
 
                     const tooltipText = `${geneViewMenuLink}
-                                         <div class="dropdown-header" style="padding-left: 10px">External Links</div>
-                                         <div style="padding: 5px">
-                                              <a target="_blank" href="${BioinfoUtils.getEnsemblLink(geneName, "gene", opencgaSession.project.organism.assembly)}">Ensembl</a>
+                                         <div class='dropdown-header' style='padding-left: 10px'>External Links</div>
+                                         <div style='padding: 5px'>
+                                              <a target='_blank' href='${BioinfoUtils.getEnsemblLink(geneName, 'gene', opencgaSession.project.organism.assembly)}'>Ensembl</a>
                                          </div>
-                                         <div style="padding: 5px">
-                                              <a target="_blank" href="${BioinfoUtils.getCosmicLink(geneName, opencgaSession.project.organism.assembly)}">COSMIC</a>
+                                         <div style='padding: 5px'>
+                                              <a target='_blank' href='${BioinfoUtils.getCosmicLink(geneName, opencgaSession.project.organism.assembly)}'>COSMIC</a>
                                          </div>
-                                         <div style="padding: 5px">
-                                              <a target="_blank" href="${BioinfoUtils.getUniprotLink(geneName)}">UniProt</a>
+                                         <div style='padding: 5px'>
+                                              <a target='_blank' href='${BioinfoUtils.getUniprotLink(geneName)}'>UniProt</a>
                                          </div>`;
 
                     // If query.ct exists
                     if (query?.ct) {
                         // If gene contains one of the query.ct
                         if (geneHasQueryCt.has(geneName)) {
-                            geneWithCtLinks.push(`<a class="gene-tooltip" tooltip-title="Links" tooltip-text='${tooltipText}' style="margin-left: 2px;">
+                            geneWithCtLinks.push(`<a class="gene-tooltip" tooltip-title="Links" tooltip-text="${tooltipText}" style="margin-left: 2px;">
                                                         ${geneName}
                                                   </a>`);
                         } else {
-                            geneLinks.push(`<a class="gene-tooltip" tooltip-title="Links" tooltip-text='${tooltipText}' style="margin-left: 2px;color: darkgray;font-style: italic">
+                            geneLinks.push(`<a class="gene-tooltip" tooltip-title="Links" tooltip-text="${tooltipText}" style="margin-left: 2px;color: darkgray;font-style: italic">
                                                     ${geneName}
                                             </a>`);
                         }
                     } else {
                         // No query.ct passed
-                        geneLinks.push(`<a class="gene-tooltip" tooltip-title="Links" tooltip-text='${tooltipText}' style="margin-left: 2px">
+                        geneLinks.push(`<a class="gene-tooltip" tooltip-title="Links" tooltip-text="${tooltipText}" style="margin-left: 2px">
                                                 ${geneName}
                                         </a>`);
                     }
@@ -606,7 +606,7 @@ export default class VariantGridFormatter {
                     exons = ct.exonOverlap.map(exon => `<div style="margin-bottom: 5px">${exon.number} (${exon?.percentage.toFixed(4) ?? "-"})</div>`)
                 }
 
-                
+
                 const pva = ct.proteinVariantAnnotation ? ct.proteinVariantAnnotation : {};
                 const uniprotAccession = pva.uniprotAccession ? `<a href="https://www.uniprot.org/uniprot/${pva.uniprotAccession}" target="_blank">${pva.uniprotAccession}</a>` : "-";
 
