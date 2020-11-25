@@ -355,7 +355,7 @@ export default class JobTimeline extends LitElement {
             </fieldset>      
                 <div class="slide-container">
                     <label>Height</label>
-                    <input type="range" min="30" max="150" value="40" class="slider" id="svg-height" @change="${this.setHeight}" @mousedown="${this.resizing}" @mouseup="${this.resizing}">
+                    <input type="range" min="30" max="150" value="40" class="slider" step="10" id="svg-height" @change="${this.setHeight}" @mousedown="${this.resizing}" @mouseup="${this.resizing}">
                 </div>
                 <div class="slide-container">
                     <label>Width</label>
@@ -368,7 +368,7 @@ export default class JobTimeline extends LitElement {
             <div id="svg-timeline">
             </div>
         </div>
-        <opencga-job-detail    .opencgaSession="${this.opencgaSession}"
+        <opencga-job-detail .opencgaSession="${this.opencgaSession}"
                             .jobId="${this.jobId}">
         </opencga-job-detail>
         `;

@@ -21,6 +21,7 @@ import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import GridCommons from "../commons/grid-commons.js";
 import "../commons/opencb-grid-toolbar.js";
 
+
 export default class OpencgaVariantSamples extends LitElement {
 
     constructor() {
@@ -132,8 +133,8 @@ export default class OpencgaVariantSamples extends LitElement {
             pagination: true,
             sidePagination: "server",
             columns: this.getColumns(),
+            formatShowingRows: this.gridCommons.formatShowingRows,
             formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
-
             ajax: async params => {
                 const tableOptions = this.table.bootstrapTable("getOptions");
                 // let limit = tableOptions.pageSize || 10;
@@ -146,7 +147,6 @@ export default class OpencgaVariantSamples extends LitElement {
                     count: !tableOptions.pageNumber || tableOptions.pageNumber === 1,
                     genotype: "0/1,1/1,0/2,1/2,2/2"
                 };
-
                 try {
                     const data = await this.fetchData(query);
                     params.success(data);

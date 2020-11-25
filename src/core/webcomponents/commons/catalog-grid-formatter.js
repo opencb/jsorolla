@@ -21,12 +21,12 @@ export default class CatalogGridFormatter {
 
     static phenotypesFormatter(value, row) {
         if (value && value.length > 0) {
-            const tooltip = [...value].sort( (a,b) => a.status === "OBSERVED" ? -1 : 1).map(phenotype => {
+            const tooltip = [...value].sort((a, b) => a.status === "OBSERVED" ? -1 : 1).map(phenotype => {
                 return `
                     <p>
-                        ${phenotype.source && phenotype.source.toUpperCase() === "HPO"
-                    ? `<span>${phenotype.name} (<a target="_blank" href="https://hpo.jax.org/app/browse/term/${phenotype.id}">${phenotype.id}</a>) - ${phenotype.status}</span>`
-                    : `<span>${phenotype.id} - ${phenotype.status}</span>`}
+                        ${phenotype.source && phenotype.source.toUpperCase() === "HPO" ?
+                    `<span>${phenotype.name} (<a target="_blank" href="https://hpo.jax.org/app/browse/term/${phenotype.id}">${phenotype.id}</a>) - ${phenotype.status}</span>` :
+                    `<span>${phenotype.id} - ${phenotype.status}</span>`}
                     </p>`;
             }).join("");
             return `<a tooltip-title="Phenotypes" tooltip-text='${tooltip}'> ${value.length} term${value.length > 1 ? "s" : ""} found</a>`;
@@ -37,11 +37,11 @@ export default class CatalogGridFormatter {
 
     static disorderFormatter(value, row) {
         if (value && value.id) {
-            let idHtml = value.id.startsWith("OMIM:")
-                ? `<a href="https://omim.org/entry/${value.id.split(":")[1]}" target="_blank">${value.id}
+            const idHtml = value.id.startsWith("OMIM:") ?
+                `<a href="https://omim.org/entry/${value.id.split(":")[1]}" target="_blank">${value.id}
                         <i class="fas fa-external-link-alt" aria-hidden="true" style="padding-left: 5px"></i>
-                   </a>`
-                : `${value.id}`;
+                   </a>` :
+                `${value.id}`;
             if (value.name) {
                 return `${value.name} <span style="white-space: nowrap">(${idHtml})</span>`;
             } else {
@@ -52,23 +52,20 @@ export default class CatalogGridFormatter {
         }
     }
 
-    static fileFormatter(fileIds, extensions) {
-        if (fileIds && fileIds.length > 0) {
-            let results = [];
-            for (let fileId of fileIds) {
+    static fileFormatter(files, extensions) {
+        if (files && files.length > 0) {
+            const results = [];
+            files.forEach(file => {
                 if (extensions && extensions.length > 0) {
-                    for (let extension of extensions) {
-                        if (fileId.endsWith(extension)) {
-                            let fields = fileId.split(":");
-                            results.push(fields[fields.length - 1]);
-                            break;
+                    for (const extension of extensions) {
+                        if (file.name.endsWith(extension)) {
+                            results.push(file.name);
                         }
                     }
                 } else {
-                    let fields = fileId.split(":");
-                    results.push(fields[fields.length - 1]);
+                    results.push(file.name);
                 }
-            }
+            });
             return results.length > 20 ? results.length + " files" : results.join("<br>");
         } else {
             return "-";
@@ -95,7 +92,7 @@ export default class CatalogGridFormatter {
     static caseFormatter(clinicalAnalysisArray, row, individualId, opencgaSession) {
         if (clinicalAnalysisArray && clinicalAnalysisArray.length > 0) {
             let result = "";
-            for (let clinicalAnalysis of clinicalAnalysisArray) {
+            for (const clinicalAnalysis of clinicalAnalysisArray) {
                 result += `
                     <div>
                         <a href="#interpreter/${opencgaSession.project.id}/${opencgaSession.study.id}/${clinicalAnalysis.id}">
@@ -109,25 +106,5 @@ export default class CatalogGridFormatter {
             return "-";
         }
     }
-
-    // TODO remove
-    /*static addTooltip(selector, title, content, config) {
-        $(selector).qtip({
-            content: {
-                title: title,
-                text: function (event, api) {
-                    if (UtilsNew.isNotEmpty(content)) {
-                        return content;
-                    } else {
-                        return $(this).attr("data-tooltip-text");
-                    }
-                }
-            },
-            position: {target: "mouse", adjust: {x: 2, y: 2, mouse: false}},
-            style: {width: true, classes: "qtip-light qtip-rounded qtip-shadow qtip-custom-class"},
-            show: {delay: 200},
-            hide: {fixed: true, delay: 300}
-        });
-    }*/
 
 }
