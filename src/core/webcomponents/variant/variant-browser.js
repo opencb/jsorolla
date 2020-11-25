@@ -371,7 +371,7 @@ export default class VariantBrowser extends LitElement {
                             {
                                 id: "biotype",
                                 title: "Gene Biotype",
-                                biotypes: biotypes,
+                                biotypes: BIOTYPES,
                                 tooltip: tooltips.biotype
                             },
                             {

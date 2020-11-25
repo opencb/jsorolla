@@ -515,7 +515,7 @@ debugger
                             {
                                 id: "biotype",
                                 title: "Gene Biotype",
-                                biotypes: biotypes,
+                                biotypes: BIOTYPES,
                                 tooltip: tooltips.biotype
                             },
                             {

@@ -214,7 +214,7 @@ debugger
                         includeSampleId: "true",
 
                         approximateCount: true,
-                        approximateCountSamplingSize: 1000,
+                        approximateCountSamplingSize: 100,
 
                         ...this.query,
                         // sample: this.clinicalAnalysis.proband.samples[0].id + ":0/0,0/1,1/1",
