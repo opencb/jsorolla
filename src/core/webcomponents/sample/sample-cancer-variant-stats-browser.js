@@ -274,9 +274,6 @@ debugger
     }
 
     onSave(e) {
-        // Search bamFile for the sample
-        // let bamFile = this.clinicalAnalysis.files.find(file => file.format === "BAM" && file.samples.some(sample => sample.id === this.sample.id));
-        let bamFileId = this.sample.fileIds.find(fileId => fileId.endsWith(".bam"));
         let variantStats = {
             id: this.save.id,
             query: this.executedQuery || {},
@@ -284,32 +281,53 @@ debugger
             stats: this.sampleVariantStats
         };
 
-        // Check if a metric object for that bamFileId exists
-        let metric = this.sample?.qualityControl?.metrics.find(metric => metric.bamFileId === bamFileId);
-        if (metric) {
-            // Push the stats and signature in the existing metric object
-            metric.variantStats.push(variantStats);
-            metric.signatures.push(this.signature);
+        // // Search bamFile for the sample
+        // // let bamFile = this.clinicalAnalysis.files.find(file => file.format === "BAM" && file.samples.some(sample => sample.id === this.sample.id));
+        // let bamFileId = this.sample.fileIds.find(fileId => fileId.endsWith(".bam"));
+        // // Check if a metric object for that bamFileId exists
+        // let metric = this.sample?.qualityControl?.metrics.find(metric => metric.bamFileId === bamFileId);
+        // if (metric) {
+        //     // Push the stats and signature in the existing metric object
+        //     metric.variantStats.push(variantStats);
+        //     metric.signatures.push(this.signature);
+        // } else {
+        //     // create a new metric
+        //     metric = {
+        //         bamFileId: bamFileId,
+        //         variantStats: [variantStats],
+        //         signatures: [this.signature]
+        //     }
+        //     // Check if this is the first metric object
+        //     if (this.sample?.qualityControl?.metrics) {
+        //         this.sample.qualityControl.metrics.push(metric);
+        //     } else {
+        //         this.sample["qualityControl"] = {
+        //             metrics: [metric]
+        //         };
+        //     }
+        // }
+
+        if (!this.sample?.qualityControl?.variantMetrics) {
+            this.sample.qualityControl["variantMetrics"] = {
+                variantStats: [],
+                signatures: []
+            };
+        }
+
+        if (this.sample.qualityControl.variantMetrics.variantStats) {
+            this.sample.qualityControl.variantMetrics.variantStats.push(variantStats);
         } else {
-            // create a new metric
-            metric = {
-                bamFileId: bamFileId,
-                variantStats: [variantStats],
-                signatures: [this.signature]
-            }
-            // Check if this is the first metric object
-            if (this.sample?.qualityControl?.metrics) {
-                this.sample.qualityControl.metrics.push(metric);
-            } else {
-                this.sample["qualityControl"] = {
-                    metrics: [metric]
-                };
-            }
+            this.sample.qualityControl.variantMetrics["variantStats"] = [variantStats];
         }
 
         this.opencgaSession.opencgaClient.samples().update(this.sample.id, {qualityControl: this.sample.qualityControl}, {study: this.opencgaSession.study.fqn})
             .then( restResponse => {
                 console.log(restResponse);
+                Swal.fire({
+                    title: "Success",
+                    icon: "success",
+                    html: "Variant Stats saved successfully"
+                });
             })
             .catch( restResponse => {
                 console.error(restResponse);

@@ -122,10 +122,10 @@ class SampleVariantStatsView extends LitElement {
     }
 
     sampleObserver() {
-        if (this.sample?.qualityControl?.metrics?.length && this.sample.qualityControl.metrics[0].variantStats?.length) {
+        if (this.sample?.qualityControl?.variantMetrics.variantStats?.length) {
             // By default we render the stat 'ALL' from the first metric, if there is not stat 'ALL' then we take the first one
-            this.statsSelect = this.sample.qualityControl.metrics[0].variantStats.map(stat => stat.id)
-            this.variantStats = this.sample.qualityControl.metrics[0].variantStats.find(stat => stat.id === "ALL") ?? this.sample.qualityControl.metrics[0].variantStats[0];
+            this.statsSelect = this.sample.qualityControl.variantMetrics.variantStats.map(stat => stat.id)
+            this.variantStats = this.sample.qualityControl.variantMetrics.variantStats.find(stat => stat.id === "ALL") ?? this.sample.qualityControl.variantMetrics.variantStats[0];
 
             if (this.variantStats?.chromosomeCount) {
                 this.variantStats.chromosomeCount = ClinicalAnalysisUtils.chromosomeFilterSorter(this.variantStats.chromosomeCount);
@@ -169,7 +169,7 @@ class SampleVariantStatsView extends LitElement {
     }
 
     statChange(e) {
-        this.variantStats = this.sample.qualityControl.metrics[0].variantStats.find(stat => stat.id === e.detail.value);
+        this.variantStats = this.sample.qualityControl.variantMetrics.variantStats.find(stat => stat.id === e.detail.value);
         this.requestUpdate();
     }
 

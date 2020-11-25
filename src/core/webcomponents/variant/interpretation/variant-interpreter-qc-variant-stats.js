@@ -84,7 +84,7 @@ class VariantInterpreterQcVariantStats extends LitElement {
                     this.statsSelect = [
                         {
                             id: this.clinicalAnalysis.proband.samples[0].id,
-                            fields: this.clinicalAnalysis.proband?.samples[0]?.qualityControl?.metrics[0]?.variantStats
+                            fields: this.clinicalAnalysis.proband?.samples[0]?.qualityControl?.variantMetrics?.variantStats
                                 .map( vStats => ({id: this.clinicalAnalysis.proband.samples[0].id + ":" + vStats.id, name: vStats.id}))
                         }
                     ];
@@ -102,7 +102,7 @@ class VariantInterpreterQcVariantStats extends LitElement {
                     /*this.statsSelect = [
                         {
                             id: this.clinicalAnalysis.proband.samples[0].id,
-                            fields: this.clinicalAnalysis.proband?.samples[0]?.qualityControl?.metrics[0]?.variantStats
+                            fields: this.clinicalAnalysis.proband?.samples[0]?.qualityControl?.variantMetrics?.variantStats
                                 .map( vStats => ({id: this.clinicalAnalysis.proband.samples[0].id + ":" + vStats.id, name: vStats.id}))
                         },
                         ...this.clinicalAnalysis?.family?.members
@@ -110,7 +110,7 @@ class VariantInterpreterQcVariantStats extends LitElement {
                             .map(member => (
                                 {
                                     id: member.samples[0].id,
-                                    fields: member.samples[0].qualityControl?.metrics[0]?.variantStats
+                                    fields: member.samples[0].qualityControl?.variantMetrics?.variantStats
                                         .map( vStats => ({id: member.samples[0].id + ":" + vStats.id, name: vStats.id}))
                                 })
                             )
@@ -139,7 +139,7 @@ class VariantInterpreterQcVariantStats extends LitElement {
                     ];
                     break;
                 case "CANCER":
-                    /*this.statsSelect = this.clinicalAnalysis.proband.samples[0].qualityControl?.metrics[0]?.variantStats.map( vStats => (
+                    /*this.statsSelect = this.clinicalAnalysis.proband.samples[0].qualityControl?.variantMetrics?.variantStats.map( vStats => (
                         {
                             id: this.clinicalAnalysis.proband.samples[0].id + ":" + vStats.id,
                             name: vStats.id
@@ -162,7 +162,7 @@ class VariantInterpreterQcVariantStats extends LitElement {
         /*let sampleQc = ClinicalAnalysisUtils.getProbandSampleQc(this.clinicalAnalysis);
         // in any case we must have at least 1 variant stat for the proband
         if (sampleQc?.metrics?.length > 0) {
-            this.variantStats = sampleQc.metrics[0].variantStats[0];
+            this.variantStats = sampleQc.variantMetrics.variantStats[0];
 
             this.selectedStat = this.clinicalAnalysis.proband.samples[0].id + ":" + this.variantStats.id;
             if (!this.variantStats) {
@@ -195,8 +195,8 @@ class VariantInterpreterQcVariantStats extends LitElement {
         const individuals = this.clinicalAnalysis.type.toUpperCase() === "FAMILY" ? this.clinicalAnalysis.family.members : [this.clinicalAnalysis.proband]
         for (let member of individuals) {
             if (member?.samples?.length > 0) {
-                console.log(member.samples[0].qualityControl?.metrics[0]?.variantStats);
-                const vStat = member.samples[0].qualityControl?.metrics[0]?.variantStats.find( vStat => vStat.id === statsId);
+                console.log(member.samples[0].qualityControl?.variantMetrics?.variantStats);
+                const vStat = member.samples[0].qualityControl?.variantMetrics?.variantStats.find( vStat => vStat.id === statsId);
                 if (member.samples[0].id === sampleId && vStat) {
                     this.variantStats = vStat;
                 }

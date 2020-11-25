@@ -312,7 +312,7 @@ class ClinicalInterpretationSummaryEditor extends LitElement {
                     Swal.fire({
                         title: "Success",
                         icon: "success",
-                        html: "Case info udpated succesfully"
+                        html: "Case info updated successfully"
                     });
                 })
                 .catch(response => {

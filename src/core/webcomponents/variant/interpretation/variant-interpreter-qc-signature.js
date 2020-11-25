@@ -90,7 +90,7 @@ class VariantInterpreterQcSignature extends LitElement {
         if (this.clinicalAnalysis) {
             this.somaticSample = this.clinicalAnalysis.proband.samples.find(s => s.somatic);
             // if (somaticSample) {
-            //     this.signature = somaticSample.qualityControl?.metrics[0]?.signatures[0];
+            //     this.signature = somaticSample.qualityControl?.variantMetrics?.signatures[0];
             // }
         }
         this.requestUpdate();

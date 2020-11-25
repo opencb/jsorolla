@@ -100,11 +100,11 @@ class SamtoolsFlagstatsView extends LitElement {
     // }
 
     sampleObserver() {
-        if (this.sample && this.sample.qualityControl?.metrics?.length > 0  && this.sample.qualityControl.metrics[0].samtoolsFlagstats) {
+        if (this.sample && this.sample.qualityControl?.alignmentMetrics?.length > 0  && this.sample.qualityControl.alignmentMetrics[0].samtoolsFlagstats) {
             // Get BAM file name and add it to the table
-            let bamFileName = this.sample.qualityControl.metrics[0].bamFileId || "N/A";
-            if (this.sample.qualityControl.metrics[0].bamFileId?.includes(":")) {
-                let parts = this.sample.qualityControl.metrics[0].bamFileId.split(":");
+            let bamFileName = this.sample.qualityControl.alignmentMetrics[0].bamFileId || "N/A";
+            if (this.sample.qualityControl.alignmentMetrics[0].bamFileId?.includes(":")) {
+                let parts = this.sample.qualityControl.alignmentMetrics[0].bamFileId.split(":");
                 bamFileName = parts[parts.length - 1];
             }
 
@@ -116,7 +116,7 @@ class SamtoolsFlagstatsView extends LitElement {
                 }
             ];
             // St flagstats array
-            this.flagstats = [this.sample.qualityControl.metrics[0].samtoolsFlagstats];
+            this.flagstats = [this.sample.qualityControl.alignmentMetrics[0].samtoolsFlagstats];
         }
     }
 
@@ -125,13 +125,13 @@ class SamtoolsFlagstatsView extends LitElement {
             this._config.columns = [];
             let _flagstats = [];
             for (let sample of this.samples) {
-                if (sample.qualityControl?.metrics?.length > 0  && sample.qualityControl.metrics[0].samtoolsFlagstats) {
-                    _flagstats.push(sample.qualityControl.metrics[0].samtoolsFlagstats);
+                if (sample.qualityControl?.alignmentMetrics?.length > 0  && sample.qualityControl.alignmentMetrics[0].samtoolsFlagstats) {
+                    _flagstats.push(sample.qualityControl.alignmentMetrics[0].samtoolsFlagstats);
 
                     // Get BAM file name and add it to the table
-                    let bamFileName = sample.qualityControl.metrics[0].bamFileId || "N/A";
-                    if (sample.qualityControl.metrics[0].bamFileId?.includes(":")) {
-                        let parts = sample.qualityControl.metrics[0].bamFileId.split(":");
+                    let bamFileName = sample.qualityControl.alignmentMetrics[0].bamFileId || "N/A";
+                    if (sample.qualityControl.alignmentMetrics[0].bamFileId?.includes(":")) {
+                        let parts = sample.qualityControl.alignmentMetrics[0].bamFileId.split(":");
                         bamFileName = parts[parts.length - 1];
                     }
 

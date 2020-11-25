@@ -162,7 +162,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
         let sampleQc = ClinicalAnalysisUtils.getProbandSampleQc(this.clinicalAnalysis, 1);
         let _activeFilterFilters = [];
         if (sampleQc?.metrics?.length > 0) {
-            let variantStats = sampleQc.metrics[0].variantStats;
+            let variantStats = sampleQc.variantMetrics?.variantStats;
             if (variantStats && variantStats.length > 0) {
                 _activeFilterFilters = variantStats.map(variantStat => ({id: variantStat.id, query: variantStat.query}))
             }

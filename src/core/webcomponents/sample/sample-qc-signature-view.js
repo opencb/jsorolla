@@ -105,10 +105,10 @@ class SampleQcSignatureView extends LitElement {
     }
 
     getSignaturesFromSample() {
-        this.signatureSelect = this.sample?.qualityControl?.metrics[0].signatures.map(signature => signature.id) ?? [];
-        if (this.sample?.qualityControl?.metrics?.length && this.sample.qualityControl.metrics[0].signatures?.length) {
+        this.signatureSelect = this.sample?.qualityControl?.variantMetrics?.signatures.map(signature => signature.id) ?? [];
+        if (this.sample.qualityControl?.variantMetrics?.signatures?.length) {
             // By default we render the stat 'ALL' from the first metric, if there is not stat 'ALL' then we take the first one
-            let selectedSignature = this.sample.qualityControl.metrics[0].signatures.find(signature => signature.id === "ALL") ?? this.sample.qualityControl.metrics[0].signatures[0];
+            let selectedSignature = this.sample.qualityControl.variantMetrics.signatures.find(signature => signature.id === "ALL") ?? this.sample.qualityControl.variantMetrics.signatures[0];
             // debugger
             this.signatureSelected = selectedSignature.id;
             this._signature = selectedSignature;
@@ -124,7 +124,7 @@ class SampleQcSignatureView extends LitElement {
     }
 
     signatureChange(e) {
-        this._signature = this.sample.qualityControl.metrics[0].signatures.find(stat => stat.id === e.detail.value);
+        this._signature = this.sample.qualityControl.variantMetrics.signatures.find(stat => stat.id === e.detail.value);
         this.requestUpdate();
     }
 

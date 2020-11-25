@@ -91,8 +91,8 @@ export default class SampleVariantStatsBrowser extends LitElement {
     }
 
     sampleObserver() {
-        if (this.sample?.qualityControl?.metrics?.length && this.sample.qualityControl.metrics[0].variantStats?.length) {
-            this.selectVariantStats("ALL", this.sample.qualityControl.metrics[0].variantStats[0]);
+        if (this.sample?.qualityControl?.variantMetrics.variantStats?.length) {
+            this.selectVariantStats("ALL", this.sample.qualityControl.variantMetrics.variantStats[0]);
         }
     }
 
@@ -188,40 +188,58 @@ export default class SampleVariantStatsBrowser extends LitElement {
             stats: this.sampleQcVariantStats.stats
         };
 
-        // Check if a metric object for that bamFileId exists
-        let bamFileId = this.sample.fileIds.find(fileId => fileId.endsWith(".bam"));
-        let metric = this.sample?.qualityControl?.metrics
-            .find(metric => {
-                if (bamFileId) {
-                    return metric.bamFileId === bamFileId;
-                } else {
-                    return metric.bamFileId === "";
-                }
-            });
+        // // Check if a metric object for that bamFileId exists
+        // let bamFileId = this.sample.fileIds.find(fileId => fileId.endsWith(".bam"));
+        // let metric = this.sample?.qualityControl?.metrics
+        //     .find(metric => {
+        //         if (bamFileId) {
+        //             return metric.bamFileId === bamFileId;
+        //         } else {
+        //             return metric.bamFileId === "";
+        //         }
+        //     });
+        //
+        // // Save the variant stats
+        // if (metric) {
+        //     // Push the stats and signature in the existing metric object
+        //     metric.variantStats.push(variantStats);
+        // } else {
+        //     // create a new metric
+        //     metric = {
+        //         bamFileId: bamFileId ? bamFileId : "",
+        //         variantStats: [variantStats],
+        //     };
+        //     // Check if this is the first metric object
+        //     if (this.sample?.qualityControl?.metrics) {
+        //         this.sample.qualityControl.metrics.push(metric);
+        //     } else {
+        //         this.sample["qualityControl"] = {
+        //             metrics: [metric]
+        //         };
+        //     }
+        // }
 
-        // Save the variant stats
-        if (metric) {
-            // Push the stats and signature in the existing metric object
-            metric.variantStats.push(variantStats);
-        } else {
-            // create a new metric
-            metric = {
-                bamFileId: bamFileId ? bamFileId : "",
-                variantStats: [variantStats],
+        if (!this.sample?.qualityControl?.variantMetrics) {
+            this.sample.qualityControl["variantMetrics"] = {
+                variantStats: [],
+                signatures: []
             };
-            // Check if this is the first metric object
-            if (this.sample?.qualityControl?.metrics) {
-                this.sample.qualityControl.metrics.push(metric);
-            } else {
-                this.sample["qualityControl"] = {
-                    metrics: [metric]
-                };
-            }
         }
 
+        if (this.sample.qualityControl.variantMetrics.variantStats) {
+            this.sample.qualityControl.variantMetrics.variantStats.push(variantStats);
+        } else {
+            this.sample.qualityControl.variantMetrics["variantStats"] = [variantStats];
+        }
+        debugger
         this.opencgaSession.opencgaClient.samples().update(this.sample.id, {qualityControl: this.sample.qualityControl}, {study: this.opencgaSession.study.fqn})
             .then(restResponse => {
                 console.log(restResponse);
+                Swal.fire({
+                    title: "Success",
+                    icon: "success",
+                    html: "Variant Stats saved successfully"
+                });
             })
             .catch(restResponse => {
                 console.error(restResponse);
@@ -369,7 +387,7 @@ export default class SampleVariantStatsBrowser extends LitElement {
     }
 
     selectVariantStats(id, defaultQcVariantStats) {
-        let qcVariantStats = this.sample.qualityControl.metrics[0].variantStats.find(qcVariantStats => qcVariantStats.id === id);
+        let qcVariantStats = this.sample.qualityControl.variantMetrics.variantStats.find(qcVariantStats => qcVariantStats.id === id);
         if (!qcVariantStats && defaultQcVariantStats) {
             qcVariantStats = defaultQcVariantStats;
         }
@@ -448,8 +466,8 @@ export default class SampleVariantStatsBrowser extends LitElement {
                                     <li style="margin: 5px 10px">
                                         <span style="font-weight: bold">Saved Variant Stats</span>
                                     </li>
-                                    ${this.sample?.qualityControl?.metrics?.length > 0 && this.sample.qualityControl.metrics[0].variantStats?.length > 0
-                                        ? this.sample.qualityControl.metrics[0].variantStats.map(qcVariantStat => html`
+                                    ${this.sample?.qualityControl?.variantMetrics?.variantStats?.length > 0
+                                        ? this.sample.qualityControl.variantMetrics.variantStats.map(qcVariantStat => html`
                                             <li>
                                                 <a href="javascript:void(0);" data-id="${qcVariantStat.id}" @click="${e=> this.selectVariantStats(qcVariantStat.id)}">
                                                     ${this.renderQcVariantStatsSelectItem(qcVariantStat)}

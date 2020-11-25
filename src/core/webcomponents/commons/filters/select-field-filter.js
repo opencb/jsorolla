@@ -155,7 +155,7 @@ export default class SelectFieldFilter extends LitElement {
                         data-max-options="${!this.multiple ? 1 : this.maxOptions ? this.maxOptions : false}" 
                         @change="${this.filterChange}" data-width="100%">
                     ${this.data?.map(opt => html`
-                        ${opt.separator ?
+                        ${opt?.separator ?
                             html`<option data-divider="true"></option>` :
                             html`
                                 ${opt.fields ?
