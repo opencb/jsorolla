@@ -209,8 +209,12 @@ export default class GridCommons {
     }
 
     // overrides the pagination info in bootstrap-table
-    formatShowingRows(pageFrom, pageTo, totalRows, totalNotFiltered) {
-        return `Showing <b>${pageFrom}</b> to <b>${pageTo}</b> of <b>${Number(totalRows).toLocaleString()}</b> records`
+    formatShowingRows(pageFrom, pageTo, totalRows, totalNotFiltered, isApproximateCount) {
+        let message = `Showing <b>${pageFrom}</b> to <b>${pageTo}</b> of <b>${Number(totalRows).toLocaleString()}</b> records`;
+        if (isApproximateCount) {
+            message += ` (<span style="color: darkred; font-style: italic">approx.</span>)`;
+        }
+        return message;
     }
 
     onColumnChange(e) {

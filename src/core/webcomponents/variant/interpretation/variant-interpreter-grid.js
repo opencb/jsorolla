@@ -181,7 +181,7 @@ export default class VariantInterpreterGrid extends LitElement {
                 pageSize: this._config.pageSize,
                 pageList: this._config.pageList,
                 paginationVAlign: "both",
-                formatShowingRows: this.gridCommons.formatShowingRows,
+                formatShowingRows: (pageFrom, pageTo, totalRows, totalNotFiltered) => this.gridCommons.formatShowingRows(pageFrom, pageTo, totalRows, totalNotFiltered, this.isApproximateCount),
                 showExport: this._config.showExport,
                 detailView: this._config.detailView,
                 detailFormatter: this.detailFormatter,
@@ -204,7 +204,7 @@ export default class VariantInterpreterGrid extends LitElement {
                         }
                         this.query.sample = sortedSamples.join(";");
                     }
-debugger
+
                     let tableOptions = $(this.table).bootstrapTable("getOptions");
                     let filters = {
                         study: this.opencgaSession.study.fqn,
@@ -214,7 +214,7 @@ debugger
                         includeSampleId: "true",
 
                         approximateCount: true,
-                        approximateCountSamplingSize: 500,
+                        approximateCountSamplingSize: 200,
 
                         ...this.query,
                         // sample: this.clinicalAnalysis.proband.samples[0].id + ":0/0,0/1,1/1",
@@ -224,6 +224,7 @@ debugger
                     this.opencgaSession.opencgaClient.clinical().queryVariant(filters)
                         .then(res => {
                             console.log(res)
+                            this.isApproximateCount = res.responses[0].attributes?.approximateCount ?? false;
                             params.success(res);
                         })
                         .catch(e => {
