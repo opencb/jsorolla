@@ -309,7 +309,7 @@ export default class OpencgaVariantFilter extends LitElement {
             <div class="panel panel-default filter-section shadow-sm">
                 <div class="panel-heading" role="tab" id="${this._prefix}${id}Heading">
                     <h4 class="panel-title">
-                        <a class="collapsed" role="button" data-toggle="collapse" data-parent="#${this._prefix}Accordion"
+                        <a class="collapsed" role="button" data-toggle="collapse" data-parent="#${this._prefix}Accordion" data-accordion-id="${id}"
                             href="#${this._prefix}${id}" aria-expanded="true" aria-controls="${this._prefix}${id}">
                             ${section.title}
                         </a>

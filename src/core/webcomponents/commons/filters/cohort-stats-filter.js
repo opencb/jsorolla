@@ -150,7 +150,7 @@ export default class CohortStatsFilter extends LitElement {
         return this.cohortsPerStudy ? Object.entries(this.cohortsPerStudy).map(([study, cohort]) => html`
             <div style="padding: 5px 0px">
                 <div style="padding-bottom: 5px">
-                    <i id="${this._prefix}${this.formatStudyId(study)}Icon" data-id="${this._prefix}${this.formatStudyId(study)}" class="fa fa-plus"
+                    <i id="${this._prefix}${this.formatStudyId(study)}Icon" data-id="${this._prefix}${this.formatStudyId(study)}" data-cy="study-cohort-toggle" class="fa fa-plus"
                        style="cursor: pointer;padding-right: 10px" @click="${this.handleCollapseAction}"></i>
                     <span class="break-word">Study <strong>${study.split("@")[1]}</strong> cohorts</span> 
                 </div>
