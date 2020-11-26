@@ -25,7 +25,7 @@ import "../commons/filters/cohort-stats-filter.js";
 import "../commons/filters/consequence-type-filter.js";
 import "../commons/filters/consequence-type-select-filter.js";
 import "../commons/filters/conservation-filter.js";
-import "../commons/filters/disease-filter.js";
+import "../commons/filters/disease-panel-filter.js";
 import "../commons/filters/feature-filter.js";
 import "../commons/filters/file-quality-filter.js";
 import "../commons/filters/fulltext-search-accessions-filter.js";
@@ -381,12 +381,12 @@ export default class OpencgaVariantFilter extends LitElement {
                                     </feature-filter>`;
                     break;
                 case "diseasePanels":
-                    content = html`<disease-filter  .opencgaSession="${this.opencgaSession}" 
-                                                    .diseasePanels="${this.opencgaSession.study.panels}" 
-                                                    .panel="${this.preparedQuery.panel}" 
-                                                    .config="${this.config}" 
-                                                    @filterChange="${e => this.onFilterChange("panel", e.detail.value)}">
-                                    </disease-filter>`;
+                    content = html`<disease-panel-filter    .opencgaSession="${this.opencgaSession}" 
+                                                            .diseasePanels="${this.opencgaSession.study.panels}" 
+                                                            .panelId="${this.preparedQuery.panel}" 
+                                                            .config="${this.config}" 
+                                                            @filterChange="${e => this.onFilterChange("panel", e.detail.value)}">
+                                    </disease-panel-filter>`;
                     break;
                 case "biotype":
                     content = html`<biotype-filter .config="${this.config}" .biotype=${this.preparedQuery.biotype} @filterChange="${e => this.onFilterChange("biotype", e.detail.value)}"></biotype-filter>`;

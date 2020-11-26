@@ -153,7 +153,7 @@ import "./core/webcomponents/commons/filters/file-filter.js";
 import "./core/webcomponents/commons/filters/cohort-filter.js";
 import "./core/webcomponents/commons/filters/population-frequency-filter.js";
 import "./core/webcomponents/commons/filters/study-filter.js";
-import "./core/webcomponents/commons/filters/disease-filter.js";
+import "./core/webcomponents/commons/filters/disease-panel-filter.js";
 import "./core/webcomponents/commons/filters/biotype-filter.js";
 import "./core/webcomponents/commons/filters/go-accessions-filter.js";
 import "./core/webcomponents/commons/filters/text-field-filter.js";

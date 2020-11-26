@@ -19,7 +19,7 @@ import UtilsNew from "../../../utilsNew.js";
 import PolymerUtils from "../../PolymerUtils.js";
 
 
-export default class DiseaseFilter extends LitElement {
+export default class DiseasePanelFilter extends LitElement {
 
     constructor() {
         super();
@@ -37,11 +37,11 @@ export default class DiseaseFilter extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            panel: {
-                type: Array
-            },
             diseasePanels: {
                 type: Array
+            },
+            panelId: {
+                type: String    // Comma-separated list of panel IDs
             },
             mode: {
                 type: String
@@ -53,15 +53,16 @@ export default class DiseaseFilter extends LitElement {
     }
 
     _init() {
-        this._prefix = "ff-" + UtilsNew.randomString(6) + "_";
-        this.panel = [];
+        this._prefix = UtilsNew.randomString(8);
+
+        this.panelId = [];
         this.genes = [];
     }
 
     connectedCallback() {
         super.connectedCallback();
-        this._config = {...this.getDefaultConfig(), ...this.config};
 
+        this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
     updated(changedProperties) {
@@ -69,13 +70,12 @@ export default class DiseaseFilter extends LitElement {
         }
 
         if (changedProperties.has("diseasePanels") ) {
-            if (this.diseasePanels) {
-                this.genes = this.diseasePanels?.[0]?.genes ?? [];
-                this.requestUpdate();
-            }
+            this.genes = this.diseasePanels?.[0]?.genes ?? [];
+            this.requestUpdate();
         }
     }
 
+    // Deprecated
     showPanelGenes(panels) {
         PolymerUtils.getElementById(this._prefix + "DiseasePanelsTextarea").value = "";
         const _this = this;
@@ -108,13 +108,22 @@ export default class DiseaseFilter extends LitElement {
 
     panelChange(e) {
         e.stopPropagation();
-        const select_vals = e.detail.value || null;
-        this.genes = this.diseasePanels.find( diseasePanel => diseasePanel.id === select_vals)?.genes ?? [];
-        this.requestUpdate();
+        
+        if (e.detail?.value) {
+            this.genes = this.diseasePanels.find(diseasePanel => diseasePanel.id === e.detail.value)?.genes ?? [];
+            this.requestUpdate();
+        }
     }
 
     filterChange(e) {
-        //select-field-filter already emits a bubbled filterChange event.
+        const event = new CustomEvent("filterChange", {
+            detail: {
+                value: e.detail.value
+            },
+            bubbles: true,
+            composed: true
+        });
+        this.dispatchEvent(event);
     }
 
     getDefaultConfig() {
@@ -124,6 +133,7 @@ export default class DiseaseFilter extends LitElement {
     }
 
     render() {
+        // Sort disease panels alphabetically
         this.diseasePanels.sort( (a, b) => {
             if (a.name < b.name) {
                 return -1;
@@ -134,71 +144,52 @@ export default class DiseaseFilter extends LitElement {
             return 0;
         });
 
-        const opts = this.diseasePanels.map(panel => ({
+        // Prepare disease panels for the select-filed-filter web component
+        const selectOptions = this.diseasePanels.map(panel => ({
             id: panel.id,
-            name: `${panel.name}
-                          ${panel.source ? ` - ${panel.source.author} ${panel.source.project} ${panel.source.version ? "v" + panel.source.version : ""}` : ""}
-                          ${panel.stats ? ` (${panel.stats.numberOfGenes} genes, ${panel.stats.numberOfRegions} regions)` : ""}`
-        }))
+            name: ` ${panel.name}
+                    ${panel.source ? ` - ${panel.source.author} ${panel.source.project} ${panel.source.version ? "v" + panel.source.version : ""}` : ""}
+                    ${panel.stats ? ` (${panel.stats.numberOfGenes} genes, ${panel.stats.numberOfRegions} regions)` : ""}`
+        }));
 
         if (this.mode === "gene") {
             return html`
                 <div class="row">
                     <div class="col-md-4">
-                        <select-field-filter .liveSearch=${true} .data="${opts}" .value=${this.panel} @filterChange="${this.panelChange}"></select-field-filter>
+                        <select-field-filter    .liveSearch=${true} 
+                                                .data="${selectOptions}" 
+                                                .value=${this.panelId} 
+                                                @filterChange="${this.panelChange}">
+                        </select-field-filter>
                     </div>
                     <div class="col-md-4">
-                        <select-field-filter .data="${this.genes.map( gene => ({id:gene.name, name: `${gene.name} (${gene.id})`}))}" @filterChange="${this.filterChange}"></select-field-filter>
+                        <select-field-filter    .liveSearch=${true} 
+                                                .data="${this.genes.map(gene => ({id: gene.name, name: `${gene.name} (${gene.id})`}))}" 
+                                                @filterChange="${this.filterChange}">
+                        </select-field-filter>
                     </div>
                 </div>
             `;
         } else {
             return html`
                 <div>
-                    <select-field-filter multiple .liveSearch=${true} .data="${opts}" .value=${this.panel} @filterChange="${this.filterChange}"></select-field-filter>
+                    <select-field-filter    multiple 
+                                            .liveSearch=${true} 
+                                            .data="${selectOptions}" 
+                                            .value=${this.panelId} 
+                                            @filterChange="${this.filterChange}">
+                    </select-field-filter>
+                    
                     ${this._config.showSummary
                         ? html`
-                            <textarea class="form-control" rows="4" style="margin-top: 5px;background: #f7f7f7" disabled>${this.panel}</textarea>`
+                            <textarea class="form-control" rows="4" style="margin-top: 5px;background: #f7f7f7" disabled>${this.panelId}</textarea>`
                         : null
                     }
                 </div>
-        `;
+            `;
         }
-
-        // return html`
-        //     <div>
-        //         <select id="${this._prefix}DiseasePanels" class="selectpicker" data-size="10" data-live-search="true" data-selected-text-format="count" multiple @change="${e => this.filterChange(e)}">
-        //             ${this.diseasePanels && this.diseasePanels.length && this.diseasePanels.map(panel => html`
-        //                 <option value="${panel.id}">
-        //                     ${panel.name}
-        //                     ${panel.source ? "v" + panel.source.version : ""}
-        //                     ${panel.stats ? `${panel.stats.numberOfGenes} genes, ${panel.stats.numberOfRegions} regions` : ""}
-        //                 </option>
-        //             `)}
-        //         </select>
-        //
-        //         ${this.mode === "gene"
-        //             ? html`
-        //                 <select id="${this._prefix}Genes" class="selectpicker" data-size="10" data-live-search="true" @change="${e => this.filterChange(e)}">
-        //                     ${this.genes && this.genes.length && this.genes.map(gene => html`
-        //                         <option value="${gene.name}">
-        //                             ${gene.name} (${gene.id})
-        //                         </option>
-        //                     `)}
-        //                 </select>
-        //             `
-        //             : null
-        //         }
-        //
-        //         ${this._config.showSummary
-        //             ? html`
-        //                 <textarea id="${this._prefix}DiseasePanelsTextarea" class="form-control" rows="4" style="margin-top: 5px;background: #f7f7f7" disabled> </textarea>`
-        //             : null
-        //         }
-        //     </div>
-        // `;
     }
 
 }
 
-customElements.define("disease-filter", DiseaseFilter);
+customElements.define("disease-panel-filter", DiseasePanelFilter);
