@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>kinship pedigree</title>
+
+    <script type="text/javascript" src="../../../../../../node_modules/@svgdotjs/svg.js/dist/svg.min.js"></script>
+</head>
+<body>
+<div id="pedigree"></div>
+
+<script type="module">
+    (async () => {
+
+        const GEN_HEIGHT = 100;
+        const CIRCLE_RADIUS = 20;
+
+
+        const $fam_raw = await (await fetch("./kinship2/tab_fam.csv")).text();
+        const $n_raw = await (await fetch("./kinship2/tab_n.csv")).text();
+        const $nid_raw = await (await fetch("./kinship2/tab_nid.csv")).text();
+        const $pos_raw = await (await fetch("./kinship2/tab_pos.csv")).text();
+        const $spouse_raw = await (await fetch("./kinship2/tab_spouse.csv")).text();
+
+        const $fam = parseCsv($fam_raw);
+        const $n = parseCsv($n_raw);
+        const $nid = parseCsv($nid_raw);
+        const $pos = parseCsv($pos_raw);
+        const $spouse= parseCsv($spouse_raw);
+
+        const draw = SVG().addTo("#pedigree").size(1000, 1000);
+        const rect = draw.rect(1000, 1000).attr({fill: "#f3f3f3"});
+
+        console.log("NID", $nid)
+
+
+        const nodes = [];
+        $nid.forEach((row, genIndx) => {
+            nodes[genIndx] = [];
+            row.forEach((nodeId, i) => {
+                if(nodeId !== 0) {
+                    nodes[genIndx].push({id: nodeId, gen: genIndx});
+                }
+
+            });
+        });
+
+        // compute the max X coord
+        let maxPos = -Infinity;
+        let minPos = +Infinity;
+        $pos.forEach((row, genIndx) => {
+            row.forEach((xCoord, i) => {
+                if (xCoord > maxPos) maxPos = xCoord;
+                if (xCoord < minPos) minPos = xCoord;
+            });
+        });
+        console.log(minPos, maxPos)
+
+                /**
+         *  draw nodes
+         */
+        $pos.forEach((row, genIndx) => {
+            row.forEach((xCoord, i) => {
+                if(xCoord !== 0) {
+                    const X = rescale_linear(xCoord, minPos, maxPos, 50, 800);
+                    const id = $nid[genIndx][i];
+                    //console.log("id", id)
+                    //console.log("nodes", nodes)
+                    let node = getNode(id, nodes);
+                    node.x = X;
+                    node.y = genIndx * GEN_HEIGHT;
+                    //console.log("X", X);
+                    //console.log("IDD", id);
+                    //console.log("genIndx, i, NID", genIndx, i, $nid[genIndx][i])
+                    draw.circle(CIRCLE_RADIUS).stroke("#000").move(X, genIndx * GEN_HEIGHT);
+                    draw.text(`${id}`).dy(genIndx * GEN_HEIGHT + 20).dx(X);
+                }
+            });
+        });
+        console.log(nodes)
+
+        /**
+         *  draw parent/children lines
+         */
+        $fam.forEach((row, genIndx) => {
+            row.forEach((parentId, i) => {
+                //the parents of the current node are parentId and parentId+1
+                if(parentId !==0) {
+                    //console.log(nodes, parentId)
+                    //console.log(getNode(parentId, nodes))
+                    const parentA = getNode(parentId, nodes);
+                    const parentB = getNode(parentId + 1, nodes);
+                    const individualId = $nid[genIndx][i];
+                    console.log("individualId", individualId)
+                    console.log("parentA", parentA)
+                    //console.log(nodes)
+                    const individual = getNode(individualId, nodes);
+                    if (parentA) {
+                        draw.line(parentA.x + CIRCLE_RADIUS/2, parentA.y, individual.x + CIRCLE_RADIUS/2, individual.y).stroke({
+                            color: "#000",
+                            width: 1,
+                        }).attr({id: parentA.id + "__" + individual.id});
+                    }
+                    if (parentB) {
+                        draw.line(parentB.x + CIRCLE_RADIUS/2, parentB.y, individual.x + CIRCLE_RADIUS/2, individual.y).stroke({
+                            color: "#000",
+                            width: 1,
+                        }).attr({id: parentB.id + "__" + individual.id});
+                    }
+                }
+
+
+            });
+        })
+
+    })();
+
+    // min-max normalization
+    function rescale_linear(value, oldMin, oldMax, newMin, newMax) {
+        const oldRange = oldMax - oldMin;
+        const newRange = newMax - newMin;
+        const rescaled = newMin + ((value - oldMin) * newRange / oldRange);
+        return Math.round(rescaled);
+    }
+
+    function parseCsv(csv, headers = false) {
+        const rows = csv.split("\n");
+        const matrix = rows
+            .map(row => row.split("\t")
+                .map(cell => {
+                        //const c = cell.slice(1).slice(0, -1)
+                        return isNaN(cell) ? cell ?? 0 : parseFloat(cell);
+                    }
+                ));
+        if(!headers) {
+            return matrix.slice(1).map(rows => rows.slice(1))
+        } else {
+            return matrix
+        }
+    }
+
+    function getNode(id, array) {
+        for(const gen of array) {
+            for(const node of gen) {
+                if (id === node.id) return node;
+            }
+        }
+        console.warn(`node ${id} not found`);
+    }
+
+
+</script>
+
+</body>
+</html>
