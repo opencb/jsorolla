@@ -156,10 +156,10 @@ export default class PopulationFrequencyFilter extends LitElement {
             </style>
             ${populationFrequencies.studies.map(study => html`
                 <div style="padding-top: 10px">
-                    <i id="${this._prefix}${study.id}Icon" data-id="${this._prefix}${study.id}" class="fa fa-plus"
+                    <i id="${this._prefix}${study.id}Icon" data-id="${this._prefix}${study.id}" class="fa fa-plus" data-cy="pop-freq-toggle-${study.id}"
                        style="cursor: pointer;padding-right: 10px" @click="${this.handleCollapseAction}"></i>
                     <strong>${study.title}</strong>
-                    <div id="${this._prefix}${study.id}" class="form-horizontal" hidden>
+                    <div id="${this._prefix}${study.id}" class="form-horizontal" hidden data-cy="pop-freq-codes-wrapper-${study.id}">
                         ${this.showSetAll ? html`
                             <div class="set-all-form-wrapper form-group">
                                 <div class="col-md-3 control-label" data-toggle="tooltip" data-placement="top">Set all</div>

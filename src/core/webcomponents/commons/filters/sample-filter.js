@@ -263,7 +263,7 @@ export default class SampleFilter extends LitElement {
                 : null
             }
             
-            <div class="modal fade" id="${this._prefix}SampleGenotypeFilterModal" data-backdrop="static" data-keyboard="false"
+            <div class="modal fade" id="${this._prefix}SampleGenotypeFilterModal"
                  tabindex="-1" role="dialog" aria-hidden="true" style="padding-top: 0%; overflow-y: visible">
                 <div class="modal-dialog" style="width: 1280px">
                     <div class="modal-content">

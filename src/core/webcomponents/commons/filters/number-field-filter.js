@@ -124,7 +124,7 @@ export default class NumberFieldFilter extends LitElement {
                 }
             </style>
             
-            <div class="number-field-filter form-group">
+            <div class="number-field-filter form-group" data-cy="number-field-filter-wrapper-${this.label ?? ""}">
                 ${this.label ? html`<div class="col-md-${this._config.layout[0]} control-label" data-toggle="tooltip" data-placement="top" title="${this.label}">
                         ${this.label}
                     </div>` : null}
@@ -141,12 +141,12 @@ export default class NumberFieldFilter extends LitElement {
                 </div>` : null}
                 <div class="col-md-${this._config.layout[2]}">
                     <input  type="${this.type ?? "number"}"
+                            class="form-control input-sm ${this._prefix}FilterTextInput"
+                            data-field="value"
                             .min="${this.min ?? false}"
                             .max="${this.max ?? false}"
                             .step="${this.step ?? false}"
-                            data-field="value"
                             .value="${this.state.value ?? ""}"
-                            class="form-control input-sm ${this._prefix}FilterTextInput"
                             @input="${this.filterChange}">
                 </div>
             </div>
