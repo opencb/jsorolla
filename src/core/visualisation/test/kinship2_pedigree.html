@@ -13,13 +13,14 @@
     (async () => {
 
         const GEN_HEIGHT = 100;
-        const CIRCLE_RADIUS = 20;
+        const CIRCLE_RADIUS = 10;
 
 
-        const $fam_raw = await (await fetch("./kinship2/tab_fam.csv")).text();
+        //const $fam_raw = await (await fetch("./kinship2/tab_fam.csv")).text();
+        const $fam_raw = await (await fetch("./kinship2/tab_fam_fixed.csv")).text();
         const $n_raw = await (await fetch("./kinship2/tab_n.csv")).text();
         const $nid_raw = await (await fetch("./kinship2/tab_nid.csv")).text();
-        const $pos_raw = await (await fetch("./kinship2/tab_pos.csv")).text();
+        const $pos_raw = await (await fetch("./kinship2/tab_pos_fixed.csv")).text();
         const $spouse_raw = await (await fetch("./kinship2/tab_spouse.csv")).text();
 
         const $fam = parseCsv($fam_raw);
@@ -54,10 +55,11 @@
                 if (xCoord < minPos) minPos = xCoord;
             });
         });
-        console.log(minPos, maxPos)
+        //console.log(minPos, maxPos)
 
-                /**
+        /**
          *  draw nodes
+         *
          */
         $pos.forEach((row, genIndx) => {
             row.forEach((xCoord, i) => {
@@ -67,20 +69,41 @@
                     //console.log("id", id)
                     //console.log("nodes", nodes)
                     let node = getNode(id, nodes);
-                    node.x = X;
-                    node.y = genIndx * GEN_HEIGHT;
+
+                    // storing coors of the center of the circle
+                    node.x = X + CIRCLE_RADIUS;
+                    node.y = (genIndx * GEN_HEIGHT) + CIRCLE_RADIUS;
+
                     //console.log("X", X);
                     //console.log("IDD", id);
                     //console.log("genIndx, i, NID", genIndx, i, $nid[genIndx][i])
-                    draw.circle(CIRCLE_RADIUS).stroke("#000").move(X, genIndx * GEN_HEIGHT);
+                    draw.circle(CIRCLE_RADIUS * 2).stroke("#000").move(X, genIndx * GEN_HEIGHT);
                     draw.text(`${id}`).dy(genIndx * GEN_HEIGHT + 20).dx(X);
                 }
             });
         });
-        console.log(nodes)
+
+        /**
+         * $spouse is a matrix with values 1= subject plotted to the immediate right is a spouse, 2=
+         * subject plotted to the immediate right is an inbred spouse, 0 = not a spouse
+         */
+        $spouse.forEach((row, genIndx) => {
+            row.forEach((spouseFlag, i) => {
+                if(spouseFlag !== 0) {
+                    const id = $nid[genIndx][i];
+                    let source = getNode(id, nodes);
+                    source.spouse = $nid[genIndx][i + 1];
+                    let target = getNode($nid[genIndx][i + 1], nodes);
+                    drawEdge(source, target, draw)
+                }
+            });
+        });
 
         /**
          *  draw parent/children lines
+         *
+         * $fam is matrix giving the family id of each plot point. A value of "3" would mean that
+         * the two subjects in positions 3 and 4, in the row above, are this subject’s parents
          */
         $fam.forEach((row, genIndx) => {
             row.forEach((parentId, i) => {
@@ -89,29 +112,71 @@
                     //console.log(nodes, parentId)
                     //console.log(getNode(parentId, nodes))
                     const parentA = getNode(parentId, nodes);
-                    const parentB = getNode(parentId + 1, nodes);
+                    const parentB = getNode(parentA.spouse, nodes);
                     const individualId = $nid[genIndx][i];
-                    console.log("individualId", individualId)
-                    console.log("parentA", parentA)
+                    //console.log("individualId", individualId)
+                    //console.log("parentA", parentA)
                     //console.log(nodes)
                     const individual = getNode(individualId, nodes);
-                    if (parentA) {
-                        draw.line(parentA.x + CIRCLE_RADIUS/2, parentA.y, individual.x + CIRCLE_RADIUS/2, individual.y).stroke({
-                            color: "#000",
-                            width: 1,
-                        }).attr({id: parentA.id + "__" + individual.id});
+                    individual.parents = [parentA,parentB];
+                    if (parentA && parentB) {
+                        drawParentChildEdge(parentA, parentB, individual, draw)
                     }
-                    if (parentB) {
-                        draw.line(parentB.x + CIRCLE_RADIUS/2, parentB.y, individual.x + CIRCLE_RADIUS/2, individual.y).stroke({
-                            color: "#000",
-                            width: 1,
-                        }).attr({id: parentB.id + "__" + individual.id});
+                    if (!parentA || !parentB) {
+                        console.warn("One parent is missing")
                     }
                 }
 
 
             });
         })
+
+
+
+
+
+
+        console.log(nodes)
+
+
+        function drawEdge(source, target, draw) {
+            draw.line(source.x, source.y, target.x, target.y).stroke({
+                color: "#000",
+                width: 1,
+            }).attr({id: source.id + "__" + target.id});
+        }
+
+        function drawParentChildEdge(source1, source2, target, draw) {
+            //console.log(source1.gen, source2.gen)
+            if(source1.gen === (target.gen - 1)) {
+
+                // X coord of the middlePoint between parents
+                const middlePoint = source1.x + (Math.abs(source2.x - source1.x) / 2);
+                // 1st vertical line
+                draw.line(middlePoint, source1.y, middlePoint, source1.y + GEN_HEIGHT/2).stroke({
+                    color: "#000",
+                    width: 1,
+                }).attr({id: "A_" + source1.id + "__" + source2.id});
+
+                // 2nd vertical line
+                draw.line(target.x, target.y - GEN_HEIGHT/2, target.x, target.y).stroke({
+                    color: "#000",
+                    width: 1,
+                }).attr({id: "B_" + target.id + "__" + target.id});
+
+                // horizonal line
+                draw.line(middlePoint, source1.y + GEN_HEIGHT/2, target.x, target.y - GEN_HEIGHT/2).stroke({
+                    color: "#000",
+                    width: 1,
+                }).attr({id: "C_" + source1.id + "__" + target.id});
+            } else {
+                console.warn("parent/children spanning multiple generations")
+                console.log(source1)
+                console.log(source2)
+                console.log(target)
+            }
+
+        }
 
     })();
 
@@ -122,6 +187,8 @@
         const rescaled = newMin + ((value - oldMin) * newRange / oldRange);
         return Math.round(rescaled);
     }
+
+
 
     function parseCsv(csv, headers = false) {
         const rows = csv.split("\n");
