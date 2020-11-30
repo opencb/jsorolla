@@ -1,9 +1,15 @@
 require(kinship2)
-pedAll <- pedigree(id = sample.ped$id, dadid = sample.ped$father, momid = sample.ped$mother, 
-                   sex = sample.ped$sex, famid = sample.ped$ped)
+
+#family1_raw = read.csv("~/opencb/iva/lib/jsorolla/src/core/visualisation/test/resources/family1.csv")
+#pedAll <- pedigree(id = family1_raw$id, dadid = family1_raw$fatherid, momid = family1_raw$motherid, sex = family1_raw$sex)
+#DATA = pedAll
+
+
+pedAll <- pedigree(id = sample.ped$id, dadid = sample.ped$father, momid = sample.ped$mother, sex = sample.ped$sex, famid = sample.ped$ped)
+DATA = pedAll[2]
+
 print(pedAll)
 
-DATA = pedAll[2]
 WIDTH = 10 # min width
 
 # TABLEDATA = align.pedigree(pedAll[2], packed=FALSE, width=10, align=TRUE, hints=pedAll$hints)$pos
@@ -37,5 +43,5 @@ write.table(align.pedigree(DATA, packed=FALSE, width=WIDTH, align=TRUE, hints=pe
             row.names = TRUE,
             col.names = NA)
 
-plot(DATA, packed = TRUE,width = 100)
+plot(DATA, packed = TRUE)
 

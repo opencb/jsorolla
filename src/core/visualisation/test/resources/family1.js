@@ -122,7 +122,7 @@ export default [
         "id": "18",
         "father": {id: "10"},
         "mother": {},
-        "sex": "FEMALE",
+        "sex": "MALE",
         "age": "50"
     },
     {
