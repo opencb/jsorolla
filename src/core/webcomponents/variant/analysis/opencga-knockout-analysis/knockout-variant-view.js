@@ -135,7 +135,7 @@ export default class KnockoutVariantView extends LitElement {
             {title: "dbSNP", field: "dbSNP"},
             {title: "Alt allele freq.", field: ""},
             {title: "Variant type", field: ""},
-            {title: "Consequence Type", field: "consequenceType"},
+            {title: "Consequence type", field: "consequenceType"},
             {title: "ClinVar", field: ""},
             {
                 title: "Individuals",
@@ -143,7 +143,7 @@ export default class KnockoutVariantView extends LitElement {
                 formatter: this.individualFormatter.bind(this)
 
             },
-            ...this.samples.map(sample => {
+            /*...this.samples.map(sample => {
                 return {
                     title: `Sample ${sample.sampleId}`,
                     field: sample.sampleId,
@@ -153,7 +153,7 @@ export default class KnockoutVariantView extends LitElement {
                         // return JSON.stringify(v)
                     }
                 };
-            })];
+            })*/];
     }
 
     onColumnChange(e) {
@@ -267,7 +267,7 @@ export default class KnockoutVariantView extends LitElement {
                 },
                 {
                     id: "allele-view",
-                    name: "Allele pairs",
+                    name: "Allele Pairs",
                     render: (variant, active, opencgaSession) => {
                         return html`
                             <knockout-variant-allele-pairs .variantId="${variant}"></knockout-variant-allele-pairs>
@@ -305,13 +305,13 @@ export default class KnockoutVariantView extends LitElement {
         return html`
 
             <div class="container-fluid">
-                <div class="row">
+                <!--<div class="row">
                     <div class="col-md-2 pull-right">
                         <div style="padding: 20px 0">
                             <select-field-filter .liveSearch=${true} multiple .data="${this.samples?.map(sample => sample.sampleId)}" .value="${this.activeSamples}" @filterChange="${e => this.onColumnChange(e)}"></select-field-filter>
                         </div>
                     </div>
-                </div>
+                </div> -->
                 
                 <opencb-grid-toolbar .config="${this.toolbarConfig}"
                                  @columnChange="${this.onColumnChange}"
