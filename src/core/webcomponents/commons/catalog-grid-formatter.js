@@ -62,7 +62,6 @@ export default class CatalogGridFormatter {
                             results.push(file);
                         }
                     }
-
                 });
             } else {
                 results = files;

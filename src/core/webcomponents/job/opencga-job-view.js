@@ -198,7 +198,7 @@ export default class OpencgaJobView extends LitElement {
                             // field: "params",
                             type: "custom",
                             display: {
-                                render: job => Object.entries(job.params).map(([param, value]) => html`<div><label>${param}</label>: ${value ? value : "-"}</div>`)
+                                render: job => job.params ? Object.entries(job.params).map(([param, value]) => html`<div><label>${param}</label>: ${value ? value : "-"}</div>`) : "-"
                             }
                         },
                         {

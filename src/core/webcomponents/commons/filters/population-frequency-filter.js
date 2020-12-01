@@ -71,7 +71,7 @@ export default class PopulationFrequencyFilter extends LitElement {
         this.state = {};
         if (this.populationFrequencyAlt) {
             if (!populationFrequencies?.studies?.length && !this.populationFrequencies) {
-                console.error("populationFrequency data not available")
+                console.error("populationFrequency data not available");
             }
             pfArray = this.populationFrequencyAlt.split(new RegExp("[,;]"));
             pfArray.forEach(queryElm => {
@@ -80,7 +80,7 @@ export default class PopulationFrequencyFilter extends LitElement {
                 this.state[study + ":" + popCode] = {
                     comparator,
                     value
-                }
+                };
             });
         } else {
             $("input[data-mode=all]").val("");
@@ -101,7 +101,7 @@ export default class PopulationFrequencyFilter extends LitElement {
         }
         let r = [];
         for (let [study_popId, data] of Object.entries(this.state)) {
-            r.push(study_popId + data.comparator + data.value)
+            r.push(study_popId + data.comparator + data.value);
         }
         const event = new CustomEvent("filterChange", {
             detail: {
@@ -142,14 +142,14 @@ export default class PopulationFrequencyFilter extends LitElement {
 
     render() {
         if (!populationFrequencies?.studies?.length) {
-            return html`No Population Frequencies defined`
+            return html`No Population Frequencies defined`;
         }
         return html`
             <style>
-            .set-all-form-wrapper {
+                .set-all-form-wrapper {
                     margin: 5px 0px;
-                }              
-                
+                }
+
                 .set-all-form-wrapper > div:not(:first-child) {
                     padding: 0px 10px
                 }
@@ -173,11 +173,11 @@ export default class PopulationFrequencyFilter extends LitElement {
                         ` : ""}
                         ${study.populations && study.populations.length && study.populations.map(popFreq => html`
                             <number-field-filter
-                                .value="${this.state[study.id +":"+popFreq.id]?.value ? ((this.state[study.id +":"+popFreq.id]?.comparator ?? this.defaultComparator) + this.state[study.id +":"+popFreq.id]?.value) : "" }"
-                                .config="${{comparator: true, layout: [3,3,6]}}"
-                                .label="${popFreq.id}"
-                                type="string"
-                                @filterChange="${e => this.filterChange(e, `${study.id}:${popFreq.id}`)}">
+                                    .value="${this.state[study.id + ":" + popFreq.id]?.value ? ((this.state[study.id + ":" + popFreq.id]?.comparator ?? this.defaultComparator) + this.state[study.id + ":" + popFreq.id]?.value) : ""}"
+                                    .config="${{comparator: true, layout: [3, 3, 6]}}"
+                                    .label="${popFreq.id}"
+                                    type="string"
+                                    @filterChange="${e => this.filterChange(e, `${study.id}:${popFreq.id}`)}">
                             </number-field-filter>
                         `)}
                     </div>
