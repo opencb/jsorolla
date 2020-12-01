@@ -57,7 +57,7 @@ export default class KnockoutIndividualView extends LitElement {
         this._config = this.getDefaultConfig();
         this.data = knockoutDataIndividuals;
         this.gridId = this._prefix + "KnockoutGrid";
-        this.prepareData();
+        //this.prepareData();
     }
 
     connectedCallback() {
@@ -72,7 +72,7 @@ export default class KnockoutIndividualView extends LitElement {
     }
 
     firstUpdated(_changedProperties) {
-        this.renderTable();
+        // this.renderTable();
     }
 
     updated(changedProperties) {
@@ -83,6 +83,15 @@ export default class KnockoutIndividualView extends LitElement {
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
             this.requestUpdate();
+        }
+
+        if (changedProperties.has("jobId")) {
+            this.opencgaSession.opencgaClient.variants().queryKnockoutIndividual({job: this.jobId, study: this.opencgaSession.study.fqn}).then(restResponse => {
+                // console.log(restResponse.getResults())
+                // console.log(knockoutDataGene)
+                this.tableData = restResponse.getResults();
+                this.renderTable();
+            });
         }
     }
 
@@ -99,7 +108,7 @@ export default class KnockoutIndividualView extends LitElement {
             sidePagination: "local",
             // Set table properties, these are read from config propertyparticularly tough
             uniqueId: "id",
-            // pagination: this._config.pagination,
+            pagination: true,
             // pageSize: this._config.pageSize,
             // pageList: this._config.pageList,
             paginationVAlign: "both",
@@ -242,7 +251,7 @@ export default class KnockoutIndividualView extends LitElement {
                     id: "family-view",
                     name: "Family",
                     render: (individual, active, opencgaSession) => {
-                        return html`<opencga-family-view .individualId="${individual.id}" .opencgaSession="${opencgaSession}"></opencga-family-view>`;
+                        return html`${JSON.stringify(individual.id)}<opencga-family-view .individualId="${individual.id}" .opencgaSession="${opencgaSession}"></opencga-family-view>`;
                     }
                 }
             ]
@@ -258,7 +267,7 @@ export default class KnockoutIndividualView extends LitElement {
             <div class="row">
                 <table id="${this.gridId}"></table>
             </div>
-            <detail-tabs .data="${this.individual}" .config="${this.detailConfig}" .opencgaSession="${this.opencgaSession}"></detail-tabs>
+            ${this.individual ? html`<detail-tabs .data="${this.individual}" .config="${this.detailConfig}" .opencgaSession="${this.opencgaSession}"></detail-tabs>`: ""};
         `;
     }
 

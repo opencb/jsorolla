@@ -79,7 +79,7 @@ export default class KnockoutVariantIndividual extends LitElement {
             columns: this._initTableColumns(),
             sidePagination: "local",
             uniqueId: "id",
-            //pagination: this._config.pagination,
+            pagination: true,
             paginationVAlign: "both",
             //formatShowingRows: this.gridCommons.formatShowingRows,
             gridContext: this,

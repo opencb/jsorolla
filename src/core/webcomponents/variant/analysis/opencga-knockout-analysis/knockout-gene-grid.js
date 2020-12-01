@@ -52,8 +52,7 @@ export default class KnockoutGeneGrid extends LitElement {
         this._config = this.getDefaultConfig();
         this.data = knockoutDataGene;
         this.gridId = this._prefix + "KnockoutGrid";
-        // this.prepareData();
-        this.tableData = knockoutDataGene;
+        // this.tableData = knockoutDataGene;
     }
 
     connectedCallback() {
@@ -76,7 +75,7 @@ export default class KnockoutGeneGrid extends LitElement {
         }
 
         if (changedProperties.has("jobId")) {
-            this.opencgaSession.opencgaClient.variants().queryKnockoutGene({job: this.jobId}).then(restResponse => {
+            this.opencgaSession.opencgaClient.variants().queryKnockoutGene({job: this.jobId, study: this.opencgaSession.study.fqn}).then(restResponse => {
                 // console.log(restResponse.getResults())
                 // console.log(knockoutDataGene)
                 this.tableData = restResponse.getResults();
@@ -114,7 +113,7 @@ export default class KnockoutGeneGrid extends LitElement {
             sidePagination: "local",
             // Set table properties, these are read from config property
             uniqueId: "id",
-            // pagination: this._config.pagination,
+            pagination: true,
             // pageSize: this._config.pageSize,
             // pageList: this._config.pageList,
             paginationVAlign: "both",

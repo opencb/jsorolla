@@ -60,12 +60,12 @@ export default class KnockoutVariantView extends LitElement {
     _init() {
         this._prefix = "oga-" + UtilsNew.randomString(6);
         this._config = this.getDefaultConfig();
-        this.data = knockoutData;
+        //this.data = knockoutData;
         this.LIMIT = 50; // temp limit for both rows and cols
         this.colToShow = 2;
         this.gridId = this._prefix + "KnockoutGrid";
         this.variantId = null;
-        this.prepareData();
+        //this.prepareData();
     }
 
     connectedCallback() {
@@ -80,19 +80,32 @@ export default class KnockoutVariantView extends LitElement {
     }
 
     firstUpdated(_changedProperties) {
-        this.renderTable();
+        //this.renderTable();
     }
 
-    updated(changedProperties) {
+    update(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
-            this.renderTable();
-            this.requestUpdate();
+            //this.renderTable();
+            //this.requestUpdate();
         }
 
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
             this.requestUpdate();
         }
+
+        if (changedProperties.has("jobId")) {
+            this.opencgaSession.opencgaClient.variants().queryKnockoutIndividual({job: this.jobId, study: this.opencgaSession.study.fqn}).then(restResponse => {
+                // console.log(restResponse.getResults())
+                // console.log(knockoutDataGene)
+                console.log("RRR", restResponse.getResults())
+                this.data = restResponse.getResults();
+                this.prepareData();
+            });
+        }
+
+        super.update(changedProperties);
+
     }
 
     prepareData() {
@@ -199,9 +212,9 @@ export default class KnockoutVariantView extends LitElement {
             sidePagination: "local",
             // Set table properties, these are read from config propertyparticularly tough
             uniqueId: "id",
-            // pagination: this._config.pagination,
             // pageSize: this._config.pageSize,
             // pageList: this._config.pageList,
+            pagination: true,
             paginationVAlign: "both",
             // formatShowingRows: this.gridCommons.formatShowingRows,
             gridContext: this,
@@ -291,7 +304,7 @@ export default class KnockoutVariantView extends LitElement {
                     name: "Population Frequencies",
                     render: (variant, active, opencgaSession, cellbaseClient) => {
                         return html`<cellbase-population-frequency-grid .variantId="${variant}"
-                                                                        .assembly="${opencgaSession.project.organism.assembly}"
+                                                                        .assembly="${opencgaSession?.project?.organism?.assembly}"
                                                                         .cellbaseClient="${cellbaseClient}"
                                                                         .active="${active}">
                                     </cellbase-population-frequency-grid>`;

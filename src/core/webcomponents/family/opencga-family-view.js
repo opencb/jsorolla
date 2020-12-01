@@ -63,7 +63,7 @@ export default class OpencgaFamilyView extends LitElement {
 
     updated(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
-            //this.individualIdObserver();
+            // this.individualIdObserver();
         }
 
         if (changedProperties.has("familyId")) {
@@ -81,11 +81,11 @@ export default class OpencgaFamilyView extends LitElement {
     familyIdObserver() {
         if (this.opencgaSession && this.familyId) {
             this.opencgaSession.opencgaClient.families().info(this.familyId, {study: this.opencgaSession.study.fqn})
-                .then( response => {
+                .then(response => {
                     this.family = response.getResult(0);
                     this.requestUpdate();
                 })
-                .catch(function(reason) {
+                .catch(function (reason) {
                     console.error(reason);
                 });
         }
@@ -94,11 +94,11 @@ export default class OpencgaFamilyView extends LitElement {
     individualIdObserver() {
         if (this.opencgaSession && this.individualId) {
             this.opencgaSession.opencgaClient.families().search({members: this.individualId, study: this.opencgaSession.study.fqn})
-                .then( response => {
+                .then(response => {
                     this.family = response.getResult(0); // TODO FIXME it takes into account just the first family
                     this.requestUpdate();
                 })
-                .catch(function(reason) {
+                .catch(function (reason) {
                     console.error(reason);
                 });
         }
@@ -141,7 +141,7 @@ export default class OpencgaFamilyView extends LitElement {
                                     if (disorder.id.startsWith("OMIM:")) {
                                         id = html`<a href="https://omim.org/entry/${disorder.id.split(":")[1]}" target="_blank">${disorder.id}</a>`;
                                     }
-                                    return html`${disorder.name} (${id})`
+                                    return html`${disorder.name} (${id})`;
                                 },
                                 defaultValue: "N/A"
                             }
@@ -157,7 +157,7 @@ export default class OpencgaFamilyView extends LitElement {
                                     if (phenotype.id.startsWith("HP:")) {
                                         id = html`<a href="https://hpo.jax.org/app/browse/term/${phenotype.id}" target="_blank">${phenotype.id}</a>`;
                                     }
-                                    return html`${phenotype.name} (${id})`
+                                    return html`${phenotype.name} (${id})`;
                                 },
                                 defaultValue: "N/A"
                             }
@@ -230,7 +230,7 @@ export default class OpencgaFamilyView extends LitElement {
                             type: "custom",
                             display: {
                                 layout: "vertical",
-                                visible: data => application.appConfig === "opencb", //TODO pedigree doesnt work with families with over 2 generations
+                                visible: data => application.appConfig === "opencb", // TODO pedigree doesnt work with families with over 2 generations
                                 render: data => html`<pedigree-view .family="${this.family}"></pedigree-view>`
                             }
                         }

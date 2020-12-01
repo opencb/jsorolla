@@ -84,7 +84,7 @@ export default class KnockoutIndividualVariants extends LitElement {
             columns: this._initTableColumns(),
             sidePagination: "local",
             uniqueId: "id",
-            //pagination: this._config.pagination,
+            pagination: true,
             //pageSize: this._config.pageSize,
             //pageList: this._config.pageList,
             paginationVAlign: "both",
