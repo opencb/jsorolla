@@ -53,20 +53,21 @@ export default class CatalogGridFormatter {
     }
 
     static fileFormatter(files, extensions) {
+        let results = [];
         if (files && files.length > 0) {
-            const results = [];
-            files.forEach(file => {
-                if (extensions && extensions.length > 0) {
+            if (extensions && extensions.length > 0) {
+                files.forEach(file => {
                     for (const extension of extensions) {
-                        if (file.name.endsWith(extension)) {
-                            results.push(file.name);
+                        if (file.endsWith(extension)) {
+                            results.push(file);
                         }
                     }
-                } else {
-                    results.push(file.name);
-                }
-            });
-            return results.length > 20 ? results.length + " files" : results.join("<br>");
+
+                });
+            } else {
+                results = files;
+            }
+            return results.length > 20 ? results.length + " files" : `<ul class="pad-left-15">${results.map(file => `<li>${file}</li>`).join("")}</ul>`;
         } else {
             return "-";
         }

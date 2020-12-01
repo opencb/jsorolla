@@ -126,7 +126,8 @@ export default class OpencgaSampleView extends LitElement {
                             field: "fileIds",
                             type: "list",
                             display: {
-                                defaultValue: "Files not found or empty"
+                                defaultValue: "Files not found or empty",
+                                contentLayout: "bullets"
                             }
                         },
                         {

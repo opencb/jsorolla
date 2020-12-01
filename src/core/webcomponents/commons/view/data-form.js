@@ -748,7 +748,7 @@ export default class DataForm extends LitElement {
                 break;
             case "bullets":
                 content = html`
-                    <ul style="padding-left: 20px">
+                    <ul class="pad-left-15">
                         ${values.map(elem => html`
                             <li>${elem}</li>
                         `)}
