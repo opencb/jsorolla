@@ -94,29 +94,29 @@ export default class OpencgaAnalysisToolFormField extends LitElement {
                                 </div>
                             </div>`;
             case "CLINVAR_ACCESSION_FILTER":
-                return html`<clinvar-accessions-filter .config="${{clinvar: false}}" .clinicalSignificance="${fieldConfig.value}" @filterChange="${e => this.onFilterChange("clinicalSignificance", e?.detail?.value?.clinicalSignificance)}"></clinvar-accessions-filter>`
+                return html`<clinvar-accessions-filter .config="${{clinvar: false}}" .clinicalSignificance="${fieldConfig.value}" @filterChange="${e => this.onFilterChange(fieldConfig.id, e?.detail?.value?.clinicalSignificance)}"></clinvar-accessions-filter>`
             case "COHORT_FREQUENCY_FILTER":
                 return html`<cohort-stats-filter .opencgaSession="${this.opencgaSession}" .onlyCohortAll=${true} .cohortStatsAlt="${fieldConfig.value}" 
-                                    @filterChange="${e => this.onFilterChange("cohortStatsAlt", e.detail.value)}">
+                                    @filterChange="${e => this.onFilterChange(fieldConfig.id, e.detail.value)}">
                            </cohort-stats-filter>`;
            case "POPULATION_FREQUENCY_FILTER":
-                return html`<population-frequency-filter .populationFrequencyAlt="${fieldConfig.value}" @filterChange="${e => this.onFilterChange("populationFrequencyAlt", e.detail.value)}"></population-frequency-filter>`;
+                return html`<population-frequency-filter .populationFrequencyAlt="${fieldConfig.value}" @filterChange="${e => this.onFilterChange(fieldConfig.id, e.detail.value)}"></population-frequency-filter>`;
             case "CONSEQUENCE_TYPE_FILTER":
-                return html`<consequence-type-select-filter .ct="${fieldConfig.value}" .config="${fieldConfig}" @filterChange="${e => this.onFilterChange("ct", e.detail.value)}"></consequence-type-select-filter>`;
+                return html`<consequence-type-select-filter .ct="${fieldConfig.value}" .config="${fieldConfig}" @filterChange="${e => this.onFilterChange(fieldConfig.id, e.detail.value)}"></consequence-type-select-filter>`;
             case "VARIANT_TYPE_FILTER":
-                return html`<variant-type-filter .type="${fieldConfig.value}" .config="${fieldConfig}" @filterChange="${e => this.onFilterChange("type", e.detail.value)}"></variant-type-filter>`;
+                return html`<variant-type-filter .type="${fieldConfig.value}" .config="${fieldConfig}" @filterChange="${e => this.onFilterChange(fieldConfig.id, e.detail.value)}"></variant-type-filter>`;
             case "SAMPLE_FILTER":
-                return html`<sample-id-autocomplete .value="${fieldConfig.value ?? fieldConfig.defaultValue}" .config="${fieldConfig}" .opencgaSession="${this.opencgaSession}" @filterChange="${e => this.onFilterChange("sample", e.detail.value)}"></sample-id-autocomplete>`;
+                return html`<sample-id-autocomplete .value="${fieldConfig.value ?? fieldConfig.defaultValue}" .config="${fieldConfig}" .opencgaSession="${this.opencgaSession}" @filterChange="${e => this.onFilterChange(fieldConfig.id, e.detail.value)}"></sample-id-autocomplete>`;
             case "GENE_FILTER":
-                return html`<feature-filter .config="${fieldConfig}" .cellbaseClient="${this.cellbaseClient}" @filterChange="${e => this.onFilterChange("xref", e.detail.value)}"></feature-filter>`;
+                return html`<feature-filter .config="${fieldConfig}" .cellbaseClient="${this.cellbaseClient}" @filterChange="${e => this.onFilterChange(fieldConfig.id, e.detail.value)}"></feature-filter>`;
             case "INDIVIDUAL_FILTER":
-                return html`<individual-id-autocomplete .value="${fieldConfig.value ?? fieldConfig.defaultValue}" .config="${fieldConfig}" .opencgaSession="${this.opencgaSession}" @filterChange="${e => this.onFilterChange("individual", e.detail.value)}"></individual-id-autocomplete>`;
+                return html`<individual-id-autocomplete .value="${fieldConfig.value ?? fieldConfig.defaultValue}" .config="${fieldConfig}" .opencgaSession="${this.opencgaSession}" @filterChange="${e => this.onFilterChange(fieldConfig.id, e.detail.value)}"></individual-id-autocomplete>`;
             case "COHORT_FILTER":
-                return html`<cohort-id-autocomplete .value="${fieldConfig.value ?? fieldConfig.defaultValue}" .config="${fieldConfig}" .opencgaSession="${this.opencgaSession}" @filterChange="${e => this.onFilterChange("cohort", e.detail.value)}"></cohort-id-autocomplete>`;
+                return html`<cohort-id-autocomplete .value="${fieldConfig.value ?? fieldConfig.defaultValue}" .config="${fieldConfig}" .opencgaSession="${this.opencgaSession}" @filterChange="${e => this.onFilterChange(fieldConfig.id, e.detail.value)}"></cohort-id-autocomplete>`;
             case "FAMILY_FILTER":
-                return html`<family-id-autocomplete .value="${fieldConfig.value ?? fieldConfig.defaultValue}" .config="${fieldConfig}" .opencgaSession="${this.opencgaSession}" @filterChange="${e => this.onFilterChange("family", e.detail.value)}"></family-id-autocomplete>`;
+                return html`<family-id-autocomplete .value="${fieldConfig.value ?? fieldConfig.defaultValue}" .config="${fieldConfig}" .opencgaSession="${this.opencgaSession}" @filterChange="${e => this.onFilterChange(fieldConfig.id, e.detail.value)}"></family-id-autocomplete>`;
             case "CLINICAL_ANALYSIS_FILTER":
-                return html`<clinical-analysis-id-autocomplete .value="${fieldConfig.value ?? fieldConfig.defaultValue}" .config="${fieldConfig}" .opencgaSession="${this.opencgaSession}" @filterChange="${e => this.onFilterChange("sample", e.detail.value)}"></clinical-analysis-id-autocomplete>`;
+                return html`<clinical-analysis-id-autocomplete .value="${fieldConfig.value ?? fieldConfig.defaultValue}" .config="${fieldConfig}" .opencgaSession="${this.opencgaSession}" @filterChange="${e => this.onFilterChange(fieldConfig.id, e.detail.value)}"></clinical-analysis-id-autocomplete>`;
             default:
                 console.warn("field type "+fieldConfig.type+" not implemented. String type fallback");
                 return html`<text-field-filter .value="${fieldConfig.value ?? fieldConfig.defaultValue}" placeholder="${fieldConfig.placeholder || ""}" ?disabled=${this.config.disabled} ?required=${this.config.required} @filterChange="${e => this.onFilterChange(fieldConfig.id, e.detail.value)}"></text-field-filter>`;

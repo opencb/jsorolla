@@ -65,22 +65,13 @@ export default class KnockoutGeneGrid extends LitElement {
 
     }
 
-    firstUpdated(_changedProperties) {
-        this.renderTable();
-    }
-
     updated(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
             this.job = null;
         }
 
         if (changedProperties.has("jobId")) {
-            this.opencgaSession.opencgaClient.variants().queryKnockoutGene({job: this.jobId, study: this.opencgaSession.study.fqn}).then(restResponse => {
-                // console.log(restResponse.getResults())
-                // console.log(knockoutDataGene)
-                this.tableData = restResponse.getResults();
-                this.renderTable();
-            });
+            this.renderTable();
         }
 
         /* if (changedProperties.has("job") && this.opencgaSession) {
@@ -101,14 +92,14 @@ export default class KnockoutGeneGrid extends LitElement {
     }
 
     prepareData() {
-        this.tableData = knockoutDataGene;
+        // this.tableData = knockoutDataGene;
     }
 
     renderTable() {
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
-            data: this.tableData,
+            //data: this.tableData,
             columns: this._initTableColumns(),
             sidePagination: "local",
             // Set table properties, these are read from config property
@@ -119,6 +110,17 @@ export default class KnockoutGeneGrid extends LitElement {
             paginationVAlign: "both",
             // formatShowingRows: this.gridCommons.formatShowingRows,
             gridContext: this,
+            ajax: params => {
+                this.opencgaSession.opencgaClient.variants().queryKnockoutGene({job: this.jobId, study: this.opencgaSession.study.fqn})
+                    .then(restResponse => {
+                        console.log("restResponse", restResponse)
+                        this.tableData = restResponse.getResults();
+                        params.success(this.tableData);
+                    }).catch(e => {
+                        console.error(e);
+                        params.error(e);
+                    });
+            },
             formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
             onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement)
         });

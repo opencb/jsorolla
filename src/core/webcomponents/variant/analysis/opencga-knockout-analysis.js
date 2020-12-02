@@ -50,7 +50,7 @@ class OpencgaKnockoutAnalysisConfig {
                                 fileUpload: true
                             },*/
                             {
-                                id: "xref",
+                                id: "gene",
                                 title: "Select gene",
                                 type: "GENE_FILTER",
                                 addButton: true,
@@ -90,7 +90,7 @@ class OpencgaKnockoutAnalysisConfig {
                                 // layout: "horizontal"
                             },
                             {
-                                id: "ct",
+                                id: "consequenceType",
                                 title: "Consequence type",
                                 type: "CONSEQUENCE_TYPE_FILTER",
                                 tooltip: tooltips.consequenceTypeSelect,
@@ -212,7 +212,7 @@ export default class OpencgaKnockoutAnalysis { // extends LitElement
 
     result(job, opencgaSession, cellbaseClient) {
         // this.check(job);
-        return html`<opencga-knockout-analysis-result .job=${job} .opencgaSession="${opencgaSession}" .cellbaseClient="${cellbaseClient}"></opencga-knockout-analysis-result>`;
+        return html`<opencga-knockout-analysis-result .jobId=${job?.id} .opencgaSession="${opencgaSession}" .cellbaseClient="${cellbaseClient}"></opencga-knockout-analysis-result>`;
     }
 
     // render() {

@@ -36,7 +36,7 @@ export default class KnockoutVariantIndividual extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            variantId: {
+            variant: {
                 type: Object
             },
             config: {
@@ -56,7 +56,7 @@ export default class KnockoutVariantIndividual extends LitElement {
         if (changedProperties.has("opencgaSession")) {
         }
 
-        if (changedProperties.has("variantId")) {
+        if (changedProperties.has("variant")) {
             this.prepareData();
             this.renderTable();
         }
@@ -68,6 +68,8 @@ export default class KnockoutVariantIndividual extends LitElement {
 
     prepareData() {
         // TODO
+
+        this.tableData = this.variant.data;
 
     }
 
@@ -99,12 +101,12 @@ export default class KnockoutVariantIndividual extends LitElement {
     _initTableColumns() {
         return [
             {
-                title: "Individual",
-                field: "id"
+                title: "Individual Id",
+                field: "sampleId"
             },
             {
                 title: "Sample",
-                field: "sample"
+                field: "sampleId"
             },
             {
                 title: "Type",
@@ -112,7 +114,7 @@ export default class KnockoutVariantIndividual extends LitElement {
             },
             {
                 title: "GT",
-                field: "genotype"
+                field: "variant.genotype"
             },
             {
                 title: "DP",
@@ -120,7 +122,7 @@ export default class KnockoutVariantIndividual extends LitElement {
             },
             {
                 title: "Filter",
-                field: "filter"
+                field: "variant.filter"
             },
             {
                 title: "Qual",
@@ -138,7 +140,7 @@ export default class KnockoutVariantIndividual extends LitElement {
 
     render() {
         return html`
-            <h3>Individual presenting ${this.variantId}</h3>
+            <h3>Individual presenting ${this.variant?.id}</h3>
             <div class="row">
                 <table id="${this.gridId}"></table>
             </div>

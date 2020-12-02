@@ -79,10 +79,14 @@ export default class OpencgaFamilyView extends LitElement {
     }
 
     familyIdObserver() {
+        this.noResults = false;
         if (this.opencgaSession && this.familyId) {
             this.opencgaSession.opencgaClient.families().info(this.familyId, {study: this.opencgaSession.study.fqn})
                 .then(response => {
                     this.family = response.getResult(0);
+                    if (!this.family) {
+                        this.noResults = true;
+                    }
                     this.requestUpdate();
                 })
                 .catch(function (reason) {
@@ -92,10 +96,14 @@ export default class OpencgaFamilyView extends LitElement {
     }
 
     individualIdObserver() {
+        this.noResults = false;
         if (this.opencgaSession && this.individualId) {
             this.opencgaSession.opencgaClient.families().search({members: this.individualId, study: this.opencgaSession.study.fqn})
                 .then(response => {
                     this.family = response.getResult(0); // TODO FIXME it takes into account just the first family
+                    if (!this.family) {
+                        this.noResults = true;
+                    }
                     this.requestUpdate();
                 })
                 .catch(function (reason) {
@@ -241,9 +249,11 @@ export default class OpencgaFamilyView extends LitElement {
     }
 
     render() {
-        return html`
+        return this.family ? html`
             <data-form .data=${this.family} .config="${this._config}"></data-form>
-        `;
+        ` : this.noResults ? html`
+                <div class="alert alert-info"><i class="fas fa-3x fa-info-circle align-middle"></i> No family found.</div>
+            ` : null;
     }
 
 }

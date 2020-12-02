@@ -58,7 +58,6 @@ export default class KnockoutIndividualVariants extends LitElement {
         }
 
         if (changedProperties.has("individual")) {
-            console.log("this.individual", this.individual)
             this.prepareData();
             this.renderTable();
         }
@@ -69,7 +68,7 @@ export default class KnockoutIndividualVariants extends LitElement {
     }
 
     prepareData() {
-        if(this.individual){
+        if (this.individual) {
             const variants = this.individual.genes.flatMap(gene => gene.transcripts.flatMap(transcript => transcript.variants));
             this.tableData = variants;
         }
@@ -85,10 +84,10 @@ export default class KnockoutIndividualVariants extends LitElement {
             sidePagination: "local",
             uniqueId: "id",
             pagination: true,
-            //pageSize: this._config.pageSize,
-            //pageList: this._config.pageList,
+            // pageSize: this._config.pageSize,
+            // pageList: this._config.pageList,
             paginationVAlign: "both",
-            //formatShowingRows: this.gridCommons.formatShowingRows,
+            // formatShowingRows: this.gridCommons.formatShowingRows,
             gridContext: this,
             formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
             onClickRow: (row, selectedElement, field) => {

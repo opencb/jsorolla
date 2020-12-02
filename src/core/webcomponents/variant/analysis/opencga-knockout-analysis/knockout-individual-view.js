@@ -57,7 +57,7 @@ export default class KnockoutIndividualView extends LitElement {
         this._config = this.getDefaultConfig();
         this.data = knockoutDataIndividuals;
         this.gridId = this._prefix + "KnockoutGrid";
-        //this.prepareData();
+        // this.prepareData();
     }
 
     connectedCallback() {
@@ -86,12 +86,7 @@ export default class KnockoutIndividualView extends LitElement {
         }
 
         if (changedProperties.has("jobId")) {
-            this.opencgaSession.opencgaClient.variants().queryKnockoutIndividual({job: this.jobId, study: this.opencgaSession.study.fqn}).then(restResponse => {
-                // console.log(restResponse.getResults())
-                // console.log(knockoutDataGene)
-                this.tableData = restResponse.getResults();
-                this.renderTable();
-            });
+            this.renderTable();
         }
     }
 
@@ -103,7 +98,7 @@ export default class KnockoutIndividualView extends LitElement {
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
-            data: this.tableData,
+            // data: this.tableData,
             columns: this._initTableColumns(),
             sidePagination: "local",
             // Set table properties, these are read from config propertyparticularly tough
@@ -114,9 +109,20 @@ export default class KnockoutIndividualView extends LitElement {
             paginationVAlign: "both",
             // formatShowingRows: this.gridCommons.formatShowingRows,
             gridContext: this,
+            ajax: params => {
+                this.opencgaSession.opencgaClient.variants().queryKnockoutIndividual({job: this.jobId, study: this.opencgaSession.study.fqn})
+                    .then(restResponse => {
+                        console.log("restResponse", restResponse)
+                        this.tableData = restResponse.getResults();
+                        params.success(this.tableData);
+                    }).catch(e => {
+                        console.error(e);
+                        params.error(e);
+                    });
+            },
             formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
             onClickRow: (row, selectedElement, field) => {
-                this.individual = {id: row.sampleId, ...row}; // TODO temp fix for missing id
+                this.individual = {id: row.sampleId, ...row}; // TODO temp fix for missing id;
                 this.gridCommons.onClickRow(row.id, row, selectedElement);
                 this.requestUpdate();
             },
@@ -125,9 +131,11 @@ export default class KnockoutIndividualView extends LitElement {
             },
             onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse),
             onPostBody: data => {
-                // We call onLoadSuccess to select first row
                 this.gridCommons.onLoadSuccess({rows: data, total: data.length});
-                this.individual = {id: data[0].sampleId, ...data[0]}; // TODO temp fix for missing id
+                if (data[0]) {
+                    // it selects the first row (we don't use `selectrow` event in this case)
+                    this.individual = {id: data[0].sampleId, ...data[0]}; // TODO temp fix for missing id;
+                }
                 this.requestUpdate();
             }
 
@@ -251,7 +259,7 @@ export default class KnockoutIndividualView extends LitElement {
                     id: "family-view",
                     name: "Family",
                     render: (individual, active, opencgaSession) => {
-                        return html`${JSON.stringify(individual.id)}<opencga-family-view .individualId="${individual.id}" .opencgaSession="${opencgaSession}"></opencga-family-view>`;
+                        return html`<opencga-family-view .individualId="${individual.id}" .opencgaSession="${opencgaSession}"></opencga-family-view>`;
                     }
                 }
             ]
@@ -267,7 +275,7 @@ export default class KnockoutIndividualView extends LitElement {
             <div class="row">
                 <table id="${this.gridId}"></table>
             </div>
-            ${this.individual ? html`<detail-tabs .data="${this.individual}" .config="${this.detailConfig}" .opencgaSession="${this.opencgaSession}"></detail-tabs>`: ""};
+            ${this.individual ? html`<detail-tabs .data="${this.individual}" .config="${this.detailConfig}" .opencgaSession="${this.opencgaSession}"></detail-tabs>`: ""}
         `;
     }
 

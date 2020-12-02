@@ -36,7 +36,7 @@ export default class KnockoutVariantAllelePairs extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            variantId: {
+            variant: {
                 type: Object
             },
             config: {

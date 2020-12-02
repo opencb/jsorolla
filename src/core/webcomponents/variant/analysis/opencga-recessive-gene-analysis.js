@@ -41,7 +41,7 @@ class OpencgaRecessiveGeneAnalysisConfig {
                         title: "Select Gene",
                         collapsed: false,
                         parameters: [
-                            /*{
+                            /* {
                                 id: "sample",
                                 title: "Select samples",
                                 type: "SAMPLE_FILTER",
@@ -50,14 +50,14 @@ class OpencgaRecessiveGeneAnalysisConfig {
                                 fileUpload: true
                             },*/
                             {
-                                id: "xref",
+                                id: "gene",
                                 title: "Select gene",
                                 type: "GENE_FILTER",
                                 addButton: true,
                                 showList: true,
                                 fileUpload: true
-                            },
-                            /*{
+                            }
+                            /* {
                                 id: "panel",
                                 title: "Select disease panel",
                                 type: "DISEASE_PANEL_FILTER",
@@ -86,11 +86,11 @@ class OpencgaRecessiveGeneAnalysisConfig {
                                 title: "Variant types",
                                 type: "VARIANT_TYPE_FILTER",
                                 types: ["SNV", "INDEL", "INSERTION", "DELETION"],
-                                tooltip: tooltips.type,
-                                //layout: "horizontal"
+                                tooltip: tooltips.type
+                                // layout: "horizontal"
                             },
                             {
-                                id: "ct",
+                                id: "consequenceType",
                                 title: "Consequence type",
                                 type: "CONSEQUENCE_TYPE_FILTER",
                                 tooltip: tooltips.consequenceTypeSelect,
@@ -113,7 +113,7 @@ class OpencgaRecessiveGeneAnalysisConfig {
                                 type: "checkbox",
                                 defaultValue: "1,2",
                                 allowedValues:
-                                    [{id: 0, name: "No parents"}, {id:1, name: "One Parents"}, {id: 2, name: "Two Parents"}]
+                                    [{id: 0, name: "No parents"}, {id: 1, name: "One Parents"}, {id: 2, name: "Two Parents"}]
 
                             },
                             {
@@ -122,11 +122,11 @@ class OpencgaRecessiveGeneAnalysisConfig {
                                 type: "boolean",
                                 defaultValue: "no",
                                 tooltip: "other info here"
-                                //allowedValues: ["father", "mother"]
-                            },
-                            ]
+                                // allowedValues: ["father", "mother"]
+                            }
+                        ]
                     }
-                    /*{
+                    /* {
                         title: "Configuration Parameters",
                         collapsed: false,
                         parameters: [
@@ -164,7 +164,7 @@ class OpencgaRecessiveGeneAnalysisConfig {
                     visible: false,
                     description: "",
                     button: "Run",
-                    validate: function(params) {
+                    validate: function (params) {
                         alert("test:" + params);
                     }
                 }
@@ -175,7 +175,7 @@ class OpencgaRecessiveGeneAnalysisConfig {
 }
 
 
-export default class OpencgaRecessiveGeneAnalysis  { // extends LitElement
+export default class OpencgaRecessiveGeneAnalysis { // extends LitElement
 
     constructor(config) {
         this._config = {...OpencgaRecessiveGeneAnalysisConfig.get(), ...config};
@@ -190,8 +190,8 @@ export default class OpencgaRecessiveGeneAnalysis  { // extends LitElement
     }
 
     execute(e, opencgaSession) {
-        let {data, params} = e.detail;
-        let body = {};
+        const {data, params} = e.detail;
+        const body = {};
         // data.sample ? body.sample = data.sample.join(",") : null;
         data.sample ? body.sample = data.sample : null;
         data.gene ? body.gene = data.gene.join(",") : null;
@@ -210,9 +210,9 @@ export default class OpencgaRecessiveGeneAnalysis  { // extends LitElement
         `;
     }
 
-    result(job, opencgaSession) {
+    result(job, opencgaSession, cellbaseClient) {
         // this.check(job);
-        return html`<opencga-knockout-analysis-result .job=${job} .opencgaSession="${opencgaSession}"></opencga-knockout-analysis-result>`;
+        return html`<opencga-knockout-analysis-result .jobId=${job?.id} .opencgaSession="${opencgaSession}" .cellbaseClient="${cellbaseClient}"></opencga-knockout-analysis-result>`;
     }
 
     // render() {
@@ -222,4 +222,5 @@ export default class OpencgaRecessiveGeneAnalysis  { // extends LitElement
     //         return this.result();
     //     }
     // }
+
 }
