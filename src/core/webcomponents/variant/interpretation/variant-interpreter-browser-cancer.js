@@ -148,7 +148,8 @@ class VariantInterpreterBrowserCancer extends LitElement {
                     }
                     this.query = {
                         ...this.query,
-                        fileData: fileDataFilters.join(",")
+                        fileData: fileDataFilters.join(","),
+                        // populationFrequencyAlt: "1kG_phase3:ALL<=0.001",
                     };
                     // NOTE: We need to update the _config to update the dynamic VCF caller filters
                     this._config = {...this.getDefaultConfig(), ...this.config};

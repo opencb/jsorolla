@@ -79,8 +79,8 @@ export default class VariantInterpreterGrid extends LitElement {
     connectedCallback() {
         super.connectedCallback();
 
-        this._config = {...this.getDefaultConfig(), ...this.config};
-        // this.gridCommons = new GridCommons(this.gridId, this, this._config);
+        this._config = {...this.getDefaultConfig(), ...this.config, ...this.opencgaSession.user.configs?.IVA?.interpreterGrid};
+        this.gridCommons = new GridCommons(this.gridId, this, this._config);
     }
 
     firstUpdated(_changedProperties) {
@@ -102,9 +102,8 @@ export default class VariantInterpreterGrid extends LitElement {
         }
 
         if (changedProperties.has("config")) {
-            // NOTE: This component allow the user to change the config, we need to keep users changes.
-            // FIXME
-            this._config = {...this.getDefaultConfig(), ...this.config, ...this.opencgaSession.user.configs?.IVA?.interpreterGrid, ...this._config};
+            this._config = {...this.getDefaultConfig(), ...this.config, ...this.opencgaSession.user.configs?.IVA?.interpreterGrid};
+            this.gridCommons = new GridCommons(this.gridId, this, this._config);
             // Nacho (14/11/2020) - Commented since it does not look necessary
             // this.requestUpdate();
         }
@@ -117,7 +116,7 @@ export default class VariantInterpreterGrid extends LitElement {
 
     clinicalAnalysisObserver() {
         // We need to load server config always.
-        this._config = {...this.getDefaultConfig(), ...this.config, ...this._config, ...this.opencgaSession.user.configs?.IVA?.interpreterGrid};
+        this._config = {...this.getDefaultConfig(), ...this.config, ...this.opencgaSession.user.configs?.IVA?.interpreterGrid};
 
         // Make sure somatic sample is the first one
         if (this.clinicalAnalysis) {
@@ -215,6 +214,8 @@ export default class VariantInterpreterGrid extends LitElement {
 
                         approximateCount: true,
                         approximateCountSamplingSize: 200,
+
+                        // populationFrequencyAlt: "1kG_phase3:ALL<0.001",
 
                         ...this.query,
                         // sample: this.clinicalAnalysis.proband.samples[0].id + ":0/0,0/1,1/1",
@@ -931,27 +932,24 @@ export default class VariantInterpreterGrid extends LitElement {
         $("#" + this.gridId).bootstrapTable("showLoading");
     }
 
+
+    onGridConfigChange(e) {
+        this.__config = e.detail.value;
+    }
+
     async onApplySettings(e) {
-        // this.requestUpdate();
-        // call to user config:  "iva.interpreter.grid": this_config
         try {
-            // id:"IVA" is defined in opencgaClient.updateUserConfigs
             this._config = {...this.getDefaultConfig(), ...this.opencgaSession.user.configs?.IVA?.interpreterGrid, ...this.__config};
             const userConfig = await this.opencgaSession.opencgaClient.updateUserConfigs({
+                ...this.opencgaSession.user.configs.IVA,
                 interpreterGrid: this._config
             });
-            // this._config = {...this.getDefaultConfig(), ...this.config, ...userConfig.interpreterGrid};
-            // this._config = this.__config;
-
             this.renderVariants();
         } catch (e) {
             UtilsNew.notifyError(e);
         }
     }
 
-    onGridConfigChange(e) {
-        this.__config = e.detail.value;
-    }
 
     getRightToolbar() {
         return [
