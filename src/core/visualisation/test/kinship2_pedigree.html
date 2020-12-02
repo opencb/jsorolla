@@ -63,7 +63,7 @@
          */
         $pos.forEach((row, genIndx) => {
             row.forEach((xCoord, i) => {
-                if(xCoord !== 0) {
+                if (xCoord !== 0) {
                     const X = rescale_linear(xCoord, minPos, maxPos, 50, 800);
                     const id = $nid[genIndx][i];
 
@@ -90,7 +90,7 @@
          */
         $spouse.forEach((row, genIndx) => {
             row.forEach((spouseFlag, i) => {
-                if(spouseFlag !== 0) {
+                if (spouseFlag !== 0) {
                     const id = $nid[genIndx][i];
                     let source = getNode(id, nodes);
                     source.spouse = $nid[genIndx][i + 1];
@@ -109,7 +109,7 @@
         $fam.forEach((row, genIndx) => {
             row.forEach((parentId, i) => {
                 //the parents of the current node are parentId and parentId+1
-                if(parentId !==0) {
+                if (parentId !==0) {
                     //console.log(nodes, parentId)
                     //console.log(getNode(parentId, nodes))
                     const parentA = getNode(parentId, nodes);
