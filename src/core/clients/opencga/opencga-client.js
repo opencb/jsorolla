@@ -296,6 +296,7 @@ export class OpenCGAClient {
 
                         globalThis.dispatchEvent(new CustomEvent("signingIn", {detail: {value: "Updating User config"}}));
                         await this.updateUserConfigs({
+                            ...session.user.configs.IVA,
                             lastAccess: moment(new Date()).valueOf()
                         });
 

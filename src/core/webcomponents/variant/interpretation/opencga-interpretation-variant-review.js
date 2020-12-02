@@ -22,6 +22,7 @@ export default class OpencgaInterpretationVariantReview extends LitElement {
 
     constructor() {
         super();
+
         this._init();
     }
 
@@ -42,8 +43,9 @@ export default class OpencgaInterpretationVariantReview extends LitElement {
     }
 
     _init(){
-        this._prefix = "ovcs" + UtilsNew.randomString(6);
-        this.save = {};
+        this._prefix = UtilsNew.randomString(8);
+
+        // this.save = {};
     }
 
     updated(changedProperties) {
@@ -54,6 +56,8 @@ export default class OpencgaInterpretationVariantReview extends LitElement {
 
     variantObserver() {
         // this._fetchCohortStats(e);
+        // this.variant;
+        // this.requestUpdate();
     }
 
     getSaveConfig() {
@@ -67,7 +71,7 @@ export default class OpencgaInterpretationVariantReview extends LitElement {
             //     okText: "Save",
             // },
             display: {
-                style: "margin: 0px 25px 0px 0px",
+                style: "margin: 25px 50px 0px 0px",
                 // mode: {
                 //     type: "modal",
                 //     title: "Save Variant Stats",
@@ -81,14 +85,6 @@ export default class OpencgaInterpretationVariantReview extends LitElement {
             sections: [
                 {
                     elements: [
-                        // {
-                        //     name: "Tier",
-                        //     field: "id",
-                        //     type: "input-text",
-                        //     display: {
-                        //         placeholder: "Add a filter ID",
-                        //     }
-                        // },
                         {
                             name: "Status",
                             field: "status",
@@ -102,8 +98,8 @@ export default class OpencgaInterpretationVariantReview extends LitElement {
                             field: "discussion",
                             type: "input-text",
                             display: {
-                                placeholder: "Add a filter description",
-                                rows: 2
+                                placeholder: "Add a discussion",
+                                rows: 5
                             }
                         },
                         {
@@ -123,43 +119,11 @@ export default class OpencgaInterpretationVariantReview extends LitElement {
 
     render() {
         return html`
-            <data-form  .data=${this.save}
+            <data-form  .data=${this.variant}
                         .config="${this.getSaveConfig()}"
-                        @fieldChange="${e => this.onSaveFieldChange(e)}" @submit="${this.onSave}">
+                        @fieldChange="${e => this.onSaveFieldChange(e)}" @
+                        submit="${this.onSave}">
             </data-form>
-        `;
-
-        return html`
-            <span>${this.variant ? this.variant.id : ""}</span>
-            <div class="form-horizontal" data-toggle="validator" role="form">
-
-                <div class="form-group">
-                    <label class="control-label col-md-1 jso-label-title">Tier</label>
-                    <div class="col-md-3">
-                        <input type="text" id="${this._prefix}IDInterpretation" class="${this._prefix}TextInput form-control"
-                               placeholder="ID of the interpretation" data-field="id" @input="${this.onInputChange}"
-                               value="">
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label class="control-label col-md-1 jso-label-title">Status</label>
-                    <div class="col-md-3">
-                        <input type="text" id="${this._prefix}CommentInterpretation" class="${this._prefix}TextInput form-control"
-                               placeholder="Add a comment" data-field="comment">
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label class="control-label col-md-1 jso-label-title">Comment</label>
-                    <div class="col-md-3">
-                        <textarea id="${this._prefix}CommentInterpretation" class="${this._prefix}TextInput form-control"
-                                  placeholder="Add a comment" data-field="comment"
-                                  @input="${this.onInputChange}"></textarea>
-                    </div>
-                </div>
-
-            </div>
         `;
     }
 }

@@ -49,6 +49,9 @@ export default class VariantInterpreterGrid extends LitElement {
             query: {
                 type: Object
             },
+            review: {
+                type: Boolean
+            },
             config: {
                 type: Object
             }
@@ -71,6 +74,7 @@ export default class VariantInterpreterGrid extends LitElement {
 
         this.gridId = this._prefix + "VariantBrowserGrid";
         this.checkedVariants = new Map();
+        this.review = false;
 
         // Set colors
         this.consequenceTypeColors = VariantGridFormatter.assignColors(consequenceTypes, proteinSubstitutionScore);
@@ -79,8 +83,8 @@ export default class VariantInterpreterGrid extends LitElement {
     connectedCallback() {
         super.connectedCallback();
 
-        this._config = {...this.getDefaultConfig(), ...this.config};
-        // this.gridCommons = new GridCommons(this.gridId, this, this._config);
+        this._config = {...this.getDefaultConfig(), ...this.config, ...this.opencgaSession.user.configs?.IVA?.interpreterGrid};
+        this.gridCommons = new GridCommons(this.gridId, this, this._config);
     }
 
     firstUpdated(_changedProperties) {
@@ -102,9 +106,8 @@ export default class VariantInterpreterGrid extends LitElement {
         }
 
         if (changedProperties.has("config")) {
-            // NOTE: This component allow the user to change the config, we need to keep users changes.
-            // FIXME
-            this._config = {...this.getDefaultConfig(), ...this.config, ...this.opencgaSession.user.configs?.IVA?.interpreterGrid, ...this._config};
+            this._config = {...this.getDefaultConfig(), ...this.config, ...this.opencgaSession.user.configs?.IVA?.interpreterGrid};
+            this.gridCommons = new GridCommons(this.gridId, this, this._config);
             // Nacho (14/11/2020) - Commented since it does not look necessary
             // this.requestUpdate();
         }
@@ -117,7 +120,7 @@ export default class VariantInterpreterGrid extends LitElement {
 
     clinicalAnalysisObserver() {
         // We need to load server config always.
-        this._config = {...this.getDefaultConfig(), ...this.config, ...this._config, ...this.opencgaSession.user.configs?.IVA?.interpreterGrid};
+        this._config = {...this.getDefaultConfig(), ...this.config, ...this.opencgaSession.user.configs?.IVA?.interpreterGrid};
 
         // Make sure somatic sample is the first one
         if (this.clinicalAnalysis) {
@@ -215,6 +218,8 @@ export default class VariantInterpreterGrid extends LitElement {
 
                         approximateCount: true,
                         approximateCountSamplingSize: 200,
+
+                        // populationFrequencyAlt: "1kG_phase3:ALL<0.001",
 
                         ...this.query,
                         // sample: this.clinicalAnalysis.proband.samples[0].id + ":0/0,0/1,1/1",
@@ -327,6 +332,8 @@ export default class VariantInterpreterGrid extends LitElement {
     onReviewClick(e) {
         if (this.checkedVariants) {
             this.variantReview = this.checkedVariants.get(e.currentTarget.dataset.variantId);
+            this.requestUpdate();
+
             $("#" + this._prefix + "ReviewSampleModal").modal("show");
         }
     }
@@ -351,7 +358,7 @@ export default class VariantInterpreterGrid extends LitElement {
 
             detailHtml += "<div style='padding: 10px 0px 5px 25px'><h4>Molecular Consequence</h4></div>";
             detailHtml += "<div style='padding: 5px 50px'>";
-            detailHtml += VariantInterpreterGridFormatter.reportedEventDetailFormatter(value, row, this.variantGrid, this.variantGrid.query, this.variantGrid._config);
+            detailHtml += VariantInterpreterGridFormatter.reportedEventDetailFormatter(value, row, this.variantGrid, this.variantGrid.query, this.variantGrid.review, this.variantGrid._config);
             detailHtml += "</div>";
 
             detailHtml += "<div style='padding: 25px 0px 5px 25px'><h4>Consequence Types</h4></div>";
@@ -564,7 +571,8 @@ export default class VariantInterpreterGrid extends LitElement {
                     events: {
                         "click button": this.onReviewClick.bind(this)
                     },
-                    visible: this._config.showReview
+                    // visible: this._config.showReview
+                    visible: this.review
                 },
                 {
                     title: "Actions",
@@ -931,26 +939,35 @@ export default class VariantInterpreterGrid extends LitElement {
         $("#" + this.gridId).bootstrapTable("showLoading");
     }
 
+
+    onGridConfigChange(e) {
+        this.__config = e.detail.value;
+    }
+
     async onApplySettings(e) {
-        // this.requestUpdate();
-        // call to user config:  "iva.interpreter.grid": this_config
         try {
-            // id:"IVA" is defined in opencgaClient.updateUserConfigs
             this._config = {...this.getDefaultConfig(), ...this.opencgaSession.user.configs?.IVA?.interpreterGrid, ...this.__config};
             const userConfig = await this.opencgaSession.opencgaClient.updateUserConfigs({
+                ...this.opencgaSession.user.configs.IVA,
                 interpreterGrid: this._config
             });
-            // this._config = {...this.getDefaultConfig(), ...this.config, ...userConfig.interpreterGrid};
-            // this._config = this.__config;
-
             this.renderVariants();
         } catch (e) {
             UtilsNew.notifyError(e);
         }
     }
 
-    onGridConfigChange(e) {
-        this.__config = e.detail.value;
+    async onSaveVariant(e) {
+        try {
+            this._config = {...this.getDefaultConfig(), ...this.opencgaSession.user.configs?.IVA?.interpreterGrid, ...this.__config};
+            const userConfig = await this.opencgaSession.opencgaClient.updateUserConfigs({
+                ...this.opencgaSession.user.configs.IVA,
+                interpreterGrid: this._config
+            });
+            this.renderVariants();
+        } catch (e) {
+            UtilsNew.notifyError(e);
+        }
     }
 
     getRightToolbar() {
@@ -1002,7 +1019,7 @@ export default class VariantInterpreterGrid extends LitElement {
                         </opencga-interpretation-variant-review>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
-                            <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+                            <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${e => this.onSaveVariant(e)}">OK</button>
                         </div>
                     </div>
                 </div>
@@ -1018,7 +1035,9 @@ export default class VariantInterpreterGrid extends LitElement {
                         </div>
                         <div class="modal-body">
                             <div class="container-fluid">
-                                <variant-interpreter-grid-config .config="${this._config}" @configChange="${this.onGridConfigChange}"></variant-interpreter-grid-config>
+                                <variant-interpreter-grid-config .config="${this._config}" 
+                                                                 @configChange="${this.onGridConfigChange}">
+                                </variant-interpreter-grid-config>
                             </div>
                         </div>
                         <div class="modal-footer">
