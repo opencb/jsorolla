@@ -34,7 +34,8 @@
       "asyncArrow": "always"
     }],
     "space-after-keywords": "error",
-    "space-in-parens": ["error", "never"]
+    "space-in-parens": ["error", "never"],
+    "no-case-declarations": 0
   },
   "plugins": [
     "cypress"
