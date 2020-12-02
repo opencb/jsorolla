@@ -20,7 +20,7 @@ import UtilsNew from "../../../utilsNew.js";
 import PolymerUtils from "../../PolymerUtils.js";
 // import "./variant-interpreter-review-summary.js";
 import "./variant-interpreter-review-primary.js";
-import "./clinical-interpretation-summary-editor.js";
+import "../../clinical/clinical-interpretation-summary-editor.js";
 
 
 export default class VariantInterpreterReview extends LitElement {

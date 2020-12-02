@@ -542,9 +542,7 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                                     ? html`
                                         <variant-interpreter-grid .opencgaSession="${this.opencgaSession}"
                                                                   .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                                  .consequenceTypes="${consequenceTypes}"
-                                                                  .populationFrequencies="${populationFrequencies}"
-                                                                  .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
+                                                                  .review="${true}"
                                                                   .config="${this._config.result.grid}"
                                                                   @selected="${this.selectedGene}"
                                                                   @selectrow="${this.onSelectVariant}"

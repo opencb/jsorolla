@@ -232,7 +232,7 @@ export default class VariantInterpreterGridFormatter {
         return fileAttrHtml;
     }
 
-    static reportedEventDetailFormatter(value, row, variantGrid, query, config, consequenceTypeColors) {
+    static reportedEventDetailFormatter(value, row, variantGrid, query, review, config) {
         debugger
         if (row && row.evidences.length > 0) {
             // Sort by Tier level
@@ -287,14 +287,14 @@ export default class VariantInterpreterGridFormatter {
                                         <th rowspan="2">Panel</th>
                                         <th rowspan="2">Mode of Inheritance</th>
                                         <th rowspan="2">Actionable</th>
-                                        <th rowspan="1" colspan="${config.evidences?.showSelectCheckbox ? 5 : 3}" style="text-align: center; padding-top: 5px">Classification</th>
+                                        <th rowspan="1" colspan="${review ? 5 : 3}" style="text-align: center; padding-top: 5px">Classification</th>
                                     </tr>
                                     <tr>
                                         <th rowspan="1" style="padding-top: 5px">ACMG</th>
                                         <th rowspan="1">Clinical Significance</th>
                                         <th rowspan="1">Tier</th>
-                                        ${config.evidences?.showSelectCheckbox ? `<th rowspan="1">Select</th>` : ""}
-                                        ${config.evidences?.showSelectCheckbox ? `<th rowspan="1">Edit</th>` : ""}
+                                        ${review ? `<th rowspan="1">Select</th>` : ""}
+                                        ${review ? `<th rowspan="1">Edit</th>` : ""}
                                     </tr>
                                 </thead>
                                 <tbody>`;
@@ -308,12 +308,12 @@ export default class VariantInterpreterGridFormatter {
                                     <th rowspan="2">Panel</th>
                                     <th rowspan="2">Role in Cancer</th>
                                     <th rowspan="2">Actionable</th>
-                                    <th rowspan="1" colspan="${config.evidences?.showSelectCheckbox ? 3 : 1}" style="text-align: center; padding-top: 5px">Classification</th>
+                                    <th rowspan="1" colspan="${review ? 3 : 1}" style="text-align: center; padding-top: 5px">Classification</th>
                                 </tr>
                                 <tr>
                                     <th rowspan="1" style="text-align: center; padding-top: 5px">Tier</th>
-                                    ${config.evidences?.showSelectCheckbox ? `<th rowspan="1">Select</th>` : ""}
-                                    ${config.evidences?.showSelectCheckbox ? `<th rowspan="1">Edit</th>` : ""}
+                                    ${review ? `<th rowspan="1">Select</th>` : ""}
+                                    ${review ? `<th rowspan="1">Edit</th>` : ""}
                                 </tr>
                             </thead>
                             <tbody>`;
@@ -489,7 +489,7 @@ export default class VariantInterpreterGridFormatter {
                 }
 
                 let checboxHtml = "";
-                if (config.evidences?.showSelectCheckbox) {
+                if (review) {
                     let checked = "";
                     // if (transcriptFlagChecked && tier !== "-") {
                     //     checked = "checked";
@@ -519,7 +519,7 @@ export default class VariantInterpreterGridFormatter {
                             <td>${acmg}</td>
                             <td>${clinicalSignificance}</td>
                             <td>${tier}</td>
-                            ${config.evidences?.showSelectCheckbox ? `<td>${checboxHtml}</td><td>${editButtonLink}</td>` : ""}
+                            ${review ? `<td>${checboxHtml}</td><td>${editButtonLink}</td>` : ""}
                         </tr>`;
                 } else {
                     ctHtml += `
@@ -532,7 +532,7 @@ export default class VariantInterpreterGridFormatter {
                             <td>${roleInCancer}</td>
                             <td>${actionable}</td>
                             <td>${tier}</td>
-                            ${config.evidences?.showSelectCheckbox ? `<td>${checboxHtml}</td><td>${editButtonLink}</td>` : ""}
+                            ${review ? `<td>${checboxHtml}</td><td>${editButtonLink}</td>` : ""}
                         </tr>`;
                 }
             }
