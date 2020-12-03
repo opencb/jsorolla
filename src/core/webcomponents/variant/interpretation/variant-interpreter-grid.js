@@ -16,6 +16,7 @@
 
 import {html, LitElement} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../utilsNew.js";
+import ClinicalAnalysisManager from "../../clinical/clinical-analysis-manager.js";
 import VariantInterpreterGridFormatter from "./variant-interpreter-grid-formatter.js";
 import VariantGridFormatter from "../variant-grid-formatter.js";
 import GridCommons from "../../commons/grid-commons.js";
@@ -85,6 +86,7 @@ export default class VariantInterpreterGrid extends LitElement {
 
         this._config = {...this.getDefaultConfig(), ...this.config, ...this.opencgaSession.user.configs?.IVA?.interpreterGrid};
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
+        this.clinicalAnalysisManager = new ClinicalAnalysisManager(this.clinicalAnalysis, this.opencgaSession);
     }
 
     firstUpdated(_changedProperties) {
@@ -116,11 +118,13 @@ export default class VariantInterpreterGrid extends LitElement {
     opencgaSessionObserver() {
         this._config = {...this.getDefaultConfig(), ...this.config, ...this.opencgaSession.user.configs?.IVA?.interpreterGrid};
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
+        this.clinicalAnalysisManager = new ClinicalAnalysisManager(this.clinicalAnalysis, this.opencgaSession);
     }
 
     clinicalAnalysisObserver() {
         // We need to load server config always.
         this._config = {...this.getDefaultConfig(), ...this.config, ...this.opencgaSession.user.configs?.IVA?.interpreterGrid};
+        this.clinicalAnalysisManager = new ClinicalAnalysisManager(this.clinicalAnalysis, this.opencgaSession);
 
         // Make sure somatic sample is the first one
         if (this.clinicalAnalysis) {
@@ -422,8 +426,20 @@ export default class VariantInterpreterGrid extends LitElement {
 
     reviewFormatter(value, row, index) {
         return `<button class="btn btn-link reviewButton" data-variant-id="${row.id}">
-                    <i class="fa fa-edit icon-padding reviewButton" aria-hidden="true" ></i>&nbsp;Edit
+                    <i class="fa fa-edit icon-padding reviewButton" aria-hidden="true"></i>&nbsp;Edit
                 </button>`;
+        // return `
+        //     <div>
+        //         <button class="btn btn-link reviewButton" data-variant-id="${row.id}">
+        //             <i class="fa fa-edit icon-padding reviewButton" aria-hidden="true" ></i>&nbsp;Edit
+        //         </button>
+        //     </div>
+        //     <div>
+        //         <opencga-interpretation-variant-review .opencgaSession="${this.opencgaSession}"
+        //                                                .variant="${row}"
+        //                                                mode="modal">
+        //         </opencga-interpretation-variant-review>
+        //     </div>`;
     }
 
     _createDefaultColumns() {
@@ -957,17 +973,22 @@ export default class VariantInterpreterGrid extends LitElement {
         }
     }
 
-    async onSaveVariant(e) {
-        try {
-            this._config = {...this.getDefaultConfig(), ...this.opencgaSession.user.configs?.IVA?.interpreterGrid, ...this.__config};
-            const userConfig = await this.opencgaSession.opencgaClient.updateUserConfigs({
-                ...this.opencgaSession.user.configs.IVA,
-                interpreterGrid: this._config
-            });
-            this.renderVariants();
-        } catch (e) {
-            UtilsNew.notifyError(e);
+
+    onVariantChange(e) {
+        this._variantChanged = e.detail.value;
+        // this._variantUpdates = e.detail.update;
+    }
+
+    onSaveVariant(e) {
+        if (this._variantChanged) {
+            this.clinicalAnalysisManager.updateVariant(this._variantChanged, this.clinicalAnalysis.interpretation);
+            this._variantChanged = null;
         }
+    }
+
+    onCancelVariant(e) {
+        debugger
+        this._variantChanged = null;
     }
 
     getRightToolbar() {
@@ -1015,7 +1036,9 @@ export default class VariantInterpreterGrid extends LitElement {
                             <h3>Review Variant</h3>
                         </div>
                         <opencga-interpretation-variant-review .opencgaSession="${this.opencgaSession}"
-                                                               .variant="${this.variantReview}">
+                                                               .variant="${this.variantReview}"
+                                                               mode=${"form"}
+                                                               @variantChange="${e => this.onVariantChange(e)}">
                         </opencga-interpretation-variant-review>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>

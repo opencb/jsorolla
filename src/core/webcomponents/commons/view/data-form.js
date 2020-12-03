@@ -953,7 +953,9 @@ export default class DataForm extends LitElement {
             `;
         }
 
-        const sectionTitleIcon = this.config.display?.title?.class ?? "";
+        const title = this.config.display?.mode?.title ? this.config.display.mode.title : this.config.title;
+        const titleClass = this.config.display?.title?.class ?? "";
+        const buttonClasses = this.config.buttons?.classes ? this.config.buttons.classes : "btn btn-primary ripple";
 
         if (this.config.display && this.config.display?.mode?.type === "card") {
             return html`
@@ -973,31 +975,33 @@ export default class DataForm extends LitElement {
         }
 
         if (this.config.display && this.config.display?.mode?.type === "modal") {
-            const title = this.config.display.mode.title ? this.config.display.mode.title : this.config.title;
             const buttonClass = this.config.display.mode.buttonClass ? this.config.display.mode.buttonClass : "btn-primary";
             return html`
                 <button type="button" class="btn ${buttonClass} ${this.config.display.mode.disabled ? "disabled" : null}" data-toggle="modal" data-target="#${this._prefix}DataModal">
                     <i class="${this.config.icon ? this.config.icon : "fas fa-info-circle"} icon-padding" aria-hidden="true"></i> ${this.config.title}
                 </button>
-                <div class="modal fade" id="${this._prefix}DataModal" tabindex="-1" role="dialog" aria-labelledby="${this._prefix}exampleModalLabel" aria-hidden="true">
-                    <div class="modal-dialog" role="document" style="width: ${this.config.display.mode.width ? this.config.display.mode.width : 640}px">
+                <div class="modal fade" id="${this._prefix}DataModal" tabindex="-1" role="dialog" aria-labelledby="${this._prefix}exampleModalLabel" 
+                     aria-hidden="true">
+                    <div class="modal-dialog" style="width: ${this.config.display.mode.width ? this.config.display.mode.width : 768}px">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h3 class="modal-title" id="${this._prefix}exampleModalLabel">${title}</h3>
+                                <h3 class="${titleClass}" id="${this._prefix}exampleModalLabel">${title}</h3>
                             </div>
                             <div class="modal-body">
-                                ${this.renderData()}
+                                <div class="container-fluid">
+                                    ${this.renderData()}
+                                </div>
                             </div>
                             ${this.config.buttons && this.config.buttons.show ?
                                 html`
-                                        <div class="modal-footer">
-                                            <button type="button" class="${this.config.buttons.classes ? this.config.buttons.classes : "btn btn-primary ripple"}" data-dismiss="modal" @click="${this.onClear}">
-                                                ${this.config.buttons.cancelText ? this.config.buttons.cancelText : "Cancel"}
-                                            </button>
-                                            <button type="button" class="${this.config.buttons.classes ? this.config.buttons.classes : "btn btn-primary ripple"}" data-dismiss="modal" @click="${this.onSubmit}">
-                                                ${this.config.buttons.okText ? this.config.buttons.okText : "OK"}
-                                            </button>
-                                        </div>` :
+                                    <div class="modal-footer">
+                                        <button type="button" class="${buttonClasses}" data-dismiss="modal" @click="${this.onClear}">
+                                            ${this.config.buttons.cancelText ? this.config.buttons.cancelText : "Cancel"}
+                                        </button>
+                                        <button type="button" class="${buttonClasses}" data-dismiss="modal" @click="${this.onSubmit}">
+                                            ${this.config.buttons.okText ? this.config.buttons.okText : "OK"}
+                                        </button>
+                                    </div>` :
                                 null
                             }
                         </div>
@@ -1011,7 +1015,7 @@ export default class DataForm extends LitElement {
             ${this.config.title && this.config.display && this.config.display.showTitle ?
                 html`
                     <div>
-                        <h2 class="${sectionTitleIcon}" >${this.config.title}</h2>
+                        <h2 class="${titleClass}" >${this.config.title}</h2>
                     </div>` :
                 null
             }

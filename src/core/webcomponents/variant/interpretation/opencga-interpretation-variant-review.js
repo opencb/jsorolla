@@ -39,13 +39,17 @@ export default class OpencgaInterpretationVariantReview extends LitElement {
             variant: {
                 type: Object,
             },
+            mode: {
+                type: String    // Values: form, modal
+            }
         }
     }
 
     _init(){
         this._prefix = UtilsNew.randomString(8);
 
-        // this.save = {};
+        this.mode = "form";
+        this.updateParams = {};
     }
 
     updated(changedProperties) {
@@ -60,28 +64,8 @@ export default class OpencgaInterpretationVariantReview extends LitElement {
         // this.requestUpdate();
     }
 
-    getSaveConfig() {
-        return {
-            title: "Save",
-            icon: "fas fa-save",
-            type: "form",
-            // buttons: {
-            //     show: true,
-            //     cancelText: "Cancel",
-            //     okText: "Save",
-            // },
-            display: {
-                style: "margin: 25px 50px 0px 0px",
-                // mode: {
-                //     type: "modal",
-                //     title: "Save Variant Stats",
-                //     buttonClass: "btn btn-default ripple"
-                // },
-                labelWidth: 3,
-                labelAlign: "right",
-                defaultValue: "",
-                defaultLayout: "horizontal",
-            },
+    getSaveForm() {
+        let sections = {
             sections: [
                 {
                     elements: [
@@ -114,15 +98,90 @@ export default class OpencgaInterpretationVariantReview extends LitElement {
                     ]
                 }
             ]
+        };
+
+        if (this.mode === "modal") {
+            return {
+                title: "Edit",
+                icon: "fas fa-edit",
+                type: "form",
+                buttons: {
+                    show: true,
+                    cancelText: "Cancel",
+                    okText: "Save",
+                    classes: "btn btn-primary"
+                },
+                display: {
+                    style: "margin: 25px 50px 0px 0px",
+                    mode: {
+                        type: "modal",
+                        title: "Review Variant",
+                        buttonClass: "btn-link"
+                    },
+                    labelWidth: 3,
+                    labelAlign: "right",
+                    defaultValue: "",
+                    defaultLayout: "horizontal",
+                },
+                ...sections
+            }
+        } else {
+            return {
+                title: "Save",
+                icon: "fas fa-save",
+                type: "form",
+                // buttons: {
+                //     show: true,
+                //     cancelText: "Cancel",
+                //     okText: "OK",
+                //     classes: "btn btn-primary"
+                // },
+                display: {
+                    style: "margin: 25px 50px 0px 0px",
+                    labelWidth: 3,
+                    labelAlign: "right",
+                    defaultValue: "",
+                    defaultLayout: "horizontal",
+                },
+                ...sections
+            }
         }
+    }
+
+    onSaveFieldChange(e) {
+        switch (e.detail.param) {
+            case "status":
+            case "discussion":
+                if (e.detail.value !== null) {
+                    this.variant[e.detail.param] = e.detail.value;
+                    this.updateParams[e.detail.param] = e.detail.value;
+                } else {
+                    delete this.updateParams[e.detail.param];
+                }
+                break;
+        }
+
+        debugger
+        this.dispatchEvent(new CustomEvent("variantChange", {
+            detail: {
+                value: this.variant,
+                update: this.updateParams
+            },
+            // bubbles: true,
+            // composed: true
+        }));
+    }
+
+    onSave(e) {
+        debugger
     }
 
     render() {
         return html`
             <data-form  .data=${this.variant}
-                        .config="${this.getSaveConfig()}"
+                        .config="${this.getSaveForm()}"
                         @fieldChange="${e => this.onSaveFieldChange(e)}" @
-                        submit="${this.onSave}">
+                        @submit="${this.onSave}">
             </data-form>
         `;
     }
