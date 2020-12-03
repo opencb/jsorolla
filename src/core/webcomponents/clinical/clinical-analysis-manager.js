@@ -271,4 +271,29 @@ export default class ClinicalAnalysisManager {
                 });
             });
     }
+
+    async updateVariant(variant, interpretation, callback) {
+        debugger
+        await this.opencgaSession.opencgaClient.clinical().updateInterpretation(this.clinicalAnalysis.id, interpretation.id,
+            {primaryFindings: [variant]},
+            {study: this.opencgaSession.study.fqn, primaryFindingsAction: "REPLACE"})
+            .then(restResponse => {
+                // callback(this.clinicalAnalysis);
+debugger
+                Swal.fire(
+                    "Variant Updated",
+                    "Variant " + variant.id + " updated.",
+                    "success"
+                );
+            })
+            .catch(restResponse => {
+                console.error("An error occurred deleting an interpretation: ", restResponse);
+                const msg = restResponse?.getResultEvents?.("ERROR")?.map(event => event.message).join("<br>") ?? "Server Error";
+                Swal.fire({
+                    title: "Error",
+                    icon: "error",
+                    html: msg
+                });
+            });
+    }
 }

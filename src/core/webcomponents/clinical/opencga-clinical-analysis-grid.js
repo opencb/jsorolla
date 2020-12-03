@@ -341,12 +341,22 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
     }
 
     interpretationFormatter(value, row) {
+        let html = "";
+        if (row.interpretation?.primaryFindings?.length > 0) {
+            let reviewedVariants = row.interpretation.primaryFindings.filter(v => v.status === "REVIEWED");
+            html = `<div>
+                        <span style="margin: 5px 0">${row.interpretation.primaryFindings.length} variants</span>
+                    </div>
+                    <div>
+                        <span class="help-block" style="margin: 5px 0">${reviewedVariants.length} reviewed</span>
+                    </div>`;
+        } else {
+            html = "<span>0 variants</span>";
+        }
+
         return `<a class="btn force-text-left" data-action="interpreter" title="Go to Case Interpreter" 
                         href="#interpreter/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}">
-                    ${row.interpretation?.primaryFindings?.length ?
-                        `<span>${row.interpretation.primaryFindings.length} variants</span>` :
-                        "<span>0 variants</span>"
-                    }   
+                    ${html}   
                 </a>`;
     }
 

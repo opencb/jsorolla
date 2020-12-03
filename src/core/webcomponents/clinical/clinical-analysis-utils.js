@@ -74,7 +74,6 @@ export default class ClinicalAnalysisUtils {
             }
         }
         clinicalAnalysis.interpretation = _interpretation;
-        debugger
         opencgaSession.opencgaClient.clinical().updateInterpretation(clinicalAnalysis.id, clinicalAnalysis.interpretation.id, clinicalAnalysis.interpretation,
             {
                 study: opencgaSession.study.fqn,
@@ -107,4 +106,5 @@ export default class ClinicalAnalysisUtils {
                 });
             });
     }
+
 }
