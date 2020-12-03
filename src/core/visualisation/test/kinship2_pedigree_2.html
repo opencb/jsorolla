@@ -39,7 +39,7 @@
         const $spouse = parseCsv($spouse_raw);
 
         const draw = SVG().addTo("#pedigree").size(1000, 1000);
-        const rect = draw.rect(1000, 1000).attr({fill: "#f3f3f3"});
+        const rect = draw.rect(1000, 1000).attr({fill: "#fff"});
 
         //console.log("NID", $nid);
 
@@ -108,7 +108,7 @@
                     const spouseId = $nid[genIndx][i + 1];
                     source.spouse = spouseId;
                     let target = getNodeBy$nid(spouseId, nodes);
-                    drawEdge(source, target, draw);
+                    drawSpouseEdge(source, target, draw);
                 }
             });
         });
@@ -143,8 +143,8 @@
             draw.text(`${node.id} [${node?.data?.father?.id ?? ""}:${node?.data?.mother?.id ?? ""}]`).font({size:12}).dy(y + 20).dx(x);
         }
 
-        function drawEdge(source, target, draw) {
-            draw.line(source.x, source.y, target.x, target.y).stroke({
+        function drawSpouseEdge(source, target, draw) {
+            draw.line(source.x + NODE_SIZE/2, source.y, target.x - NODE_SIZE/2, target.y).stroke({
                 color: "#000",
                 width: 1
             }).attr({id: source.id + "__" + target.id});
@@ -183,7 +183,7 @@
                 }).attr({id: "A_" + source1.id + "__" + source2.id});
 
                 // 2nd vertical line
-                draw.line(target.x, target.y - GEN_HEIGHT / 2, target.x, target.y).stroke({
+                draw.line(target.x, target.y - GEN_HEIGHT / 2, target.x, target.y - NODE_SIZE / 2).stroke({
                     color: "#000",
                     width: 1
                 }).attr({id: "B_" + target.id + "__" + target.id});
