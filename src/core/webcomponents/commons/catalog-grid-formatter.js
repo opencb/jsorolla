@@ -52,34 +52,32 @@ export default class CatalogGridFormatter {
         }
     }
 
-    static fileFormatter(files, extensions) {
+    /**
+     *  Formats the files for the Catalog grids
+     * @param {Array} files Either a list of fileIds or file objects
+     * @param {Array} extensions A list of file extensions. If it is defined, only the file with extensions are returned.
+     * @param {String} key The property to map onto in case `files` is an array of objects.
+     * @returns {string} html code
+     */
+    static fileFormatter(files, extensions, key) {
         let results = [];
         if (files && files.length > 0) {
             if (extensions && extensions.length > 0) {
                 files.forEach(file => {
+                    const f = key ? file[key] : file;
                     for (const extension of extensions) {
-                        if (file.endsWith(extension)) {
-                            results.push(file);
+                        if (f.endsWith(extension)) {
+                            results.push(f);
                         }
                     }
                 });
             } else {
-                results = files;
+                results = key ? files.map(file => file?.name) : files;
             }
             return results.length > 20 ? results.length + " files" : `<ul class="pad-left-15">${results.map(file => `<li>${file}</li>`).join("")}</ul>`;
         } else {
             return "-";
         }
-        // return values?.length
-        //     ? values
-        //         // .filter(fileId => fileId.endsWith("vcf") || fileId.endsWith("vcf.gz") || fileId.endsWith("bam"))
-        //         .filter(fileId => fileId.endsWith("vcf") || fileId.endsWith("vcf.gz") || fileId.endsWith("bam"))
-        //         .map(fileId => {
-        //             let fields = fileId.split(":");
-        //             return fields[fields.length - 1];
-        //         })
-        //         .join("<br>")
-        //     : "-";
     }
 
     static dateFormatter(value, row) {

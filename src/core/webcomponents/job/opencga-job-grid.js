@@ -285,7 +285,7 @@ export default class OpencgaJobGrid extends LitElement {
                 formatter: value => {
                     if (value) {
                         const fileIds = value?.map(file => file);
-                        return CatalogGridFormatter.fileFormatter(fileIds);
+                        return CatalogGridFormatter.fileFormatter(fileIds, null, "name");
                     } else {
                         return "-";
                     }
@@ -460,7 +460,6 @@ export default class OpencgaJobGrid extends LitElement {
             pageList: [10, 25, 50],
             showExport: false,
             detailView: true,
-            order: "AAAA",
             detailFormatter: this.detailFormatter,
             showSelectCheckbox: false,
             multiSelection: false,

@@ -164,7 +164,7 @@ export default class OpencgaProjects extends LitElement {
 
         const _this = this;
 
-        let done = 0;
+        const done = 0;
         for (const project of this.opencgaSession.projects) {
             // let studyPromises = [];
             console.log("prj", project);
@@ -174,27 +174,27 @@ export default class OpencgaProjects extends LitElement {
                 stats: {}
             };
             this.chartData[project.id] = {};
-            for (let study of project.studies) {
+            for (const study of project.studies) {
                 try {
                     const catalogStudyResponse = await this.opencgaSession.opencgaClient.studies().aggregationStats(study.fqn, {
                         individualFields: "lifeStatus,sex"
-                    })
+                    });
 
-                    //let f = await fetch("/lib/jsorolla/src/core/webcomponents/user/" + study.fqn + ".json")
-                    //const catalogStudyResponse = new RestResponse(await f.json());
+                    // let f = await fetch("/lib/jsorolla/src/core/webcomponents/user/" + study.fqn + ".json")
+                    // const catalogStudyResponse = new RestResponse(await f.json());
 
-                    //console.error(study.fqn)
-                    //console.log(JSON.stringify(catalogStudyResponse))
-                    //console.log("catalogStudyResponse", catalogStudyResponse)
+                    // console.error(study.fqn)
+                    // console.log(JSON.stringify(catalogStudyResponse))
+                    // console.log("catalogStudyResponse", catalogStudyResponse)
                     const r = catalogStudyResponse.getResult(0).results ? catalogStudyResponse.getResult(0).results[0] : catalogStudyResponse.getResult(0);
 
                     const stats = r[study.fqn];
-                    this.filesCount.update(this.totalCount.files += stats.file.results[0].count);
-                    this.samplesCount.update(this.totalCount.samples += stats.sample.results[0].count);
-                    this.jobsCount.update(this.totalCount.jobs += stats.job.results[0].count);
-                    this.individualsCount.update(this.totalCount.individuals += stats.individual.results[0].count);
+                    this.filesCount.update(this.totalCount.files += stats.file.results[0]?.count);
+                    this.samplesCount.update(this.totalCount.samples += stats.sample.results[0]?.count);
+                    this.jobsCount.update(this.totalCount.jobs += stats.job.results[0]?.count);
+                    this.individualsCount.update(this.totalCount.individuals += stats.individual.results[0]?.count);
                     // this.variantCount.update(this.totalCount.variants += r.variants);
-                    this.cohortsCount.update(this.totalCount.cohorts += stats.cohort.results[0].count);
+                    this.cohortsCount.update(this.totalCount.cohorts += stats.cohort.results[0]?.count);
 
                     this.data[project.id].stats[study.fqn] = {
                         file: {
@@ -209,31 +209,29 @@ export default class OpencgaProjects extends LitElement {
                         cohort: {
                             results: stats.cohort.results
                         }
-                    }
+                    };
 
 
-                }
-                catch (e) {
-                    console.error(e)
+                } catch (e) {
+                    console.error(e);
                     this.querySelector("#loading").style.display = "none";
 
                 }
             }
 
 
+            const response = await this.opencgaSession.opencgaClient.variants().aggregationStats({project: project.id, fields: "studies"});
 
-            let response = await this.opencgaSession.opencgaClient.variants().aggregationStats({project: project.id, fields: "studies"})
+            // let response = await fetch("/lib/jsorolla/src/core/webcomponents/user/" + project.id + ".json")
+            // response = new RestResponse(await response.json());
 
-            //let response = await fetch("/lib/jsorolla/src/core/webcomponents/user/" + project.id + ".json")
-            //response = new RestResponse(await response.json());
-
-            //console.error(project.id)
-            //console.log(JSON.stringify(response))
+            // console.error(project.id)
+            // console.log(JSON.stringify(response))
             const r = response.getResult(0).results ? response.getResult(0).results[0] : response.getResult(0);
             this.variantsCount.update(this.totalCount.variants += r.count);
 
             this.chartData[project.id] = {};
-            /*for (let entity in this.charts) {
+            /* for (let entity in this.charts) {
                 let charts = this.charts[entity];
                 charts.forEach( field => {
 
@@ -243,22 +241,22 @@ export default class OpencgaProjects extends LitElement {
 
                 })
             }*/
-            for (let entity in this.charts) {
-                let charts = this.charts[entity];
+            for (const entity in this.charts) {
+                const charts = this.charts[entity];
                 this.chartData[project.id][entity] = [];
                 charts.forEach(field => {
 
                     // Object.values(STATS) contains the map of the entities for each study. I pick the first element as they are expected to be the same
-                    const categories = Object.values(this.data[project.id].stats)[0][entity].results.find(result => result.name === field).buckets.map( _ => _.value);
+                    const categories = Object.values(this.data[project.id].stats)[0][entity].results.find(result => result.name === field).buckets.map(_ => _.value);
 
                     // building chart data
                     // I need the structure project->entity->field to plot-> aggregated data for all the studies
-                    let data = {}
-                    Object.entries(this.data[project.id].stats).forEach( ([studyFqn, entitiesMap]) => {
-                        data[studyFqn] = entitiesMap[entity].results.find(result => result.name === field).buckets.map( _ => _.count)
-                        //let categories = entitiesMap[entity].results.find(result => result.name === field).buckets.map( _ => _.value)
-                        //console.log("studiesData", data, categories)
-                    })
+                    const data = {};
+                    Object.entries(this.data[project.id].stats).forEach(([studyFqn, entitiesMap]) => {
+                        data[studyFqn] = entitiesMap[entity].results.find(result => result.name === field).buckets.map(_ => _.count);
+                        // let categories = entitiesMap[entity].results.find(result => result.name === field).buckets.map( _ => _.value)
+                        // console.log("studiesData", data, categories)
+                    });
                     this.chartData[project.id][entity].push({
                         name: field,
                         data: data,
@@ -267,16 +265,16 @@ export default class OpencgaProjects extends LitElement {
                                 categories: categories
                             }
                         }
-                    })
-                    //console.log(this.chartData)
-                })
+                    });
+                    // console.log(this.chartData)
+                });
             }
 
 
         }
 
 
-        console.log(this.chartData)
+        console.log(this.chartData);
         await this.requestUpdate();
 
         this.querySelector("#loading").style.display = "none";
@@ -284,38 +282,38 @@ export default class OpencgaProjects extends LitElement {
 
 
     renderTable(project, resource) {
-        //console.log(project)
-        //debugger
+        // console.log(project)
+        // debugger
         return html`
             <div class="v-space"></div>
             <table class="table table-hover table-no-bordered">
                 <thead>
                     <tr>
                         <th></th>
-                        ${Object.entries(project).map( ([fqn, _]) => html`<th>${fqn}</th>`)}
+                        ${Object.entries(project).map(([fqn, _]) => html`<th>${fqn}</th>`)}
                     </tr>
                 </thead>
                 <tbody>
-                    ${Object.entries(this.tableRows[resource]).map( ([key, types]) => html`
+                    ${Object.entries(this.tableRows[resource]).map(([key, types]) => html`
                         <!-- <tr>
-                            <td><p>${key}</p>${types.map( type => html`<p>${type.id}</p>`)}</td>
+                            <td><p>${key}</p>${types.map(type => html`<p>${type.id}</p>`)}</td>
                             <td>
-                            ${types.map( type => html`
+                            ${types.map(type => html`
                                 
-                                ${Object.entries(project).map( ([fqn, data]) => html`
+                                ${Object.entries(project).map(([fqn, data]) => html`
                                     
-                                        ${data[resource]?.results.find( r => r.name === key).buckets.find( stat => stat.value === type.id)?.count}
+                                        ${data[resource]?.results.find(r => r.name === key).buckets.find(stat => stat.value === type.id)?.count}
                                    
                                 `) }                           
                              </td>
                         `)}
                         </tr>-->
-                        ${types.map( type => html`
+                        ${types.map(type => html`
                             <tr>
                                 <td>${type.name}</td>
-                                ${Object.entries(project).map( ([fqn, data]) => html`
+                                ${Object.entries(project).map(([fqn, data]) => html`
                                     <td>
-                                        ${data[resource]?.results.find( r => r.name === key).buckets.find( stat => stat.value === type.id)?.count}
+                                        ${data[resource]?.results.find(r => r.name === key).buckets.find(stat => stat.value === type.id)?.count}
                                     </td>
                                 `) }                           
                             </tr>
@@ -334,8 +332,8 @@ export default class OpencgaProjects extends LitElement {
         $(`.projects-side-nav > button[data-menu-item-id=${menuItemId}][data-project-id=${projectId}]`, this).addClass("active");
         $(".projects-content-tab." + projectId + " > div[role=tabpanel]", this).hide();
         $("#" + this._prefix + projectId + menuItemId, this).show();
-        //for (const tab in this.activeTab) this.activeTab[tab] = false;
-        //this.activeTab[tabId] = true;
+        // for (const tab in this.activeTab) this.activeTab[tab] = false;
+        // this.activeTab[tabId] = true;
         this.requestUpdate();
     }
 
@@ -446,11 +444,11 @@ export default class OpencgaProjects extends LitElement {
                             type: "custom",
                             display: {
                                 render: studies => {
-                                    return studies.map( study => study.name).join(", ")
+                                    return studies.map(study => study.name).join(", ");
                                 }
                             }
                         }
-                        /*{
+                        /* {
                             name: "Project and studies",
                             field: "projects",
                             type: "table",
@@ -609,7 +607,7 @@ export default class OpencgaProjects extends LitElement {
                                             <div id="${this._prefix}${project.id}Files" role="tabpanel" class="tab-pane content-tab">
                                                 <h3>Files</h3>
                                                 <div class="row">
-                                                    ${this.chartData[project.id]?.["file"]?.map?.( chart => html`
+                                                    ${this.chartData[project.id]?.["file"]?.map?.(chart => html`
                                                         <div class="col-md-6"><simple-chart .active="${true}" type="column" title="${chart.name}" .config=${chart.config} .data="${chart.data}"></simple-chart></div>
                                                     `)}
                                                 </div>
