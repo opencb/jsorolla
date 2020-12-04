@@ -66,7 +66,7 @@ import "./core/webcomponents/variant/opencga-variant-interpretation-detail.js";
 import "./core/webcomponents/variant/opencga-variant-filter.js";
 import "./core/webcomponents/variant/opencga-variant-interpretation-editor.js";
 import "./core/webcomponents/variant/opencga-variant-file-metrics.js";
-import "./core/webcomponents/variant/opencga-interpretation-variant-review.js";
+import "./core/webcomponents/variant/clinical-interpretation-variant-review.js";
 import "./core/webcomponents/cellbase/core/cellbase-gene-filter.js";
 import "./core/webcomponents/opencga/panels_example.js";
 import "./core/webcomponents/opencga/opencga-active-filters.js";

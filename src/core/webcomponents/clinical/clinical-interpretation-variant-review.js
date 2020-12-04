@@ -15,10 +15,10 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../../utilsNew.js";
+import UtilsNew from "../../utilsNew.js";
 
 
-export default class OpencgaInterpretationVariantReview extends LitElement {
+export default class ClinicalInterpretationVariantReview extends LitElement {
 
     constructor() {
         super();
@@ -48,20 +48,17 @@ export default class OpencgaInterpretationVariantReview extends LitElement {
     _init(){
         this._prefix = UtilsNew.randomString(8);
 
-        this.mode = "form";
         this.updateParams = {};
+        this.mode = "form";
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("variant")) {
-            this.variantObserver();
-        }
+        // if (changedProperties.has("variant")) {
+        //     this.variantObserver();
+        // }
     }
 
     variantObserver() {
-        // this._fetchCohortStats(e);
-        // this.variant;
-        // this.requestUpdate();
     }
 
     getSaveForm() {
@@ -161,14 +158,11 @@ export default class OpencgaInterpretationVariantReview extends LitElement {
                 break;
         }
 
-        debugger
         this.dispatchEvent(new CustomEvent("variantChange", {
             detail: {
                 value: this.variant,
                 update: this.updateParams
             },
-            // bubbles: true,
-            // composed: true
         }));
     }
 
@@ -187,5 +181,5 @@ export default class OpencgaInterpretationVariantReview extends LitElement {
     }
 }
 
-customElements.define("opencga-interpretation-variant-review", OpencgaInterpretationVariantReview);
+customElements.define("clinical-interpretation-variant-review", ClinicalInterpretationVariantReview);
 

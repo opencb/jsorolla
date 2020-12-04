@@ -22,7 +22,7 @@ import VariantGridFormatter from "../variant-grid-formatter.js";
 import GridCommons from "../../commons/grid-commons.js";
 import VariantUtils from "../variant-utils.js";
 import "./variant-interpreter-grid-config.js";
-import "./opencga-interpretation-variant-review.js";
+import "../../clinical/clinical-interpretation-variant-review.js";
 import "../../commons/opencb-grid-toolbar.js";
 import "../../loading-spinner.js";
 
@@ -987,7 +987,6 @@ export default class VariantInterpreterGrid extends LitElement {
     }
 
     onCancelVariant(e) {
-        debugger
         this._variantChanged = null;
     }
 
@@ -1035,11 +1034,11 @@ export default class VariantInterpreterGrid extends LitElement {
                         <div class="modal-header" style="padding: 5px 15px">
                             <h3>Review Variant</h3>
                         </div>
-                        <opencga-interpretation-variant-review .opencgaSession="${this.opencgaSession}"
-                                                               .variant="${this.variantReview}"
-                                                               mode=${"form"}
-                                                               @variantChange="${e => this.onVariantChange(e)}">
-                        </opencga-interpretation-variant-review>
+                        <clinical-interpretation-variant-review .opencgaSession="${this.opencgaSession}"
+                                                                .variant="${this.variantReview}"
+                                                                mode=${"form"}
+                                                                @variantChange="${e => this.onVariantChange(e)}">
+                        </clinical-interpretation-variant-review>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
                             <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${e => this.onSaveVariant(e)}">OK</button>

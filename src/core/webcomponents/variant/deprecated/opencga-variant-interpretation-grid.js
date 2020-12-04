@@ -19,7 +19,7 @@ import UtilsNew from "../../../utilsNew.js";
 import PolymerUtils from "../../PolymerUtils.js";
 import VariantGridFormatter from "../variant-grid-formatter.js";
 import VariantUtils from "../variant-utils.js";
-import "../interpretation/opencga-interpretation-variant-review.js";
+import "../../clinical/clinical-interpretation-variant-review.js";
 import "../../commons/opencb-grid-toolbar.js";
 import "../../loading-spinner.js";
 
