@@ -17,7 +17,11 @@
 export default class ClinicalAnalysisUtils {
 
     static getStatuses() {
-        return ["READY_FOR_INTERPRETATION", "READY_FOR_REPORT", "CLOSED", "REJECTED"];
+        return ["READY_FOR_INTERPRETATION", "READY_FOR_REPORT", "CLOSED", "REJECTED"];  // , "READY_FOR_REVIEW"
+    }
+
+    static getInterpretationStatuses() {
+        return ["IN_PROGRESS", "READY", "REJECTED"];
     }
 
     static getProbandQc(clinicalAnalysis) {

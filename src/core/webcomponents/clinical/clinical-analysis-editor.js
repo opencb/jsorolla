@@ -92,9 +92,6 @@ class ClinicalAnalysisEditor extends LitElement {
                     this._users.push(...group.userIds.filter(user => user !== "*"));
                 }
             }
-
-
-
         }
     }
 
