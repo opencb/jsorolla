@@ -46,10 +46,13 @@ class ClinicalAnalysisCommentEditor extends LitElement {
 
     _init() {
         this._prefix = UtilsNew.randomString(8);
+
+        this.commnent = {};
     }
 
     connectedCallback() {
         super.connectedCallback();
+
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
@@ -58,6 +61,20 @@ class ClinicalAnalysisCommentEditor extends LitElement {
             this._config = {...this.getDefaultConfig(), ...this.config};
             // this.requestUpdate();
         }
+    }
+
+    onFieldChange(field, e) {
+        if (field === "message") {
+            this.commnent.message = e.detail.value;
+        } else {
+            this.commnent.tags = e.detail.value?.split(" ") ?? [];
+        }
+
+        this.dispatchEvent(new CustomEvent("fieldChange", {
+            detail: {
+                value: this.commnent,
+            },
+        }));
     }
 
     getDefaultConfig() {
@@ -114,12 +131,12 @@ class ClinicalAnalysisCommentEditor extends LitElement {
                             <span style="font-weight: bold">New comment</span>
                         </div>
                         <div style="margin: 5px 10px">
-                            <text-field-filter placeholder="Add comment..." .rows=${2} @filterChange="${e => this.onFilterChange(e)}"></text-field-filter>
+                            <text-field-filter placeholder="Add comment..." .rows=${2} @filterChange="${e => this.onFieldChange("message", e)}"></text-field-filter>
                         </div>
                         <div style="margin: 5px 10px">
-                            <text-field-filter placeholder="Add tags..." .rows=${1} @filterChange="${e => this.onFilterChange(e)}"></text-field-filter>
+                            <text-field-filter placeholder="Add tags..." .rows=${1} @filterChange="${e => this.onFieldChange("tags", e)}"></text-field-filter>
                         </div>
-                        <div style="margin: 5px 10px; float: right">
+                        <div style="margin: 5px 10px; float: right; display: none">
                             <span>
                                 <button type="button" class="btn btn-default">Cancel</button>
                             </span>

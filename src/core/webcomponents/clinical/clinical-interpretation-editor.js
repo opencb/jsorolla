@@ -23,7 +23,7 @@ import "../commons/view/data-form.js";
 import "../commons/filters/text-field-filter.js";
 
 
-class ClinicalAnalysisEditor extends LitElement {
+class ClinicalInterpretationEditor extends LitElement {
 
     constructor() {
         super();
@@ -98,9 +98,7 @@ class ClinicalAnalysisEditor extends LitElement {
     clinicalAnalysisObserver() {
         if (this.opencgaSession && this.clinicalAnalysis) {
             this._clinicalAnalysis = JSON.parse(JSON.stringify(this.clinicalAnalysis));
-
-            this.flags = this.opencgaSession.study.configuration.clinical.flags[this.clinicalAnalysis.type.toUpperCase()].map(flag => flag.id);
-            this.requestUpdate();
+            // this.requestUpdate();
         }
     }
 
@@ -120,68 +118,24 @@ class ClinicalAnalysisEditor extends LitElement {
     renderStatus(status) {
         return html`
             <div class="">
-                <select-field-filter .data="${ClinicalAnalysisUtils.getStatuses()}" .value="${status.id}" 
-                        @filterChange="${e => {e.detail.param = "status.id"; this.onFieldChange(e)}}">
+                <select-field-filter .data="${ClinicalAnalysisUtils.getInterpretationStatuses()}" .value="${status.id}" 
+                        @filterChange="${e => {e.detail.param = "interpretation.status.id"; this.onFieldChange(e)}}">
                 </select-field-filter>
                 ${status.description
-                    ? html`<span class="help-block" style="padding: 0px 5px">${status.description}</span>`
-                    : null
-                }
-            </div>`;
-    }
-
-    renderFlags(flags) {
-        let studyFlags = this.opencgaSession.study.configuration.clinical.flags[this.clinicalAnalysis.type.toUpperCase()].map(flag => flag.id);
-        let selectedValues = flags.map(flag => flag.id).join(",");
-        return html`
-            <div class="">
-                <select-field-filter .data="${studyFlags}" .value="${selectedValues}"
-                        @filterChange="${e => {e.detail.param = "flags.id"; this.onFieldChange(e)}}">
-                </select-field-filter>
+            ? html`<span class="help-block" style="padding: 0px 5px">${status.description}</span>`
+            : null
+        }
             </div>`;
     }
 
     onFieldChange(e) {
         switch (e.detail.param) {
-            case "locked":
-            case "description":
-                if (this._clinicalAnalysis[e.detail.param] !== e.detail.value && e.detail.value !== null) {
-                    this.clinicalAnalysis[e.detail.param] = e.detail.value;
-                    this.updateParams[e.detail.param] = e.detail.value;
-                } else {
-                    delete this.updateParams[e.detail.param];
-                }
-                break;
-            case "flags.id":
-                if (!this._clinicalAnalysis?.flags) {
-                    this._clinicalAnalysis = {
-                        flags: []
-                    };
-                }
-
-                let index = this._clinicalAnalysis.flags.findIndex(flag => flag.id === e.detail.value);
-                if (index === -1 && e.detail.value !== null) {
-                    this.clinicalAnalysis.flags.push({id: e.detail.value});
-                    if (!this.updateParams?.flags) {
-                        this.updateParams.flags = [];
-                    }
-                    for (let flag of this.clinicalAnalysis.flags) {
-                        this.updateParams.flags.push({id: flag.id});
-                    }
-                } else {
-                    this.updateParams.flags.splice(index, 1);
-                }
-                if (this.updateParams.flags?.length === 0) {
-                    delete this.updateParams.flags;
-                }
-
-                break;
-            case "status.id":
-            case "priority.id":
-            case "analyst.id":
-                let field = e.detail.param.split(".")[0];
-                if (this._clinicalAnalysis[field] && this._clinicalAnalysis[field].id !== e.detail.value && e.detail.value !== null) {
-                    this.clinicalAnalysis[field].id = e.detail.value;
+            case "interpretation.status.id":
+            case "interpretation.analyst.id":
+                debugger
+                let field = e.detail.param.split(".")[1];
+                if (this._clinicalAnalysis.interpretation[field] && this._clinicalAnalysis.interpretation[field].id !== e.detail.value && e.detail.value !== null) {
+                    this.clinicalAnalysis.interpretation[field].id = e.detail.value;
                     this.updateParams[field] = {
                         id: e.detail.value
                     };
@@ -192,19 +146,26 @@ class ClinicalAnalysisEditor extends LitElement {
                     delete this.updateParams[field];
                 }
                 break;
-            case "comments":
-                // if (!this.clinicalAnalysis?.comments) {
-                //     this.clinicalAnalysis = {
-                //         comments: []
-                //     };
-                // }
+            case "interpretation.description":
+                if (this._clinicalAnalysis.interpretation.description !== e.detail.value && e.detail.value) {
+                    this.clinicalAnalysis.interpretation.description = e.detail.value;
+                    this.updateParams.description = e.detail.value;
+                } else {
+                    delete this.updateParams.description;
+                }
+                break;
+            case "interpretation.comments":
+                if (!this.clinicalAnalysis.interpretation.comments) {
+                    this.clinicalAnalysis.interpretation = {
+                        comments: []
+                    };
+                }
                 if (e.detail.value?.message) {
-                    // if (this.clinicalAnalysis.comments?.length === 0) {
-                    //     this.clinicalAnalysis.comments.push(e.detail.value);
-                    // } else {
-                    // debugger
-                    //     this.clinicalAnalysis.comments[this.clinicalAnalysis.comments.length - 1] = e.detail.value;
-                    // }
+                    if (this.clinicalAnalysis.interpretation.comments?.length === 0) {
+                        this.clinicalAnalysis.interpretation.comments.push(e.detail.value);
+                    } else {
+                        this.clinicalAnalysis.interpretation.comments[this.clinicalAnalysis.interpretation.comments.length - 1] = e.detail.value;
+                    }
                     this.updateParams.comments = [e.detail.value];
                 } else {
                     delete this.updateParams.comments;
@@ -244,13 +205,14 @@ class ClinicalAnalysisEditor extends LitElement {
                     },
                     elements: [
                         {
-                            name: "Case ID",
-                            // field: "id",
+                            name: "Interpretation ID",
+                            field: "interpretation",
                             type: "custom",
                             display: {
-                                render: clinicalAnalysis => html`
-                                    <span style="font-weight: bold; padding-right: 40px">${clinicalAnalysis.id}</span> 
-                                    <span><i class="far fa-calendar-alt"></i> ${UtilsNew.dateFormatter(clinicalAnalysis?.modificationDate)}</span>`
+                                render: interpretation => html`
+                                    <span style="font-weight: bold; margin-right: 10px">${interpretation.id}</span> 
+                                    <span style="color: grey; padding-right: 40px">version ${interpretation.version}</span> 
+                                    <span><i class="far fa-calendar-alt"></i> ${UtilsNew.dateFormatter(interpretation?.modificationDate)}</span>`
                             }
                         },
                         {
@@ -278,61 +240,15 @@ class ClinicalAnalysisEditor extends LitElement {
                         {
                             name: "Analysis Type",
                             field: "type",
+                            display: {
+                            }
                         },
                         {
-                            name: "Interpretation ID",
-                            field: "interpretation",
+                            name: "Primary Findings",
+                            field: "interpretation.primaryFindings",
                             type: "custom",
                             display: {
-                                render: interpretation => html`
-                                    <span style="font-weight: bold; margin-right: 10px">${interpretation?.id}</span> 
-                                    <span style="color: grey; padding-right: 40px">version ${interpretation?.version}</span>`
-                            }
-                        },
-                    ]
-                },
-                {
-                    id: "management",
-                    title: "Management",
-                    elements: [
-                        {
-                            name: "Lock",
-                            field: "locked",
-                            type: "toggle-switch",
-                            // defaultValue: false,
-                            display: {
-                                width: "9",
-                                // onText: "YES",
-                                // activeClass: "btn-danger"
-                            }
-                        },
-                        {
-                            name: "Priority",
-                            field: "priority.id",
-                            type: "select",
-                            allowedValues: ["URGENT", "HIGH", "MEDIUM", "LOW"],
-                            defaultValue: "MEDIUM",
-                            display: {
-                                width: "9"
-                            }
-                        },
-                        {
-                            name: "Analyst",
-                            field: "analyst.id",
-                            type: "select",
-                            defaultValue: this.clinicalAnalysis?.analyst?.id ?? this.clinicalAnalysis?.analyst?.assignee,
-                            allowedValues: () => this._users,
-                            display: {
-                                width: "9"
-                            }
-                        },
-                        {
-                            name: "Due Date",
-                            field: "dueDate",
-                            type: "input-date",
-                            display: {
-                                width: "9",
-                                render: date => moment(date, "YYYYMMDDHHmmss").format("DD/MM/YYYY")
+                                render: primaryFindings => html`<span style="font-weight: bold">${primaryFindings?.length}</span>`
                             }
                         },
                     ]
@@ -342,24 +258,26 @@ class ClinicalAnalysisEditor extends LitElement {
                     title: "General",
                     elements: [
                         {
+                            name: "Analyst",
+                            field: "interpretation.analyst.id",
+                            type: "select",
+                            defaultValue: this.clinicalAnalysis?.analyst?.id ?? this.clinicalAnalysis?.analyst?.assignee,
+                            allowedValues: () => this._users,
+                            display: {
+                                width: "9"
+                            }
+                        },
+                        {
                             name: "Status",
-                            field: "status",
+                            field: "interpretation.status",
                             type: "custom",
                             display: {
                                 render: status => this.renderStatus(status)
                             }
                         },
                         {
-                            name: "Flags",
-                            field: "flags",
-                            type: "custom",
-                            display: {
-                                render: flags => this.renderFlags(flags)
-                            }
-                        },
-                        {
                             name: "Description",
-                            field: "description",
+                            field: "interpretation.description",
                             type: "input-text",
                             defaultValue: "",
                             display: {
@@ -368,14 +286,19 @@ class ClinicalAnalysisEditor extends LitElement {
                         },
                         {
                             name: "Comments",
-                            field: "comments",
+                            field: "interpretation.comments",
                             type: "custom",
                             display: {
                                 render: comments => html`
-                                    <clinical-analysis-comment-editor .comments="${comments}" 
+                                    <clinical-analysis-comment-editor .comments="${comments}"
                                                                       .opencgaSession="${this.opencgaSession}"
-                                                                      @fieldChange="${e => this.onFieldChange({detail: {param: "comments", value: e.detail.value}})}">
-                                    </clinical-analysis-comment-editor>`
+                                                                      @fieldChange="${e => this.onFieldChange({
+                                                                          detail: {
+                                                                              param: "interpretation.comments",
+                                                                              value: e.detail.value
+                                                                          }
+                                                                      })}">
+                                    </clinical-analysis-comment-editor>\``
                             }
                         }
                     ]
@@ -386,30 +309,21 @@ class ClinicalAnalysisEditor extends LitElement {
 
     onRun(e) {
         if (this.updateParams && UtilsNew.isNotEmpty(this.updateParams)) {
-            if (this.updateParams.comments) {
-                if (this.clinicalAnalysis.comments) {
-                    this.clinicalAnalysis.comments = [...this.clinicalAnalysis.comments, this.updateParams.comments[0]];
-                } else {
-                    this.clinicalAnalysis.comments = this.updateParams.comments;
-                }
-            }
-
-            this.opencgaSession.opencgaClient.clinical().update(this.clinicalAnalysis.id, this.updateParams, {study: this.opencgaSession.study.fqn})
+            this.opencgaSession.opencgaClient.clinical().updateInterpretation(this.clinicalAnalysis.id, this.clinicalAnalysis.interpretation.id, this.updateParams, {study: this.opencgaSession.study.fqn})
                 .then(response => {
                     console.log(response);
                     this._clinicalAnalysis = JSON.parse(JSON.stringify(this.clinicalAnalysis));
                     this.updateParams = {};
-                    debugger
                     this.requestUpdate();
 
                     Swal.fire({
                         title: "Success",
                         icon: "success",
-                        html: "Case info updated successfully"
+                        html: "Interpretation info updated successfully"
                     });
                 })
                 .catch(response => {
-                    console.error("An error occurred updating clinicalAnalysis: ", response);
+                    console.error("An error occurred updating Interpretation: ", response);
                 });
         }
     }
@@ -418,7 +332,7 @@ class ClinicalAnalysisEditor extends LitElement {
         if (!this.clinicalAnalysis) {
             return "";
         }
-        debugger
+
         return html`
             <data-form  .data="${this.clinicalAnalysis}" 
                         .config="${this._config}" 
@@ -431,4 +345,4 @@ class ClinicalAnalysisEditor extends LitElement {
 
 }
 
-customElements.define("clinical-analysis-editor", ClinicalAnalysisEditor);
+customElements.define("clinical-interpretation-editor", ClinicalInterpretationEditor);
