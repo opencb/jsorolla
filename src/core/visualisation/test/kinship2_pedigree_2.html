@@ -50,7 +50,7 @@
             row.forEach((nodeId, i) => {
                 if (nodeId !== 0) {
                     //console.log(`familyData nodeid:${nodeId}`, familyData.find(member => member.i === nodeId))
-                    const data = familyData.find(member => parseInt(member.i) === parseInt(nodeId))
+                    const data = familyData.find(member => parseInt(member.i) === parseInt(nodeId));
                     nodes[genIndx].push({
                         id: data.id,
                         gen: genIndx,
@@ -77,7 +77,7 @@
          * - draw nodes from $pos matrix
          * - draw parent/children edges from Catalog data
          */
-        nodes.forEach((generation,genIndx) => {
+        nodes.forEach((generation, genIndx) => {
             generation.forEach((node, i) => {
                 const xCoord = $pos[genIndx][i];
                 const X = rescale_linear(xCoord, minPos, maxPos, 50, 800);
@@ -93,7 +93,7 @@
                         drawParentChildEdge(father, mother, node, draw);
                     }
                 }
-            })
+            });
         });
 
         /**
@@ -114,37 +114,33 @@
         });
 
 
-
-
-
         function drawNode(node, x, y) {
-            if (parseInt(node.id) < 0) {
-                draw.rect(NODE_SIZE, NODE_SIZE).fill("#fff").stroke("grey").move(x, y);
+
+            const strokeColor = parseInt(node.id) < 0 ? "grey" : "#000";
+            const fillColor = node.data.affected ? "grey" : "#fff";
+            if (node?.data?.sex === "MALE") {
+                draw.rect(NODE_SIZE, NODE_SIZE).fill(fillColor).stroke(strokeColor).move(x, y);
+            } else if (node?.data?.sex === "FEMALE") {
+                draw.circle(NODE_SIZE).fill(fillColor).stroke(strokeColor).move(x, y);
             } else {
-                const fillColor =  node.data.affected ? "grey" : "#fff";
-                if (node?.data?.sex === "MALE") {
-                    draw.rect(NODE_SIZE, NODE_SIZE).fill(fillColor).stroke("#000").move(x, y);
-                } else if (node?.data?.sex === "FEMALE") {
-                    draw.circle(NODE_SIZE).fill(fillColor).stroke("#000").move(x, y);
-                } else {
-                    draw.rect(NODE_SIZE, NODE_SIZE).fill(fillColor).stroke("#000").move(x, y).rotate(45);
-                }
+                draw.rect(NODE_SIZE, NODE_SIZE).fill(fillColor).stroke(strokeColor).move(x, y).rotate(45);
             }
 
+
             if (node.data.lifeStatus === "DEAD") {
-                draw.line(node.x - NODE_SIZE*.8, node.y + NODE_SIZE*.8, node.x + NODE_SIZE*.8, node.y - NODE_SIZE*.8).stroke({
+                draw.line(node.x - NODE_SIZE * .8, node.y + NODE_SIZE * .8, node.x + NODE_SIZE * .8, node.y - NODE_SIZE * .8).stroke({
                     color: "#000",
                     width: 1
                 });
             }
             if (node.data.carrier) {
-                draw.circle(NODE_SIZE/2).fill("#000").move(x + NODE_SIZE/4, y + NODE_SIZE/4);
+                draw.circle(NODE_SIZE / 2).fill("#000").move(x + NODE_SIZE / 4, y + NODE_SIZE / 4);
             }
-            draw.text(`${node.id} [${node?.data?.father?.id ?? ""}:${node?.data?.mother?.id ?? ""}]`).font({size:12}).dy(y + 20).dx(x);
+            draw.text(`${node.id} [${node?.data?.father?.id ?? ""}:${node?.data?.mother?.id ?? ""}]`).font({size: 12}).dy(y + 20).dx(x);
         }
 
         function drawSpouseEdge(source, target, draw) {
-            draw.line(source.x + NODE_SIZE/2, source.y, target.x - NODE_SIZE/2, target.y).stroke({
+            draw.line(source.x + NODE_SIZE / 2, source.y, target.x - NODE_SIZE / 2, target.y).stroke({
                 color: "#000",
                 width: 1
             }).attr({id: source.id + "__" + target.id});
@@ -171,13 +167,14 @@
         }
 
         function drawParentChildEdge(source1, source2, target, draw) {
-            console.log(source1, source2)
             if (source1.gen === (target.gen - 1)) {
 
+                // diagonal lines iff 1 child
+                const childsLen = getChildren(source1, source2, nodes).length === 1 ? 30 : 0;
                 // X coord of the middlePoint between parents
-                const middlePoint = source1.x + (Math.abs(source2.x - source1.x) / 2);
+                const middlePoint = (source1.x < source2.x ? source1.x : source2.x) + (Math.abs(source2.x - source1.x) / 2);
                 // 1st vertical line
-                draw.line(middlePoint, source1.y, middlePoint, source1.y + GEN_HEIGHT / 2).stroke({
+                draw.line(middlePoint, source1.y, middlePoint, source1.y + GEN_HEIGHT / 2 - childsLen).stroke({
                     color: "#000",
                     width: 1
                 }).attr({id: "A_" + source1.id + "__" + source2.id});
@@ -188,8 +185,8 @@
                     width: 1
                 }).attr({id: "B_" + target.id + "__" + target.id});
 
-                // horizonal line
-                draw.line(middlePoint, source1.y + GEN_HEIGHT / 2, target.x, target.y - GEN_HEIGHT / 2).stroke({
+                // horizonal (diagonal) line
+                draw.line(middlePoint, source1.y + GEN_HEIGHT / 2 - childsLen, target.x, target.y - GEN_HEIGHT / 2).stroke({
                     color: "#000",
                     width: 1
                 }).attr({id: "C_" + source1.id + "__" + target.id});
@@ -210,6 +207,22 @@
         const newRange = newMax - newMin;
         const rescaled = newMin + ((value - oldMin) * newRange / oldRange);
         return Math.round(rescaled);
+    }
+
+    function getChildren(source1, source2, nodes) {
+        console.log(source1, source2);
+        if (source1.gen !== source2.gen) {
+            console.warn("Parents in different generations:", source1.id, source2.id);
+        }
+        let childs = [];
+        nodes[source1.gen + 1].forEach(node => {
+            if (node.data.father.id === source1.id && node.data.mother.id === source2.id ||
+                node.data.mother.id === source1.id && node.data.father.id === source2.id) {
+                childs.push(node);
+            }
+        });
+
+        return childs;
     }
 
     /*
@@ -256,8 +269,9 @@
                 if (parseInt($nid) === parseInt(node.$nid)) return node;
             }
         }
-        console.warn(`node ${id} not found in`, array);
+        console.warn(`node $nid:${$nid} not found in`, array);
     }
+
     function getNode(id, array) {
         for (const gen of array) {
             for (const node of gen) {

@@ -6,8 +6,14 @@ DATA = pedAll
 
 
 #pedAll <- pedigree(id = sample.ped$id, dadid = sample.ped$father, momid = sample.ped$mother, sex = sample.ped$sex, famid = sample.ped$ped)
+#pedAll <- pedigree(id = minnbreast$id, dadid = minnbreast$fatherid, momid = minnbreast$motherid, sex = minnbreast$sex, famid = minnbreast$famid)
 #DATA = pedAll[2]
 
+write.table(DATA,
+            file = "tab_data.csv",
+            sep = "\t",
+            row.names = TRUE,
+            col.names = NA)
 print(pedAll)
 
 WIDTH = 10 # min width

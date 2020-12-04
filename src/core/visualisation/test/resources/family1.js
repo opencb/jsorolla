@@ -41,14 +41,14 @@ export default [
         "id": "6",
         "father": {id: "1"},
         "mother": {id: "2"},
-        "sex": "MALE",
+        "sex": "FEMALE",
         "age": "50"
     },
     {
         "id": "7",
         "father": {id: "1"},
         "mother": {id: "2"},
-        "sex": "MALE",
+        "sex": "FEMALE",
         "age": "50",
         "affected": true
     },
@@ -56,8 +56,9 @@ export default [
         "id": "8",
         "father": {id: "3"},
         "mother": {id: "4"},
-        "sex": "FEMALE",
-        "age": "50"
+        "sex": "MALE",
+        "age": "50",
+        "carrier": true
     },
     {
         "id": "9",
@@ -93,7 +94,8 @@ export default [
         "father": {id: "7"},
         "mother": {id: "8"},
         "sex": "FEMALE",
-        "age": "50"
+        "age": "50",
+        "affected": true
     },
     {
         "id": "14",
@@ -108,7 +110,7 @@ export default [
         "mother": {id: "8"},
         "sex": "MALE",
         "age": "50",
-        "carrier": true
+        "affected": true
     },
     {
         "id": "16",
@@ -159,12 +161,27 @@ export default [
         "father": {},
         "mother": {},
         "sex": "FEMALE",
-        "age": "50"
+        "age": "50",
+        "affected": true
     },
     {
         "id": "-3",
         "father": {},
         "mother": {},
+        "sex": "FEMALE",
+        "age": "50"
+    },
+    {
+        "id": "21",
+        "father": {id: "7"},
+        "mother": {id: "-1"},
+        "sex": "FEMALE",
+        "age": "50"
+    },
+    {
+        "id": "22",
+        "father": {id: "7"},
+        "mother": {id: "-1"},
         "sex": "FEMALE",
         "age": "50"
     }

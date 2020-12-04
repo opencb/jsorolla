@@ -23,4 +23,4 @@ id,fatherid,motherid,sex,age
 -2,0,0,FEMALE,20
 -3,0,0,FEMALE,20
 21,7,-1,MALE,20
-22,7,-1,MALE,20
+23,1,-1,MALE,20
