@@ -115,15 +115,6 @@ export default class NumberFieldFilter extends LitElement {
 
     render() {
         return html`
-            <style>
-                .number-field-filter {
-                    margin: 5px 0px;
-                }              
-                .number-field-filter > div:not(:first-child) {
-                    padding: 0px 10px
-                }
-            </style>
-            
             <div class="number-field-filter form-group" data-cy="number-field-filter-wrapper-${this.label ?? ""}">
                 ${this.label ? html`<div class="col-md-${this._config.layout[0]} control-label" data-toggle="tooltip" data-placement="top" title="${this.label}">
                         ${this.label}

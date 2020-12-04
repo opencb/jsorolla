@@ -17,8 +17,7 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../utilsNew.js";
 import PolymerUtils from "../../PolymerUtils.js";
-
-//import {switchWidget} from "/src/styles/styles.js";
+import "./number-field-filter.js";
 
 export default class ConservationFilter extends LitElement {
 
@@ -46,9 +45,38 @@ export default class ConservationFilter extends LitElement {
 
     _init() {
         this._prefix = "ff-" + UtilsNew.randomString(6) + "_";
+        this.methods = {"phylop": "Phylop", "phastCons": "Phastcons", "gerp": "Gerp"};
+        this.state = {};
+        this.defaultComparator = "<";
+        this.logicalOperator = ","; // OR=, AND=;
+        this.logicalSwitchDisabled = true;
+
     }
 
-    updated(_changedProperties) {
+    update(changedProperties) {
+        // "phylop>23,phastCons>212"
+        if (changedProperties.has("conservation")) {
+            this.state = {};
+            if (this.conservation) {
+                this.logicalOperator = this.conservation.split(",") > this.conservation.split(",") ? "," : ";";
+                this.conservation.split(this.logicalOperator).forEach(c => {
+                    const [field, comparator, value] = c.split(/(<=?|>=?|=)/);
+                    this.state[field] = {
+                        comparator,
+                        value
+                    };
+                });
+
+
+            }
+        } else {
+
+        }
+        super.update(changedProperties);
+
+    }
+
+    updated2(_changedProperties) {
         if (_changedProperties.has("conservation")) {
             if (this.conservation) {
                 let operator;
@@ -113,7 +141,7 @@ export default class ConservationFilter extends LitElement {
                     }*/
                 }
             } else {
-                //reset all and disable radio button
+                // reset all and disable radio button
                 $("." + this._prefix + "FilterTextInput").val("");
                 $("." + this._prefix + "FilterTextInput").prop("disabled", false);
                 $("." + this._prefix + "FilterRadio").prop("disabled", true);
@@ -122,147 +150,73 @@ export default class ConservationFilter extends LitElement {
         }
     }
 
-    // TODO refactor
-    filterChange(e) {
-        const arr = {"Phylop": "phylop", "Phastcons": "phastCons", "Gerp": "gerp"};
-        const conserArr = [];
-        let conservation;
-
-        for (const key of Object.keys(arr)) {
-            const inputTextArea = PolymerUtils.getElementById(this._prefix + key + "Input");
-            if (UtilsNew.isNotUndefinedOrNull(inputTextArea) && UtilsNew.isNotEmpty(inputTextArea.value)) {
-                const operator = PolymerUtils.getElementById(this._prefix + key + "Operator");
-                conserArr.push(arr[key] + operator.value + inputTextArea.value);
-            }
-        }
-        // Disable OR/AND logical operator
-        if (conserArr.length > 1) {
-            $("input:radio[name=conservation]").attr("disabled", false);
+    filterChange(e, method) {
+        // e.detail.value is not defined iff you are changing the comparator and a value hasn't been set yet
+        console.log(e.detail, method);
+        if (e?.detail?.value) {
+            this.state[method] = {comparator: e.detail.comparator, value: e.detail.numValue};
         } else {
-            $("input:radio[name=conservation]").attr("disabled", true);
+            delete this.state[method];
         }
-        if (conserArr.length > 0) {
-            const filter = $("input:radio[name=conservation]:checked").val();
-            if (filter === "and") {
-                conservation = conserArr.join(";");
-            } else {
-                conservation = conserArr.join(",");
-            }
-        }
+        this.logicalSwitchDisabled = Object.keys(this.state).length <= 1;
+        this.serialisedState = [];
+        Object.entries(this.state).forEach(([method, data]) => {
+            this.serialisedState.push(`${method}${data.comparator}${data.value}`);
+        });
+
+        this.requestUpdate();
+        this.notify();
+    }
+
+    notify() {
         const event = new CustomEvent("filterChange", {
             detail: {
-                value: conservation ? conservation : null
+                value: this.serialisedState.join(this.logicalOperator)
             }
         });
         this.dispatchEvent(event);
     }
 
+    onLogicalOperatorChange(e) {
+        this.logicalOperator = e.target.value;
+        this.notify();
+    }
+
     render() {
         return html`
+            ${Object.entries(this.methods).map(([id, label]) => {
+                return html`
+                    <div style="padding-top: 10px">
+                        <div class="row">
+                            <number-field-filter
+                                    .value="${this.state?.[id]?.value ? (this.state?.[id]?.comparator ?? this.defaultComparator) + (this.state?.[id]?.value ?? "") : ""}"
+                                    .config="${{comparator: true, layout: [3, 3, 6]}}"
+                                    .label="${label}"
+                                    type="string"
+                                    data-method="${id}"
+                                    data-action="comparator"
+                                    @filterChange="${e => this.filterChange(e, id)}">
+                            </number-field-filter>
+                        </div>
+                    </div>`;
+            })}
+
             <div style="padding-top: 10px">
-                <div class="row">
-                    <span class="col-md-5 control-label" style="padding-right: 5px"> PhyloP</span>
-                    <div class="col-md-3" style="padding: 0px 5px">
-                        <select name="phylopOperator" id="${this._prefix}PhylopOperator"
-                                class="${this._prefix}FilterSelect form-control input-sm" style="padding: 0px 5px"
-                                @change="${this.filterChange}">                            
-                            <option value="<">&lt;</option>
-                            <option value="<=">&le;</option>
-                            <option value=">" selected>&gt;</option>
-                            <option value=">=">&ge;</option>
-                        </select>
-                    </div>
-                    <div class="col-md-4" style="padding-left: 5px">
-                        <input type="number" value="" class="${this._prefix}FilterTextInput form-control input-sm"
-                               id="${this._prefix}PhylopInput" name="phylop" @input="${this.filterChange}">
-                    </div>
-                </div>
-            </div>
-            
-            <div style="padding-top: 10px">
-                <div class="row">
-                    <span class="col-md-5 control-label" style="padding-right: 5px">PhastCons</span>
-                    <div class="col-md-3" style="padding: 0px 5px">
-                        <select name="phastconsOperator" id="${this._prefix}PhastconsOperator"
-                                class="${this._prefix}FilterSelect form-control input-sm" style="padding: 0px 5px"
-                                @change="${this.filterChange}">                            
-                            <option value="<">&lt;</option>
-                            <option value="<=">&le;</option>
-                            <option value=">" selected>&gt;</option>
-                            <option value=">=">&ge;</option>
-                        </select>
-                    </div>
-                    <div class="col-md-4" style="padding-left: 5px">
-                        <input type="number" value="" class="${this._prefix}FilterTextInput form-control input-sm"
-                               id="${this._prefix}PhastconsInput" name="phastCons" @input="${this.filterChange}">
-                    </div>
-                </div>
-            </div>
-            
-            <div style="padding-top: 10px">
-                <div class="row">
-                    <span class="col-md-5 control-label" style="padding-right: 5px">Gerp</span>
-                    <div class="col-md-3" style="padding: 0px 5px">
-                        <select name="gerpOperator" id="${this._prefix}GerpOperator"
-                                class="${this._prefix}FilterSelect form-control input-sm" style="padding: 0px 5px"
-                                @change="${this.filterChange}">
-                            <option value="<">&lt;</option>
-                            <option value="<=">&le;</option>
-                            <option value=">" selected>&gt;</option>
-                            <option value=">=">&ge;</option>
-                        </select>
-                    </div>
-                    <div class="col-md-4" style="padding-left: 5px">
-                        <input type="number" value="" class="${this._prefix}FilterTextInput form-control input-sm"
-                               id="${this._prefix}GerpInput" name="gerp" @input="${this.filterChange}">
-                    </div>
-                </div>
-              
-                <!-- <form style="padding-top: 15px">
-                        <label style="font-weight: normal;">Logical Operator</label>
-                        <input type="radio" name="conservation" id="${this._prefix}conservationOrRadio" value="or"
-                               class="${this._prefix}FilterRadio" checked disabled style="margin-left: 10px"
-                               @change="${this.filterChange}"> OR<br>
-                        <input type="radio" name="conservation" id="${this._prefix}conservationAndRadio" value="and"
-                               class="${this._prefix}FilterRadio" disabled style="margin-left: 102px" @change="${this.filterChange}"> AND<br>
-                    </form>
-                -->
-   
                 <fieldset class="switch-toggle-wrapper">
                     <label style="font-weight: normal;">Logical Operator</label>
                     <div class="switch-toggle text-white alert alert-light">
-                        <input id="${this._prefix}conservationOrRadio" name="conservation" type="radio" value="or"
-                                   class="radio-or ${this._prefix}FilterRadio" checked disabled
-                                   @change="${this.filterChange}">
-                            <label for="${this._prefix}conservationOrRadio"
-                                   class="rating-label rating-label-or">OR</label>
-                        <input id="${this._prefix}conservationAndRadio" name="conservation" type="radio" value="and"
-                                   class="radio-and ${this._prefix}FilterRadio" disabled @change="${this.filterChange}">
-                            <label for="${this._prefix}conservationAndRadio"
-                                   class="rating-label rating-label-and">AND</label>
+                        <input id="${this._prefix}pssOrRadio" name="pss" type="radio" value=","
+                               class="radio-or ${this._prefix}FilterRadio" checked .disabled="${this.logicalSwitchDisabled}"
+                               @change="${this.onLogicalOperatorChange}"/>
+                        <label for="${this._prefix}pssOrRadio"
+                               class="rating-label rating-label-or">OR</label>
+                        <input id="${this._prefix}pssAndRadio" name="pss" type="radio" value=";"
+                               class="radio-and ${this._prefix}FilterRadio" .disabled="${this.logicalSwitchDisabled}" @change="${this.onLogicalOperatorChange}"/>
+                        <label for="${this._prefix}pssAndRadio"
+                               class="rating-label rating-label-and">AND</label>
                         <a class="btn btn-primary ripple btn-small"></a>
                     </div>
                 </fieldset>
-            
-            
-                <!-- <div class="switch-container">
-                    <div class="rating-toggle-container">
-                        <label style="font-weight: normal;">Logical Operator</label>
-                        <form class="flex-center">
-                            <input id="${this._prefix}conservationOrRadio" name="conservation" type="radio" value="or"
-                                   class="radio-or ${this._prefix}FilterRadio" checked disabled
-                                   @change="${this.filterChange}"/>
-                            <input id="${this._prefix}conservationAndRadio" name="conservation" type="radio" value="and"
-                                   class="radio-and ${this._prefix}FilterRadio" disabled @change="${this.filterChange}"/>
-                            <label for="${this._prefix}conservationOrRadio"
-                                   class="rating-label rating-label-or">OR</label>
-                            <div class="rating-toggle"></div>
-                            <div class="toggle-rating-pill"></div>
-                            <label for="${this._prefix}conservationAndRadio"
-                                   class="rating-label rating-label-and">AND</label>
-                        </form>
-                    </div>
-                </div> -->
             </div>
         `;
     }
