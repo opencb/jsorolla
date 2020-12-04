@@ -46,8 +46,19 @@ export default class ProteinSubstitutionScoreFilter extends LitElement {
     _init() {
         this._prefix = "pssf-" + UtilsNew.randomString(6) + "_";
         this.state = this.defaultState();
-        this.polyphenKeys = [{id: "score", name: "Score"}, {id: "benign", name: "Benign"}, {id: "unknown", name: "Unknown"}, {id: "possibly damaging", name: "Possibly damaging"}, {id: "probably damaging", name: "Probably damaging"}, {id: "possibly damaging,probably damaging", name: "Possibly & Probably damaging"}];
-        this.siftKeys = [{id: "score", name: "Score"}, {id: "tolerated", name: "Tolerated"}, {id: "deleterious", name: "Deleterious"}];
+        this.polyphenKeys = [
+            {id: "score", name: "Score"},
+            {id: "benign", name: "Benign"},
+            {id: "unknown", name: "Unknown"},
+            {id: "possibly damaging", name: "Possibly damaging"},
+            {id: "probably damaging", name: "Probably damaging"},
+            {id: "possibly damaging,probably damaging", name: "Possibly & Probably damaging"}
+        ];
+        this.siftKeys = [
+            {id: "score", name: "Score"},
+            {id: "tolerated", name: "Tolerated"},
+            {id: "deleterious", name: "Deleterious"}
+        ];
         this.logicalOperator = ","; // OR=, AND=;
         this.logicalSwitchDisabled = true;
     }
@@ -95,7 +106,6 @@ export default class ProteinSubstitutionScoreFilter extends LitElement {
         this.logicalOperator = e.target.value;
         this.notify();
     }
-
 
     defaultState() {
         return {
@@ -179,8 +189,6 @@ export default class ProteinSubstitutionScoreFilter extends LitElement {
                         <a class="btn btn-primary ripple btn-small"></a>
                     </div>
                 </fieldset>
-                
-                <br>
             </div>
             `;
     }

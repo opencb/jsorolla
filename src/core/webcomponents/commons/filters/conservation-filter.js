@@ -50,11 +50,9 @@ export default class ConservationFilter extends LitElement {
         this.defaultComparator = "<";
         this.logicalOperator = ","; // OR=, AND=;
         this.logicalSwitchDisabled = true;
-
     }
 
     update(changedProperties) {
-        // "phylop>23,phastCons>212"
         if (changedProperties.has("conservation")) {
             this.state = {};
             if (this.conservation) {
@@ -66,88 +64,9 @@ export default class ConservationFilter extends LitElement {
                         value
                     };
                 });
-
-
             }
-        } else {
-
         }
         super.update(changedProperties);
-
-    }
-
-    updated2(_changedProperties) {
-        if (_changedProperties.has("conservation")) {
-            if (this.conservation) {
-                let operator;
-                // TODO create an Util function getOperator(str) to discriminate the operator in a query filter string
-                const or = this.conservation.split(",");
-                const and = this.conservation.split(";");
-                if (or.length >= and.length) {
-                    operator = "or";
-                } else {
-                    operator = "and";
-                }
-                const fields = this.conservation.split(new RegExp("[,;]"));
-                if (fields && fields.length) {
-                    const phylop = fields.find(el => el.startsWith("phylop"));
-                    if (phylop) {
-                        this.querySelector("#" + this._prefix + "PhylopInput").value = phylop.split(/[<=>]+/)[1];
-                        this.querySelector("#" + this._prefix + "PhylopOperator").value = phylop.split(/[-A-Za-z0-9]+/)[1];
-                    } else {
-                        this.querySelector("#" + this._prefix + "PhylopInput").value = "";
-                    }
-                    const phastCons = fields.find(el => el.startsWith("phastCons"));
-                    if (phastCons) {
-                        this.querySelector("#" + this._prefix + "PhastconsInput").value = phastCons.split(/[<=>]+/)[1];
-                        this.querySelector("#" + this._prefix + "PhastconsOperator").value = phastCons.split(/[-A-Za-z0-9]+/)[1];
-                    } else {
-                        this.querySelector("#" + this._prefix + "PhastconsInput").value = "";
-                    }
-                    const gerp = fields.find(el => el.startsWith("gerp"));
-                    if (gerp) {
-                        this.querySelector("#" + this._prefix + "GerpInput").value = gerp.split(/[<=>]+/)[1];
-                        this.querySelector("#" + this._prefix + "GerpOperator").value = gerp.split(/[-A-Za-z0-9]+/)[1];
-                    } else {
-                        this.querySelector("#" + this._prefix + "GerpInput").value = "";
-                    }
-
-                    if (fields.length > 1) {
-                        $("." + this._prefix + "FilterRadio").prop("disabled", false);
-                        $("." + this._prefix + "FilterRadio[value=" + operator + "]").prop("checked", true);
-
-                    } else {
-                        $("." + this._prefix + "FilterRadio").prop("disabled", true);
-                        $("." + this._prefix + "FilterRadio").filter("[value=or]").prop("checked", true);
-
-                    }
-
-                    /* for (let i = 0; i < fields.length; i++) {
-                        let source = fields[i].split(/[<=>]+/)[0];
-                        switch (source) {
-                        case "phylop":
-                            PolymerUtils.setValue(this._prefix + "PhylopInput", fields[i].split(/[<=>]+/)[1]);
-                            PolymerUtils.setValue(this._prefix + "PhylopOperator", fields[i].split(/[-A-Za-z0-9]+/)[1]);
-                            break;
-                        case "phastCons":
-                            PolymerUtils.setValue(this._prefix + "PhastconsInput", fields[i].split(/[<=>]+/)[1]);
-                            PolymerUtils.setValue(this._prefix + "PhastconsOperator", fields[i].split(/[-A-Za-z0-9]+/)[1]);
-                            break;
-                        case "gerp":
-                            PolymerUtils.setValue(this._prefix + "GerpInput", fields[i].split(/[<=>]+/)[1]);
-                            PolymerUtils.setValue(this._prefix + "GerpOperator", fields[i].split(/[-A-Za-z0-9]+/)[1]);
-                            break;
-                        }
-                    }*/
-                }
-            } else {
-                // reset all and disable radio button
-                $("." + this._prefix + "FilterTextInput").val("");
-                $("." + this._prefix + "FilterTextInput").prop("disabled", false);
-                $("." + this._prefix + "FilterRadio").prop("disabled", true);
-                $("." + this._prefix + "FilterRadio").filter("[value=or]").prop("checked", true);
-            }
-        }
     }
 
     filterChange(e, method) {
