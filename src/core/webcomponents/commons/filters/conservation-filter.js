@@ -57,7 +57,9 @@ export default class ConservationFilter extends LitElement {
             this.state = {};
             if (this.conservation) {
                 this.logicalOperator = this.conservation.split(",") > this.conservation.split(",") ? "," : ";";
-                this.conservation.split(this.logicalOperator).forEach(c => {
+                const con = this.conservation.split(this.logicalOperator);
+                this.logicalSwitchDisabled = con.length <= 1;
+                con.forEach(c => {
                     const [field, comparator, value] = c.split(/(<=?|>=?|=)/);
                     this.state[field] = {
                         comparator,

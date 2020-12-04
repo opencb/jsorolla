@@ -69,6 +69,7 @@ export default class ProteinSubstitutionScoreFilter extends LitElement {
             if (this.protein_substitution) {
                 this.logicalOperator = this.protein_substitution.split(",") > this.protein_substitution.split(",") ? "," : ";";
                 const pss = this.protein_substitution.split(this.logicalOperator);
+                this.logicalSwitchDisabled = pss.length <= 1;
                 if (pss.length > 0) {
                     pss.forEach(ps => {
                         const [field, comparator, value] = ps.split(/(<=?|>=?|=)/);
@@ -107,6 +108,15 @@ export default class ProteinSubstitutionScoreFilter extends LitElement {
         this.notify();
     }
 
+    notify() {
+        const event = new CustomEvent("filterChange", {
+            detail: {
+                value: this.serialisedState.join(this.logicalOperator)
+            }
+        });
+        this.dispatchEvent(event);
+    }
+
     defaultState() {
         return {
             "polyphen": {type: "score", comparator: ">"},
@@ -128,7 +138,7 @@ export default class ProteinSubstitutionScoreFilter extends LitElement {
                         padding-left: 5px;
                     }
                 </style>
-                <div class="form-group">
+                <div class="form-group sift">
                     <span style="padding-top: 10px;padding-left: 0px;">SIFT</span>
                     <div class="row">
                         <div class="col-md-4 control-label score-select">
@@ -146,12 +156,12 @@ export default class ProteinSubstitutionScoreFilter extends LitElement {
                             </select>
                         </div>
                         <div class="col-md-5 score-value">
-                            <input class="form-control input-sm FilterTextInput" @input="${e => this.filterChange("sift", {value: e.target.value})}" .disabled="${this.state["sift"].type !== "score"}" .value="${this.state["sift"].value ?? ""}">
+                            <input type="text" class="form-control input-sm FilterTextInput" @input="${e => this.filterChange("sift", {value: e.target.value})}" .disabled="${this.state["sift"].type !== "score"}" .value="${this.state["sift"].value ?? ""}">
                         </div>
                     </div>
                 </div>
                 
-                <div class="form-group">
+                <div class="form-group polyphen">
                     <span style="padding-top: 10px;padding-left: 0px;">Polyphen</span>
                     <div class="row">
                         <div class="col-md-4 control-label score-select">
@@ -169,7 +179,7 @@ export default class ProteinSubstitutionScoreFilter extends LitElement {
                             </select>
                         </div>
                         <div class="col-md-5 score-value">
-                            <input class="form-control input-sm FilterTextInput" @input="${e => this.filterChange("polyphen", {value: e.target.value})}" .disabled="${this.state["polyphen"].type !== "score"}" .value="${this.state["polyphen"].value ?? ""}">
+                            <input type="text" class="form-control input-sm FilterTextInput" @input="${e => this.filterChange("polyphen", {value: e.target.value})}" .disabled="${this.state["polyphen"].type !== "score"}" .value="${this.state["polyphen"].value ?? ""}">
                         </div>
                     </div>
                 </div>
