@@ -493,8 +493,10 @@ export default class DataForm extends LitElement {
 
         return html`
             <div class="">
-                <text-field-filter placeholder="${element.display?.placeholder}" .rows=${rows} ?disabled=${disabled} ?required=${element.required} 
-                                    .value="${value}" @filterChange="${e => this.onFilterChange(element.field, e.detail.value)}">
+                <text-field-filter placeholder="${element.display?.placeholder}" .rows=${rows} ?disabled=${disabled} 
+                                   ?required=${element.required} .value="${value}" 
+                                   .classes="${element.display?.updated ? "updated" : ""}" 
+                                   @filterChange="${e => this.onFilterChange(element.field, e.detail.value)}">
                 </text-field-filter>
             </div>
         `;
@@ -509,8 +511,9 @@ export default class DataForm extends LitElement {
         return html`
             <div class="">
                 <number-field-filter label="Value" .value="${value ? value : ""}" 
-                    .min=${min} .max=${max} .step="${step}" .placeholder="${element.display?.placeholder || ""}" 
-                    @filterChange="${e => this.onFilterChange(element.field, e.detail.value)}">
+                                     .min=${min} .max=${max} .step="${step}" .placeholder="${element.display?.placeholder || ""}"
+                                     .classes="${element.display?.updated ? "updated" : ""}"
+                                     @filterChange="${e => this.onFilterChange(element.field, e.detail.value)}">
                 </number-field-filter>
             </div>
         `;
@@ -571,8 +574,9 @@ export default class DataForm extends LitElement {
         return html`
             <div class="">
                 <toggle-switch .value="${value}" .onText="${element.display.onText}" .offText="${element.display.offText}" 
-                    .activeClass="${element.display.activeClass}" .inactiveClass="${element.display.inactiveClass}" 
-                    @filterChange="${e => this.onFilterChange(element.field, e.detail.value)}">
+                               .activeClass="${element.display.activeClass}" .inactiveClass="${element.display.inactiveClass}"
+                               .classes="${element.display?.updated ? "updated" : ""}" 
+                               @filterChange="${e => this.onFilterChange(element.field, e.detail.value)}">
                 </toggle-switch>
             </div>
         `;
@@ -585,8 +589,9 @@ export default class DataForm extends LitElement {
         return html`
             <div class="">
                 <toggle-buttons .names="${names}" .value="${value}" 
-                    .activeClass="${element.display.activeClass}" .inactiveClass="${element.display.inactiveClass}" 
-                    @filterChange="${e => this.onFilterChange(element.field, e.detail.value)}">
+                                .activeClass="${element.display.activeClass}" .inactiveClass="${element.display.inactiveClass}"
+                                .classes="${element.display?.updated ? "updated" : ""}"
+                                @filterChange="${e => this.onFilterChange(element.field, e.detail.value)}">
                 </toggle-buttons>
             </div>
         `;
@@ -676,8 +681,10 @@ export default class DataForm extends LitElement {
         if (allowedValues && allowedValues.length > 0) {
             return html`
                 <div class="">
-                    <select-field-filter .data="${allowedValues}" ?multiple="${element.multiple}" ?disabled=${disabled} ?required=${element.required} 
-                                            .value="${defaultValue}" @filterChange="${e => this.onFilterChange(element.field, e.detail.value)}">
+                    <select-field-filter .data="${allowedValues}" ?multiple="${element.multiple}" ?disabled=${disabled} 
+                                         ?required=${element.required} .value="${defaultValue}" 
+                                         .classes="${element.display?.updated ? "updated" : ""}" 
+                                         @filterChange="${e => this.onFilterChange(element.field, e.detail.value)}">
                     </select-field-filter>
                 </div>
             `;

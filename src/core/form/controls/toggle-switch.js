@@ -55,6 +55,9 @@ export default class ToggleSwitch extends LitElement {
             disabled: {
                 type: Boolean
             },
+            classes: {
+                type: String
+            }
         };
     }
 
@@ -66,6 +69,7 @@ export default class ToggleSwitch extends LitElement {
         this.offText = "OFF";
         this.activeClass = "btn-primary";
         this.inactiveClass = "btn-default";
+        this.classes = "";
     }
 
     updated(changedProperties) {
@@ -153,9 +157,9 @@ export default class ToggleSwitch extends LitElement {
         return html`
             <div class="">
                 <div class="btn-group"> 
-                    <button type="button" class="btn ${this._onClass} btn-toggle-${this._prefix}" data-id="ON" 
+                    <button type="button" class="btn ${this._onClass} btn-toggle-${this._prefix} ${this.classes}" data-id="ON" 
                         @click="${e => this.onToggleClick("ON", e)}">${this.onText}</button>
-                    <button type="button" class="btn ${this._offClass} btn-toggle-${this._prefix}" data-id="OFF" 
+                    <button type="button" class="btn ${this._offClass} btn-toggle-${this._prefix} ${this.classes}" data-id="OFF" 
                         @click="${e => this.onToggleClick("OFF", e)}">${this.offText}</button>
                 </div>
              </div>

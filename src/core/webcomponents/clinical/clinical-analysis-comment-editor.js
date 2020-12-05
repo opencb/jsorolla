@@ -47,7 +47,7 @@ class ClinicalAnalysisCommentEditor extends LitElement {
     _init() {
         this._prefix = UtilsNew.randomString(8);
 
-        this.commnent = {};
+        this.comment = {};
     }
 
     connectedCallback() {
@@ -65,14 +65,33 @@ class ClinicalAnalysisCommentEditor extends LitElement {
 
     onFieldChange(field, e) {
         if (field === "message") {
-            this.commnent.message = e.detail.value;
+            this.comment.message = e.detail.value;
         } else {
-            this.commnent.tags = e.detail.value?.split(" ") ?? [];
+            this.comment.tags = e.detail.value?.split(" ") ?? [];
         }
 
         this.dispatchEvent(new CustomEvent("fieldChange", {
             detail: {
-                value: this.commnent,
+                action: "ADD",
+                value: this.comment,
+            },
+        }));
+    }
+
+    onEdit(comment, e) {
+        this.dispatchEvent(new CustomEvent("fieldChange", {
+            detail: {
+                action: "EDIT",
+                value: comment,
+            },
+        }));
+    }
+
+    onDelete(comment, e) {
+        this.dispatchEvent(new CustomEvent("fieldChange", {
+            detail: {
+                action: "DELETE",
+                value: comment,
             },
         }));
     }
@@ -114,11 +133,11 @@ class ClinicalAnalysisCommentEditor extends LitElement {
                     </div>
                     <div style="margin: 5px 10px">
                         <span>
-                            <a style="color: darkgrey; cursor: pointer">Edit</a>
+                            <a style="color: darkgrey; cursor: pointer" @click="${e => this.onEdit(comment, e)}">Edit</a>
                         </span>
                         <span> - </span>
                         <span>
-                            <a style="color: darkgrey; cursor: pointer">Delete</a>
+                            <a style="color: darkgrey; cursor: pointer" @click="${e => this.onDelete(comment, e)}">Delete</a>
                         </span>
                     </div>
                 </div>

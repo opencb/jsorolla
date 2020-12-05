@@ -47,7 +47,10 @@ export default class TextFieldFilter extends LitElement {
             },
             rows: {
                 type: Number
-            }
+            },
+            classes: {
+                type: String
+            },
         };
     }
 
@@ -55,6 +58,7 @@ export default class TextFieldFilter extends LitElement {
         this._prefix = "tff-" + UtilsNew.randomString(6);
 
         this.rows = 1;
+        this.classes = "";
     }
 
     updated(changedProperties) {
@@ -81,10 +85,10 @@ export default class TextFieldFilter extends LitElement {
             <div id="${this._prefix}-wrapper" class="" style="margin-left: 0px">
                 ${rows === 1 
                     ? html`
-                        <input type="text" id="${this._prefix}-input" class="form-control" 
+                        <input type="text" id="${this._prefix}-input" class="form-control ${this.classes}" 
                                 ?disabled=${this.disabled} ?required=${this.required} placeholder="${placeholder}" @input="${this.filterChange}">` 
                     : html`
-                        <textarea id="${this._prefix}-input" rows=${rows} class="form-control" 
+                        <textarea id="${this._prefix}-input" rows=${rows} class="form-control ${this.classes}" 
                                 ?disabled=${this.disabled} ?required=${this.required} placeholder="${placeholder}" @input="${this.filterChange}">`
                 }
             </div>

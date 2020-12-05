@@ -67,6 +67,9 @@ export default class SelectFieldFilter extends LitElement {
             forceSelection: {
                 type: Boolean
             },
+            classes: {
+                type: String
+            },
             // the expected format is either an array of string or an array of objects {id, name}
             data: {
                 type: Object
@@ -79,6 +82,7 @@ export default class SelectFieldFilter extends LitElement {
 
         this.multiple = false;
         this.data = [];
+        this.classes = "";
         this.elm = this._prefix + "selectpicker";
     }
 
@@ -108,8 +112,19 @@ export default class SelectFieldFilter extends LitElement {
             }
             this.selectPicker.selectpicker("val", val);
         }
+
         if (changedProperties.has("disabled")) {
             this.selectPicker.selectpicker("refresh");
+        }
+
+        if (changedProperties.has("classes")) {
+            if (this.classes) {
+                this.selectPicker.selectpicker('setStyle', this.classes, 'add');
+            } else {
+                // if classes os removed then we need to removed the old assigned classes
+                this.selectPicker.selectpicker('setStyle', changedProperties.get("classes"), 'remove');
+                this.selectPicker.selectpicker('setStyle', "btn-default", 'add');
+            }
         }
     }
 
@@ -153,7 +168,7 @@ export default class SelectFieldFilter extends LitElement {
                         data-live-search=${this.liveSearch ? "true" : "false"}
                         title="${this.placeholder ?? (this.multiple ? "Select option(s)" : "Select an option")}"
                         data-max-options="${!this.multiple ? 1 : this.maxOptions ? this.maxOptions : false}" 
-                        @change="${this.filterChange}" data-width="100%">
+                        @change="${this.filterChange}" data-width="100%" data-style="btn-default ${this.classes}">
                     ${this.data?.map(opt => html`
                         ${opt?.separator ?
                             html`<option data-divider="true"></option>` :

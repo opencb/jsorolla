@@ -51,6 +51,9 @@ export default class ToggleButtons extends LitElement {
             disabled: {
                 type: Boolean
             },
+            classes: {
+                type: String
+            }
         };
     }
 
@@ -61,6 +64,7 @@ export default class ToggleButtons extends LitElement {
         // Default values
         this.activeClass = "btn-primary";
         this.inactiveClass = "btn-default";
+        this.classes = "";
     }
 
     updated(changedProperties) {
@@ -143,9 +147,9 @@ export default class ToggleButtons extends LitElement {
         return html`
             <div class="">
                 <div class="btn-group">
-                    ${this.names && this.names.map(name => html`
-                        <button type="button" class="btn ${this._nameClass[name]} btn-toggle-${this._prefix}" data-id="${name}" 
-                            @click="${e => this.onToggleClick(name, e)}">${name}</button>`
+                    ${this.names?.map(name => html`
+                        <button type="button" class="btn ${this._nameClass[name]} btn-toggle-${this._prefix} ${this.classes}" data-id="${name}" 
+                                @click="${e => this.onToggleClick(name, e)}">${name}</button>`
                     )}
                 </div>
             </div>
