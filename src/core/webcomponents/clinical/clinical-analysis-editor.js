@@ -198,38 +198,7 @@ class ClinicalAnalysisEditor extends LitElement {
     }
 
     onCommentChange(e) {
-        if (e.detail) {
-            switch (e.detail.action.toUpperCase()) {
-                case "ADD":
-                    if (e.detail.value?.message) {
-                        // if (this.clinicalAnalysis.comments?.length === 0) {
-                        //     this.clinicalAnalysis.comments.push(e.detail.value);
-                        // } else {
-                        // debugger
-                        //     this.clinicalAnalysis.comments[this.clinicalAnalysis.comments.length - 1] = e.detail.value;
-                        // }
-                        this.updateParams.comments = {
-                            add: [e.detail.value]
-                        };
-                    } else {
-                        delete this.updateParams.comments;
-                    }
-                    break;
-                case "EDIT":
-                    break;
-                case "DELETE":
-                    if (!this.updateParams.comments?.delete) {
-                        this.updateParams.comments = {
-                            delete: []
-                        };
-                    }
-
-                    this.updateParams.comments.delete.push(e.detail.value);
-                    break;
-            }
-            this._config = {...this.getDefaultConfig(), ...this.config};
-            this.requestUpdate();
-        }
+        this.commentsUpdate = e.detail
     }
 
     getDefaultConfig() {
@@ -395,8 +364,7 @@ class ClinicalAnalysisEditor extends LitElement {
                             display: {
                                 render: comments => html`
                                     <clinical-analysis-comment-editor .comments="${comments}" 
-                                                                      .opencgaSession="${this.opencgaSession}"
-                                                                      @fieldChange="${e => this.onCommentChange(e)}">
+                                                                      @commentChange="${e => this.onCommentChange(e)}">
                                     </clinical-analysis-comment-editor>`
                             }
                         }
@@ -409,60 +377,72 @@ class ClinicalAnalysisEditor extends LitElement {
     onClear(e) {
         this.clinicalAnalysis = JSON.parse(JSON.stringify(this._clinicalAnalysis));
         this.updateParams = {};
+        this.commentsUpdate = {};
         this._config = {...this.getDefaultConfig(), ...this.config};
         this.requestUpdate();
-
-        Swal.fire({
-            title: "Cancel",
-            icon: "success",
-            html: "Changes cancel"
-        });
     }
 
     onRun(e) {
-        let options = {study: this.opencgaSession.study.fqn};
+        if (this.commentsUpdate) {
+            if (this.commentsUpdate.added?.length > 0) {
+                this.updateParams.comments = this.commentsUpdate.added;
+            }
+        }
 
         if (this.updateParams && UtilsNew.isNotEmpty(this.updateParams)) {
-            if (this.updateParams.comments) {
-                let comments = [];
-                if (this.clinicalAnalysis.comments) {
-                    if (this.updateParams.comments.add) {
-                        comments = [...this.clinicalAnalysis.comments, this.updateParams.comments.add[0]];
-                    }
-                    if (this.updateParams.comments.delete) {
-                        for (let comment of this.updateParams.comments.delete) {
-                            let index = this.clinicalAnalysis.comments.findIndex(c => c.date === comment.date);
-                            comments.splice(index, 1);
-                        }
-                    }
-                } else {
-                    this.clinicalAnalysis.comments = this.updateParams.comments.add;
-                }
+            this._updateOrDeleteComments(false);
 
-                this.clinicalAnalysis.comments = comments;
-                this.updateParams.comments = this.updateParams.comments.add;
-                // options.commentsAction = "SET";
-            }
-
-            this.opencgaSession.opencgaClient.clinical().update(this.clinicalAnalysis.id, this.updateParams, options)
+            this.opencgaSession.opencgaClient.clinical().update(this.clinicalAnalysis.id, this.updateParams, {study: this.opencgaSession.study.fqn})
                 .then(response => {
-                    console.log(response);
-                    this._clinicalAnalysis = JSON.parse(JSON.stringify(this.clinicalAnalysis));
+                    this._postUpdate(response);
+                })
+                .catch(response => {
+                    console.error("An error occurred updating clinicalAnalysis: ", response);
+                });
+        } else {
+            this._updateOrDeleteComments(true);
+        }
+    }
 
-                    this.updateParams = {};
-                    this._config = {...this.getDefaultConfig(), ...this.config};
-                    this.requestUpdate();
-
-                    Swal.fire({
-                        title: "Success",
-                        icon: "success",
-                        html: "Case info updated successfully"
-                    });
+    _updateOrDeleteComments(notify) {
+        if (this.commentsUpdate?.updated?.length > 0) {
+            this.opencgaSession.opencgaClient.clinical().update(this.clinicalAnalysis.id, {comments: this.commentsUpdate.updated}, {commentsAction: "REPLACE", study: this.opencgaSession.study.fqn})
+                .then(response => {
+                    if (notify && this.commentsUpdate?.deleted?.length === 0) {
+                        this._postUpdate(response);
+                    }
                 })
                 .catch(response => {
                     console.error("An error occurred updating clinicalAnalysis: ", response);
                 });
         }
+        if (this.commentsUpdate?.deleted?.length > 0) {
+            this.opencgaSession.opencgaClient.clinical().update(this.clinicalAnalysis.id, {comments: this.commentsUpdate.deleted}, {commentsAction: "REMOVE", study: this.opencgaSession.study.fqn})
+                .then(response => {
+                    if (notify) {
+                        this._postUpdate(response);
+                    }
+                })
+                .catch(response => {
+                    console.error("An error occurred updating clinicalAnalysis: ", response);
+                });
+        }
+    }
+
+    _postUpdate(response) {
+        Swal.fire({
+            title: "Success",
+            icon: "success",
+            html: "Case info updated successfully"
+        });
+
+        this.dispatchEvent(new CustomEvent("clinicalAnalysisUpdate", {
+            detail: {
+                clinicalAnalysis: this.clinicalAnalysis
+            },
+            bubbles: true,
+            composed: true
+        }));
     }
 
     render() {
