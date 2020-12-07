@@ -41,11 +41,11 @@ class ClinicalAnalysisEditor extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            clinicalAnalysisId: {
-                type: String
-            },
             clinicalAnalysis: {
                 type: Object
+            },
+            clinicalAnalysisId: {
+                type: String
             },
             config: {
                 type: Object

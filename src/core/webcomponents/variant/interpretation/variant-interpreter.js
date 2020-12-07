@@ -95,16 +95,16 @@ class VariantInterpreter extends LitElement {
         this.requestUpdate();
 
         // To delete
-        this.clinicalAnalysisId = "CA-2";
+        // this.clinicalAnalysisId = "CA-2";
         // this.clinicalAnalysisId = "TN2_PINDEL";
         // this.clinicalAnalysisId = "WS-1801417";
-        this.clinicalAnalysisIdObserver();
+        // this.clinicalAnalysisIdObserver();
     }
 
      clinicalAnalysisIdObserver() {
         if (this.opencgaSession) {
             this.loading = true;
-            if( this.clinicalAnalysisId) {
+            if ( this.clinicalAnalysisId) {
                 this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
                     .then(async response => {
                         this.clinicalAnalysis = response.getResult(0);
@@ -140,21 +140,6 @@ class VariantInterpreter extends LitElement {
         this.activeTab[tabId] = true;
         this.requestUpdate();
     }
-
-    /*_changeView(e) {
-        e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
-
-        if (e.currentTarget?.dataset?.view && !e.currentTarget.className.includes("disabled")) {
-            $(".clinical-portal-content", this).hide(); // hides all content divs
-            // $("#" + this._prefix + e.target.dataset.view).show(); // get the href and use it find which div to show
-            this.querySelector("#" + this._prefix + e.currentTarget.dataset.view).style.display = "block";
-            // Show the active button
-            // $(".clinical-portal-button").removeClass("active");
-            $(".clinical-portal-step").removeClass("active");
-            // $(e.target).addClass("active");
-            $(e.currentTarget).addClass("active");
-        }
-    }*/
 
     onClinicalAnalysisUpdate (e) {
         this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysis.id, {study: this.opencgaSession.study.fqn})
@@ -306,7 +291,8 @@ class VariantInterpreter extends LitElement {
                                 <variant-interpreter-qc .opencgaSession="${this.opencgaSession}"
                                                         .cellbaseClient="${this.cellbaseClient}"
                                                         .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                        .config="${this._config}">
+                                                        .config="${this._config}" 
+                                                        @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
                                 </variant-interpreter-qc>
                             </div>
                             
@@ -336,7 +322,8 @@ class VariantInterpreter extends LitElement {
                                                             .consequenceTypes="${this._config.consequenceTypes}"
                                                             .config="${this._config}"
                                                             @gene="${this.geneSelected}"
-                                                            @samplechange="${this.onSampleChange}">
+                                                            @samplechange="${this.onSampleChange}"
+                                                            @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
                                  </variant-interpreter-review>
                             </div>
                             <div id="${this._prefix}report" class="clinical-portal-content col-md-10 col-md-offset-1" style="${this._config.tools[0].id !== "report" ? "display: none" : ""}">

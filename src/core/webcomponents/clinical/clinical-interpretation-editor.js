@@ -98,7 +98,7 @@ class ClinicalInterpretationEditor extends LitElement {
     clinicalAnalysisObserver() {
         if (this.opencgaSession && this.clinicalAnalysis) {
             this._clinicalAnalysis = JSON.parse(JSON.stringify(this.clinicalAnalysis));
-            // this.requestUpdate();
+            this.requestUpdate();
         }
     }
 
@@ -118,13 +118,14 @@ class ClinicalInterpretationEditor extends LitElement {
     renderStatus(status) {
         return html`
             <div class="">
-                <select-field-filter .data="${ClinicalAnalysisUtils.getInterpretationStatuses()}" .value="${status.id}" 
-                        @filterChange="${e => {e.detail.param = "interpretation.status.id"; this.onFieldChange(e)}}">
+                <select-field-filter .data="${ClinicalAnalysisUtils.getInterpretationStatuses()}" .value="${status.id}"
+                                     .classes="${this.updateParams.status ? "updated" : ""}" 
+                                     @filterChange="${e => {e.detail.param = "interpretation.status.id"; this.onFieldChange(e)}}">
                 </select-field-filter>
-                ${status.description
-            ? html`<span class="help-block" style="padding: 0px 5px">${status.description}</span>`
-            : null
-        }
+                ${status.description 
+                        ? html`<span class="help-block" style="padding: 0px 5px">${status.description}</span>`
+                        : null
+                }
             </div>`;
     }
 
@@ -132,47 +133,33 @@ class ClinicalInterpretationEditor extends LitElement {
         switch (e.detail.param) {
             case "interpretation.status.id":
             case "interpretation.analyst.id":
-                debugger
                 let field = e.detail.param.split(".")[1];
-                if (this._clinicalAnalysis.interpretation[field] && this._clinicalAnalysis.interpretation[field].id !== e.detail.value && e.detail.value !== null) {
+                if (this._clinicalAnalysis.interpretation[field]?.id !== e.detail.value && e.detail.value !== null) {
                     this.clinicalAnalysis.interpretation[field].id = e.detail.value;
                     this.updateParams[field] = {
                         id: e.detail.value
                     };
                 } else {
-                    delete this.updateParams[field].id;
-                }
-                if (UtilsNew.isEmpty(this.updateParams[field])) {
+                    this.clinicalAnalysis[field].id = this._clinicalAnalysis[field].id;
                     delete this.updateParams[field];
                 }
                 break;
             case "interpretation.description":
-                if (this._clinicalAnalysis.interpretation.description !== e.detail.value && e.detail.value) {
+                if (this._clinicalAnalysis.interpretation.description !== e.detail.value && e.detail.value !== null) {
                     this.clinicalAnalysis.interpretation.description = e.detail.value;
                     this.updateParams.description = e.detail.value;
                 } else {
+                    this.clinicalAnalysis[e.detail.param] = this._clinicalAnalysis[e.detail.param].id;
                     delete this.updateParams.description;
                 }
                 break;
-            case "interpretation.comments":
-                if (!this.clinicalAnalysis.interpretation.comments) {
-                    this.clinicalAnalysis.interpretation = {
-                        comments: []
-                    };
-                }
-                if (e.detail.value?.message) {
-                    if (this.clinicalAnalysis.interpretation.comments?.length === 0) {
-                        this.clinicalAnalysis.interpretation.comments.push(e.detail.value);
-                    } else {
-                        this.clinicalAnalysis.interpretation.comments[this.clinicalAnalysis.interpretation.comments.length - 1] = e.detail.value;
-                    }
-                    this.updateParams.comments = [e.detail.value];
-                } else {
-                    delete this.updateParams.comments;
-                }
-                break;
         }
+        this._config = {...this.getDefaultConfig(), ...this.config};
         this.requestUpdate();
+    }
+
+    onCommentChange(e) {
+        this.commentsUpdate = e.detail
     }
 
     getDefaultConfig() {
@@ -264,7 +251,8 @@ class ClinicalInterpretationEditor extends LitElement {
                             defaultValue: this.clinicalAnalysis?.analyst?.id ?? this.clinicalAnalysis?.analyst?.assignee,
                             allowedValues: () => this._users,
                             display: {
-                                width: "9"
+                                width: "9",
+                                updated: this.updateParams.analyst ?? false
                             }
                         },
                         {
@@ -272,7 +260,7 @@ class ClinicalInterpretationEditor extends LitElement {
                             field: "interpretation.status",
                             type: "custom",
                             display: {
-                                render: status => this.renderStatus(status)
+                                render: status => this.renderStatus(status),
                             }
                         },
                         {
@@ -281,7 +269,8 @@ class ClinicalInterpretationEditor extends LitElement {
                             type: "input-text",
                             defaultValue: "",
                             display: {
-                                rows: 3
+                                rows: 3,
+                                updated: this.updateParams.description ?? false
                             }
                         },
                         {
@@ -291,14 +280,8 @@ class ClinicalInterpretationEditor extends LitElement {
                             display: {
                                 render: comments => html`
                                     <clinical-analysis-comment-editor .comments="${comments}"
-                                                                      .opencgaSession="${this.opencgaSession}"
-                                                                      @fieldChange="${e => this.onFieldChange({
-                                                                          detail: {
-                                                                              param: "interpretation.comments",
-                                                                              value: e.detail.value
-                                                                          }
-                                                                      })}">
-                                    </clinical-analysis-comment-editor>\``
+                                                                      @commentChange="${e => this.onCommentChange(e)}">
+                                    </clinical-analysis-comment-editor>`
                             }
                         }
                     ]
@@ -307,25 +290,81 @@ class ClinicalInterpretationEditor extends LitElement {
         };
     }
 
+    onClear(e) {
+        this.clinicalAnalysis = JSON.parse(JSON.stringify(this._clinicalAnalysis));
+        this.updateParams = {};
+        this.commentsUpdate = {};
+        this._config = {...this.getDefaultConfig(), ...this.config};
+        this.requestUpdate();
+    }
+
     onRun(e) {
+        if (this.commentsUpdate) {
+            if (this.commentsUpdate.added?.length > 0) {
+                this.updateParams.comments = this.commentsUpdate.added;
+            }
+        }
+
         if (this.updateParams && UtilsNew.isNotEmpty(this.updateParams)) {
+            this._updateOrDeleteComments(false);
+
             this.opencgaSession.opencgaClient.clinical().updateInterpretation(this.clinicalAnalysis.id, this.clinicalAnalysis.interpretation.id, this.updateParams, {study: this.opencgaSession.study.fqn})
                 .then(response => {
-                    console.log(response);
-                    this._clinicalAnalysis = JSON.parse(JSON.stringify(this.clinicalAnalysis));
-                    this.updateParams = {};
-                    this.requestUpdate();
+                    this._postUpdate(response);
+                })
+                .catch(response => {
+                    console.error("An error occurred updating Interpretation: ", response);
+                });
+        } else {
+            this._updateOrDeleteComments(true);
+        }
+    }
 
-                    Swal.fire({
-                        title: "Success",
-                        icon: "success",
-                        html: "Interpretation info updated successfully"
-                    });
+    _updateOrDeleteComments(notify) {
+        if (this.commentsUpdate?.updated?.length > 0) {
+            this.opencgaSession.opencgaClient.clinical().updateInterpretation(this.clinicalAnalysis.id, this.clinicalAnalysis.interpretation.id, {comments: this.commentsUpdate.updated}, {commentsAction: "REPLACE", study: this.opencgaSession.study.fqn})
+                .then(response => {
+                    if (notify && this.commentsUpdate?.deleted?.length === 0) {
+                        this._postUpdate(response);
+                    }
                 })
                 .catch(response => {
                     console.error("An error occurred updating Interpretation: ", response);
                 });
         }
+        if (this.commentsUpdate?.deleted?.length > 0) {
+            this.opencgaSession.opencgaClient.clinical().updateInterpretation(this.clinicalAnalysis.id, this.clinicalAnalysis.interpretation.id, {comments: this.commentsUpdate.deleted}, {commentsAction: "REMOVE", study: this.opencgaSession.study.fqn})
+                .then(response => {
+                    if (notify) {
+                        this._postUpdate(response);
+                    }
+                })
+                .catch(response => {
+                    console.error("An error occurred updating Interpretation: ", response);
+                });
+        }
+    }
+
+    _postUpdate(response) {
+        // FIXME This should net be needed because the event below
+        this.updateParams = {};
+        this.commentsUpdate = {};
+        this._config = {...this.getDefaultConfig(), ...this.config};
+        this.requestUpdate();
+
+        Swal.fire({
+            title: "Success",
+            icon: "success",
+            html: "Interpretation info updated successfully"
+        });
+
+        this.dispatchEvent(new CustomEvent("clinicalAnalysisUpdate", {
+            detail: {
+                clinicalAnalysis: this.clinicalAnalysis
+            },
+            bubbles: true,
+            composed: true
+        }));
     }
 
     render() {
