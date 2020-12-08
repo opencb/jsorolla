@@ -107,7 +107,7 @@ export default class ConservationFilter extends LitElement {
         return html`
             ${Object.entries(this.methods).map(([id, label]) => {
                 return html`
-                    <div style="padding-top: 10px">
+                    <div style="padding-top: 10px" class="cf-${id}">
                         <div class="row">
                             <number-field-filter
                                     .value="${this.state?.[id]?.value ? (this.state?.[id]?.comparator ?? this.defaultComparator) + (this.state?.[id]?.value ?? "") : ""}"

@@ -1,0 +1,80 @@
+/* Notification */
+
+#notifications-queue {
+    position: fixed;
+    top: 10px;
+    z-index: 9999;
+    left: 33%;
+}
+
+#notifications-queue .alert {
+    display: flex;
+    align-items: center;
+    margin: 5px auto;
+    position: relative;
+    transition: all 0.5s ease-in-out 0s;
+    z-index: 2020;
+    box-shadow: 0 1px 3px 0 rgba(60, 64, 67, 0.302), 0 4px 8px 3px rgba(60, 64, 67, 0.149);
+    font-size: .9em;
+    letter-spacing: .2px;
+    background-color: #373743;
+    border: none;
+    -webkit-border-radius: 4px;
+    border-radius: 4px;
+    bottom: 0;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+    color: #fff;
+    left: 0;
+    padding: 10px 24px 11px 24px;
+    white-space: normal;
+}
+
+#notifications-queue .alert p.title {
+    font-size: 1.2em;
+}
+
+#notifications-queue .alert p.title i {
+    vertical-align: sub;
+}
+
+#notifications-queue .alert p.details {
+    color: #b6c1c9;
+    word-break: break-all;
+}
+
+#notifications-queue .alert a {
+    color: #c9c9c9;
+}
+
+#notifications-queue .alert .close {
+    position: absolute;
+    top: 5px;
+    right: 0px;
+    font-size: 1em;
+    opacity: .4;
+}
+
+#notifications-queue .alert .close i {
+    color: #fff;
+}
+
+#notifications-queue .alert .fa {
+    margin-right: .3em;
+}
+
+#notifications-queue .alert-success i {
+    color: #91f096;
+}
+
+#notifications-queue .alert-info i {
+    color: #d2e6f7;
+}
+
+#notifications-queue .alert-warning i {
+    color: #f5e513;
+}
+
+#notifications-queue .alert-danger i {
+    color: #f28c8b;
+}
