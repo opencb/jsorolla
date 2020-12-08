@@ -522,7 +522,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                 halign: this._config.header.horizontalAlign,
                 valign: "middle",
                 formatter: proband => `<div>
-                                            <span style="font-weight: bold; margin: 5px 0">${proband.id}</span>
+                                            <span data-cy="proband-id" style="font-weight: bold; margin: 5px 0">${proband.id}</span>
                                         </div>
                                         <div>
                                             <span class="help-block" style="margin: 5px 0">${proband.samples?.map(sample => sample.id)?.join("<br>") ?? "-"}</span>
@@ -543,10 +543,10 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                 halign: this._config.header.horizontalAlign,
                 valign: "middle",
                 formatter: (value, row) => {
-                    if (row.id && row.family?.members.length) {
+                    if (row.family?.id && row.family?.members.length) {
                         return `
                             <div>
-                                <span style="margin: 5px 0">${row.id}</span>
+                                <span data-cy="family-id"style="margin: 5px 0">${row.family.id}</span>
                             </div>
                             <div>
                                 <span class="help-block" style="margin: 5px 0">${row.family.members.length} members</span>

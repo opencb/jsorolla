@@ -527,7 +527,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                     
                                     ${~this._config.filter.sections[0].fields.findIndex(field => field.id === "family") ? html`                                    
                                     <!-- Family -->
-                                    <div class="btn-group">
+                                    <div class="btn-group" data-cy="form-family">
                                         <button type="button" class="dropdown-toggle btn btn-default filter-button"
                                                 id="${this._prefix}familyMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                                             <span class="ocap-text-button">Family: <span>${this.query.family ?? "All"}</span></span>&nbsp; <span class="caret"></span>
