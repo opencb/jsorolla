@@ -592,7 +592,7 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                         </div>
                         <div class="modal-body">
                             <div class="container-fluid">
-                                <json-viewer .data="${this.clinicalAnalysis.interpretation}"></json-viewer>
+                                <json-viewer .data="${this.clinicalAnalysis?.interpretation}"></json-viewer>
                             </div>
                         </div>
                         <div class="modal-footer">

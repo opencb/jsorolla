@@ -61,6 +61,21 @@ export default class ClinicalInterpretationVariantReview extends LitElement {
     variantObserver() {
     }
 
+    onCommentChange(e) {
+        this.commentsUpdate = e.detail;
+
+        if (this.commentsUpdate?.newComments?.length > 0) {
+            this.variant.comments = this.commentsUpdate.newComments;
+        }
+
+        this.dispatchEvent(new CustomEvent("variantChange", {
+            detail: {
+                value: this.variant,
+                update: this.updateParams
+            },
+        }));
+    }
+
     getSaveForm() {
         let sections = {
             sections: [
@@ -89,7 +104,9 @@ export default class ClinicalInterpretationVariantReview extends LitElement {
                             type: "custom",
                             display: {
                                 render: comments => html`
-                                    <clinical-analysis-comment-editor .comments="${comments}" .opencgaSession="${this.opencgaSession}"></clinical-analysis-comment-editor>`
+                                    <clinical-analysis-comment-editor .comments="${comments}"
+                                                                      @commentChange="${e => this.onCommentChange(e)}">
+                                    </clinical-analysis-comment-editor>`
                             }
                         },
                     ]
@@ -158,6 +175,10 @@ export default class ClinicalInterpretationVariantReview extends LitElement {
                 break;
         }
 
+        if (this.commentsUpdate?.newComments?.length > 0) {
+            this.variant.comments = this.commentsUpdate.newComments;
+        }
+
         this.dispatchEvent(new CustomEvent("variantChange", {
             detail: {
                 value: this.variant,
@@ -174,7 +195,7 @@ export default class ClinicalInterpretationVariantReview extends LitElement {
         return html`
             <data-form  .data=${this.variant}
                         .config="${this.getSaveForm()}"
-                        @fieldChange="${e => this.onSaveFieldChange(e)}" @
+                        @fieldChange="${e => this.onSaveFieldChange(e)}"
                         @submit="${this.onSave}">
             </data-form>
         `;

@@ -981,6 +981,7 @@ export default class VariantInterpreterGrid extends LitElement {
 
     onSaveVariant(e) {
         if (this._variantChanged) {
+            debugger
             this.clinicalAnalysisManager.updateVariant(this._variantChanged, this.clinicalAnalysis.interpretation);
             this._variantChanged = null;
         }
