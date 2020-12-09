@@ -107,9 +107,14 @@ export default class VariantBrowserGrid extends LitElement {
         }
         this.samples = _samples;
 
+        const fieldToHide = ["deleteriousness", "conservation", "popfreq", "phenotypes"]
         // Config for the grid toolbar
+
+        //TODO strip out HTML code (and content) in titles
         this.toolbarConfig = {
-            columns: this._createDefaultColumns().flat().filter(f => !["deleteriousness", "conservation", "popfreq", "phenotypes"].includes(f.field)),
+            columns: this._createDefaultColumns()
+                .flat()
+                .filter(f => !fieldToHide.includes(f.field))
         };
     }
 
