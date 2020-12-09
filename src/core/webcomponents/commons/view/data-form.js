@@ -52,7 +52,9 @@ export default class DataForm extends LitElement {
 
     _init() {
         this._prefix = UtilsNew.randomString(8);
-        //this.data = {};
+
+        // We need to initialise 'data' in case undefined value is passed
+        this.data = {};
     }
 
     firstUpdated(_changedProperties) {
@@ -64,10 +66,12 @@ export default class DataForm extends LitElement {
         });
     }
 
-    updated(changedProperties) {
+    update(changedProperties) {
         if (changedProperties.has("data")) {
-            // this.requestUpdate();
+            // Check if 'data' passed is undefined or null and initialised to empty object
+            this.data = this.data ?? {};
         }
+        super.update(changedProperties);
     }
 
     getValue(field, object, defaultValue, format) {
