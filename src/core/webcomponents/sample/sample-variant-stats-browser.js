@@ -149,8 +149,8 @@ export default class SampleVariantStatsBrowser extends LitElement {
         this.loading = true;
         this.errorState = false;
         await this.requestUpdate();
-
-        this.opencgaSession.opencgaClient.variants().querySampleStats(this.sample.id, {study: this.opencgaSession.study.fqn, ...this.query})
+// debugger
+        this.opencgaSession.opencgaClient.variants().querySampleStats(this.sample?.id, {study: this.opencgaSession.study.fqn, ...this.query})
             .then(response => {
                 this.sampleQcVariantStats = {
                     stats: response.responses[0].results[0],
