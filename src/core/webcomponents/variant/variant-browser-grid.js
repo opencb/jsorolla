@@ -106,15 +106,12 @@ export default class VariantBrowserGrid extends LitElement {
             }
         }
         this.samples = _samples;
-
-        const fieldToHide = ["deleteriousness", "conservation", "popfreq", "phenotypes"]
+        const fieldToHide = ["deleteriousness", "cohorts", "conservation", "popfreq", "phenotypes", "clinicalInfo"];
         // Config for the grid toolbar
-
-        //TODO strip out HTML code (and content) in titles
         this.toolbarConfig = {
             columns: this._createDefaultColumns()
                 .flat()
-                .filter(f => !fieldToHide.includes(f.field))
+                .filter(f => f.title && !fieldToHide.includes(f.field) && (f.visible ?? true))
         };
     }
 
@@ -139,11 +136,6 @@ export default class VariantBrowserGrid extends LitElement {
         // TODO quickfix. The check on query is required because the study is in the query object. A request without the study returns the error "Multiple projects found"
         if (this.opencgaSession && this.opencgaSession.project && this.opencgaSession.study) {
             this._columns = this._createDefaultColumns();
-
-            // Config for the grid toolbar
-            this.toolbarConfig = {
-                columns: this._createDefaultColumns().flat().filter(f => !["deleteriousness", "cohorts", "conservation", "popfreq", "phenotypes"].includes(f.field))
-            };
 
             this.table = $("#" + this.gridId);
             this.table.bootstrapTable("destroy");
@@ -581,7 +573,7 @@ export default class VariantBrowserGrid extends LitElement {
                                     <span style='font-weight: bold'>COSMIC</span> is the world's largest and most comprehensive resource for exploring the impact of somatic mutations in human cancer.
                                 </div>"
                             tooltip-position-at="left bottom" tooltip-position-my="right top"><i class="fa fa-info-circle" aria-hidden="true"></i></a>`,
-                    // field: "phenotypes",
+                    field: "clinicalInfo",
                     rowspan: 1,
                     colspan: 2,
                     align: "center"
