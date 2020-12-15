@@ -220,8 +220,8 @@ export default class OpencgaFileBrowser extends LitElement {
                 }
             },
             aggregation: {
-                //default: ["creationYear>>creationMonth", "format", "bioformat", "format>>bioformat", "status", "size[0..214748364800]:10737418240", "numSamples[0..10]:1"],
-                default: ["type>>size[0..214748364800]:10737418240", "format>>avg(size)", "release"],
+                default: ["creationYear>>creationMonth", "format", "bioformat", "format>>bioformat", "status", "size[0..214748364800]:10737418240", "numSamples[0..10]:1"],
+                // default: ["type>>size[0..214748364800]:10737418240", "format>>avg(size)", "release"],
                 result: {
                     numColumns: 2
                 },
