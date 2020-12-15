@@ -106,13 +106,14 @@ export default class VariantBrowserGrid extends LitElement {
             }
         }
         this.samples = _samples;
-        const fieldToHide = ["deleteriousness", "cohorts", "conservation", "popfreq", "phenotypes", "clinicalInfo"];
+        const fieldToHide = ["deleteriousness", "conservation", "popfreq", "phenotypes", "clinicalInfo"];
         // Config for the grid toolbar
         this.toolbarConfig = {
             columns: this._createDefaultColumns()
                 .flat()
                 .filter(f => f.title && !fieldToHide.includes(f.field) && (f.visible ?? true))
         };
+        this.requestUpdate();
     }
 
     onColumnChange(e) {
@@ -450,7 +451,7 @@ export default class VariantBrowserGrid extends LitElement {
                     colspan: 1,
                     formatter: this.cohortFormatter,
                     align: "center",
-                    eligible: false
+                    eligible: true
                 });
             }
         }

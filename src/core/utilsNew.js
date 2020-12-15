@@ -168,7 +168,11 @@ export default class UtilsNew {
                     my: $(this).attr("tooltip-position-my") ?? "top left",
                     at: $(this).attr("tooltip-position-at") ?? "bottom right"},
                 style: {width: true, classes: "qtip-light qtip-rounded qtip-shadow"},
-                show: {delay: 200},
+                // show: {delay: 200},
+                show: {
+                    delay: 200,
+                    event: "click mouseenter"
+                },
                 hide: {fixed: true, delay: 300}
             });
         });

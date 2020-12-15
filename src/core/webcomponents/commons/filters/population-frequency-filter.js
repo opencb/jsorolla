@@ -176,7 +176,7 @@ export default class PopulationFrequencyFilter extends LitElement {
                                     .value="${this.state[study.id + ":" + popFreq.id]?.value ? ((this.state[study.id + ":" + popFreq.id]?.comparator ?? this.defaultComparator) + this.state[study.id + ":" + popFreq.id]?.value) : ""}"
                                     .config="${{comparator: true, layout: [3, 3, 6]}}"
                                     .label="${popFreq.id}"
-                                    type="string"
+                                    type="text"
                                     @filterChange="${e => this.filterChange(e, `${study.id}:${popFreq.id}`)}">
                             </number-field-filter>
                         `)}

@@ -54,6 +54,7 @@ export default class OpencbGridToolbar extends LitElement {
     updated(changedProperties) {
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
+            console.log("this._config", this._config.columns)
         }
     }
 
@@ -144,7 +145,7 @@ export default class OpencbGridToolbar extends LitElement {
                                     </button>
                                     <ul class="dropdown-menu btn-sm checkbox-container">
                                         ${this._config.columns.length ?
-                                            this._config.columns.filter(item => item.eligible ?? true ).map(item => html`
+                                            this._config.columns.filter(item => item.eligible ?? true).map(item => html`
                                                 <li>
                                                     <a data-column-id="${item.field}" @click="${this.onColumnClick}" style="cursor: pointer;">
                                                         <input type="checkbox" @click="${this.checkboxToggle}" .checked="${this.isTrue(item.visible)}"/>

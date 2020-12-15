@@ -113,7 +113,7 @@ export default class ConservationFilter extends LitElement {
                                     .value="${this.state?.[id]?.value ? (this.state?.[id]?.comparator ?? this.defaultComparator) + (this.state?.[id]?.value ?? "") : ""}"
                                     .config="${{comparator: true, layout: [3, 3, 6]}}"
                                     .label="${label}"
-                                    type="string"
+                                    type="text"
                                     data-method="${id}"
                                     data-action="comparator"
                                     @filterChange="${e => this.filterChange(e, id)}">

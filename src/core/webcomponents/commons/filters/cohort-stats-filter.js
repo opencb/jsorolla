@@ -161,7 +161,7 @@ export default class CohortStatsFilter extends LitElement {
                                 .value="${this.state?.[study]?.value ? (this.state?.[study]?.comparator ?? this.defaultComparator) + (this.state?.[study]?.value ?? "") : ""}"
                                 .config="${{comparator: true, layout: [3,3,6]}}"
                                 .label="${cohort.name}"
-                                type="string"
+                                type="text"
                                 data-study="${study}"
                                 data-cohort="${cohort.id}"
                                 data-action="comparator"
