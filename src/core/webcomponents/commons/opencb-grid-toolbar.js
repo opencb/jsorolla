@@ -51,11 +51,12 @@ export default class OpencbGridToolbar extends LitElement {
     }
 
 
-    updated(changedProperties) {
+    update(changedProperties) {
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
-            console.log("this._config", this._config.columns)
+            console.log("this._config", this._config)
         }
+        super.update(changedProperties)
     }
 
     onDownloadFile(e) {
