@@ -132,17 +132,21 @@ export default class OpencgaBrowser extends LitElement {
         if (this.opencgaSession && this.opencgaSession.project) {
             this.checkProjects = true;
             this.query = {study: this.opencgaSession.study.fqn};
-            this.onRun(); // TODO temp fix: when you switch study this.facetQuery contains the old study when you perform a new Aggregation query
 
-            //this.requestUpdate().then(() => $(".bootstrap-select", this).selectpicker());
+            // TODO temp fix this.onRun(): when you switch study this.facetQuery contains the old study when you perform a new Aggregation query
+            // TODO as a consequence, we need to update preparedQuery as this.onRun() uses it (without it the old study is in query in table result as well)
+            this.preparedQuery = {study: this.opencgaSession.study.fqn};
+            this.onRun();
+
+            // this.requestUpdate().then(() => $(".bootstrap-select", this).selectpicker());
         } else {
             this.checkProjects = false;
         }
     }
 
     queryObserver() {
-          if (this.opencgaSession) {
-            if(this.query) {
+        if (this.opencgaSession) {
+            if (this.query) {
                 this.preparedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
                 this.executedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
             } else {
@@ -152,8 +156,8 @@ export default class OpencgaBrowser extends LitElement {
         }
         // onServerFilterChange() in opencga-active-filters drops a filterchange event when the Filter dropdown is used
         this.dispatchEvent(new CustomEvent("queryChange", {
-                detail: this.preparedQuery
-            }
+            detail: this.preparedQuery
+        }
         ));
         this.detail = {};
         this.requestUpdate();
@@ -180,12 +184,12 @@ export default class OpencgaBrowser extends LitElement {
             this.facetQuery = {
                 ...this.preparedQuery,
                 study: this.opencgaSession.study.fqn,
-                //timeout: 60000,
+                // timeout: 60000,
                 field: Object.values(this.selectedFacetFormatted).map(v => v.formatted).join(";")
             };
             this._changeView("facet-tab");
         } else {
-           this.facetQuery = null;
+            this.facetQuery = null;
         }
     }
 
@@ -503,7 +507,7 @@ export default class OpencgaBrowser extends LitElement {
                         <!-- tabs buttons -->
                         <div class="btn-group content-pills" role="toolbar" aria-label="toolbar">
                             <div class="btn-group" role="group" style="margin-left: 0px">
-                                ${this._config.views && this._config.views.length ? this._config.views.map( tab => html`
+                                ${this._config.views && this._config.views.length ? this._config.views.map(tab => html`
                                     <button type="button" class="btn btn-success ripple content-pills ${tab.active ? "active" : ""}" ?disabled=${tab.disabled} @click="${this.onClickPill}" data-id="${tab.id}">
                                         <i class="${tab.icon ?? "fa fa-table"} icon-padding" aria-hidden="true"></i> ${tab.name}
                                     </button>
