@@ -149,7 +149,7 @@ export default class OpencgaSampleGrid extends LitElement {
                     this.opencgaSession.opencgaClient.samples().search(_filters)
                         .then(sampleResponse => {
                             // Fetch clinical analysis to display the Case ID
-                            const individualIds = sampleResponse.responses[0].results.map(sample => sample.individualId).join(",");
+                            const individualIds = sampleResponse.getResults().map(sample => sample.individualId).filter(Boolean).join(",");
                             if (individualIds) {
                                 this.opencgaSession.opencgaClient.clinical().search(
                                     {

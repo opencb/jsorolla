@@ -147,7 +147,7 @@ export default class OpencgaIndividualGrid extends LitElement {
                     this.opencgaSession.opencgaClient.individuals().search(_filters)
                         .then(individualResponse => {
                             // Fetch Clinical Analysis ID per individual in 1 single query
-                            const individualIds = individualResponse.responses[0].results.map(individual => individual.id).join(",");
+                            const individualIds = individualResponse.getResults().map(individual => individual.id).filter(Boolean).join(",");
                             this.opencgaSession.opencgaClient.clinical().search(
                                 {
                                     individual: individualIds,
