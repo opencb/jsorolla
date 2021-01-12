@@ -51,12 +51,14 @@ export default class TextFieldFilter extends LitElement {
             classes: {
                 type: String
             },
+            separator: {
+                type: String
+            }
         };
     }
 
     _init() {
         this._prefix = "tff-" + UtilsNew.randomString(6);
-
         this.rows = 1;
         this.classes = "";
     }
@@ -68,9 +70,21 @@ export default class TextFieldFilter extends LitElement {
     }
 
     filterChange(e) {
+        let value;
+        if (this.separator) {
+            value = e.target.value ?
+                e.target.value.trim()
+                    .replace(/\s/g, "")
+                    .split((new RegExp(`[${this.separator}]`)))
+                    .filter(Boolean)
+                    .join(",") :
+                null;
+        } else {
+            value = e.target.value ?? null;
+        }
         const event = new CustomEvent("filterChange", {
             detail: {
-                value: e.target.value || null
+                value: value
             },
             bubbles: true,
             composed: true
@@ -79,15 +93,15 @@ export default class TextFieldFilter extends LitElement {
     }
 
     render() {
-        let rows = this.rows ? this.rows : 1;
-        let placeholder = (this.placeholder && this.placeholder !== "undefined") ? this.placeholder : "";
+        const rows = this.rows ? this.rows : 1;
+        const placeholder = (this.placeholder && this.placeholder !== "undefined") ? this.placeholder : "";
         return html`
             <div id="${this._prefix}-wrapper" class="" style="margin-left: 0px">
-                ${rows === 1 
-                    ? html`
+                ${rows === 1 ?
+                    html`
                         <input type="text" id="${this._prefix}-input" class="form-control ${this.classes}" 
-                                ?disabled=${this.disabled} ?required=${this.required} placeholder="${placeholder}" @input="${this.filterChange}">` 
-                    : html`
+                                ?disabled=${this.disabled} ?required=${this.required} placeholder="${placeholder}" @input="${this.filterChange}">` :
+                    html`
                         <textarea id="${this._prefix}-input" rows=${rows} class="form-control ${this.classes}" 
                                 ?disabled=${this.disabled} ?required=${this.required} placeholder="${placeholder}" @input="${this.filterChange}">`
                 }
