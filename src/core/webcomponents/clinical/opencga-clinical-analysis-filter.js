@@ -21,6 +21,8 @@ import "../commons/filters/clinical-analysis-id-autocomplete.js";
 import "../commons/filters/proband-id-autocomplete.js";
 import "../commons/filters/clinical-priority-filter.js";
 import "../commons/filters/clinical-status-filter.js";
+import "../commons/filters/family-id-autocomplete.js";
+import "../commons/filters/sample-id-autocomplete.js";
 
 
 export default class OpencgaClinicalAnalysisFilter extends LitElement {
@@ -132,8 +134,10 @@ export default class OpencgaClinicalAnalysisFilter extends LitElement {
                 content = html`<proband-id-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></proband-id-autocomplete>`;
                 break;
             case "family":
+                content = html`<family-id-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></family-id-autocomplete>`;
+                break;
             case "sample":
-                content = html`<text-field-filter placeholder="${subsection.placeholder}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></text-field-filter>`;
+                content = html`<sample-id-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></sample-id-autocomplete>`;
                 break;
             case "priority":
                 content = html`<clinical-priority-filter .priorities="${Object.values(this.opencgaSession.study.configuration?.clinical?.priorities)}" .priority="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></clinical-priority-filter>`;
