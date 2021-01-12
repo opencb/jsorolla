@@ -130,20 +130,20 @@ export default class VariantBrowser extends LitElement {
             this.query = {study: this.opencgaSession.study.fqn};
         }
         // if cohort filter exists but this.cohorts is not defined then we add cohorts ALL to the 'filter' menu itself
-        let _tempConfig = {...this.getDefaultConfig(), ...this.config};
-        for (let section of _tempConfig.filter.sections) {
-            for (let field of section.fields) {
+        const _tempConfig = {...this.getDefaultConfig(), ...this.config};
+        for (const section of _tempConfig.filter.sections) {
+            for (const field of section.fields) {
                 if (field.id === "cohort") {
                     if (field.cohorts === undefined) {
-                        let _cohorts = {};
+                        const _cohorts = {};
                         // in case of no public project this.opencgaSession is being created, but the prop projects won't
                         // TODO NOTE this.opencgaSession is undefined in connectedCallback() method
                         if (this.opencgaSession && this.opencgaSession.projects) {
-                            for (let project of this.opencgaSession.projects) {
+                            for (const project of this.opencgaSession.projects) {
                                 _cohorts[project.id] = {};
-                                for (let study of project.studies) {
+                                for (const study of project.studies) {
                                     if (field.onlyCohortAll) {
-                                        _cohorts[project.id][study.id] = [{id: "ALL", name: "ALL"}]
+                                        _cohorts[project.id][study.id] = [{id: "ALL", name: "ALL"}];
                                     } else {
                                         // TODO if onlyCohortAll is false then we must add all cohorts indexed
                                         // we can take this from session object
@@ -155,14 +155,14 @@ export default class VariantBrowser extends LitElement {
                         field.cohorts = _cohorts;
 
                         // _tempConfig.filter.detail.views.foreach(view => {if (view.id === "cohortStats") {view.cohorts = _cohorts}});
-                        for (let view of _tempConfig.filter.detail.views) {
+                        for (const view of _tempConfig.filter.detail.views) {
                             if (view.id === "cohortStats") {
                                 view.cohorts = _cohorts;
                             }
                         }
                         // if we are here is because this.cohorts is undefined
                         this.cohorts = _cohorts;
-                        this.requestUpdate()
+                        this.requestUpdate();
                     } else {
                         field.cohorts = this.cohorts;
                     }
@@ -177,7 +177,7 @@ export default class VariantBrowser extends LitElement {
         // Query passed is executed and set to variant-filter, active-filters and variant-grid components
         // (it checks just for undefined, empty object is a valid value)
         if (this.opencgaSession) {
-            if(this.query) {
+            if (this.query) {
                 this.preparedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
                 this.executedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
             } else {
@@ -187,8 +187,8 @@ export default class VariantBrowser extends LitElement {
         }
         // onServerFilterChange() in opencga-active-filters drops a filterchange event when the Filter dropdown is used
         this.dispatchEvent(new CustomEvent("queryChange", {
-                detail: this.preparedQuery
-            }
+            detail: this.preparedQuery
+        }
         ));
 
         this.requestUpdate();
@@ -255,13 +255,13 @@ export default class VariantBrowser extends LitElement {
     onActiveFilterChange(e) {
         // this.query = {...e.detail};
         this.preparedQuery = {...e.detail};
-        this.onRun(); //TODO recheck queryObserver is supposed to handle the update of the grid
+        this.onRun(); // TODO recheck queryObserver is supposed to handle the update of the grid
     }
 
     onActiveFilterClear() {
         // this.query = {study: this.opencgaSession.study.fqn};
         this.preparedQuery = {study: this.opencgaSession.study.fqn};
-        this.onRun(); //TODO recheck queryObserver is supposed to handle the update of the grid
+        this.onRun(); // TODO recheck queryObserver is supposed to handle the update of the grid
     }
 
 
@@ -325,12 +325,12 @@ export default class VariantBrowser extends LitElement {
                         "ct": "Consequence Types",
                         "biotype": "Biotype",
                         "alternate_frequency": "Population Frequency",
-                        "protein_substitution": "Protein Substitution",
+                        "protein_substitution": "Protein Substitution"
                     },
                     complexFields: [],
                     hiddenFields: []
                 },
-                sections: [     // sections and subsections, structure and order is respected
+                sections: [ // sections and subsections, structure and order is respected
                     {
                         title: "Study and Cohorts",
                         collapsed: false,
@@ -468,7 +468,7 @@ export default class VariantBrowser extends LitElement {
                                 tooltip: tooltips.conservation
                             }
                         ]
-                    },
+                    }
                 ],
                 examples: [
                     {
@@ -487,7 +487,7 @@ export default class VariantBrowser extends LitElement {
                             "type": "SNV,INDEL",
                             "ct": "lof",
                             "populationFrequencyAlt": "GNOMAD_GENOMES:ALL<0.1",
-                            "protein_substitution": "sift>5,polyphen>4",
+                            "protein_substitution": "sift>5,polyphen>4"
                         }
                     }
                 ],
@@ -504,7 +504,7 @@ export default class VariantBrowser extends LitElement {
                         },
                         {
                             id: "annotationConsType",
-                            title: "Consequence Type",
+                            title: "Consequence Type"
                         },
                         {
                             id: "annotationPropFreq",
@@ -519,7 +519,7 @@ export default class VariantBrowser extends LitElement {
                             title: "Cohort Variant Stats",
                             onlyCohortAll: true,
                             tooltip: tooltips.cohort
-                            //cohorts: this.cohorts
+                            // cohorts: this.cohorts
                         },
                         {
                             id: "samples",
@@ -528,7 +528,7 @@ export default class VariantBrowser extends LitElement {
                         {
                             id: "beacon",
                             title: "Beacon"
-                        },
+                        }
                         // {
                         //     id: "network",
                         //     title: "Reactome Pathways"
@@ -595,7 +595,7 @@ export default class VariantBrowser extends LitElement {
                                         defaultValue: "[0..1]:0.1",
                                         type: "number"
                                     }
-                                    )
+                                )
                                 )
                             ).flat()
                         ]
@@ -691,6 +691,8 @@ export default class VariantBrowser extends LitElement {
                                                 @activeFilterClear="${this.onActiveFilterClear}">
                         </opencga-active-filters>
                         
+                        <!--<div class="alert alert-info">facetQuery ${JSON.stringify(this.facetQuery)}</div>-->
+
                         <div class="main-view">
                             <div id="table-tab" class="content-tab active">
                                 <variant-browser-grid .opencgaSession="${this.opencgaSession}"
@@ -727,6 +729,7 @@ export default class VariantBrowser extends LitElement {
             </div>
         `;
     }
+
 }
 
 customElements.define("variant-browser", VariantBrowser);

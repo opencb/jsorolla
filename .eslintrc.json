@@ -23,9 +23,8 @@
     "comma-dangle": ["error", "never"],
     "arrow-parens": ["error","as-needed"],
     "no-invalid-this": 0,
-    "babel/no-invalid-this": 1,
-    "babel/object-curly-spacing": 1,
-    "object-curly-spacing": 1,
+    "babel/no-invalid-this": 0,
+    "object-curly-spacing": ["error", "never"],
     "valid-jsdoc": [2, {"prefer": {"return": "returns"}}],
     "require-jsdoc": 0,
     "space-before-function-paren": ["error", {
@@ -33,7 +32,7 @@
       "named": "never",
       "asyncArrow": "always"
     }],
-    "space-after-keywords": "error",
+    "keyword-spacing": "error",
     "space-in-parens": ["error", "never"],
     "no-case-declarations": 0
   },
