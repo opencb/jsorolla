@@ -165,6 +165,8 @@ export default class OpencgaFamilyGrid extends LitElement {
                                         console.error(e);
                                         params.error(e);
                                     });
+                            } else {
+                                params.success(familyResponse);
                             }
                         })
                         .catch(e => {
