@@ -106,6 +106,8 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
             this.preparedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
             this.executedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
         }
+        // this.parseFileDataQuery(this.query);
+
         this.requestUpdate();
     }
 
@@ -138,6 +140,20 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                         }
                     }
 
+                    // Init the default caller INFO filters
+                    let fileDataFilters = [];
+                    for (let caller of this._config.filter.callers) {
+                        if (this.callerToFile[caller.id]) {
+                            fileDataFilters.push(this.callerToFile[caller.id].name + ":" + caller.queryString);
+                        }
+                    }
+                    this.query = {
+                        ...this.query,
+                        fileData: fileDataFilters.join(","),
+                    };
+
+                    this.parseFileDataQuery(this.query);
+
                     // NOTE: We need to update the _config to update the dynamic VCF caller filters
                     this._config = {...this.getDefaultConfig(), ...this.config};
                     this.requestUpdate();
@@ -149,7 +165,6 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
     }
 
     onVariantFilterChange(e) {
-        debugger
         this.preparedQuery = e.detail.query;
         this.requestUpdate();
     }
@@ -157,28 +172,43 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
     onVariantFilterSearch(e) {
         this.preparedQuery = e.detail.query;
         this.executedQuery = e.detail.query;
-debugger
-        this._queries = {};
-        let types = ["SNV", "INDEL", "CNV", "REARRANGEMENT"];
-        for (let type of types) {
-            if (this.queries[type]) {
-                this._queries[type] = {
-                    fileData: ""
-                };
-                for (let caller of Object.keys(this.queries[type])) {
-                    if (this.callerToFile[caller]) {
-                        let fileId = this.callerToFile[caller].name;
-                        let fileFilter = this.queries[type][caller];
-                        // this._queries[type].fileData += fileId + ":" + fileFilter;
-                        let fileData = fileId + ":" + fileFilter;
-                        this._queries[type].fileData += this._queries[type].fileData ? "," + fileData : fileData
-                    }
-                }
-            }
-        }
-        debugger
+
+        // this._queries = {};
+        // let types = ["SNV", "INDEL", "CNV", "REARRANGEMENT"];
+        // for (let type of types) {
+        //     if (this.queries[type]) {
+        //         this._queries[type] = {
+        //             fileData: ""
+        //         };
+        //         for (let caller of Object.keys(this.queries[type])) {
+        //             if (this.callerToFile[caller]) {
+        //                 let fileId = this.callerToFile[caller].name;
+        //                 let fileFilter = this.queries[type][caller];
+        //                 // this._queries[type].fileData += fileId + ":" + fileFilter;
+        //                 let fileData = fileId + ":" + fileFilter;
+        //                 this._queries[type].fileData += this._queries[type].fileData ? "," + fileData : fileData
+        //             }
+        //         }
+        //     }
+        // }
+        // debugger
+
+        this.parseFileDataQuery(this.executedQuery);
 
         this.requestUpdate();
+    }
+
+    parseFileDataQuery(query) {
+        let fileData = query?.fileData;
+        if (fileData) {
+            let fileFilters = fileData.split(",");
+            for (let fileFilter of fileFilters) {
+                let [fileName, filter] = fileFilter.split(":");
+                let callerId = Object.entries(this.callerToFile).find(([k, v]) => v.name === fileName);
+                let caller = this._config.filter.callers.find(c => c.id === callerId[0]);
+                this.queries[caller.type] = {fileData: fileName + ":" + filter};
+            }
+        }
     }
 
     onActiveFilterChange(e) {
@@ -438,17 +468,17 @@ debugger
     /*
         DEPRECATED
      */
-    onFilterChange(type, caller, value) {
-        if (value) {
-            if (!this.queries[type]) {
-                this.queries[type] = {};
-            }
-            // this.queries[type][caller] = Object.entries(value.detail.value).map(([k, v]) => k + v).join(";");
-            this.queries[type][caller] = value.detail.value;
-        } else {
-            delete this.queries[type][caller];
-        }
-    }
+    // onFilterChange(type, caller, value) {
+    //     if (value) {
+    //         if (!this.queries[type]) {
+    //             this.queries[type] = {};
+    //         }
+    //         // this.queries[type][caller] = Object.entries(value.detail.value).map(([k, v]) => k + v).join(";");
+    //         this.queries[type][caller] = value.detail.value;
+    //     } else {
+    //         delete this.queries[type][caller];
+    //     }
+    // }
 
     onVariantCallerFilterChange(type, caller, filter, query) {
         debugger
@@ -491,6 +521,19 @@ debugger
                     complexFields: ["genotype"],
                     hiddenFields: []
                 },
+                callers: [
+                    {
+                        id: "caveman",
+                        type: "SNV",
+                        queryString: "FILTER=PASS;CLPM=0;ASMD>=140"
+                    },
+                    {
+                        id: "pindel",
+                        type: "INDEL",
+                        queryString: "FILTER=PASS;QUAL>=250;REP<=9"
+                        // queryString: "FILTER=PASS;QUAL>=250"
+                    }
+                ],
                 sections: [     // sections and subsections, structure and order is respected
                     {
                         title: "Genomic Filters",
@@ -528,28 +571,12 @@ debugger
                     {
                         title: "SNV Filters",
                         fields: [
-                            // {
-                            //     id: "caveman-caller",
-                            //     title: "Caveman",
-                            //     render: (eventHandler, query) => html`<caveman-caller-filter @filterChange="${e => this.onFilterChange("SNV", "caveman", e)}"></caveman-caller-filter>`,
-                            //     visible: () => this.callerToFile
-                            //         ? typeof this.callerToFile["caveman"] !== "undefined" || this.callerToFile["caveman"] != null
-                            //         : false
-                            // },
-                            // {
-                            //     id: "strelka-caller",
-                            //     title: "Strelka",
-                            //     render: (eventHandler, query) => html`<strelka-caller-filter @filterChange="${e => this.onFilterChange("SNV", "strelka", e)}"></strelka-caller-filter>`,
-                            //     visible: () => this.callerToFile
-                            //         ? typeof this.callerToFile["strelka"] !== "undefined" || this.callerToFile["strelka"] != null
-                            //         : false
-                            // },
                             {
                                 id: "caveman",
                                 title: "Caveman Filters",
                                 description: () => html`File filters for <span style="font-style: italic; word-break: break-all">${this.callerToFile["caveman"].name}</span>`,
                                 visible: () => this.callerToFile && this.callerToFile["caveman"],
-                                callback: (filter, query) => this.onVariantCallerFilterChange("SNV", "caveman", filter, query),
+                                // callback: (filter, query) => this.onVariantCallerFilterChange("SNV", "caveman", filter, query),
                                 params: {
                                     fileId: `${this.callerToFile ? this.callerToFile["caveman"]?.name : null}`,
                                 }
@@ -569,28 +596,12 @@ debugger
                         title: "INDEL Filters",
                         collapsed: true,
                         fields: [
-                            // {
-                            //     id: "pindel-caller",
-                            //     title: "Pindel",
-                            //     render: (eventHandler, query) => html`<pindel-caller-filter @filterChange="${e => this.onFilterChange("INDEL", "pindel", e)}"></pindel-caller-filter>`,
-                            //     visible: () => this.callerToFile
-                            //         ? typeof this.callerToFile["pindel"] !== "undefined" || this.callerToFile["pindel"] != null
-                            //         : false
-                            // },
-                            // {
-                            //     id: "strelka-caller",
-                            //     title: "Strelka",
-                            //     render: (eventHandler, query) => html`<strelka-caller-filter @filterChange="${e => this.onFilterChange("INDEL", "strelka", e)}"></strelka-caller-filter>`,
-                            //     visible: () => this.callerToFile
-                            //         ? typeof this.callerToFile["strelka"] !== "undefined" || this.callerToFile["strelka"] != null
-                            //         : false
-                            // },
                             {
                                 id: "pindel",
                                 title: "Pindel Filters",
                                 description: () => html`File filters for <span style="font-style: italic; word-break: break-all">${this.callerToFile["pindel"].name}</span>`,
                                 visible: () => this.callerToFile && this.callerToFile["pindel"],
-                                callback: (filter, query) => this.onVariantCallerFilterChange("INDEL", "pindel", filter, query),
+                                // callback: (filter, query) => this.onVariantCallerFilterChange("INDEL", "pindel", filter, query),
                                 params: {
                                     fileId: `${this.callerToFile ? this.callerToFile["pindel"]?.name : null}`,
                                 }
@@ -611,28 +622,12 @@ debugger
                         title: "CNV Filters",
                         collapsed: true,
                         fields: [
-                            // {
-                            //     id: "ascat-caller",
-                            //     title: "Ascat",
-                            //     render: (eventHandler, query) => html`<ascat-caller-filter @filterChange="${e => this.onFilterChange("CNV", "ascat", e)}"></ascat-caller-filter>`,
-                            //     visible: () => this.callerToFile
-                            //         ? typeof this.callerToFile["ascat"] !== "undefined" || this.callerToFile["ascat"] != null
-                            //         : false
-                            // },
-                            // {
-                            //     id: "canvas-caller",
-                            //     title: "Canvas",
-                            //     render: (eventHandler, query) => html`<canvas-caller-filter @filterChange="${e => this.onFilterChange("CNV", "canvas", e)}"></canvas-caller-filter>`,
-                            //     visible:() => this.callerToFile
-                            //         ? typeof this.callerToFile["canvas"] !== "undefined" || this.callerToFile["canvas"] != null
-                            //         : false
-                            // },
                             {
                                 id: "ascat",
                                 title: "ASCAT Filters",
                                 description: () => html`File filters for <span style="font-style: italic; word-break: break-all">${this.callerToFile["ascat"].name}</span>`,
                                 visible: () => this.callerToFile && this.callerToFile["ascat"],
-                                callback: (filter, query) => this.onVariantCallerFilterChange("CNV", "ascat", filter, query),
+                                // callback: (filter, query) => this.onVariantCallerFilterChange("CNV", "ascat", filter, query),
                                 params: {
                                     fileId: `${this.callerToFile ? this.callerToFile["ascat"]?.name : null}`,
                                 }
@@ -642,7 +637,7 @@ debugger
                                 title: "Canvas Filters",
                                 description: () => html`File filters for <span style="font-style: italic; word-break: break-all">${this.callerToFile["canvas"].name}</span>`,
                                 visible: () => this.callerToFile && this.callerToFile["canvas"],
-                                callback: (filter, query) => this.onVariantCallerFilterChange("CNV", "canvas", filter, query),
+                                // callback: (filter, query) => this.onVariantCallerFilterChange("CNV", "canvas", filter, query),
                                 params: {
                                     fileId: `${this.callerToFile ? this.callerToFile["canvas"]?.name : null}`,
                                 }
@@ -653,28 +648,12 @@ debugger
                         title: "Rearrangement Filters",
                         collapsed: true,
                         fields: [
-                            // {
-                            //     id: "brass-caller",
-                            //     title: "Brass",
-                            //     render: (eventHandler, query) => html`<brass-caller-filter @filterChange="${e => this.onFilterChange("REARRANGEMENT", "brass", e)}"></brass-caller-filter>`,
-                            //     visible: () => this.callerToFile
-                            //         ? typeof this.callerToFile["brass"] !== "undefined" || this.callerToFile["brass"] != null
-                            //         : false
-                            // },
-                            // {
-                            //     id: "manta-caller",
-                            //     title: "Manta",
-                            //     render: (eventHandler, query) => html`<manta-caller-filter @filterChange="${e => this.onFilterChange("REARRANGEMENT", "manta", e)}"></manta-caller-filter>`,
-                            //     visible: () => this.callerToFile
-                            //         ? typeof this.callerToFile["manta"] !== "undefined" || this.callerToFile["manta"] != null
-                            //         : false
-                            // },
                             {
                                 id: "brass",
                                 title: "BRASS Filters",
                                 description: () => html`File filters for <span style="font-style: italic; word-break: break-all">${this.callerToFile["brass"].name}</span>`,
                                 visible: () => this.callerToFile && this.callerToFile["brass"],
-                                callback: (filter, query) => this.onVariantCallerFilterChange("REARRANGEMENT", "brass", filter, query),
+                                // callback: (filter, query) => this.onVariantCallerFilterChange("REARRANGEMENT", "brass", filter, query),
                                 params: {
                                     fileId: `${this.callerToFile ? this.callerToFile["brass"]?.name : null}`,
                                 }
@@ -684,7 +663,7 @@ debugger
                                 title: "Manta Filters",
                                 description: () => html`File filters for <span style="font-style: italic; word-break: break-all">${this.callerToFile["manta"].name}</span>`,
                                 visible: () => this.callerToFile && this.callerToFile["manta"],
-                                callback: (filter, query) => this.onVariantCallerFilterChange("REARRANGEMENT", "manta",  filter, query),
+                                // callback: (filter, query) => this.onVariantCallerFilterChange("REARRANGEMENT", "manta",  filter, query),
                                 params: {
                                     fileId: `${this.callerToFile ? this.callerToFile["manta"]?.name : null}`,
                                 }
@@ -781,7 +760,7 @@ debugger
                                     <div class="" style="padding: 0px 15px">
                                         <sample-cancer-variant-stats-plots      .opencgaSession="${this.opencgaSession}"
                                                                                 .query="${this.executedQuery}"
-                                                                                .queries="${this._queries}"
+                                                                                .queries="${this.queries}"
                                                                                 .sampleId="${this.sample?.id}"
                                                                                 .active="${this.active}"
                                                                                 @changeSignature="${this.onChangeSignature}"

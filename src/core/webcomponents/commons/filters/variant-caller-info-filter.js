@@ -70,6 +70,14 @@ export default class VariantCallerInfoFilter extends LitElement {
         }
     }
 
+    // update(changedProperties) {
+    //     if (changedProperties.has("data")) {
+    //         // Check if 'data' passed is undefined or null and initialised to empty object
+    //         this.data = this.data ?? {};
+    //     }
+    //     super.update(changedProperties);
+    // }
+
     /**
      * This observer process the fileData string and prepares the query object for data-form
      * and stores some variables for notifying the new fileData.

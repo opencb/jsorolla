@@ -59,5 +59,6 @@ export default class OpencgaCatalogUtils {
         }
         return false;
     }
+   
 
 }

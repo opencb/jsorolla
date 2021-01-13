@@ -68,8 +68,11 @@ export default class DataForm extends LitElement {
 
     update(changedProperties) {
         if (changedProperties.has("data")) {
+            // Undefined or null values are accepted only when rendering forms.
             // Check if 'data' passed is undefined or null and initialised to empty object
-            this.data = this.data ?? {};
+            if (this.config?.type?.toUpperCase() === "FORM") {
+                this.data = this.data ?? {};
+            }
         }
         super.update(changedProperties);
     }

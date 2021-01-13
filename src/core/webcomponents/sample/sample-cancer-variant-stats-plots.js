@@ -93,7 +93,7 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
             fitting: false,
             sample: this.sampleId,
             ...this.query,
-            ...this.queries["SNV"]
+            ...this.queries?.["SNV"]
         }).then( restResult => {
             this.signature = restResult.getResult(0).signature;
             this.dispatchEvent(new CustomEvent("changeSignature", {
