@@ -77,13 +77,14 @@ export default class CircosView extends LitElement {
         document.getElementById(this._prefix + "CircosMessage").style["display"] = "inline";
         this.circosImage = null;
         this.requestUpdate();
-
+debugger
         let query = {
             title: "Circos",
             density: "LOW",
             query: {
                 sample: this.sampleId,
-                ...this.query
+                // ...this.query,
+                // filter: "PASS"
             },
             tracks: [
                 {
@@ -93,35 +94,46 @@ export default class CircosView extends LitElement {
                         study: this.opencgaSession.study.fqn,
                         sample: this.sampleId,
                         type: "SNV",
-                        // filter: "PASS",
-                        ...this.queries["SNV"]
+                        filter: "PASS",
+                        // ...this.queries?.["SNV"]
                     }
                 },
-                {
-                    id: "indel",
-                    type: "INDEL",
-                    query: {
-                        study: this.opencgaSession.study.fqn,
-                        sample: this.sampleId,
-                        type: "INDEL",
-                        // filter: "PASS",
-                        ...this.queries["INDEL"]
-                    }
-                },
-                {
-                    id: "cnv1",
-                    type: "COPY-NUMBER"
-                },
-                {
-                    id: "rearr1",
-                    type: "REARRANGEMENT"
-                }
+                // {
+                //     id: "indel",
+                //     type: "INDEL",
+                //     query: {
+                //         study: this.opencgaSession.study.fqn,
+                //         sample: this.sampleId,
+                //         type: "INDEL",
+                //         // filter: "PASS",
+                //         ...this.queries?.["INDEL"]
+                //     }
+                // },
+                // {
+                //     id: "cnv1",
+                //     type: "COPY-NUMBER",
+                //     query: {
+                //         study: this.opencgaSession.study.fqn,
+                //         sample: this.sampleId,
+                //         type: "INSERTION",
+                //     }
+                // },
+                // {
+                //     id: "rearr1",
+                //     type: "REARRANGEMENT",
+                //     query: {
+                //         study: this.opencgaSession.study.fqn,
+                //         sample: this.sampleId,
+                //         type: "DELETION",
+                //     }
+                // }
             ]
         }
         debugger
 
         this.opencgaSession.opencgaClient.variants().runCircos(query, {study: this.opencgaSession.study.fqn})
             .then( restResult => {
+                debugger
                 document.getElementById(this._prefix + "CircosMessage").style["display"] = "none";
                 this.circosImage = "data:image/png;base64, " + restResult.getResult(0);
             })

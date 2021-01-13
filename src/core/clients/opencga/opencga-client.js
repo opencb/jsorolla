@@ -426,7 +426,6 @@ export class OpenCGAClient {
                 //"lastAccess": moment(new Date()).valueOf()
             }
         });
-
     }
 
 }
