@@ -177,6 +177,8 @@ export default class OpencgaSampleGrid extends LitElement {
                                         console.error(e);
                                         params.error(e);
                                     });
+                            } else {
+                                params.success(sampleResponse);
                             }
                         })
                         .catch(e => {

@@ -15,6 +15,7 @@
  */
 
 import {html, LitElement} from "/web_modules/lit-element.js";
+import GridCommons from "../../commons/grid-commons.js";
 import UtilsNew from "./../../../utilsNew.js";
 
 export default class CellbasePopulationFrequencyGrid extends LitElement {
@@ -54,6 +55,12 @@ export default class CellbasePopulationFrequencyGrid extends LitElement {
         this.populationFrequencies = [];
         this.gridId = this._prefix + "populationFreqTable";
     }
+
+    connectedCallback() {
+        this.gridCommons = new GridCommons(this.gridId, this, {});
+        super.connectedCallback();
+    }
+
 
     updated(changedProperties) {
         if ((changedProperties.has("populationFrequencies") || changedProperties.has("active")) && this.active) {
@@ -170,8 +177,9 @@ export default class CellbasePopulationFrequencyGrid extends LitElement {
     }
 
     renderTable() {
-        $("#" + this.gridId).bootstrapTable("destroy");
-        $("#" + this.gridId).bootstrapTable({
+        this.table = $("#" + this.gridId);
+        this.table.bootstrapTable("destroy");
+        this.table.bootstrapTable({
             data: this.populationFrequencies,
             pageSize: 5,
             showPaginationSwitch: true,
@@ -180,6 +188,7 @@ export default class CellbasePopulationFrequencyGrid extends LitElement {
             pagination: true,
             pageList: [5, 10, 25],
             showExport: true,
+            formatShowingRows: this.gridCommons.formatShowingRows,
             columns: [
                 [
                     {

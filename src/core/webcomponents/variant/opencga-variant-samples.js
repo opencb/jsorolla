@@ -53,24 +53,23 @@ export default class OpencgaVariantSamples extends LitElement {
 
         this.active = false;
         this.gridId = this._prefix + "SampleTable";
-        this.config = this.getDefaultConfig();
         this.toolbarConfig = {};
+    }
+
+    connectedCallback() {
+        this.config = this.getDefaultConfig();
+        this.gridCommons = new GridCommons(this.gridId, this, this.config);
+        super.connectedCallback();
     }
 
     updated(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
-            //this.catalogGridFormatter = new CatalogGridFormatter(this.opencgaSession);
+            // this.catalogGridFormatter = new CatalogGridFormatter(this.opencgaSession);
         }
 
         if ((changedProperties.has("variantId") || changedProperties.has("active")) && this.active) {
             this.renderTable();
         }
-    }
-
-    firstUpdated(_changedProperties) {
-        this.table = this.querySelector("#" + this.gridId);
-        this.gridCommons = new GridCommons(this.gridId, this, this._config);
-
     }
 
     genoypeFormatter(value, row, index) {
@@ -123,7 +122,6 @@ export default class OpencgaVariantSamples extends LitElement {
 
     renderTable() {
         if (!this.opencgaSession) {
-
             return;
         }
 

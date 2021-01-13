@@ -148,32 +148,36 @@ export default class OpencgaIndividualGrid extends LitElement {
                         .then(individualResponse => {
                             // Fetch Clinical Analysis ID per individual in 1 single query
                             const individualIds = individualResponse.getResults().map(individual => individual.id).filter(Boolean).join(",");
-                            this.opencgaSession.opencgaClient.clinical().search(
-                                {
-                                    individual: individualIds,
-                                    study: this.opencgaSession.study.fqn,
-                                    exclude: "proband.samples,family,interpretation,files"
-                                })
-                                .then(caseResponse => {
-                                    // We store the Case ID in the individual attribute
-                                    // Note clinical search results are not sorted
-                                    // FIXME at the moment we only search by proband
-                                    const map = {};
-                                    for (const clinicalAnalysis of caseResponse.responses[0].results) {
-                                        if (!map[clinicalAnalysis.proband.id]) {
-                                            map[clinicalAnalysis.proband.id] = [];
+                            if (individualIds) {
+                                this.opencgaSession.opencgaClient.clinical().search(
+                                    {
+                                        individual: individualIds,
+                                        study: this.opencgaSession.study.fqn,
+                                        exclude: "proband.samples,family,interpretation,files"
+                                    })
+                                    .then(caseResponse => {
+                                        // We store the Case ID in the individual attribute
+                                        // Note clinical search results are not sorted
+                                        // FIXME at the moment we only search by proband
+                                        const map = {};
+                                        for (const clinicalAnalysis of caseResponse.responses[0].results) {
+                                            if (!map[clinicalAnalysis.proband.id]) {
+                                                map[clinicalAnalysis.proband.id] = [];
+                                            }
+                                            map[clinicalAnalysis.proband.id].push(clinicalAnalysis);
                                         }
-                                        map[clinicalAnalysis.proband.id].push(clinicalAnalysis);
-                                    }
-                                    for (const individual of individualResponse.responses[0].results) {
-                                        individual.attributes.OPENCGA_CLINICAL_ANALYSIS = map[individual.id];
-                                    }
-                                    params.success(individualResponse);
-                                })
-                                .catch(e => {
-                                    console.error(e);
-                                    params.error(e);
-                                });
+                                        for (const individual of individualResponse.responses[0].results) {
+                                            individual.attributes.OPENCGA_CLINICAL_ANALYSIS = map[individual.id];
+                                        }
+                                        params.success(individualResponse);
+                                    })
+                                    .catch(e => {
+                                        console.error(e);
+                                        params.error(e);
+                                    });
+                            } else {
+                                params.success(individualResponse);
+                            }
                         })
                         .catch(e => {
                             console.error(e);
