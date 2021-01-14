@@ -20,7 +20,7 @@ import "../commons/tool-header.js";
 import "./opencga-variant-filter.js";
 import "./variant-browser-grid.js";
 import "./variant-browser-detail.js";
-import "../commons/opencga-facet-result-view.js";
+import "../commons/opencb-facet-results.js";
 import "../commons/facet-filter.js";
 import "../commons/opencga-active-filters.js";
 
@@ -57,9 +57,9 @@ export default class VariantBrowser extends LitElement {
             facetQuery: {
                 type: Object
             },
-            // selectedFacet: { //TODO naming change: preparedQueryFacet (selectedFacet), preparedQueryFacetFormatted (selectedFacetFormatted), executedQueryFacet (queryFacet) (also in opencga-browser)
-            //     type: Object
-            // },
+            selectedFacet: { //TODO naming change: preparedQueryFacet (selectedFacet), preparedQueryFacetFormatted (selectedFacetFormatted), executedQueryFacet (queryFacet) (also in opencga-browser)
+                type: Object
+            },
             cohorts: {
                 type: Object
             },
@@ -129,6 +129,15 @@ export default class VariantBrowser extends LitElement {
         if (this.opencgaSession && this.opencgaSession.project) {
             this.query = {study: this.opencgaSession.study.fqn};
         }
+        // TODO FIXME
+        /** temp fix this.onRun(): when you switch study this.facetQuery contains the old study when you perform a new Aggregation query.
+         *  As a consequence, we need to update preparedQuery as this.onRun() uses it (without it the old study is in query in table result as well)
+         */
+        this.preparedQuery = {study: this.opencgaSession.study.fqn};
+        this.selectedFacet = {};
+
+        this.onRun();
+
         // if cohort filter exists but this.cohorts is not defined then we add cohorts ALL to the 'filter' menu itself
         const _tempConfig = {...this.getDefaultConfig(), ...this.config};
         for (const section of _tempConfig.filter.sections) {

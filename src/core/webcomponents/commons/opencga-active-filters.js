@@ -145,13 +145,14 @@ export default class OpencgaActiveFilters extends LitElement {
     }
 
     facetQueryObserver() {
-        if (JSON.stringify(this._facetQuery) !== JSON.stringify(this.facetQuery)) {
+        const queryString = JSON.stringify(UtilsNew.objectSort(this.facetQuery));
+        const prevQueryString = JSON.stringify(UtilsNew.objectSort(this._facetQuery));
+        if (Object.keys(this.facetQuery).length && (queryString !== prevQueryString)) {
             this.querySelector("#" + this._prefix + "Warning").style.display = "block";
             this._facetQuery = this.facetQuery;
         } else {
             this.querySelector("#" + this._prefix + "Warning").style.display = "none";
         }
-
     }
 
     clear() {
@@ -168,7 +169,7 @@ export default class OpencgaActiveFilters extends LitElement {
     }
 
     launchModal() {
-        $(PolymerUtils.getElementById(this._prefix + "SaveModal")).modal("show");
+        $("#" + this._prefix + "SaveModal").modal("show");
     }
 
     showSelectFilters() {
@@ -478,13 +479,11 @@ export default class OpencgaActiveFilters extends LitElement {
         for (const keyIdx in keys) {
             const key = keys[keyIdx];
             if (UtilsNew.isNotEmpty(this.query[key]) && (!this._config.hiddenFields || (this._config.hiddenFields && !this._config.hiddenFields.includes(key)))) {
-                const queryString = Object.entries(this.query).sort().toString();
-                const prevQueryString = Object.entries(this._previousQuery).sort().toString();
+
+                // TODO review. why is this in a loop?
+                const queryString = JSON.stringify(UtilsNew.objectSort(this.query));
+                const prevQueryString = JSON.stringify(UtilsNew.objectSort(this._previousQuery));
                 if (queryString !== prevQueryString) {
-                    /* console.log(this.query);
-                    console.log(this._previousQuery);
-                    console.log(queryString);
-                    console.log(prevQueryString);*/
                     this.querySelector("#" + this._prefix + "Warning").style.display = "block";
                 } else {
                     this.querySelector("#" + this._prefix + "Warning").style.display = "none";

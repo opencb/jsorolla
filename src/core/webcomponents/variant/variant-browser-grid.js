@@ -169,7 +169,6 @@ export default class VariantBrowserGrid extends LitElement {
                         summary: !this.query.sample && !this.query.family,
                         ...this.query
                     };
-
                     this.opencgaSession.opencgaClient.variants().query(filters)
                         .then(res => params.success(res))
                         .catch(e => {

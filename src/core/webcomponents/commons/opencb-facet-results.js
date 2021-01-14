@@ -17,8 +17,8 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
 import PolymerUtils from "../PolymerUtils.js";
+import "./opencga-facet-result-view.js";
 import "../loading-spinner.js";
-
 
 class OpencbFacetResults extends LitElement {
 
@@ -87,7 +87,6 @@ class OpencbFacetResults extends LitElement {
             this.queryObserver();
         }
         if (changedProperties.has("query")) {
-            console.log("facet query changed", this.query)
             this.queryObserver();
         }
         if (changedProperties.has("config")) {
@@ -99,14 +98,14 @@ class OpencbFacetResults extends LitElement {
         }
     }
 
-    queryObserver() {
+    async queryObserver() {
         // executedQuery in opencga-variant-browser has changed so, if requested,  we have to repeat the facet query
         this.facetResults = [];
-        this.requestUpdate();
+        await this.requestUpdate();
         if (this.query) {
             this.loading = true;
             this.errorState = false;
-            this.requestUpdate();
+            await this.requestUpdate();
             this.endpoint(this.resource).aggregationStats(this.query, {})
                 .then(restResponse => {
                     this.errorState = false;
@@ -206,6 +205,7 @@ class OpencbFacetResults extends LitElement {
                     ${this.errorState}
                 </div>
             ` : null}
+
             ${this.facetResults.length ? this.facetResults.map(item => item.aggregationName && item.aggregationValues ? html`
                 <div>
                     <h3>${item.name}</h3>

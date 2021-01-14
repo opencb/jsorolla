@@ -93,6 +93,7 @@ export default class OpencgaBrowser extends LitElement {
 
         this.query = {};
         this.preparedQuery = {};
+        this.executedQuery = {};
 
         this.checkProjects = false;
 
@@ -133,8 +134,10 @@ export default class OpencgaBrowser extends LitElement {
             this.checkProjects = true;
             this.query = {study: this.opencgaSession.study.fqn};
 
-            // TODO temp fix this.onRun(): when you switch study this.facetQuery contains the old study when you perform a new Aggregation query
-            // TODO as a consequence, we need to update preparedQuery as this.onRun() uses it (without it the old study is in query in table result as well)
+            // TODO FIXME
+            /** temp fix this.onRun(): when you switch study this.facetQuery contains the old study when you perform a new Aggregation query.
+             *  As a consequence, we need to update preparedQuery as this.onRun() uses it (without it the old study is in query in table result as well)
+             */
             this.preparedQuery = {study: this.opencgaSession.study.fqn};
             this.onRun();
 
@@ -198,7 +201,6 @@ export default class OpencgaBrowser extends LitElement {
     }
 
     onClickPill(e) {
-        // e.preventDefault();
         this._changeView(e.currentTarget.dataset.id);
     }
 
@@ -531,7 +533,7 @@ export default class OpencgaBrowser extends LitElement {
                                                     @activeFilterChange="${this.onActiveFilterChange}"
                                                     @activeFilterClear="${this.onActiveFilterClear}">
                             </opencga-active-filters>
-    
+
                             <div class="main-view">
                                 ${this.renderView(this.resource)}
                             </div>
