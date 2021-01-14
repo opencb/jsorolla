@@ -261,6 +261,8 @@ export default class VariantInterpreterGrid extends LitElement {
 
                     document.getElementById(this._prefix + row.id + "ShowCt").addEventListener("click", VariantGridFormatter.toggleDetailConsequenceType.bind(this));
                     document.getElementById(this._prefix + row.id + "HideCt").addEventListener("click", VariantGridFormatter.toggleDetailConsequenceType.bind(this));
+
+                    UtilsNew.initTooltip(this);
                 },
                 onPostBody: (data) => {
                 }
@@ -305,6 +307,8 @@ export default class VariantInterpreterGrid extends LitElement {
 
                 document.getElementById(this._prefix + row.id + "ShowCt").addEventListener("click", VariantGridFormatter.toggleDetailConsequenceType.bind(this));
                 document.getElementById(this._prefix + row.id + "HideCt").addEventListener("click", VariantGridFormatter.toggleDetailConsequenceType.bind(this));
+
+                UtilsNew.initTooltip(this);
             },
             onPostBody: (data) => {
                 // We call onLoadSuccess to select first row, this is only needed when rendering from local
@@ -355,23 +359,23 @@ export default class VariantInterpreterGrid extends LitElement {
         if (row && row.annotation) {
             if (this.variantGrid.clinicalAnalysis.type.toUpperCase() !== "CANCER") {
                 detailHtml = "<div style='padding: 10px 0px 5px 25px'><h4>Variant Allele Frequency</h4></div>";
-                detailHtml += "<div style='padding: 5px 50px'>";
+                detailHtml += "<div style='padding: 5px 40px'>";
                 detailHtml += VariantInterpreterGridFormatter.variantAlleleFrequencyDetailFormatter(value, row, this.variantGrid);
                 detailHtml += "</div>";
             }
 
             detailHtml += "<div style='padding: 10px 0px 5px 25px'><h4>Molecular Consequence</h4></div>";
-            detailHtml += "<div style='padding: 5px 50px'>";
+            detailHtml += "<div style='padding: 5px 40px'>";
             detailHtml += VariantInterpreterGridFormatter.reportedEventDetailFormatter(value, row, this.variantGrid, this.variantGrid.query, this.variantGrid.review, this.variantGrid._config);
             detailHtml += "</div>";
 
             detailHtml += "<div style='padding: 25px 0px 5px 25px'><h4>Consequence Types</h4></div>";
-            detailHtml += "<div style='padding: 5px 50px'>";
+            detailHtml += "<div style='padding: 5px 40px'>";
             detailHtml += VariantGridFormatter.consequenceTypeDetailFormatter(value, row, this.variantGrid, this.variantGrid.query, this.variantGrid._config, this.variantGrid.opencgaSession.project.organism.assembly);
             detailHtml += "</div>";
 
             detailHtml += "<div style='padding: 20px 0px 5px 25px'><h4>Clinical Phenotypes</h4></div>";
-            detailHtml += "<div style='padding: 5px 50px'>";
+            detailHtml += "<div style='padding: 5px 40px'>";
             detailHtml += VariantGridFormatter.clinicalTableDetail(value, row);
             detailHtml += "</div>";
         }
@@ -981,7 +985,6 @@ export default class VariantInterpreterGrid extends LitElement {
 
     onSaveVariant(e) {
         if (this._variantChanged) {
-            debugger
             this.clinicalAnalysisManager.updateVariant(this._variantChanged, this.clinicalAnalysis.interpretation);
             this._variantChanged = null;
         }

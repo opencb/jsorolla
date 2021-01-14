@@ -60,7 +60,8 @@ export default class BioinfoUtils {
     }
 
     static getUniprotLink(featureId, species = "Homo sapiens") {
-        return "https://www.uniprot.org/uniprot/?sort=score&query=" + featureId + "+organism:" + species;
+        // return "https://www.uniprot.org/uniprot/?sort=score&query=" + featureId + "+organism:" + species;
+        return "https://www.uniprot.org/uniprot/" + featureId;
     }
 
 }

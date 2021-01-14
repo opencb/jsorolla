@@ -240,6 +240,8 @@ export default class VariantBrowserGrid extends LitElement {
                     // TODO Remove this
                     document.getElementById(this._prefix + row.id + "ShowCt").addEventListener("click", VariantGridFormatter.toggleDetailConsequenceType.bind(this));
                     document.getElementById(this._prefix + row.id + "HideCt").addEventListener("click", VariantGridFormatter.toggleDetailConsequenceType.bind(this));
+
+                    UtilsNew.initTooltip(this);
                 },
                 onPostBody: (data) => {
                 }
@@ -277,6 +279,8 @@ export default class VariantBrowserGrid extends LitElement {
                 // TODO Remove this
                 document.getElementById(this._prefix + row.id + "ShowCt").addEventListener("click", VariantGridFormatter.toggleDetailConsequenceType.bind(this));
                 document.getElementById(this._prefix + row.id + "HideCt").addEventListener("click", VariantGridFormatter.toggleDetailConsequenceType.bind(this));
+
+                UtilsNew.initTooltip(this);
             },
             onPostBody: (data) => {
                 // We call onLoadSuccess to select first row, this is only needed when rendering from local
@@ -291,12 +295,12 @@ export default class VariantBrowserGrid extends LitElement {
 
         if (typeof row !== "undefined" && typeof row.annotation !== "undefined") {
             detailHtml = "<div style='padding: 10px 0px 5px 25px'><h4>Consequence Types</h4></div>";
-            detailHtml += "<div style='padding: 5px 50px'>";
+            detailHtml += "<div style='padding: 5px 40px'>";
             detailHtml += VariantGridFormatter.consequenceTypeDetailFormatter(index, row, this.variantGrid, this.variantGrid.query, this.variantGrid._config, this.variantGrid.opencgaSession.project.organism.assembly);
             detailHtml += "</div>";
 
             detailHtml += "<div style='padding: 10px 0px 5px 25px'><h4>Clinical Phenotypes</h4></div>";
-            detailHtml += "<div style='padding: 5px 50px'>";
+            detailHtml += "<div style='padding: 5px 40px'>";
             detailHtml += VariantGridFormatter.clinicalTableDetail(index, row);
             detailHtml += "</div>";
         }

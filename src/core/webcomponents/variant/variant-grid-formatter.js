@@ -553,15 +553,16 @@ export default class VariantGridFormatter {
                                       <th rowspan="2">Consequence Type</th>
                                       <th rowspan="2">Transcript Flags</th>
                                       <th rowspan="1" colspan="3" style="text-align: center; padding-top: 5px">Transcript Variant Annotation</th>
-                                      <th rowspan="1" colspan="3" style="text-align: center; padding-top: 5px">Protein Variant Annotation</th>
+                                      <th rowspan="1" colspan="4" style="text-align: center; padding-top: 5px">Protein Variant Annotation</th>
                                   </tr>
                                   <tr style="margin: 5px">
-                                      <th rowspan="1" style="padding-top: 5px">cDNA/CDS Position</th>
+                                      <th rowspan="1" style="padding-top: 5px">cDNA / CDS</th>
                                       <th rowspan="1">Codon</th>
                                       <th rowspan="1">Exon (Overlap %)</th>
                                       <th rowspan="1">UniProt Acc</th>
                                       <th rowspan="1">Position</th>
                                       <th rowspan="1">Ref/Alt</th>
+                                      <th rowspan="1">Domains</th>
                                   </tr>
                               </thead>
                               <tbody>`;
@@ -578,21 +579,28 @@ export default class VariantGridFormatter {
                 `;
 
                 // const transcriptId = ct.ensemblTranscriptId ? `<a href="${BioinfoUtils.getEnsemblLink(ct.ensemblTranscriptId, "transcript", assembly)}" target="_blank">${ct.ensemblTranscriptId}</a>` : "-";
-                const transcriptId = `<div style="">
-                                        ${ct.biotype ? ct.biotype : "-"}
-                                      </div>
-                                      <div style="margin: 5px 0px">
-                                        ${ct.ensemblTranscriptId ? `<a href="${BioinfoUtils.getEnsemblLink(ct.ensemblTranscriptId, "transcript", assembly)}" target="_blank">${ct.ensemblTranscriptId}</a>` : "-"}
-                                      </div>`;
+                const transcriptId = `
+                    <div style="">
+                        <span>${ct.biotype ? ct.biotype : "-"}</span>
+                    </div>
+                    <div style="margin: 5px 0px">
+                        <span>
+                            ${ct.ensemblTranscriptId 
+                                ? `<a href="${BioinfoUtils.getEnsemblLink(ct.ensemblTranscriptId, "transcript", assembly)}" target="_blank">${ct.ensemblTranscriptId}</a>` 
+                                : "-"
+                            }
+                        </span>
+                    </div>`;
 
                 const soArray = [];
                 for (const so of ct.sequenceOntologyTerms) {
-                    let color = "black";
-                    if (variantGrid.consequenceTypeColors?.consequenceTypeToColor && variantGrid.consequenceTypeColors?.consequenceTypeToColor[so.name]) {
-                        color = variantGrid.consequenceTypeColors.consequenceTypeToColor[so.name];
-                    }
+                    let color = variantGrid.consequenceTypeColors?.consequenceTypeToColor[so.name] || "black";
                     soArray.push(`<div style="color: ${color}; margin-bottom: 5px">
-                                    ${so.name} (<a href="http://www.sequenceontology.org/browser/current_svn/term/${so.accession}" target="_blank">${so.accession}</a>)
+                                    <span style="padding-right: 5px">${so.name}</span> 
+                                    <a title="Go to Sequence Ontology ${so.accession} term" 
+                                            href="http://www.sequenceontology.org/browser/current_svn/term/${so.accession}" target="_blank">
+                                        <i class="fas fa-external-link-alt"></i>
+                                    </a>
                                   </div>`);
                 }
 
@@ -606,9 +614,39 @@ export default class VariantGridFormatter {
                     exons = ct.exonOverlap.map(exon => `<div style="margin-bottom: 5px">${exon.number} (${exon?.percentage.toFixed(4) ?? "-"})</div>`)
                 }
 
-
                 const pva = ct.proteinVariantAnnotation ? ct.proteinVariantAnnotation : {};
-                const uniprotAccession = pva.uniprotAccession ? `<a href="https://www.uniprot.org/uniprot/${pva.uniprotAccession}" target="_blank">${pva.uniprotAccession}</a>` : "-";
+                let uniprotAccession = "-";
+                if (pva.uniprotAccession) {
+                    uniprotAccession = `
+                        <div style="margin: 5px 0px">
+                            <span><a href="${BioinfoUtils.getUniprotLink(pva.uniprotAccession)}" target="_blank">${pva.uniprotAccession}</a></span>
+                        </div>
+                        ${pva.uniprotVariantId ? `
+                            <div>
+                                <span class="help-block" style="margin: 0px">${pva.uniprotVariantId}</span>
+                            </div>` 
+                        : ""}
+                    `;
+                }
+
+                let domains = `<a class="ct-protein-domain-tooltip" tooltip-title='Info' tooltip-text='No protein domains found' tooltip-position-at="left bottom" tooltip-position-my="right top"><i class='fa fa-times' style='color: gray'></i></a>`;
+                if (pva.features) {
+                    let tooltipText = "";
+                    let visited = new Set();
+                    for (let feature of pva.features) {
+                        if (feature.id && !visited.has(feature.id)) {
+                            visited.add(feature.id);
+                            tooltipText += `
+                                <div>
+                                    <span style="font-weight: bold; margin: 5px">${feature.id}</span><span class="help-block" style="margin: 5px">${feature.description}</span>
+                                </div>
+                            `;
+                        }
+                    }
+                    domains = `<a class="ct-protein-domain-tooltip" tooltip-title='Links' tooltip-text='${tooltipText}' tooltip-position-at="left bottom" tooltip-position-my="right top">
+                                    <i class='fa fa-check' style='color: green'></i>
+                               </a>`;
+                }
 
                 // Create the table row
                 const hideClass = showArrayIndexes.includes(i) ? "" : `${variantGrid._prefix}${row.id}Filtered`;
@@ -619,13 +657,14 @@ export default class VariantGridFormatter {
                                 <td>${soArray.join("")}</td>
                                 <td>${transcriptAnnotationFlags.join("")}</td>
                                 
-                                <td>${ct.cdnaPosition ?? "-"} / ${ct.cdsPosition ?? "-"}</td>
-                                <td>${ct.codon ?? "-"}</td>
+                                <td>${ct.cdnaPosition || "-"} / ${ct.cdsPosition || "-"}</td>
+                                <td>${ct.codon || "-"}</td>
                                 <td>${exons.join("<br>")}</td>
                                 
                                 <td>${uniprotAccession}</td>
                                 <td>${pva.position !== undefined ? pva.position : "-"}</td>
                                 <td>${pva.reference !== undefined ? pva.reference + "/" + pva.alternate : "-"}</td>
+                                <td>${domains}</td>
                            </tr>`;
             }
             ctHtml += "</tbody></table>";
