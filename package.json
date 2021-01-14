@@ -27,7 +27,6 @@
     "@fortawesome/fontawesome-free": "^5.11.2",
     "@polymer/polymer": "2.6.1",
     "@svgdotjs/svg.js": "^3.0.16",
-    "@webcomponents/shadycss": "^1.1.0",
     "@webcomponents/webcomponentsjs": "^1.1.0",
     "async": "^2.1.2",
     "axios": "^0.19.1",
@@ -72,7 +71,6 @@
     "babel-eslint": "^10.0.3",
     "babel-jest": "^25.1.0",
     "babel-loader": "^8.0.6",
-    "bower": "*",
     "copy-webpack-plugin": "^5.1.1",
     "core-js": "^3.6.4",
     "crisper": "~2.1.1",
@@ -84,7 +82,6 @@
     "js-beautify": "~1.6.2",
     "regenerator-runtime": "^0.13.3",
     "uglify-es": "~3.1.9",
-    "vulcanize": "~1.16.0",
     "webpack": "^4.41.6",
     "webpack-cli": "^3.3.11"
   },

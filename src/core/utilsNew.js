@@ -113,8 +113,6 @@ export default class UtilsNew {
         return str === str2;
     }
 
-    /*  Utils refactoring in progress */
-
     static randomString(length) {
         let result = "";
         const _length = length || 6;
@@ -216,7 +214,7 @@ export default class UtilsNew {
     }
 
 
-    /*
+    /**
      * This function creates a table (rows and columns) a given Object or array of Objects using the fields provided.
      * Id fields is not defined or empty then it uses the Object keys. Fields can contain arrays and nested arrays.
      */
@@ -266,7 +264,7 @@ export default class UtilsNew {
         return table;
     }
 
-    /*
+    /**
      * Download data in the browser.
      * data can be a string, and arrays of string or an array of arrays
      */
@@ -298,7 +296,7 @@ export default class UtilsNew {
         return Array.from({length: (stop - start) / step}, (x, i) => (i + start) * step);
     }
 
-    static ErrorStringify(error) {
+    static errorStringify(error) {
         return (err => JSON.stringify(Object.getOwnPropertyNames(Object.getPrototypeOf(err)).reduce(function (accumulator, currentValue) {
             return accumulator[currentValue] = err[currentValue], accumulator;
         }, {})))(error);
@@ -316,11 +314,21 @@ export default class UtilsNew {
     }
 
     /**
+     * Returns the object sorted by key in lexicographic order.
+     * @param {Object} unordered Unordered object
+     * @returns {Object} ordered Ordered object
+     */
+    static objectSort(unordered) {
+        const keys = Object.keys(unordered).sort();
+        return Object.assign({}, ...keys.map(k => ({[k]: unordered[k]})));
+    }
+
+    /**
      * This function return the object sorted by the keys provided.
-     * @param unordered object
-     * @param keys ordered keys
-     * @param addMissingKeys keys
-     * @returns Ordered object
+     * @param {Object} unordered Unordered object
+     * @param {Array} keys ordered keys
+     * @param {boolean} addMissingKeys Flag for adding or not keys not present in the array `keys`
+     * @returns {Object} ordered Ordered object
      */
     static objectKeySort(unordered, keys, addMissingKeys) {
         if (!unordered) {
