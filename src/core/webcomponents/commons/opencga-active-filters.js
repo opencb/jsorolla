@@ -69,7 +69,7 @@ export default class OpencgaActiveFilters extends LitElement {
     }
 
     init() {
-        this._prefix = "oaf" + UtilsNew.randomString(6) + "_";
+        this._prefix = UtilsNew.randomString(8);
         this._config = this.getDefaultConfig();
         this.filters = [];
         this._filters = [];
@@ -215,7 +215,14 @@ export default class OpencgaActiveFilters extends LitElement {
                 delete query.study;
             }
         }
-        // console.log("QUERY SAVED:", query)
+
+        // Remove ignored params
+        // When saving a filter we do no twant to save the exact sample or file ID, otherwise the filter cannot be reused
+        if (this._config?.save?.ignoreParams) {
+            for (let param of this._config?.save?.ignoreParams) {
+                delete query[param];
+            }
+        }
 
         this.opencgaClient.users().filters(this.opencgaSession.user.id)
             .then(restResponse => {
@@ -332,10 +339,20 @@ export default class OpencgaActiveFilters extends LitElement {
             // We look for the filter name in the filters array
             for (const filter of this._filters) {
                 if (filter.id === e.currentTarget.dataset.filterId) {
-                    // PolymerUtils.addStyleByClass("filtersLink", "color", "black");
-                    // e.currentTarget.style.color = "green";
                     filter.active = true;
-                    const _queryList = {...filter.query};
+
+                    // We need to merge the selected filter query with the "save.ignoreParams" of the current query,
+                    // otherwise the sample or file are deleted.
+                    let _query = {};
+                    if (this._config?.save?.ignoreParams) {
+                        for (let key of Object.keys(this.query)) {
+                            if (this._config.save.ignoreParams.includes(key)) {
+                                _query[key] = this.query[key];
+                            }
+                        }
+                    }
+
+                    const _queryList = {..._query, ...filter.query};
                     if (_queryList.study) {
                         // add the current active study
                         const studies = [...new Set([..._queryList.study.split(","), this.opencgaSession.study.fqn])];
@@ -586,7 +603,10 @@ export default class OpencgaActiveFilters extends LitElement {
             },
             complexFields: [],
             hiddenFields: [],
-            lockedFields: []
+            lockedFields: [],
+            save: {
+                ignoreParams: ["study", "sample", "sampleData", "file", "fileData"]
+            }
         };
     }
 
@@ -622,9 +642,10 @@ export default class OpencgaActiveFilters extends LitElement {
                                             <li>
                                                 <a data-filter-id="${item.id}" class="filtersLink" style="cursor: pointer;color: ${!item.active ? "black" : "green"}" 
                                                         @click="${this.onServerFilterChange}">
-                                                    <span class="id-filter-button"> ${item.id}</span>
-                                                    <span class="delete-filter-button" title="Delete filter" data-filter-id="${item.id}" 
-                                                            @click="${this.serverFilterDelete}"><i class="fas fa-times"></i>
+                                                    <span class="id-filter-button">${item.id}</span>
+                                                    <span class="delete-filter-button" title="Delete filter" data-filter-id="${item.id}" @click="${this.serverFilterDelete}">
+                                                        <i title="${Object.entries(item.query).map(([k, v]) => k + "=" + v).join(", ")}" class="fas fa-eye"></i>
+                                                        <i class="fas fa-trash"></i>
                                                     </span>
                                                 </a>
                                             </li>`
