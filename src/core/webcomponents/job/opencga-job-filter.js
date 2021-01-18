@@ -20,6 +20,7 @@ import "../opencga/catalog/variableSets/opencga-annotation-filter.js";
 import "../commons/filters/date-filter.js";
 import "../commons/filters/text-field-filter.js";
 import "../commons/filters/jobs-id-autocomplete.js";
+import "../commons/filters/analysis-tool-id-autocomplete.js";
 
 
 export default class OpencgaJobFilter extends LitElement {
@@ -146,6 +147,8 @@ export default class OpencgaJobFilter extends LitElement {
                 content = html`<file-name-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></file-name-autocomplete>`;
                 break;
             case "tool":
+                content = html`<analysis-tool-id-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></analysis-tool-id-autocomplete>`;
+                break;
             case "tags":
                 content = html`<text-field-filter placeholder="${subsection.placeholder}" .value="${this.preparedQuery[subsection.id]}" .separator="${",;"}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></text-field-filter>`;
                 break;
