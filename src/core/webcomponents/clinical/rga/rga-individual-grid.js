@@ -21,7 +21,7 @@ import CatalogGridFormatter from "../../commons/catalog-grid-formatter.js";
 import PolymerUtils from "../../PolymerUtils.js";
 
 
-export default class RgaGeneGrid extends LitElement {
+export default class RgaIndividualGrid extends LitElement {
 
     constructor() {
         super();
@@ -52,7 +52,7 @@ export default class RgaGeneGrid extends LitElement {
     _init() {
         this._prefix = "rga-g" + UtilsNew.randomString(6) + "_";
         this.active = false;
-        this.gridId = this._prefix + "RgaGeneBrowserGrid";
+        this.gridId = this._prefix + "RgaIndividualBrowserGrid";
     }
 
     connectedCallback() {
@@ -125,7 +125,7 @@ export default class RgaGeneGrid extends LitElement {
                         count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
                         ...filters
                     };
-                    this.opencgaSession.opencgaClient.clinical().queryRgaGene({study: this.opencgaSession.study.fqn, limit: 2})
+                    this.opencgaSession.opencgaClient.clinical().queryRgaIndividual({study: this.opencgaSession.study.fqn, limit: 2})
                         .then(res => {
                             console.log("res", res)
                             params.success(res)
@@ -147,7 +147,7 @@ export default class RgaGeneGrid extends LitElement {
             });
         } else {
             // Delete table
-            $(PolymerUtils.getElementById(this._prefix + "RgaGeneBrowserGrid")).bootstrapTable("destroy");
+            $(PolymerUtils.getElementById(this._prefix + "RgaIndividualBrowserGrid")).bootstrapTable("destroy");
             this.numTotalResults = 0;
         }
     }
@@ -168,43 +168,64 @@ export default class RgaGeneGrid extends LitElement {
         return [
             [
                 {
+                    title: "Individual Id",
+                    field: "sampleId",
+                    rowspan: 2
+                },
+                {
+                    title: "Sample",
+                    field: "sampleId",
+                    rowspan: 2
+                },
+                {
                     title: "Gene",
-                    field: "name",
+                    field: "genes",
                     rowspan: 2,
-                    halign: "center",
-                    formatter: this.geneIdFormatter
+                    formatter: genes => genes.length ? genes.map(gene => gene.name) : "-"
+                },
+                {
+                    title: "Homozygous",
+                    field: "stats.byType.HOM_ALT"
                 },
                 {
                     title: "Compound Heterozygous",
+                    field: "stats.byType.COMP_HET",
                     colspan: 4
                 },
                 {
-                    title: "Homozygous"
+                    title: "Disorders",
+                    field: "disorders",
+                    rowspan: 2,
+                    formatter: disorders => disorders.length ? disorders.map(CatalogGridFormatter.disorderFormatter) : "-"
+
                 },
                 {
-                    title: "All"
+                    title: "Phenotypes",
+                    field: "phenotypes",
+                    rowspan: 2,
+                    formatter: CatalogGridFormatter.phenotypesFormatter
+
                 }
-            ],
-            [
+            ], [
                 {
-                    title: "Tot"
-                    // formatter: this.compTotalFormatter.bind(this)
-                },
-                {
-                    title: "Def."
-                },
-                {
-                    title: "Probable"
-                },
-                {
-                    title: "Possible"
-                },
-                {
-                    title: "Total"
+                    title: "Total",
+                    field: "stats.byType.HOM_ALT"
                 },
                 {
                     title: "Total",
-                    //formatter: (val, row, index) => this.tableData[index].individuals?.length
+                    field: "stats.byType.COMP_HET"
+                },
+                {
+                    title: "Definitely",
+                    field: "stats.byType.COMP_HET.def"
+                },
+                {
+                    title: "Probable",
+                    field: "stats.byType.COMP_HET.prob"
+                },
+                {
+                    title: "Possible",
+                    field: "stats.byType.COMP_HET.poss"
                 }
             ]
         ];
@@ -238,11 +259,11 @@ export default class RgaGeneGrid extends LitElement {
         </opencb-grid-toolbar>
 
         <div id="${this._prefix}GridTableDiv">
-            <table id="${this._prefix}RgaGeneBrowserGrid"></table>
+            <table id="${this._prefix}RgaIndividualBrowserGrid"></table>
         </div>
         `;
     }
 
 }
 
-customElements.define("rga-gene-grid", RgaGeneGrid);
+customElements.define("rga-individual-grid", RgaIndividualGrid);

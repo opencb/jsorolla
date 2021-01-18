@@ -22,6 +22,7 @@ import "../../loading-spinner.js";
 import "../../commons/tool-header.js";
 import "./rga-gene-filter.js";
 import "./rga-gene-grid.js";
+import "./rga-individual-grid.js";
 
 export default class RgaBrowser extends LitElement {
 
@@ -376,7 +377,7 @@ export default class RgaBrowser extends LitElement {
                                 </div>
 
                                 <div id="individual-tab" class="content-tab">
-                                    individual-tab
+                                    <rga-individual-grid .opencgaSession="${this.opencgaSession}" .active="${true}"></rga-individual-grid>
                                 </div>
 
                                 <div id="variant-tab" class="content-tab">
