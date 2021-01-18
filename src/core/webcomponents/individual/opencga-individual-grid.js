@@ -361,13 +361,8 @@ export default class OpencgaIndividualGrid extends LitElement {
     }
 
     samplesFormatter(value, row) {
-        if (UtilsNew.isNotEmptyArray(row.samples)) {
-            let samples = "<div>";
-            for (const sample of row.samples) {
-                samples += `<div>${sample.id}</div>`;
-            }
-            samples += "</div>";
-            return samples;
+        if (value?.length) {
+            return `<ul class="pad-left-15">${value.map(sample => `<li>${sample.id}</li>`).join("")}</ul>`;
         } else {
             return "-";
         }

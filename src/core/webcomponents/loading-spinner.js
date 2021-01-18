@@ -389,7 +389,7 @@ export default class LoadingSpinner extends LitElement {
                 font-size: 19px;
                 font-variant: all-small-caps;
                 letter-spacing: .3em;
-                margin: 33px 0 0 20px;
+                margin: 25px 0 0 20px;
                 text-align: left;
             }
 
