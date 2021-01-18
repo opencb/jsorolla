@@ -951,8 +951,9 @@ export default class VariantGridFormatter {
                         }
                     }
 
-                    return `<a class="cosmic-tooltip" tooltip-title='Links' tooltip-text='${tooltipText}' tooltip-position-at="left bottom" tooltip-position-my="right top"><i class='fa fa-check' style='color: green'></i></a>`;
-
+                    return `<a class="cosmic-tooltip" tooltip-title='Links' tooltip-text='${tooltipText}' tooltip-position-at="left bottom" tooltip-position-my="right top">
+                                <i class='fa fa-check' style='color: green'></i>
+                            </a>`;
                 } else {
                     console.error("Wrong clinical source : " + this.field);
                 }
