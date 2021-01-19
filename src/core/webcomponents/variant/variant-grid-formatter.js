@@ -816,40 +816,6 @@ export default class VariantGridFormatter {
         return htmlPopFreqTable;
     }
 
-    // TODO remove
-    addPopulationFrequenciesTooltip(div, populationFrequencies) {
-        if (UtilsNew.isEmpty(div)) {
-            div = "table.populationFrequenciesTable";
-        }
-
-        const _this = this;
-        $(div).qtip({
-            content: {
-                title: "Population Frequencies",
-                text: function (event, api) {
-                    const popFreqs = $(this).attr("data-pop-freq").split(",");
-                    let html = "";
-                    for (const popFreq of popFreqs) {
-                        const arr = popFreq.split("::");
-                        const color = VariantGridFormatter._getPopulationFrequencyColor(arr[1], populationFrequencies.style);
-                        const freq = (arr[1] !== 0 && arr[1] !== "0") ? arr[1] : "0.00 (NA)";
-                        html += `<div>
-                                    <span><i class="fa fa-xs fa-square" style="color: ${color}" aria-hidden="true"></i>
-                                        <label style="padding-left: 5px">${arr[0]}:</label>
-                                    </span>
-                                    <span style="font-weight: bold">${freq}</span>
-                                </div>`;
-                    }
-                    return html;
-                }
-            },
-            position: {target: "mouse", adjust: {x: 2, y: 2, mouse: false}},
-            style: {width: true, classes: "qtip-light qtip-rounded qtip-shadow qtip-custom-class"},
-            show: {delay: 200},
-            hide: {fixed: true, delay: 300}
-        });
-    }
-
     static _getPopulationFrequencyColor(freq, populationFrequenciesColor) {
         let color;
         if (freq === 0 || freq === "0") {
