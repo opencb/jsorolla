@@ -27,12 +27,6 @@ export default class GridCommons {
         this.checkedRows = new Map();
     }
 
-    defaultConfig() {
-        return {
-
-        }
-    }
-
     responseHandler(response, bootstrapTableConfig) {
         let numMatches, from, to, numTotalResultsText, approximateCountResult;
         numMatches = this.context.numMatches || 0;
