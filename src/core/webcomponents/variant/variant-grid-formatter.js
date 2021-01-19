@@ -19,8 +19,6 @@ import UtilsNew from "../../utilsNew.js";
 import BioinfoUtils from "../../bioinfo-utils.js";
 
 
-// TODO urgent review of the whole class
-
 export default class VariantGridFormatter {
 
     static assignColors(consequenceTypes, proteinSubstitutionScores) {
