@@ -266,8 +266,6 @@ export default class VariantGridFormatter {
     }
 
     static consequenceTypeFormatter(value, row, index, gridCtSettings, consequenceTypeColors) {
-        // debugger
-
         if (row?.annotation && row.annotation.consequenceTypes?.length > 0) {
             // Apply transcript filters
             const selectedTranscripts = new Set();
