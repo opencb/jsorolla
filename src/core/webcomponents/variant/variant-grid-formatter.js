@@ -57,7 +57,6 @@ export default class VariantGridFormatter {
             }
             result.pssColor = pssColor;
         }
-
         return result;
     }
 
