@@ -286,7 +286,6 @@ export default class VariantGridFormatter {
 
                 for (const ct of row.annotation.consequenceTypes) {
                     let consequenceTypeSelected = false;
-// if (ct.geneName === "AL732372.2") debugger
                     // TODO Remove canonicalFound boolean once 'canonical' is added to flags
                     if (gridCtSettings.canonicalTranscript && !canonicalFound) {
                         if (ct.biotype === "protein_coding" && ct.transcriptAnnotationFlags?.includes("basic")) {
