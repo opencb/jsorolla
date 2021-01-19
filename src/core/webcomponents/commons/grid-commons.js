@@ -25,8 +25,6 @@ export default class GridCommons {
         this.config = config;
 
         this.checkedRows = new Map();
-        // this.bootstrapTable = $("#" + this.gridId);
-        // this.bootstrapTableConfig = this.bootstrapTable.bootstrapTable("getOptions");
     }
 
     defaultConfig() {
