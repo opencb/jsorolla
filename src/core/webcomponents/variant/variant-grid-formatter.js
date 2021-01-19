@@ -391,8 +391,7 @@ export default class VariantGridFormatter {
                 </div>
                 <div>
                     ${negativeConsequenceTypesText}
-                </div>
-            `;
+                </div>`;
         }
         return "-";
     }
