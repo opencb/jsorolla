@@ -324,6 +324,22 @@ export default class UtilsNew {
     }
 
     /**
+     * Compares the objects by key and value (nested object are not supported yet)
+     * @param {Object} a First object
+     * @param {Object} b Second object
+     * @returns {boolean} true if the oject are equals
+     */
+    static objectCompare(a, b) {
+        if (a && b) {
+            const _a = UtilsNew.objectSort(a);
+            const _b = UtilsNew.objectSort(b);
+            return JSON.stringify(_a) === JSON.stringify(_b);
+        } else {
+            return false;
+        }
+    }
+
+    /**
      * This function return the object sorted by the keys provided.
      * @param {Object} unordered Unordered object
      * @param {Array} keys ordered keys
