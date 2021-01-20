@@ -20,7 +20,6 @@ import "../../commons/opencga-active-filters.js";
 import "../../commons/filters/select-field-filter.js";
 import "../../loading-spinner.js";
 import "../../commons/tool-header.js";
-import "./rga-gene-filter.js";
 import "./rga-gene-view.js";
 import "./rga-individual-view.js";
 import "./rga-variant-view.js";
@@ -164,10 +163,6 @@ export default class RgaBrowser extends LitElement {
         }*/
     }
 
-    onFilterChange(e) {
-        this.query = e.detail;
-    }
-
     onClickPill(e) {
         this._changeView(e.currentTarget.dataset.id);
     }
@@ -179,44 +174,6 @@ export default class RgaBrowser extends LitElement {
         $(`button.content-pills[data-id=${tabId}]`, this).addClass("active");
         $("#" + tabId, this).addClass("active");
         this.activeTab[tabId] = true;
-        this.requestUpdate();
-    }
-
-    onQueryFilterChange(e) {
-        this.preparedQuery = e.detail.query;
-        this.requestUpdate();
-    }
-
-    onActiveFilterChange(e) {
-        this.preparedQuery = {study: this.opencgaSession.study.fqn, ...e.detail};
-        this.query = {study: this.opencgaSession.study.fqn, ...e.detail};
-    }
-
-    onActiveFilterClear() {
-        console.log("onActiveFilterClear");
-        this.query = {study: this.opencgaSession.study.fqn};
-        this.preparedQuery = {...this.query};
-    }
-
-    onFacetQueryChange(e) {
-        this.selectedFacetFormatted = e.detail.value;
-        this.requestUpdate();
-    }
-
-    onActiveFacetChange(e) {
-        this.selectedFacet = {...e.detail};
-        this.onRun(); // TODO the query should be repeated every action on active-filter (delete, clear, load from Saved filter)
-        this.requestUpdate();
-    }
-
-    onActiveFacetClear(e) {
-        this.selectedFacet = {};
-        this.onRun();
-        this.requestUpdate();
-    }
-
-    onClickRow(e) {
-        this.detail = e.detail.row;
         this.requestUpdate();
     }
 
@@ -232,7 +189,8 @@ export default class RgaBrowser extends LitElement {
                     id: "gene-tab",
                     name: "Gene",
                     icon: "fa fa-table",
-                    active: true
+                    active: true,
+                    // TODO move specific configuration here?
                 },
                 {
                     id: "individual-tab",
@@ -244,61 +202,7 @@ export default class RgaBrowser extends LitElement {
                     name: "Variant",
                     icon: "fas fa-table",
                 }
-            ],
-            filter: {
-                title: "Filter",
-                activeFilters: {
-                    alias: {
-                        // Example:
-                        // "region": "Region",
-                        // "gene": "Gene",
-                        "ct": "Consequence Types",
-                    },
-                    complexFields: [],
-                    hiddenFields: []
-                },
-                sections: [ // sections and subsections, structure and order is respected
-                    {
-                        title: "Filters",
-                        collapsed: false,
-                        fields: [
-                            {
-                                id: "id",
-                                title: "id"
-                            }
-                        ]
-                    }
-                ],
-                examples: [
-                    {
-                        id: "BRCA2 missense variants",
-                        active: false,
-                        query: {
-                            gene: "BRCA2",
-                            ct: "missense_variant"
-                        }
-                    }
-                ],
-                result: {
-                    grid: {}
-                },
-                detail: {
-                    title: "Selected Variant",
-                    views: [
-                        {
-                            id: "annotationSummary",
-                            title: "Summary",
-                            active: true
-                        }
-                    ]
-                }
-            },
-            aggregation: {
-                title: "Aggregation",
-                default: [],
-                sections: [
-                ]
-            }
+            ]
         };
     }
 
@@ -306,101 +210,30 @@ export default class RgaBrowser extends LitElement {
         return html`
             ${this.checkProjects ? html`
                 <tool-header title="${this._config.title}" icon="${this._config.icon}"></tool-header>
-                <div class="row">
-                    <div class="col-md-2">
-                        <div class="search-button-wrapper">
-                            <button type="button" class="btn btn-primary ripple" @click="${this.onRun}">
-                                <i class="fa fa-arrow-circle-right" aria-hidden="true"></i> ${this._config.searchButtonText || "Run"}
-                            </button>
-                        </div>
-                        <ul class="nav nav-tabs left-menu-tabs" role="tablist">
-                            <li role="presentation" class="active">
-                                <a href="#filters_tab" aria-controls="profile" role="tab" data-toggle="tab">Filters</a>
-                            </li>
-                            ${this._config.aggregation ? html`<li role="presentation"><a href="#facet_tab" aria-controls="home" role="tab" data-toggle="tab">Aggregation</a></li>` : null}
-                        </ul>
-                        
-                        <div class="tab-content">
-                            <div role="tabpanel" class="tab-pane active" id="filters_tab">
-
-                                ${this.activeTab["gene-tab"] ? html`
-                                    <rga-gene-filter
-                                            .opencgaSession="${this.opencgaSession}"
-                                            .config="${this._config.filter}"
-                                            .query="${this.query}"
-                                            .searchButton="${false}"
-                                            @queryChange="${this.onQueryFilterChange}"
-                                            @querySearch="${this.onQueryFilterSearch}">
-                                    </rga-gene-filter>
-                                ` : null}
-
-                                ${this.activeTab["individual-tab"] ? html`
-                                    individual-filter
-                                ` : null}
-
-                                ${this.activeTab["variant-tab"] ? html`
-                                    variant-filter
-                                ` : null}
-                                                               
-                            </div>
-                            
-                            ${this._config.aggregation ? html`
-                                <div role="tabpanel" class="tab-pane" id="facet_tab" aria-expanded="true">
-                                    <facet-filter .config="${this._config.aggregation}"
-                                                  .selectedFacet="${this.selectedFacet}"
-                                                  @facetQueryChange="${this.onFacetQueryChange}">
-                                    </facet-filter>
-                                </div>
-                            ` : null}
-                        </div>
-                    </div>
-    
-                    <div class="col-md-10">
-                        <!-- tabs buttons -->
-                        <div class="btn-group content-pills" role="toolbar" aria-label="toolbar">
-                            <div class="btn-group" role="group" style="margin-left: 0px">
-                                ${this._config.views && this._config.views.length ? this._config.views.map(tab => html`
+                
+                <!-- tabs buttons -->
+                <div class="btn-group content-pills" role="toolbar" aria-label="toolbar">
+                    <div class="btn-group" role="group" style="margin-left: 0px">
+                        ${this._config.views && this._config.views.length ? this._config.views.map(tab => html`
                                     <button type="button" class="btn btn-success ripple content-pills ${tab.active ? "active" : ""}" ?disabled=${tab.disabled} @click="${this.onClickPill}" data-id="${tab.id}">
                                         <i class="${tab.icon ?? "fa fa-table"} icon-padding" aria-hidden="true"></i> ${tab.name}
                                     </button>
                                 `) : html`No view has been configured`}
-                            </div>
-                        </div>
-                        
-                        <div>
-                            <opencga-active-filters facetActive 
-                                                    .resource="${this.resource}"
-                                                    .opencgaSession="${this.opencgaSession}"
-                                                    .defaultStudy="${this.opencgaSession?.study?.fqn}"
-                                                    .query="${this.preparedQuery}"
-                                                    .refresh="${this.executedQuery}"
-                                                    .facetQuery="${this.selectedFacetFormatted}"
-                                                    .alias="${this.activeFilterAlias}"
-                                                    .config="${this._config?.activeFilters}"
-                                                    .filters="${this._config?.filter?.examples}"
-                                                    @activeFacetChange="${this.onActiveFacetChange}"
-                                                    @activeFacetClear="${this.onActiveFacetClear}"
-                                                    @activeFilterChange="${this.onActiveFilterChange}"
-                                                    @activeFilterClear="${this.onActiveFilterClear}">
-                            </opencga-active-filters>
-
-                            <div class="main-view">
-                                <div id="gene-tab" class="content-tab active">
-                                    <rga-gene-grid .opencgaSession="${this.opencgaSession}" .active="${this.activeTab["gene-tab"]}"></rga-gene-grid>
-                                </div>
-
-                                <div id="individual-tab" class="content-tab">
-                                    <rga-individual-grid .opencgaSession="${this.opencgaSession}" .active="${this.activeTab["individual-tab"]}"></rga-individual-grid>
-                                </div>
-
-                                <div id="variant-tab" class="content-tab">
-                                    <rga-variant-grid .opencgaSession="${this.opencgaSession}" .active="${this.activeTab["variant-tab"]}"></rga-variant-grid>
-                                </div>
-                            </div>
-                            <div class="v-space"></div>
-                        </div>
                     </div>
                 </div>
+
+                ${this.activeTab["gene-tab"] ? html`
+                    <rga-gene-view .opencgaSession="${this.opencgaSession}" .active="${this.activeTab["gene-tab"]}"></rga-gene-view>
+                ` : null}
+
+                ${this.activeTab["individual-tab"] ? html`
+                    <rga-individual-view .opencgaSession="${this.opencgaSession}" .active="${this.activeTab["individual-tab"]}"></rga-individual-view>
+                ` : null}
+
+                ${this.activeTab["variant-tab"] ? html`
+                    <rga-variant-view .opencgaSession="${this.opencgaSession}" .active="${this.activeTab["individual-tab"]}"></rga-variant-view>
+                ` : null}
+
             ` : html`
                 <div class="guard-page">
                     <i class="fas fa-lock fa-5x"></i>
