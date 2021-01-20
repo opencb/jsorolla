@@ -176,6 +176,9 @@ class VariantInterpreterBrowserRd extends LitElement {
         if (this.clinicalAnalysis?.interpretation?.primaryFindings?.length) {
             this.savedVariants = this.clinicalAnalysis?.interpretation?.primaryFindings?.map(v => v.id);
         }
+
+        this._config = {...this.getDefaultConfig(), ...this.config};
+        this.requestUpdate();
     }
 
     /**
@@ -292,8 +295,8 @@ class VariantInterpreterBrowserRd extends LitElement {
                         // "gene": "Gene",
                         "ct": "Consequence Types",
                     },
-                    complexFields: ["sample", "genotype"],
-                    hiddenFields: ["sample"],
+                    complexFields: ["sample", "fileData"],
+                    hiddenFields: [],
                     lockedFields: [{id: "sample"}]
                 },
                 sections: [

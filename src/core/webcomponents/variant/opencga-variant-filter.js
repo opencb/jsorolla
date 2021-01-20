@@ -349,7 +349,12 @@ export default class OpencgaVariantFilter extends LitElement {
                                </cohort-stats-filter>`;
                     break;
                 case "sample":
-                    content = html`<sample-filter .opencgaSession="${this.opencgaSession}" .clinicalAnalysis="${subsection.clinicalAnalysis}" .query="${this.preparedQuery}" @sampleFilterChange="${e => this.onSampleFilterChange(e.detail.value)}"></sample-filter>`;
+                    content = html`
+                        <sample-filter .opencgaSession="${this.opencgaSession}" 
+                                       .clinicalAnalysis="${subsection.clinicalAnalysis}" 
+                                       .query="${this.preparedQuery}" 
+                                       @sampleFilterChange="${e => this.onSampleFilterChange(e.detail.value)}">
+                        </sample-filter>`;
                     break;
                 case "sample-genotype":
                     content = html`<sample-genotype-filter .sample="${this.preparedQuery.sample}" @filterChange="${e => this.onFilterChange("sample", e.detail.value)}"></sample-genotype-filter>`;
