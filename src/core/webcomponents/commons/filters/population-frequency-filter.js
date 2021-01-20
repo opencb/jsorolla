@@ -17,11 +17,9 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../utilsNew.js";
 import "./number-field-filter.js";
+import "./select-field-filter.js";
 
-/*
-* UX improvement: mouse drag for the numeric fields (e.g. jquery.stepper.js)
-*
-* */
+
 export default class PopulationFrequencyFilter extends LitElement {
 
     constructor() {
@@ -60,13 +58,17 @@ export default class PopulationFrequencyFilter extends LitElement {
         this.defaultComparator = "<";
     }
 
-    updated(changedProperties) {
+    // updated(changedProperties) {
+    //     if (changedProperties.has("populationFrequencyAlt")) {
+    //         this.populationFrequencyAltObserver();
+    //     }
+    // }
+
+    update(changedProperties) {
         if (changedProperties.has("populationFrequencyAlt")) {
             this.populationFrequencyAltObserver();
         }
-        if (changedProperties.has("populationFrequencies")) {
-            // TODO currently ignored
-        }
+        super.update(changedProperties);
     }
 
     populationFrequencyAltObserver() {
@@ -74,9 +76,6 @@ export default class PopulationFrequencyFilter extends LitElement {
         let pfArray = [];
         this.state = {};
         if (this.populationFrequencyAlt) {
-            // if (!populationFrequencies?.studies?.length && !this.populationFrequencies) {
-            //     console.error("populationFrequency data not available");
-            // }
             pfArray = this.populationFrequencyAlt.split(new RegExp("[,;]"));
             pfArray.forEach(queryElm => {
                 const [study, pop] = queryElm.split(":");
@@ -132,7 +131,6 @@ export default class PopulationFrequencyFilter extends LitElement {
         this.state = {...this.state};
         this.requestUpdate();
 
-        // this.filterChange();
         this.notify();
     }
 
