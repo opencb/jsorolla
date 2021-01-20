@@ -19,8 +19,6 @@ import UtilsNew from "../../utilsNew.js";
 import BioinfoUtils from "../../bioinfo-utils.js";
 
 
-// TODO urgent review of the whole class
-
 export default class VariantGridFormatter {
 
     static assignColors(consequenceTypes, proteinSubstitutionScores) {
@@ -57,7 +55,6 @@ export default class VariantGridFormatter {
             }
             result.pssColor = pssColor;
         }
-
         return result;
     }
 
@@ -266,8 +263,6 @@ export default class VariantGridFormatter {
     }
 
     static consequenceTypeFormatter(value, row, index, gridCtSettings, consequenceTypeColors) {
-        // debugger
-
         if (row?.annotation && row.annotation.consequenceTypes?.length > 0) {
             // Apply transcript filters
             const selectedTranscripts = new Set();
@@ -286,7 +281,6 @@ export default class VariantGridFormatter {
 
                 for (const ct of row.annotation.consequenceTypes) {
                     let consequenceTypeSelected = false;
-// if (ct.geneName === "AL732372.2") debugger
                     // TODO Remove canonicalFound boolean once 'canonical' is added to flags
                     if (gridCtSettings.canonicalTranscript && !canonicalFound) {
                         if (ct.biotype === "protein_coding" && ct.transcriptAnnotationFlags?.includes("basic")) {
@@ -397,8 +391,7 @@ export default class VariantGridFormatter {
                 </div>
                 <div>
                     ${negativeConsequenceTypesText}
-                </div>
-            `;
+                </div>`;
         }
         return "-";
     }
@@ -816,40 +809,6 @@ export default class VariantGridFormatter {
         return htmlPopFreqTable;
     }
 
-    // TODO remove
-    addPopulationFrequenciesTooltip(div, populationFrequencies) {
-        if (UtilsNew.isEmpty(div)) {
-            div = "table.populationFrequenciesTable";
-        }
-
-        const _this = this;
-        $(div).qtip({
-            content: {
-                title: "Population Frequencies",
-                text: function (event, api) {
-                    const popFreqs = $(this).attr("data-pop-freq").split(",");
-                    let html = "";
-                    for (const popFreq of popFreqs) {
-                        const arr = popFreq.split("::");
-                        const color = VariantGridFormatter._getPopulationFrequencyColor(arr[1], populationFrequencies.style);
-                        const freq = (arr[1] !== 0 && arr[1] !== "0") ? arr[1] : "0.00 (NA)";
-                        html += `<div>
-                                    <span><i class="fa fa-xs fa-square" style="color: ${color}" aria-hidden="true"></i>
-                                        <label style="padding-left: 5px">${arr[0]}:</label>
-                                    </span>
-                                    <span style="font-weight: bold">${freq}</span>
-                                </div>`;
-                    }
-                    return html;
-                }
-            },
-            position: {target: "mouse", adjust: {x: 2, y: 2, mouse: false}},
-            style: {width: true, classes: "qtip-light qtip-rounded qtip-shadow qtip-custom-class"},
-            show: {delay: 200},
-            hide: {fixed: true, delay: 300}
-        });
-    }
-
     static _getPopulationFrequencyColor(freq, populationFrequenciesColor) {
         let color;
         if (freq === 0 || freq === "0") {
@@ -951,8 +910,9 @@ export default class VariantGridFormatter {
                         }
                     }
 
-                    return `<a class="cosmic-tooltip" tooltip-title='Links' tooltip-text='${tooltipText}' tooltip-position-at="left bottom" tooltip-position-my="right top"><i class='fa fa-check' style='color: green'></i></a>`;
-
+                    return `<a class="cosmic-tooltip" tooltip-title='Links' tooltip-text='${tooltipText}' tooltip-position-at="left bottom" tooltip-position-my="right top">
+                                <i class='fa fa-check' style='color: green'></i>
+                            </a>`;
                 } else {
                     console.error("Wrong clinical source : " + this.field);
                 }
@@ -1041,12 +1001,6 @@ export default class VariantGridFormatter {
                 }
             },
             position: {target: "mouse", adjust: {x: 2, y: 2, mouse: false}},
-            // position : {
-            //     corner: {
-            //         target: 'topLeft',
-            //         tooltip: 'middleLeft'
-            //     }
-            // },
             style: {classes: "qtip-light qtip-rounded qtip-shadow qtip-custom-class"},
             show: {delay: 200},
             hide: {fixed: true, delay: 300}

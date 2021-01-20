@@ -219,7 +219,7 @@ export default class OpencgaActiveFilters extends LitElement {
         // Remove ignored params
         // When saving a filter we do no twant to save the exact sample or file ID, otherwise the filter cannot be reused
         if (this._config?.save?.ignoreParams) {
-            for (let param of this._config?.save?.ignoreParams) {
+            for (let param of this._config.save.ignoreParams) {
                 delete query[param];
             }
         }

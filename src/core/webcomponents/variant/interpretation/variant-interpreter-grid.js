@@ -447,7 +447,6 @@ export default class VariantInterpreterGrid extends LitElement {
     }
 
     _createDefaultColumns() {
-
         // This code creates dynamically the columns for the VCF INFO and FORMAT column data.
         // Multiple file callers are supported.
         let vcfDataColumns = [];
