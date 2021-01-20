@@ -21,8 +21,9 @@ import "../../commons/filters/select-field-filter.js";
 import "../../loading-spinner.js";
 import "../../commons/tool-header.js";
 import "./rga-gene-filter.js";
-import "./rga-gene-grid.js";
-import "./rga-individual-grid.js";
+import "./rga-gene-view.js";
+import "./rga-individual-view.js";
+import "./rga-variant-view.js";
 
 export default class RgaBrowser extends LitElement {
 
@@ -68,10 +69,9 @@ export default class RgaBrowser extends LitElement {
 
         this.activeFilterAlias = {
         };
-
         this.selectedFacet = {};
         this.selectedFacetFormatted = {};
-        this.activeTab = {};
+        this.activeTab = {"gene-tab": true};
         this.detail = {};
     }
 
@@ -322,13 +322,26 @@ export default class RgaBrowser extends LitElement {
                         
                         <div class="tab-content">
                             <div role="tabpanel" class="tab-pane active" id="filters_tab">
-                                <rga-gene-filter    .opencgaSession="${this.opencgaSession}"
-                                                        .config="${this._config.filter}"
-                                                        .query="${this.query}"
-                                                        .searchButton="${false}"
-                                                        @queryChange="${this.onQueryFilterChange}"
-                                                        @querySearch="${this.onQueryFilterSearch}">
-                                </rga-gene-filter>                               
+
+                                ${this.activeTab["gene-tab"] ? html`
+                                    <rga-gene-filter
+                                            .opencgaSession="${this.opencgaSession}"
+                                            .config="${this._config.filter}"
+                                            .query="${this.query}"
+                                            .searchButton="${false}"
+                                            @queryChange="${this.onQueryFilterChange}"
+                                            @querySearch="${this.onQueryFilterSearch}">
+                                    </rga-gene-filter>
+                                ` : null}
+
+                                ${this.activeTab["individual-tab"] ? html`
+                                    individual-filter
+                                ` : null}
+
+                                ${this.activeTab["variant-tab"] ? html`
+                                    variant-filter
+                                ` : null}
+                                                               
                             </div>
                             
                             ${this._config.aggregation ? html`
@@ -373,15 +386,15 @@ export default class RgaBrowser extends LitElement {
 
                             <div class="main-view">
                                 <div id="gene-tab" class="content-tab active">
-                                    <rga-gene-grid .opencgaSession="${this.opencgaSession}" .active="${true}"></rga-gene-grid>
+                                    <rga-gene-grid .opencgaSession="${this.opencgaSession}" .active="${this.activeTab["gene-tab"]}"></rga-gene-grid>
                                 </div>
 
                                 <div id="individual-tab" class="content-tab">
-                                    <rga-individual-grid .opencgaSession="${this.opencgaSession}" .active="${true}"></rga-individual-grid>
+                                    <rga-individual-grid .opencgaSession="${this.opencgaSession}" .active="${this.activeTab["individual-tab"]}"></rga-individual-grid>
                                 </div>
 
                                 <div id="variant-tab" class="content-tab">
-                                    variant-tab
+                                    <rga-variant-grid .opencgaSession="${this.opencgaSession}" .active="${this.activeTab["variant-tab"]}"></rga-variant-grid>
                                 </div>
                             </div>
                             <div class="v-space"></div>

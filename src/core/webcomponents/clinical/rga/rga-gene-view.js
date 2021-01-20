@@ -21,7 +21,7 @@ import CatalogGridFormatter from "../../commons/catalog-grid-formatter.js";
 import PolymerUtils from "../../PolymerUtils.js";
 
 
-export default class RgaGeneGrid extends LitElement {
+export default class RgaGeneView extends LitElement {
 
     constructor() {
         super();
@@ -50,9 +50,11 @@ export default class RgaGeneGrid extends LitElement {
     }
 
     _init() {
-        this._prefix = "rga-g" + UtilsNew.randomString(6) + "_";
-        this.active = false;
+        this._prefix = "rga-g-" + UtilsNew.randomString(6) + "_";
         this.gridId = this._prefix + "RgaGeneBrowserGrid";
+        this.prevQuery = {};
+        this._query = {};
+
     }
 
     connectedCallback() {
@@ -62,7 +64,6 @@ export default class RgaGeneGrid extends LitElement {
     }
 
     firstUpdated(_changedProperties) {
-        this.table = $("#" + this.gridId);
     }
 
     updated(changedProperties) {
@@ -83,73 +84,68 @@ export default class RgaGeneGrid extends LitElement {
             columns: this._columns[0]
         };
 
-        this.renderTable(this.active);
+        this.renderTable();
     }
 
-    renderTable(active) {
-        if (!active) {
+    renderTable() {
+        if (!this.active) {
             return;
         }
 
-        this.opencgaClient = this.opencgaSession.opencgaClient;
-        const filters = {...this.query};
-
-        if (this.opencgaClient && this.opencgaSession.study && this.opencgaSession.study.fqn) {
-
-            filters.study = this.opencgaSession.study.fqn;
-
-            this.table = $("#" + this.gridId);
-            this.table.bootstrapTable("destroy");
-            this.table.bootstrapTable({
-                // url: opencgaHostUrl,
-                columns: this._columns,
-                method: "get",
-                sidePagination: "server",
-                uniqueId: "id",
-                // Table properties
-                pagination: this._config.pagination,
-                pageSize: this._config.pageSize,
-                pageList: this._config.pageList,
-                paginationVAlign: "both",
-                formatShowingRows: this.gridCommons.formatShowingRows,
-                showExport: this._config.showExport,
-                detailView: this._config.detailView,
-                detailFormatter: this._config.detailFormatter,
-                formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
-                ajax: params => {
-                    const _filters = {
-                        // study: this.opencgaSession.study.fqn,
-                        order: params.data.order,
-                        // limit: params.data.limit,
-                        skip: params.data.offset || 0,
-                        count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
-                        ...filters
-                    };
-                    this.opencgaSession.opencgaClient.clinical().queryRgaGene({study: this.opencgaSession.study.fqn, limit: 2})
-                        .then(res => {
-                            console.log("res", res)
-                            params.success(res)
-                            params.success(res)
-                        })
-                        .catch(e => {
-                            console.error(e);
-                            params.error(e);
-                        });
-                },
-                responseHandler: response => {
-                    const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
-                    return result.response;
-                },
-                onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
-                onCheck: (row, $element) => this.gridCommons.onCheck(row.id, row),
-                onLoadSuccess: data => this.gridCommons.onLoadSuccess(data, 1),
-                onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse)
-            });
-        } else {
-            // Delete table
-            $(PolymerUtils.getElementById(this._prefix + "RgaGeneBrowserGrid")).bootstrapTable("destroy");
-            this.numTotalResults = 0;
+        this._query = {...this.query, study: this.opencgaSession.study.fqn}; // we want to support a query obj param both with or without study.
+        console.log("UtilsNew.objectCompare(this._query, this.prevQuery)", UtilsNew.objectCompare(this._query, this.prevQuery));
+        if (UtilsNew.objectCompare(this._query, this.prevQuery)) {
+            return;
         }
+
+        this.table = $("#" + this.gridId);
+        this.table.bootstrapTable("destroy");
+        this.table.bootstrapTable({
+            // url: opencgaHostUrl,
+            columns: this._columns,
+            method: "get",
+            sidePagination: "server",
+            uniqueId: "id",
+            // Table properties
+            pagination: this._config.pagination,
+            pageSize: this._config.pageSize,
+            pageList: this._config.pageList,
+            paginationVAlign: "both",
+            formatShowingRows: this.gridCommons.formatShowingRows,
+            showExport: this._config.showExport,
+            detailView: this._config.detailView,
+            detailFormatter: this._config.detailFormatter,
+            formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+            ajax: params => {
+                const _filters = {
+                    // study: this.opencgaSession.study.fqn,
+                    order: params.data.order,
+                    // limit: params.data.limit,
+                    skip: params.data.offset || 0,
+                    count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
+                    ...this._query
+                };
+                this.opencgaSession.opencgaClient.clinical().queryRgaGene({study: this.opencgaSession.study.fqn, limit: 2})
+                    .then(res => {
+                        console.log("res", res);
+                        params.success(res);
+                        params.success(res);
+                    })
+                    .catch(e => {
+                        console.error(e);
+                        params.error(e);
+                    });
+            },
+            responseHandler: response => {
+                const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
+                return result.response;
+            },
+            onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
+            onCheck: (row, $element) => this.gridCommons.onCheck(row.id, row),
+            onLoadSuccess: data => this.gridCommons.onLoadSuccess(data, 1),
+            onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse)
+        });
+
     }
 
     onColumnChange(e) {
@@ -203,8 +199,8 @@ export default class RgaGeneGrid extends LitElement {
                     title: "Total"
                 },
                 {
-                    title: "Total",
-                    //formatter: (val, row, index) => this.tableData[index].individuals?.length
+                    title: "Total"
+                    // formatter: (val, row, index) => this.tableData[index].individuals?.length
                 }
             ]
         ];
@@ -226,7 +222,7 @@ export default class RgaGeneGrid extends LitElement {
             header: {
                 horizontalAlign: "center",
                 verticalAlign: "bottom"
-            },
+            }
         };
     }
 
@@ -245,4 +241,4 @@ export default class RgaGeneGrid extends LitElement {
 
 }
 
-customElements.define("rga-gene-grid", RgaGeneGrid);
+customElements.define("rga-gene-grid", RgaGeneView);

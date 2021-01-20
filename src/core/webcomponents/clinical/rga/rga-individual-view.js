@@ -21,7 +21,7 @@ import CatalogGridFormatter from "../../commons/catalog-grid-formatter.js";
 import PolymerUtils from "../../PolymerUtils.js";
 
 
-export default class RgaIndividualGrid extends LitElement {
+export default class RgaIndividualView extends LitElement {
 
     constructor() {
         super();
@@ -53,6 +53,9 @@ export default class RgaIndividualGrid extends LitElement {
         this._prefix = "rga-g" + UtilsNew.randomString(6) + "_";
         this.active = false;
         this.gridId = this._prefix + "RgaIndividualBrowserGrid";
+        this.rendered = false;
+        this.prevQuery = {};
+        this._query = {};
     }
 
     connectedCallback() {
@@ -66,10 +69,7 @@ export default class RgaIndividualGrid extends LitElement {
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("opencgaSession") ||
-            changedProperties.has("query") ||
-            changedProperties.has("config") ||
-            changedProperties.has("active")) {
+        if ((changedProperties.has("opencgaSession") || changedProperties.has("query") || changedProperties.has("config") || changedProperties.has("active")) && this.active) {
             this.propertyObserver();
         }
     }
@@ -83,73 +83,62 @@ export default class RgaIndividualGrid extends LitElement {
             columns: this._columns[0]
         };
 
-        this.renderTable(this.active);
+        this.renderTable();
     }
 
-    renderTable(active) {
-        if (!active) {
+    renderTable() {
+
+        this._query = {...this.query, study: this.opencgaSession.study.fqn}; // we want to support a query obj param both with or without study.
+        // Checks if the component is not visible or the query hasn't changed
+        if (!this.active || UtilsNew.objectCompare(this._query, this.prevQuery)) {
             return;
         }
 
-        this.opencgaClient = this.opencgaSession.opencgaClient;
-        const filters = {...this.query};
-
-        if (this.opencgaClient && this.opencgaSession.study && this.opencgaSession.study.fqn) {
-
-            filters.study = this.opencgaSession.study.fqn;
-
-            this.table = $("#" + this.gridId);
-            this.table.bootstrapTable("destroy");
-            this.table.bootstrapTable({
-                // url: opencgaHostUrl,
-                columns: this._columns,
-                method: "get",
-                sidePagination: "server",
-                uniqueId: "id",
-                // Table properties
-                pagination: this._config.pagination,
-                pageSize: this._config.pageSize,
-                pageList: this._config.pageList,
-                paginationVAlign: "both",
-                formatShowingRows: this.gridCommons.formatShowingRows,
-                showExport: this._config.showExport,
-                detailView: this._config.detailView,
-                detailFormatter: this._config.detailFormatter,
-                formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
-                ajax: params => {
-                    const _filters = {
-                        // study: this.opencgaSession.study.fqn,
-                        order: params.data.order,
-                        // limit: params.data.limit,
-                        skip: params.data.offset || 0,
-                        count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
-                        ...filters
-                    };
-                    this.opencgaSession.opencgaClient.clinical().queryRgaIndividual({study: this.opencgaSession.study.fqn, limit: 2})
-                        .then(res => {
-                            console.log("res", res)
-                            params.success(res)
-                            params.success(res)
-                        })
-                        .catch(e => {
-                            console.error(e);
-                            params.error(e);
-                        });
-                },
-                responseHandler: response => {
-                    const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
-                    return result.response;
-                },
-                onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
-                onCheck: (row, $element) => this.gridCommons.onCheck(row.id, row),
-                onLoadSuccess: data => this.gridCommons.onLoadSuccess(data, 1),
-                onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse)
-            });
-        } else {
-            // Delete table
-            $(PolymerUtils.getElementById(this._prefix + "RgaIndividualBrowserGrid")).bootstrapTable("destroy");
-            this.numTotalResults = 0;
-        }
+        this.prevQuery = {...this._query};
+        this.table = $("#" + this.gridId);
+        this.table.bootstrapTable("destroy");
+        this.table.bootstrapTable({
+            columns: this._columns,
+            method: "get",
+            sidePagination: "server",
+            uniqueId: "id",
+            // Table properties
+            pagination: this._config.pagination,
+            pageSize: this._config.pageSize,
+            pageList: this._config.pageList,
+            paginationVAlign: "both",
+            formatShowingRows: this.gridCommons.formatShowingRows,
+            showExport: this._config.showExport,
+            detailView: this._config.detailView,
+            detailFormatter: this._config.detailFormatter,
+            formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+            ajax: params => {
+                const _filters = {
+                    order: params.data.order,
+                    // limit: params.data.limit,
+                    skip: params.data.offset || 0,
+                    count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
+                    ...this._query
+                };
+                this.opencgaSession.opencgaClient.clinical().queryRgaIndividual({study: this.opencgaSession.study.fqn, limit: 2})
+                    .then(res => {
+                        console.log("res", res);
+                        params.success(res);
+                    })
+                    .catch(e => {
+                        console.error(e);
+                        params.error(e);
+                    });
+            },
+            responseHandler: response => {
+                const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
+                return result.response;
+            },
+            onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
+            onCheck: (row, $element) => this.gridCommons.onCheck(row.id, row),
+            onLoadSuccess: data => this.gridCommons.onLoadSuccess(data, 1),
+            onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse)
+        });
     }
 
     onColumnChange(e) {
@@ -162,6 +151,10 @@ export default class RgaIndividualGrid extends LitElement {
         } else {
             return 0;
         }
+    }
+
+    geneFormatter(value, row) {
+        return value.length ? (value.length > 20 ? `${value.length} genes` : value.map(gene => gene.name)) : "-";
     }
 
     _initTableColumns() {
@@ -181,7 +174,7 @@ export default class RgaIndividualGrid extends LitElement {
                     title: "Gene",
                     field: "genes",
                     rowspan: 2,
-                    formatter: genes => genes.length ? genes.map(gene => gene.name) : "-"
+                    formatter: this.geneFormatter
                 },
                 {
                     title: "Homozygous",
@@ -247,23 +240,23 @@ export default class RgaIndividualGrid extends LitElement {
             header: {
                 horizontalAlign: "center",
                 verticalAlign: "bottom"
-            },
+            }
         };
     }
 
     render() {
         return html`
-        <opencb-grid-toolbar .config="${this.toolbarConfig}"
-                             @columnChange="${this.onColumnChange}"
-                             @download="${this.onDownload}">
-        </opencb-grid-toolbar>
+            <opencb-grid-toolbar .config="${this.toolbarConfig}"
+                                 @columnChange="${this.onColumnChange}"
+                                 @download="${this.onDownload}">
+            </opencb-grid-toolbar>
 
-        <div id="${this._prefix}GridTableDiv">
-            <table id="${this._prefix}RgaIndividualBrowserGrid"></table>
-        </div>
+            <div id="${this._prefix}GridTableDiv">
+                <table id="${this._prefix}RgaIndividualBrowserGrid"></table>
+            </div>
         `;
     }
 
 }
 
-customElements.define("rga-individual-grid", RgaIndividualGrid);
+customElements.define("rga-individual-grid", RgaIndividualView);
