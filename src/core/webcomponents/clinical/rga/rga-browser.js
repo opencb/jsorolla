@@ -287,7 +287,7 @@ export default class RgaBrowser extends LitElement {
                                 type: "POPULATION_FREQUENCY_FILTER"
                             },
                             {
-                                id: "type",
+                                id: "knockoutType",
                                 name: "Variant types",
                                 types: ["SNV", "INDEL", "INSERTION", "DELETION"],
                                 tooltip: tooltips.type
@@ -352,12 +352,6 @@ export default class RgaBrowser extends LitElement {
                         }
                     ]
                 }
-            },
-            aggregation: {
-                title: "Aggregation",
-                default: [],
-                sections: [
-                ]
             }
         };
     }

@@ -147,7 +147,7 @@ export default class RgaGeneFilter extends LitElement {
             case "populationFrequencyAlt":
                 content = html`<population-frequency-filter .populationFrequencies="${populationFrequencies}" ?showSetAll="${subsection.showSetAll}" .populationFrequencyAlt="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange("populationFrequencyAlt", e.detail.value)}"></population-frequency-filter>`;
                 break;
-            case "type":
+            case "knockoutType":
                 content = html`<variant-type-filter .type="${this.preparedQuery[subsection.id]}" .config="${subsection}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></variant-type-filter>`;
                 break;
             case "consequenceType":

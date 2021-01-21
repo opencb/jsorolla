@@ -122,7 +122,7 @@ export default class RgaIndividualGrid extends LitElement {
                     count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
                     ...this._query
                 };
-                this.opencgaSession.opencgaClient.clinical().queryRgaIndividual({study: this.opencgaSession.study.fqn, limit: 2})
+                this.opencgaSession.opencgaClient.clinical().queryRgaIndividual({..._filters, limit: 2})
                     .then(res => {
                         console.log("res", res);
                         params.success(res);
