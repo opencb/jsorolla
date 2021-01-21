@@ -165,7 +165,7 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
         const operator = e.target.value;
         // TODO remove this line and use the this.selectedVariables[variableSetId][variableId].operator in addNumericFilter
         $(`.annotation-modal input[type=text][data-variable-id="${variableId}"][data-variable-set-id="${variableSetId}"]`).attr("data-operator", e.target.value);
-        if (this.selectedVariables[variableSetId][variableId]) {
+        if (this.selectedVariables[variableSetId]?.[variableId]) {
             this.selectedVariables[variableSetId][variableId] = {...this.selectedVariables[variableSetId][variableId], operator};
         } else {
             // the value hasn't been set yet
@@ -437,7 +437,9 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
                         <div class="modal-header">
                             <button type="button" class="close" data-dismiss="modal">&times;</button>
                             Annotation filter
-                        </div>
+                            
+                            
+                        </div>${JSON.stringify(this.selectedVariables)}
                         <div class="modal-body">
                             <ul class="nav nav-tabs" role="tablist">
                                 ${this.variableSets.map( (variableSet, i) => html`
