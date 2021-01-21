@@ -16,8 +16,8 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../utilsNew.js";
-import "./number-field-filter.js";
 import "./select-field-filter.js";
+import "./number-field-filter.js";
 
 
 export default class PopulationFrequencyFilter extends LitElement {
@@ -55,6 +55,7 @@ export default class PopulationFrequencyFilter extends LitElement {
         this.showSetAll = false;
 
         this.state = {};
+        this.comparatorState = {};
         this.defaultComparator = "<";
     }
 
@@ -65,16 +66,32 @@ export default class PopulationFrequencyFilter extends LitElement {
     // }
 
     update(changedProperties) {
+        if (changedProperties.has("populationFrequencies")) {
+            this.populationFrequenciesObserver();
+        }
         if (changedProperties.has("populationFrequencyAlt")) {
             this.populationFrequencyAltObserver();
         }
         super.update(changedProperties);
     }
 
+    populationFrequenciesObserver() {
+        if (this.populationFrequencies?.studies?.length) {
+            this.state = {};
+            for (let study of this.populationFrequencies.studies) {
+                for (let population of study.populations) {
+                    this.state[study.id + ":" + population.id] = {comparator: "<"};
+                }
+            }
+        }
+    }
+
     populationFrequencyAltObserver() {
+        // Reset this.state with the existing populations and default comparator
+        this.populationFrequenciesObserver();
+
         // 1kG_phase3:EUR<2;GNOMAD_GENOMES:ALL<1;GNOMAD_GENOMES:AMR<2
         let pfArray = [];
-        this.state = {};
         if (this.populationFrequencyAlt) {
             pfArray = this.populationFrequencyAlt.split(new RegExp("[,;]"));
             pfArray.forEach(queryElm => {
@@ -92,6 +109,17 @@ export default class PopulationFrequencyFilter extends LitElement {
         this.requestUpdate();
     }
 
+    filterSelectChange(e, studyAndPopCode, type) {
+        e.stopPropagation();
+        if (this.state[studyAndPopCode]) {
+            this.state[studyAndPopCode][type] = e.detail.value;
+        } else {
+            this.state[studyAndPopCode] = {};
+            this.state[studyAndPopCode][type] = e.detail.value;
+        }
+        this.notify();
+    }
+
     filterChange(e, studyAndPopCode) {
         // e.detail.value is not defined iff you are changing the comparator and a value hasn't been set yet
         if (e?.detail?.value) {
@@ -100,7 +128,6 @@ export default class PopulationFrequencyFilter extends LitElement {
         } else {
             delete this.state[studyAndPopCode];
         }
-
         this.notify();
     }
 
@@ -137,7 +164,9 @@ export default class PopulationFrequencyFilter extends LitElement {
     notify() {
         let popFreqFilters = [];
         for (let [studyPopulationId, data] of Object.entries(this.state)) {
-            popFreqFilters.push(studyPopulationId + data.comparator + data.value);
+            if (data.comparator && data.value) {
+                popFreqFilters.push(studyPopulationId + data.comparator + data.value);
+            }
         }
         const event = new CustomEvent("filterChange", {
             detail: {
@@ -158,26 +187,32 @@ export default class PopulationFrequencyFilter extends LitElement {
             return html`
                 ${this.populationFrequencies.studies.map(study => html`
                     <div style="padding-top: 10px">
-                        <i id="${this._prefix}${study.id}Icon" data-id="${this._prefix}${study.id}" class="fa fa-plus" data-cy="pop-freq-toggle-${study.id}"
-                           style="cursor: pointer;padding-right: 5px" @click="${this.handleCollapseAction}">
-                        </i>
-                        <strong>${study.title}</strong>
+                        <div style="margin-bottom: 5px">
+                            <i id="${this._prefix}${study.id}Icon" data-id="${this._prefix}${study.id}" class="fa fa-plus" data-cy="pop-freq-toggle-${study.id}"
+                                style="cursor: pointer;padding-right: 5px" @click="${this.handleCollapseAction}">
+                            </i>
+                            <strong>${study.title}</strong>
+                        </div>
                         <div id="${this._prefix}${study.id}" class="form-horizontal" hidden data-cy="pop-freq-codes-wrapper-${study.id}">
                             ${study.populations && study.populations.length && study.populations.map(popFreq => html`
-                                <div class="form-group" style="padding: 0px 10px;margin: 0px">
+                                <div class="form-group" style="padding: 0px 5px;margin: 0px">
                                     <div class="col-md-3" style="padding: 0px">
                                         <div style="margin: 10px 0px">${popFreq.id}</div>
                                     </div>
-                                    <div class="col-md-1" style="padding: 0px">
-                                        <div style="margin: 10px 0px"><</div>
+                                    <div class="col-md-3" style="padding: 0px">
+                                        <select-field-filter    .data="${["<", ">="]}"
+                                                                .value="${this.state[study.id + ":" + popFreq.id]?.comparator}"
+                                                                @filterChange="${e => {
+                                                                    this.filterSelectChange(e, study.id + ":" + popFreq.id, "comparator")
+                                                                }}">
+                                        </select-field-filter>
                                     </div>
-                                    <div class="col-md-8" style="padding: 0px">
+                                    <div class="col-md-6" style="padding: 0px">
                                         <select-field-filter    .data="${allowedFrequenciesArray}" 
                                                                 .value="${this.state[study.id + ":" + popFreq.id]?.value}"
-                                                                placeholder="Select Frequency"
+                                                                placeholder="Frequency ..."
                                                                 @filterChange="${e => {
-                                                                    e.detail.comparator = "<";
-                                                                    this.filterChange(e, study.id + ":" + popFreq.id)
+                                                                    this.filterSelectChange(e, study.id + ":" + popFreq.id, "value")
                                                                 }}">
                                         </select-field-filter>
                                     </div>
@@ -201,10 +236,12 @@ export default class PopulationFrequencyFilter extends LitElement {
                 
                 ${this.populationFrequencies.studies.map(study => html`
                     <div style="padding-top: 10px">
-                        <i id="${this._prefix}${study.id}Icon" data-id="${this._prefix}${study.id}" class="fa fa-plus" data-cy="pop-freq-toggle-${study.id}"
-                           style="cursor: pointer;padding-right: 5px" @click="${this.handleCollapseAction}">
-                        </i>
-                        <strong>${study.title}</strong>
+                        <div style="margin-bottom: 5px">
+                            <i id="${this._prefix}${study.id}Icon" data-id="${this._prefix}${study.id}" class="fa fa-plus" data-cy="pop-freq-toggle-${study.id}"
+                               style="cursor: pointer;padding-right: 5px" @click="${this.handleCollapseAction}">
+                            </i>
+                            <strong>${study.title}</strong>
+                        </div>
                         <div id="${this._prefix}${study.id}" class="form-horizontal" hidden data-cy="pop-freq-codes-wrapper-${study.id}">
                             ${this.showSetAll ? html`
                                 <div class="set-all-form-wrapper form-group">

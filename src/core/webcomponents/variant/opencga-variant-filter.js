@@ -316,7 +316,7 @@ export default class OpencgaVariantFilter extends LitElement {
                     </h4>
                 </div>
                 <div id="${this._prefix}${id}" class="panel-collapse collapse ${collapsed}" role="tabpanel" aria-labelledby="${this._prefix}${id}Heading">
-                    <div class="panel-body">
+                    <div class="panel-body" style="padding-top: 5px">
                         ${section.fields && section.fields.length && section.fields.map(field => html`
                             ${this._isFilterVisible(field)
                                 ? this._createSubSection(field)
