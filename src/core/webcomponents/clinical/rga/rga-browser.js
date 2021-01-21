@@ -23,6 +23,10 @@ import "../../commons/tool-header.js";
 import "./rga-gene-view.js";
 import "./rga-individual-view.js";
 import "./rga-variant-view.js";
+import "./rga-gene-grid.js";
+import "./rga-gene-filter.js";
+import "./rga-individual-grid.js";
+import "./rga-variant-grid.js";
 
 export default class RgaBrowser extends LitElement {
 
@@ -40,6 +44,9 @@ export default class RgaBrowser extends LitElement {
     static get properties() {
         return {
             opencgaSession: {
+                type: Object
+            },
+            cellbaseClient: {
                 type: Object
             },
             query: {
@@ -126,8 +133,8 @@ export default class RgaBrowser extends LitElement {
         }
         // onServerFilterChange() in opencga-active-filters drops a filterchange event when the Filter dropdown is used
         this.dispatchEvent(new CustomEvent("queryChange", {
-                detail: this.preparedQuery
-            }
+            detail: this.preparedQuery
+        }
         ));
         this.detail = {};
         this.requestUpdate();
@@ -148,9 +155,11 @@ export default class RgaBrowser extends LitElement {
         // it is also in charge of update executedQuery (notifySearch -> onQueryFilterSearch() on iva-app.js -> this.queries updated -> queryObserver() in opencga-browser).
         // if we want to dismiss the general query feature (that is browsers remembering your last query even if you change view) replace the following line with:
         // this.executedQuery = {...this.preparedQuery}; this.requestUpdate();
-        this.notifySearch(this.preparedQuery);
+        this.executedQuery = {...this.preparedQuery};
+        this.requestUpdate();
+        // this.notifySearch(this.preparedQuery);
 
-        /*if (Object.keys(this.selectedFacet).length) {
+        /* if (Object.keys(this.selectedFacet).length) {
             this.facetQuery = {
                 ...this.preparedQuery,
                 study: this.opencgaSession.study.fqn,
@@ -177,6 +186,43 @@ export default class RgaBrowser extends LitElement {
         this.requestUpdate();
     }
 
+    onFilterChange(e) {
+        this.query = e.detail;
+    }
+
+    onQueryFilterChange(e) {
+        this.preparedQuery = e.detail.query;
+        this.requestUpdate();
+    }
+
+    onActiveFilterChange(e) {
+        this.preparedQuery = {study: this.opencgaSession.study.fqn, ...e.detail};
+        this.query = {study: this.opencgaSession.study.fqn, ...e.detail};
+    }
+
+    onActiveFilterClear() {
+        console.log("onActiveFilterClear");
+        this.query = {study: this.opencgaSession.study.fqn};
+        this.preparedQuery = {...this.query};
+    }
+
+    onFacetQueryChange(e) {
+        this.selectedFacetFormatted = e.detail.value;
+        this.requestUpdate();
+    }
+
+    onActiveFacetChange(e) {
+        this.selectedFacet = {...e.detail};
+        this.onRun(); // TODO the query should be repeated every action on active-filter (delete, clear, load from Saved filter)
+        this.requestUpdate();
+    }
+
+    onActiveFacetClear(e) {
+        this.selectedFacet = {};
+        this.onRun();
+        this.requestUpdate();
+    }
+
     getDefaultConfig() {
         // return BrowserConf.config;
         return {
@@ -189,20 +235,130 @@ export default class RgaBrowser extends LitElement {
                     id: "gene-tab",
                     name: "Gene",
                     icon: "fa fa-table",
-                    active: true,
+                    active: true
                     // TODO move specific configuration here?
                 },
                 {
                     id: "individual-tab",
                     name: "Individuals",
-                    icon: "fas fa-table",
+                    icon: "fas fa-table"
                 },
                 {
                     id: "variant-tab",
                     name: "Variant",
-                    icon: "fas fa-table",
+                    icon: "fas fa-table"
                 }
-            ]
+            ],
+            filter: {
+                title: "Filter",
+                activeFilters: {
+                    alias: {
+                        // Example:
+                        // "region": "Region",
+                        // "gene": "Gene",
+                        "ct": "Consequence Types"
+                    },
+                    complexFields: [],
+                    hiddenFields: []
+                },
+                sections: [ // sections and subsections, structure and order is respected
+                    {
+                        title: "Gene",
+                        collapsed: false,
+                        fields: [
+                            {
+                                id: "geneName",
+                                name: "Gene",
+                                description: "Gene selection"
+                            }
+                        ]
+                    },
+                    {
+                        title: "Variants",
+                        fields: [
+                            {
+                                id: "cohort",
+                                name: "Cohort",
+                                description: "Cohort selection"
+                            },
+                            {
+                                id: "populationFrequencyAlt",
+                                name: "",
+                                type: "POPULATION_FREQUENCY_FILTER"
+                            },
+                            {
+                                id: "type",
+                                name: "Variant types",
+                                types: ["SNV", "INDEL", "INSERTION", "DELETION"],
+                                tooltip: tooltips.type
+                                // layout: "horizontal"
+                            },
+                            {
+                                id: "consequenceType",
+                                name: "Consequence type",
+                                tooltip: tooltips.consequenceTypeSelect,
+                                value: consequenceTypes.lof
+                            },
+                            {
+                                id: "clinicalSignificance",
+                                name: "Clinical Significance",
+                                type: "CLINVAR_ACCESSION_FILTER"
+                            }
+                        ]
+                    },
+                    {
+                        title: "Sample",
+                        fields: [
+                            {
+                                id: "familyMember",
+                                name: "Include families with",
+                                type: "checkbox",
+                                defaultValue: "1,2",
+                                allowedValues:
+                                    [{id: 0, name: "No parents"}, {id: 1, name: "One Parents"}, {id: 2, name: "Two Parents"}]
+
+                            },
+                            {
+                                id: "probandOnly",
+                                name: "Affected individuals (proband) only",
+                                type: "boolean",
+                                defaultValue: "no",
+                                tooltip: "other info here"
+                                // allowedValues: ["father", "mother"]
+                            }
+                        ]
+                    }
+                ],
+                examples: [
+                    {
+                        id: "BRCA2 missense variants",
+                        active: false,
+                        query: {
+                            gene: "BRCA2",
+                            ct: "missense_variant"
+                        }
+                    }
+                ],
+                result: {
+                    grid: {}
+                },
+                detail: {
+                    title: "Selected Variant",
+                    views: [
+                        {
+                            id: "annotationSummary",
+                            title: "Summary",
+                            active: true
+                        }
+                    ]
+                }
+            },
+            aggregation: {
+                title: "Aggregation",
+                default: [],
+                sections: [
+                ]
+            }
         };
     }
 
@@ -210,30 +366,92 @@ export default class RgaBrowser extends LitElement {
         return html`
             ${this.checkProjects ? html`
                 <tool-header title="${this._config.title}" icon="${this._config.icon}"></tool-header>
-                
-                <!-- tabs buttons -->
-                <div class="btn-group content-pills" role="toolbar" aria-label="toolbar">
-                    <div class="btn-group" role="group" style="margin-left: 0px">
-                        ${this._config.views && this._config.views.length ? this._config.views.map(tab => html`
+                <div class="row">
+                    <div class="col-md-2">
+                        <div class="search-button-wrapper">
+                            <button type="button" class="btn btn-primary ripple" @click="${this.onRun}">
+                                <i class="fa fa-arrow-circle-right" aria-hidden="true"></i> ${this._config.searchButtonText || "Run"}
+                            </button>
+                        </div>
+                        <ul class="nav nav-tabs left-menu-tabs" role="tablist">
+                            <li role="presentation" class="active">
+                                <a href="#filters_tab" aria-controls="profile" role="tab" data-toggle="tab">Filters</a>
+                            </li>
+                            ${this._config.aggregation ? html`<li role="presentation"><a href="#facet_tab" aria-controls="home" role="tab" data-toggle="tab">Aggregation</a></li>` : null}
+                        </ul>
+                        
+                        <div class="tab-content">
+                            <div role="tabpanel" class="tab-pane active" id="filters_tab">
+                                <rga-gene-filter
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .cellbaseClient="${this.cellbaseClient}"
+                                        .config="${this._config.filter}"
+                                        .query="${this.query}"
+                                        .searchButton="${false}"
+                                        @queryChange="${this.onQueryFilterChange}"
+                                        @querySearch="${this.onQueryFilterSearch}">
+                                </rga-gene-filter>
+                            </div>
+                            
+                            ${this._config.aggregation ? html`
+                                <div role="tabpanel" class="tab-pane" id="facet_tab" aria-expanded="true">
+                                    <facet-filter .config="${this._config.aggregation}"
+                                                  .selectedFacet="${this.selectedFacet}"
+                                                  @facetQueryChange="${this.onFacetQueryChange}">
+                                    </facet-filter>
+                                </div>
+                            ` : null}
+                        </div>
+                    </div>
+    
+                    <div class="col-md-10">
+                        <!-- tabs buttons -->
+                        <div class="btn-group content-pills" role="toolbar" aria-label="toolbar">
+                            <div class="btn-group" role="group" style="margin-left: 0px">
+                                ${this._config.views && this._config.views.length ? this._config.views.map(tab => html`
                                     <button type="button" class="btn btn-success ripple content-pills ${tab.active ? "active" : ""}" ?disabled=${tab.disabled} @click="${this.onClickPill}" data-id="${tab.id}">
                                         <i class="${tab.icon ?? "fa fa-table"} icon-padding" aria-hidden="true"></i> ${tab.name}
                                     </button>
                                 `) : html`No view has been configured`}
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <opencga-active-filters facetActive 
+                                                    .resource="${this.resource}"
+                                                    .opencgaSession="${this.opencgaSession}"
+                                                    .defaultStudy="${this.opencgaSession?.study?.fqn}"
+                                                    .query="${this.preparedQuery}"
+                                                    .refresh="${this.executedQuery}"
+                                                    .facetQuery="${this.selectedFacetFormatted}"
+                                                    .alias="${this.activeFilterAlias}"
+                                                    .config="${this._config.activeFilters}"
+                                                    .filters="${this._config.filter.examples}"
+                                                    @activeFacetChange="${this.onActiveFacetChange}"
+                                                    @activeFacetClear="${this.onActiveFacetClear}"
+                                                    @activeFilterChange="${this.onActiveFilterChange}"
+                                                    @activeFilterClear="${this.onActiveFilterClear}">
+                            </opencga-active-filters>
+
+                            <div class="main-view">
+                                <div id="gene-tab" class="content-tab active">
+                                    <rga-gene-grid .query=${this.executedQuery} .opencgaSession="${this.opencgaSession}" .active="${this.activeTab["gene-tab"]}"></rga-gene-grid>
+                                </div>
+
+                                <div id="individual-tab" class="content-tab">
+                                    <rga-individual-grid .query=${this.executedQuery} .opencgaSession="${this.opencgaSession}" .active="${this.activeTab["individual-tab"]}"></rga-individual-grid>
+                                </div>
+
+                                <div id="variant-tab" class="content-tab">
+                                    <rga-variant-grid .query=${this.executedQuery} .opencgaSession="${this.opencgaSession}" .active="${this.activeTab["individual-tab"]}"></rga-variant-grid>
+                                </div>
+                                
+                            </div>
+                            
+                            <div class="v-space"></div>
+                        </div>
                     </div>
                 </div>
-
-                ${this.activeTab["gene-tab"] ? html`
-                    <rga-gene-view .opencgaSession="${this.opencgaSession}" .active="${this.activeTab["gene-tab"]}"></rga-gene-view>
-                ` : null}
-
-                ${this.activeTab["individual-tab"] ? html`
-                    <rga-individual-view .opencgaSession="${this.opencgaSession}" .active="${this.activeTab["individual-tab"]}"></rga-individual-view>
-                ` : null}
-
-                ${this.activeTab["variant-tab"] ? html`
-                    <rga-variant-view .opencgaSession="${this.opencgaSession}" .active="${this.activeTab["individual-tab"]}"></rga-variant-view>
-                ` : null}
-
             ` : html`
                 <div class="guard-page">
                     <i class="fas fa-lock fa-5x"></i>

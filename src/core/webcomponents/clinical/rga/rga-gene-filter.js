@@ -19,6 +19,12 @@ import UtilsNew from "../../../utilsNew.js";
 import GridCommons from "../../commons/grid-commons.js";
 import CatalogGridFormatter from "../../commons/catalog-grid-formatter.js";
 import "../../commons/filters/text-field-filter.js";
+import "../../commons/filters/feature-filter.js";
+import "../../commons/filters/variant-type-filter.js";
+import "../../commons/filters/cohort-stats-filter.js";
+import "../../commons/filters/consequence-type-select-filter.js";
+import "../../commons/filters/clinvar-accessions-filter.js";
+
 
 export default class RgaGeneFilter extends LitElement {
 
@@ -34,6 +40,9 @@ export default class RgaGeneFilter extends LitElement {
     static get properties() {
         return {
             opencgaSession: {
+                type: Object
+            },
+            cellbaseClient: {
                 type: Object
             },
             query: {
@@ -128,11 +137,40 @@ export default class RgaGeneFilter extends LitElement {
             case "id":
                 content = html`<text-field-filter placeholder="${subsection.placeholder}" .value="${this.preparedQuery[subsection.id]}" .separator="${",;"}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></text-field-filter>`;
                 break;
+            case "geneName":
+                content = html`<feature-filter placeholder="${subsection.placeholder}" .cellbaseClient="${this.cellbaseClient}" .value="${this.preparedQuery[subsection.id]}" .separator="${",;"}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></feature-filter>`;
+                break;
+            case "cohort":
+                content = html`<cohort-stats-filter .opencgaSession="${this.opencgaSession}" .onlyCohortAll=${true} .cohortStatsAlt="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
+                            </cohort-stats-filter>`;
+                break;
+            case "populationFrequencyAlt":
+                content = html`<population-frequency-filter .populationFrequencies="${populationFrequencies}" ?showSetAll="${subsection.showSetAll}" .populationFrequencyAlt="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange("populationFrequencyAlt", e.detail.value)}"></population-frequency-filter>`;
+                break;
             case "type":
-                content = html`<select-field-filter ?multiple="${subsection.multiple}" .data="${subsection.allowedValues}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></select-field-filter>`;
+                content = html`<variant-type-filter .type="${this.preparedQuery[subsection.id]}" .config="${subsection}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></variant-type-filter>`;
+                break;
+            case "consequenceType":
+                content = html`<consequence-type-select-filter .ct="${this.preparedQuery[subsection.id]}" .config="${subsection}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></consequence-type-select-filter>`;
+                break;
+            case "clinicalSignificance":
+                content = html`<clinvar-accessions-filter .config="${{clinvar: false}}" .clinicalSignificance="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e?.detail?.value?.clinicalSignificance)}"></clinvar-accessions-filter>`;
+                break;
+            case "familyMember":
+                content = html`<checkbox-field-filter .value="${this.preparedQuery[subsection.id]}" .data="${subsection.allowedValues}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></checkbox-field-filter>`;
+                break;
+            case "probandOnly":
+                content = html`
+                    <div class="form-horizontal">
+                        <div class="from-group form-inline">
+                            <input class="magic-radio" type="radio" name="${subsection.id}" id="${this._prefix + subsection.id}yes" ?checked=${subsection.value === "yes"} value="yes" @change="${e => this.onFilterChange(subsection.id, "yes")}"><label class="magic-horizontal-label" for="${this._prefix + subsection.id}yes"> Yes </label>
+                            <input class="magic-radio" type="radio" name="${subsection.id}" id="${this._prefix + subsection.id}no" ?checked=${subsection.value === "no"} value="no" @change="${e => this.onFilterChange(subsection.id, "yes")}"> <label class="magic-horizontal-label" for="${this._prefix + subsection.id}no"> No </label>
+                        </div>
+                    </div>
+                `;
                 break;
             default:
-                console.error("Filter component not found");
+                console.error("Filter component not found", subsection?.id);
         }
         return html`
                     <div class="form-group">

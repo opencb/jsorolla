@@ -118,14 +118,14 @@ export default class RgaGeneGrid extends LitElement {
             formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
             ajax: params => {
                 const _filters = {
-                    // study: this.opencgaSession.study.fqn,
+                    study: this.opencgaSession.study.fqn,
                     order: params.data.order,
                     // limit: params.data.limit,
                     skip: params.data.offset || 0,
                     count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
                     ...this._query
                 };
-                this.opencgaSession.opencgaClient.clinical().queryRgaGene({study: this.opencgaSession.study.fqn, limit: 2})
+                this.opencgaSession.opencgaClient.clinical().queryRgaGene({..._filters, limit: 2})
                     .then(res => {
                         console.log("res", res);
                         params.success(res);

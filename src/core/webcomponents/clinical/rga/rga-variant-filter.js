@@ -136,7 +136,7 @@ export default class RgaVariantFilter extends LitElement {
                 content = html`<select-field-filter ?multiple="${subsection.multiple}" .data="${subsection.allowedValues}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></select-field-filter>`;
                 break;
             default:
-                console.error("Filter component not found");
+                console.error("Filter component not found", subsection?.id);
         }
         return html`
                     <div class="form-group">
