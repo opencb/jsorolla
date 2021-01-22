@@ -401,7 +401,7 @@ export default class OpencgaVariantFilter extends LitElement {
                     break;
                 case "populationFrequency":
                     content = html`
-                        <population-frequency-filter .populationFrequencies="${populationFrequencies}" 
+                        <population-frequency-filter .populationFrequencies="${subsection.populationFrequencies}" 
                                                      .allowedFrequencies="${subsection.allowedFrequencies}"
                                                      ?showSetAll="${subsection.showSetAll}" 
                                                      .populationFrequencyAlt="${this.preparedQuery.populationFrequencyAlt}" 

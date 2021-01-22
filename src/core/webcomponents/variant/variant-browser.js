@@ -414,8 +414,9 @@ export default class VariantBrowser extends LitElement {
                             {
                                 id: "populationFrequency",
                                 title: "Select Population Frequency",
-                                tooltip: tooltips.populationFrequencies,
+                                populationFrequencies: populationFrequencies,
                                 // allowedFrequencies: "0.0001,0.0005,0.001,0.005,0.01,0.05",
+                                tooltip: tooltips.populationFrequencies,
                                 showSetAll: true
                             }
                         ]

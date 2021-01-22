@@ -377,8 +377,32 @@ class VariantInterpreterBrowserRd extends LitElement {
                             {
                                 id: "populationFrequency",
                                 title: "Select Population Frequency",
+                                allowedFrequencies: "0.001,0.005,0.01",
                                 tooltip: tooltips.populationFrequencies,
-                                showSetAll: false
+                                showSetAll: false,
+                                // TODO read this from the StudyConfiguration in OpenCGA 2.1
+                                populationFrequencies: {
+                                    studies: [
+                                        {
+                                            id: "1kG_phase3",
+                                            title: "1000 Genomes",
+                                            populations: [
+                                                {
+                                                    id: "ALL", title: "All populations [ALL]"
+                                                },
+                                            ]
+                                        },
+                                        {
+                                            id: "GNOMAD_GENOMES",
+                                            title: "gnomAD Genomes",
+                                            populations: [
+                                                {
+                                                    id: "ALL", title: "gnomAD [ALL]"
+                                                },
+                                            ]
+                                        }
+                                    ]
+                                }
                             }
                         ]
                     },
@@ -386,7 +410,11 @@ class VariantInterpreterBrowserRd extends LitElement {
                         title: "Phenotype-Disease",
                         collapsed: true,
                         fields: [
-
+                            {
+                                id: "clinvar",
+                                title: "ClinVar Accessions",
+                                tooltip: tooltips.clinvar
+                            },
                             {
                                 id: "go",
                                 title: "GO Accessions (max. 100 terms)",
@@ -396,11 +424,6 @@ class VariantInterpreterBrowserRd extends LitElement {
                                 id: "hpo",
                                 title: "HPO Accessions",
                                 tooltip: tooltips.hpo
-                            },
-                            {
-                                id: "clinvar",
-                                title: "ClinVar Accessions",
-                                tooltip: tooltips.clinvar
                             },
                         ]
                     },
