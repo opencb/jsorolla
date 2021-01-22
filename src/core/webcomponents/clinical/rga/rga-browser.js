@@ -79,6 +79,7 @@ export default class RgaBrowser extends LitElement {
         this.selectedFacetFormatted = {};
         this.activeTab = {"gene-tab": true};
         this.detail = {};
+        this.resource = "rga";
     }
 
     connectedCallback() {
@@ -226,7 +227,7 @@ export default class RgaBrowser extends LitElement {
     getDefaultConfig() {
         // return BrowserConf.config;
         return {
-            title: "Recessive Gene Analysis Browser",
+            title: "Recessive Gene Browser",
             icon: "fas fa-dna",
             active: false,
             searchButtonText: "Search",
@@ -236,7 +237,6 @@ export default class RgaBrowser extends LitElement {
                     name: "Gene",
                     icon: "fa fa-table",
                     active: true
-                    // TODO move specific configuration here?
                 },
                 {
                     id: "individual-tab",
@@ -274,6 +274,28 @@ export default class RgaBrowser extends LitElement {
                         ]
                     },
                     {
+                        title: "Confidence",
+                        fields: [
+                            {
+                                id: "familyMember",
+                                name: "Include families with",
+                                type: "checkbox",
+                                defaultValue: "1,2",
+                                allowedValues:
+                                    [{id: 0, name: "No parents"}, {id: 1, name: "One Parents"}, {id: 2, name: "Two Parents"}]
+
+                            },
+                            {
+                                id: "probandOnly",
+                                name: "Affected individuals (proband) only",
+                                type: "boolean",
+                                defaultValue: "no",
+                                tooltip: "other info here"
+                                // allowedValues: ["father", "mother"]
+                            }
+                        ]
+                    },
+                    {
                         title: "Variants",
                         fields: [
                             {
@@ -303,28 +325,6 @@ export default class RgaBrowser extends LitElement {
                                 id: "clinicalSignificance",
                                 name: "Clinical Significance",
                                 type: "CLINVAR_ACCESSION_FILTER"
-                            }
-                        ]
-                    },
-                    {
-                        title: "Sample",
-                        fields: [
-                            {
-                                id: "familyMember",
-                                name: "Include families with",
-                                type: "checkbox",
-                                defaultValue: "1,2",
-                                allowedValues:
-                                    [{id: 0, name: "No parents"}, {id: 1, name: "One Parents"}, {id: 2, name: "Two Parents"}]
-
-                            },
-                            {
-                                id: "probandOnly",
-                                name: "Affected individuals (proband) only",
-                                type: "boolean",
-                                defaultValue: "no",
-                                tooltip: "other info here"
-                                // allowedValues: ["father", "mother"]
                             }
                         ]
                     }
