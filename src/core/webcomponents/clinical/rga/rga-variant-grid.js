@@ -21,7 +21,8 @@ import GridCommons from "../../commons/grid-commons.js";
 import "../../family/opencga-family-view.js";
 import "../../variant/annotation/cellbase-population-frequency-grid.js";
 import "../../variant/annotation/variant-annotation-clinical-view.js";
-
+import "./rga-variant-individual-grid.js";
+import "./rga-variant-allele-pairs.js";
 
 export default class RgaVariantGrid extends LitElement {
 
@@ -267,7 +268,7 @@ export default class RgaVariantGrid extends LitElement {
                     active: true,
                     render: (variant, active, opencgaSession) => {
                         return html`
-                            <knockout-variant-individual .variant="${variant}"></knockout-variant-individual>
+                            <rga-variant-individual .variant="${variant}"></rga-variant-individual>
                         `;
                     }
                 },
@@ -276,7 +277,7 @@ export default class RgaVariantGrid extends LitElement {
                     name: "Allele Pairs",
                     render: (variant, active, opencgaSession) => {
                         return html`
-                            <knockout-variant-allele-pairs .variant="${variant}"></knockout-variant-allele-pairs>
+                            <rga-variant-allele-pairs .variant="${variant}"></rga-variant-allele-pairs>
                         `;
                     }
                 },
