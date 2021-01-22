@@ -202,8 +202,8 @@ export default class OpencgaActiveFilters extends LitElement {
 
     // TODO recheck & refactor
     save() {
-        const filterName = PolymerUtils.getValue(this._prefix + "filterName");
-        const filterDescription = PolymerUtils.getValue(this._prefix + "filterDescription");
+        const filterName = $("#" + (this._prefix + "filterName")).val();
+        const filterDescription = $("#" + (this._prefix + "filterDescription")).val();
 
         const query = this.query;
         if (query.study) {
@@ -235,6 +235,7 @@ export default class OpencgaActiveFilters extends LitElement {
                     // updating an existing filter
                     const data = {
                         description: filterDescription,
+                        resource: this.resource,
                         query: query,
                         options: {}
                     };
@@ -266,8 +267,8 @@ export default class OpencgaActiveFilters extends LitElement {
                                             "error"
                                         );
                                     }
-                                    PolymerUtils.setValue(this._prefix + "filterName", "");
-                                    PolymerUtils.setValue(this._prefix + "filterDescription", "");
+                                    $("#" + this._prefix + "filterName").val("");
+                                    $("#" + this._prefix + "filterDescription").val("");
                                 }).catch(restResponse => {
                                     console.error(restResponse);
                                     Swal.fire(
@@ -292,8 +293,8 @@ export default class OpencgaActiveFilters extends LitElement {
                         .then(restResponse => {
                             if (!restResponse.getEvents?.("ERROR")?.length) {
                                 this._filters = [...this._filters, data];
-                                PolymerUtils.setValue(this._prefix + "filterName", "");
-                                PolymerUtils.setValue(this._prefix + "filterDescription", "");
+                                $("#" + this._prefix + "filterName").val("");
+                                $("#" + this._prefix + "filterDescription").val("");
                                 Swal.fire(
                                     "Filter Saved",
                                     "Filter has been saved.",
@@ -568,7 +569,7 @@ export default class OpencgaActiveFilters extends LitElement {
     }
 
     searchClicked() {
-        PolymerUtils.hide(this._prefix + "Warning");
+        $("#" + this._prefix + "Warning").hide();
         this._previousQuery = this.query;
     }
 
