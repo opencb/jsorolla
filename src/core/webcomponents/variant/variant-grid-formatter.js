@@ -962,8 +962,9 @@ export default class VariantGridFormatter {
                         .set(trait.somaticInformation.histologySubtype, cosmicIntermdiate.get(key).histologySubtypesCounter.size + 1);
                 }
             }
-            // Prepare column data
-            for (let [key, c] of cosmicIntermdiate.entries()) {
+
+            // Sort bu key and prepare column data
+            for (let [key, c] of new Map([...cosmicIntermdiate.entries()].sort())) {
                 let values = [];
                 values.push(`<a href="${c.url ?? BioinfoUtils.getCosmicVariantLink(c.id)}" target="_blank">${c.id}</a>`);
                 values.push(c.primaryHistology);
