@@ -909,9 +909,9 @@ export default class VariantGridFormatter {
                             visited.add(trait.id);
                         }
                     }
-
+                    // <i className='fa fa-check' style='color: green'></i>
                     return `<a class="cosmic-tooltip" tooltip-title='Links' tooltip-text='${tooltipText}' tooltip-position-at="left bottom" tooltip-position-my="right top">
-                                <i class='fa fa-check' style='color: green'></i>
+                                <span style="color: green">${visited.size} ${visited.size > 1 ? "studies" : "study" }</span>
                             </a>`;
                 } else {
                     console.error("Wrong clinical source : " + this.field);
@@ -923,6 +923,7 @@ export default class VariantGridFormatter {
 
     static clinicalTableDetail(value, row, index) {
         let clinvar = [];
+        let cosmicIntermdiate = new Map();
         let cosmic = [];
         if (row.annotation.traitAssociation && row.annotation.traitAssociation.length > 0) {
             for (let trait of row.annotation.traitAssociation) {
@@ -935,13 +936,49 @@ export default class VariantGridFormatter {
                         values: values
                     });
                 } else {    // COSMIC section
-                    values.push(`<a href="${trait.url ?? BioinfoUtils.getCosmicVariantLink(trait.id)}" target="_blank">${trait.id}</a>`);
-                    values.push(trait.somaticInformation.primaryHistology);
-                    values.push(trait.somaticInformation.histologySubtype);
-                    cosmic.push({
-                        values: values
-                    });
+                    // values.push(`<a href="${trait.url ?? BioinfoUtils.getCosmicVariantLink(trait.id)}" target="_blank">${trait.id}</a>`);
+                    // values.push(trait.somaticInformation.primaryHistology);
+                    // values.push(trait.somaticInformation.histologySubtype);
+                    // cosmic.push({
+                    //     values: values
+                    // });
+                    // Prepare data to group by histologySubtype field
+                    let key = trait.id + ":" + trait.somaticInformation.primaryHistology;
+                    if (!cosmicIntermdiate.has(key)) {
+                        cosmicIntermdiate.set(key, {
+                            id: trait.id,
+                            url: trait.url,
+                            primaryHistology: trait.somaticInformation.primaryHistology,
+                            histologySubtypes: [],
+                            histologySubtypesCounter: new Map()
+                        });
+                    }
+                    // Only add the new terms for this key
+                    if (!cosmicIntermdiate.get(key).histologySubtypesCounter.get(trait.somaticInformation.histologySubtype)) {
+                        cosmicIntermdiate.get(key).histologySubtypes.push(trait.somaticInformation.histologySubtype);
+                    }
+                    // Increment the counter always
+                    cosmicIntermdiate.get(key).histologySubtypesCounter
+                        .set(trait.somaticInformation.histologySubtype, cosmicIntermdiate.get(key).histologySubtypesCounter.size + 1);
                 }
+            }
+            // Prepare column data
+            for (let [key, c] of cosmicIntermdiate.entries()) {
+                let values = [];
+                values.push(`<a href="${c.url ?? BioinfoUtils.getCosmicVariantLink(c.id)}" target="_blank">${c.id}</a>`);
+                values.push(c.primaryHistology);
+                values.push(c.histologySubtypes
+                    .map(value => {
+                        if (cosmicIntermdiate.get(key).histologySubtypesCounter.get(value) > 1) {
+                            return value + " (x" + cosmicIntermdiate.get(key).histologySubtypesCounter.get(value) + ")"
+                        } else {
+                            return value;
+                        }
+                    })
+                    .join(", "));
+                cosmic.push({
+                    values: values
+                });
             }
         }
 
