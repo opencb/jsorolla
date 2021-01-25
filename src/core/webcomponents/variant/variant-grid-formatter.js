@@ -890,7 +890,7 @@ export default class VariantGridFormatter {
                                 <div>
                                     <a href="${BioinfoUtils.getClinvarVariationLink(trait.id)}" target="_blank">${trait.id}</a>
                                     ${trait.variantClassification?.clinicalSignificance !== "unknown" 
-                                        ? `<span style="font-style: italic; margin-left: 10px">${trait.variantClassification.clinicalSignificance}</span>` 
+                                        ? `<span style="font-style: italic; color: ${color}; margin-left: 10px">${trait.variantClassification.clinicalSignificance}</span>` 
                                         : ""
                                     }
                                 </div>
