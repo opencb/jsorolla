@@ -399,18 +399,42 @@ class VariantInterpreterBrowserCancer extends LitElement {
                             }
                         ]
                     },
-                    // {
-                    //     title: "Population Frequency",
-                    //     collapsed: true,
-                    //     fields: [
-                    //         {
-                    //             id: "populationFrequency",
-                    //             title: "Select Population Frequency",
-                    //             tooltip: tooltips.populationFrequencies,
-                    //             showSetAll: true
-                    //         }
-                    //     ]
-                    // },
+                    {
+                        title: "Population Frequency",
+                        collapsed: true,
+                        fields: [
+                            {
+                                id: "populationFrequency",
+                                title: "Select Population Frequency",
+                                allowedFrequencies: "0.001,0.005,0.01",
+                                tooltip: tooltips.populationFrequencies,
+                                showSetAll: false,
+                                // TODO read this from the StudyConfiguration in OpenCGA 2.1
+                                populationFrequencies: {
+                                    studies: [
+                                        {
+                                            id: "1kG_phase3",
+                                            title: "1000 Genomes",
+                                            populations: [
+                                                {
+                                                    id: "ALL", title: "All populations [ALL]"
+                                                },
+                                            ]
+                                        },
+                                        {
+                                            id: "GNOMAD_GENOMES",
+                                            title: "gnomAD Genomes",
+                                            populations: [
+                                                {
+                                                    id: "ALL", title: "gnomAD [ALL]"
+                                                },
+                                            ]
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    },
                     {
                         title: "Phenotype-Disease",
                         collapsed: true,
