@@ -67,7 +67,6 @@ export default class OpencgaExport extends LitElement {
 
     _changeTab(e) {
         const tabId = e.currentTarget.dataset.id;
-        console.log(tabId)
         $("#code > .content-pills", this).removeClass("active");
         $("#code > .content-tab-wrapper > .content-tab", this).hide();
         $("#" + this._prefix + tabId, this).show();
@@ -128,24 +127,24 @@ export default class OpencgaExport extends LitElement {
             <div id="code" class="tab-pane">
                 <h3>Code</h3>
                 <div class="btn-group" role="toolbar" aria-label="toolbar">
-                    <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab["gene"]})}" @click="${this._changeTab}" data-id="url">
+                    <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab["url"]})}" @click="${this._changeTab}" data-id="url">
                         <i class="fas fa-table icon-padding" aria-hidden="true"></i> URL
                     </button>
-                    <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab["gene"]})}" @click="${this._changeTab}" data-id="curl">
+                    <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab["curl"]})}" @click="${this._changeTab}" data-id="curl">
                         <i class="fas fa-table icon-padding" aria-hidden="true"></i> cURL
                     </button>
-                    <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab["gene"]})}" @click="${this._changeTab}" data-id="wget">
+                    <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab["wget"]})}" @click="${this._changeTab}" data-id="wget">
                         <i class="fas fa-table icon-padding" aria-hidden="true"></i> wGET
                     </button>
-                    <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab["gene"]})}" @click="${this._changeTab}" data-id="r">
+                    <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab["r"]})}" @click="${this._changeTab}" data-id="r">
                         <i class="fas fa-table icon-padding" aria-hidden="true"></i> R
                     </button>
-                    <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab["gene"]})}" @click="${this._changeTab}" data-id="python">
+                    <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab["python"]})}" @click="${this._changeTab}" data-id="python">
                         <i class="fas fa-table icon-padding" aria-hidden="true"></i> Python
                     </button>
                 </div>
 
-                <div id="content-tab-wrapper">
+                <div class="content-tab-wrapper">
                     <div id="${this._prefix}url" class="content-tab active">
                         url
                     </div>
