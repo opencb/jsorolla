@@ -884,9 +884,24 @@ export default class VariantGridFormatter {
 
                     // Prepare the tooltip links
                     if (!trait.id?.startsWith("RCV") && !trait.id?.startsWith("SCV")) {
-                        tooltipText += `<div style="margin: 10px 5px">
-                                            <a href="${BioinfoUtils.getClinvarVariationLink(trait.id)}" target="_blank">${trait.id}</a>
-                                        </div>`;
+                        // We display the link plus the clinical significance and all the heritable trait descriptions
+                        tooltipText += `
+                            <div style="margin: 10px 5px">
+                                <div>
+                                    <a href="${BioinfoUtils.getClinvarVariationLink(trait.id)}" target="_blank">${trait.id}</a>
+                                    ${trait.variantClassification?.clinicalSignificance !== "unknown" 
+                                        ? `<span style="font-style: italic; margin-left: 10px">${trait.variantClassification.clinicalSignificance}</span>` 
+                                        : ""
+                                    }
+                                </div>
+                                <div>
+                                    ${trait?.heritableTraits?.length > 0 && trait.heritableTraits
+                                        .filter(t => t.trait && t.trait !== "not specified" && t.trait !== "not provided")
+                                        .map(t => `<span class="help-block" style="margin: 5px 1px">${t.trait}</span>`)
+                                        .join("")
+                                    }
+                                </div>
+                            </div>`;
                     }
                 }
 
