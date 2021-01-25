@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "./../../utilsNew.js";
-
+import "./opencga-export.js";
 
 export default class OpencbGridToolbar extends LitElement {
 
@@ -98,6 +98,10 @@ export default class OpencbGridToolbar extends LitElement {
         return UtilsNew.isUndefinedOrNull(value) || value;
     }
 
+    openModal(e) {
+        $(`#${this._prefix}export-modal`, this).modal("show");
+    }
+
     getDefaultConfig() {
         return {
             label: "records",
@@ -168,9 +172,14 @@ export default class OpencbGridToolbar extends LitElement {
                                     </button>
                                     <ul class="dropdown-menu btn-sm">
                                         ${this._config.download.length ? this._config.download.map(item => html`
-                                                <li><a href="javascript:;" data-download-option="${item}" @click="${this.onDownloadFile}">${item}</a></li>
+                                            <li><a href="javascript:;" data-download-option="${item}" @click="${this.onDownloadFile}">${item}</a></li>
                                         `) : null}
                                     </ul>
+                                </div>
+                                <div class="btn-group">
+                                    <button type="button" class="btn btn-default ripple btn-sm" @click="${this.openModal}">
+                                        <i class="fa fa-download icon-padding" aria-hidden="true"></i> Export
+                                    </button>
                                 </div>
                             ` : null
                             }
@@ -192,7 +201,28 @@ export default class OpencbGridToolbar extends LitElement {
                         </div>
                     </div>
                 </div>
-            </div>`;
+            </div>
+
+
+            <div class="modal fade" tabindex="-1" id="${this._prefix}export-modal" role="dialog">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title">Export</h4>
+                        </div>
+                        <div class="modal-body">
+                            <opencga-export></opencga-export>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-primary">Save changes</button>
+                        </div>
+                    </div><!-- /.modal-content -->
+                </div><!-- /.modal-dialog -->
+            </div><!-- /.modal -->
+        
+        `;
     }
 
 }
