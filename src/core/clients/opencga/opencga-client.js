@@ -338,7 +338,7 @@ export class OpenCGAClient {
                                                         session.project = project;
                                                         session.study = study;
                                                     } else {
-                                                        /*if (study.fqn === application.defaultStudy) {
+                                                        /* if (study.fqn === application.defaultStudy) {
                                                             session.project = project;
                                                             session.study = study;
                                                         }*/
@@ -428,7 +428,6 @@ export class OpenCGAClient {
     }
 
     updateUserConfigs(data) {
-        console.error("updateUserConfigs", data)
         return this.users().updateConfigs(this._config.userId, {
             id: "IVA",
             configuration: {
