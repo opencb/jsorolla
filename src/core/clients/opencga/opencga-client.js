@@ -278,7 +278,7 @@ export class OpenCGAClient {
         return new Promise((resolve, reject) => {
             // check that a session exists
             // TODO should we check the session has not expired?
-            //console.log("_this._config", _this._config);
+            // console.log("_this._config", _this._config);
             if (UtilsNew.isNotUndefined(_this._config.token)) {
                 globalThis.dispatchEvent(new CustomEvent("signingIn", {detail: {value: "Fetching User data"}}));
                 _this.users().info(_this._config.userId)
@@ -303,7 +303,7 @@ export class OpenCGAClient {
                         globalThis.dispatchEvent(new CustomEvent("signingIn", {detail: {value: "Fetching Projects and Studies"}}));
                         // Fetch authorised Projects and Studies
                         _this.projects().search({})
-                            .then(async function(response) {
+                            .then(async function (response) {
 
                                 try {
                                     session.projects = response.response[0].result;
@@ -322,10 +322,9 @@ export class OpenCGAClient {
                                                             study.alias = study.fqn;
                                                         }
                                                     }
-                                                    // FIXME Undo this week
                                                     globalThis.dispatchEvent(new CustomEvent("signingIn", {detail: {value: "Fetching User permissions"}}));
 
-                                                    let admins = study.groups.find(g => g.id === "@admins");
+                                                    const admins = study.groups.find(g => g.id === "@admins");
                                                     let acl = null;
                                                     if (admins.userIds?.includes(session.user.id)) {
                                                         acl = await _this.studies().acl(study.fqn, {});
@@ -334,10 +333,15 @@ export class OpenCGAClient {
                                                     }
                                                     study.acl = acl.getResult(0);
 
-                                                    // default study from config
-                                                    if (study.fqn === application.defaultStudy) {
+                                                    // default study from User Config
+                                                    if (session.user?.configs?.IVA?.lastStudy === study.fqn) {
                                                         session.project = project;
                                                         session.study = study;
+                                                    } else {
+                                                        /*if (study.fqn === application.defaultStudy) {
+                                                            session.project = project;
+                                                            session.study = study;
+                                                        }*/
                                                     }
 
                                                     // Keep track of the studies to fetch Disease Panels
@@ -346,9 +350,14 @@ export class OpenCGAClient {
                                             }
                                         }
 
-                                        // this sets the current active project and study (commented as application.defaultStudy is used now)
-                                        session.project = session.project ?? session.projects[0];
-                                        session.study = session.study ?? session.projects[0].studies[0];
+                                        /** if the user doesn't have his own Default study in User config there are 2 sequential fallbacks:
+                                         *  1. lookup in IVA config `application.defaultStudy` (not used at the moment)
+                                         *  2. first study of the first project
+                                         */
+                                        if (!session.project && !session.study) {
+                                            session.project = session.project ?? session.projects[0];
+                                            session.study = session.study ?? session.projects[0].studies[0];
+                                        }
 
                                         if (!session.project || !session.study) {
                                             throw new Error("Default study not found");
@@ -388,11 +397,11 @@ export class OpenCGAClient {
 
 
                             })
-                            .catch(function(response) {
+                            .catch(function (response) {
                                 reject({message: "An error when getting user projects", value: response});
                             });
                     })
-                    .catch(function(response) {
+                    .catch(function (response) {
                         reject({message: "An error getting user information", value: response});
                     });
             } else {
@@ -419,11 +428,12 @@ export class OpenCGAClient {
     }
 
     updateUserConfigs(data) {
+        console.error("updateUserConfigs", data)
         return this.users().updateConfigs(this._config.userId, {
             id: "IVA",
             configuration: {
                 ...data
-                //"lastAccess": moment(new Date()).valueOf()
+                // "lastAccess": moment(new Date()).valueOf()
             }
         });
     }
