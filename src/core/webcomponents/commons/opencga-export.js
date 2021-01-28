@@ -32,7 +32,7 @@ export default class OpencgaExport extends LitElement {
 
     static get properties() {
         return {
-            cellbaseClient: {
+            opencgaSession: {
                 type: Object
             },
             query: {
@@ -46,7 +46,10 @@ export default class OpencgaExport extends LitElement {
 
     _init() {
         this._prefix = "sf-" + UtilsNew.randomString(6) + "_";
-        this.activeTab = {url: true};
+        this.activeTab = {
+            link: {url: true},
+            code: {python: true}
+        };
         this.mode = "sync";
     }
 
@@ -72,15 +75,14 @@ export default class OpencgaExport extends LitElement {
     }
 
     _changeTab(e) {
-        const tabId = e.currentTarget.dataset.id;
-        $("#code > .content-pills", this).removeClass("active");
-        $("#code > .content-tab-wrapper > .content-tab", this).hide();
-        $("#" + this._prefix + tabId, this).show();
+        const {viewId, tabId} = e.currentTarget.dataset;
+        $(`#${viewId} > .content-pills`, this).removeClass("active");
+        $(`#${viewId} > .content-tab-wrapper > .content-tab`, this).removeClass("active");
         $("#" + this._prefix + tabId, this).addClass("active");
-        for (const tab in this.activeTab) {
-            this.activeTab[tab] = false;
+        for (const tab in this.activeTab[viewId]) {
+            this.activeTab[viewId][tab] = false;
         }
-        this.activeTab[tabId] = true;
+        this.activeTab[viewId][tabId] = true;
         this.requestUpdate();
 
     }
@@ -92,18 +94,30 @@ export default class OpencgaExport extends LitElement {
             case "wget":
                 return `http://localhost:3000/src/?inlineRadioOptions=sync#file/cancer37/test`;
             case "js":
-                return `function $initHighlight(block, cls) {
-try {
-if (cls.search(/\\bno\\-highlight\\b/) != -1)
-  return process(block, true, 0x0F) +
-       
-} catch (e) {
-/* handle exception */
-}
-for (var 
-}
+                return `
+import {OpenCGAClient} from "./opencga-client.js";
 
-export  $initHighlight;`;
+const client = new OpenCGAClient({
+    host: "${opencga.host}",
+    version: "v2",
+    cookies: {active: true, prefix: "standalone"}
+});
+
+(async () => {
+    try {
+        const response = await client.users().login({
+            user: document.querySelector("input[name=user]").value,
+            password: document.querySelector("input[name=password]").value
+        })
+        document.querySelector("#response").innerHTML = "Token:" + response.getResult(0).token;
+    } catch (e) {
+        if(e.events.length) {
+            document.querySelector("#response").innerHTML = e.events.map(event => event.message).join("\\n");
+        }
+    }
+}())
+                
+                `;
             case "python":
                 return `def somefunc(param1='', param2=0):
     r'''A docstring'''
@@ -161,8 +175,9 @@ models <- tibble::tribble(
             </style>
             <div>
                 <ul class="nav nav-tabs">
-                    <li class="active"><a data-toggle="tab" href="#plain_text">Home</a></li>
-                    <li><a data-toggle="tab" href="#code">Code</a></li>
+                    <li class="active"><a data-toggle="tab" href="#plain_text">Plain text</a></li>
+                    <li><a data-toggle="tab" href="#link">Link</a></li>
+                    <li><a data-toggle="tab" href="#code">Opencga Client</a></li>
                 </ul>
             </div>
 
@@ -215,16 +230,15 @@ models <- tibble::tribble(
                         </div>
                     </form>
                 </div>
+                
+                
 
-                <div id="code" class="tab-pane">
-                    <h3>Code</h3>
+                <div id="link" class="tab-pane">
+                    <h3>Links</h3>
                     <div class="btn-group" role="toolbar" aria-label="toolbar">
-                        <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab["url"]})}" @click="${this._changeTab}" data-id="url">URL</button>
-                        <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab["curl"]})}" @click="${this._changeTab}" data-id="curl">cURL</button>
-                        <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab["wget"]})}" @click="${this._changeTab}" data-id="wget">wGET</button>
-                        <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab["js"]})}" @click="${this._changeTab}" data-id="js">Javascript</button>
-                        <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab["r"]})}" @click="${this._changeTab}" data-id="r">R</button>
-                        <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab["python"]})}" @click="${this._changeTab}" data-id="python">Python</button>
+                        <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab.link["url"]})}" @click="${this._changeTab}" data-view-id="link" data-tab-id="url">URL</button>
+                        <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab.link["curl"]})}" @click="${this._changeTab}" data-view-id="link" data-tab-id="curl" >cURL</button>
+                        <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab.link["wget"]})}" @click="${this._changeTab}" data-view-id="link" data-tab-id="wget" >wGET</button>
                     </div>
 
                     <div class="content-tab-wrapper">
@@ -243,9 +257,22 @@ models <- tibble::tribble(
                                 <code class="language-bash">${this.generateCode({}, "wget")}</code>
                             </pre>
                         </div>
-                        <div id="${this._prefix}js" class="content-tab">
+                    </div>
+                </div>
+                
+
+                <div id="code" class="tab-pane">
+                    <h3>Code</h3>
+                    <div class="btn-group" role="toolbar" aria-label="toolbar">
+                        <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab.code["python"]})}" @click="${this._changeTab}" data-view-id="code" data-tab-id="python" >Python</button>
+                        <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab.code["r"]})}" @click="${this._changeTab}" data-view-id="code" data-tab-id="r" >R</button>
+                        <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab.code["js"]})}" @click="${this._changeTab}" data-view-id="code" data-tab-id="js" >Javascript</button>
+                    </div>
+
+                    <div class="content-tab-wrapper">
+                        <div id="${this._prefix}python" class="content-tab active">
                             <pre>
-                                <code class="language-javascript">${this.generateCode({}, "js")}</code>
+                                <code class="language-python">${this.generateCode({}, "python")}</code>
                             </pre>
                         </div>
                         <div id="${this._prefix}r" class="content-tab">
@@ -253,9 +280,9 @@ models <- tibble::tribble(
                                 <code class="language-r">${this.generateCode({}, "r")}</code>
                             </pre>
                         </div>
-                        <div id="${this._prefix}python" class="content-tab">
+                        <div id="${this._prefix}js" class="content-tab">
                             <pre>
-                                <code class="language-python">${this.generateCode({}, "python")}</code>
+                                <code class="language-javascript">${this.generateCode({}, "js")}</code>
                             </pre>
                         </div>
                     </div>
