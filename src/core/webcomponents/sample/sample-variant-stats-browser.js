@@ -156,6 +156,7 @@ export default class SampleVariantStatsBrowser extends LitElement {
                     stats: response.responses[0].results[0],
                     query: this.query
                 };
+                // debugger
             })
             .catch(e => {
                 console.log(e);
@@ -440,7 +441,7 @@ export default class SampleVariantStatsBrowser extends LitElement {
                 : null
             }
             <div class="row">                
-                <div class="col-md-3 left-menu">
+                <div class="col-md-2 left-menu">
                     <opencga-variant-filter .opencgaSession=${this.opencgaSession}
                                             .query="${this.query}"
                                             .cellbaseClient="${this.cellbaseClient}"
@@ -454,7 +455,7 @@ export default class SampleVariantStatsBrowser extends LitElement {
                     </opencga-variant-filter>
                 </div>
 
-                <div class="col-md-9">
+                <div class="col-md-10">
                     <div class="btn-toolbar" role="toolbar" aria-label="toolbar" style="margin: 0px 5px 20px 0px">
                         <div class="pull-right" role="group">
                             <div class="btn-group" style="margin-right: 2px">

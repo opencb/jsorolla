@@ -221,8 +221,8 @@ class VariantInterpreterQc extends LitElement {
                     </ul>
                 </div>
                 
-                <div class="content-tab-wrapper">
-                    <div id="${this._prefix}Overview" role="tabpanel" class="tab-pane active col-md-10 col-md-offset-1 content-tab">
+                <div class="content-tab-wrapper col-md-12">
+                    <div id="${this._prefix}Overview" role="tabpanel" class="tab-pane active content-tab">
                         <tool-header title="Quality Control Overview - ${this.clinicalAnalysis.proband.id}" class="bg-white"></tool-header>
                         <variant-interpreter-qc-overview .opencgaSession="${this.opencgaSession}" 
                                                          .clinicalAnalysis="${this.clinicalAnalysis}"
@@ -232,7 +232,7 @@ class VariantInterpreterQc extends LitElement {
                     
                     ${this.clinicalAnalysis.type.toUpperCase() === "SINGLE"
                         ? html`
-                            <div id="${this._prefix}SampleVariantStats" role="tabpanel" class="tab-pane col-md-10 col-md-offset-1 content-tab">
+                            <div id="${this._prefix}SampleVariantStats" role="tabpanel" class="tab-pane content-tab">
                                  <tool-header title="Samlpe Variant Stats - ${this.clinicalAnalysis.proband.id} (${this.sample?.id})" class="bg-white"></tool-header>
                                  <sample-variant-stats-browser .opencgaSession="${this.opencgaSession}" 
                                                                .sample="${this.sample}"
@@ -245,7 +245,7 @@ class VariantInterpreterQc extends LitElement {
                     
                     ${this.clinicalAnalysis.type.toUpperCase() === "FAMILY"
                         ? html`
-                            <div id="${this._prefix}SampleVariantStats" role="tabpanel" class="tab-pane col-md-10 col-md-offset-1 content-tab">
+                            <div id="${this._prefix}SampleVariantStats" role="tabpanel" class="tab-pane content-tab">
                                 <tool-header title="Sample Variant Stats - ${this.clinicalAnalysis.proband.id} (${this.sample?.id})" class="bg-white"></tool-header>
                                 <sample-variant-stats-browser .opencgaSession="${this.opencgaSession}" 
                                                               .sample="${this.sample}"
@@ -261,7 +261,7 @@ class VariantInterpreterQc extends LitElement {
                     
                     ${this.clinicalAnalysis.type.toUpperCase() === "CANCER" 
                         ? html`
-                            <div id="${this._prefix}VariantQcCancer" role="tabpanel" class="tab-pane col-md-10 col-md-offset-1 content-tab">
+                            <div id="${this._prefix}VariantQcCancer" role="tabpanel" class="tab-pane content-tab">
                                 <tool-header title="Cancer QC Plots - ${this.clinicalAnalysis.proband.id} (${this.somaticSample?.id})" class="bg-white"></tool-header>
                                 <sample-cancer-variant-stats-browser    .opencgaSession="${this.opencgaSession}" 
                                                                         .sample="${this.somaticSample}"
@@ -269,7 +269,7 @@ class VariantInterpreterQc extends LitElement {
                                                                         .config="${{showTitle: false}}">
                                 </sample-cancer-variant-stats-browser>
                             </div>
-                            <div id="${this._prefix}SomaticVariantStats" role="tabpanel" class="tab-pane col-md-10 col-md-offset-1 content-tab">
+                            <div id="${this._prefix}SomaticVariantStats" role="tabpanel" class="tab-pane content-tab">
                                 <tool-header title="Somatic Variant Stats - ${this.clinicalAnalysis.proband.id} (${this.somaticSample?.id})" class="bg-white"></tool-header>
                                 <sample-variant-stats-browser .opencgaSession="${this.opencgaSession}" 
                                                               .sample="${this.somaticSample}"
@@ -279,7 +279,7 @@ class VariantInterpreterQc extends LitElement {
                             </div>
                             ${this.sample
                                 ? html`
-                                    <div id="${this._prefix}SampleVariantStats" role="tabpanel" class="tab-pane col-md-10 col-md-offset-1 content-tab">
+                                    <div id="${this._prefix}SampleVariantStats" role="tabpanel" class="tab-pane content-tab">
                                         <tool-header title="Germline Variant Stats - ${this.clinicalAnalysis.proband.id} (${this.sample?.id})" class="bg-white"></tool-header>
                                         <sample-variant-stats-browser .opencgaSession="${this.opencgaSession}" 
                                                                       .sample="${this.sample}"
@@ -293,7 +293,7 @@ class VariantInterpreterQc extends LitElement {
                         : null
                     }
                     
-                    <div id="${this._prefix}GeneCoverage" role="tabpanel" class="tab-pane col-md-10 col-md-offset-1 content-tab">
+                    <div id="${this._prefix}GeneCoverage" role="tabpanel" class="tab-pane content-tab">
                         <tool-header title="Gene Coverage Stats - ${this.clinicalAnalysis.proband.id}" class="bg-white"></tool-header>
                         <variant-interpreter-qc-gene-coverage   .opencgaSession="${this.opencgaSession}" 
                                                                 .cellbaseClient="${this.cellbaseClient}"

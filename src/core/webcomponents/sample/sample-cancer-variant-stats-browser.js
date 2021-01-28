@@ -701,7 +701,7 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                 : null
             }
             <div class="row">
-                <div class="col-md-3 left-menu">
+                <div class="col-md-2 left-menu">
                     <opencga-variant-filter .opencgaSession=${this.opencgaSession}
                                             .query="${this.query}"
                                             .cellbaseClient="${this.cellbaseClient}"
@@ -715,7 +715,7 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                     </opencga-variant-filter>
                 </div>
 
-                <div class="col-md-9">
+                <div class="col-md-10">
                     ${OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS") ? html`
                         <div>
                             <div class="btn-toolbar" role="toolbar" aria-label="toolbar" style="margin: 0px 5px 20px 0px">

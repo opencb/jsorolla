@@ -169,17 +169,16 @@ class VariantInterpreterBrowser extends LitElement {
                                             <a href="javascript: void 0" role="tab" data-id="CancerGermlineVariantBrowser" @click="${this._changeTab}" class="tab-title">Germline Variant Browser</a>
                                         </li>`
                                     : null
-                                }
-                                `
+                                }`
                             : null
                         }
                     </ul>
                 </div>
                 
-                <div class="content-tab-wrapper">
+                <div class="content-tab-wrapper col-md-12">
                     ${this.clinicalAnalysis.type.toUpperCase() === "SINGLE" || this.clinicalAnalysis.type.toUpperCase() === "FAMILY"
                         ? html`
-                            <div id="${this._prefix}VariantBrowser" role="tabpanel" class="tab-pane active col-md-12 content-tab">
+                            <div id="${this._prefix}VariantBrowser" role="tabpanel" class="tab-pane active content-tab">
                                 <tool-header title="Variant Browser - ${this._sample?.id}" class="bg-white"></tool-header>
                                 <variant-interpreter-browser-rd .opencgaSession="${this.opencgaSession}"
                                                                 .clinicalAnalysis="${this.clinicalAnalysis}"
@@ -193,7 +192,7 @@ class VariantInterpreterBrowser extends LitElement {
                     }
                     ${this.clinicalAnalysis.type.toUpperCase() === "CANCER" 
                         ? html`
-                            <div id="${this._prefix}CancerSomaticVariantBrowser" role="tabpanel" class="tab-pane active col-md-12 content-tab">
+                            <div id="${this._prefix}CancerSomaticVariantBrowser" role="tabpanel" class="tab-pane active content-tab">
                                 <tool-header title="Somatic Variant Browser - ${this._somaticSample?.id}" class="bg-white"></tool-header>
                                 <variant-interpreter-browser-cancer .opencgaSession="${this.opencgaSession}"
                                                                     .clinicalAnalysis="${this.clinicalAnalysis}"
@@ -204,7 +203,7 @@ class VariantInterpreterBrowser extends LitElement {
                             </div>
                             ${this._germlineSample     // Check Germline sample exist
                                 ? html`
-                                    <div id="${this._prefix}CancerGermlineVariantBrowser" role="tabpanel" class="tab-pane col-md-12 content-tab">
+                                    <div id="${this._prefix}CancerGermlineVariantBrowser" role="tabpanel" class="tab-pane content-tab">
                                         <tool-header title="Germline Variant Browser - ${this._germlineSample?.id}" class="bg-white"></tool-header>
                                         <variant-interpreter-browser-rd .opencgaSession="${this.opencgaSession}"
                                                                         .clinicalAnalysis="${this.clinicalAnalysis}"

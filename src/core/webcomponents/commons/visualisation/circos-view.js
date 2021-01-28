@@ -94,39 +94,41 @@ debugger
                         study: this.opencgaSession.study.fqn,
                         sample: this.sampleId,
                         type: "SNV",
-                        filter: "PASS",
-                        // ...this.queries?.["SNV"]
+                        // filter: "PASS",
+                        ...this.queries?.["SNV"]
                     }
                 },
-                // {
-                //     id: "indel",
-                //     type: "INDEL",
-                //     query: {
-                //         study: this.opencgaSession.study.fqn,
-                //         sample: this.sampleId,
-                //         type: "INDEL",
-                //         // filter: "PASS",
-                //         ...this.queries?.["INDEL"]
-                //     }
-                // },
-                // {
-                //     id: "cnv1",
-                //     type: "COPY-NUMBER",
-                //     query: {
-                //         study: this.opencgaSession.study.fqn,
-                //         sample: this.sampleId,
-                //         type: "INSERTION",
-                //     }
-                // },
-                // {
-                //     id: "rearr1",
-                //     type: "REARRANGEMENT",
-                //     query: {
-                //         study: this.opencgaSession.study.fqn,
-                //         sample: this.sampleId,
-                //         type: "DELETION",
-                //     }
-                // }
+                {
+                    id: "indel",
+                    type: "INDEL",
+                    query: {
+                        study: this.opencgaSession.study.fqn,
+                        sample: this.sampleId,
+                        type: "INDEL,INSERTION,DELETION",
+                        // filter: "PASS",
+                        // ...this.queries?.["INDEL"]
+                        fileData: "AR2.10039966-01T_vs_AR2.10039966-01G.annot.pindel.vcf.gz:FILTER=PASS"
+                    }
+                },
+                {
+                    id: "cnv1",
+                    type: "COPY-NUMBER",
+                    query: {
+                        study: this.opencgaSession.study.fqn,
+                        sample: this.sampleId,
+                        type: "INSERTION",
+                    }
+                },
+                {
+                    id: "rearr1",
+                    type: "REARRANGEMENT",
+                    query: {
+                        study: this.opencgaSession.study.fqn,
+                        sample: this.sampleId,
+                        type: "DELETION",
+                        fileData: "AR2.10039966-01T_vs_AR2.10039966-01G.annot.brass.vcf.gz:BAS>1"
+                    }
+                }
             ]
         }
         debugger

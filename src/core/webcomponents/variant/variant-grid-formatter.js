@@ -840,12 +840,16 @@ export default class VariantGridFormatter {
                 const clinicalSignificanceVisited = new Set();
                 for (const trait of traits) {
                     let clinicalSignificance;
+                    let drugResponseClassification;
                     if (trait?.variantClassification?.clinicalSignificance) {
                         clinicalSignificance = trait.variantClassification.clinicalSignificance;
                     } else {
-                        clinicalSignificance = trait?.variantClassification?.drugResponseClassification === "responsive"
-                            ? "drug_response"
-                            : "unknown";
+                        if (trait?.variantClassification?.drugResponseClassification) {
+                            clinicalSignificance = "drug_response";
+                            drugResponseClassification = trait?.variantClassification?.drugResponseClassification;
+                        } else {
+                            clinicalSignificance = "unknown";
+                        }
                     }
                     let code = "";
                     let color = "";
@@ -901,7 +905,7 @@ export default class VariantGridFormatter {
                             <div style="margin: 10px 5px">
                                 <div>
                                     <a href="${BioinfoUtils.getClinvarVariationLink(trait.id)}" target="_blank">${trait.id}</a>
-                                    <span style="font-style: italic; color: ${color}; margin-left: 10px">${clinicalSignificance}</span>
+                                    <span style="font-style: italic; color: ${color}; margin-left: 10px">${clinicalSignificance} (${drugResponseClassification})</span>
                                 </div>
                                 <div>
                                     ${trait?.heritableTraits?.length > 0 && trait.heritableTraits
