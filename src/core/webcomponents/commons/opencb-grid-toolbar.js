@@ -54,7 +54,6 @@ export default class OpencbGridToolbar extends LitElement {
     update(changedProperties) {
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
-            console.log("this._config", this._config)
         }
         super.update(changedProperties)
     }
@@ -212,7 +211,7 @@ export default class OpencbGridToolbar extends LitElement {
                             <h4 class="modal-title">Export</h4>
                         </div>
                         <div class="modal-body">
-                            <opencga-export></opencga-export>
+                            <opencga-export .config="${this._config}"></opencga-export>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>

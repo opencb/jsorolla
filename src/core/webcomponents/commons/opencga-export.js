@@ -51,6 +51,7 @@ export default class OpencgaExport extends LitElement {
             code: {python: true}
         };
         this.mode = "sync";
+        this.query = {};
     }
 
     connectedCallback() {
@@ -65,8 +66,10 @@ export default class OpencgaExport extends LitElement {
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("property")) {
-            this.propertyObserver();
+        if (changedProperties.has("config")) {
+            this._config = {...this.getDefaultConfig(), ...this.config};
+            this.requestUpdate();
+
         }
     }
 
@@ -88,34 +91,39 @@ export default class OpencgaExport extends LitElement {
     }
 
     generateCode(params, language) {
+        const resourceMap = {
+            "FILE": "files",
+            "SAMPLE": "samples",
+            "INDIVIDUAL": "individuals",
+            "COHORT": "cohorts",
+            "FAMILY": "families",
+            "CLINICAL_ANALYSIS": "clinical",
+            "JOB": "jobs"
+        }
         switch (language) {
             case "url":
             case "curl":
             case "wget":
-                return `http://localhost:3000/src/?inlineRadioOptions=sync#file/cancer37/test`;
+                return JSON.stringify(this.config) // TODO FIXME config is the default grid-toolbar object not the right one
+                // return `${opencga.host}/webservices/rest/v2/${resourceMap[this.config.resource]}/search?${UtilsNew.encodeObject({id: 2, count: false})}`
             case "js":
                 return `
 import {OpenCGAClient} from "./opencga-client.js";
-
 const client = new OpenCGAClient({
     host: "${opencga.host}",
     version: "v2",
-    cookies: {active: true, prefix: "standalone"}
+    cookies: {active: false}
 });
-
 (async () => {
     try {
-        const response = await client.users().login({
-            user: document.querySelector("input[name=user]").value,
-            password: document.querySelector("input[name=password]").value
-        })
-        document.querySelector("#response").innerHTML = "Token:" + response.getResult(0).token;
+        await client.login(user, password)
+        const session = await client.createSession();
+        const restResponse = await session.opencgaClient.files().search(${JSON.stringify(this.query)});
+        console.log(restResponse.getResults());
     } catch (e) {
-        if(e.events.length) {
-            document.querySelector("#response").innerHTML = e.events.map(event => event.message).join("\\n");
-        }
+        console.error(e)
     }
-}())
+})();
                 
                 `;
             case "python":

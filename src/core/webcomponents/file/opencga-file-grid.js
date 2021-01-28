@@ -84,6 +84,7 @@ export default class OpencgaFileGrid extends LitElement {
 
     propertyObserver() {
         this.toolbarConfig = {
+            resource: "FILE",
             columns: this._getDefaultColumns()
         };
         this.renderTable();
@@ -331,6 +332,7 @@ export default class OpencgaFileGrid extends LitElement {
     render() {
         return html`
             <opencb-grid-toolbar  .config="${this.toolbarConfig}"
+                                  .query="${this.query}"
                                   @columnChange="${this.onColumnChange}"
                                   @download="${this.onDownload}">
             </opencb-grid-toolbar>
