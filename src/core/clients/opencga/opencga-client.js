@@ -224,7 +224,7 @@ export class OpenCGAClient {
         this._config.token = response.getResult(0).token;
 
         await this.updateUserConfigs({
-            lastAccess: moment(new Date()).valueOf()
+            lastAccess: new Date().getTime()
         });
 
         if (this._config.cookies.active) {
@@ -295,7 +295,7 @@ export class OpenCGAClient {
                         _this._notifySessionEvent("signingIn", "Updating User config");
                         await this.updateUserConfigs({
                             ...session.user.configs.IVA,
-                            lastAccess: moment(new Date()).valueOf()
+                            lastAccess: new Date().getTime()
                         });
 
                         // Fetch authorised Projects and Studies
@@ -434,7 +434,7 @@ export class OpenCGAClient {
             id: "IVA",
             configuration: {
                 ...data
-                // "lastAccess": moment(new Date()).valueOf()
+                // "lastAccess": new Date().getTime()
             }
         });
     }
