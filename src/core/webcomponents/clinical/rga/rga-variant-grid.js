@@ -55,9 +55,12 @@ export default class RgaVariantGrid extends LitElement {
 
     _init() {
         this._prefix = "rag-v-" + UtilsNew.randomString(6);
-        this.colToShow = 2;
+        this.active = false;
         this.gridId = this._prefix + "RgaVariantGrid";
+        this.rendered = false;
         this.variantId = null;
+
+        this.colToShow = 2;
 
         this.prevQuery = {};
         this._query = {};
@@ -167,23 +170,26 @@ export default class RgaVariantGrid extends LitElement {
 
     }
 
+    // TODO FIXME at the moment it takes into account the first variant of the first transcript of the first gene
     individualFormatter(value, row) {
+
+        //return value.map(individual => individual.genes[0].transcripts[0].variants[0].knockoutType)
         const typeToColor = {
             "HOM_ALT": "#5b5bff",
             "CH": "blue"
         };
-        const samplesTableData = this.samples.map(sample => ({id: sample.sampleId}));
+        /*const samplesTableData = this.samples.map(sample => ({id: sample.sampleId}));
         for (const {sampleId, variant} of row.data) {
             if (variant.id === row.id) {
                 const c = samplesTableData.find(sample => sample.id === sampleId);
                 c.knockoutType = variant.knockoutType;
             }
-        }
+        }*/
         return `
             <table>
                 <tr>
-                    ${samplesTableData.map(sample => `
-                        <td style="width: 15px; background: ${typeToColor[sample.knockoutType] ?? "#fff"}; border-right: 1px solid white;">
+                    ${value.map(sample => `
+                        <td style="width: 15px; background: ${typeToColor[sample.genes[0].transcripts[0].variants[0].knockoutType] ?? "#fff"}; border-right: 1px solid white;">
                             <a style="border:1px solid #b7b7b7;display: block" tooltip-title="${sample.id}" tooltip-text="${sample.id}">&nbsp;</a>
                         </td>
                     `).join("")}
@@ -196,7 +202,7 @@ export default class RgaVariantGrid extends LitElement {
 
         this._query = {...this.query, study: this.opencgaSession.study.fqn}; // we want to support a query obj param both with or without study.
         console.log("UtilsNew.objectCompare(this._query, this.prevQuery)", UtilsNew.objectCompare(this._query, this.prevQuery))
-        if (UtilsNew.objectCompare(this._query, this.prevQuery)) {
+        if (!this.active || UtilsNew.objectCompare(this._query, this.prevQuery)) {
             return;
         }
 
@@ -205,8 +211,8 @@ export default class RgaVariantGrid extends LitElement {
         this.table.bootstrapTable({
             // data: this.tableData,
             columns: this._initTableColumns(),
-            //sidePagination: "local",
-            // Set table properties, these are read from config propertyparticularly tough
+            method: "get",
+            sidePagination: "server",
             uniqueId: "id",
             // pageSize: this._config.pageSize,
             // pageList: this._config.pageList,
@@ -214,20 +220,24 @@ export default class RgaVariantGrid extends LitElement {
             paginationVAlign: "both",
             // formatShowingRows: this.gridCommons.formatShowingRows,
             gridContext: this,
+            formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
             ajax: params => {
-                this.opencgaSession.opencgaClient.clinical().queryRgaIndividual({study: this.opencgaSession.study.fqn, limit: 2})
+                this.opencgaSession.opencgaClient.clinical().queryRgaVariant({study: this.opencgaSession.study.fqn, limit: 2, geneName: "BRCA2"})
                     .then(res => {
                         console.log("res", res)
-                        this.data = res.getResults();
-                        this.prepareData();
-                        params.success(this.tableData)
+                        //this.data = res.getResults();
+                        //this.prepareData();
+                        params.success(res)
                     })
                     .catch(e => {
                         console.error(e);
                         params.error(e);
                     });
             },
-            formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+            responseHandler: response => {
+                const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
+                return result.response;
+            },
             onClickRow: (row, selectedElement, field) => {
                 console.log(row);
                 this.variant = row;

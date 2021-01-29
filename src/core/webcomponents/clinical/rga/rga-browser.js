@@ -437,7 +437,7 @@ export default class RgaBrowser extends LitElement {
                                 </div>
 
                                 <div id="variant-tab" class="content-tab">
-                                    <rga-variant-grid .query=${this.executedQuery} .opencgaSession="${this.opencgaSession}" .active="${this.activeTab["individual-tab"]}"></rga-variant-grid>
+                                    <rga-variant-grid .query=${this.executedQuery} .opencgaSession="${this.opencgaSession}" .active="${this.activeTab["variant-tab"]}"></rga-variant-grid>
                                 </div>
                                 
                             </div>
