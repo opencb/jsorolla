@@ -51,6 +51,7 @@ export default class OpencgaExport extends LitElement {
             code: {python: true}
         };
         this.mode = "sync";
+        this.format = "csv";
         this.query = {};
     }
 
@@ -151,6 +152,12 @@ models <- tibble::tribble(
         this.requestUpdate();
     }
 
+    changeFormat(e) {
+        e.preventDefault();
+        this.format = e.currentTarget.dataset.format;
+        this.requestUpdate();
+    }
+
     render() {
         return html`
             <style>
@@ -226,14 +233,14 @@ models <- tibble::tribble(
                         <div class="form-group">
                             <div class="col-md-12">
                                 <h4 class="export-section-title">Format</h4>
-                                <div class="export-buttons ripple active">
+                                <button type="button" class="btn export-buttons ripple ${classMap({active: this.format === "csv"})}" data-format="csv" @click="${this.changeFormat}">
                                     <i class="fas fa-file-export fa-2x"></i>
                                     <span class="export-buttons-text">CSV</span>
-                                </div>
-                                <div class="export-buttons ripple">
+                                </button>
+                                <button type="button" class="btn export-buttons ripple ${classMap({active: this.format === "json"})}" data-format="json" @click="${this.changeFormat}">
                                     <i class="fas fa-file-export fa-2x"></i>
                                     <span class="export-buttons-text">JSON</span>
-                                </div>
+                                </button>
                             </div>
                         </div>
                     </form>
