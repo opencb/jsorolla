@@ -147,7 +147,7 @@ export default class RgaGeneFilter extends LitElement {
             case "populationFrequencyAlt":
                 content = html`<population-frequency-filter .populationFrequencies="${populationFrequencies}" ?showSetAll="${subsection.showSetAll}" .populationFrequencyAlt="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange("populationFrequencyAlt", e.detail.value)}"></population-frequency-filter>`;
                 break;
-            case "knockoutType":
+            case "type":
                 content = html`<variant-type-filter .type="${this.preparedQuery[subsection.id]}" .config="${subsection}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></variant-type-filter>`;
                 break;
             case "consequenceType":
@@ -164,7 +164,7 @@ export default class RgaGeneFilter extends LitElement {
                     <div class="form-horizontal">
                         <div class="from-group form-inline">
                             <input class="magic-radio" type="radio" name="${subsection.id}" id="${this._prefix + subsection.id}yes" ?checked=${subsection.value === "yes"} value="yes" @change="${e => this.onFilterChange(subsection.id, "yes")}"><label class="magic-horizontal-label" for="${this._prefix + subsection.id}yes"> Yes </label>
-                            <input class="magic-radio" type="radio" name="${subsection.id}" id="${this._prefix + subsection.id}no" ?checked=${subsection.value === "no"} value="no" @change="${e => this.onFilterChange(subsection.id, "yes")}"> <label class="magic-horizontal-label" for="${this._prefix + subsection.id}no"> No </label>
+                            <input class="magic-radio" type="radio" name="${subsection.id}" id="${this._prefix + subsection.id}no" ?checked=${subsection.value === "no"} value="no" @change="${e => this.onFilterChange(subsection.id, "no")}"> <label class="magic-horizontal-label" for="${this._prefix + subsection.id}no"> No </label>
                         </div>
                     </div>
                 `;

@@ -121,9 +121,10 @@ export default class RgaGeneGrid extends LitElement {
                     // skip: params.data.offset || 0,
                     // count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
                     ...this._query,
-                    geneName: "BRCA2"
+                    geneName: "BRCA2",
+                    limit: 2
                 };
-                this.opencgaSession.opencgaClient.clinical().queryRgaGene({..._filters, limit: 2})
+                this.opencgaSession.opencgaClient.clinical().queryRgaGene(_filters)
                     .then(res => {
                         console.log("res", res);
                         params.success(res);

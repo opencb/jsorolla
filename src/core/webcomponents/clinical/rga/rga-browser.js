@@ -309,7 +309,7 @@ export default class RgaBrowser extends LitElement {
                                 type: "POPULATION_FREQUENCY_FILTER"
                             },
                             {
-                                id: "knockoutType",
+                                id: "type",
                                 name: "Variant types",
                                 types: ["SNV", "INDEL", "INSERTION", "DELETION"],
                                 tooltip: tooltips.type

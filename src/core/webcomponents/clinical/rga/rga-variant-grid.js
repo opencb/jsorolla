@@ -222,7 +222,17 @@ export default class RgaVariantGrid extends LitElement {
             gridContext: this,
             formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
             ajax: params => {
-                this.opencgaSession.opencgaClient.clinical().queryRgaVariant({study: this.opencgaSession.study.fqn, limit: 2, geneName: "BRCA2"})
+                const _filters = {
+                    study: this.opencgaSession.study.fqn,
+                    //order: params.data.order,
+                    // limit: params.data.limit,
+                    //skip: params.data.offset || 0,
+                    //count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
+                    ...this._query,
+                    geneName: "BRCA2",
+                    limit: 2
+                };
+                this.opencgaSession.opencgaClient.clinical().queryRgaVariant(_filters)
                     .then(res => {
                         console.log("res", res)
                         //this.data = res.getResults();
@@ -278,7 +288,7 @@ export default class RgaVariantGrid extends LitElement {
                     active: true,
                     render: (variant, active, opencgaSession) => {
                         return html`
-                            <rga-variant-individual .variant="${variant}"></rga-variant-individual>
+                            <rga-variant-individual-grid .variant="${variant}"></rga-variant-individual-grid>
                         `;
                     }
                 },

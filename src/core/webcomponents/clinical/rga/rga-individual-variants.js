@@ -19,7 +19,7 @@ import UtilsNew from "../../../utilsNew.js";
 import "./../../commons/view/detail-tabs.js";
 
 
-export default class RgaVariantIndividualGrid extends LitElement {
+export default class RgaIndividualVariants extends LitElement {
 
     constructor() {
         super();
@@ -35,7 +35,7 @@ export default class RgaVariantIndividualGrid extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            variant: {
+            individual: {
                 type: Object
             },
             config: {
@@ -47,7 +47,8 @@ export default class RgaVariantIndividualGrid extends LitElement {
     _init() {
         this._prefix = UtilsNew.randomString(8);
         this._config = this.getDefaultConfig();
-        this.gridId = this._prefix + "VIGrid";
+        this.gridId = this._prefix + "KnockoutIndividualGrid";
+        this.individual = null;
 
     }
 
@@ -55,7 +56,7 @@ export default class RgaVariantIndividualGrid extends LitElement {
         if (changedProperties.has("opencgaSession")) {
         }
 
-        if (changedProperties.has("variant")) {
+        if (changedProperties.has("individual")) {
             this.prepareData();
             this.renderTable();
         }
@@ -66,7 +67,11 @@ export default class RgaVariantIndividualGrid extends LitElement {
     }
 
     prepareData() {
-
+        if (this.individual) {
+            // TODO FIXME
+            const variants = this.individual.genes.flatMap(gene => gene.transcripts.flatMap(transcript => transcript.variants));
+            this.tableData = variants;
+        }
 
     }
 
@@ -74,13 +79,15 @@ export default class RgaVariantIndividualGrid extends LitElement {
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
-            data: this.variant.individuals,
+            data: this.tableData,
             columns: this._initTableColumns(),
             sidePagination: "local",
             uniqueId: "id",
             pagination: true,
+            // pageSize: this._config.pageSize,
+            // pageList: this._config.pageList,
             paginationVAlign: "both",
-            //formatShowingRows: this.gridCommons.formatShowingRows,
+            // formatShowingRows: this.gridCommons.formatShowingRows,
             gridContext: this,
             formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
             onClickRow: (row, selectedElement, field) => {
@@ -98,32 +105,24 @@ export default class RgaVariantIndividualGrid extends LitElement {
     _initTableColumns() {
         return [
             {
-                title: "Individual Id",
+                title: "id",
                 field: "id"
             },
             {
-                title: "Sample",
-                field: "sampleId"
-            },
-            {
                 title: "Type",
-                field: "type"
+                field: "knockoutType"
             },
             {
                 title: "GT",
-                //field: "variant.genotype"
+                field: "genotype"
             },
             {
-                title: "DP",
-                field: "dp"
+                title: "Depth",
+                field: ""
             },
             {
                 title: "Filter",
-                //field: "variant.filter"
-            },
-            {
-                title: "Qual",
-                field: "qual"
+                field: "filter"
             }
         ];
     }
@@ -136,8 +135,7 @@ export default class RgaVariantIndividualGrid extends LitElement {
     }
 
     render() {
-        return html`
-            <h3>Individual presenting ${this.variant?.id}</h3>
+        return html`   
             <div class="row">
                 <table id="${this.gridId}"></table>
             </div>
@@ -146,4 +144,4 @@ export default class RgaVariantIndividualGrid extends LitElement {
 
 }
 
-customElements.define("rga-variant-individual-grid", RgaVariantIndividualGrid);
+customElements.define("rga-individual-variants", RgaIndividualVariants);

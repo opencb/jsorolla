@@ -18,8 +18,7 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../utilsNew.js";
 import GridCommons from "../../commons/grid-commons.js";
 import CatalogGridFormatter from "../../commons/catalog-grid-formatter.js";
-import PolymerUtils from "../../PolymerUtils.js";
-
+import "./rga-individual-variants.js";
 
 export default class RgaIndividualGrid extends LitElement {
 
@@ -116,14 +115,16 @@ export default class RgaIndividualGrid extends LitElement {
             formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
             ajax: params => {
                 const _filters = {
+                    study: this.opencgaSession.study.fqn,
                     //order: params.data.order,
                     // limit: params.data.limit,
                     //skip: params.data.offset || 0,
                     //count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
                     ...this._query,
-                    geneName: "BRCA2"
+                    geneName: "BRCA2",
+                    limit: 2
                 };
-                this.opencgaSession.opencgaClient.clinical().queryRgaIndividual({..._filters, limit: 2})
+                this.opencgaSession.opencgaClient.clinical().queryRgaIndividual(_filters)
                     .then(res => {
                         console.log("res", res);
                         params.success(res);
@@ -137,10 +138,24 @@ export default class RgaIndividualGrid extends LitElement {
                 const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
                 return result.response;
             },
-            onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
-            onCheck: (row, $element) => this.gridCommons.onCheck(row.id, row),
-            onLoadSuccess: data => this.gridCommons.onLoadSuccess(data, 1),
-            onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse)
+            onClickRow: (row, selectedElement, field) => {
+                console.log(row);
+                this.individual = row;
+                this.gridCommons.onClickRow(row.id, row, selectedElement);
+                this.requestUpdate();
+            },
+            onLoadSuccess: data => {
+                // this is not triggered in case of static data
+            },
+            onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse),
+            onPostBody: data => {
+                this.gridCommons.onLoadSuccess({rows: data, total: data.length});
+                if (data[0]) {
+                    // it selects the first row (we don't use `selectrow` event in this case)
+                    this.individual = data[0];
+                }
+                this.requestUpdate();
+            }
         });
     }
 
@@ -243,7 +258,7 @@ export default class RgaIndividualGrid extends LitElement {
                     render: (individual, active, opencgaSession) => {
                         return html`
                             <h3>Variants in ${individual?.id}</h3>
-                            <knockout-individual-variants .individual="${individual}"></knockout-individual-variants>
+                            <rga-individual-variants .individual="${individual}"></rga-individual-variants>
                         `;
                     }
                 }, {
