@@ -787,13 +787,13 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
         return html`
             ${this._config.showToolbar ?
                 html`
-                    <opencb-grid-toolbar    .config="${this.toolbarConfig}"
+                    <opencb-grid-toolbar    .opencgaSession="${this.opencgaSession}"
+                                            .config="${this.toolbarConfig}"
                                             @columnChange="${this.onColumnChange}"
                                             @download="${this.onDownload}">
                     </opencb-grid-toolbar>` :
                 null
             }
-    
             <div id="${this._prefix}GridTableDiv" class="force-overflow">
                 <table id="${this._prefix}ClinicalAnalysisGrid"></table>
             </div>
