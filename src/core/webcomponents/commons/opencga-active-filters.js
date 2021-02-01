@@ -646,7 +646,7 @@ export default class OpencgaActiveFilters extends LitElement {
                                                     <span class="id-filter-button">${item.id}</span>
                                                     <span class="filter-buttons">
                                                         <i title="${Object.entries(item.query).map(([k, v]) => k + "=" + v).join(", ")}" class="fas fa-eye"></i>
-                                                        <i title="Delete filter" class="fas fa-trash" data-filter-id="${item.id}" @click="${this.serverFilterDelete}"></i>
+                                                        <i data-cy="delete" title="Delete filter" class="fas fa-trash" data-filter-id="${item.id}" @click="${this.serverFilterDelete}"></i>
                                                     </span>
                                                 </a>
                                             </li>`
