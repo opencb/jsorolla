@@ -57,18 +57,24 @@ export default class OpencgaExport extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        //this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
     firstUpdated(_changedProperties) {
-        document.querySelectorAll("pre code").forEach(block => {
-            hljs.highlightBlock(block);
-        });
+
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
+        if (changedProperties.has("query")) {
+            console.log("query", this.query)
+        }
+            if (changedProperties.has("config")) {
+            //this._config = {...this.getDefaultConfig(), ...this.config};
+            if (this.config?.resource) {
+                document.querySelectorAll("pre code").forEach(block => {
+                    hljs.highlightBlock(block);
+                });
+            }
             this.requestUpdate();
 
         }
@@ -100,18 +106,21 @@ export default class OpencgaExport extends LitElement {
             "FAMILY": "families",
             "CLINICAL_ANALYSIS": "clinical",
             "JOB": "jobs"
+        };
+        if (!this.config?.resource) {
+            return "Resource not defined";
         }
         switch (language) {
             case "url":
+                return `${this.opencgaSession.server.host}/webservices/rest/v2/${resourceMap[this.config.resource]}/search?${UtilsNew.encodeObject({...this.query, study: this.opencgaSession.study.fqn, type: this.config.resource, sid: this.opencgaSession.token})}`
             case "curl":
             case "wget":
-                return JSON.stringify(this.config) // TODO FIXME config is the default grid-toolbar object not the right one
-                // return `${opencga.host}/webservices/rest/v2/${resourceMap[this.config.resource]}/search?${UtilsNew.encodeObject({id: 2, count: false})}`
+                return `${opencga.host}/webservices/rest/v2/${resourceMap[this.config.resource]}/search?${UtilsNew.encodeObject({id: 2, count: false})}`
             case "js":
                 return `
 import {OpenCGAClient} from "./opencga-client.js";
 const client = new OpenCGAClient({
-    host: "${opencga.host}",
+    host: "${this.opencgaSession.server.host}",
     version: "v2",
     cookies: {active: false}
 });
@@ -119,7 +128,7 @@ const client = new OpenCGAClient({
     try {
         await client.login(user, password)
         const session = await client.createSession();
-        const restResponse = await session.opencgaClient.files().search(${JSON.stringify(this.query)});
+        const restResponse = await session.opencgaClient.${resourceMap[this.config.resource]}().search(${JSON.stringify({...this.query, study: this.opencgaSession.study.fqn})});
         console.log(restResponse.getResults());
     } catch (e) {
         console.error(e)
@@ -172,8 +181,12 @@ models <- tibble::tribble(
                     align-items: center;
                 }
 
-                .export-buttons i {
+                .export-buttons.active i {
                     color: grey;
+                }
+
+                .export-buttons i {
+                    color: #cbcbcb;
                 }
 
                 .export-buttons-text {
@@ -245,15 +258,20 @@ models <- tibble::tribble(
                         </div>
                     </form>
                 </div>
-                
-                
+
 
                 <div id="link" class="tab-pane">
                     <h3>Links</h3>
                     <div class="btn-group" role="toolbar" aria-label="toolbar">
-                        <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab.link["url"]})}" @click="${this._changeTab}" data-view-id="link" data-tab-id="url">URL</button>
-                        <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab.link["curl"]})}" @click="${this._changeTab}" data-view-id="link" data-tab-id="curl" >cURL</button>
-                        <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab.link["wget"]})}" @click="${this._changeTab}" data-view-id="link" data-tab-id="wget" >wGET</button>
+                        <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab.link["url"]})}" @click="${this._changeTab}" data-view-id="link"
+                                data-tab-id="url">URL
+                        </button>
+                        <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab.link["curl"]})}" @click="${this._changeTab}" data-view-id="link"
+                                data-tab-id="curl">cURL
+                        </button>
+                        <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab.link["wget"]})}" @click="${this._changeTab}" data-view-id="link"
+                                data-tab-id="wget">wGET
+                        </button>
                     </div>
 
                     <div class="content-tab-wrapper">
@@ -274,14 +292,20 @@ models <- tibble::tribble(
                         </div>
                     </div>
                 </div>
-                
+
 
                 <div id="code" class="tab-pane">
                     <h3>Code</h3>
                     <div class="btn-group" role="toolbar" aria-label="toolbar">
-                        <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab.code["python"]})}" @click="${this._changeTab}" data-view-id="code" data-tab-id="python" >Python</button>
-                        <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab.code["r"]})}" @click="${this._changeTab}" data-view-id="code" data-tab-id="r" >R</button>
-                        <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab.code["js"]})}" @click="${this._changeTab}" data-view-id="code" data-tab-id="js" >Javascript</button>
+                        <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab.code["python"]})}" @click="${this._changeTab}" data-view-id="code"
+                                data-tab-id="python">Python
+                        </button>
+                        <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab.code["r"]})}" @click="${this._changeTab}" data-view-id="code"
+                                data-tab-id="r">R
+                        </button>
+                        <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab.code["js"]})}" @click="${this._changeTab}" data-view-id="code"
+                                data-tab-id="js">Javascript
+                        </button>
                     </div>
 
                     <div class="content-tab-wrapper">

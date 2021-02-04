@@ -31,13 +31,19 @@ export default class OpencbGridToolbar extends LitElement {
 
     static get properties() {
         return {
+            opencgaSession: {
+                type: Object
+            },
             rightToolbar: {
                 type: Array
+            },
+            query: {
+                type: Object
             },
             config: {
                 type: Object
             }
-        }
+        };
     }
 
     _init() {
@@ -46,8 +52,6 @@ export default class OpencbGridToolbar extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
-
-        this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
 
@@ -55,7 +59,7 @@ export default class OpencbGridToolbar extends LitElement {
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
         }
-        super.update(changedProperties)
+        super.update(changedProperties);
     }
 
     onDownloadFile(e) {
@@ -114,10 +118,10 @@ export default class OpencbGridToolbar extends LitElement {
         };
     }
 
-    render(){
-        let rightButtons = []
+    render() {
+        const rightButtons = [];
         if (this.rightToolbar && this.rightToolbar.length > 0) {
-            for (let rightButton of this.rightToolbar) {
+            for (const rightButton of this.rightToolbar) {
                 rightButtons.push(rightButton.render());
             }
         }
@@ -155,8 +159,8 @@ export default class OpencbGridToolbar extends LitElement {
                                                         <input type="checkbox" @click="${this.checkboxToggle}" .checked="${this.isTrue(item.visible)}"/>
                                                         <label class="checkmark-label">${item.title}</label>
                                                     </a>
-                                                </li>`)
-                                            : null}
+                                                </li>`) :
+                                            null}
                                     </ul>
                                 </div>
                             ` : null
@@ -188,7 +192,7 @@ export default class OpencbGridToolbar extends LitElement {
                                 <button type="button" class="btn btn-default btn-sm" data-toggle="popover" data-placement="bottom" @click="onShareLink">
                                     <i class="fa fa-share-alt icon-padding" aria-hidden="true"></i> Share
                                 </button>
-                            ` : null 
+                            ` : null
                             }
                             
                             ${rightButtons && rightButtons.length > 0 ? rightButtons.map(rightButton => html`
@@ -211,7 +215,7 @@ export default class OpencbGridToolbar extends LitElement {
                             <h4 class="modal-title">Export</h4>
                         </div>
                         <div class="modal-body">
-                            <opencga-export .config="${this._config}"></opencga-export>
+                            <opencga-export .config="${this._config}" .query=${this.query} .opencgaSession="${this.opencgaSession}"></opencga-export>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>

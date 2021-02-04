@@ -333,6 +333,7 @@ export default class OpencgaFileGrid extends LitElement {
         return html`
             <opencb-grid-toolbar  .config="${this.toolbarConfig}"
                                   .query="${this.query}"
+                                  .opencgaSession="${this.opencgaSession}"
                                   @columnChange="${this.onColumnChange}"
                                   @download="${this.onDownload}">
             </opencb-grid-toolbar>
