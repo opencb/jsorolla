@@ -88,18 +88,20 @@ class VariantInterpreter extends LitElement {
     }
 
     opencgaSessionObserver() {
-        // With each property change we must updated config and create the columns again. No extra checks are needed.
-        this._config = {...this.getDefaultConfig(), ...this.config};
-        this.clinicalAnalysis = null;
-        this._changeView(this._config?.tools[0].id)
-        this.requestUpdate();
+        if (this?.opencgaSession?.study?.fqn) {
+            // With each property change we must updated config and create the columns again. No extra checks are needed.
+            this._config = {...this.getDefaultConfig(), ...this.config};
+            this.clinicalAnalysis = null;
+            this._changeView(this._config?.tools[0].id)
+            this.requestUpdate();
 
-        // To delete
-        // this.clinicalAnalysisId = "test3";
-        // this.clinicalAnalysisId = "CA-2";
-        // this.clinicalAnalysisId = "TN2_PINDEL";
-        // this.clinicalAnalysisId = "WS-1801417";
-        // this.clinicalAnalysisIdObserver();
+            // To delete
+            // this.clinicalAnalysisId = "test3";
+            // this.clinicalAnalysisId = "CA-2";
+            // this.clinicalAnalysisId = "TN2_PINDEL";
+            // this.clinicalAnalysisId = "WS-1801417";
+            // this.clinicalAnalysisIdObserver();
+        }
     }
 
      clinicalAnalysisIdObserver() {
@@ -216,7 +218,7 @@ class VariantInterpreter extends LitElement {
 
     render() {
         // Check Project exists
-        if (!this.opencgaSession || !this.opencgaSession.project) {
+        if (!this.opencgaSession || !this.opencgaSession.study) {
             return html`
                 <div class="guard-page">
                     <i class="fas fa-lock fa-5x"></i>

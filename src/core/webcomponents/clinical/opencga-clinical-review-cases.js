@@ -60,6 +60,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
         this._filters = [];
         this.resource = "CLINICAL_ANALYSIS";
         this.query = {};
+        this.checkProjects = false;
     }
 
     connectedCallback() {
@@ -78,9 +79,12 @@ export default class OpencgaClinicalReviewCases extends LitElement {
 
     opencgaSessionObserver() {
         this.filters = this._config.filter.examples;
-        if (this.opencgaSession) {
+        if (this?.opencgaSession?.study) {
+            this.checkProjects = true;
             this.refreshFilters();
             this.users = this.opencgaSession.study.groups.find(group => group.id === "@members" || group.name === "@members").userIds;
+        } else {
+            this.checkProjects = false;
         }
     }
 
@@ -378,7 +382,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
     }
 
     render() {
-        return this.opencgaSession ? html`
+        return this.checkProjects ? html`
         <style>
         
             .filter-button {
@@ -708,7 +712,12 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                 </div>
             </div>
         </div>
-        ` : null;
+        ` : html`
+            <div class="guard-page">
+               <i class="fas fa-lock fa-5x"></i>
+                <h3>No public projects available to browse. Please login to continue</h3>
+            </div>
+        `;
     }
 
 }

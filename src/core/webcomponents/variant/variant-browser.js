@@ -57,7 +57,7 @@ export default class VariantBrowser extends LitElement {
             facetQuery: {
                 type: Object
             },
-            selectedFacet: { //TODO naming change: preparedQueryFacet (selectedFacet), preparedQueryFacetFormatted (selectedFacetFormatted), executedQueryFacet (queryFacet) (also in opencga-browser)
+            selectedFacet: { // TODO naming change: preparedQueryFacet (selectedFacet), preparedQueryFacetFormatted (selectedFacetFormatted), executedQueryFacet (queryFacet) (also in opencga-browser)
                 type: Object
             },
             cohorts: {
@@ -126,66 +126,67 @@ export default class VariantBrowser extends LitElement {
     }
 
     opencgaSessionObserver() {
-        if (this.opencgaSession && this.opencgaSession.project) {
+        if (this?.opencgaSession?.study?.fqn) {
             this.query = {study: this.opencgaSession.study.fqn};
-        }
-        // TODO FIXME
-        /** temp fix this.onRun(): when you switch study this.facetQuery contains the old study when you perform a new Aggregation query.
-         *  As a consequence, we need to update preparedQuery as this.onRun() uses it (without it the old study is in query in table result as well)
-         */
-        this.preparedQuery = {study: this.opencgaSession.study.fqn};
-        this.selectedFacet = {};
 
-        this.onRun();
+            // TODO FIXME
+            /** temp fix this.onRun(): when you switch study this.facetQuery contains the old study when you perform a new Aggregation query.
+             *  As a consequence, we need to update preparedQuery as this.onRun() uses it (without it the old study is in query in table result as well)
+             */
+            this.preparedQuery = {study: this.opencgaSession.study.fqn};
+            this.selectedFacet = {};
 
-        // if cohort filter exists but this.cohorts is not defined then we add cohorts ALL to the 'filter' menu itself
-        const _tempConfig = {...this.getDefaultConfig(), ...this.config};
-        for (const section of _tempConfig.filter.sections) {
-            for (const field of section.fields) {
-                if (field.id === "cohort") {
-                    if (field.cohorts === undefined) {
-                        const _cohorts = {};
-                        // in case of no public project this.opencgaSession is being created, but the prop projects won't
-                        // TODO NOTE this.opencgaSession is undefined in connectedCallback() method
-                        if (this.opencgaSession && this.opencgaSession.projects) {
-                            for (const project of this.opencgaSession.projects) {
-                                _cohorts[project.id] = {};
-                                for (const study of project.studies) {
-                                    if (field.onlyCohortAll) {
-                                        _cohorts[project.id][study.id] = [{id: "ALL", name: "ALL"}];
-                                    } else {
-                                        // TODO if onlyCohortAll is false then we must add all cohorts indexed
-                                        // we can take this from session object
+            this.onRun();
+
+            // if cohort filter exists but this.cohorts is not defined then we add cohorts ALL to the 'filter' menu itself
+            const _tempConfig = {...this.getDefaultConfig(), ...this.config};
+            for (const section of _tempConfig.filter.sections) {
+                for (const field of section.fields) {
+                    if (field.id === "cohort") {
+                        if (field.cohorts === undefined) {
+                            const _cohorts = {};
+                            // in case of no public project this.opencgaSession is being created, but the prop projects won't
+                            // TODO NOTE this.opencgaSession is undefined in connectedCallback() method
+                            if (this.opencgaSession && this.opencgaSession.projects) {
+                                for (const project of this.opencgaSession.projects) {
+                                    _cohorts[project.id] = {};
+                                    for (const study of project.studies) {
+                                        if (field.onlyCohortAll) {
+                                            _cohorts[project.id][study.id] = [{id: "ALL", name: "ALL"}];
+                                        } else {
+                                            // TODO if onlyCohortAll is false then we must add all cohorts indexed
+                                            // we can take this from session object
+                                        }
                                     }
                                 }
                             }
-                        }
-                        // we edit the config.filter.sections.fields.cohorts
-                        field.cohorts = _cohorts;
+                            // we edit the config.filter.sections.fields.cohorts
+                            field.cohorts = _cohorts;
 
-                        // _tempConfig.filter.detail.views.foreach(view => {if (view.id === "cohortStats") {view.cohorts = _cohorts}});
-                        for (const view of _tempConfig.filter.detail.views) {
-                            if (view.id === "cohortStats") {
-                                view.cohorts = _cohorts;
+                            // _tempConfig.filter.detail.views.foreach(view => {if (view.id === "cohortStats") {view.cohorts = _cohorts}});
+                            for (const view of _tempConfig.filter.detail.views) {
+                                if (view.id === "cohortStats") {
+                                    view.cohorts = _cohorts;
+                                }
                             }
+                            // if we are here is because this.cohorts is undefined
+                            this.cohorts = _cohorts;
+                            this.requestUpdate();
+                        } else {
+                            field.cohorts = this.cohorts;
                         }
-                        // if we are here is because this.cohorts is undefined
-                        this.cohorts = _cohorts;
-                        this.requestUpdate();
-                    } else {
-                        field.cohorts = this.cohorts;
+                        break;
                     }
-                    break;
                 }
             }
+            this._config = _tempConfig;
         }
-        this._config = _tempConfig;
     }
 
     queryObserver() {
         // Query passed is executed and set to variant-filter, active-filters and variant-grid components
         // (it checks just for undefined, empty object is a valid value)
-        if (this.opencgaSession) {
+        if (this?.opencgaSession?.study?.fqn) {
             if (this.query) {
                 this.preparedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
                 this.executedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
@@ -627,16 +628,16 @@ export default class VariantBrowser extends LitElement {
         }
 
         return html`
-           <tool-header title="${this._config.title}" icon="${this._config.icon}"></tool-header>
+            <tool-header title="${this._config.title}" icon="${this._config.icon}"></tool-header>
             <div class="row">
                 <div class="col-md-2 left-menu">
-                
+
                     <div class="search-button-wrapper">
                         <button type="button" class="btn btn-primary ripple" @click="${this.onRun}">
                             <i class="fa fa-arrow-circle-right" aria-hidden="true"></i> ${this._config.searchButtonText}
                         </button>
                     </div>
-                    
+
                     <ul class="nav nav-tabs left-menu-tabs" role="tablist">
                         <li role="presentation" class="active">
                             <a href="#filters_tab" aria-controls="profile" role="tab" data-toggle="tab">${this._config.filter.title}</a>
@@ -645,26 +646,26 @@ export default class VariantBrowser extends LitElement {
                             <a href="#facet_tab" aria-controls="home" role="tab" data-toggle="tab">${this._config.aggregation.title}</a>
                         </li>
                     </ul>
-                    
+
                     <div class="tab-content">
                         <div role="tabpanel" class="tab-pane active" id="filters_tab">
-                            <opencga-variant-filter     .opencgaSession=${this.opencgaSession}
-                                                        .query="${this.query}"
-                                                        .cellbaseClient="${this.cellbaseClient}"
-                                                        .populationFrequencies="${this.populationFrequencies}"
-                                                        .consequenceTypes="${this.consequenceTypes}"
-                                                        .cohorts="${this.cohorts}"
-                                                        .searchButton="${false}"
-                                                        .config="${this._config.filter}"
-                                                        @queryChange="${this.onVariantFilterChange}"
-                                                        @querySearch="${this.onVariantFilterSearch}">
+                            <opencga-variant-filter .opencgaSession=${this.opencgaSession}
+                                                    .query="${this.query}"
+                                                    .cellbaseClient="${this.cellbaseClient}"
+                                                    .populationFrequencies="${this.populationFrequencies}"
+                                                    .consequenceTypes="${this.consequenceTypes}"
+                                                    .cohorts="${this.cohorts}"
+                                                    .searchButton="${false}"
+                                                    .config="${this._config.filter}"
+                                                    @queryChange="${this.onVariantFilterChange}"
+                                                    @querySearch="${this.onVariantFilterSearch}">
                             </opencga-variant-filter>
                         </div>
-                        
+
                         <div role="tabpanel" class="tab-pane" id="facet_tab">
-                            <facet-filter   .selectedFacet="${this.selectedFacet}"
-                                            .config="${this._config.aggregation}"
-                                            @facetQueryChange="${this.onVariantFacetChange}">
+                            <facet-filter .selectedFacet="${this.selectedFacet}"
+                                          .config="${this._config.aggregation}"
+                                          @facetQueryChange="${this.onVariantFacetChange}">
                             </facet-filter>
                         </div>
                     </div>
@@ -684,7 +685,7 @@ export default class VariantBrowser extends LitElement {
                             </div>
                         </div>
                     </div>
-                    
+
                     <div>
                         <opencga-active-filters facetActive
                                                 resource="VARIANT"
@@ -701,8 +702,8 @@ export default class VariantBrowser extends LitElement {
                                                 @activeFilterChange="${this.onActiveFilterChange}"
                                                 @activeFilterClear="${this.onActiveFilterClear}">
                         </opencga-active-filters>
-                        
-                        <!--<div class="alert alert-info">facetQuery ${JSON.stringify(this.facetQuery)}</div>-->
+
+                            <!--<div class="alert alert-info">facetQuery ${JSON.stringify(this.facetQuery)}</div>-->
 
                         <div class="main-view">
                             <div id="table-tab" class="content-tab active">
@@ -716,19 +717,19 @@ export default class VariantBrowser extends LitElement {
                                                       .config="${this._config.filter}"
                                                       @selectrow="${this.onSelectVariant}">
                                 </variant-browser-grid>
-                
+
                                 <!-- Bottom tabs with specific variant information -->
-                                <variant-browser-detail     .opencgaSession="${this.opencgaSession}" 
-                                                            .cellbaseClient="${this.cellbaseClient}"
-                                                            .variantId="${this.variantId}"
-                                                            .config="${this._config.filter.detail}">
-                                </variant-browser-detail-view>
+                                <variant-browser-detail .opencgaSession="${this.opencgaSession}"
+                                                        .cellbaseClient="${this.cellbaseClient}"
+                                                        .variantId="${this.variantId}"
+                                                        .config="${this._config.filter.detail}">
+                                    </variant-browser-detail-view>
                             </div>
-                            
+
                             <div id="facet-tab" class="content-tab">
-                                <opencb-facet-results  resource="VARIANT"
-                                                       .opencgaSession="${this.opencgaSession}" 
-                                                       .active="${this.activeTab["facet-tab"]}"
+                                <opencb-facet-results resource="VARIANT"
+                                                      .opencgaSession="${this.opencgaSession}"
+                                                      .active="${this.activeTab["facet-tab"]}"
                                                       .query="${this.facetQuery}"
                                                       .data="${this.facetResults}"
                                                       .error="${this.errorState}">
