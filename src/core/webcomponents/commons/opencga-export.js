@@ -57,7 +57,7 @@ export default class OpencgaExport extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
-        //this._config = {...this.getDefaultConfig(), ...this.config};
+        // this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
     firstUpdated(_changedProperties) {
@@ -66,14 +66,15 @@ export default class OpencgaExport extends LitElement {
 
     updated(changedProperties) {
         if (changedProperties.has("query")) {
-            console.log("query", this.query)
         }
-            if (changedProperties.has("config")) {
-            //this._config = {...this.getDefaultConfig(), ...this.config};
+        if (changedProperties.has("query") || changedProperties.has("config")) {
+            // this._config = {...this.getDefaultConfig(), ...this.config};
             if (this.config?.resource) {
-                document.querySelectorAll("pre code").forEach(block => {
-                    hljs.highlightBlock(block);
+                document.querySelectorAll("code").forEach(block => {
+                    // hljs.highlightBlock(block);
                 });
+
+                new ClipboardJS(".clipboard");
             }
             this.requestUpdate();
 
@@ -112,10 +113,11 @@ export default class OpencgaExport extends LitElement {
         }
         switch (language) {
             case "url":
-                return `${this.opencgaSession.server.host}/webservices/rest/v2/${resourceMap[this.config.resource]}/search?${UtilsNew.encodeObject({...this.query, study: this.opencgaSession.study.fqn, type: this.config.resource, sid: this.opencgaSession.token})}`
+                // TODO FIXME in case of FILE add in query `type: this.config.resource`
+                return `${this.opencgaSession.server.host}/webservices/rest/v2/${resourceMap[this.config.resource]}/search?${UtilsNew.encodeObject({...this.query, study: this.opencgaSession.study.fqn, sid: this.opencgaSession.token})}`;
             case "curl":
             case "wget":
-                return `${opencga.host}/webservices/rest/v2/${resourceMap[this.config.resource]}/search?${UtilsNew.encodeObject({id: 2, count: false})}`
+                return `${this.opencgaSession.server.host}/webservices/rest/v2/${resourceMap[this.config.resource]}/search?${UtilsNew.encodeObject({id: 2, count: false})}`;
             case "js":
                 return `
 import {OpenCGAClient} from "./opencga-client.js";
@@ -156,6 +158,9 @@ models <- tibble::tribble(
         }
     }
 
+    clipboard(e) {
+
+    }
     changeMode(e) {
         this.mode = e.currentTarget.value;
         this.requestUpdate();
@@ -200,6 +205,10 @@ models <- tibble::tribble(
                 .export-section-title {
 
                 }
+
+                opencga-export code {
+                    white-space: pre;
+                }
             </style>
             <div>
                 <ul class="nav nav-tabs">
@@ -217,7 +226,7 @@ models <- tibble::tribble(
                                 <h4 class="export-section-title">Mode</h4>
                                 <div class="">
                                     <label class="radio-inline">
-                                        <input type="radio" name="inlineRadioOptions" id="mode_immediate" value="sync" checked @click="${this.changeMode}"> Immediate
+                                        <input type="radio" name="inlineRadioOptions" id="mode_immediate" value="sync" checked @click="${this.changeMode}"> Download
                                     </label>
                                     <label class="radio-inline">
                                         <input type="radio" name="inlineRadioOptions" id="mode_job" value="async" @click="${this.changeMode}"> Schedule a job
@@ -257,6 +266,14 @@ models <- tibble::tribble(
                             </div>
                         </div>
                     </form>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                            ${this.mode === "sync" ? html`<button type="button" class="btn btn-primary">Download</button>` : html`
+                                <button type="button" class="btn btn-primary">Launch job</button>`
+                            }
+                    </div>
+                    
                 </div>
 
 
@@ -276,19 +293,13 @@ models <- tibble::tribble(
 
                     <div class="content-tab-wrapper">
                         <div id="${this._prefix}url" class="content-tab active">
-                            <pre>
-                                <code class="language-bash">${this.generateCode({}, "url")}</code>
-                            </pre>
+                            <code class="language-bash">${this.generateCode({}, "url")}</code>
                         </div>
                         <div id="${this._prefix}curl" class="content-tab">
-                            <pre>
-                                <code class="language-bash">${this.generateCode({}, "curl")}</code>
-                            </pre>
+                            <code class="language-bash">${this.generateCode({}, "curl")}</code>
                         </div>
                         <div id="${this._prefix}wget" class="content-tab">
-                            <pre>
-                                <code class="language-bash">${this.generateCode({}, "wget")}</code>
-                            </pre>
+                            <code class="language-bash">${this.generateCode({}, "wget")}</code>
                         </div>
                     </div>
                 </div>
@@ -310,19 +321,32 @@ models <- tibble::tribble(
 
                     <div class="content-tab-wrapper">
                         <div id="${this._prefix}python" class="content-tab active">
-                            <pre>
-                                <code class="language-python">${this.generateCode({}, "python")}</code>
-                            </pre>
+                            <code class="language-python">${this.generateCode({}, "python")}</code>
+
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                <button type="button" class="btn btn-primary">Start Export</button>
+                            </div>
+                            
                         </div>
                         <div id="${this._prefix}r" class="content-tab">
-                            <pre>
-                                <code class="language-r">${this.generateCode({}, "r")}</code>
-                            </pre>
+                            <code class="language-r">${this.generateCode({}, "r")}</code>
+
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                <button type="button" class="btn btn-primary">Start Export</button>
+                            </div>
+                            
                         </div>
                         <div id="${this._prefix}js" class="content-tab">
-                            <pre>
-                                <code class="language-javascript">${this.generateCode({}, "js")}</code>
-                            </pre>
+                            <button class="clipboard" data-clipboard-target="code.language-javascript" @click="${this.clipboard}"><i class="far fa-copy"></i></button>
+                            <code class="language-javascript">${this.generateCode({}, "js")}</code>
+
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                <button type="button" class="btn btn-primary">Start Export</button>
+                            </div>
+                            
                         </div>
                     </div>
                 </div>
