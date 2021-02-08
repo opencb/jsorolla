@@ -119,7 +119,13 @@ class VariantInterpreterLanding extends LitElement {
         }*/
 
         // TODO comment
-        this.editMode = true;
+        // this.editMode = true;
+
+        this.editMode = OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS");
+
+        if (!this.editMode) {
+            this.activeTab = {"Overview": true};
+        }
 
         this.onCloseClinicalAnalysis();
 
@@ -133,9 +139,9 @@ class VariantInterpreterLanding extends LitElement {
         const tabId = e.currentTarget.dataset.id;
         //the selectors are strictly defined to avoid conflics in tabs in children components
         $("#variant-interpreter-landing > div > .tablist > .content-pills", this).removeClass("active");
-        $("#variant-interpreter-landing > .content-tab-wrapper > .content-tab", this).hide();
-        $("#" + this._prefix + tabId, this).show();
-        $("#" + this._prefix + tabId).addClass("active");
+        //$("#variant-interpreter-landing > .content-tab-wrapper > .content-tab", this).hide();
+        //$("#" + this._prefix + tabId, this).show();
+        //$("#" + this._prefix + tabId).addClass("active");
         for (const tab in this.activeTab) {
             this.activeTab[tab] = false;
         }
@@ -407,69 +413,80 @@ class VariantInterpreterLanding extends LitElement {
                 </div>
                 
                 <div class="content-tab-wrapper">
-                    <div id="${this._prefix}General" role="tabpanel" class="active tab-pane content-tab col-md-10 col-md-offset-1">
-                        <tool-header title="General Settings - ${this.clinicalAnalysis?.id ?? ""}" class="bg-white"></tool-header>
-                        <div style="padding: 0px 20px">
-                            <clinical-analysis-editor   .opencgaSession=${this.opencgaSession} 
-                                                        .clinicalAnalysis="${this.clinicalAnalysis}">
-                            </clinical-analysis-editor>
-                        </div>
-                    </div>
-                    <div id="${this._prefix}Clinical" role="tabpanel" class="tab-pane content-tab col-md-10 col-md-offset-1">
-                        <tool-header title="Clinical" class="bg-white"></tool-header>
-                        <div style="padding: 0px 20px">
-                            <opencga-clinical-analysis-view .opencgaSession="${this.opencgaSession}"
+                    ${this.activeTab["General"] ? html`
+                        <div id="${this._prefix}General" role="tabpanel" class="active tab-pane content-tab col-md-10 col-md-offset-1">
+                            <tool-header title="General Settings - ${this.clinicalAnalysis?.id ?? ""}" class="bg-white"></tool-header>
+                            <div style="padding: 0px 20px">
+                                <clinical-analysis-editor   .opencgaSession=${this.opencgaSession}
                                                             .clinicalAnalysis="${this.clinicalAnalysis}">
-                            </opencga-clinical-analysis-view>
-                        </div>                                    
-                    </div>                           
-                    <div id="${this._prefix}Interpretations" role="tabpanel" class="tab-pane content-tab col-md-10 col-md-offset-1">
-                        <tool-header title="Interpretation Manager" class="bg-white"></tool-header>
-                        <div style="padding: 0px 20px">
-                            <clinical-analysis-interpretation-editor    .opencgaSession="${this.opencgaSession}"
-                                                                        .clinicalAnalysis="${this.clinicalAnalysis}" 
-                                                                        @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
-                            </clinical-analysis-interpretation-editor>
-                        </div>                                    
-                    </div>                                    
-                    <div id="${this._prefix}Consent" role="tabpanel" class="tab-pane content-tab col-md-10 col-md-offset-1">
-                        <tool-header title="Consent - ${this.clinicalAnalysis?.proband.id}" class="bg-white"></tool-header>
-                        <div style="padding: 0px 20px">
-                            <clinical-analysis-consent-editor   .opencgaSession=${this.opencgaSession} 
+                                </clinical-analysis-editor>
+                            </div>
+                        </div>
+                    ` : null}
+                    ${this.activeTab["Clinical"] ? html`
+                        <div id="${this._prefix}Clinical" role="tabpanel" class="active tab-pane content-tab col-md-10 col-md-offset-1">
+                            <tool-header title="Clinical" class="bg-white"></tool-header>
+                            <div style="padding: 0px 20px">
+                                <opencga-clinical-analysis-view .opencgaSession="${this.opencgaSession}"
                                                                 .clinicalAnalysis="${this.clinicalAnalysis}">
-                            </clinical-analysis-consent-editor>
-                        </div>                    
-                    </div>                    
-                    <div id="${this._prefix}Audit" role="tabpanel" class="tab-pane content-tab col-md-10 col-md-offset-1">
-                        <tool-header title="Audit Log" class="bg-white"></tool-header>
-                        <div style="padding: 0px 10px">
-                            <clinical-analysis-audit-browser    .opencgaSession="${this.opencgaSession}"
-                                                                .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                                .active="${this.activeTab["Audit"]}">
-                            </clinical-analysis-audit-browser>
-                        </div> 
-                    </div> 
-                    
-                    <div id="${this._prefix}Overview" role="tabpanel" class="tab-pane content-tab col-md-10 col-md-offset-1">
-                        ${this.clinicalAnalysis
-                            ? html`
+                                </opencga-clinical-analysis-view>
+                            </div>
+                        </div>
+                    ` : null}
+                    ${this.activeTab["Interpretations"] ? html`
+                        <div id="${this._prefix}Interpretations" role="tabpanel" class="active tab-pane content-tab col-md-10 col-md-offset-1">
+                            <tool-header title="Interpretation Manager" class="bg-white"></tool-header>
+                            <div style="padding: 0px 20px">
+                                <clinical-analysis-interpretation-editor    .opencgaSession="${this.opencgaSession}"
+                                                                            .clinicalAnalysis="${this.clinicalAnalysis}"
+                                                                            @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
+                                </clinical-analysis-interpretation-editor>
+                            </div>
+                        </div>
+                    ` : null}
+                    ${this.activeTab["Consent"] ? html`
+                        <div id="${this._prefix}Consent" role="tabpanel" class="active tab-pane content-tab col-md-10 col-md-offset-1">
+                            <tool-header title="Consent - ${this.clinicalAnalysis?.proband.id}" class="bg-white"></tool-header>
+                            <div style="padding: 0px 20px">
+                                <clinical-analysis-consent-editor   .opencgaSession=${this.opencgaSession} 
+                                                                    .clinicalAnalysis="${this.clinicalAnalysis}">
+                                </clinical-analysis-consent-editor>
+                            </div>                    
+                        </div>
+                    ` : null}
+                    ${this.activeTab["Audit"] ? html`
+                        <div id="${this._prefix}Audit" role="tabpanel" class="active tab-pane content-tab col-md-10 col-md-offset-1">
+                            <tool-header title="Audit Log" class="bg-white"></tool-header>
+                            <div style="padding: 0px 10px">
+                                <clinical-analysis-audit-browser    .opencgaSession="${this.opencgaSession}"
+                                                                    .clinicalAnalysis="${this.clinicalAnalysis}"
+                                                                    .active="${this.activeTab["Audit"]}">
+                                </clinical-analysis-audit-browser>
+                            </div>
+                        </div>
+                    ` : null}
+                    ${this.activeTab["Overview"] ? html`
+                        <div id="${this._prefix}Overview" role="tabpanel" class="active tab-pane content-tab col-md-10 col-md-offset-1">
+                            ${this.clinicalAnalysis
+                                    ? html`
                                 <tool-header title="Case Summary - ${this.clinicalAnalysis?.id}" class="bg-white"></tool-header>
                                 <div style="padding: 0px 20px">
                                     <opencga-clinical-analysis-view .opencgaSession="${this.opencgaSession}"
                                                                     .clinicalAnalysis="${this.clinicalAnalysis}">
                                     </opencga-clinical-analysis-view>
                                 </div>`
-                            : this._config.clinicalAnalysisSelector
-                                ? html`
+                                    : this._config.clinicalAnalysisSelector
+                                            ? html`
                                     <data-form  .data="${{}}" 
                                                 .config="${this.getSearchConfig()}" 
                                                 @fieldChange="${this.onSearchFieldChange}"
                                                 @clear="${this.onClinicalAnalysisChange}"
                                                 @submit="${this.onClinicalAnalysisChange}">
                                     </data-form>`
-                                : null
-                        }
-                    </div>
+                                            : null
+                            }
+                        </div>
+                    ` : null}
                 </div>
             </div>
         `;
