@@ -47,6 +47,9 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
             opencgaSession: {
                 type: Object
             },
+            cellbaseClient: {
+                type: Object
+            },
             sampleId: {
                 type: String
             },
