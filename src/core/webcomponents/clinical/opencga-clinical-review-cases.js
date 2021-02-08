@@ -557,7 +557,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                         <ul class="dropdown-menu" aria-labelledby="${this._prefix}DisorderMenu">
                                             <li style="padding: 5px;">
                                                 <div style="display: inline-flex; width: 300px;">
-                                                    <label class="filter-label">Disorder ID:</label>
+                                                    <label class="filter-label">Disorder:</label>
                                                     <disorder-id-autocomplete .opencgaSession="${this.opencgaSession}" @filterChange="${e => this.onFilterChange("disorder", e.detail.value)}"></disorder-id-autocomplete>
                                                 </div>
                                             </li>
@@ -568,14 +568,14 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                     ${~this._config.filter.sections[0].fields.findIndex(field => field.id === "type") ? html`
                                     <!-- Type -->
                                     <div class="btn-group">
-                                        <select-field-filter placeholder="Type" multiple .data="${["SINGLE", "FAMILY", "CANCER"]}" @filterChange="${e => this.onFilterChange("type", e.detail.value)}"></select-field-filter>
+                                        <select-field-filter placeholder="Type" multiple .data="${["SINGLE", "FAMILY", "CANCER"]}" .value=${this.query?.type} @filterChange="${e => this.onFilterChange("type", e.detail.value)}"></select-field-filter>
                                     </div>
                                     ` : null}
                                     
                                     ${~this._config.filter.sections[0].fields.findIndex(field => field.id === "status") ? html`
                                     <!-- Status -->
                                     <div class="btn-group">
-                                        <clinical-status-filter placeholder="${"Status: All"}" .statuses="${this.opencgaSession?.study?.configuration?.clinical?.status ?? []}" @filterChange="${e => this.onFilterChange("status", e.detail.value)}"></clinical-status-filter>
+                                        <clinical-status-filter placeholder="${"Status: All"}" .statuses="${this.opencgaSession?.study?.configuration?.clinical?.status ?? []}" .value=${this.query?.status} @filterChange="${e => this.onFilterChange("status", e.detail.value)}"></clinical-status-filter>
                                     ` : null}
                                     
                                     ${~this._config.filter.sections[0].fields.findIndex(field => field.id === "priority") ? html`
