@@ -77,10 +77,10 @@ export default class CircosView extends LitElement {
         document.getElementById(this._prefix + "CircosMessage").style["display"] = "inline";
         this.circosImage = null;
         this.requestUpdate();
-debugger
+
         let query = {
-            title: "Circos",
-            density: "LOW",
+            title: "no.delete.Circos",
+            density: "MEDIUM",
             query: {
                 sample: this.sampleId,
                 // ...this.query,
@@ -106,8 +106,8 @@ debugger
                         sample: this.sampleId,
                         type: "INDEL,INSERTION,DELETION",
                         // filter: "PASS",
-                        // ...this.queries?.["INDEL"]
-                        fileData: "AR2.10039966-01T_vs_AR2.10039966-01G.annot.pindel.vcf.gz:FILTER=PASS"
+                        ...this.queries?.["INDEL"]
+                        // fileData: "AR2.10039966-01T_vs_AR2.10039966-01G.annot.pindel.vcf.gz:FILTER=PASS"
                     }
                 },
                 {
@@ -125,8 +125,9 @@ debugger
                     query: {
                         study: this.opencgaSession.study.fqn,
                         sample: this.sampleId,
-                        type: "DELETION",
-                        fileData: "AR2.10039966-01T_vs_AR2.10039966-01G.annot.brass.vcf.gz:BAS>1"
+                        // type: "DELETION",
+                        // file: "AR2.10039966-01T_vs_AR2.10039966-01G.annot.brass.vcf.gz"
+                        fileData: "AR2.10039966-01T_vs_AR2.10039966-01G.annot.brass.vcf.gz:BAS>=0"
                     }
                 }
             ]

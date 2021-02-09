@@ -551,7 +551,7 @@ export default class VariantGridFormatter {
                                   <tr style="margin: 5px">
                                       <th rowspan="1" style="padding-top: 5px">cDNA / CDS</th>
                                       <th rowspan="1">Codon</th>
-                                      <th rowspan="1">Exon (Overlap %)</th>
+                                      <th rowspan="1">Exon (%)</th>
                                       <th rowspan="1">UniProt Acc</th>
                                       <th rowspan="1">Position</th>
                                       <th rowspan="1">Ref/Alt</th>
@@ -573,7 +573,7 @@ export default class VariantGridFormatter {
 
                 // const transcriptId = ct.ensemblTranscriptId ? `<a href="${BioinfoUtils.getEnsemblLink(ct.ensemblTranscriptId, "transcript", assembly)}" target="_blank">${ct.ensemblTranscriptId}</a>` : "-";
                 const transcriptId = `
-                    <div style="">
+                    <div>
                         <span>${ct.biotype ? ct.biotype : "-"}</span>
                     </div>
                     <div style="margin: 5px 0px">
@@ -604,7 +604,16 @@ export default class VariantGridFormatter {
 
                 let exons = ["-"];
                 if (ct.exonOverlap && ct.exonOverlap.length > 0) {
-                    exons = ct.exonOverlap.map(exon => `<div style="margin-bottom: 5px">${exon.number} (${exon?.percentage.toFixed(4) ?? "-"})</div>`)
+                    exons = ct.exonOverlap.map(exon => `
+                        <div>
+                            <span>${exon.number}</span>
+                        </div>
+                        ${exon?.percentage ? `
+                            <div>
+                                <span class="help-block" style="margin: 2px 0px">${exon?.percentage.toFixed(2) ?? "-"}%</span>
+                            </div>`
+                        : ""}
+                    `)
                 }
 
                 const pva = ct.proteinVariantAnnotation ? ct.proteinVariantAnnotation : {};
@@ -899,13 +908,15 @@ export default class VariantGridFormatter {
                     }
 
                     // Prepare the tooltip links
-                    if (!trait.id?.startsWith("RCV") && !trait.id?.startsWith("SCV")) {
+                    if (!trait.id?.startsWith("SCV")) {
                         // We display the link plus the clinical significance and all the heritable trait descriptions
                         tooltipText += `
                             <div style="margin: 10px 5px">
                                 <div>
-                                    <a href="${BioinfoUtils.getClinvarVariationLink(trait.id)}" target="_blank">${trait.id}</a>
-                                    <span style="font-style: italic; color: ${color}; margin-left: 10px">${clinicalSignificance} (${drugResponseClassification})</span>
+                                    <a href="${trait.url}" target="_blank">${trait.id}</a>
+                                    <span style="font-style: italic; color: ${color}; margin-left: 10px">
+                                        ${clinicalSignificance} ${drugResponseClassification ? "(" + drugResponseClassification + ")" : ""}
+                                    </span>
                                 </div>
                                 <div>
                                     ${trait?.heritableTraits?.length > 0 && trait.heritableTraits

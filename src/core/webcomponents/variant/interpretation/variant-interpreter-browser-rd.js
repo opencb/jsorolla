@@ -305,6 +305,11 @@ class VariantInterpreterBrowserRd extends LitElement {
                         collapsed: false,
                         fields: [
                             {
+                                id: "sample-genotype",
+                                title: "Sample Genotype",
+                                visible: () => this.clinicalAnalysis.type.toUpperCase() === "SINGLE"
+                            },
+                            {
                                 id: "sample",
                                 title: "Sample Genotype",
                                 tooltip: tooltips.sample,
@@ -354,7 +359,7 @@ class VariantInterpreterBrowserRd extends LitElement {
                             {
                                 id: "type",
                                 title: "Variant Type",
-                                types: ["SNV", "INDEL", "CNV", "INSERTION", "DELETION"],
+                                types: ["SNV", "INDEL", "COPY_NUMBER", "INSERTION", "DELETION"],
                                 tooltip: tooltips.type
                             }
                         ]

@@ -480,28 +480,28 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
     //     }
     // }
 
-    onVariantCallerFilterChange(type, caller, filter, query) {
-        debugger
-        if (filter) {
-            let [fileId, fileFilter] = filter.split(":");
-
-            if (fileFilter) {
-                if (!this.queries[type]) {
-                    this.queries[type] = {};
-                }
-                // this.queries[type][caller] = Object.entries(value.detail.value).map(([k, v]) => k + v).join(";");
-                if (this.queries[type][caller]) {
-                    this.queries[type][caller] += "," + fileFilter;
-                } else {
-                    this.queries[type][caller] = fileFilter;
-                }
-            } else {
-                delete this.queries[type][caller];
-            }
-        } else {
-            delete this.queries[type][caller];
-        }
-    }
+    // onVariantCallerFilterChange(type, caller, filter, query) {
+    //     debugger
+    //     if (filter) {
+    //         let [fileId, fileFilter] = filter.split(":");
+    //
+    //         if (fileFilter) {
+    //             if (!this.queries[type]) {
+    //                 this.queries[type] = {};
+    //             }
+    //             // this.queries[type][caller] = Object.entries(value.detail.value).map(([k, v]) => k + v).join(";");
+    //             if (this.queries[type][caller]) {
+    //                 this.queries[type][caller] += "," + fileFilter;
+    //             } else {
+    //                 this.queries[type][caller] = fileFilter;
+    //             }
+    //         } else {
+    //             delete this.queries[type][caller];
+    //         }
+    //     } else {
+    //         delete this.queries[type][caller];
+    //     }
+    // }
 
     getDefaultConfig() {
         return {
@@ -762,7 +762,7 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                                                                                 .query="${this.executedQuery}"
                                                                                 .queries="${this.queries}"
                                                                                 .sampleId="${this.sample?.id}"
-                                                                                .active="${this.active}"
+                                                                              
                                                                                 @changeSignature="${this.onChangeSignature}"
                                                                                 @changeAggregationStatsResults="${this.onChangeAggregationStatsResults}">
                                         </sample-cancer-variant-stats-plots>
@@ -778,7 +778,7 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
             </div>
         `;
     }
-
+// .active="${this.active}"
 }
 
 customElements.define("sample-cancer-variant-stats-browser", SampleCancerVariantStatsBrowser);

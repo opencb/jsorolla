@@ -348,9 +348,12 @@ class VariantInterpreterBrowserCancer extends LitElement {
                             {
                                 id: "sample-genotype",
                                 title: "Sample Genotype",
-                                // render: (eventHandler, query) => html`
-                                //     <div>Genotype filter for <span style="font-style: italic; word-break: break-all">${this._sample?.id}</span></div>
-                                //     <sample-genotype-filter .sample="${this._sample}" @filterChange="${eventHandler}"></sample-genotype-filter>`,
+                            },
+                            {
+                                id: "file-quality",
+                                title: "Quality Filters",
+                                tooltip: "VCF file based FILTER and QUAL filters",
+                                visible: UtilsNew.isEmpty(this.callerToFile)
                             },
                             ...callerFilters,
                         ]
@@ -383,7 +386,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                             {
                                 id: "type",
                                 title: "Variant Type",
-                                types: ["SNV", "INDEL", "CNV", "INSERTION", "DELETION"],
+                                types: ["SNV", "INDEL", "COPY_NUMBER", "INSERTION", "DELETION", "BREAKEND"],
                                 tooltip: tooltips.type
                             }
                         ]

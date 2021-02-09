@@ -397,7 +397,17 @@ export default class OpencgaVariantFilter extends LitElement {
                     content = html`<biotype-filter .config="${this.config}" .biotype=${this.preparedQuery.biotype} @filterChange="${e => this.onFilterChange("biotype", e.detail.value)}"></biotype-filter>`;
                     break;
                 case "type":
-                    content = html`<variant-type-filter .config="${this.config}" .type="${this.preparedQuery.type}" @filterChange="${e => this.onFilterChange("type", e.detail.value)}"></variant-type-filter>`;
+                    let config = {};
+                    if (subsection.types) {
+                        config = {
+                            types: subsection.types
+                        }
+                    }
+                    content = html`
+                        <variant-type-filter .type="${this.preparedQuery.type}"
+                                             .config="${config}"
+                                             @filterChange="${e => this.onFilterChange("type", e.detail.value)}">
+                        </variant-type-filter>`;
                     break;
                 case "populationFrequency":
                     content = html`
