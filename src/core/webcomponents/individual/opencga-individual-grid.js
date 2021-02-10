@@ -424,7 +424,7 @@ export default class OpencgaIndividualGrid extends LitElement {
                 halign: this._config.header.horizontalAlign
             },
             {
-                title: "Sex",
+                title: "Sex (Karyotypic Sex)",
                 field: "sex",
                 formatter: this.sexFormatter,
                 halign: this._config.header.horizontalAlign
