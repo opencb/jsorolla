@@ -384,21 +384,24 @@ export default class VariantInterpreterGrid extends LitElement {
     }
 
     vcfDataFormatter(value, row, index) {
-        if (this.field.vcfColumn === "info") {
-            for (let file of row.studies[0].files) {
-                if (file.data[this.field.key]) {
-                    return file.data[this.field.key];
+        if (row.studies?.length > 0) {
+            if (this.field.vcfColumn === "info") {
+                for (let file of row.studies[0].files) {
+                    if (file.data[this.field.key]) {
+                        return file.data[this.field.key];
+                    }
+                }
+            } else {    // This must be FORMAT column
+                let sampleIndex = row.studies[0].samples.findIndex(sample => sample.sampleId === this.field.sample.id);
+                let index = row.studies[0].sampleDataKeys.findIndex(key => key === this.field.key);
+                if (index >= 0) {
+                    return row.studies[0].samples[sampleIndex].data[index];
                 }
             }
-        } else {    // This must be FORMAT column
-            let sampleIndex = row.studies[0].samples.findIndex(sample => sample.sampleId === this.field.sample.id);
-            let index = row.studies[0].sampleDataKeys.findIndex(key => key === this.field.key);
-            if (index >= 0) {
-                return row.studies[0].samples[sampleIndex].data[index];
-            } else {
-                return "-";
-            }
+        } else {
+            console.error("This should never happen: row.studies[] is not valid");
         }
+        return "-";
     }
 
     // DEPRECATED
