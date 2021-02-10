@@ -15,7 +15,6 @@
  */
 
 import {RestResponse} from "../rest-response.js";
-import UtilsNew from "../../utilsNew.js";
 import Admin from "./api/Admin.js";
 import Alignment from "./api/Alignment.js";
 import Clinical from "./api/Clinical.js";
@@ -225,7 +224,7 @@ export class OpenCGAClient {
         this._config.token = response.getResult(0).token;
 
         await this.updateUserConfigs({
-            lastAccess: moment(new Date()).valueOf()
+            lastAccess: new Date().getTime()
         });
 
         if (this._config.cookies.active) {
@@ -296,7 +295,7 @@ export class OpenCGAClient {
                         _this._notifySessionEvent("signingIn", "Updating User config");
                         await this.updateUserConfigs({
                             ...session.user.configs.IVA,
-                            lastAccess: moment(new Date()).valueOf()
+                            lastAccess: new Date().getTime()
                         });
 
                         // Fetch authorised Projects and Studies
@@ -305,7 +304,7 @@ export class OpenCGAClient {
                             .then(async function (response) {
                                 try {
                                     session.projects = response.response[0].result;
-                                    if (session.projects?.length > 0 && UtilsNew.isNotEmptyArray(session.projects[0].studies)) {
+                                    if (session.projects?.length && session?.projects[0]?.studies.length) {
                                         const studies = [];
                                         for (const project of session.projects) {
                                             // project.alias = project.alias || project.fqn || null;
@@ -435,7 +434,7 @@ export class OpenCGAClient {
             id: "IVA",
             configuration: {
                 ...data
-                // "lastAccess": moment(new Date()).valueOf()
+                // "lastAccess": new Date().getTime()
             }
         });
     }

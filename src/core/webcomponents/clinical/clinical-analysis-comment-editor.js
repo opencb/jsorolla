@@ -279,13 +279,13 @@ class ClinicalAnalysisCommentEditor extends LitElement {
                             <span style="font-weight: bold">New comment</span>
                         </div>
                         <div style="margin: 5px 10px">
-                            <text-field-filter .value="${this.comments[this.comments.length - 1]?.date ? "" : this.comments[this.comments.length - 1]?.message}" 
+                            <text-field-filter .value="${this.comments?.length ? (this.comments[this.comments.length - 1]?.date ? "" : this.comments[this.comments.length - 1]?.message) : ""}" 
                                                placeholder="Add comment..." .rows=${2} 
                                                @filterChange="${e => this.onAddChange("message", e)}">
                             </text-field-filter>
                         </div>
                         <div style="margin: 5px 10px">
-                            <text-field-filter .value="${this.comments[this.comments.length - 1]?.date ? "" : this.comments[this.comments.length - 1]?.tags.join(" ")}" 
+                            <text-field-filter .value="${this.comments?.length ? (this.comments[this.comments.length - 1]?.date ? "" : this.comments[this.comments.length - 1]?.tags.join(" ")) : ""}" 
                                                placeholder="Add tags..." .rows=${1} 
                                                @filterChange="${e => this.onAddChange("tags", e)}">
                             </text-field-filter>

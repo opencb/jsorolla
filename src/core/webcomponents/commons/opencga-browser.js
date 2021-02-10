@@ -130,7 +130,7 @@ export default class OpencgaBrowser extends LitElement {
     }
 
     opencgaSessionObserver() {
-        if (this.opencgaSession && this.opencgaSession.project) {
+        if (this?.opencgaSession?.study?.fqn) {
             this.checkProjects = true;
             this.query = {study: this.opencgaSession.study.fqn};
 

@@ -38,6 +38,9 @@ export default class SampleVariantStatsBrowser extends LitElement {
             opencgaSession: {
                 type: Object
             },
+            cellbaseClient: {
+                type: Object
+            },
             sample: {
                 type: Object
             },

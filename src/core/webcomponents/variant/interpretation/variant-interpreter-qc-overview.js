@@ -108,10 +108,10 @@ class VariantInterpreterQcOverview extends LitElement {
                                 id: "Summary",
                                 title: "Summary"
                             },
-                            {
+                            /*{
                                 id: "VariantStats",
                                 title: "Variant Stats"
-                            },
+                            },*/
                             {
                                 id: "InferredSex",
                                 title: "Sex Inference"
@@ -129,11 +129,11 @@ class VariantInterpreterQcOverview extends LitElement {
                                 title: "Samtools Flagstats",
                                 disabled: application.appConfig !== "opencb"
                             },
-                            {
+                            /*{
                                 id: "GeneCoverageStats",
                                 title: "Gene Coverage Stats",
                                 disabled: application.appConfig !== "opencb"
-                            }
+                            }*/
                         ]
                     }
                 ]

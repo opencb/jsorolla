@@ -71,7 +71,7 @@ class VariantInterpreterQcGeneCoverage extends LitElement {
         }
 
         if (changedProperties.has("clinicalAnalysis")) {
-            this.file = this.clinicalAnalysis.files.find( file => file.format === "BAM");
+            this.file = this.clinicalAnalysis.files.find(file => file.format === "BAM");
             this.requestUpdate();
         }
 
@@ -85,7 +85,7 @@ class VariantInterpreterQcGeneCoverage extends LitElement {
             this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
                 .then(restResponse => {
                     this.clinicalAnalysis = restResponse.getResult(0);
-                    this.file = this.clinicalAnalysis.files.find( file => file.format === "BAM");
+                    this.file = this.clinicalAnalysis.files.find(file => file.format === "BAM");
                     this.requestUpdate();
                 })
                 .catch(response => {
@@ -96,8 +96,8 @@ class VariantInterpreterQcGeneCoverage extends LitElement {
 
     onSave(e) {
         // Search bamFile for the sample
-        let bamFile = this.clinicalAnalysis.files.find(file => file.format === "BAM" && file.samples.some(sample => sample.id === this.sample.id));
-        let variantStats = {
+        const bamFile = this.clinicalAnalysis.files.find(file => file.format === "BAM" && file.samples.some(sample => sample.id === this.sample.id));
+        const variantStats = {
             id: this.save.id,
             query: this.executedQuery || {},
             description: this.save.description || "",
@@ -113,8 +113,8 @@ class VariantInterpreterQcGeneCoverage extends LitElement {
             // create a new metric
             metric = {
                 bamFileId: bamFile.id,
-                variantStats: [variantStats],
-            }
+                variantStats: [variantStats]
+            };
             // Check if this is the first metric object
             if (this.sample?.qualityControl?.metrics) {
                 this.sample.qualityControl.metrics.push(metric);
@@ -126,20 +126,20 @@ class VariantInterpreterQcGeneCoverage extends LitElement {
         }
 
         this.opencgaSession.opencgaClient.samples().update(this.sample.id, {qualityControl: this.sample.qualityControl}, {study: this.opencgaSession.study.fqn})
-            .then( restResponse => {
+            .then(restResponse => {
                 console.log(restResponse);
             })
-            .catch( restResponse => {
+            .catch(restResponse => {
                 console.error(restResponse);
             })
-            .finally( () => {
+            .finally(() => {
                 this.requestUpdate();
-            })
+            });
     }
 
     getDefaultConfig() {
         return {
-        }
+        };
     }
 
     render() {

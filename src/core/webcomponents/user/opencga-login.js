@@ -116,19 +116,10 @@ export default class OpencgaLogin extends LitElement {
                             if (response instanceof RestResponse) {
                                 if (response.getEvents?.("ERROR")?.length) {
                                     this.errorState = response.getEvents("ERROR");
-                                    new NotificationQueue().push(this.errorState[0].name, this.errorState[0].message, "error");
+                                    this.errorState.forEach(error => new NotificationQueue().push(error.name, error.message, "ERROR"));
                                 } else {
                                     this.errorState = [{name: "Generic Server Error", message: JSON.stringify(response)}];
                                     new NotificationQueue().push(this.errorState[0].name, this.errorState[0].message, "error");
-                                    /* this.dispatchEvent(new CustomEvent(_this.notifyEventMessage, {
-                                        detail: {
-                                            title: this.errorState[0].name,
-                                            message: this.errorState[0].message,
-                                            type: UtilsNew.MESSAGE_ERROR
-                                        },
-                                        bubbles: true,
-                                        composed: true
-                                    }));*/
                                 }
                             } else if (response instanceof Error) {
                                 this.errorState = [{name: response.name, message: response.message}];

@@ -263,7 +263,7 @@ export default class VariantFamilyGenotypeFilter extends LitElement {
             // _sampleFilters = this.sampleFilters.filter( sample => sample.proband);
             // _sampleFilters.genotype = [this.mode]
         // }
-debugger
+
         // Notify the sample change
         this.dispatchEvent(new CustomEvent("sampleFiltersChange", {
             detail: {

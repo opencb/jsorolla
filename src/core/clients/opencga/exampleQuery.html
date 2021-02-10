@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Basic usage of OpenCGA Client</title>
+</head>
+<body>
+<h2>Basic usage of OpenCGA Client</h2>
+
+<pre id="response"></pre>
+
+<script>
+    const application = {} // quickfix
+</script>
+
+<script type="module">
+    import {OpenCGAClient} from "./opencga-client.js";
+
+    const user = "";
+    const password = "";
+
+    const client = new OpenCGAClient({
+        host: "http://bioinfo.hpc.cam.ac.uk/opencga-prod",
+        version: "v2",
+        cookies: {active: false}
+    });
+
+    (async () => {
+        try {
+            await client.login(user, password)
+            const session = await client.createSession();
+            const restResponse = await session.opencgaClient.files().search({id:1, study: session.study.fqn});
+            console.log(restResponse.getResults());
+
+        } catch (e) {
+            console.error(e)
+        }
+    })();
+</script>
+</body>
+</html>
+
+
