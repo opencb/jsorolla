@@ -139,6 +139,8 @@ export default class OpencgaIndividualGrid extends LitElement {
                         study: this.opencgaSession.study.fqn,
                         limit: params.data.limit,
                         skip: params.data.offset || 0,
+                        sort: this.table.bootstrapTable("getOptions").sortName,
+                        order: this.table.bootstrapTable("getOptions").sortOrder,
                         count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
                         ...filters
                     };
