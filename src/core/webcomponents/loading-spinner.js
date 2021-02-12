@@ -386,7 +386,7 @@ export default class LoadingSpinner extends LitElement {
             }
 
             .loading-spinner-wrapper .loading-text {
-                font-size: 19px;
+                font-size: 19px !important; /* Bootstrap Table forces font-size: 32px on .loading-text for some reason */
                 font-variant: all-small-caps;
                 letter-spacing: .3em;
                 margin: 25px 0 0 20px;
