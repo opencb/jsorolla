@@ -135,11 +135,16 @@ export default class OpencgaIndividualGrid extends LitElement {
                 gridContext: this,
                 formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
                 ajax: params => {
+                    const sort = this.table.bootstrapTable("getOptions").sortName ? {
+                        sort: this.table.bootstrapTable("getOptions").sortName,
+                        order: this.table.bootstrapTable("getOptions").sortOrder
+                    } : {};
                     const _filters = {
                         study: this.opencgaSession.study.fqn,
                         limit: params.data.limit,
                         skip: params.data.offset || 0,
                         count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
+                        ...sort,
                         ...filters
                     };
                     // Store the current filters
@@ -424,7 +429,7 @@ export default class OpencgaIndividualGrid extends LitElement {
                 halign: this._config.header.horizontalAlign
             },
             {
-                title: "Sex",
+                title: "Sex (Karyotypic Sex)",
                 field: "sex",
                 formatter: this.sexFormatter,
                 halign: this._config.header.horizontalAlign
