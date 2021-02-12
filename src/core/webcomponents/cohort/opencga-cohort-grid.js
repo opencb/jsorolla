@@ -135,6 +135,10 @@ export default class OpencgaCohortGrid extends LitElement {
                 detailFormatter: _this._config.detailFormatter,
                 formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
                 ajax: params => {
+                    const sort = this.table.bootstrapTable("getOptions").sortName ? {
+                        sort: this.table.bootstrapTable("getOptions").sortName,
+                        order: this.table.bootstrapTable("getOptions").sortOrder
+                    } : {};
                     let _filters = {
                         //study: this.opencgaSession.study.fqn,
                         order: params.data.order,
@@ -142,6 +146,7 @@ export default class OpencgaCohortGrid extends LitElement {
                         skip: params.data.offset || 0,
                         count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
                         include: "id,creationDate,status,type,samples",
+                        ...sort,
                         ...filters
                     };
                     this.opencgaSession.opencgaClient.cohorts().search(_filters)
