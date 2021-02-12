@@ -212,7 +212,6 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                         exclude: "files",
                         ...this.query
                     };
-
                     try {
                         const data = await this.fetchData(query);
                         params.success(data);
@@ -734,7 +733,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                             _?.disorder?.id ?? "-",
                             _.type ?? "-",
                             _.interpretation?.id ? `${_.interpretation.id}(primary)${_.secondaryInterpretations.length ? (", " + _.secondaryInterpretations.map(s => s.id).join(", ")) : ""}` : "-",
-                            _.status ?? "-",
+                            _.status?.id ?? "-",
                             _.priority?.id ?? "-",
                             _.analyst?.assignee ?? "-",
                             _.creationDate ?? "-"
