@@ -134,12 +134,11 @@ export default class OpencbGridToolbar extends LitElement {
                     margin-bottom: 10px;
                 }
             </style>
-
             
             <div class="opencb-grid-toolbar">
                 <div class="row">
                     <div id="${this._prefix}ToolbarLeft" class="col-md-6">
-                        ${(!this.opencgaSession || (this.opencgaSession && OpencgaCatalogUtils.checkPermissions(this.opencgaSession?.study, this.opencgaSession?.user?.id, "WRITE_CLINICAL_ANALYSIS"))) && ~this._config.buttons.indexOf("new") ? html`
+                        ${this._config.showCreate && (!this.opencgaSession || (this.opencgaSession && OpencgaCatalogUtils.checkPermissions(this.opencgaSession?.study, this.opencgaSession?.user?.id, "WRITE_CLINICAL_ANALYSIS"))) ? html`
                             <a type="button" class="btn btn-default ripple btn-sm text-black" href="${this._config.newButtonLink}">
                                 <i id="${this._prefix}ColumnIcon" class="fa fa-columns icon-padding" aria-hidden="true"></i> New </span> 
                             </a>
