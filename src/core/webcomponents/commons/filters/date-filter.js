@@ -176,7 +176,7 @@ export default class DateFilter extends LitElement {
 
     daysInMonth(y, m) {
         if (y && m) {
-            const d = moment([y, m]).daysInMonth();
+            const d = moment([y, m - 1]).daysInMonth();
             return UtilsNew.range(1, d + 1).map(d => `${d}`.padStart(2, 0));
         } else {
             return [];
