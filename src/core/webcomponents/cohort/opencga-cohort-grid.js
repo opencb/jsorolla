@@ -287,7 +287,7 @@ export default class OpencgaCohortGrid extends LitElement {
                             ...results.map(_ => [
                                 _.id,
                                 _.samples ? _.samples.map(_ => `${_.id}`).join(",") : "",
-                                _.creationDate,
+                                _.creationDate ? CatalogGridFormatter.dateFormatter(_.creationDate) : "-",
                                 _.status.name,
                                 _.type
                             ].join("\t"))];

@@ -736,7 +736,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                             _.status?.id ?? "-",
                             _.priority?.id ?? "-",
                             _.analyst?.assignee ?? "-",
-                            _.creationDate ?? "-"
+                            _.creationDate ? CatalogGridFormatter.dateFormatter(_.creationDate) : "-"
                         ].join("\t"))];
                     UtilsNew.downloadData([dataString.join("\n")], "cases_" + this.opencgaSession.study.id + ".txt", "text/plain");
                 } else {
