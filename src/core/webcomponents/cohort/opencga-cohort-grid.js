@@ -25,6 +25,7 @@ export default class OpencgaCohortGrid extends LitElement {
 
     constructor() {
         super();
+
         this._init();
     }
 
@@ -50,13 +51,15 @@ export default class OpencgaCohortGrid extends LitElement {
     }
 
     _init() {
-        this._prefix = "VarCohortGrid" + UtilsNew.randomString(6) + "_";
+        this._prefix = UtilsNew.randomString(8);
+
         this.active = false;
         this.gridId = this._prefix + "CohortBrowserGrid";
     }
 
     connectedCallback() {
         super.connectedCallback();
+
         this._config = {...this.getDefaultConfig(), ...this.config};
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
     }
@@ -136,12 +139,12 @@ export default class OpencgaCohortGrid extends LitElement {
                 formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
                 ajax: params => {
                     let _filters = {
-                        //study: this.opencgaSession.study.fqn,
-                        order: params.data.order,
+                        study: this.opencgaSession.study.fqn,
+                        // order: params.data.order,
                         limit: params.data.limit,
                         skip: params.data.offset || 0,
                         count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
-                        include: "id,creationDate,status,type,samples",
+                        include: "id,creationDate,status,type,numSamples",
                         ...filters
                     };
                     this.opencgaSession.opencgaClient.cohorts().search(_filters)
@@ -191,28 +194,8 @@ export default class OpencgaCohortGrid extends LitElement {
         }
     }
 
-    _onSelectCohort(row, checked) {
-        if (typeof row !== "undefined") {
-            this.dispatchEvent(new CustomEvent("selectcohort", {
-                detail: {
-                    id: row.id,
-                    cohort: row,
-                    checked: checked
-                }
-            }));
-        }
-    }
-
     onColumnChange(e) {
         this.gridCommons.onColumnChange(e);
-    }
-
-    sampleFormatter(value, row) {
-        if (UtilsNew.isNotUndefined(row.samples)) {
-            return row.samples.length;
-        } else {
-            return 0;
-        }
     }
 
     _initTableColumns() {
@@ -234,13 +217,13 @@ export default class OpencgaCohortGrid extends LitElement {
                 {
                     title: "Cohort",
                     field: "id",
-                    sortable: true,
+                    // sortable: true,
                     halign: this._config.header.horizontalAlign
                 },
                 {
                     title: "#Samples",
-                    field: "samples",
-                    formatter: this.sampleFormatter,
+                    field: "numSamples",
+                    // formatter: (value, row) => row.numSamples ?? 0,
                     halign: this._config.header.horizontalAlign
                 },
                 {
@@ -249,11 +232,6 @@ export default class OpencgaCohortGrid extends LitElement {
                     formatter: CatalogGridFormatter.dateFormatter,
                     halign: this._config.header.horizontalAlign
                 },
-                // {
-                //     title: "Status",
-                //     field: "status.name",
-                //     halign: this._config.header.horizontalAlign
-                // },
                 {
                     title: "Type",
                     field: "type",
@@ -331,14 +309,14 @@ export default class OpencgaCohortGrid extends LitElement {
 
     render() {
         return html`
-        <opencb-grid-toolbar .config="${this.toolbarConfig}"
-                             @columnChange="${this.onColumnChange}"
-                             @download="${this.onDownload}">
-        </opencb-grid-toolbar>
-
-        <div id="${this._prefix}GridTableDiv">
-            <table id="${this._prefix}CohortBrowserGrid"></table>
-        </div>
+            <opencb-grid-toolbar .config="${this.toolbarConfig}"
+                                 @columnChange="${this.onColumnChange}"
+                                 @download="${this.onDownload}">
+            </opencb-grid-toolbar>
+    
+            <div id="${this._prefix}GridTableDiv">
+                <table id="${this._prefix}CohortBrowserGrid"></table>
+            </div>
         `;
     }
 
