@@ -213,7 +213,7 @@ export default class OpencgaFileBrowser extends LitElement {
                             name: "JSON Data",
                             mode: "development",
                             render: (file, active, opencgaSession) => {
-                                return html`<json-viewer .data="${file}"></json-viewer>`;
+                                return html`<json-viewer .data="${file}" .active="${active}"></json-viewer>`;
                             }
                         }
                     ]
