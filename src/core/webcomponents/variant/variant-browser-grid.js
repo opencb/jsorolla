@@ -66,6 +66,9 @@ export default class VariantBrowserGrid extends LitElement {
 
         // Set colors
         this.consequenceTypeColors = VariantGridFormatter.assignColors(consequenceTypes, proteinSubstitutionScore);
+
+        // TODO move to the configuration?
+        this.maxNumberOfPages = 1000000;
     }
 
     connectedCallback() {
@@ -130,10 +133,6 @@ export default class VariantBrowserGrid extends LitElement {
     }
 
     renderRemoteVariants() {
-        this.from = 1;
-        this.to = this._config.pageSize;
-        this.approximateCountResult = false;
-
         // TODO quickfix. The check on query is required because the study is in the query object. A request without the study returns the error "Multiple projects found"
         if (this.opencgaSession && this.opencgaSession.project && this.opencgaSession.study) {
             this._columns = this._createDefaultColumns();
@@ -151,7 +150,8 @@ export default class VariantBrowserGrid extends LitElement {
                 pageSize: this._config.pageSize,
                 pageList: this._config.pageList,
                 paginationVAlign: "both",
-                formatShowingRows: this.gridCommons.formatShowingRows,
+                formatShowingRows: (pageFrom, pageTo, totalRows) =>
+                    this.gridCommons.formatShowingRows(pageFrom, pageTo, totalRows, this.totalRowsNotTruncated, this.isApproximateCount),
                 showExport: this._config.showExport,
                 detailView: this._config.detailView,
                 detailFormatter: this._config.detailFormatter,
@@ -170,7 +170,9 @@ export default class VariantBrowserGrid extends LitElement {
                         ...this.query
                     };
                     this.opencgaSession.opencgaClient.variants().query(filters)
-                        .then(res => params.success(res))
+                        .then(res => {
+                            params.success(res)
+                        })
                         .catch(e => {
                             console.error(e);
                             params.error(e);
@@ -178,11 +180,14 @@ export default class VariantBrowserGrid extends LitElement {
                 },
                 responseHandler: response => {
                     const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
-                    this.from = result.from || this.from;
-                    this.to = result.to || this.to;
-                    this.numTotalResultsText = result.numTotalResultsText || this.numTotalResultsText;
-                    this.approximateCountResult = result.approximateCountResult;
-                    this.requestUpdate();
+
+                    // Only the first 1M pages must be shown
+                    this.totalRowsNotTruncated = null;
+                    if (result.response.total / result.pageSize > this.maxNumberOfPages) {
+                        this.totalRowsNotTruncated = result.response.total;
+                        result.response.total = this.maxNumberOfPages * result.pageSize;
+                    }
+
                     return result.response;
                 },
                 onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
@@ -230,10 +235,10 @@ export default class VariantBrowserGrid extends LitElement {
                     this.gridCommons.onLoadSuccess(data, 2);
                 },
                 onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse),
-                onPageChange: (page, size) => {
-                    this.from = (page - 1) * size + 1;
-                    this.to = page * size;
-                },
+                // onPageChange: (page, size) => {
+                //     this.from = (page - 1) * size + 1;
+                //     this.to = page * size;
+                // },
                 onExpandRow: (index, row, $detail) => {
                     // Listen to Show/Hide link in the detail formatter consequence type table
                     // TODO Remove this
@@ -702,7 +707,7 @@ export default class VariantBrowserGrid extends LitElement {
         return {
             pagination: true,
             pageSize: 10,
-            pageList: [10, 25, 50],
+            pageList: [5, 10, 25],
             showExport: false,
             detailView: true,
             detailFormatter: this.detailFormatter,

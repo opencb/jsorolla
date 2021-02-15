@@ -55,6 +55,7 @@ export default class GridCommons {
             to: to,
             numTotalResultsText: numTotalResultsText,
             approximateCountResult: approximateCountResult,
+            pageSize: bootstrapTableConfig.pageSize,
             response: {
                 total: numMatches,
                 rows: response.getResults()
@@ -201,10 +202,19 @@ export default class GridCommons {
     }
 
     // overrides the pagination info in bootstrap-table
-    formatShowingRows(pageFrom, pageTo, totalRows, totalNotFiltered, isApproximateCount) {
-        let message = `Showing <b>${pageFrom}</b> to <b>${pageTo}</b> of <b>${Number(totalRows).toLocaleString()}</b> records`;
-        if (isApproximateCount) {
-            message += ` (<span style="color: darkred; font-style: italic">approx.</span>)`;
+    formatShowingRows(pageFrom, pageTo, totalRows, totalRowsNotTruncated, isApproximateCount) {
+        const pagedFromFormatted = Number(pageFrom).toLocaleString();
+        const pagedToFormatted = Number(pageTo).toLocaleString();
+        let message;
+        if (!totalRowsNotTruncated) {
+            message = `Showing <b>${pagedFromFormatted}</b> to <b>${pagedToFormatted}</b> of <b>${Number(totalRows).toLocaleString()}</b> records`;
+            if (isApproximateCount) {
+                message += ` <span class="help-block" style="display: inline; margin: 0px 5px">(approximate count)</span>`;
+            }
+        } else {
+            message = `
+                Showing <b>${pagedFromFormatted}</b> to <b>${pagedToFormatted}</b> of <b>${Number(totalRowsNotTruncated).toLocaleString()}</b> records
+                <span class="help-block" style="display: inline; margin: 0px 5px">(Only first <b>1M</b> pages shown)</span>`;
         }
         return message;
     }

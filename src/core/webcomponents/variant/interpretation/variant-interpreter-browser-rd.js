@@ -501,7 +501,7 @@ class VariantInterpreterBrowserRd extends LitElement {
                     grid: {
                         pagination: true,
                         pageSize: 10,
-                        pageList: [10, 25, 50],
+                        pageList: [5, 10, 25],
                         showExport: false,
                         detailView: true,
                         showReview: false,
