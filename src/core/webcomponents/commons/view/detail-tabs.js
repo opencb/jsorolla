@@ -88,6 +88,8 @@ export default class DetailTabs extends LitElement {
                     </div>` :
                 null
             }
+
+            this.activeTab ${JSON.stringify(this.activeTab)}
             <div class="detail-tabs">
                 <ul class="nav nav-tabs" role="tablist">
                     ${this._config.items.length && this._config.items.map(item => {

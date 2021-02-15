@@ -48,6 +48,9 @@ export default class OpencgaFileGrid extends LitElement {
             },
             config: {
                 type: Object
+            },
+            active: {
+                type: Boolean
             }
         };
     }
@@ -56,6 +59,7 @@ export default class OpencgaFileGrid extends LitElement {
         this._prefix = "fg" + UtilsNew.randomString(6);
         this.gridId = this._prefix + "FileBrowserGrid";
         this._config = this.getDefaultConfig();
+        this.active = true;
     }
 
     connectedCallback() {
@@ -72,7 +76,7 @@ export default class OpencgaFileGrid extends LitElement {
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("opencgaSession") || changedProperties.has("query")) {
+        if ((changedProperties.has("opencgaSession") || changedProperties.has("query") || changedProperties.has("active")) && this.active) {
             this.propertyObserver();
         }
 
@@ -83,6 +87,7 @@ export default class OpencgaFileGrid extends LitElement {
     }
 
     propertyObserver() {
+        console.error("RENDERING", this.active)
         this.toolbarConfig = {
             columns: this._getDefaultColumns().filter(column => column.visible !== false)
         };
