@@ -30,7 +30,7 @@
     "@webcomponents/webcomponentsjs": "^1.1.0",
     "async": "^2.1.2",
     "axios": "^0.19.1",
-    "bootstrap": "3.3.6",
+    "bootstrap": "3.4.1",
     "bootstrap-3-typeahead": "^4.0.2",
     "bootstrap-colorpicker": "2.3.6",
     "bootstrap-select": "^1.13.12",
