@@ -332,7 +332,8 @@ export class OpenCGAClient {
                                                     study.acl = acl.getResult(0);
 
                                                     // Fetch all the cohort
-                                                    let cohortsResponse = await _this.cohorts()
+                                                    _this._notifySessionEvent("signingIn", "Fetching Cohorts");
+                                                    const cohortsResponse = await _this.cohorts()
                                                         .search({study: study.fqn, include: "id,description,numSamples,internal", limit: 10});
                                                     study.cohorts = cohortsResponse.responses[0].results;
 
@@ -389,7 +390,7 @@ export class OpenCGAClient {
                                     }
                                     resolve(session);
                                 } catch (e) {
-                                    console.error("Error getting study permissions / study panels");
+                                    console.error("Error getting study permissions, cohorts or disease panels");
                                     console.error(e);
                                     reject({message: "Error getting study permissions / study panels", value: e});
                                 }

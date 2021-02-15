@@ -47,10 +47,6 @@ import "../clinical/opencga-clinical-analysis-grid.js";
 import "../clinical/opencga-clinical-analysis-filter.js";
 import "../clinical/opencga-clinical-analysis-detail.js";
 
-// TODO spring-cleaning the old code
-// TODO maybe remove this._config, this.config is enough here
-// TODO fix props in EACH opencga-x-filter
-
 
 export default class OpencgaBrowser extends LitElement {
 
@@ -108,7 +104,7 @@ export default class OpencgaBrowser extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
-        // TODO we don't need _config anymore
+        // TODO we don't need _config anymore, this.config is enough here
         this._config = {...this.config};
     }
 

@@ -61,7 +61,7 @@ export default class VariantBrowser extends LitElement {
             selectedFacet: { // TODO naming change: preparedQueryFacet (selectedFacet), preparedQueryFacetFormatted (selectedFacetFormatted), executedQueryFacet (queryFacet) (also in opencga-browser)
                 type: Object
             },
-            // Deprecated: cohorts are not fetched in during login and stored in opencgaSession, no need to allow external configuration
+            // Deprecated: cohorts are now fetched during login and stored in opencgaSession, no need to allow external configuration
             cohorts: {
                 type: Array
             },
