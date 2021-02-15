@@ -327,11 +327,6 @@ export default class VariantBrowser extends LitElement {
                                 tooltip: tooltips.feature
                             },
                             {
-                                id: "diseasePanels",
-                                title: "Disease Panels",
-                                tooltip: tooltips.diseasePanels
-                            },
-                            {
                                 id: "biotype",
                                 title: "Gene Biotype",
                                 biotypes: BIOTYPES,
@@ -376,9 +371,14 @@ export default class VariantBrowser extends LitElement {
                         ]
                     },
                     {
-                        title: "Clinical and Disease",
+                        title: "Clinical",
                         collapsed: true,
                         fields: [
+                            {
+                                id: "diseasePanels",
+                                title: "Disease Panels",
+                                tooltip: tooltips.diseasePanels
+                            },
                             {
                                 id: "clinvar",
                                 title: "ClinVar Accessions",
