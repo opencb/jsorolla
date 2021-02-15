@@ -215,7 +215,8 @@ export default class OpencgaSampleBrowser extends LitElement {
                             id: "file-view",
                             name: "Files",
                             render: (sample, active, opencgaSession) => {
-                                return html`<opencga-file-grid .opencgaSession="${opencgaSession}" .query="${{sampleIds: sample.id}}"></opencga-file-grid>`;
+                                return html`
+                                    <opencga-file-grid .opencgaSession="${opencgaSession}" .query="${{sampleIds: sample.id}}" .config="${{downloadFile: this._config.downloadFile}}"></opencga-file-grid>`;
                             }
                         },
                         {
