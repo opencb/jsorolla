@@ -740,7 +740,7 @@ export default class VariantGridFormatter {
         const popFreqsArray = [];
         for (const cohort of cohorts) {
             const freq = (cohortStats.get(cohort.id) !== undefined) ? cohortStats.get(cohort.id) : 0;
-            popFreqsArray.push(cohort.name + "::" + freq);
+            popFreqsArray.push(cohort.id + "::" + freq);
         }
         popFreqsTooltip = popFreqsArray.join(",");
 
@@ -767,7 +767,7 @@ export default class VariantGridFormatter {
                 const freq = cohortStats.get(cohort.id);
                 color = VariantGridFormatter._getPopulationFrequencyColor(freq, populationFrequenciesColor);
             }
-            htmlPopFreqTable += `<td style="width: 15px; background: ${color}">&nbsp;</td>`;
+            htmlPopFreqTable += `<td style="width: 15px; background: ${color}; border-right: 1px solid white;">&nbsp;</td>`;
         }
         htmlPopFreqTable += "</tr></table></a>";
         return htmlPopFreqTable;

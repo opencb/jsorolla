@@ -331,6 +331,11 @@ export class OpenCGAClient {
                                                     }
                                                     study.acl = acl.getResult(0);
 
+                                                    // Fetch all the cohort
+                                                    let cohortsResponse = await _this.cohorts()
+                                                        .search({study: study.fqn, include: "id,description,numSamples,internal", limit: 10});
+                                                    study.cohorts = cohortsResponse.responses[0].results;
+
                                                     // Check if lastStudy matches, we overwrite defaultStudy if set, no need to check.
                                                     if (session.user?.configs?.IVA?.lastStudy === study.fqn) {
                                                         session.project = project;

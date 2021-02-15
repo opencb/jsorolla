@@ -196,7 +196,7 @@ export default class PopulationFrequencyFilter extends LitElement {
                         <div id="${this._prefix}${study.id}" class="form-horizontal" hidden data-cy="pop-freq-codes-wrapper-${study.id}">
                             ${study.populations && study.populations.length && study.populations.map(popFreq => html`
                                 <div class="form-group" style="padding: 0px 5px;margin: 0px">
-                                    <div class="col-md-3" style="padding: 0px">
+                                    <div class="col-md-4" style="padding: 0px">
                                         <div style="margin: 10px 0px">${popFreq.id}</div>
                                     </div>
                                     <div class="col-md-3" style="padding: 0px">
@@ -207,7 +207,7 @@ export default class PopulationFrequencyFilter extends LitElement {
                                                                 }}">
                                         </select-field-filter>
                                     </div>
-                                    <div class="col-md-6" style="padding: 0px">
+                                    <div class="col-md-5" style="padding: 0px">
                                         <select-field-filter    .data="${allowedFrequenciesArray}" 
                                                                 .value="${this.state[study.id + ":" + popFreq.id]?.value}"
                                                                 placeholder="Frequency ..."
@@ -245,9 +245,9 @@ export default class PopulationFrequencyFilter extends LitElement {
                         <div id="${this._prefix}${study.id}" class="form-horizontal" hidden data-cy="pop-freq-codes-wrapper-${study.id}">
                             ${this.showSetAll ? html`
                                 <div class="set-all-form-wrapper form-group">
-                                    <div class="col-md-3 control-label" data-toggle="tooltip" data-placement="top">Set all</div>
+                                    <div class="col-md-4 control-label" data-toggle="tooltip" data-placement="top">Set all</div>
                                     <div class="col-md-3"></div>
-                                    <div class="col-md-6">
+                                    <div class="col-md-5">
                                         <input id="${this._prefix}${study.id}Input" type="string" data-mode="all" data-study="${study.id}"
                                                class="form-control input-sm ${this._prefix}FilterTextInput"
                                                name="${study.id}Input" @input="${this.onSetAllFreqChange}">
@@ -256,8 +256,10 @@ export default class PopulationFrequencyFilter extends LitElement {
                             ` : ""}
                             ${study.populations && study.populations.length && study.populations.map(popFreq => html`
                                 <number-field-filter
-                                        .value="${this.state[study.id + ":" + popFreq.id]?.value ? ((this.state[study.id + ":" + popFreq.id]?.comparator ?? this.defaultComparator) + this.state[study.id + ":" + popFreq.id]?.value) : ""}"
-                                        .config="${{comparator: true, layout: [3, 3, 6]}}"
+                                        .value="${this.state[study.id + ":" + popFreq.id]?.value 
+                                                ? ((this.state[study.id + ":" + popFreq.id]?.comparator ?? this.defaultComparator) + this.state[study.id + ":" + popFreq.id]?.value) 
+                                                : ""}"
+                                        .config="${{comparator: true, layout: [4, 3, 5]}}"
                                         .label="${popFreq.id}"
                                         type="text"
                                         @filterChange="${e => this.filterChange(e, `${study.id}:${popFreq.id}`)}">
@@ -269,7 +271,6 @@ export default class PopulationFrequencyFilter extends LitElement {
             `;
         }
     }
-
 }
 
 customElements.define("population-frequency-filter", PopulationFrequencyFilter);

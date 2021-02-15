@@ -50,7 +50,7 @@ export default class VariantBrowserGrid extends LitElement {
                 type: Array
             },
             cohorts: {
-                type: Object
+                type: Array
             },
             config: {
                 type: Object
@@ -437,16 +437,15 @@ export default class VariantBrowserGrid extends LitElement {
 
         // IMPORTANT: empty columns are not supported in boostrap-table,
         let cohortColumns = [{visible: false}];
-        if (this.cohorts && Object.keys(this.cohorts).length > 0 && this.cohorts[this.opencgaSession.project.id]) {
-            const cohortStudies = Object.keys(this.cohorts[this.opencgaSession.project.id]);
+        if (this.cohorts?.length > 0) {
             cohortColumns = [];
-            for (let i = 0; i < cohortStudies.length; i++) {
+            for (const study of this.cohorts) {
                 cohortColumns.push({
-                    title: cohortStudies[i],
-                    field: cohortStudies[i],
+                    title: study.id,
+                    field: study.id,
                     meta: {
-                        study: cohortStudies[i],
-                        cohorts: this.cohorts[this.opencgaSession.project.id][cohortStudies[i]],
+                        study: study.id,
+                        cohorts: study.cohorts,
                         colors: this.populationFrequencies.style,
                         context: this
                     },

@@ -16,6 +16,7 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "./../../utilsNew.js";
+import OpencgaCatalogUtils from "../../clients/opencga/opencga-catalog-utils.js";
 import "../commons/tool-header.js";
 import "./opencga-variant-filter.js";
 import "./variant-browser-grid.js";
@@ -60,8 +61,9 @@ export default class VariantBrowser extends LitElement {
             selectedFacet: { // TODO naming change: preparedQueryFacet (selectedFacet), preparedQueryFacetFormatted (selectedFacetFormatted), executedQueryFacet (queryFacet) (also in opencga-browser)
                 type: Object
             },
+            // Deprecated: cohorts are not fetched in during login and stored in opencgaSession, no need to allow external configuration
             cohorts: {
-                type: Object
+                type: Array
             },
             config: {
                 type: Object
@@ -70,7 +72,7 @@ export default class VariantBrowser extends LitElement {
     }
 
     _init() {
-        this._prefix = "vb" + UtilsNew.randomString(6);
+        this._prefix = UtilsNew.randomString(8);
 
         // These are for making the queries to server
         this.facetFields = [];
@@ -90,24 +92,13 @@ export default class VariantBrowser extends LitElement {
         this.selectedFacetFormatted = {};
         this.errorState = false;
 
-        // this.genotypeColor = {
-        //     "0/0": "#6698FF",
-        //     "0/1": "#FFA500",
-        //     "1/1": "#FF0000",
-        //     "./.": "#000000",
-        //     "0|0": "#6698FF",
-        //     "0|1": "#FFA500",
-        //     "1|0": "#FFA500",
-        //     "1|1": "#FF0000",
-        //     ".|.": "#000000"
-        // };
-
         this.detailActiveTabs = [];
         this.activeTab = {};
     }
 
     connectedCallback() {
         super.connectedCallback();
+
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
@@ -137,50 +128,11 @@ export default class VariantBrowser extends LitElement {
             this.selectedFacet = {};
 
             this.onRun();
-
-            // if cohort filter exists but this.cohorts is not defined then we add cohorts ALL to the 'filter' menu itself
-            const _tempConfig = {...this.getDefaultConfig(), ...this.config};
-            for (const section of _tempConfig.filter.sections) {
-                for (const field of section.fields) {
-                    if (field.id === "cohort") {
-                        if (field.cohorts === undefined) {
-                            const _cohorts = {};
-                            // in case of no public project this.opencgaSession is being created, but the prop projects won't
-                            // TODO NOTE this.opencgaSession is undefined in connectedCallback() method
-                            if (this.opencgaSession && this.opencgaSession.projects) {
-                                for (const project of this.opencgaSession.projects) {
-                                    _cohorts[project.id] = {};
-                                    for (const study of project.studies) {
-                                        if (field.onlyCohortAll) {
-                                            _cohorts[project.id][study.id] = [{id: "ALL", name: "ALL"}];
-                                        } else {
-                                            // TODO if onlyCohortAll is false then we must add all cohorts indexed
-                                            // we can take this from session object
-                                        }
-                                    }
-                                }
-                            }
-                            // we edit the config.filter.sections.fields.cohorts
-                            field.cohorts = _cohorts;
-
-                            // _tempConfig.filter.detail.views.foreach(view => {if (view.id === "cohortStats") {view.cohorts = _cohorts}});
-                            for (const view of _tempConfig.filter.detail.views) {
-                                if (view.id === "cohortStats") {
-                                    view.cohorts = _cohorts;
-                                }
-                            }
-                            // if we are here is because this.cohorts is undefined
-                            this.cohorts = _cohorts;
-                            this.requestUpdate();
-                        } else {
-                            field.cohorts = this.cohorts;
-                        }
-                        break;
-                    }
-                }
-            }
-            this._config = _tempConfig;
         }
+
+        // Config uses web component properties, we need to reload config object
+        this._config = {...this.getDefaultConfig(), ...this.config};
+        this.requestUpdate();
     }
 
     queryObserver() {
@@ -353,9 +305,10 @@ export default class VariantBrowser extends LitElement {
                             {
                                 id: "cohort",
                                 title: "Cohort Alternate Stats",
-                                onlyCohortAll: true,
+                                onlyCohortAll: false,
                                 tooltip: tooltips.cohort,
-                                cohorts: this.cohorts
+                                // cohorts: this.cohorts
+                                cohorts: this.opencgaSession.project.studies
                             }
                         ]
                     },
@@ -529,9 +482,7 @@ export default class VariantBrowser extends LitElement {
                         {
                             id: "cohortStats",
                             title: "Cohort Variant Stats",
-                            onlyCohortAll: true,
                             tooltip: tooltips.cohort
-                            // cohorts: this.cohorts
                         },
                         {
                             id: "samples",
@@ -654,7 +605,6 @@ export default class VariantBrowser extends LitElement {
                                                     .cellbaseClient="${this.cellbaseClient}"
                                                     .populationFrequencies="${this.populationFrequencies}"
                                                     .consequenceTypes="${this.consequenceTypes}"
-                                                    .cohorts="${this.cohorts}"
                                                     .searchButton="${false}"
                                                     .config="${this._config.filter}"
                                                     @queryChange="${this.onVariantFilterChange}"
@@ -709,7 +659,7 @@ export default class VariantBrowser extends LitElement {
                             <div id="table-tab" class="content-tab active">
                                 <variant-browser-grid .opencgaSession="${this.opencgaSession}"
                                                       .query="${this.executedQuery}"
-                                                      .cohorts="${this.cohorts}"
+                                                      .cohorts="${this.opencgaSession?.project?.studies ?? []}"
                                                       .cellbaseClient="${this.cellbaseClient}"
                                                       .populationFrequencies="${this.populationFrequencies}"
                                                       .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
