@@ -374,7 +374,8 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                 multiSelection: false,
                 showActions: true,
                 toolbar: {
-                    buttons: ["columns", "download", "new"],
+                    showCreate: true,
+                    buttons: ["columns", "download"],
                     newButtonLink: "#clinical-analysis-writer/"
                 }
             }

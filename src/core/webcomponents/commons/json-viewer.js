@@ -40,10 +40,10 @@ export default class JsonViewer extends LitElement {
             data: {
                 type: Object
             }
-        }
+        };
     }
 
-    _init(){
+    _init() {
         this._prefix = "json-" + UtilsNew.randomString(6) + "_";
     }
 
@@ -53,8 +53,8 @@ export default class JsonViewer extends LitElement {
     }
 
     updated(changedProperties) {
-        if(changedProperties.has("data")) {
-            if(this.data) {
+        if ((changedProperties.has("data") || changedProperties.has("active")) && this.active) {
+            if (this.data) {
                 $(".json-renderer", this).jsonViewer(this.data);
             }
         }
@@ -62,7 +62,7 @@ export default class JsonViewer extends LitElement {
 
     getDefaultConfig() {
         return {
-        }
+        };
     }
 
     render() {

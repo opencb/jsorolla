@@ -223,7 +223,7 @@ export default class OpencgaSampleBrowser extends LitElement {
                             name: "JSON Data",
                             mode: "development",
                             render: (sample, active, opencgaSession) => {
-                                return html`<json-viewer .data="${sample}"></json-viewer>`;
+                                return html`<json-viewer .data="${sample}" .active="${active}"></json-viewer>`;
                             }
                         }
                     ]

@@ -191,7 +191,7 @@ export default class OpencgaCohortBrowser extends LitElement {
                             name: "JSON Data",
                             mode: "development",
                             render: (cohort, active, opencgaSession) => {
-                                return html`<json-viewer .data="${cohort}"></json-viewer>`;
+                                return html`<json-viewer .data="${cohort}" .active="${active}"></json-viewer>`;
                             }
                         }
                     ]
