@@ -87,7 +87,6 @@ export default class OpencgaFileGrid extends LitElement {
     }
 
     propertyObserver() {
-        console.error("RENDERING", this.active)
         this.toolbarConfig = {
             columns: this._getDefaultColumns().filter(column => column.visible !== false)
         };
