@@ -209,12 +209,16 @@ export default class GridCommons {
         if (!totalRowsNotTruncated) {
             message = `Showing <b>${pagedFromFormatted}</b> to <b>${pagedToFormatted}</b> of <b>${Number(totalRows).toLocaleString()}</b> records`;
             if (isApproximateCount) {
-                message += ` <span class="help-block" style="display: inline; margin: 0px 5px">(approximate count)</span>`;
+                // </span> <span class="help-block" style="display: inline; margin: 0px 5px">(approximate count)</span>
+                message += ` <span title="Approximate count" style="color: red; vertical-align: top"><i class="fas fa-asterisk fa-xs"></i></span>`;
             }
         } else {
             message = `
                 Showing <b>${pagedFromFormatted}</b> to <b>${pagedToFormatted}</b> of <b>${Number(totalRowsNotTruncated).toLocaleString()}</b> records
-                <span class="help-block" style="display: inline; margin: 0px 5px">(Only first <b>1M</b> pages shown)</span>`;
+                <span title="Only first 1M pages shown" style="color: darkorange; vertical-align: top"><i class="fas fa-asterisk fa-xs"></i></span>`;
+            // <span className="help-block" style="display: inline; margin: 0px 5px">(Only first <b>1M</b> pages shown)</span>
+            // <span title="Only first 1M pages shown" style="color: darkorange;margin: 0px 5px"><i class="fas fa-exclamation-triangle"></i></span>`;
+            // <span title="Only first 1M pages shown" style="color: darkorange; font-size: 14px; font-weight: bold">*</span>
         }
         return message;
     }
