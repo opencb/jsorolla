@@ -194,7 +194,7 @@ export default class OpencgaSampleBrowser extends LitElement {
                             id: "sample-variant-stats-view",
                             name: "Variant Stats",
                             render: (sample, active, opencgaSession) => {
-                                return html`<sample-variant-stats-view .sampleId="${sample.id}" .opencgaSession="${opencgaSession}"></sample-variant-stats-view>`;
+                                return html`<sample-variant-stats-view .sampleId="${sample.id}" .active="${active}" .opencgaSession="${opencgaSession}"></sample-variant-stats-view>`;
                             }
                         },
                         {
@@ -216,7 +216,7 @@ export default class OpencgaSampleBrowser extends LitElement {
                             name: "Files",
                             render: (sample, active, opencgaSession) => {
                                 return html`
-                                    <opencga-file-grid .opencgaSession="${opencgaSession}" .active="${active}" .query="${{sampleIds: sample.id}}" .config="${{downloadFile: this._config.downloadFile}}"></opencga-file-grid>`;
+                                    <opencga-file-grid .query="${{sampleIds: sample.id}}" .active="${active}" .config="${{downloadFile: this._config.downloadFile}}" .opencgaSession="${opencgaSession}" ></opencga-file-grid>`;
                             }
                         },
                         {
