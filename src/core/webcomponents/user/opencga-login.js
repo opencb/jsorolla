@@ -61,6 +61,24 @@ export default class OpencgaLogin extends LitElement {
     firstUpdated(changedProperties) {
         $("#formLogin").validator("update");
         $("#formLogin").validator().on("submit", e => this.submitLogin(e));
+        this.redirect();
+    }
+
+    updated(changedProperties) {
+        if (changedProperties.has("opencgaSession")) {
+            this.redirect();
+        }
+    }
+
+    redirect() {
+        if (this.opencgaSession?.study) {
+            // window.location.hash = "#home";
+            this.dispatchEvent(new CustomEvent("redirect", {
+                detail: {
+                    hash: "#home"
+                }
+            }));
+        }
     }
 
     submitLogin(e) {
@@ -90,7 +108,6 @@ export default class OpencgaLogin extends LitElement {
                                 } else if (restResponse) {
                                     this.querySelector("#opencgaUser").value = "";
                                     this.querySelector("#opencgaPassword").value = "";
-                                    //console.log("response", restResponse);
                                     const token = restResponse.getResult(0).token;
                                     const decoded = jwt_decode(token); // TODO expose as module
                                     const dateExpired = new Date(decoded.exp * 1000);
