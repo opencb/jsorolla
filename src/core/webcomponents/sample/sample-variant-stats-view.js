@@ -60,6 +60,9 @@ class SampleVariantStatsView extends LitElement {
             },
             config: {
                 type: Object
+            },
+            active: {
+                type: Boolean
             }
         };
     }
@@ -92,6 +95,7 @@ class SampleVariantStatsView extends LitElement {
                 useHTML: true
             }
         };
+        this.active = true;
     }
 
     connectedCallback() {
@@ -100,16 +104,16 @@ class SampleVariantStatsView extends LitElement {
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
-    updated(changedProperties) {
+    update(changedProperties) {
+        if ((changedProperties.has("sampleId") || changedProperties.has("active")) && this.active) {
+            this.sampleIdObserver();
+        }
+
         if (changedProperties.has("sample")) {
             this.sampleObserver();
         }
 
-        if (changedProperties.has("sampleId")) {
-            this.sampleIdObserver();
-        }
-
-        if (changedProperties.has("sampleVariantStats") || changedProperties.has("query") || changedProperties.has("description")) {
+        if ((changedProperties.has("sampleVariantStats") || changedProperties.has("query") || changedProperties.has("description") || changedProperties.has("active")) && this.active) {
             this.sampleVariantStatsObserver();
         }
 
@@ -119,22 +123,7 @@ class SampleVariantStatsView extends LitElement {
             _.merge(this._config, this.config);
             this.requestUpdate();
         }
-    }
-
-    sampleObserver() {
-        if (this.sample?.qualityControl?.variantMetrics.variantStats?.length) {
-            // By default we render the stat 'ALL' from the first metric, if there is not stat 'ALL' then we take the first one
-            this.statsSelect = this.sample.qualityControl.variantMetrics.variantStats.map(stat => stat.id)
-            this.variantStats = this.sample.qualityControl.variantMetrics.variantStats.find(stat => stat.id === "ALL") ?? this.sample.qualityControl.variantMetrics.variantStats[0];
-
-            if (this.variantStats?.chromosomeCount) {
-                this.variantStats.chromosomeCount = ClinicalAnalysisUtils.chromosomeFilterSorter(this.variantStats.chromosomeCount);
-            }
-        } else {
-            this.statsSelect = [];
-            this.variantStats = null;
-        }
-        this.requestUpdate();
+        super.update(changedProperties);
     }
 
     sampleIdObserver() {
@@ -142,7 +131,7 @@ class SampleVariantStatsView extends LitElement {
             this.opencgaSession.opencgaClient.samples().info(this.sampleId, {study: this.opencgaSession.study.fqn})
                 .then(response => {
                     this.sample = response.getResult(0);
-                    this.sampleObserver();
+                    // this.sampleObserver();
                 })
                 .catch(response => {
                     console.error("An error occurred fetching sample: ", response);
@@ -150,27 +139,40 @@ class SampleVariantStatsView extends LitElement {
         }
     }
 
+    sampleObserver() {
+        if (this.sample?.qualityControl?.variantMetrics.variantStats?.length) {
+            // By default we render the stat 'ALL' from the first metric, if there is not stat 'ALL' then we take the first one
+            this.statsSelect = this.sample.qualityControl.variantMetrics.variantStats.map(stat => stat.id);
+            this.variantStats = this.sample.qualityControl.variantMetrics.variantStats.find(stat => stat.id === "ALL") ?? this.sample.qualityControl.variantMetrics.variantStats[0];
+            if (this.variantStats?.stats?.chromosomeCount) {
+                this.variantStats.stats.chromosomeCount = UtilsNew.objectKeySort(this.variantStats.stats.chromosomeCount, CHROMOSOMES, false);
+            }
+        } else {
+            this.statsSelect = [];
+            this.variantStats = null;
+        }
+        // this.requestUpdate();
+    }
+
     sampleVariantStatsObserver() {
         this.variantStats = {
             stats: {
                 ...this.sampleVariantStats.stats,
-                // chromosomeCount: ClinicalAnalysisUtils.chromosomeFilterSorter(this.sampleVariantStats.stats.chromosomeCount),
-                chromosomeCount: UtilsNew.objectKeySort(this.sampleVariantStats?.stats?.chromosomeCount, CHROMOSOMES),
+                chromosomeCount: UtilsNew.objectKeySort(this.sampleVariantStats?.stats?.chromosomeCount, CHROMOSOMES, false),
                 depthCount: UtilsNew.objectKeySort(this.sampleVariantStats?.stats?.depthCount, ["lt5", "lt10", "lt15", "lt20", "gte20", "na"]),
                 typeCount: UtilsNew.objectKeySort(this.sampleVariantStats?.stats?.typeCount, ["SNV", "INDEL", "CNV", "INSERTION", "DELETION"], true),
                 indelLengthCount: UtilsNew.objectKeySort(this.sampleVariantStats?.stats?.indelLengthCount, ["lt5", "lt10", "lt15", "lt20", "gte20"]),
-                clinicalSignificanceCount: UtilsNew.objectKeySort(this.sampleVariantStats?.stats?.clinicalSignificanceCount, ["benign_likely_benign", "uncertain_significance", "likely_pathogenic", "pathogenic"]),
+                clinicalSignificanceCount: UtilsNew.objectKeySort(this.sampleVariantStats?.stats?.clinicalSignificanceCount, ["benign_likely_benign", "uncertain_significance", "likely_pathogenic", "pathogenic"])
             },
             query: this.query,
             description: this.description
         };
-
-        this.requestUpdate();
+        // this.requestUpdate();
     }
 
     statChange(e) {
         this.variantStats = this.sample.qualityControl.variantMetrics.variantStats.find(stat => stat.id === e.detail.value);
-        this.requestUpdate();
+        // this.requestUpdate();
     }
 
     getDefaultConfig() {
@@ -194,7 +196,7 @@ class SampleVariantStatsView extends LitElement {
                             name: "Sample ID",
                             field: "stats.id",
                             display: {
-                                style: "font-weight: bold",
+                                style: "font-weight: bold"
                             }
                         },
                         {
@@ -240,8 +242,8 @@ class SampleVariantStatsView extends LitElement {
                             field: "query",
                             type: "custom",
                             display: {
-                                render: query => query && !UtilsNew.isEmpty(query)
-                                    ? Object.entries(query)
+                                render: query => query && !UtilsNew.isEmpty(query) ?
+                                    Object.entries(query)
                                         .map(([k, v]) => {
                                             if (k !== "study") {
                                                 return html`<span class="break-word"><span style="font-weight: bold">${k}:</span> ${v}</span><br>`;
@@ -250,14 +252,14 @@ class SampleVariantStatsView extends LitElement {
                                                     return html`<span>-</span>`;
                                                 }
                                             }
-                                        })
-                                    : "none",
+                                        }) :
+                                    "none"
                             }
                         },
                         {
                             name: "Description",
                             field: "description"
-                        },
+                        }
                     ]
                 }, {
                     title: "Variant Stats",
@@ -333,7 +335,7 @@ class SampleVariantStatsView extends LitElement {
                                     }
                                 }
                             }
-                        },
+                        }
                     ]
                 },
                 {
@@ -382,7 +384,7 @@ class SampleVariantStatsView extends LitElement {
                     ]
                 },
                 {
-                    //title: "plots2",
+                    // title: "plots2",
                     display: {
                         visible: variantStats => variantStats?.stats?.variantCount > 0
                     },
@@ -469,8 +471,8 @@ class SampleVariantStatsView extends LitElement {
         }
 
         return html`
-            ${this.sample
-                ? html`
+            ${this.sample ?
+                html`
                     <div style="margin: 20px 10px">
                         <div class="form-horizontal">
                             <div class="form-group">
@@ -480,8 +482,8 @@ class SampleVariantStatsView extends LitElement {
                                 </div>
                             </div>
                         </div>
-                    </div>`
-                : null
+                    </div>` :
+                null
             }
             <div>
                 <data-form .data=${this.variantStats} .config="${this._config}"></data-form>
