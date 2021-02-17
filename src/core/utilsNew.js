@@ -346,7 +346,7 @@ export default class UtilsNew {
      * @param {boolean} addMissingKeys Flag for adding or not keys not present in the array `keys`
      * @returns {Object} ordered Ordered object
      */
-    static objectKeySort(unordered, keys, addMissingKeys) {
+    static objectKeySort(unordered, keys, addMissingKeys = false) {
         if (!unordered) {
             console.log("Parameter unordered is not valued: ", unordered);
             return null;
@@ -364,7 +364,7 @@ export default class UtilsNew {
             }
         }
         // We check if there is any other unordered key not present in the keys array
-        if (addMissingKeys && Object.keys(unordered).length !== keys.length) {
+        if (addMissingKeys === true && Object.keys(unordered).length !== keys.length) {
             for (const unorderedKey of Object.keys(unordered)) {
                 if (!keys.includes(unorderedKey)) {
                     ordered[unorderedKey] = unordered[unorderedKey];
