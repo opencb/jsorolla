@@ -73,8 +73,6 @@ class VariantInterpreterLanding extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
-
-        this.activeTab["General"] = true;
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
@@ -82,52 +80,25 @@ class VariantInterpreterLanding extends LitElement {
         // this.requestUpdate();
     }
 
-    updated(changedProperties) {
-        if (changedProperties.has("opencgaSession")) {
-            this.opencgaSessionObserver();
+    update(changedProperties) {
+        if (changedProperties.has("opencgaSession") || changedProperties.has("clinicalAnalysis")) {
+            this.propertyObserver();
         }
-        // if (changedProperties.has("clinicalAnalysisId")) {
-        //     this.clinicalAnalysisIdObserver();
-        // }
-        if (changedProperties.has("clinicalAnalysis")) {
-            //this.clinicalAnalysisObserver();
-            //this.clinicalAnalysis;
-        }
+        super.update(changedProperties)
     }
 
-    opencgaSessionObserver() {
-
-        //debugger
-
-        // TODO decomment
-        // Check logged user is the study owner
-        /*let _studyOwner = this.opencgaSession.study.fqn.split("@")[0];
-        if (this.opencgaSession.user.id === _studyOwner) {
-            this.editMode = true;
-        } else {
-            let _editMode = false;
-            for (let group of this.opencgaSession.study.groups) {
-                if (group.id === "@admins") {
-                    _editMode = group.userIds.includes(this.opencgaSession.user.id);
-                    break;
-                }
-            }
-            if (!_editMode) {
-                _editMode = this.opencgaSession.study?.acl?.includes("WRITE_CLINICAL_ANALYSIS");
-            }
-            this.editMode = _editMode;
-        }*/
-
-        // TODO comment
-        // this.editMode = true;
-
+    propertyObserver() {
         this.editMode = OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS");
-
-        if (!this.editMode) {
-            this.activeTab = {"Overview": true};
+        if (this.clinicalAnalysis) {
+            if (!this.editMode) {
+                this.activeTab = {"Overview": true};
+            } else {
+                this.activeTab = {"General": true};
+            }
+        } else {
+            this.activeTab = {"Select": true};
         }
-
-        this.onCloseClinicalAnalysis();
+        // this.onCloseClinicalAnalysis();
 
         this.getLastClinicalAnalysis();
     }
@@ -137,11 +108,11 @@ class VariantInterpreterLanding extends LitElement {
         e.preventDefault();
 
         const tabId = e.currentTarget.dataset.id;
-        //the selectors are strictly defined to avoid conflics in tabs in children components
+        // the selectors are strictly defined to avoid conflics in tabs in children components
         $("#variant-interpreter-landing > div > .tablist > .content-pills", this).removeClass("active");
-        //$("#variant-interpreter-landing > .content-tab-wrapper > .content-tab", this).hide();
-        //$("#" + this._prefix + tabId, this).show();
-        //$("#" + this._prefix + tabId).addClass("active");
+        // $("#variant-interpreter-landing > .content-tab-wrapper > .content-tab", this).hide();
+        // $("#" + this._prefix + tabId, this).show();
+        $("#" + this._prefix + tabId).addClass("active");
         for (const tab in this.activeTab) {
             this.activeTab[tab] = false;
         }
@@ -161,7 +132,7 @@ class VariantInterpreterLanding extends LitElement {
         }));
     }
 
-    onClinicalAnalysisUpdate (e) {
+    onClinicalAnalysisUpdate(e) {
         this.dispatchEvent(new CustomEvent("clinicalAnalysisUpdate", {
             detail: {
                 clinicalAnalysis: e.detail.clinicalAnalysis
@@ -177,7 +148,7 @@ class VariantInterpreterLanding extends LitElement {
     }
 
     onProbandIdChange(key, value) {
-        //this.probandId = value;
+        // this.probandId = value;
         this.clinicalAnalysisId = value;
     }
 
@@ -238,13 +209,12 @@ class VariantInterpreterLanding extends LitElement {
 
     getLastClinicalAnalysis() {
         // Fetch object from server since the server automatically adds some information
-        //console.error("getLastClinicalAnalysis")
         this.opencgaSession.opencgaClient.clinical().search({study: this.opencgaSession.study.fqn, limit: 10})
             .then(response => {
                 this.lastClinicalAnalysis = response.responses[0].results.map(value => value.id);
                 this.lastClinicalAnalysis = [...this.lastClinicalAnalysis];
-                //console.log("this.lastClinicalAnalysis", this.lastClinicalAnalysis)
-                //debugger
+                // console.log("this.lastClinicalAnalysis", this.lastClinicalAnalysis)
+                // debugger
                 this.requestUpdate();
             })
             .catch(response => {
@@ -309,7 +279,7 @@ class VariantInterpreterLanding extends LitElement {
                                             };
                                             this.opencgaSession.opencgaClient.clinical().search(filters).then(restResponse => {
                                                 const results = restResponse.getResults();
-                                                process(results.map(item => ({name: item.id, Type: item?.type, "Proband Id": item?.proband?.id})));
+                                                process(results.map(item => ({"name": item.id, "Type": item?.type, "Proband Id": item?.proband?.id})));
                                             });
                                         }
                                     };
@@ -349,7 +319,7 @@ class VariantInterpreterLanding extends LitElement {
                             name: "Recent Analysis created",
                             field: "id",
                             type: "select",
-                            //defaultValue: this.lastClinicalAnalysis ? this.lastClinicalAnalysis[0] : null,
+                            // defaultValue: this.lastClinicalAnalysis ? this.lastClinicalAnalysis[0] : null,
                             allowedValues: data => {
                                 return this.lastClinicalAnalysis;
                             },
@@ -376,6 +346,10 @@ class VariantInterpreterLanding extends LitElement {
                     <h3>No public projects available to browse. Please login to continue</h3>
                 </div>
             `;
+        }
+
+        if (this.config?.loading) {
+            return html`<loading-spinner></loading-spinner>`;
         }
 
         return html`
@@ -405,10 +379,16 @@ class VariantInterpreterLanding extends LitElement {
                             </li>
                             ` : null
                         }
-                        <li role="presentation" class="content-pills active ${classMap({active: this.activeTab["Overview"]})}">
-                            <a href="javascript: void 0" role="tab" data-id="Overview" 
-                                @click="${this._changeTab}" class="tab-title">${this.clinicalAnalysis ? "Case Overview" : "Select Case"}</a>
-                        </li>
+                        ${this.clinicalAnalysis ? html`
+                            <li role="presentation" class="content-pills active ${classMap({active: this.activeTab["Overview"]})}">
+                                <a href="javascript: void 0" role="tab" data-id="Overview" 
+                                    @click="${this._changeTab}" class="tab-title">Case Overview</a>
+                            </li>
+                        ` : html`
+                            <li role="presentation" class="content-pills active ${classMap({active: this.activeTab["Select"]})}">
+                                <a href="javascript: void 0" role="tab" data-id="Overview" @click="${this._changeTab}" class="tab-title">Select Case</a>
+                            </li>`
+                        }
                     </ul>
                 </div>
                 
@@ -467,24 +447,24 @@ class VariantInterpreterLanding extends LitElement {
                     ` : null}
                     ${this.activeTab["Overview"] ? html`
                         <div id="${this._prefix}Overview" role="tabpanel" class="active tab-pane content-tab col-md-10 col-md-offset-1">
-                            ${this.clinicalAnalysis
-                                    ? html`
+                            ${this.clinicalAnalysis ? html`
                                 <tool-header title="Case Summary - ${this.clinicalAnalysis?.id}" class="bg-white"></tool-header>
                                 <div style="padding: 0px 20px">
                                     <opencga-clinical-analysis-view .opencgaSession="${this.opencgaSession}"
                                                                     .clinicalAnalysis="${this.clinicalAnalysis}">
                                     </opencga-clinical-analysis-view>
-                                </div>`
-                                    : this._config.clinicalAnalysisSelector
-                                            ? html`
-                                    <data-form  .data="${{}}" 
-                                                .config="${this.getSearchConfig()}" 
-                                                @fieldChange="${this.onSearchFieldChange}"
-                                                @clear="${this.onClinicalAnalysisChange}"
-                                                @submit="${this.onClinicalAnalysisChange}">
-                                    </data-form>`
-                                            : null
-                            }
+                                </div>
+                            ` : null}
+                        </div>
+                    ` : null} 
+                    ${this.activeTab["Select"] ? html`
+                        <div id="${this._prefix}Overview" role="tabpanel" class="active tab-pane content-tab col-md-10 col-md-offset-1">
+                            <data-form  .data="${{}}" 
+                                        .config="${this.getSearchConfig()}" 
+                                        @fieldChange="${this.onSearchFieldChange}"
+                                        @clear="${this.onClinicalAnalysisChange}"
+                                        @submit="${this.onClinicalAnalysisChange}">
+                            </data-form>
                         </div>
                     ` : null}
                 </div>
