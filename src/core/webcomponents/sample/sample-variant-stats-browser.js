@@ -61,6 +61,7 @@ export default class SampleVariantStatsBrowser extends LitElement {
 
     _init() {
         this._prefix = UtilsNew.randomString(8);
+        this.active = true;
 
         this.save = {};
         this.preparedQuery = {};
@@ -75,7 +76,7 @@ export default class SampleVariantStatsBrowser extends LitElement {
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
-    updated(changedProperties) {
+    update(changedProperties) {
         if ((changedProperties.has("sample") || changedProperties.has("active")) && this.active) {
             this.sampleObserver();
         }
@@ -91,6 +92,8 @@ export default class SampleVariantStatsBrowser extends LitElement {
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
         }
+
+        super.update(changedProperties);
     }
 
     sampleObserver() {
@@ -117,7 +120,7 @@ export default class SampleVariantStatsBrowser extends LitElement {
             this.preparedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
             this.executedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
         }
-        this.requestUpdate();
+        // this.requestUpdate();
     }
 
     onVariantFilterChange(e) {
@@ -136,7 +139,7 @@ export default class SampleVariantStatsBrowser extends LitElement {
         this.executedQuery = {...this.query};
 
         this.renderVariantStats();
-        this.requestUpdate();
+        // this.requestUpdate();
     }
 
     onActiveFilterClear(e) {
@@ -145,14 +148,14 @@ export default class SampleVariantStatsBrowser extends LitElement {
         this.executedQuery = {...this.query};
 
         this.renderVariantStats();
-        this.requestUpdate();
+        // this.requestUpdate();
     }
 
     async renderVariantStats() {
         this.loading = true;
         this.errorState = false;
         await this.requestUpdate();
-// debugger
+
         this.opencgaSession.opencgaClient.variants().querySampleStats(this.sample?.id, {study: this.opencgaSession.study.fqn, ...this.query})
             .then(response => {
                 this.sampleQcVariantStats = {
@@ -184,44 +187,12 @@ export default class SampleVariantStatsBrowser extends LitElement {
     }
 
     onSave(e) {
-        // Search bamFile for the sample
         let variantStats = {
             id: this.save.id,
             query: this.executedQuery || {},
             description: this.save.description || "",
             stats: this.sampleQcVariantStats.stats
         };
-
-        // // Check if a metric object for that bamFileId exists
-        // let bamFileId = this.sample.fileIds.find(fileId => fileId.endsWith(".bam"));
-        // let metric = this.sample?.qualityControl?.metrics
-        //     .find(metric => {
-        //         if (bamFileId) {
-        //             return metric.bamFileId === bamFileId;
-        //         } else {
-        //             return metric.bamFileId === "";
-        //         }
-        //     });
-        //
-        // // Save the variant stats
-        // if (metric) {
-        //     // Push the stats and signature in the existing metric object
-        //     metric.variantStats.push(variantStats);
-        // } else {
-        //     // create a new metric
-        //     metric = {
-        //         bamFileId: bamFileId ? bamFileId : "",
-        //         variantStats: [variantStats],
-        //     };
-        //     // Check if this is the first metric object
-        //     if (this.sample?.qualityControl?.metrics) {
-        //         this.sample.qualityControl.metrics.push(metric);
-        //     } else {
-        //         this.sample["qualityControl"] = {
-        //             metrics: [metric]
-        //         };
-        //     }
-        // }
 
         if (!this.sample?.qualityControl?.variantMetrics) {
             this.sample.qualityControl["variantMetrics"] = {
@@ -235,7 +206,7 @@ export default class SampleVariantStatsBrowser extends LitElement {
         } else {
             this.sample.qualityControl.variantMetrics["variantStats"] = [variantStats];
         }
-        debugger
+
         this.opencgaSession.opencgaClient.samples().update(this.sample.id, {qualityControl: this.sample.qualityControl}, {study: this.opencgaSession.study.fqn})
             .then(restResponse => {
                 console.log(restResponse);

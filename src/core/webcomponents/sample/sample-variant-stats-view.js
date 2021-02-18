@@ -16,7 +16,6 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
-import ClinicalAnalysisUtils from "../clinical/clinical-analysis-utils.js";
 import "../commons/simple-chart.js";
 import "../commons/view/data-form.js";
 
@@ -69,7 +68,7 @@ class SampleVariantStatsView extends LitElement {
 
     _init() {
         this._prefix = UtilsNew.randomString(8);
-        // this.variantStats = null;
+        this.active = true;
 
         // Default config for Highcharts charts
         this.defaultHighchartConfig = {
@@ -95,7 +94,6 @@ class SampleVariantStatsView extends LitElement {
                 useHTML: true
             }
         };
-        this.active = true;
     }
 
     connectedCallback() {
@@ -109,11 +107,12 @@ class SampleVariantStatsView extends LitElement {
             this.sampleIdObserver();
         }
 
-        if (changedProperties.has("sample")) {
+        if (changedProperties.has("sample") && this.active) {
             this.sampleObserver();
         }
 
-        if ((changedProperties.has("sampleVariantStats") || changedProperties.has("query") || changedProperties.has("description") || changedProperties.has("active")) && this.active) {
+        if ((changedProperties.has("sampleVariantStats") || changedProperties.has("query") || changedProperties.has("description") || changedProperties.has("active"))
+            && this.active) {
             this.sampleVariantStatsObserver();
         }
 
@@ -123,6 +122,7 @@ class SampleVariantStatsView extends LitElement {
             _.merge(this._config, this.config);
             this.requestUpdate();
         }
+
         super.update(changedProperties);
     }
 
@@ -167,12 +167,10 @@ class SampleVariantStatsView extends LitElement {
             query: this.query,
             description: this.description
         };
-        // this.requestUpdate();
     }
 
     statChange(e) {
         this.variantStats = this.sample.qualityControl.variantMetrics.variantStats.find(stat => stat.id === e.detail.value);
-        // this.requestUpdate();
     }
 
     getDefaultConfig() {
@@ -485,6 +483,7 @@ class SampleVariantStatsView extends LitElement {
                     </div>` :
                 null
             }
+
             <div>
                 <data-form .data=${this.variantStats} .config="${this._config}"></data-form>
             </div>
