@@ -230,7 +230,7 @@ export default class DataForm extends LitElement {
                                 }
                             </div>` :
                         html`
-                            <div class="${section.classes}" style="${section.style}">
+                            <div class="${section?.classes ?? ""}" style="${section?.style ?? ""}">
                                 ${section.sections.map(subsection => subsection.id ?
                                     html`
                                         <div class="${subsection.classes}">

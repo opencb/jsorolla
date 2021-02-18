@@ -80,16 +80,16 @@ class VariantInterpreterLanding extends LitElement {
         // this.requestUpdate();
     }
 
-    updated(changedProperties) {
+    update(changedProperties) {
         if (changedProperties.has("opencgaSession") || changedProperties.has("clinicalAnalysis")) {
             this.propertyObserver();
         }
+        super.update(changedProperties)
     }
 
     propertyObserver() {
         this.editMode = OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS");
         if (this.clinicalAnalysis) {
-            console.error("clinicalAnalysis defined");
             if (!this.editMode) {
                 this.activeTab = {"Overview": true};
             } else {

@@ -237,8 +237,6 @@ class VariantInterpreter extends LitElement {
         }
 
         return html`
-
-            this.activeTab ${JSON.stringify(this.activeTab)}
             <div class="variant-interpreter-tool">
                 ${this.clinicalAnalysis && this.clinicalAnalysis.id ? html`
                     <tool-header icon="${this._config.icon}"
