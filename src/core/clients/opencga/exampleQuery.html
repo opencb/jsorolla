@@ -15,25 +15,57 @@
 
 <script type="module">
     import {OpenCGAClient} from "./opencga-client.js";
+    import {RestResponse} from "./../rest-response.js";
 
+    const host = "";
     const user = "";
     const password = "";
+    const token = "";
 
-    const client = new OpenCGAClient({
-        host: "http://bioinfo.hpc.cam.ac.uk/opencga-prod",
-        version: "v2",
-        cookies: {active: false}
-    });
-
+    /**
+     *  Query using a token
+    */
     (async () => {
         try {
-            await client.login(user, password)
-            const session = await client.createSession();
-            const restResponse = await session.opencgaClient.files().search({id:1, study: session.study.fqn});
-            console.log(restResponse.getResults());
+            const client = new OpenCGAClient({
+                host: "http://bioinfo.hpc.cam.ac.uk/opencga-prod",
+                version: "v2",
+                cookies: {active: false},
+                token: token
+            });
 
-        } catch (e) {
-            console.error(e)
+            const restResponse = await client.samples().search({limit:10, study: "demo@population:1000g"});
+            console.table(restResponse.getResults());
+        } catch (response) {
+            if (response instanceof RestResponse) {
+                console.error(response.getEvents());
+            } else {
+                console.error(response);
+            }
+        }
+    })();
+
+    /**
+     *  Login and query (Opencga Session)
+     */
+    (async () => {
+        try {
+            const client = new OpenCGAClient({
+                host: "http://bioinfo.hpc.cam.ac.uk/opencga-prod",
+                version: "v2",
+                cookies: {active: false},
+            });
+            
+            await client.login(user, password);
+            const session = await client.createSession();
+            const restResponse = await session.opencgaClient.samples().search({limit:10, study: session.study.fqn});
+            console.log(restResponse.getResults());
+        } catch (response) {
+            if (response instanceof RestResponse) {
+                console.error(response.getEvents());
+            } else {
+                console.error(response);
+            }
         }
     })();
 </script>
