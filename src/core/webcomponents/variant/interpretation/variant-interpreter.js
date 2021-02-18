@@ -92,7 +92,7 @@ class VariantInterpreter extends LitElement {
             // With each property change we must updated config and create the columns again. No extra checks are needed.
             this._config = {...this.getDefaultConfig(), ...this.config};
             this.clinicalAnalysis = null;
-            this._changeView(this._config?.tools[0].id)
+            this._changeView(this._config?.tools[0].id);
             this.requestUpdate();
 
             // To delete
@@ -104,10 +104,11 @@ class VariantInterpreter extends LitElement {
         }
     }
 
-     clinicalAnalysisIdObserver() {
+    async clinicalAnalysisIdObserver() {
         if (this.opencgaSession) {
-            this.loading = true;
-            if ( this.clinicalAnalysisId) {
+            this._config = {...this._config, loading: true};
+            await this.requestUpdate();
+            if (this.clinicalAnalysisId) {
                 this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
                     .then(async response => {
                         this.clinicalAnalysis = response.getResult(0);
@@ -115,8 +116,8 @@ class VariantInterpreter extends LitElement {
                     .catch(response => {
                         console.error("An error occurred fetching clinicalAnalysis: ", response);
                     })
-                    .finally( async () => {
-                        this.loading = false;
+                    .finally(async () => {
+                        this._config = {...this._config, loading: false};
                         await this.requestUpdate();
                     });
             } else {
@@ -133,8 +134,8 @@ class VariantInterpreter extends LitElement {
     }
 
     _changeView(tabId) {
-        //console.log("changing to ", tabId)
-        /*$(`.clinical-portal-step`, this).removeClass("active");
+        // console.log("changing to ", tabId)
+        /* $(`.clinical-portal-step`, this).removeClass("active");
         $(`.clinical-portal-content`, this).hide(); // hides all content divs
         for (const tab in this.activeTab) this.activeTab[tab] = false;
 
@@ -153,7 +154,7 @@ class VariantInterpreter extends LitElement {
         this.requestUpdate();
     }
 
-    onClinicalAnalysisUpdate (e) {
+    onClinicalAnalysisUpdate(e) {
         this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysis.id, {study: this.opencgaSession.study.fqn})
             .then(restResponse => {
                 this.clinicalAnalysis = restResponse.responses[0].results[0];
@@ -166,7 +167,7 @@ class VariantInterpreter extends LitElement {
         this.requestUpdate();
     }
 
-    /*async closeClinicalAnalysis() {
+    /* async closeClinicalAnalysis() {
         // after a while clinicalAnalysis reappears as it is defined in the hash
         this.clinicalAnalysisId = null;
         this.clinicalAnalysis = null;
@@ -275,8 +276,8 @@ class VariantInterpreter extends LitElement {
                                             <div class="hi-icon ${item.icon}"></div>
                                             <p>${item.title}</p>
                                             <span class="smaller"></span>
-                                        </a>`
-                                    : null}
+                                        </a>` :
+                                    null}
                                 `)}
                                 </div>
                             </div> 
