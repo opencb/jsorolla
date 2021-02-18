@@ -334,7 +334,7 @@ export class OpenCGAClient {
                                                     // Fetch all the cohort
                                                     _this._notifySessionEvent("signingIn", "Fetching Cohorts");
                                                     const cohortsResponse = await _this.cohorts()
-                                                        .search({study: study.fqn, include: "id,description,numSamples,internal", limit: 10});
+                                                        .search({study: study.fqn, include: "id,description,numSamples,internal", limit: 20});
                                                     study.cohorts = cohortsResponse.responses[0].results;
 
                                                     // Check if lastStudy matches, we overwrite defaultStudy if set, no need to check.
@@ -371,22 +371,22 @@ export class OpenCGAClient {
                                         }
 
                                         // Fetch the Disease Panels for each Study
-                                        // _this._notifySessionEvent("signingIn", "Fetching Disease Panels");
-                                        // const panelPromises = [];
-                                        // for (const study of studies) {
-                                        //     const promise = _this.panels().search({
-                                        //         study: study,
-                                        //         limit: 2000,
-                                        //         include: "id,name,stats,source,genes.id,genes.name,regions.id"
-                                        //     });
-                                        //     panelPromises.push(promise);
-                                        // }
-                                        // const panelResponses = await Promise.all(panelPromises);
-                                        // for (let i = 0, t = 0; i < session.projects.length; i++) {
-                                        //     for (let x = 0; x < session.projects[i].studies.length; x++, t++) {
-                                        //         session.projects[i].studies[x].panels = panelResponses[t].getResults();
-                                        //     }
-                                        // }
+                                        _this._notifySessionEvent("signingIn", "Fetching Disease Panels");
+                                        const panelPromises = [];
+                                        for (const study of studies) {
+                                            const promise = _this.panels().search({
+                                                study: study,
+                                                limit: 2000,
+                                                include: "id,name,stats,source,genes.id,genes.name,regions.id"
+                                            });
+                                            panelPromises.push(promise);
+                                        }
+                                        const panelResponses = await Promise.all(panelPromises);
+                                        for (let i = 0, t = 0; i < session.projects.length; i++) {
+                                            for (let x = 0; x < session.projects[i].studies.length; x++, t++) {
+                                                session.projects[i].studies[x].panels = panelResponses[t].getResults();
+                                            }
+                                        }
                                     }
                                     resolve(session);
                                 } catch (e) {

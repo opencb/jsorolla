@@ -272,7 +272,7 @@ class VariantCohortStatsGrid extends LitElement {
     getDefaultConfig() {
         return {
             pagination: true,
-            pageSize: 5,
+            pageSize: 10,
             pageList: [5, 10, 25],
 
             // header: {
