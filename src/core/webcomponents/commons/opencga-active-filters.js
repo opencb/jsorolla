@@ -86,15 +86,12 @@ export default class OpencgaActiveFilters extends LitElement {
     }
 
     firstUpdated() {
-        // super.connectedCallback();
-
         // Small trick to force the warning message display after DOM is renderer
         this.query = {...this.query};
 
         // We need to init _previousQuery with query in order to work before executing any search
         this._previousQuery = this.query;
 
-        // console.log("CONFIG", this.filters)
         // If there is any active filter we set the first one in the initialisation
         if (typeof this.filters !== "undefined" && UtilsNew.isEmpty(this.query)) {
             for (const filter of this.filters) {
@@ -196,7 +193,7 @@ export default class OpencgaActiveFilters extends LitElement {
             } else {
                 this._filters = [...(this.filters || [])];
             }
-            this.requestUpdate();
+            this.requestUpdate().then(() => UtilsNew.initTooltip(this));
         });
     }
 
@@ -219,7 +216,7 @@ export default class OpencgaActiveFilters extends LitElement {
         // Remove ignored params
         // When saving a filter we do no twant to save the exact sample or file ID, otherwise the filter cannot be reused
         if (this._config?.save?.ignoreParams) {
-            for (let param of this._config.save.ignoreParams) {
+            for (const param of this._config.save.ignoreParams) {
                 delete query[param];
             }
         }
@@ -258,7 +255,12 @@ export default class OpencgaActiveFilters extends LitElement {
                                                 this._filters[i] = restResponse.response[0].result[0];
                                             }
                                         }
-
+                                        Swal.fire(
+                                            "Filter Saved",
+                                            "Filter has been saved.",
+                                            "success"
+                                        );
+                                        this.requestUpdate().then(() => UtilsNew.initTooltip(this));
                                     } else {
                                         console.error(restResponse);
                                         Swal.fire(
@@ -300,6 +302,7 @@ export default class OpencgaActiveFilters extends LitElement {
                                     "Filter has been saved.",
                                     "success"
                                 );
+                                this.requestUpdate().then(() => UtilsNew.initTooltip(this));
                             } else {
                                 console.error(restResponse);
                                 Swal.fire(
@@ -344,9 +347,9 @@ export default class OpencgaActiveFilters extends LitElement {
 
                     // We need to merge the selected filter query with the "save.ignoreParams" of the current query,
                     // otherwise the sample or file are deleted.
-                    let _query = {};
+                    const _query = {};
                     if (this._config?.save?.ignoreParams) {
-                        for (let key of Object.keys(this.query)) {
+                        for (const key of Object.keys(this.query)) {
                             if (this._config.save.ignoreParams.includes(key)) {
                                 _query[key] = this.query[key];
                             }
@@ -644,9 +647,13 @@ export default class OpencgaActiveFilters extends LitElement {
                                                 <a data-filter-id="${item.id}" class="filtersLink" style="cursor: pointer;color: ${!item.active ? "black" : "green"}" 
                                                         @click="${this.onServerFilterChange}">
                                                     <span class="id-filter-button">${item.id}</span>
-                                                    <span class="filter-buttons">
-                                                        <i title="${Object.entries(item.query).map(([k, v]) => k + "=" + v).join(", ")}" class="fas fa-eye"></i>
-                                                        <i data-cy="delete" title="Delete filter" class="fas fa-trash" data-filter-id="${item.id}" @click="${this.serverFilterDelete}"></i>
+                                                    <span class="action-buttons">
+                                                        <span tooltip-title="${item.id}"
+                                                              tooltip-text="${(item.description ? item.description + "<br>" : "") + Object.entries(item.query).map(([k, v]) => `<b>${k}</b> = ${v}`).join("<br>")}"
+                                                              data-filter-id="${item.id}">
+                                                            <i class="fas fa-eye"></i>
+                                                        </span>
+                                                        <i data-cy="delete" tooltip-title="Delete filter" class="fas fa-trash" data-filter-id="${item.id}" @click="${this.serverFilterDelete}"></i>
                                                     </span>
                                                 </a>
                                             </li>`
