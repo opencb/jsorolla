@@ -493,7 +493,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                                 <li style="padding: 5px;">
                                                     <div style="display: inline-flex; width: 300px;">
                                                         <label class="filter-label">Case ID:</label>
-                                                        <clinical-analysis-id-autocomplete .opencgaSession="${this.opencgaSession}" @filterChange="${e => this.onFilterChange("id", e.detail.value)}"></clinical-analysis-id-autocomplete>
+                                                        <clinical-analysis-id-autocomplete .config=${{showList: true}} .value="${this.query?.id}" .opencgaSession="${this.opencgaSession}" @filterChange="${e => this.onFilterChange("id", e.detail.value)}"></clinical-analysis-id-autocomplete>
                                                     </div>
                                                 </li>
                                             </ul>
@@ -512,7 +512,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                             <li style="padding: 5px;">
                                                 <div style="display: inline-flex; width: 300px;">
                                                     <label class="filter-label">Sample ID:</label>
-                                                    <sample-id-autocomplete .opencgaSession="${this.opencgaSession}" @filterChange="${e => this.onFilterChange("sample", e.detail.value)}"></sample-id-autocomplete>
+                                                    <sample-id-autocomplete .config=${{showList: true}} .value="${this.query?.sample}" .opencgaSession="${this.opencgaSession}" @filterChange="${e => this.onFilterChange("sample", e.detail.value)}"></sample-id-autocomplete>
                                                 </div>
                                             </li>
                                         </ul>
@@ -530,7 +530,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                             <li style="padding: 5px;">
                                                 <div style="display: inline-flex;width: 300px">
                                                     <label class="filter-label">Proband ID:</label>
-                                                    <proband-id-autocomplete .opencgaSession="${this.opencgaSession}" @filterChange="${e => this.onFilterChange("proband", e.detail.value)}"></proband-id-autocomplete>
+                                                    <proband-id-autocomplete .config=${{showList: true}} .value="${this.query?.proband}"  .opencgaSession="${this.opencgaSession}" @filterChange="${e => this.onFilterChange("proband", e.detail.value)}"></proband-id-autocomplete>
                                                 </div>
                                             </li>
                                         </ul>
@@ -548,7 +548,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                             <li style="padding: 5px;">
                                                 <div style="display: inline-flex; width: 300px;">
                                                     <label class="filter-label">Family ID:</label>
-                                                    <family-id-autocomplete .opencgaSession="${this.opencgaSession}" @filterChange="${e => this.onFilterChange("family", e.detail.value)}"></family-id-autocomplete>
+                                                    <family-id-autocomplete .config=${{showList: true}} .value="${this.query?.family}"  .opencgaSession="${this.opencgaSession}" @filterChange="${e => this.onFilterChange("family", e.detail.value)}"></family-id-autocomplete>
                                                 </div>
                                             </li>
                                         </ul>
@@ -560,13 +560,13 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                     <div class="btn-group">
                                         <button type="button" class="dropdown-toggle btn btn-default filter-button"
                                                 id="${this._prefix}disorderMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                                            <span class="ocap-text-button">Disorder: <span>${this.query.disorder ?? "All"}</span></span>&nbsp; <span class="caret"></span>
+                                            <span class="ocap-text-button">Disorder: <span>${this.query?.disorder ?? "All"}</span></span>&nbsp; <span class="caret"></span>
                                         </button>
                                         <ul class="dropdown-menu" aria-labelledby="${this._prefix}DisorderMenu">
                                             <li style="padding: 5px;">
                                                 <div style="display: inline-flex; width: 300px;">
                                                     <label class="filter-label">Disorder:</label>
-                                                    <disorder-id-autocomplete .opencgaSession="${this.opencgaSession}" @filterChange="${e => this.onFilterChange("disorder", e.detail.value)}"></disorder-id-autocomplete>
+                                                    <disorder-id-autocomplete .config=${{showList: true}} .value="${this.query?.disorder}"  .opencgaSession="${this.opencgaSession}" @filterChange="${e => this.onFilterChange("disorder", e.detail.value)}"></disorder-id-autocomplete>
                                                 </div>
                                             </li>
                                         </ul>
