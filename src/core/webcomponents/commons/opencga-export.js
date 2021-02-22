@@ -58,6 +58,15 @@ export default class OpencgaExport extends LitElement {
     connectedCallback() {
         super.connectedCallback();
         // this._config = {...this.getDefaultConfig(), ...this.config};
+        this.resourceMap = {
+            "FILE": "files",
+            "SAMPLE": "samples",
+            "INDIVIDUAL": "individuals",
+            "COHORT": "cohorts",
+            "FAMILY": "families",
+            "CLINICAL_ANALYSIS": "clinical",
+            "JOB": "jobs"
+        };
     }
 
     firstUpdated(_changedProperties) {
@@ -99,27 +108,60 @@ export default class OpencgaExport extends LitElement {
     }
 
     generateCode(params, language) {
-        const resourceMap = {
-            "FILE": "files",
-            "SAMPLE": "samples",
-            "INDIVIDUAL": "individuals",
-            "COHORT": "cohorts",
-            "FAMILY": "families",
-            "CLINICAL_ANALYSIS": "clinical",
-            "JOB": "jobs"
-        };
+
         if (!this.config?.resource) {
             return "Resource not defined";
         }
         switch (language) {
             case "url":
-                // TODO FIXME in case of FILE add in query `type: this.config.resource`
-                return `${this.opencgaSession.server.host}/webservices/rest/v2/${resourceMap[this.config.resource]}/search?${UtilsNew.encodeObject({...this.query, study: this.opencgaSession.study.fqn, sid: this.opencgaSession.token})}`;
+                let q = {...this.query, study: this.opencgaSession.study.fqn, sid: this.opencgaSession.token};
+                if (this.config.resource === "FILE") {
+                    q = {...q, type: this.config.resource};
+                }
+                return `${this.opencgaSession.server.host}/webservices/rest/v2/${this.resourceMap[this.config.resource]}/search?${UtilsNew.encodeObject(q)}`;
             case "curl":
+                return `curl -X GET --header "Accept: application/json" --header "Authorization: Bearer ${this.opencgaSession.token}" "${this.opencgaSession.server.host}/webservices/rest/v2/${this.resourceMap[this.config.resource]}/search?${UtilsNew.encodeObject({...this.query, study: this.opencgaSession.study.fqn})}/"`;
             case "wget":
-                return `${this.opencgaSession.server.host}/webservices/rest/v2/${resourceMap[this.config.resource]}/search?${UtilsNew.encodeObject({id: 2, count: false})}`;
-            case "js":
-                return `
+                // TODO wget is missing
+                return `${this.opencgaSession.server.host}/webservices/rest/v2/${this.resourceMap[this.config.resource]}/search?${UtilsNew.encodeObject({id: 2, count: false})}`;
+            case "js": return this.generateJs();
+            case "python": return this.generatePython();
+            case "r": return this.generateR();
+        }
+    }
+
+    generateR() {
+        // TODO add token
+        const clientsName = {
+            "FILE": "fileClient",
+            "SAMPLE": "sampleClient",
+            "INDIVIDUAL": "individualClient",
+            "COHORT": "cohortClient",
+            "FAMILY": "familyClient",
+            "CLINICAL_ANALYSIS": "clinicalAnalysisClient",
+            "JOB": "jobClient"
+        };
+        return `library(opencgaR)
+con <- initOpencgaR(host = "${this.opencgaSession.server.host}", version = "v2")
+con <- opencgaLogin(opencga = con, userid = "", passwd = "")
+${this.resourceMap[this.config.resource]} = ${clientsName[this.config.resource]}(OpencgaR = con, endpointName = "search", params = list(study="${this.opencgaSession.study.fqn}", limit=10, include="id"))
+`.split(/[\r\n]/g).filter(Boolean).map(line => html`<div class="code-line">${line}</div>`);
+    }
+
+    generatePython() {
+        return `
+from pyopencga.opencga_config import ClientConfiguration
+from pyopencga.opencga_client import OpencgaClient
+
+config = ClientConfiguration({"rest": {"host": "${this.opencgaSession.server.host}"}})
+oc = OpencgaClient(config, token="${this.opencgaSession.token}")
+${this.resourceMap[this.config.resource]} = oc.samples.search(study='${this.opencgaSession.study.fqn}', include='id', limit=10)
+print(${this.resourceMap[this.config.resource]}.get_responses())
+`.split(/[\r\n]/g).filter(Boolean).map(line => html`<div class="code-line">${line}</div>`);
+    }
+
+    generateJs() {
+        return `
 import {OpenCGAClient} from "./opencga-client.js";
 const client = new OpenCGAClient({
     host: "${this.opencgaSession.server.host}",
@@ -130,37 +172,18 @@ const client = new OpenCGAClient({
     try {
         await client.login(user, password)
         const session = await client.createSession();
-        const restResponse = await session.opencgaClient.${resourceMap[this.config.resource]}().search(${JSON.stringify({...this.query, study: this.opencgaSession.study.fqn})});
+        const restResponse = await session.opencgaClient.${this.resourceMap[this.config.resource]}().search(${JSON.stringify({...this.query, study: this.opencgaSession.study.fqn})});
         console.log(restResponse.getResults());
     } catch (e) {
         console.error(e)
     }
-})();
-                
-                `;
-            case "python":
-                return `def somefunc(param1='', param2=0):
-    r'''A docstring'''
-    if param1 > param2: # interesting
-        print 'Greater'
-    return (param2 - param1 + 1 + 0b10l) or None
-
-class SomeClass:
-    pass`;
-            case "r":
-                return `library(ggplot2)
-models <- tibble::tribble(
-  ~model_name,    ~ formula,
-  "length-width", Sepal.Length ~ Petal.Width + Petal.Length,
-  "interaction",  Sepal.Length ~ Petal.Width * Petal.Length
-)
-            `;
-        }
+})();`.split(/[\r\n]/g).filter(Boolean).map(line => html`<div class="code-line">${line}</div>`);
     }
 
     clipboard(e) {
 
     }
+
     changeMode(e) {
         this.mode = e.currentTarget.value;
         this.requestUpdate();
@@ -208,6 +231,71 @@ models <- tibble::tribble(
 
                 opencga-export code {
                     white-space: pre;
+                }
+            
+                .code-wrapper {
+                    position: relative;
+                    color: rgb(230, 236, 241);
+                    margin: 32px 0px;
+                    display: block;
+                    hyphens: none;
+                    padding: 24px 24px 24px 8px;
+                    overflow: auto;
+                    tab-size: 2;
+                    direction: ltr;
+                    font-size: 14px;
+                    background: rgb(24, 48, 85);
+                    text-align: left;
+                    word-break: normal;
+                    font-family: "Source Code Pro", Consolas, Menlo, Monaco, Courier, monospace;
+                    line-height: 1.4;
+                    white-space: pre;
+                    word-spacing: normal;
+                    border-radius: 3px;
+                }
+
+                .code-wrapper div.code-line {
+                    display: block;
+                    font: inherit;
+                    padding: 0px 14px 0px 44px;
+                    position: relative;
+                    overflow-wrap: normal;
+                    white-space: break-spaces;
+                    counter-increment: line 1;
+                }
+
+
+                .code-wrapper div.code-line:before {
+                    top: 2px;
+                    left: 4px;
+                    color: rgb(92, 105, 117);
+                    width: 24px;
+                    bottom: 0px;
+                    content: counter(line);
+                    display: inline-block;
+                    overflow: hidden;
+                    position: absolute;
+                    font-size: 12px;
+                    text-align: right;
+                    /*white-space: nowrap;*/
+                    text-overflow: ellipsis;
+                    background-color: transparent;
+                    user-select: none;
+
+                }
+
+                .code-wrapper div.clipboard {
+                    position: absolute;
+                    right: 5px;
+                    top: 5px;
+                    display: block;
+                    font-size: 20px;
+                    color: #c5c5c5;
+                    cursor: pointer;
+                }
+
+                .code-wrapper div.clipboard:hover {
+                    color: white;
                 }
             </style>
             <div>
@@ -293,13 +381,22 @@ models <- tibble::tribble(
 
                     <div class="content-tab-wrapper">
                         <div id="${this._prefix}url" class="content-tab active">
-                            <code class="language-bash">${this.generateCode({}, "url")}</code>
+                            <div class="code-wrapper">
+                                <div class="clipboard" data-clipboard-target="div.language-url" @click="${this.clipboard}"><i class="far fa-copy"></i></div>
+                                <div class="language-url">${this.generateCode({}, "url")}</div>
+                            </div>
                         </div>
                         <div id="${this._prefix}curl" class="content-tab">
-                            <code class="language-bash">${this.generateCode({}, "curl")}</code>
+                            <div class="code-wrapper">
+                                <div class="clipboard" data-clipboard-target="div.language-curl" @click="${this.clipboard}"><i class="far fa-copy"></i></div>
+                                <div class="language-curl">${this.generateCode({}, "curl")}</div>
+                            </div>
                         </div>
                         <div id="${this._prefix}wget" class="content-tab">
-                            <code class="language-bash">${this.generateCode({}, "wget")}</code>
+                            <div class="code-wrapper">
+                                <div class="clipboard" data-clipboard-target="div.language-wget" @click="${this.clipboard}"><i class="far fa-copy"></i></div>
+                                <div class="language-wget">${this.generateCode({}, "wget")}</div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -321,7 +418,10 @@ models <- tibble::tribble(
 
                     <div class="content-tab-wrapper">
                         <div id="${this._prefix}python" class="content-tab active">
-                            <code class="language-python">${this.generateCode({}, "python")}</code>
+                            <div class="code-wrapper">
+                                <div class="clipboard" data-clipboard-target="div.language-python" @click="${this.clipboard}"><i class="far fa-copy"></i></div>
+                                <div class="language-python">${this.generateCode({}, "python")}</div>
+                            </div>
 
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -330,8 +430,11 @@ models <- tibble::tribble(
                             
                         </div>
                         <div id="${this._prefix}r" class="content-tab">
-                            <code class="language-r">${this.generateCode({}, "r")}</code>
-
+                            <div class="code-wrapper">
+                                <div class="clipboard" data-clipboard-target="div.language-r" @click="${this.clipboard}"><i class="far fa-copy"></i></div>
+                                <div class="language-r">${this.generateCode({}, "r")}</div>
+                            </div>
+                            
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                                 <button type="button" class="btn btn-primary">Start Export</button>
@@ -339,8 +442,10 @@ models <- tibble::tribble(
                             
                         </div>
                         <div id="${this._prefix}js" class="content-tab">
-                            <button class="clipboard" data-clipboard-target="code.language-javascript" @click="${this.clipboard}"><i class="far fa-copy"></i></button>
-                            <code class="language-javascript">${this.generateCode({}, "js")}</code>
+                            <div class="code-wrapper">
+                                <div class="clipboard" data-clipboard-target="div.language-javascript" @click="${this.clipboard}"><i class="far fa-copy"></i></div>
+                                <div class="language-javascript">${this.generateCode({}, "js")}</div>
+                            </div>
 
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
