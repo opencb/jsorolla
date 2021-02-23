@@ -51,7 +51,7 @@ export default class OpencgaExport extends LitElement {
             code: {python: true}
         };
         this.mode = "sync";
-        this.format = "csv";
+        this.format = "tab";
         this.query = {};
     }
 
@@ -196,6 +196,14 @@ const client = new OpenCGAClient({
         this.requestUpdate();
     }
 
+    onDownloadClick() {
+        this.dispatchEvent(new CustomEvent("export", {
+            detail: {
+                option: this.format
+            }
+        }));
+    }
+
     render() {
         return html`
             <style>
@@ -261,7 +269,7 @@ const client = new OpenCGAClient({
                     padding: 0px 14px 0px 44px;
                     position: relative;
                     overflow-wrap: normal;
-                    white-space: break-spaces;
+                    white-space: pre;
                     counter-increment: line 1;
                 }
 
@@ -306,7 +314,6 @@ const client = new OpenCGAClient({
                     <li><a data-toggle="tab" href="#code">Opencga Client</a></li>
                 </ul>
             </div>
-
             <div class="tab-content">
                 <div id="plain_text" class="tab-pane active">
                     <form class="form-horizontal">
@@ -344,7 +351,7 @@ const client = new OpenCGAClient({
                         <div class="form-group">
                             <div class="col-md-12">
                                 <h4 class="export-section-title">Format</h4>
-                                <button type="button" class="btn export-buttons ripple ${classMap({active: this.format === "csv"})}" data-format="csv" @click="${this.changeFormat}">
+                                <button type="button" class="btn export-buttons ripple ${classMap({active: this.format === "tab"})}" data-format="tab" @click="${this.changeFormat}">
                                     <i class="fas fa-file-export fa-2x"></i>
                                     <span class="export-buttons-text">CSV</span>
                                 </button>
@@ -357,9 +364,12 @@ const client = new OpenCGAClient({
                     </form>
 
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                            ${this.mode === "sync" ? html`<button type="button" class="btn btn-primary">Download</button>` : html`
-                                <button type="button" class="btn btn-primary">Launch job</button>`
+                        <button type="button" class="btn btn-default ripple" data-dismiss="modal">Close</button>
+                            ${this.mode === "sync" ? html`
+                                <button type="button" class="btn btn-primary btn-lg ripple" @click="${this.onDownloadClick}">
+                                    ${this.config?.downloading === true ? html`<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>` : null} <i class="fa fa-download icon-padding" aria-hidden="true"></i> Download
+                                </button>` : html`
+                                <button type="button" class="btn btn-primary btn-lg ripple">Launch job</button>`
                             }
                     </div>
                     

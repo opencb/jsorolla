@@ -72,6 +72,15 @@ export default class OpencbGridToolbar extends LitElement {
         }));
     }
 
+    onExport(e) {
+        // simply forwarding from opencga-export to file-grid
+        this.dispatchEvent(new CustomEvent("export", {
+            detail: {
+                ...e.detail
+            }
+        }));
+    }
+
     checkboxToggle(e) {
         // We undo the checkbox action. We will toggle it on a different event
         e.currentTarget.checked = !e.currentTarget.checked;
@@ -211,12 +220,13 @@ export default class OpencbGridToolbar extends LitElement {
             <div class="modal fade" tabindex="-1" id="${this._prefix}export-modal" role="dialog">
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
+                        ${this._config.downloading ? html`<div class="overlay"><loading-spinner></loading-spinner></div>` : null}
                         <div class="modal-header">
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                             <h4 class="modal-title">Export</h4>
                         </div>
                         <div class="modal-body">
-                            <opencga-export .config="${this._config}" .query=${this.query} .opencgaSession="${this.opencgaSession}"></opencga-export>
+                            <opencga-export .config="${this._config}" .query=${this.query} .opencgaSession="${this.opencgaSession}" @export="${this.onExport}"></opencga-export>
                         </div>
                     </div>
                 </div>

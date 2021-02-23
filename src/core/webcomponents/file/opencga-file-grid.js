@@ -215,14 +215,14 @@ export default class OpencgaFileGrid extends LitElement {
     }
 
     _getDefaultColumns() {
-        let _columns = [
+        const _columns = [
             {
                 title: "Name",
                 field: "name"
             },
             {
                 title: "Directory",
-                //field: "path",
+                // field: "path",
                 formatter: (value, row) => "/" + row.path.replace("/" + row.name, "")
             },
             {
@@ -296,8 +296,8 @@ export default class OpencgaFileGrid extends LitElement {
                 if (results) {
                     // Check if user clicked in Tab or JSON format
                     if (e.detail.option.toLowerCase() === "tab") {
-                        let fields = ["id", "path", "format", "bioformat", "size", "creationDate", "modificationDate", "internal.status.name"];
-                        let data = UtilsNew.toTableString(results, fields);
+                        const fields = ["id", "path", "format", "bioformat", "size", "creationDate", "modificationDate", "internal.status.name"];
+                        const data = UtilsNew.toTableString(results, fields);
                         UtilsNew.downloadData(data, "files_" + this.opencgaSession.study.id + ".txt", "text/plain");
                     } else {
                         UtilsNew.downloadData(JSON.stringify(results, null, "\t"), "files_" + this.opencgaSession.study.id + ".json", "application/json");
@@ -335,7 +335,8 @@ export default class OpencgaFileGrid extends LitElement {
                                   .query="${this.query}"
                                   .opencgaSession="${this.opencgaSession}"
                                   @columnChange="${this.onColumnChange}"
-                                  @download="${this.onDownload}">
+                                  @download="${this.onDownload}"
+                                  @export="${this.onDownload}">
             </opencb-grid-toolbar>
             <div id="${this._prefix}GridTableDiv">
                 <table id="${this._prefix}FileBrowserGrid"></table>
