@@ -133,6 +133,7 @@ export default class OpencgaExport extends LitElement {
 
     generateR() {
         // TODO add token
+        const q = {...this.query, study: this.opencgaSession.study.fqn};
         const clientsName = {
             "FILE": "fileClient",
             "SAMPLE": "sampleClient",
@@ -145,18 +146,19 @@ export default class OpencgaExport extends LitElement {
         return `library(opencgaR)
 con <- initOpencgaR(host = "${this.opencgaSession.server.host}", version = "v2")
 con <- opencgaLogin(opencga = con, userid = "", passwd = "")
-${this.resourceMap[this.config.resource]} = ${clientsName[this.config.resource]}(OpencgaR = con, endpointName = "search", params = list(study="${this.opencgaSession.study.fqn}", limit=10, include="id"))
+${this.resourceMap[this.config.resource]} = ${clientsName[this.config.resource]}(OpencgaR = con, endpointName = "search", params = list(${Object.entries(q).map(([k, v]) => `${k}='${v}'`).join(", ")}, limit=10, include="id"))
 `.split(/[\r\n]/g).filter(Boolean).map(line => html`<div class="code-line">${line}</div>`);
     }
 
     generatePython() {
+        const q = {...this.query, study: this.opencgaSession.study.fqn};
         return `
 from pyopencga.opencga_config import ClientConfiguration
 from pyopencga.opencga_client import OpencgaClient
 
 config = ClientConfiguration({"rest": {"host": "${this.opencgaSession.server.host}"}})
 oc = OpencgaClient(config, token="${this.opencgaSession.token}")
-${this.resourceMap[this.config.resource]} = oc.samples.search(study='${this.opencgaSession.study.fqn}', include='id', limit=10)
+${this.resourceMap[this.config.resource]} = oc.${this.resourceMap[this.config.resource]}.search(include='id', limit=10, ${Object.entries(q).map(([k, v]) => `${k}='${v}'`).join(", ")})
 print(${this.resourceMap[this.config.resource]}.get_responses())
 `.split(/[\r\n]/g).filter(Boolean).map(line => html`<div class="code-line">${line}</div>`);
     }

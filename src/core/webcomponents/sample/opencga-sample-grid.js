@@ -91,6 +91,8 @@ export default class OpencgaSampleGrid extends LitElement {
 
         // Config for the grid toolbar
         this.toolbarConfig = {
+            resource: "SAMPLE",
+            buttons: ["columns", "download", "export"],
             columns: this._getDefaultColumns()
         };
 
@@ -445,13 +447,16 @@ export default class OpencgaSampleGrid extends LitElement {
         return html`
             ${this._config.showToolbar ?
                 html`
-                    <opencb-grid-toolbar    .config="${this.toolbarConfig}"
-                                            @columnChange="${this.onColumnChange}"
-                                            @download="${this.onDownload}">
+                    <opencb-grid-toolbar  .config="${this.toolbarConfig}"
+                                          .query="${this.query}"
+                                          .opencgaSession="${this.opencgaSession}"
+                                          @columnChange="${this.onColumnChange}"
+                                          @download="${this.onDownload}"
+                                          @export="${this.onDownload}">
                     </opencb-grid-toolbar>` :
                 null
             }
-    
+            
             <div id="${this._prefix}GridTableDiv">
                 <table id="${this._prefix}SampleBrowserGrid"></table>
             </div>

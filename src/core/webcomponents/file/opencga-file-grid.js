@@ -85,6 +85,7 @@ export default class OpencgaFileGrid extends LitElement {
     propertyObserver() {
         this.toolbarConfig = {
             resource: "FILE",
+            buttons: ["columns", "download", "export"],
             columns: this._getDefaultColumns()
         };
         this.renderTable();
