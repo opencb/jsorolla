@@ -573,8 +573,8 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                 field: "interpretation",
                 halign: this._config.header.horizontalAlign,
                 valign: "middle",
-                formatter: this.interpretationFormatter.bind(this)
-                // visible: !this._config.columns.hidden.includes("interpretation")
+                formatter: this.interpretationFormatter.bind(this),
+                visible: !this._config.columns.hidden.includes("interpretation")
             },
             {
                 title: "Status",

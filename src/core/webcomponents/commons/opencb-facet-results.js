@@ -204,7 +204,7 @@ class OpencbFacetResults extends LitElement {
                 margin-top: 40px;
             }
         </style>
-        <div>            
+        <div>
             ${this.loading ? html`
                 <div id="loading">
                     <loading-spinner></loading-spinner>
@@ -233,9 +233,12 @@ class OpencbFacetResults extends LitElement {
                     </opencga-facet-result-view>
                 </div>
             `) : null}
-            
-            ${!this.facetResults.length && !this.loading && !this.errorState ? html`<div class="alert alert-info" role="alert"><i class="fas fa-3x fa-info-circle align-middle"></i> Please select the aggregation fields in the Aggregation Tab on the left.</div>` : null}  
-            
+
+            ${!this.facetResults.length && !this.loading && !this.errorState ?
+                !this.query ? html`
+                    <div class="alert alert-info" role="alert"><i class="fas fa-3x fa-info-circle align-middle"></i> Please select the aggregation fields in the Aggregation Tab on the left.</div>` : html`
+                    <div class="alert alert-warning" role="alert"><i class="fas fa-3x fa-exclamation-circle align-middle"></i> Empty results</div>
+            ` : null}
         </div>
     `;
     }

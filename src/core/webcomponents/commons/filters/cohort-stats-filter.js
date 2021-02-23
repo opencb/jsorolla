@@ -76,9 +76,10 @@ export default class CohortStatsFilter extends LitElement {
             if (this.cohortStatsAlt) {
                 const cohorts = this.cohortStatsAlt.split(";");
                 cohorts.forEach(cohortStat => {
-                    const [project, study, cohortFreq] = cohortStat.split(":");
+                    const [studyId, cohortFreq] = cohortStat.split(":");
+                    console.log(studyId, cohortFreq);
                     const [cohort, comparator, value] = cohortFreq.split(/(<=?|>=?|=)/);
-                    this.state[project + ":" + study] = {cohort, comparator, value};
+                    this.state[studyId] = {cohort, comparator, value};
                 });
             }
             this.requestUpdate();
@@ -87,8 +88,8 @@ export default class CohortStatsFilter extends LitElement {
 
     _getCohorts() {
         let studiesAndCohorts = [];
-        if (this.opencgaSession?.project?.studies) {  //  && this.onlyCohortAll
-            for (let study of this.opencgaSession.project.studies) {
+        if (this.opencgaSession?.project?.studies) { //  && this.onlyCohortAll
+            for (const study of this.opencgaSession.project.studies) {
                 if (this.onlyCohortAll) {
                     studiesAndCohorts.push({
                         ...study,
@@ -120,13 +121,13 @@ export default class CohortStatsFilter extends LitElement {
 
     filterChange(e, study, cohort) {
         // e.detail.value is not defined iff you are changing the comparator and a value hasn't been set yet
-        if(e?.detail?.value) {
+        if (e?.detail?.value) {
             e.stopPropagation();
             this.state[study] = {cohort: cohort, comparator: e.detail.comparator, value: e.detail.numValue};
         } else {
             delete this.state[study];
         }
-        /*const {study, cohort, action} = e.target.dataset;
+        /* const {study, cohort, action} = e.target.dataset;
         console.log("study, cohort, action", study, cohort, action)
         if (action === "operator") {
             const operator = e.target.value;
@@ -137,7 +138,7 @@ export default class CohortStatsFilter extends LitElement {
             this.state[study] = {...this.state[study], cohort, operator: this.state[study]?.operator ?? "<", value};
         }
         */
-        const value = Object.entries(this.state).filter(([, v]) => v.value).map(([study, v]) => `${study}:${v.cohort}${v.comparator}${v.value}`).join(";");
+        const value = Object.entries(this.state).filter(([, v]) => v.value).map(([studyId, v]) => `${studyId}:${v.cohort}${v.comparator}${v.value}`).join(";");
         const event = new CustomEvent("filterChange", {
             detail: {
                 value: value
@@ -148,10 +149,11 @@ export default class CohortStatsFilter extends LitElement {
 
     render() {
         if (!this.cohortsPerStudy) {
-            return `<span>Project not found</span>`;
+            return "<span>Project not found</span>";
         }
 
-        return this.cohortsPerStudy
+        return html`
+            ${this.cohortsPerStudy
             .map(study => html`
                 <div style="padding: 5px 0px">
                     <div style="padding-bottom: 5px">
@@ -166,9 +168,9 @@ export default class CohortStatsFilter extends LitElement {
                                 .map(cohort => html`
                                     <div class="form-group" style="margin: 5px 0px">
                                         <number-field-filter
-                                                .value="${this.state?.[study.id]?.value 
-                                                        ? (this.state?.[study.id]?.comparator ?? this.defaultComparator) + (this.state?.[study.id]?.value ?? "") 
-                                                        : ""}"
+                                                .value="${this.state?.[study.id]?.value ?
+                                                        (this.state?.[study.id]?.comparator ?? this.defaultComparator) + (this.state?.[study.id]?.value ?? "") :
+                                                        ""}"
                                                 .config="${{comparator: true, layout: [4, 3, 5]}}"
                                                 .label="${cohort.id}"
                                                 type="text"
@@ -182,8 +184,9 @@ export default class CohortStatsFilter extends LitElement {
                         }
                     </div>
                 </div>
-            `);
+            `)}`;
     }
+
 }
 
 customElements.define("cohort-stats-filter", CohortStatsFilter);
