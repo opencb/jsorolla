@@ -83,7 +83,7 @@ export default class OpencgaExport extends LitElement {
                     // hljs.highlightBlock(block);
                 });
 
-                new ClipboardJS(".clipboard");
+                new ClipboardJS(".clipboard-button");
             }
             this.requestUpdate();
 
@@ -107,7 +107,7 @@ export default class OpencgaExport extends LitElement {
 
     }
 
-    generateCode(params, language) {
+    generateCode(language) {
 
         if (!this.config?.resource) {
             return "Resource not defined";
@@ -127,6 +127,7 @@ export default class OpencgaExport extends LitElement {
             case "js": return this.generateJs();
             case "python": return this.generatePython();
             case "r": return this.generateR();
+            case "bash": return `bash`;
         }
     }
 
@@ -249,7 +250,7 @@ const client = new OpenCGAClient({
                     word-break: normal;
                     font-family: "Source Code Pro", Consolas, Menlo, Monaco, Courier, monospace;
                     line-height: 1.4;
-                    white-space: pre;
+                    /*white-space: pre;*/
                     word-spacing: normal;
                     border-radius: 3px;
                 }
@@ -284,7 +285,7 @@ const client = new OpenCGAClient({
 
                 }
 
-                .code-wrapper div.clipboard {
+                div.clipboard-button {
                     position: absolute;
                     right: 5px;
                     top: 5px;
@@ -294,7 +295,7 @@ const client = new OpenCGAClient({
                     cursor: pointer;
                 }
 
-                .code-wrapper div.clipboard:hover {
+                div.clipboard-button:hover {
                     color: white;
                 }
             </style>
@@ -382,20 +383,26 @@ const client = new OpenCGAClient({
                     <div class="content-tab-wrapper">
                         <div id="${this._prefix}url" class="content-tab active">
                             <div class="code-wrapper">
-                                <div class="clipboard" data-clipboard-target="div.language-url" @click="${this.clipboard}"><i class="far fa-copy"></i></div>
-                                <div class="language-url">${this.generateCode({}, "url")}</div>
+                                <div class="clipboard-button" data-clipboard-target="div.language-url" @click="${this.clipboard}"><i class="far fa-copy"></i></div>
+                                <div class="code language-url">
+                                    ${this.generateCode("url")}
+                                </div>
                             </div>
                         </div>
                         <div id="${this._prefix}curl" class="content-tab">
                             <div class="code-wrapper">
-                                <div class="clipboard" data-clipboard-target="div.language-curl" @click="${this.clipboard}"><i class="far fa-copy"></i></div>
-                                <div class="language-curl">${this.generateCode({}, "curl")}</div>
+                                <div class="clipboard-button" data-clipboard-target="div.language-curl" @click="${this.clipboard}"><i class="far fa-copy"></i></div>
+                                <div class="code language-curl">
+                                    ${this.generateCode("curl")}
+                                </div>
                             </div>
                         </div>
                         <div id="${this._prefix}wget" class="content-tab">
                             <div class="code-wrapper">
-                                <div class="clipboard" data-clipboard-target="div.language-wget" @click="${this.clipboard}"><i class="far fa-copy"></i></div>
-                                <div class="language-wget">${this.generateCode({}, "wget")}</div>
+                                <div class="clipboard-button" data-clipboard-target="div.language-wget" @click="${this.clipboard}"><i class="far fa-copy"></i></div>
+                                <div class="code language-wget">
+                                    ${this.generateCode("wget")}
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -408,6 +415,9 @@ const client = new OpenCGAClient({
                         <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab.code["python"]})}" @click="${this._changeTab}" data-view-id="code"
                                 data-tab-id="python">Python
                         </button>
+                        <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab.code["bash"]})}" @click="${this._changeTab}" data-view-id="code"
+                                data-tab-id="bash">Bash
+                        </button>
                         <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab.code["r"]})}" @click="${this._changeTab}" data-view-id="code"
                                 data-tab-id="r">R
                         </button>
@@ -419,20 +429,38 @@ const client = new OpenCGAClient({
                     <div class="content-tab-wrapper">
                         <div id="${this._prefix}python" class="content-tab active">
                             <div class="code-wrapper">
-                                <div class="clipboard" data-clipboard-target="div.language-python" @click="${this.clipboard}"><i class="far fa-copy"></i></div>
-                                <div class="language-python">${this.generateCode({}, "python")}</div>
+                                <div class="clipboard-button" data-clipboard-target="div.language-python" @click="${this.clipboard}"><i class="far fa-copy"></i></div>
+                                <div class="code language-python">
+                                    ${this.generateCode("python")}
+                                </div>
                             </div>
-
+                                
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                                 <button type="button" class="btn btn-primary">Start Export</button>
                             </div>
                             
                         </div>
+                        <div id="${this._prefix}bash" class="content-tab">
+                            <div class="code-wrapper">
+                                <div class="clipboard-button" data-clipboard-target="div.language-bash" @click="${this.clipboard}"><i class="far fa-copy"></i></div>
+                                <div class="code language-bash">
+                                    ${this.generateCode("bash")}
+                                </div>
+                            </div>
+
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                <button type="button" class="btn btn-primary">Start Export</button>
+                            </div>
+
+                        </div>
                         <div id="${this._prefix}r" class="content-tab">
                             <div class="code-wrapper">
-                                <div class="clipboard" data-clipboard-target="div.language-r" @click="${this.clipboard}"><i class="far fa-copy"></i></div>
-                                <div class="language-r">${this.generateCode({}, "r")}</div>
+                                <div class="clipboard-button" data-clipboard-target="div.language-r" @click="${this.clipboard}"><i class="far fa-copy"></i></div>
+                                <div class="code language-r">
+                                    ${this.generateCode("r")}
+                                </div>
                             </div>
                             
                             <div class="modal-footer">
@@ -443,10 +471,11 @@ const client = new OpenCGAClient({
                         </div>
                         <div id="${this._prefix}js" class="content-tab">
                             <div class="code-wrapper">
-                                <div class="clipboard" data-clipboard-target="div.language-javascript" @click="${this.clipboard}"><i class="far fa-copy"></i></div>
-                                <div class="language-javascript">${this.generateCode({}, "js")}</div>
+                                <div class="clipboard-button" data-clipboard-target="div.language-javascript" @click="${this.clipboard}"><i class="far fa-copy"></i></div>
+                                <div class="code language-javascript">
+                                    ${this.generateCode("js")}
+                                </div>
                             </div>
-
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                                 <button type="button" class="btn btn-primary">Start Export</button>
