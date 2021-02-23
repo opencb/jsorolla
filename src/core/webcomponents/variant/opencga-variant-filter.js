@@ -343,13 +343,16 @@ export default class OpencgaVariantFilter extends LitElement {
                     }
                     break;
                 case "cohort":   //._cohorts="${this._cohorts}"
-                    content = html`
-                        <cohort-stats-filter .opencgaSession="${this.opencgaSession}" 
-                                             .cohorts="${subsection.cohorts}" 
-                                             .onlyCohortAll=${subsection.onlyCohortAll} 
-                                             .cohortStatsAlt="${this.preparedQuery.cohortStatsAlt}" 
-                                             @filterChange="${e => this.onFilterChange("cohortStatsAlt", e.detail.value)}">
-                        </cohort-stats-filter>`;
+                    // FIXME subsection.cohorts must be renamed to subsection.studies
+                    if (subsection.cohorts[0].cohorts?.length > 0) {
+                        content = html`
+                            <cohort-stats-filter .opencgaSession="${this.opencgaSession}" 
+                                                 .cohorts="${subsection.cohorts}" 
+                                                 .onlyCohortAll=${subsection.onlyCohortAll} 
+                                                 .cohortStatsAlt="${this.preparedQuery.cohortStatsAlt}" 
+                                                 @filterChange="${e => this.onFilterChange("cohortStatsAlt", e.detail.value)}">
+                            </cohort-stats-filter>`;
+                    }
                     break;
                 case "sample":
                     content = html`

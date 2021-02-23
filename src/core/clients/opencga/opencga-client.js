@@ -334,7 +334,7 @@ export class OpenCGAClient {
                                                     // Fetch all the cohort
                                                     _this._notifySessionEvent("signingIn", "Fetching Cohorts");
                                                     const cohortsResponse = await _this.cohorts()
-                                                        .search({study: study.fqn, include: "id,description,numSamples,internal", limit: 20});
+                                                        .search({study: study.fqn, internalStatus: "READY", include: "id,description,numSamples,internal", limit: 20});
                                                     study.cohorts = cohortsResponse.responses[0].results;
 
                                                     // Check if lastStudy matches, we overwrite defaultStudy if set, no need to check.
