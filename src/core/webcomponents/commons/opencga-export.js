@@ -415,6 +415,10 @@ const client = new OpenCGAClient({
                                 </div>
                             </div>
                         </div>
+                        
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default ripple" data-dismiss="modal">Close</button>
+                        </div>
                     </div>
                 </div>
 
@@ -444,12 +448,6 @@ const client = new OpenCGAClient({
                                     ${this.generateCode("python")}
                                 </div>
                             </div>
-                                
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                                <button type="button" class="btn btn-primary">Start Export</button>
-                            </div>
-                            
                         </div>
                         <div id="${this._prefix}bash" class="content-tab">
                             <div class="code-wrapper">
@@ -458,12 +456,6 @@ const client = new OpenCGAClient({
                                     ${this.generateCode("bash")}
                                 </div>
                             </div>
-
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                                <button type="button" class="btn btn-primary">Start Export</button>
-                            </div>
-
                         </div>
                         <div id="${this._prefix}r" class="content-tab">
                             <div class="code-wrapper">
@@ -471,11 +463,6 @@ const client = new OpenCGAClient({
                                 <div class="code language-r">
                                     ${this.generateCode("r")}
                                 </div>
-                            </div>
-                            
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                                <button type="button" class="btn btn-primary">Start Export</button>
                             </div>
                             
                         </div>
@@ -486,11 +473,11 @@ const client = new OpenCGAClient({
                                     ${this.generateCode("js")}
                                 </div>
                             </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                                <button type="button" class="btn btn-primary">Start Export</button>
-                            </div>
                             
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default ripple" data-dismiss="modal">Close</button>
                         </div>
                     </div>
                 </div>
