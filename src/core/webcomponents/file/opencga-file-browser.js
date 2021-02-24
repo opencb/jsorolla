@@ -205,7 +205,19 @@ export default class OpencgaFileBrowser extends LitElement {
                             id: "file-preview",
                             name: "Preview",
                             render: (file, active, opencgaSession) => {
-                                return html`<opencga-file-preview .opencgaSession=${opencgaSession} .active="${active}" .file="${file}"></opencga-file-preview>`;
+                                let title = "";
+                                switch (file.format) {
+                                    case "VCF":
+                                        title = "VCF HEAD";
+                                        break;
+                                    case "IMAGE":
+                                        title = "IMAGE";
+                                        break;
+                                }
+                                return html`
+                                    <div><h3>${title}</h3></div>
+                                    <opencga-file-preview .opencgaSession=${opencgaSession} .active="${active}" .file="${file}"></opencga-file-preview>
+                                `;
                             }
                         },
                         {

@@ -173,7 +173,9 @@ export default class OpencgaFileView extends LitElement {
 
                             display: {
                                 visible: this.mode === "full",
-                                render: file => html`<opencga-file-preview .opencgaSession=${this.opencgaSession} .active="${true}" .file="${file}"></opencga-file-preview>`
+                                render: file => {
+                                    return html`<opencga-file-preview .opencgaSession=${this.opencgaSession} .active="${true}" .file="${file}"></opencga-file-preview>`
+                                }
                             }
                         }
                     ]
