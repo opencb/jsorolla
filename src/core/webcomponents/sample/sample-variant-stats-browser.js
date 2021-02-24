@@ -408,12 +408,6 @@ export default class SampleVariantStatsBrowser extends LitElement {
             return;
         }
 
-        if (!this.sample) {
-            return html`
-                <div class="alert alert-warning" role="alert"><i class="fas fa-3x fa-exclamation-circle align-middle"></i> No sample available for Proband</div>
-            `;
-        }
-
         return html`
             ${this.sample && this._config.showTitle
                 ? html`
