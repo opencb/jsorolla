@@ -145,6 +145,12 @@ class VariantInterpreterQc extends LitElement {
                 </div>`;
         }
 
+        if (!this.clinicalAnalysis.proband?.samples?.length) {
+            return html`
+                <div class="alert alert-warning" role="alert"><i class="fas fa-3x fa-exclamation-circle align-middle"></i> No sample available for Proband</div>
+            `;
+        }
+
         // Different cases types will show different QC tools (displayed as tabs).
         // To avoid initialising unnecessary components we only render the needed components based on the case type.
         return html`
