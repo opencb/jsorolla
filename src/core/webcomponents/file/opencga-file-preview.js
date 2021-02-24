@@ -23,6 +23,7 @@ export default class OpencgaFilePreview extends LitElement {
 
     constructor() {
         super();
+
         this._init();
     }
 
@@ -49,12 +50,13 @@ export default class OpencgaFilePreview extends LitElement {
 
     _init() {
         // this.prefix = "osv" + UtilsNew.randomString(6);
-        this._config = this.getDefaultConfig();
         this.file = {};
+        this._config = this.getDefaultConfig();
     }
 
     connectedCallback() {
         super.connectedCallback();
+
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
@@ -67,11 +69,8 @@ export default class OpencgaFilePreview extends LitElement {
             this.fileObserver();
         }
         if (changedProperties.has("config")) {
-            this.configObserver();
+            this._config = {...this.getDefaultConfig(), ...this.config};
         }
-    }
-
-    configObserver() {
     }
 
     async fileObserver() {
@@ -81,7 +80,7 @@ export default class OpencgaFilePreview extends LitElement {
             lines: 200
         };
         this.content = null;
-        this.title = "";
+        // this.title = "";
         this.contentType = null;
         await this.requestUpdate();
         switch (this.file.format) {
@@ -90,7 +89,7 @@ export default class OpencgaFilePreview extends LitElement {
             case "UNKNOWN":
             case "TAB_SEPARATED_VALUES":
                 this.contentType = "text";
-                this.title = "Head";
+                // this.title = "Head";
                 this.opencgaSession.opencgaClient.files().head(this.file.id, params)
                     .then( response => {
                         const {format, content} = response.getResult(0);
@@ -133,7 +132,7 @@ export default class OpencgaFilePreview extends LitElement {
                 break;
             case "IMAGE":
                 this.contentType = "image";
-                this.title = "Image";
+                // this.title = "Image";
                 this.opencgaSession.opencgaClient.files().image(this.file.id, params)
                     .then( response => {
                         this.requestUpdate().then( () => this.querySelector("#thumbnail").src = "data:image/png;base64, " + response.getResult(0).content);
@@ -153,12 +152,10 @@ export default class OpencgaFilePreview extends LitElement {
 
     fileIdObserver() {
         console.log("fileObserver");
-
     }
 
     getDefaultConfig() {
-        return {
-        };
+        return {};
     }
 
     render() {
@@ -172,7 +169,6 @@ export default class OpencgaFilePreview extends LitElement {
                 padding-left: 5px;
                 padding-right: 10px;
             }
-            
             pre.cmd {
                 background: black;
                 font-family: "Courier New", monospace;
@@ -181,15 +177,14 @@ export default class OpencgaFilePreview extends LitElement {
                 font-size: .9em;
                 min-height: 150px;
             }
-                             
         </style>
-        
         
         
         ${this.file ? html`
             <div class="row">
-                ${this.title ? html`<h3>${this.title}</h3>` : ""}
                 <div class="col-md-12">
+<!--                    ${this.title ? html`<h4>${this.title}</h4>` : ""}-->
+                
                     ${this.contentType === "unsupported" ? html`
                         <p class="alert alert-warning">${this.content}</p>` : null}
                     ${this.contentType === "text" ? html`

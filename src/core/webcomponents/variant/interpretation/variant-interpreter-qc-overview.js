@@ -24,6 +24,7 @@ import "./variant-interpreter-qc-mendelian-errors.js";
 import "./variant-interpreter-qc-signature.js";
 import "./variant-interpreter-qc-alignment-stats.js";
 import "./variant-interpreter-qc-gene-coverage-stats.js";
+import "../../sample/sample-files-view.js";
 
 class VariantInterpreterQcOverview extends LitElement {
 
@@ -150,7 +151,7 @@ class VariantInterpreterQcOverview extends LitElement {
                             },
                             {
                                 id: "VariantStats",
-                                title: "Variant Stats"
+                                title: "QC Plot Files"
                             },
                             {
                                 id: "GenomicContext",
@@ -221,12 +222,8 @@ class VariantInterpreterQcOverview extends LitElement {
                         </div>
                          
                         <div id="${this._prefix}VariantStats" role="tabpanel" class="tab-pane content-tab">
-                            <h3>Sample Variant Stats</h3>
-                            <!--
-                            <variant-interpreter-qc-variant-stats   .opencgaSession=${this.opencgaSession} 
-                                                                    .clinicalAnalysis="${this.clinicalAnalysis}">
-                            </variant-interpreter-qc-variant-stats>
-                            -->
+                            <h3>QC Plot Files</h3>
+                            <sample-files-view .sampleId="${this.clinicalAnalysis.proband.samples[0].id}" .opencgaSession="${this.opencgaSession}"></sample-files-view>
                         </div>
                         
                         <div id="${this._prefix}InferredSex" role="tabpanel" class="tab-pane content-tab">

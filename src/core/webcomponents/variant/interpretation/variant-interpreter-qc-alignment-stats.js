@@ -49,7 +49,8 @@ class VariantInterpreterQcAlignmentStats extends LitElement {
     }
 
     _init() {
-        this._prefix = "vcis-" + UtilsNew.randomString(6);
+        this._prefix = UtilsNew.randomString(8);
+
         this._config = this.getDefaultConfig();
     }
 
@@ -102,7 +103,7 @@ class VariantInterpreterQcAlignmentStats extends LitElement {
                     ];
                     break;
                 case "CANCER":
-                    this.samples = [this.clinicalAnalysis.proband?.samples];
+                    this.samples = this.clinicalAnalysis.proband?.samples;
                     break;
             }
             this.requestUpdate();

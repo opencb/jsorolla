@@ -53,7 +53,7 @@ export default class OpencgaSampleBrowser extends LitElement {
     }
 
     _init() {
-        this._prefix = "sb" + UtilsNew.randomString(6);
+        this._prefix = UtilsNew.randomString(8);
 
         // These are for making the queries to server
         this.facetFields = [];
@@ -75,6 +75,7 @@ export default class OpencgaSampleBrowser extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
+
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
@@ -374,9 +375,9 @@ export default class OpencgaSampleBrowser extends LitElement {
     render() {
         return this._config ? html`
             <opencga-browser  resource="SAMPLE"
-                            .opencgaSession="${this.opencgaSession}"
-                            .query="${this.query}"
-                            .config="${this._config}">
+                              .opencgaSession="${this.opencgaSession}"
+                              .query="${this.query}"
+                              .config="${this._config}">
             </opencga-browser>` : null;
     }
 

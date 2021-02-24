@@ -125,13 +125,15 @@ class SamtoolsFlagstatsView extends LitElement {
             this._config.columns = [];
             let _flagstats = [];
             for (let sample of this.samples) {
-                if (sample?.qualityControl?.alignmentMetrics?.length > 0  && sample.qualityControl.alignmentMetrics[0].samtoolsFlagstats) {
-                    _flagstats.push(sample.qualityControl.alignmentMetrics[0].samtoolsFlagstats);
+                let alignmentMetric = sample?.qualityControl?.alignmentMetrics?.[0];
+                // if (sample?.qualityControl?.alignmentMetrics?.length > 0 && sample.qualityControl.alignmentMetrics[0].samtoolsFlagstats) {
+                if (alignmentMetric) {
+                    _flagstats.push(alignmentMetric.samtoolsFlagstats);
 
                     // Get BAM file name and add it to the table
-                    let bamFileName = sample.qualityControl.alignmentMetrics[0].bamFileId || "N/A";
-                    if (sample.qualityControl.alignmentMetrics[0].bamFileId?.includes(":")) {
-                        let parts = sample.qualityControl.alignmentMetrics[0].bamFileId.split(":");
+                    let bamFileName = alignmentMetric.bamFileId || "N/A";
+                    if (alignmentMetric.bamFileId?.includes(":")) {
+                        let parts = alignmentMetric.bamFileId.split(":");
                         bamFileName = parts[parts.length - 1];
                     }
 
@@ -181,7 +183,7 @@ class SamtoolsFlagstatsView extends LitElement {
             const dataString = [
                 ["#key", ...header].join("\t"),
                 d.join("\n")];
-            UtilsNew.downloadData(dataString, "samtools_" + this.opencgaSession.study.id + ".txt", "text/plain");
+            UtilsNew.downloadData(dataString, "samtools_flagstats.txt", "text/plain");
         } else {
             UtilsNew.downloadData(JSON.stringify(this.flagstats, null, "\t"), this.opencgaSession.study.id + ".json", "application/json");
         }

@@ -27,7 +27,7 @@ import "../file/opencga-file-grid.js";
 import "../file/opencga-file-filter.js";
 import "../file/opencga-file-detail.js";
 import "../sample/opencga-sample-grid.js";
-import "../sample/opencga-sample-filter.js";
+import "../sample/sample-browser-filter.js";
 import "../sample/opencga-sample-detail.js";
 import "../individual/opencga-individual-grid.js";
 import "../individual/opencga-individual-filter.js";
@@ -427,13 +427,13 @@ export default class OpencgaBrowser extends LitElement {
                                 ` : null}
                                 
                                 ${this.resource === "SAMPLE" ? html`
-                                    <opencga-sample-filter  .opencgaSession="${this.opencgaSession}"
+                                    <sample-browser-filter  .opencgaSession="${this.opencgaSession}"
                                                             .config="${this._config.filter}"
                                                             .query="${this.query}"
                                                             .searchButton="${false}"
                                                             @queryChange="${this.onQueryFilterChange}"
                                                             @querySearch="${this.onQueryFilterSearch}">
-                                    </opencga-sample-filter>
+                                    </sample-browser-filter>
                                 ` : null}
                                 
                                 ${this.resource === "INDIVIDUAL" ? html`
