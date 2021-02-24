@@ -155,18 +155,20 @@ class SampleVariantStatsView extends LitElement {
     }
 
     sampleVariantStatsObserver() {
-        this.variantStats = {
-            stats: {
-                ...this.sampleVariantStats.stats,
-                chromosomeCount: UtilsNew.objectKeySort(this.sampleVariantStats?.stats?.chromosomeCount, CHROMOSOMES, false),
-                depthCount: UtilsNew.objectKeySort(this.sampleVariantStats?.stats?.depthCount, ["lt5", "lt10", "lt15", "lt20", "gte20", "na"]),
-                typeCount: UtilsNew.objectKeySort(this.sampleVariantStats?.stats?.typeCount, ["SNV", "INDEL", "CNV", "INSERTION", "DELETION"], true),
-                indelLengthCount: UtilsNew.objectKeySort(this.sampleVariantStats?.stats?.indelLengthCount, ["lt5", "lt10", "lt15", "lt20", "gte20"]),
-                clinicalSignificanceCount: UtilsNew.objectKeySort(this.sampleVariantStats?.stats?.clinicalSignificanceCount, ["benign_likely_benign", "uncertain_significance", "likely_pathogenic", "pathogenic"])
-            },
-            query: this.query,
-            description: this.description
-        };
+        if (this.sampleVariantStats?.stats) {
+            this.variantStats = {
+                stats: {
+                    ...this.sampleVariantStats?.stats,
+                    chromosomeCount: UtilsNew.objectKeySort(this.sampleVariantStats?.stats?.chromosomeCount, CHROMOSOMES, false),
+                    depthCount: UtilsNew.objectKeySort(this.sampleVariantStats?.stats?.depthCount, ["lt5", "lt10", "lt15", "lt20", "gte20", "na"]),
+                    typeCount: UtilsNew.objectKeySort(this.sampleVariantStats?.stats?.typeCount, ["SNV", "INDEL", "CNV", "INSERTION", "DELETION"], true),
+                    indelLengthCount: UtilsNew.objectKeySort(this.sampleVariantStats?.stats?.indelLengthCount, ["lt5", "lt10", "lt15", "lt20", "gte20"]),
+                    clinicalSignificanceCount: UtilsNew.objectKeySort(this.sampleVariantStats?.stats?.clinicalSignificanceCount, ["benign_likely_benign", "uncertain_significance", "likely_pathogenic", "pathogenic"])
+                },
+                query: this.query,
+                description: this.description
+            };
+        }
     }
 
     statChange(e) {

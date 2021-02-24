@@ -199,6 +199,12 @@ class VariantInterpreterQcOverview extends LitElement {
             `;
         }
 
+        if (!this.clinicalAnalysis.proband?.samples?.length) {
+            return html`
+                <div class="alert alert-warning" role="alert"><i class="fas fa-3x fa-exclamation-circle align-middle"></i> No sample available for Proband</div>
+            `;
+        }
+
         return html`
             <!--<tool-header title="${this._config.title}" class="bg-white" icon="${this._config.icon}"></tool-header>-->
             <div class="row variant-interpreter-overview" style="padding: 10px 15px">

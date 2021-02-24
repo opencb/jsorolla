@@ -146,6 +146,12 @@ class VariantInterpreterBrowser extends LitElement {
                 </div>`;
         }
 
+        if (!this.clinicalAnalysis.proband?.samples?.length) {
+            return html`
+                <div class="alert alert-warning" role="alert"><i class="fas fa-3x fa-exclamation-circle align-middle"></i> No sample available for Proband</div>
+            `;
+        }
+
         return this.clinicalAnalysis ? html`
             <div id="${this._prefix}QcTabs">
                 <div class="">

@@ -404,8 +404,14 @@ export default class SampleVariantStatsBrowser extends LitElement {
     }
 
     render() {
-        if (!this.opencgaSession) {
+        if (!this.opencgaSession?.study) {
             return;
+        }
+
+        if (!this.sample) {
+            return html`
+                <div class="alert alert-warning" role="alert"><i class="fas fa-3x fa-exclamation-circle align-middle"></i> No sample available for Proband</div>
+            `;
         }
 
         return html`
