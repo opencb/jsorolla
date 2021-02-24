@@ -338,6 +338,11 @@ export default class OpencgaActiveFilters extends LitElement {
     }
 
     onServerFilterChange(e) {
+        // suppress if I actually have clicked on an action buttons
+        if (e.target.className !== "id-filter-button") {
+            return;
+        }
+
         this.querySelector("#" + this._prefix + "Warning").style.display = "none";
         if (!UtilsNew.isUndefinedOrNull(this._filters)) {
             // We look for the filter name in the filters array

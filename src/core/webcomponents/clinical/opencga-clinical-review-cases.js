@@ -110,12 +110,15 @@ export default class OpencgaClinicalReviewCases extends LitElement {
     }
 
     onServerFilterChange(e) {
-        console.log("onFilterChange", e);
+        // suppress if I actually have clicked on an action buttons
+        if (e.target.className !== "id-filter-button") {
+            return;
+        }
+
         for (const filter of this._filters) {
             if (e.currentTarget.dataset.filterId === filter.id) {
                 this.query = filter.query;
                 this.requestUpdate();
-                //this.setQueryFilters(this._query);
                 break;
             }
         }
@@ -158,13 +161,6 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                     });
             }
         });
-    }
-
-    onFilterInputText(e) {
-        const filterId = e.currentTarget.dataset.id;
-        const value = e.currentTarget.value;
-
-        this.updateInputTextMenuItem(filterId, value);
     }
 
     launchModal() {
