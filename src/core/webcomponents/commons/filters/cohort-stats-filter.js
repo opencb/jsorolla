@@ -90,13 +90,15 @@ export default class CohortStatsFilter extends LitElement {
         let studiesAndCohorts = [];
         if (this.opencgaSession?.project?.studies) { //  && this.onlyCohortAll
             for (const study of this.opencgaSession.project.studies) {
-                if (this.onlyCohortAll) {
-                    studiesAndCohorts.push({
-                        ...study,
-                        cohorts: [{id: "ALL"}]
-                    });
-                } else {
-                    studiesAndCohorts = this.cohorts;
+                if (study.cohorts?.length) {
+                    if (this.onlyCohortAll) {
+                        studiesAndCohorts.push({
+                            ...study,
+                            cohorts: [{id: "ALL"}]
+                        });
+                    } else {
+                        studiesAndCohorts = this.cohorts;
+                    }
                 }
             }
         }
@@ -127,17 +129,7 @@ export default class CohortStatsFilter extends LitElement {
         } else {
             delete this.state[study];
         }
-        /* const {study, cohort, action} = e.target.dataset;
-        console.log("study, cohort, action", study, cohort, action)
-        if (action === "operator") {
-            const operator = e.target.value;
-            this.state[study] = {...this.state[study], cohort, operator};
-        }
-        if (action === "value") {
-            const value = e.target.value;
-            this.state[study] = {...this.state[study], cohort, operator: this.state[study]?.operator ?? "<", value};
-        }
-        */
+        // serialize this.state in the form of "STUDY_ID:COHORT_ID<VALUE;.."
         const value = Object.entries(this.state).filter(([, v]) => v.value).map(([studyId, v]) => `${studyId}:${v.cohort}${v.comparator}${v.value}`).join(";");
         const event = new CustomEvent("filterChange", {
             detail: {
@@ -148,12 +140,12 @@ export default class CohortStatsFilter extends LitElement {
     }
 
     render() {
-        if (!this.cohortsPerStudy) {
-            return "<span>Project not found</span>";
+        if (!this.cohortsPerStudy?.length) {
+            return html`<span>Cohort Variants Stats not available.</span>`;
         }
 
         return html`
-            ${this.cohortsPerStudy
+            ${this.cohortsPerStudy 
             .map(study => html`
                 <div style="padding: 5px 0px">
                     <div style="padding-bottom: 5px">
