@@ -113,7 +113,7 @@ export default class OpencgaBrowser extends LitElement {
         UtilsNew.initTooltip(this);
     }
 
-    updated(changedProperties) {
+    update(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
             this.opencgaSessionObserver();
         }
@@ -123,6 +123,7 @@ export default class OpencgaBrowser extends LitElement {
         if (changedProperties.has("selectedFacet")) {
             this.selectedFacetObserver();
         }
+        super.update(changedProperties)
     }
 
     opencgaSessionObserver() {
@@ -135,7 +136,10 @@ export default class OpencgaBrowser extends LitElement {
              *  As a consequence, we need to update preparedQuery as this.onRun() uses it (without it the old study is in query in table result as well)
              */
             this.preparedQuery = {study: this.opencgaSession.study.fqn};
-            this.onRun();
+            this.facetQuery = null;
+            this.selectedFacetFormatted = null;
+            this.requestUpdate();
+            // this.onRun();
 
             // this.requestUpdate().then(() => $(".bootstrap-select", this).selectpicker());
         } else {
