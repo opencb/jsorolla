@@ -142,13 +142,18 @@ export default class OpencgaActiveFilters extends LitElement {
     }
 
     facetQueryObserver() {
-        const queryString = JSON.stringify(UtilsNew.objectSort(this.facetQuery));
-        const prevQueryString = JSON.stringify(UtilsNew.objectSort(this._facetQuery));
-        if (Object.keys(this.facetQuery).length && (queryString !== prevQueryString)) {
-            this.querySelector("#" + this._prefix + "Warning").style.display = "block";
-            this._facetQuery = this.facetQuery;
+        if (Object.keys(this.facetQuery).length) {
+            const queryString = JSON.stringify(UtilsNew.objectSort(this.facetQuery));
+            const prevQueryString = JSON.stringify(UtilsNew.objectSort(this._facetQuery));
+            if (queryString !== prevQueryString) {
+                this.querySelector("#" + this._prefix + "Warning").style.display = "block";
+                this._facetQuery = this.facetQuery;
+            } else {
+                this.querySelector("#" + this._prefix + "Warning").style.display = "none";
+                this._facetQuery = {};
+            }
         } else {
-            this.querySelector("#" + this._prefix + "Warning").style.display = "none";
+            this._facetQuery = {};
         }
     }
 
@@ -629,9 +634,10 @@ export default class OpencgaActiveFilters extends LitElement {
                     <span><strong>Warning!</strong></span>&nbsp;&nbsp;Filters have changed, please click on <strong> ${this._config.searchButtonText} </strong> to update the results.
                 </div>
             `}
-        
-            <!-- <div class="alert alert-info">query ${JSON.stringify(this.query)}</div>
-            <div class="alert alert-info">queryList ${JSON.stringify(this.queryList)}</div> -->
+
+            <!--<div class="alert alert-info">query ${JSON.stringify(this.query)}</div>
+            <div class="alert alert-info">queryList ${JSON.stringify(this.queryList)}</div>
+             <div class="alert alert-info">facetQuery ${JSON.stringify(this.facetQuery)}</div>-->
             <div class="panel panel-default">
                 <div class="panel-body" style="padding: 8px 10px">
                     <div class="lhs">
@@ -782,7 +788,7 @@ export default class OpencgaActiveFilters extends LitElement {
                         ` : null}
                     </div>
                     <!-- aggregation stat section -->
-                    ${this.facetActive && Object.keys(this.facetQuery).length ? html`
+                    ${this.facetActive && this.facetQuery && Object.keys(this.facetQuery).length ? html`
                         <div class="facet-wrapper">
                             <p class="active-filter-label">Aggregation fields</p>
                                 <div class="button-list">

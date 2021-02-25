@@ -212,9 +212,6 @@ export default class OpencgaFamilyGrid extends LitElement {
                 },
                 onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse),
                 onPostBody: (data) => {
-                    // Add tooltips
-                    this.catalogUiUtils.addTooltip("div.phenotypesTooltip", "Phenotypes");
-                    this.catalogUiUtils.addTooltip("div.membersTooltip", "Members");
                 }
             });
         }
