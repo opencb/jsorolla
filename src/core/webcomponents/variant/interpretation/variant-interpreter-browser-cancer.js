@@ -330,15 +330,14 @@ class VariantInterpreterBrowserCancer extends LitElement {
                     lockedFields: [{id: "sample"}]
                 },
                 callers: [
-                    {
-                        id: "caveman",
-                        queryString: "FILTER=PASS;CLPM=0;ASMD>=140"
-                    },
-                    {
-                        id: "pindel",
-                        queryString: "FILTER=PASS;QUAL>=250;REP<=9"
-                        // queryString: "FILTER=PASS;QUAL>=250"
-                    }
+                    // {
+                    //     id: "caveman",
+                    //     queryString: "FILTER=PASS;CLPM=0;ASMD>=140"
+                    // },
+                    // {
+                    //     id: "pindel",
+                    //     queryString: "FILTER=PASS;QUAL>=250;REP<=9"
+                    // }
                 ],
                 sections: [     // sections and subsections, structure and order is respected
                     {
