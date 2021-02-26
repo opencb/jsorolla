@@ -22,6 +22,9 @@ import PolymerUtils from "../../PolymerUtils.js";
 import "./rga-individual-filter.js";
 import "./rga-individual-grid.js";
 
+/**
+ * @deprecated
+ */
 export default class RgaIndividualView extends LitElement {
 
     constructor() {

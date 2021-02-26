@@ -121,7 +121,7 @@ export default class RgaIndividualGrid extends LitElement {
                     //skip: params.data.offset || 0,
                     //count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
                     ...this._query,
-                    geneName: "BRCA2",
+                    geneName: "BRCA2,BRCA1",
                     limit: 2
                 };
                 this.opencgaSession.opencgaClient.clinical().queryRgaIndividual(_filters)

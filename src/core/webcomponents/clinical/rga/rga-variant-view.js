@@ -22,6 +22,11 @@ import PolymerUtils from "../../PolymerUtils.js";
 import "./rga-variant-filter.js";
 import "./rga-variant-grid.js";
 
+
+/**
+ * @deprecated
+ */
+
 export default class RgaVariantView extends LitElement {
 
     constructor() {

@@ -18,7 +18,6 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../utilsNew.js";
 import GridCommons from "../../commons/grid-commons.js";
 import CatalogGridFormatter from "../../commons/catalog-grid-formatter.js";
-import PolymerUtils from "../../PolymerUtils.js";
 
 
 export default class RgaGeneGrid extends LitElement {
@@ -121,7 +120,7 @@ export default class RgaGeneGrid extends LitElement {
                     // skip: params.data.offset || 0,
                     // count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
                     ...this._query,
-                    geneName: "BRCA2",
+                    geneName: "BRCA2,BRCA1",
                     limit: 2
                 };
                 this.opencgaSession.opencgaClient.clinical().queryRgaGene(_filters)

@@ -21,6 +21,9 @@ import CatalogGridFormatter from "../../commons/catalog-grid-formatter.js";
 import PolymerUtils from "../../PolymerUtils.js";
 import "./rga-gene-grid.js";
 
+/**
+ * @deprecated
+ */
 export default class RgaGeneView extends LitElement {
 
     constructor() {
