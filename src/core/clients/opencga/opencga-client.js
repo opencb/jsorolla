@@ -337,7 +337,7 @@ export class OpenCGAClient {
                                                         .search({study: study.fqn, internalStatus: "READY", include: "id,description,numSamples,internal", limit: 20});
                                                     study.cohorts = cohortsResponse.responses[0].results;
 
-                                                    // Check if lastStudy matches, we overwrite defaultStudy if set, no need to check.
+                                                    // Check if lastStudy form User Configuration matches
                                                     if (session.user?.configs?.IVA?.lastStudy === study.fqn) {
                                                         session.project = project;
                                                         session.study = study;
