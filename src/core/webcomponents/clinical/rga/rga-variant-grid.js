@@ -339,7 +339,7 @@ export default class RgaVariantGrid extends LitElement {
                 <div class="row">
                     <table id="${this.gridId}"></table>
                 </div>
-                <detail-tabs .data="${this.variant}" .config="${this.detailConfig}" .opencgaSession="${this.opencgaSession}" .cellbaseClient="${this.cellbaseClient}"></detail-tabs>
+                ${this.variant ? html`<detail-tabs .data="${this.variant}" .config="${this.detailConfig}" .opencgaSession="${this.opencgaSession}" .cellbaseClient="${this.cellbaseClient}"></detail-tabs>` : null}
             </div>
         `;
     }

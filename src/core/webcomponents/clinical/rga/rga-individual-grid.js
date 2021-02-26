@@ -298,9 +298,7 @@ export default class RgaIndividualGrid extends LitElement {
             <div id="${this._prefix}GridTableDiv">
                 <table id="${this._prefix}RgaIndividualBrowserGrid"></table>
             </div>
-
             ${this.individual ? html`<detail-tabs .data="${this.individual}" .config="${this.detailConfig}" .opencgaSession="${this.opencgaSession}"></detail-tabs>`: ""}
-
         `;
     }
 

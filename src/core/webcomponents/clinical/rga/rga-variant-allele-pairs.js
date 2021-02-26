@@ -136,7 +136,7 @@ export default class RgaVariantAllelePairs extends LitElement {
     }
 
     render() {
-        return html`   
+        return html`
             <div class="row">
                 <table id="${this.gridId}"></table>
             </div>
