@@ -229,7 +229,7 @@ class OpencgaVariantFacetQuery extends LitElement {
                         name: "Biotypes", value: "biotypes"
                     },
                     {
-                        name: "Consequence Type", value: "soAcc"
+                        name: "Consequence Type", value: "consequenceType"
                     }
                 ],
                 ranges: [

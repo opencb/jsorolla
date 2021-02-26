@@ -522,7 +522,7 @@ export default class VariantBrowser extends LitElement {
                                 id: "biotypes", name: "Biotype", type: "string"
                             },
                             {
-                                id: "soAcc", name: "Consequence Type", type: "string"
+                                id: "consequenceType", name: "Consequence Type", type: "string"
                             }
                         ]
                     },
