@@ -341,16 +341,7 @@ export class OpenCGAClient {
                                                     if (session.user?.configs?.IVA?.lastStudy === study.fqn) {
                                                         session.project = project;
                                                         session.study = study;
-                                                    } else {
-                                                        // TODO rethink the defaultStudy feature: do we need it? should have more priority than lastStudy?
-                                                        // If study matches the defaultStudy AND no lastStudy ha been found, in other words:
-                                                        // This CANNOT overwrite lastStudy
-                                                        if (application.defaultStudy === study.fqn && !session.project && !session.study) {
-                                                            session.project = project;
-                                                            session.study = study;
-                                                        }
                                                     }
-
                                                     // Keep track of the studies to fetch Disease Panels
                                                     studies.push(project.id + ":" + study.id);
                                                 }
