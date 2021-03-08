@@ -100,9 +100,6 @@ class AlignmentStatsView extends LitElement {
         // };
     }
 
-    firstUpdated(_changedProperties) {
-    }
-
     updated(changedProperties) {
         if (changedProperties.has("fileIds")) {
             this.fileIdsObserver();

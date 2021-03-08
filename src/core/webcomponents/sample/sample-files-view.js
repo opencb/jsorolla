@@ -97,18 +97,31 @@ export default class SampleFilesView extends LitElement {
 
     getDefaultConfig() {
         return {
-
+            imageOrder: ["sunrise.png", "rawprofile.png", "ASCATprofile.png", "ASPCF.png", "germline.png", "tumour.png"]
         };
     }
 
     render() {
         let images = this.files.filter(file => file.format === "IMAGE");
+
+        // Sort images using config order
+        if (images?.length > 0 && this._config?.imageOrder) {
+            images.sort((a, b) => {
+                let left = this._config.imageOrder.findIndex(value => a.name.includes(value));
+                let right = this._config.imageOrder.findIndex(value => b.name.includes(value));
+                // Not found images must be displayed at the end
+                left = left !== -1 ? left : 10;
+                right = right !== -1 ? right : 10;
+                return left - right;
+            });
+        }
+
         return html`
             ${this.title ? html`<h3>${this.title} <span class="badge">${images.length > 0 ? images.length : ""}</span></h3>` : ""}
             ${images && images.map(file => html`
-                <div class="col-md-12" style="padding: 15px 5px;">
+                <div class="col-md-12" style="padding: 15px 5px">
                     <h4>${file.name} ${file.software?.name ? html` - <span style="font-style: italic">${file.software.name.toUpperCase()}</span>` : ""}</h4>
-                    <div style="padding: 5px 10px">
+                    <div style="padding: 5px 20px">
                         <opencga-file-preview .opencgaSession=${this.opencgaSession} .file=${file} .active="${true}"></opencga-file-preview>
                     </div>
                 </div>
