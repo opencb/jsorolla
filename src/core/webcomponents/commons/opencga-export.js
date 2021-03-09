@@ -50,15 +50,9 @@ export default class OpencgaExport extends LitElement {
             link: {url: true},
             code: {python: true}
         };
-        this.mode = "sync";
-        this.format = "tab";
-        this.query = {};
-    }
 
-    connectedCallback() {
-        super.connectedCallback();
-        // this._config = {...this.getDefaultConfig(), ...this.config};
         this.resourceMap = {
+            "VARIANT": "variants",
             "FILE": "files",
             "SAMPLE": "samples",
             "INDIVIDUAL": "individuals",
@@ -67,6 +61,16 @@ export default class OpencgaExport extends LitElement {
             "CLINICAL_ANALYSIS": "clinical",
             "JOB": "jobs"
         };
+
+        this.mode = "sync";
+        this.format = "tab";
+        this.query = {};
+    }
+
+    connectedCallback() {
+        super.connectedCallback();
+        // this._config = {...this.getDefaultConfig(), ...this.config};
+
     }
 
     firstUpdated(_changedProperties) {
@@ -74,7 +78,9 @@ export default class OpencgaExport extends LitElement {
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("query")) {
+        if (changedProperties.has("opencgaSession")) {
+
+
         }
         if (changedProperties.has("query") || changedProperties.has("config")) {
             // this._config = {...this.getDefaultConfig(), ...this.config};
@@ -112,22 +118,38 @@ export default class OpencgaExport extends LitElement {
         if (!this.config?.resource) {
             return "Resource not defined";
         }
+        if (!this.opencgaSession?.study) {
+            return "OpencgaSession not available";
+        }
+
+        let q = {...this.query, study: this.opencgaSession.study.fqn, sid: this.opencgaSession.token};
+        if (this.config.resource === "FILE") {
+            q = {...q, type: this.config.resource};
+        }
+        let ws = `${this.resourceMap[this.config.resource]}/${this.method}`;
+        if (this.config.resource === "VARIANT") {
+            this.method = "query";
+            ws = `analysis/variant/query`;
+
+        } else {
+            this.method = "search";
+        }
         switch (language) {
-            case "url":
-                let q = {...this.query, study: this.opencgaSession.study.fqn, sid: this.opencgaSession.token};
+        case "url":
                 if (this.config.resource === "FILE") {
                     q = {...q, type: this.config.resource};
                 }
-                return `${this.opencgaSession.server.host}/webservices/rest/v2/${this.resourceMap[this.config.resource]}/search?${UtilsNew.encodeObject(q)}`;
+                return `${this.opencgaSession.server.host}/webservices/rest/v2/${ws}?${UtilsNew.encodeObject(q)}`;
             case "curl":
-                return `curl -X GET --header "Accept: application/json" --header "Authorization: Bearer ${this.opencgaSession.token}" "${this.opencgaSession.server.host}/webservices/rest/v2/${this.resourceMap[this.config.resource]}/search?${UtilsNew.encodeObject({...this.query, study: this.opencgaSession.study.fqn})}/"`;
+                return `curl -X GET --header "Accept: application/json" --header "Authorization: Bearer ${this.opencgaSession.token}" "${this.opencgaSession.server.host}/webservices/rest/v2/${ws}?${UtilsNew.encodeObject({...this.query, study: this.opencgaSession.study.fqn})}/"`;
             case "wget":
-                // TODO wget is missing
-                return `${this.opencgaSession.server.host}/webservices/rest/v2/${this.resourceMap[this.config.resource]}/search?${UtilsNew.encodeObject({id: 2, count: false})}`;
+                if (this.config.resource === "FILE") {
+                    q = {...q, type: this.config.resource};
+                }
+                return `wget -O ${this.resourceMap[this.config.resource]}.txt "${this.opencgaSession.server.host}/webservices/rest/v2/${ws}?${UtilsNew.encodeObject(q)}"`;
             case "js": return this.generateJs();
             case "python": return this.generatePython();
             case "r": return this.generateR();
-            case "bash": return `bash`;
         }
     }
 
@@ -135,6 +157,7 @@ export default class OpencgaExport extends LitElement {
         // TODO add token
         const q = {...this.query, study: this.opencgaSession.study.fqn};
         const clientsName = {
+            "VARIANT": "variantClient",
             "FILE": "fileClient",
             "SAMPLE": "sampleClient",
             "INDIVIDUAL": "individualClient",
@@ -146,7 +169,7 @@ export default class OpencgaExport extends LitElement {
         return `library(opencgaR)
 con <- initOpencgaR(host = "${this.opencgaSession.server.host}", version = "v2")
 con <- opencgaLogin(opencga = con, userid = "", passwd = "")
-${this.resourceMap[this.config.resource]} = ${clientsName[this.config.resource]}(OpencgaR = con, endpointName = "search", params = list(${Object.entries(q).map(([k, v]) => `${k}='${v}'`).join(", ")}, limit=10, include="id"))
+${this.resourceMap[this.config.resource]} = ${clientsName[this.config.resource]}(OpencgaR = con, endpointName = "${this.method}", params = list(${Object.entries(q).map(([k, v]) => `${k}='${v}'`).join(", ")}, limit=10, include="id"))
 `.split(/[\r\n]/g).filter(Boolean).map(line => html`<div class="code-line">${line}</div>`);
     }
 
@@ -158,7 +181,7 @@ from pyopencga.opencga_client import OpencgaClient
 
 config = ClientConfiguration({"rest": {"host": "${this.opencgaSession.server.host}"}})
 oc = OpencgaClient(config, token="${this.opencgaSession.token}")
-${this.resourceMap[this.config.resource]} = oc.${this.resourceMap[this.config.resource]}.search(include='id', limit=10, ${Object.entries(q).map(([k, v]) => `${k}='${v}'`).join(", ")})
+${this.resourceMap[this.config.resource]} = oc.${this.resourceMap[this.config.resource]}.${this.method}(include='id', limit=10, ${Object.entries(q).map(([k, v]) => `${k}='${v}'`).join(", ")})
 print(${this.resourceMap[this.config.resource]}.get_responses())
 `.split(/[\r\n]/g).filter(Boolean).map(line => html`<div class="code-line">${line}</div>`);
     }
@@ -431,9 +454,6 @@ const client = new OpenCGAClient({
                         <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab.code["python"]})}" @click="${this._changeTab}" data-view-id="code"
                                 data-tab-id="python">Python
                         </button>
-                        <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab.code["bash"]})}" @click="${this._changeTab}" data-view-id="code"
-                                data-tab-id="bash">Bash
-                        </button>
                         <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab.code["r"]})}" @click="${this._changeTab}" data-view-id="code"
                                 data-tab-id="r">R
                         </button>
@@ -448,14 +468,6 @@ const client = new OpenCGAClient({
                                 <div class="clipboard-button" data-clipboard-target="div.language-python" @click="${this.clipboard}"><i class="far fa-copy"></i></div>
                                 <div class="code language-python">
                                     ${this.generateCode("python")}
-                                </div>
-                            </div>
-                        </div>
-                        <div id="${this._prefix}bash" class="content-tab">
-                            <div class="code-wrapper">
-                                <div class="clipboard-button" data-clipboard-target="div.language-bash" @click="${this.clipboard}"><i class="far fa-copy"></i></div>
-                                <div class="code language-bash">
-                                    ${this.generateCode("bash")}
                                 </div>
                             </div>
                         </div>

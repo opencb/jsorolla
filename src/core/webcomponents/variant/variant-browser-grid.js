@@ -109,6 +109,8 @@ export default class VariantBrowserGrid extends LitElement {
         const fieldToHide = ["deleteriousness", "cohorts", "conservation", "popfreq", "phenotypes", "clinicalInfo"];
         // Config for the grid toolbar
         this.toolbarConfig = {
+            resource: "VARIANT",
+            buttons: ["columns", "download", "export"],
             columns: this._createDefaultColumns()
                 .flat()
                 .filter(f => f.title && !fieldToHide.includes(f.field) && (f.visible ?? true))
@@ -735,10 +737,12 @@ export default class VariantBrowserGrid extends LitElement {
     render() {
         return html`           
             <div>
-                <opencb-grid-toolbar    .config="${this.toolbarConfig}"
-                                        @columnChange="${this.onColumnChange}"
-                                        @download="${this.onDownload}"
-                                        @sharelink="${this.onShare}">
+                <opencb-grid-toolbar
+                        .opencgaSession="${this.opencgaSession}"
+                        .config="${this.toolbarConfig}"
+                        @columnChange="${this.onColumnChange}"
+                        @download="${this.onDownload}"
+                        @sharelink="${this.onShare}">
                 </opencb-grid-toolbar>
                 
                 <div>
