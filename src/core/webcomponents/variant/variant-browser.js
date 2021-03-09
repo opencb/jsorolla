@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "./../../utilsNew.js";
-import OpencgaCatalogUtils from "../../clients/opencga/opencga-catalog-utils.js";
+// import OpencgaCatalogUtils from "../../clients/opencga/opencga-catalog-utils.js";
 import "../commons/tool-header.js";
 import "./opencga-variant-filter.js";
 import "./variant-browser-grid.js";
