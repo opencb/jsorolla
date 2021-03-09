@@ -262,7 +262,7 @@ export default class OpencgaJobGrid extends LitElement {
             },
             {
                 title: "Status",
-                field: "internal.status.name",
+                field: "internal.status",
                 formatter: status => UtilsNew.jobStatusFormatter(status)
             },
 

@@ -570,7 +570,7 @@ export default class VariantBrowser extends LitElement {
 
     render() {
         // Check if there is any project available
-        if (!this.opencgaSession || !this.opencgaSession.project) {
+        if (!this.opencgaSession?.study) {
             return html`
                 <div class="guard-page">
                     <i class="fas fa-lock fa-5x"></i>
