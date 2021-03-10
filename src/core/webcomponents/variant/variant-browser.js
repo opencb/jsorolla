@@ -694,7 +694,7 @@ export default class VariantBrowser extends LitElement {
                                                         .cellbaseClient="${this.cellbaseClient}"
                                                         .variantId="${this.variantId}"
                                                         .config="${this._config.filter.detail}">
-                                    </variant-browser-detail-view>
+                                    </variant-browser-detail>
                             </div>
 
                             <div id="facet-tab" class="content-tab">
