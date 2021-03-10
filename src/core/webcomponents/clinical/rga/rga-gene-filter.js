@@ -156,7 +156,7 @@ export default class RgaGeneFilter extends LitElement {
             case "clinicalSignificance":
                 content = html`<clinvar-accessions-filter .config="${{clinvar: false}}" .clinicalSignificance="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e?.detail?.value?.clinicalSignificance)}"></clinvar-accessions-filter>`;
                 break;
-            case "familyMember":
+            case "numParents":
                 content = html`<checkbox-field-filter .value="${this.preparedQuery[subsection.id]}" .data="${subsection.allowedValues}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></checkbox-field-filter>`;
                 break;
             case "probandOnly":

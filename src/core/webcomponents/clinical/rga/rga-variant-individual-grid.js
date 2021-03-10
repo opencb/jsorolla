@@ -137,7 +137,7 @@ export default class RgaVariantIndividualGrid extends LitElement {
 
     render() {
         return html`
-            <h3>Individual presenting ${this.variant?.id}</h3>
+            <h3 class="break-word">Individual presenting ${this.variant?.id}</h3>
             <div class="row">
                 <table id="${this.gridId}"></table>
             </div>
