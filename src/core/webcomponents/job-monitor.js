@@ -239,7 +239,7 @@ export class JobMonitor extends LitElement {
                                                 <h4 class="media-heading">${job.id}</h4>
                                                 <small>${job.tool.id}</small> |
                                                 <small>${moment(job.creationDate, "YYYYMMDDHHmmss").format("D MMM YYYY, h:mm:ss a")}</small>
-                                                <p>${UtilsNew.renderHTML(UtilsNew.jobStatusFormatter(job?.internal?.status?.name))}</p> 
+                                                <p>${UtilsNew.renderHTML(UtilsNew.jobStatusFormatter(job?.internal?.status))}</p> 
                                             </div>
                                         </div>
                                      </a>
