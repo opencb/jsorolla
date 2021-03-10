@@ -121,9 +121,9 @@ export default class OpencgaBrowser extends LitElement {
             this.queryObserver();
         }
         if (changedProperties.has("selectedFacet")) {
-            this.selectedFacetObserver();
+            this.facetQueryBuilder();
         }
-        super.update(changedProperties)
+        super.update(changedProperties);
     }
 
     opencgaSessionObserver() {
@@ -148,7 +148,7 @@ export default class OpencgaBrowser extends LitElement {
     }
 
     queryObserver() {
-        if (this.opencgaSession) {
+        if (this?.opencgaSession?.study?.fqn) {
             if (this.query) {
                 this.preparedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
                 this.executedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
@@ -164,6 +164,20 @@ export default class OpencgaBrowser extends LitElement {
         ));
         this.detail = {};
         this.requestUpdate();
+    }
+
+    facetQueryBuilder() {
+        if (Object.keys(this.selectedFacet).length) {
+            this.facetQuery = {
+                ...this.preparedQuery,
+                study: this.opencgaSession.study.fqn,
+                // timeout: 60000,
+                field: Object.values(this.selectedFacetFormatted).map(v => v.formatted).join(";")
+            };
+            this._changeView("facet-tab");
+        } else {
+            this.facetQuery = null;
+        }
     }
 
     notifySearch(query) {
@@ -183,7 +197,8 @@ export default class OpencgaBrowser extends LitElement {
         // this.executedQuery = {...this.preparedQuery}; this.requestUpdate();
         this.notifySearch(this.preparedQuery);
 
-        if (Object.keys(this.selectedFacet).length) {
+        this.facetQueryBuilder();
+        /*if (Object.keys(this.selectedFacet).length) {
             this.facetQuery = {
                 ...this.preparedQuery,
                 study: this.opencgaSession.study.fqn,
@@ -193,7 +208,7 @@ export default class OpencgaBrowser extends LitElement {
             this._changeView("facet-tab");
         } else {
             this.facetQuery = null;
-        }
+        }*/
     }
 
     onFilterChange(e) {
@@ -215,22 +230,27 @@ export default class OpencgaBrowser extends LitElement {
     }
 
     onQueryFilterChange(e) {
+        // console.log("onQueryFilterChange")
         this.preparedQuery = e.detail.query;
         this.requestUpdate();
     }
 
     onActiveFilterChange(e) {
+        // console.log("onActiveFilterChange");
         this.preparedQuery = {study: this.opencgaSession.study.fqn, ...e.detail};
         this.query = {study: this.opencgaSession.study.fqn, ...e.detail};
+        this.facetQueryBuilder();
     }
 
     onActiveFilterClear() {
-        console.log("onActiveFilterClear");
+        // console.log("onActiveFilterClear");
         this.query = {study: this.opencgaSession.study.fqn};
         this.preparedQuery = {...this.query};
+        this.facetQueryBuilder();
     }
 
     onFacetQueryChange(e) {
+        // console.log("onFacetQueryChange");
         this.selectedFacetFormatted = e.detail.value;
         this.requestUpdate();
     }

@@ -129,6 +129,94 @@ export default class OpencgaActiveFilters extends LitElement {
         }
     }
 
+    opencgaSessionObserver() {
+        if (this.opencgaClient instanceof OpenCGAClient && UtilsNew.isNotUndefined(this.opencgaSession.token)) {
+            this.refreshFilters();
+        }
+    }
+
+    queryObserver() {
+        const _queryList = [];
+        const keys = Object.keys(this.query);
+        for (const keyIdx in keys) {
+            const key = keys[keyIdx];
+            if (UtilsNew.isNotEmpty(this.query[key]) && (!this._config.hiddenFields || (this._config.hiddenFields && !this._config.hiddenFields.includes(key)))) {
+
+                // TODO review. why is this in a loop?
+                const queryString = JSON.stringify(UtilsNew.objectSort(this.query));
+                const prevQueryString = JSON.stringify(UtilsNew.objectSort(this._previousQuery));
+                if (queryString !== prevQueryString) {
+                    this.querySelector("#" + this._prefix + "Warning").style.display = "block";
+                } else {
+                    this.querySelector("#" + this._prefix + "Warning").style.display = "none";
+                }
+
+                // We use the alias to rename the key
+                let title = key;
+                if (UtilsNew.isNotUndefinedOrNull(this._config.alias) && UtilsNew.isNotUndefinedOrNull(this._config.alias[key])) {
+                    title = this._config.alias[key];
+                }
+
+                // We convert the Query entry object into an array of small objects (queryList)
+                let value = this.query[key];
+                if (typeof value === "boolean") {
+                    value = value.toString();
+                }
+
+                let filterFields = [];
+
+                // in case of annotation
+                if (key === "annotation") {
+                    filterFields = value.split(";");
+                } else if (key === "study") {
+                    // We fist have need to remove defaultStudy from 'filterFields' and 'value'
+                    filterFields = value.split(/[,;]/).filter(fqn => fqn !== this.defaultStudy);
+                    // defaultStudy was the only one present so no need to render anything
+                    if (!filterFields.length) {
+                        continue;
+                    }
+                    value = filterFields.join(/[,;]/);
+                } else {
+                    // If we find a field with both ; and , or the field has been defined as complex, we will only
+                    // separate by ;
+                    if ((value.indexOf(";") !== -1 && value.indexOf(",") !== -1) || this._config.complexFields.indexOf(key) !== -1) {
+                        filterFields = value.split(new RegExp(";"));
+                    } else {
+                        filterFields = value.split(new RegExp("[,;]"));
+                    }
+                }
+
+
+                const locked = UtilsNew.isNotUndefinedOrNull(this.lockedFieldsMap[key]);
+                const lockedTooltip = UtilsNew.isNotUndefinedOrNull(this.lockedFieldsMap[key]) ? this.lockedFieldsMap[key].message : "";
+
+                // Just in case one is a flag
+                if (filterFields.length === 0) {
+                    _queryList.push({name: key, text: title, locked: locked, message: lockedTooltip});
+                } else {
+                    if (filterFields.length === 1) {
+                        if (value.indexOf(">") !== -1 || value.indexOf("<") !== -1 || value.indexOf("=") !== -1) {
+                            _queryList.push({name: key, text: title + ": " + value, locked: locked, message: lockedTooltip});
+                        } else {
+                            _queryList.push({name: key, text: title + " = " + value, locked: locked, message: lockedTooltip});
+                        }
+                        //                                }
+                    } else {
+                        _queryList.push({name: key, text: title, items: filterFields, locked: locked, message: lockedTooltip});
+                    }
+                }
+            }
+        }
+        this.queryList = _queryList;
+
+        this.requestUpdate();
+    }
+
+    searchClicked() {
+        $("#" + this._prefix + "Warning").hide();
+        this._previousQuery = this.query;
+    }
+
     configObserver() {
         this._config = Object.assign({}, this.getDefaultConfig(), this.config);
 
@@ -142,10 +230,10 @@ export default class OpencgaActiveFilters extends LitElement {
     }
 
     facetQueryObserver() {
+        // console.log("facetQueryObserver", this.facetQuery)
         if (Object.keys(this.facetQuery).length) {
-            const queryString = JSON.stringify(UtilsNew.objectSort(this.facetQuery));
-            const prevQueryString = JSON.stringify(UtilsNew.objectSort(this._facetQuery));
-            if (queryString !== prevQueryString) {
+            console.log("compare:", UtilsNew.objectCompare(this.facetQuery, this._facetQuery))
+            if (!UtilsNew.objectCompare(this.facetQuery, this._facetQuery)) {
                 this.querySelector("#" + this._prefix + "Warning").style.display = "block";
                 this._facetQuery = this.facetQuery;
             } else {
@@ -180,12 +268,6 @@ export default class OpencgaActiveFilters extends LitElement {
 
     isLoggedIn() {
         return !!this?.opencgaSession?.token;
-    }
-
-    opencgaSessionObserver() {
-        if (this.opencgaClient instanceof OpenCGAClient && UtilsNew.isNotUndefined(this.opencgaSession.token)) {
-            this.refreshFilters();
-        }
     }
 
     refreshFilters() {
@@ -343,7 +425,7 @@ export default class OpencgaActiveFilters extends LitElement {
     }
 
     onServerFilterChange(e) {
-        // suppress if I actually have clicked on an action buttons
+        // suppress if I have clicked on an action buttons
         if (e.target.className !== "id-filter-button") {
             return;
         }
@@ -502,88 +584,6 @@ export default class OpencgaActiveFilters extends LitElement {
             bubbles: true,
             composed: true
         }));
-    }
-
-    queryObserver() {
-        const _queryList = [];
-        const keys = Object.keys(this.query);
-        for (const keyIdx in keys) {
-            const key = keys[keyIdx];
-            if (UtilsNew.isNotEmpty(this.query[key]) && (!this._config.hiddenFields || (this._config.hiddenFields && !this._config.hiddenFields.includes(key)))) {
-
-                // TODO review. why is this in a loop?
-                const queryString = JSON.stringify(UtilsNew.objectSort(this.query));
-                const prevQueryString = JSON.stringify(UtilsNew.objectSort(this._previousQuery));
-                if (queryString !== prevQueryString) {
-                    this.querySelector("#" + this._prefix + "Warning").style.display = "block";
-                } else {
-                    this.querySelector("#" + this._prefix + "Warning").style.display = "none";
-                }
-
-                // We use the alias to rename the key
-                let title = key;
-                if (UtilsNew.isNotUndefinedOrNull(this._config.alias) && UtilsNew.isNotUndefinedOrNull(this._config.alias[key])) {
-                    title = this._config.alias[key];
-                }
-
-                // We convert the Query entry object into an array of small objects (queryList)
-                let value = this.query[key];
-                if (typeof value === "boolean") {
-                    value = value.toString();
-                }
-
-                let filterFields = [];
-
-                // in case of annotation
-                if (key === "annotation") {
-                    filterFields = value.split(";");
-                } else if (key === "study") {
-                    // We fist have need to remove defaultStudy from 'filterFields' and 'value'
-                    filterFields = value.split(/[,;]/).filter(fqn => fqn !== this.defaultStudy);
-                    // defaultStudy was the only one present so no need to render anything
-                    if (!filterFields.length) {
-                        continue;
-                    }
-                    value = filterFields.join(/[,;]/);
-                } else {
-                    // If we find a field with both ; and , or the field has been defined as complex, we will only
-                    // separate by ;
-                    if ((value.indexOf(";") !== -1 && value.indexOf(",") !== -1) || this._config.complexFields.indexOf(key) !== -1) {
-                        filterFields = value.split(new RegExp(";"));
-                    } else {
-                        filterFields = value.split(new RegExp("[,;]"));
-                    }
-                }
-
-
-                const locked = UtilsNew.isNotUndefinedOrNull(this.lockedFieldsMap[key]);
-                const lockedTooltip = UtilsNew.isNotUndefinedOrNull(this.lockedFieldsMap[key]) ? this.lockedFieldsMap[key].message : "";
-
-                // Just in case one is a flag
-                if (filterFields.length === 0) {
-                    _queryList.push({name: key, text: title, locked: locked, message: lockedTooltip});
-                } else {
-                    if (filterFields.length === 1) {
-                        if (value.indexOf(">") !== -1 || value.indexOf("<") !== -1 || value.indexOf("=") !== -1) {
-                            _queryList.push({name: key, text: title + ": " + value, locked: locked, message: lockedTooltip});
-                        } else {
-                            _queryList.push({name: key, text: title + " = " + value, locked: locked, message: lockedTooltip});
-                        }
-                        //                                }
-                    } else {
-                        _queryList.push({name: key, text: title, items: filterFields, locked: locked, message: lockedTooltip});
-                    }
-                }
-            }
-        }
-        this.queryList = _queryList;
-
-        this.requestUpdate();
-    }
-
-    searchClicked() {
-        $("#" + this._prefix + "Warning").hide();
-        this._previousQuery = this.query;
     }
 
     _isMultiValued(item) {
