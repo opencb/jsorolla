@@ -58,7 +58,7 @@ class VariantInterpreterQcOverview extends LitElement {
     }
 
     _init() {
-        this._prefix = "vcis-" + UtilsNew.randomString(6);
+        this._prefix = UtilsNew.randomString(8);
 
         this._config = this.getDefaultConfig();
     }
@@ -73,6 +73,10 @@ class VariantInterpreterQcOverview extends LitElement {
         // if (changedProperties.has("opencgaSession")) {
         //     this.opencgaSessionObserver();
         // }
+        if (changedProperties.has("clinicalAnalysis")) {
+            this.clinicalAnalysisObserver();
+        }
+
         if (changedProperties.has("clinicalAnalysisId")) {
             this.clinicalAnalysisIdObserver();
         }
@@ -82,12 +86,30 @@ class VariantInterpreterQcOverview extends LitElement {
         }
     }
 
+    clinicalAnalysisObserver() {
+        if (this.opencgaSession && this.clinicalAnalysis?.proband?.samples) {
+            let somaticSample = this.clinicalAnalysis.proband.samples.find(sample => sample.somatic === true);
+            debugger
+            if (somaticSample) {
+                let bamFileId = somaticSample.fileIds.find(fileId => fileId.endsWith(".bam"));
+                this.opencgaSession.opencgaClient.files().info(bamFileId, {study: this.opencgaSession.study.fqn})
+                    .then(response => {
+                        let annotSet = response.responses[0].results[0].annotationSets.find(annotSet => annotSet.id === "opencga_alignment_stats");
+                        this.alignmentStats = [annotSet.annotations];
+                    })
+                    .catch(response => {
+                        console.error("An error occurred fetching clinicalAnalysis: ", response);
+                    })
+            }
+        }
+    }
+
     clinicalAnalysisIdObserver() {
         if (this.opencgaSession && this.clinicalAnalysisId) {
             this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
                 .then(response => {
                     this.clinicalAnalysis = response.responses[0].results[0];
-                    this.requestUpdate();
+                    // this.requestUpdate();
                 })
                 .catch(response => {
                     console.error("An error occurred fetching clinicalAnalysis: ", response);
@@ -155,10 +177,6 @@ class VariantInterpreterQcOverview extends LitElement {
                                 title: "QC Plot Files"
                             },
                             {
-                                id: "GenomicContext",
-                                title: "Genomic Context (Signature)"
-                            },
-                            {
                                 id: "Alignment",
                                 title: "Samtools Stats",
                                 disabled: application.appConfig !== "opencb"
@@ -167,6 +185,10 @@ class VariantInterpreterQcOverview extends LitElement {
                                 id: "AlignmentStats",
                                 title: "Samtools Flagstats",
                                 disabled: application.appConfig !== "opencb"
+                            },
+                            {
+                                id: "GenomicContext",
+                                title: "Genomic Context (Signature)"
                             },
                             {
                                 id: "GeneCoverageStats",
@@ -204,7 +226,7 @@ class VariantInterpreterQcOverview extends LitElement {
                 </div>
             `;
         }
-debugger
+
         return html`
             <!--<tool-header title="${this._config.title}" class="bg-white" icon="${this._config.icon}"></tool-header>-->
             <div class="row variant-interpreter-overview" style="padding: 10px 15px">
@@ -255,17 +277,10 @@ debugger
                             </variant-interpreter-qc-relatedness>
                         </div>
                         
-                        <div id="${this._prefix}GenomicContext" role="tabpanel" class="tab-pane content-tab">
-                            <h3>Genomic Context (Signature)</h3>
-                            <variant-interpreter-qc-signature     .opencgaSession=${this.opencgaSession} 
-                                                                  .clinicalAnalysis="${this.clinicalAnalysis}">
-                            </variant-interpreter-qc-signature>
-                        </div>
-
                         <div id="${this._prefix}Alignment" role="tabpanel" class="tab-pane content-tab">
                             <h3>Samtools Stats</h3>
                             <alignment-stats-view .opencgaSession=${this.opencgaSession}
-                                                  .clinicalAnalysis="${this.clinicalAnalysis}">
+                                                  .alignmentStats="${this.alignmentStats}">
                             </alignment-stats-view>
                         </div>
                         
@@ -274,6 +289,13 @@ debugger
                             <variant-interpreter-qc-alignment-stats .opencgaSession=${this.opencgaSession} 
                                                                     .clinicalAnalysis="${this.clinicalAnalysis}">
                             </variant-interpreter-qc-alignment-stats>                                
+                        </div>
+
+                        <div id="${this._prefix}GenomicContext" role="tabpanel" class="tab-pane content-tab">
+                            <h3>Genomic Context (Signature)</h3>
+                            <variant-interpreter-qc-signature     .opencgaSession=${this.opencgaSession}
+                                                                  .clinicalAnalysis="${this.clinicalAnalysis}">
+                            </variant-interpreter-qc-signature>
                         </div>
                         
                         <div id="${this._prefix}GeneCoverageStats" role="tabpanel" class="tab-pane content-tab">
