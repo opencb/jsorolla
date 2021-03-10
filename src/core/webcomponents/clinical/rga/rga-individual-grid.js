@@ -55,6 +55,13 @@ export default class RgaIndividualGrid extends LitElement {
         this.rendered = false;
         this.prevQuery = {};
         this._query = {};
+
+        this._genes = ["GRIK5", "ACTN3", "COMT", "TTN", "ABCA12", "ALMS1", "ALOX12B", "ATP8A2", "BLM",
+            "CCNO", "CEP290", "CNGB3", "CUL7", "DNAAF1", "DOCK6", "EIF2B5", "ERCC6", "FLG", "HADA",
+            "INPP5K", "MANIB1", "MERTK", "MUTYH", "NDUFAF5", "NDUFS7", "OTOG", "PAH", "PDZD7", "PHYH",
+            "PKHD1", "PMM2", "RARS2", "SACS", "SGCA", "SIGMAR1", "SPG7", "TTN", "TYR", "USH2A", "WFS1"];
+        this._genes = ["BRCA1","BRCA2"];
+
     }
 
     connectedCallback() {
@@ -121,7 +128,7 @@ export default class RgaIndividualGrid extends LitElement {
                     //skip: params.data.offset || 0,
                     //count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
                     ...this._query,
-                    // geneName: "BRCA2,BRCA1",
+                    geneName: this._genes.join(","),
                     limit: 2
                 };
                 this.opencgaSession.opencgaClient.clinical().queryRgaIndividual(_filters)
