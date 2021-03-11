@@ -232,13 +232,12 @@ export default class OpencgaActiveFilters extends LitElement {
     facetQueryObserver() {
         // console.log("facetQueryObserver", this.facetQuery)
         if (Object.keys(this.facetQuery).length) {
-            console.log("compare:", UtilsNew.objectCompare(this.facetQuery, this._facetQuery))
+            // console.log("compare:", UtilsNew.objectCompare(this.facetQuery, this._facetQuery))
             if (!UtilsNew.objectCompare(this.facetQuery, this._facetQuery)) {
                 this.querySelector("#" + this._prefix + "Warning").style.display = "block";
                 this._facetQuery = this.facetQuery;
             } else {
                 this.querySelector("#" + this._prefix + "Warning").style.display = "none";
-                this._facetQuery = {};
             }
         } else {
             this._facetQuery = {};
@@ -578,7 +577,10 @@ export default class OpencgaActiveFilters extends LitElement {
 
         console.log("onQueryFacetDelete", e.target.dataset.filterName);
         delete this.facetQuery[e.target.dataset.filterName];
-        this.facetQuery = {...this.facetQuery};
+        // NOTE we don't update this.facetQuery reference because facetQueryObserver() is being called already by this chain:
+        // `activeFacetChange` event triggers onActiveFacetChange() => onRun() in opencga-browser => [...] => facetQueryObserver() in opencga-active-filters
+        // this.facetQuery = {...this.facetQuery};
+
         this.dispatchEvent(new CustomEvent("activeFacetChange", {
             detail: this.facetQuery,
             bubbles: true,

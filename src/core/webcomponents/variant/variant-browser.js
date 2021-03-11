@@ -193,7 +193,7 @@ export default class VariantBrowser extends LitElement {
         this.notifySearch(this.preparedQuery);
 
         this.facetQueryBuilder();
-        /*if (Object.keys(this.selectedFacet).length) {
+        /* if (Object.keys(this.selectedFacet).length) {
             this.facetQuery = {
                 ...this.preparedQuery,
                 study: this.opencgaSession.study.fqn,
@@ -220,14 +220,14 @@ export default class VariantBrowser extends LitElement {
         this.requestUpdate();
     }
 
-    onQueryFilterChange(e) {
-        this.preparedQuery = e.detail.query;
-        this.requestUpdate();
-    }
-
     onVariantFilterSearch(e) {
         this.preparedQuery = e.detail.query;
         this.executedQuery = e.detail.query;
+        this.requestUpdate();
+    }
+
+    onQueryFilterChange(e) {
+        this.preparedQuery = e.detail.query;
         this.requestUpdate();
     }
 

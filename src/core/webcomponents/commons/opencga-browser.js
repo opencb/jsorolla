@@ -250,7 +250,7 @@ export default class OpencgaBrowser extends LitElement {
     }
 
     onFacetQueryChange(e) {
-        // console.log("onFacetQueryChange");
+        //console.log("onFacetQueryChange");
         this.selectedFacetFormatted = e.detail.value;
         this.requestUpdate();
     }
