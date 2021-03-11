@@ -50,20 +50,23 @@ export default class CheckboxFieldFilter extends LitElement {
 
     update(changedProperties) {
         super.update(changedProperties);
-        /*if (changedProperties.has('firstName') || changedProperties.has('lastName') {
+        /* if (changedProperties.has('firstName') || changedProperties.has('lastName') {
             this.fullName = `${this.firstName} ${this.lastName}`.trim();
         }*/
     }
 
     updated(changedProperties) {
         if (changedProperties.has("value")) {
-
-            if(Array.isArray(this.value)) {
-                this.value.forEach(v => this.state[v] = true)
+            if (this.value) {
+                if (Array.isArray(this.value)) {
+                    this.value.forEach(v => this.state[v] = true);
+                } else {
+                    this.value.split(",").forEach(v => this.state[v] = true);
+                }
+                this.state = {...this.state};
             } else {
-                this.value.split(",").forEach(v => this.state[v] = true)
+                this.state = {};
             }
-            this.state = {...this.state};
             this.requestUpdate();
         }
         if (changedProperties.has("data")) {
@@ -73,7 +76,7 @@ export default class CheckboxFieldFilter extends LitElement {
     filterChange(e) {
         const {value, checked} = e.currentTarget;
         this.state[value] = checked;
-        let v = Object.entries(this.state).filter( ([,value]) => value).map( ([id]) => id);
+        const v = Object.entries(this.state).filter(([, value]) => value).map(([id]) => id);
         const event = new CustomEvent("filterChange", {
             detail: {
                 value: v.join(",")
@@ -85,17 +88,17 @@ export default class CheckboxFieldFilter extends LitElement {
     render() {
         return html`
             <ul class="magic-checkbox-wrapper">
-                ${this.data.map( (el, i) => {
-                    let {id, name} = UtilsNew.isObject(el) ? el : {id: el, name: el};
-                    return html`
+                ${this.data.map((el, i) => {
+            const {id, name} = UtilsNew.isObject(el) ? el : {id: el, name: el};
+            return html`
                         <li>
                             <input class="magic-checkbox" type="checkbox" id="${this._prefix}checkbox${i}" .checked="${this.state[id]}" value="${id}" @click="${this.filterChange}">
                             <label for="${this._prefix}checkbox${i}">
                                 ${name}
                             </label>
                         </li>
-                    `
-                })}
+                    `;
+        })}
             </ul>
         `;
     }
