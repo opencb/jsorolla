@@ -58,7 +58,7 @@ export default class RgaGeneGrid extends LitElement {
             "CCNO", "CEP290", "CNGB3", "CUL7", "DNAAF1", "DOCK6", "EIF2B5", "ERCC6", "FLG", "HADA",
             "INPP5K", "MANIB1", "MERTK", "MUTYH", "NDUFAF5", "NDUFS7", "OTOG", "PAH", "PDZD7", "PHYH",
             "PKHD1", "PMM2", "RARS2", "SACS", "SGCA", "SIGMAR1", "SPG7", "TTN", "TYR", "USH2A", "WFS1"];
-        this._genes = ["GRIK5", "ACTN3", "COMT"];
+        //this._genes = ["GRIK5", "ACTN3", "COMT"];
 
     }
 
@@ -122,27 +122,42 @@ export default class RgaGeneGrid extends LitElement {
                 const _filters = {
                     study: this.opencgaSession.study.fqn,
                     // order: params.data.order,
-                    // limit: params.data.limit,
+                    limit: params.data.limit,
                     skip: params.data.offset || 0,
                     count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
                     ...this._query,
-                    geneName: this._genes.join(","),
-                    limit: 50
+                    field: "geneName>>knockoutTypes",
+                    geneName: this._genes.join(",")
+                    //limit: 50
                 };
-                this.opencgaSession.opencgaClient.clinical().queryRgaGene(_filters)
+                this.opencgaSession.opencgaClient.clinical().aggregationStatsRga(_filters)
                     .then(res => {
                         console.log("res", res);
-                        params.success(res);
                         params.success(res);
                     })
                     .catch(e => {
                         console.error(e);
                         params.error(e);
                     });
+
+                /*this.opencgaSession.opencgaClient.clinical().queryRgaGene(_filters)
+                    .then(res => {
+                        console.log("res", res);
+                        params.success(res);
+                    })
+                    .catch(e => {
+                        console.error(e);
+                        params.error(e);
+                    });*/
             },
             responseHandler: response => {
-                const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
-                return result.response;
+                //const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
+                console.error("result.response", response)
+                return {
+                    total: response.getResult(0)?.count ?? 0,
+                    rows: response.getResult(0)?.buckets ?? []
+
+                };
             },
             onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
             onCheck: (row, $element) => this.gridCommons.onCheck(row.id, row),
@@ -169,7 +184,7 @@ export default class RgaGeneGrid extends LitElement {
             [
                 {
                     title: "Gene",
-                    field: "name",
+                    field: "value",
                     rowspan: 2,
                     halign: "center",
                     formatter: this.geneIdFormatter
@@ -187,8 +202,13 @@ export default class RgaGeneGrid extends LitElement {
             ],
             [
                 {
-                    title: "Tot"
-                    // formatter: this.compTotalFormatter.bind(this)
+                    title: "Tot",
+                    field: "facetFields",
+                    formatter: facetFields => {
+                        const knockoutTypes = facetFields.find(facetField => facetField.name === "knockoutTypes");
+                        return knockoutTypes.buckets.find(bucket => bucket.value === "CH")?.count ?? "n/a";
+                        //return "n/a"
+                    }
                 },
                 {
                     title: "Def."
@@ -200,10 +220,16 @@ export default class RgaGeneGrid extends LitElement {
                     title: "Possible"
                 },
                 {
-                    title: "Total"
+                    title: "H Total", //row.facetFields.find(facetField => facetField.name === "HOM_ALT")?.count ?? "n/a"
+                    field: "facetFields",
+                    formatter: facetFields => {
+                        const knockoutTypes = facetFields.find(facetField => facetField.name === "knockoutTypes");
+                        return knockoutTypes.buckets.find(bucket => bucket.value === "HOM_ALT")?.count ?? "n/a";
+                    }
                 },
                 {
-                    title: "Total"
+                    title: "Total",
+                    field: "count"
                     // formatter: (val, row, index) => this.tableData[index].individuals?.length
                 }
             ]

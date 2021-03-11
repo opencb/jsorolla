@@ -23,6 +23,7 @@ import "../../variant/annotation/cellbase-population-frequency-grid.js";
 import "../../variant/annotation/variant-annotation-clinical-view.js";
 import "./rga-variant-individual-grid.js";
 import "./rga-variant-allele-pairs.js";
+import VariantGridFormatter from "../../variant/variant-grid-formatter.js";
 
 export default class RgaVariantGrid extends LitElement {
 
@@ -141,7 +142,11 @@ export default class RgaVariantGrid extends LitElement {
 
     _initTableColumns() {
         return [
-            {title: "Variant", field: "id"},
+            {
+                title: "Variant",
+                field: "id",
+                formatter: (value, row, index) => VariantGridFormatter.variantFormatter(value, row, index, this.opencgaSession.project.organism.assembly, this._config),
+            },
             {title: "dbSNP", field: "dbSNP"},
             {title: "Alt allele freq.", field: ""},
             {title: "Variant type", field: ""},
@@ -234,6 +239,7 @@ export default class RgaVariantGrid extends LitElement {
                     // limit: params.data.limit,
                     skip: params.data.offset || 0,
                     count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
+                    //include: ""
                     ...this._query,
                     geneName: this._genes.join(","),
                     limit: 50

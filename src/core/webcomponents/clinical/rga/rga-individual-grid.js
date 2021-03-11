@@ -211,17 +211,17 @@ export default class RgaIndividualGrid extends LitElement {
                     colspan: 4
                 },
                 {
-                    title: "Disorders",
-                    field: "disorders",
-                    rowspan: 2,
-                    formatter: disorders => disorders.length ? disorders.map(CatalogGridFormatter.disorderFormatter) : "-"
-
-                },
-                {
                     title: "Phenotypes",
                     field: "phenotypes",
                     rowspan: 2,
                     formatter: CatalogGridFormatter.phenotypesFormatter
+
+                },
+                {
+                    title: "Disorders",
+                    field: "disorders",
+                    rowspan: 2,
+                    formatter: disorders => disorders.length ? disorders.map(CatalogGridFormatter.disorderFormatter) : "-"
 
                 }
             ], [

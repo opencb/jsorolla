@@ -156,8 +156,8 @@ export default class RgaBrowser extends LitElement {
         // it is also in charge of update executedQuery (notifySearch -> onQueryFilterSearch() on iva-app.js -> this.queries updated -> queryObserver() in opencga-browser).
         // if we want to dismiss the general query feature (that is browsers remembering your last query even if you change view) replace the following line with:
         // this.executedQuery = {...this.preparedQuery}; this.requestUpdate();
-        this.executedQuery = {...this.preparedQuery};
-        this.requestUpdate();
+        this.query = {...this.preparedQuery};
+        // this.requestUpdate();
         // this.notifySearch(this.preparedQuery);
 
         /* if (Object.keys(this.selectedFacet).length) {
