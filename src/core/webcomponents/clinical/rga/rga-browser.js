@@ -227,7 +227,7 @@ export default class RgaBrowser extends LitElement {
     getDefaultConfig() {
         // return BrowserConf.config;
         return {
-            title: "Recessive Gene Browser",
+            title: "Recessive Variant Browser",
             icon: "fas fa-dna",
             active: false,
             searchButtonText: "Search",
@@ -279,11 +279,9 @@ export default class RgaBrowser extends LitElement {
                             {
                                 id: "numParents",
                                 name: "Include families with",
+                                description: "description....",
                                 type: "checkbox",
-                                defaultValue: "1,2",
-                                allowedValues:
-                                    [{id: 0, name: "No parents"}, {id: 1, name: "One Parents"}, {id: 2, name: "Two Parents"}]
-
+                                allowedValues: [{id: 0, name: "No parents"}, {id: 1, name: "One parent"}, {id: 2, name: "Two parents"}]
                             },
                             {
                                 id: "probandOnly",

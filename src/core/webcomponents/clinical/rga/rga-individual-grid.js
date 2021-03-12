@@ -88,7 +88,36 @@ export default class RgaIndividualGrid extends LitElement {
         this._columns = this._initTableColumns();
         // Config for the grid toolbar
         this.toolbarConfig = {
-            columns: this._columns[0]
+            columns: [
+                {
+                    title: "Gene",
+                    field: "genes"
+                }, {
+
+                    title: "Compound Heterozygous: Total",
+                    field: "ch"
+                }, {
+
+                    title: "Compound Heterozygous: Definitely",
+                    field: "ch_2"
+                }, {
+
+                    title: "Compound Heterozygous: Probable",
+                    field: "ch_1"
+                }, {
+
+                    title: "Compound Heterozygous: Possible",
+                    field: "ch_0"
+                },
+                {
+                    title: "Phenotypes",
+                    field: "phenotypes"
+                },
+                {
+                    title: "Disorders",
+                    field: "disorders"
+                }
+            ]
         };
 
         this.renderTable();
@@ -128,8 +157,9 @@ export default class RgaIndividualGrid extends LitElement {
                     skip: params.data.offset || 0,
                     count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
                     include: "motherId,fatherId",
-                    ...this._query,
+
                     geneName: this._genes.join(","),
+                    ...this._query,
                     limit: 50
                 };
                 this.opencgaSession.opencgaClient.clinical().queryRgaIndividual(_filters)
@@ -232,19 +262,19 @@ export default class RgaIndividualGrid extends LitElement {
                 },
                 {
                     title: "Total",
-                    field: "stats.byType.COMP_HET"
+                    field: "ch"
                 },
                 {
                     title: "Definitely",
-                    field: "stats.byType.COMP_HET.def"
+                    field: "ch_2"
                 },
                 {
                     title: "Probable",
-                    field: "stats.byType.COMP_HET.prob"
+                    field: "ch_1"
                 },
                 {
                     title: "Possible",
-                    field: "stats.byType.COMP_HET.poss"
+                    field: "ch_0"
                 }
             ]
         ];
@@ -266,7 +296,7 @@ export default class RgaIndividualGrid extends LitElement {
                     render: (individual, active, opencgaSession) => {
                         return html`
                             <h3>Variants in ${individual?.id}</h3>
-                            <rga-individual-variants .individual="${individual}"></rga-individual-variants>
+                            <rga-individual-variants .individual="${individual}" .opencgaSession="${opencgaSession}"></rga-individual-variants>
                         `;
                     }
                 }, {

@@ -17,6 +17,7 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../utilsNew.js";
 import "./../../commons/view/detail-tabs.js";
+import VariantGridFormatter from "../../variant/variant-grid-formatter.js";
 
 
 export default class RgaIndividualVariants extends LitElement {
@@ -106,7 +107,8 @@ export default class RgaIndividualVariants extends LitElement {
         return [
             {
                 title: "id",
-                field: "id"
+                field: "id",
+                //formatter: (value, row, index) => VariantGridFormatter.variantFormatter(value, row, index, this.opencgaSession.project.organism.assembly, this._config)
             },
             {
                 title: "Type",

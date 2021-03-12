@@ -58,7 +58,7 @@ export default class RgaGeneGrid extends LitElement {
             "CCNO", "CEP290", "CNGB3", "CUL7", "DNAAF1", "DOCK6", "EIF2B5", "ERCC6", "FLG", "HADA",
             "INPP5K", "MANIB1", "MERTK", "MUTYH", "NDUFAF5", "NDUFS7", "OTOG", "PAH", "PDZD7", "PHYH",
             "PKHD1", "PMM2", "RARS2", "SACS", "SGCA", "SIGMAR1", "SPG7", "TTN", "TYR", "USH2A", "WFS1"];
-        //this._genes = ["GRIK5", "ACTN3", "COMT"];
+        // this._genes = ["INPP5K"];
 
     }
 
@@ -83,7 +83,32 @@ export default class RgaGeneGrid extends LitElement {
         this._columns = this._initTableColumns();
         // Config for the grid toolbar
         this.toolbarConfig = {
-            columns: this._columns[0]
+            columns: [
+                {
+                    title: "Gene",
+                    field: "value"
+                }, {
+
+                    title: "Compound Heterozygous: Total",
+                    field: "ch"
+                }, {
+
+                    title: "Compound Heterozygous: Definitely",
+                    field: "ch_2"
+                }, {
+
+                    title: "Compound Heterozygous: Probable",
+                    field: "ch_1"
+                }, {
+
+                    title: "Compound Heterozygous: Possible",
+                    field: "ch_0"
+                }/* , {
+
+                title: "Homozygous",
+                field: "hom"
+            }*/
+            ]
         };
 
         this.renderTable();
@@ -125,10 +150,10 @@ export default class RgaGeneGrid extends LitElement {
                     limit: params.data.limit,
                     skip: params.data.offset || 0,
                     count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
-                    ...this._query,
                     field: "geneName>>knockoutTypes>>numParents",
-                    geneName: this._genes.join(",")
-                    //limit: 50
+                    geneName: this._genes.join(","),
+                    ...this._query
+                    // limit: 50
                 };
                 this.opencgaSession.opencgaClient.clinical().aggregationStatsRga(_filters)
                     .then(res => {
@@ -140,7 +165,7 @@ export default class RgaGeneGrid extends LitElement {
                         params.error(e);
                     });
 
-                /*this.opencgaSession.opencgaClient.clinical().queryRgaGene(_filters)
+                /* this.opencgaSession.opencgaClient.clinical().queryRgaGene(_filters)
                     .then(res => {
                         console.log("res", res);
                         params.success(res);
@@ -151,15 +176,17 @@ export default class RgaGeneGrid extends LitElement {
                     });*/
             },
             responseHandler: response => {
-                //const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
-                console.error("result.response", response)
+                // const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
                 return {
                     total: response.getResult(0)?.count ?? 0,
                     rows: response.getResult(0)?.buckets ?? []
 
                 };
             },
-            onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
+            onClickRow: (row, selectedElement, field) => {
+                // console.log(row);
+                this.gridCommons.onClickRow(row.id, row, selectedElement);
+            },
             onCheck: (row, $element) => this.gridCommons.onCheck(row.id, row),
             onLoadSuccess: data => this.gridCommons.onLoadSuccess(data, 1),
             onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse)
@@ -168,6 +195,7 @@ export default class RgaGeneGrid extends LitElement {
     }
 
     onColumnChange(e) {
+        // console.log("onColumnChange", e);
         this.gridCommons.onColumnChange(e);
     }
 
@@ -191,6 +219,7 @@ export default class RgaGeneGrid extends LitElement {
                 },
                 {
                     title: "Compound Heterozygous",
+                    field: "ch",
                     colspan: 4
                 },
                 {
@@ -203,27 +232,33 @@ export default class RgaGeneGrid extends LitElement {
             [
                 {
                     title: "Tot",
-                    field: "facetFields",
-                    formatter: facetFields => {
-                        const knockoutTypes = facetFields.find(facetField => facetField.name === "knockoutTypes");
-                        return knockoutTypes.buckets.find(bucket => bucket.value === "CH")?.count ?? "n/a";
-                        //return "n/a"
+                    field: "ch",
+                    formatter: (_, row) => {
+                        const knockoutTypes = row.facetFields.find(facetField => facetField.name === "knockoutTypes");
+                        return knockoutTypes.buckets.find(bucket => bucket.value === "COMP_HET")?.count ?? "-";
+                        // return "n/a"
                     }
                 },
                 {
-                    title: "Def."
+                    title: "Definitely",
+                    field: "ch_2",
+                    formatter: (_, row) => this.getConfidenceCount(row.facetFields, "2")
                 },
                 {
-                    title: "Probable"
+                    title: "Probable",
+                    field: "ch_1",
+                    formatter: (_, row) => this.getConfidenceCount(row.facetFields, "1")
                 },
                 {
-                    title: "Possible"
+                    title: "Possible",
+                    field: "ch_0",
+                    formatter: (_, row) => this.getConfidenceCount(row.facetFields, "0")
                 },
                 {
-                    title: "H Total", //row.facetFields.find(facetField => facetField.name === "HOM_ALT")?.count ?? "n/a"
-                    field: "facetFields",
-                    formatter: facetFields => {
-                        const knockoutTypes = facetFields.find(facetField => facetField.name === "knockoutTypes");
+                    title: "Total", // row.facetFields.find(facetField => facetField.name === "HOM_ALT")?.count ?? "n/a"
+                    field: "hom",
+                    formatter: (_, row) => {
+                        const knockoutTypes = row.facetFields.find(facetField => facetField.name === "knockoutTypes");
                         return knockoutTypes.buckets.find(bucket => bucket.value === "HOM_ALT")?.count ?? "n/a";
                     }
                 },
@@ -234,6 +269,15 @@ export default class RgaGeneGrid extends LitElement {
                 }
             ]
         ];
+    }
+
+    getConfidenceCount(facetFields, value) {
+        // TODO note this code implies 4 nested loops
+        const knockoutTypes = facetFields.find(facetField => facetField.name === "knockoutTypes");
+        const CHFacet = knockoutTypes?.buckets?.find(bucket => bucket.value === "COMP_HET");
+        const numParentFacet = CHFacet?.facetFields?.find(facetField => facetField.name === "numParents");
+        const numParents = numParentFacet?.buckets?.find(bucket => bucket.value === value);
+        return numParents?.count ?? "-";
     }
 
     async onDownload(e) {

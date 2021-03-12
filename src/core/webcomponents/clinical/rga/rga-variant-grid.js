@@ -187,7 +187,7 @@ export default class RgaVariantGrid extends LitElement {
         // return value.map(individual => individual.genes[0].transcripts[0].variants[0].knockoutType)
         const typeToColor = {
             "HOM_ALT": "#5b5bff",
-            "CH": "blue",
+            "COMP_HET": "blue",
             "DELETION_OVERLAP": "#FFB05B"
         };
         /* const samplesTableData = this.samples.map(sample => ({id: sample.sampleId}));
@@ -203,7 +203,7 @@ export default class RgaVariantGrid extends LitElement {
                 for (const transcript of gene.transcripts) {
                     for (const variant of transcript.variants) {
                         if (variant.id === row.id) {
-                            res+=`<a class="rga-individual-box" style="background: ${typeToColor[variant.knockoutType] ?? "#fff"}" tooltip-title="${individual.id}" tooltip-text="${individual.id}">&nbsp;</a>
+                            res+=`<a class="rga-individual-box" style="background: ${typeToColor[variant.knockoutType] ?? "#fff"}" tooltip-title="${individual.id}" tooltip-text="${variant.knockoutType}">&nbsp;</a>
                                 `;
                             break;
                         }
@@ -245,8 +245,8 @@ export default class RgaVariantGrid extends LitElement {
                     // limit: params.data.limit,
                     skip: params.data.offset || 0,
                     count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
-                    ...this._query,
                     geneName: this._genes.join(","),
+                    ...this._query,
                     limit: 50
                 };
                 this.opencgaSession.opencgaClient.clinical().queryRgaVariant(_filters)
