@@ -89,9 +89,9 @@ export default class RgaVariantGrid extends LitElement {
     }
 
     updated(changedProperties) {
-        console.log("this.active", this.active)
+        // console.log("this.active", this.active);
         if ((changedProperties.has("opencgaSession") || changedProperties.has("query") || changedProperties.has("config") || changedProperties.has("active")) && this.active) {
-            console.log("renderTable")
+            console.log("renderTable");
             this.renderTable();
         }
 
@@ -101,12 +101,12 @@ export default class RgaVariantGrid extends LitElement {
         }
 
         // TODO in this case update doesn't work
-        //super.update(changedProperties);
+        // super.update(changedProperties);
 
     }
 
     prepareData() {
-        console.log("preparedData", this.data)
+        // console.log("preparedData", this.data);
         let i = 0;
         this._data = {};
         this.samples = [];
@@ -145,7 +145,7 @@ export default class RgaVariantGrid extends LitElement {
             {
                 title: "Variant",
                 field: "id",
-                formatter: (value, row, index) => VariantGridFormatter.variantFormatter(value, row, index, this.opencgaSession.project.organism.assembly, this._config),
+                formatter: (value, row, index) => VariantGridFormatter.variantFormatter(value, row, index, this.opencgaSession.project.organism.assembly, this._config)
             },
             {title: "dbSNP", field: "dbSNP"},
             {title: "Alt allele freq.", field: ""},
@@ -184,35 +184,41 @@ export default class RgaVariantGrid extends LitElement {
     // TODO FIXME at the moment it takes into account the first variant of the first transcript of the first gene
     individualFormatter(value, row) {
 
-        //return value.map(individual => individual.genes[0].transcripts[0].variants[0].knockoutType)
+        // return value.map(individual => individual.genes[0].transcripts[0].variants[0].knockoutType)
         const typeToColor = {
             "HOM_ALT": "#5b5bff",
-            "CH": "blue"
+            "CH": "blue",
+            "DELETION_OVERLAP": "#FFB05B"
         };
-        /*const samplesTableData = this.samples.map(sample => ({id: sample.sampleId}));
+        /* const samplesTableData = this.samples.map(sample => ({id: sample.sampleId}));
         for (const {sampleId, variant} of row.data) {
             if (variant.id === row.id) {
                 const c = samplesTableData.find(sample => sample.id === sampleId);
                 c.knockoutType = variant.knockoutType;
             }
         }*/
-        return `
-            <table>
-                <tr>
-                    ${value.map(sample => `
-                        <td style="width: 15px; background: ${typeToColor[sample.genes[0].transcripts[0].variants[0].knockoutType] ?? "#fff"}; border-right: 1px solid white;">
-                            <a style="border:1px solid #b7b7b7;display: block" tooltip-title="${sample.id}" tooltip-text="${sample.id}">&nbsp;</a>
-                        </td>
-                    `).join("")}
-                </tr>
-            </table>`;
+        let res = "";
+        for (const individual of value) {
+            for (const gene of individual.genes) {
+                for (const transcript of gene.transcripts) {
+                    for (const variant of transcript.variants) {
+                        if (variant.id === row.id) {
+                            res+=`<a class="rga-individual-box" style="background: ${typeToColor[variant.knockoutType] ?? "#fff"}" tooltip-title="${individual.id}" tooltip-text="${individual.id}">&nbsp;</a>
+                                `;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        return res;
     }
 
     renderTable() {
 
 
         this._query = {...this.query, study: this.opencgaSession.study.fqn}; // we want to support a query obj param both with or without study.
-        console.log("UtilsNew.objectCompare(this._query, this.prevQuery)", UtilsNew.objectCompare(this._query, this.prevQuery))
+        // console.log("UtilsNew.objectCompare(this._query, this.prevQuery)", UtilsNew.objectCompare(this._query, this.prevQuery));
         if (!this.active || UtilsNew.objectCompare(this._query, this.prevQuery)) {
             return;
         }
@@ -235,21 +241,20 @@ export default class RgaVariantGrid extends LitElement {
             ajax: params => {
                 const _filters = {
                     study: this.opencgaSession.study.fqn,
-                    //order: params.data.order,
+                    // order: params.data.order,
                     // limit: params.data.limit,
                     skip: params.data.offset || 0,
                     count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
-                    //include: ""
                     ...this._query,
                     geneName: this._genes.join(","),
                     limit: 50
                 };
                 this.opencgaSession.opencgaClient.clinical().queryRgaVariant(_filters)
                     .then(res => {
-                        console.log("res", res)
-                        //this.data = res.getResults();
-                        //this.prepareData();
-                        params.success(res)
+                        // console.log("res", res);
+                        // this.data = res.getResults();
+                        // this.prepareData();
+                        params.success(res);
                     })
                     .catch(e => {
                         console.error(e);
@@ -309,7 +314,7 @@ export default class RgaVariantGrid extends LitElement {
                     name: "Allele Pairs",
                     render: (variant, active, opencgaSession) => {
                         return html`
-                            <rga-variant-allele-pairs .variant="${variant}"></rga-variant-allele-pairs>
+                            <rga-variant-allele-pairs .variant="${variant}" .opencgaSession="${opencgaSession}"></rga-variant-allele-pairs>
                         `;
                     }
                 },

@@ -17,6 +17,7 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../utilsNew.js";
 import "./../../commons/view/detail-tabs.js";
+import VariantGridFormatter from "../../variant/variant-grid-formatter.js";
 
 
 export default class RgaVariantAllelePairs extends LitElement {
@@ -55,7 +56,7 @@ export default class RgaVariantAllelePairs extends LitElement {
         if (changedProperties.has("opencgaSession")) {
         }
 
-        if (changedProperties.has("variantId")) {
+        if (changedProperties.has("variant")) {
             this.prepareData();
             this.renderTable();
         }
@@ -66,8 +67,7 @@ export default class RgaVariantAllelePairs extends LitElement {
     }
 
     prepareData() {
-        // TODO
-
+        this.tableData = [this.variant];
     }
 
     renderTable() {
@@ -99,7 +99,8 @@ export default class RgaVariantAllelePairs extends LitElement {
         return [
             {
                 title: "Allele",
-                field: "variant"
+                field: "id",
+                formatter: (value, row, index) => VariantGridFormatter.variantFormatter(value, row, index, this.opencgaSession.project.organism.assembly, this._config)
             },
             {
                 title: "Pair type",
@@ -123,7 +124,8 @@ export default class RgaVariantAllelePairs extends LitElement {
             },
             {
                 title: "Num. Individuals",
-                field: "individuals"
+                field: "individuals",
+                formatter: value => value?.length ?? "n/a"
             }
         ];
     }
@@ -137,7 +139,7 @@ export default class RgaVariantAllelePairs extends LitElement {
 
     render() {
         return html`
-            <div class="alert alert-warning">WIP</div>
+<!--            <div class="alert alert-warning">WIP</div>-->
             <div class="row">
                 <table id="${this.gridId}"></table>
             </div>
