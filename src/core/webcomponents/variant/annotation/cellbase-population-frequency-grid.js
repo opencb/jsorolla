@@ -51,14 +51,16 @@ export default class CellbasePopulationFrequencyGrid extends LitElement {
     }
 
     _init() {
-        this._prefix = "cpfg-" + UtilsNew.randomString(6);
+        this._prefix = UtilsNew.randomString(8);
+
         this.populationFrequencies = [];
         this.gridId = this._prefix + "populationFreqTable";
     }
 
     connectedCallback() {
-        this.gridCommons = new GridCommons(this.gridId, this, {});
         super.connectedCallback();
+
+        this.gridCommons = new GridCommons(this.gridId, this, {});
     }
 
 
@@ -67,6 +69,7 @@ export default class CellbasePopulationFrequencyGrid extends LitElement {
             this.renderPlot();
             this.renderTable();
         }
+
         if ((changedProperties.has("variantId") || changedProperties.has("active")) && this.active) {
             this.variantIdObserver();
         }
@@ -74,30 +77,14 @@ export default class CellbasePopulationFrequencyGrid extends LitElement {
 
     variantIdObserver() {
         console.log("variantIdObserver", this.variantId, this.cellbaseClient);
-        if (this.cellbaseClient) {
-            if (this.variantId) {
-                this.cellbaseClient.get("genomic", "variant", this.variantId, "annotation", {assembly: this.assembly}, {})
-                    .then(restResponse => {
-                        this.populationFrequencies = restResponse.getResult(0).populationFrequencies;
-                        this.requestUpdate();
-
-                        // this.variant = {id: this.variantId, annotation: response.responses[0].results[0]};
-                        // this.variantAnnotation = response.response[0].result[0];
-                        /* this.numberConsequenceTypes = 0;
-                        this.numberPopulationFrequencies = 0;
-                        this.numberVTA = 0;
-                        this.numberGTA = 0;
-
-                        if (this.variantAnnotation.geneTraitAssociation != null) {
-                            this.numberConsequenceTypes = this.variantAnnotation.consequenceTypes.length;
-                            this.numberPopulationFrequencies = UtilsNew.isNotEmptyArray(this.variantAnnotation.populationFrequencies) ? this.variantAnnotation.populationFrequencies.length : 0;
-                            this.numberVTA = UtilsNew.isNotUndefinedOrNull(this.variantAnnotation.traitAssociation) ? this.variantAnnotation.traitAssociation.length : 0;
-                            this.numberGTA = UtilsNew.isNotUndefinedOrNull(this.variantAnnotation.geneTraitAssociation) ? this.variantAnnotation.geneTraitAssociation.length : 0;
-                        }*/
-                    });
-            } else {
-                // this.populationFrequencies = null;
-            }
+        if (this.cellbaseClient && this.variantId) {
+            this.cellbaseClient.get("genomic", "variant", this.variantId, "annotation", {assembly: this.assembly}, {})
+                .then(restResponse => {
+                    this.populationFrequencies = restResponse.getResult(0).populationFrequencies;
+                    this.requestUpdate();
+                });
+        } else {
+            // this.populationFrequencies = null;
         }
     }
 
@@ -285,6 +272,7 @@ export default class CellbasePopulationFrequencyGrid extends LitElement {
         if (!this.populationFrequencies) {
             return html`<div class="alert alert-info"><i class="fas fa-3x fa-info-circle align-middle"></i> No population frequencies found.</div>`;
         }
+
         return html`
             <div style="padding: 20px">
                 <table id="${this.gridId}"></table>

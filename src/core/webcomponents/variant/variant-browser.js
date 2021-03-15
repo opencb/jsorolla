@@ -16,7 +16,6 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "./../../utilsNew.js";
-// import OpencgaCatalogUtils from "../../clients/opencga/opencga-catalog-utils.js";
 import "../commons/tool-header.js";
 import "./opencga-variant-filter.js";
 import "./variant-browser-grid.js";
@@ -24,6 +23,12 @@ import "./variant-browser-detail.js";
 import "../commons/opencb-facet-results.js";
 import "../commons/facet-filter.js";
 import "../commons/opencga-active-filters.js";
+import "./annotation/cellbase-variant-annotation-summary.js";
+import "./annotation/variant-consequence-type-view.js";
+import "./annotation/cellbase-population-frequency-grid.js";
+import "./annotation/variant-annotation-clinical-view.js";
+import "./variant-cohort-stats.js";
+import "./opencga-variant-samples.js";
 
 export default class VariantBrowser extends LitElement {
 
@@ -92,7 +97,6 @@ export default class VariantBrowser extends LitElement {
         this.selectedFacetFormatted = {};
         this.errorState = false;
 
-        this.detailActiveTabs = [];
         this.activeTab = {};
     }
 
@@ -275,15 +279,6 @@ export default class VariantBrowser extends LitElement {
     onSampleChange(e) {
         this.samples = e.detail.samples;
         this.dispatchEvent(new CustomEvent("samplechange", {detail: {samples: this.samples}, bubbles: true, composed: true}));
-    }
-
-    _changeBottomTab(e) {
-        const _activeTabs = {};
-        for (const detail of this.config.detail) {
-            _activeTabs[detail.id] = (detail.id === e.currentTarget.dataset.id);
-        }
-        this.detailActiveTabs = _activeTabs;
-        this.requestUpdate();
     }
 
     onSelectVariant(e) {
@@ -482,38 +477,93 @@ export default class VariantBrowser extends LitElement {
                     grid: {}
                 },
                 detail: {
-                    title: "Selected Variant",
-                    views: [
+                    title: "Selected Variant:",
+                    items: [
                         {
                             id: "annotationSummary",
-                            title: "Summary",
-                            active: true
+                            name: "Summary",
+                            active: true,
+                            render: (variant) => {
+                                return html`
+                                    <cellbase-variant-annotation-summary
+                                            .variantAnnotation="${variant.annotation}"
+                                            .consequenceTypes="${consequenceTypes}"
+                                            .proteinSubstitutionScores="${proteinSubstitutionScore}">
+                                    </cellbase-variant-annotation-summary>`;
+                            }
                         },
                         {
                             id: "annotationConsType",
-                            title: "Consequence Type"
+                            name: "Consequence Type",
+                            render: (variant, active) => {
+                                return html`
+                                    <variant-consequence-type-view
+                                            .consequenceTypes="${variant.annotation.consequenceTypes}"
+                                            .active="${active}">
+                                    </variant-consequence-type-view>`;
+                            }
                         },
                         {
                             id: "annotationPropFreq",
-                            title: "Population Frequencies"
+                            name: "Population Frequencies",
+                            render: (variant, active) => {
+                                return html`
+                                    <cellbase-population-frequency-grid
+                                            .populationFrequencies="${variant.annotation.populationFrequencies}"
+                                            .active="${active}">
+                                    </cellbase-population-frequency-grid>`;
+                            }
                         },
                         {
                             id: "annotationClinical",
-                            title: "Clinical"
+                            name: "Clinical",
+                            render: (variant) => {
+                                return html`
+                                    <variant-annotation-clinical-view
+                                            .traitAssociation="${variant.annotation.traitAssociation}"
+                                            .geneTraitAssociation="${variant.annotation.geneTraitAssociation}">
+                                    </variant-annotation-clinical-view>`;
+                            }
                         },
                         {
                             id: "cohortStats",
-                            title: "Cohort Variant Stats",
-                            tooltip: tooltips.cohort
+                            name: "Cohort Variant Stats",
+                            render: (variant, active, opencgaSession) => {
+                                return html`
+                                    <variant-cohort-stats
+                                            .opencgaSession="${opencgaSession}"
+                                            .variantId="${variant.id}"
+                                            .config="${this.cohortConfig}"
+                                            .active="${active}">
+                                    </variant-cohort-stats>`;
+                            }
                         },
                         {
                             id: "samples",
-                            title: "Samples"
+                            name: "Samples",
+                            render: (variant, active, opencgaSession) => {
+                                return html`
+                                    <opencga-variant-samples
+                                            .opencgaSession="${opencgaSession}"
+                                            variantId="${variant.id}"
+                                            .active="${active}">
+                                    </opencga-variant-samples>`;
+                            }
                         },
                         {
                             id: "beacon",
-                            title: "Beacon"
+                            name: "Beacon",
+                            render: (variant, active, opencgaSession) => {
+                                return html`
+                                    <variant-beacon-network
+                                            .variant="${variant.id}"
+                                            .assembly="${opencgaSession.project.organism.assembly}"
+                                            .config="${this.beaconConfig}"
+                                            .active="${active}">
+                                    </variant-beacon-network>`;
+                            }
                         }
+                        // TODO Think about Neeworks
                         // {
                         //     id: "network",
                         //     title: "Reactome Pathways"
@@ -573,14 +623,14 @@ export default class VariantBrowser extends LitElement {
                         fields: [
                             ...this.populationFrequencies.studies.map(study =>
                                 study.populations.map(population => (
-                                    {
-                                        id: `popFreq__${study.id}__${population.id}`,
-                                        // value: `popFreq__${study.id}__${population.id}`,
-                                        name: `${study.id} - ${population.id}`,
-                                        defaultValue: "[0..1]:0.1",
-                                        type: "number"
-                                    }
-                                )
+                                        {
+                                            id: `popFreq__${study.id}__${population.id}`,
+                                            // value: `popFreq__${study.id}__${population.id}`,
+                                            name: `${study.id} - ${population.id}`,
+                                            defaultValue: "[0..1]:0.1",
+                                            type: "number"
+                                        }
+                                    )
                                 )
                             ).flat()
                         ]
