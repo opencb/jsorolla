@@ -461,36 +461,107 @@ export default class VariantBrowser extends LitElement {
                 },
                 detail: {
                     title: "Selected Variant",
-                    views: [
+                    items: [
                         {
                             id: "annotationSummary",
-                            title: "Summary",
-                            active: true
+                            name: "Summary",
+                            active: true,
+                            render: (variant, active) => {
+                                return html`
+                                <cellbase-variant-annotation-summary    
+                                    .variantAnnotation="${variant.annotation}"
+                                    .consequenceTypes="${consequenceTypes}"
+                                    .proteinSubstitutionScores="${proteinSubstitutionScore}">
+                                </cellbase-variant-annotation-summary> 
+                                `;
+                            }
                         },
                         {
                             id: "annotationConsType",
-                            title: "Consequence Type"
+                            name: "Consequence Type",
+                            active: this.detailActiveTabs["annotationConsType"],
+                            render: (variant, active) => {
+                                return html`
+                                <variant-consequence-type-view  
+                                    .consequenceTypes="${variant.annotation.consequenceTypes}"
+                                    .active="${active}">
+                                </variant-consequence-type-view>
+                                `
+                            }
                         },
                         {
                             id: "annotationPropFreq",
-                            title: "Population Frequencies"
+                            name: "Population Frequencies",
+                            active: this.detailActiveTabs["annotationPropFreq"],
+                            render: (variant, active) => {
+                                return html`
+                                <cellbase-population-frequency-grid 
+                                    .populationFrequencies="${variant.annotation.populationFrequencies}"
+                                    .active="${active}"
+                                    >
+                                </cellbase-population-frequency-grid>
+                                `
+        
+                            }
                         },
                         {
                             id: "annotationClinical",
-                            title: "Clinical"
+                            name: "Clinical",
+                            render: (variant, active) => {
+                                return html`
+                                <variant-annotation-clinical-view   
+                                    .traitAssociation="${variant.annotation.traitAssociation}"
+                                    .geneTraitAssociation="${variant.annotation.geneTraitAssociation}">
+                                </variant-annotation-clinical-view>
+                                `
+                            }
                         },
                         {
                             id: "cohortStats",
-                            title: "Cohort Variant Stats",
-                            tooltip: tooltips.cohort
+                            name: "Cohort Variant Stats",
+                            onlyCohortAll: true,
+                            tooltip: tooltips.cohort,
+                            active: this.detailActiveTabs.cohortStats,
+                            render: (variant, active, opencgaSession) => {
+                                return html` 
+                                    <variant-cohort-stats   
+                                        .opencgaSession="${opencgaSession}"
+                                        .variantId="${variant.id}"
+                                        .config="${this.cohortConfig}"
+                                        .active="${active}">
+                                    </variant-cohort-stats>
+                                `
+                            }
+                            //cohorts: this.cohorts
                         },
                         {
                             id: "samples",
-                            title: "Samples"
+                            name: "Samples",
+                            active: this.detailActiveTabs.samples,
+                            render: (variant, active, opencgaSession) => {
+                                return html`
+                                <opencga-variant-samples 
+                                    .opencgaSession="${opencgaSession}"
+                                    variantId="${variant.id}"
+                                    .active="${active}">
+                                </opencga-variant-samples>
+                                `
+                            }
                         },
                         {
                             id: "beacon",
-                            title: "Beacon"
+                            name: "Beacon",
+                            active: this.detailActiveTabs.beacon,
+                            render: (variant, active, opencgaSession) => {
+                                return html`
+                                <variant-beacon-network 
+                                    .variant="${variant.id}"
+                                    .assembly="${opencgaSession.project.organism.assembly}"
+                                    .config="${this.beaconConfig}"
+                                    .active="${active}">
+                                </variant-beacon-network>
+                                `
+                            }
                         }
                         // {
                         //     id: "network",
