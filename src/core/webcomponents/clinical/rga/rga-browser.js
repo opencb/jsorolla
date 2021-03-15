@@ -356,6 +356,14 @@ export default class RgaBrowser extends LitElement {
 
     render() {
         return html`
+            
+            <style>
+                .rga-individual-box {
+                    border:1px solid #b7b7b7; width: 10px;height: 16px; display:inline-block;
+                }
+
+            </style>
+            
             ${this.checkProjects ? html`
                 <tool-header title="${this._config.title}" icon="${this._config.icon}"></tool-header>
                 <div class="row">
