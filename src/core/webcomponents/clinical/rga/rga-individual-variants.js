@@ -69,8 +69,8 @@ export default class RgaIndividualVariants extends LitElement {
 
     prepareData() {
         if (this.individual) {
-            // TODO FIXME
-            const variants = this.individual.genes.flatMap(gene => gene.transcripts.flatMap(transcript => transcript.variants));
+            // TODO all genes but first transcript taken into account
+            const variants = this.individual.genes.flatMap(gene => gene.transcripts[0].variants);
             this.tableData = variants;
         }
 
@@ -124,7 +124,12 @@ export default class RgaIndividualVariants extends LitElement {
             },
             {
                 title: "Filter",
-                field: "filter"
+                field: "filter",
+                formatter: filters => {
+                    if (filters) {
+                        return filters.split(/[,;]/).map(filter => `<span class="badge">${filter}</span>`).join("");
+                    }
+                }
             }
         ];
     }

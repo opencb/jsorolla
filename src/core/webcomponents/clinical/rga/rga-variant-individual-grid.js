@@ -56,6 +56,7 @@ export default class RgaVariantIndividualGrid extends LitElement {
         }
 
         if (changedProperties.has("variant")) {
+            console.error(this.variant)
             this.prepareData();
             this.renderTable();
         }
@@ -107,11 +108,13 @@ export default class RgaVariantIndividualGrid extends LitElement {
             },
             {
                 title: "Type",
-                field: "type"
+                field: "_",
+                formatter: (_, row) => row.genes[0].transcripts[0].variants.find(variant => variant.id === this.variant.id)?.type
             },
             {
                 title: "GT",
-                //field: "variant.genotype"
+                field: "_",
+                formatter: (_, row) => row.genes[0].transcripts[0].variants.find(variant => variant.id === this.variant.id)?.genotype
             },
             {
                 title: "DP",
@@ -119,11 +122,18 @@ export default class RgaVariantIndividualGrid extends LitElement {
             },
             {
                 title: "Filter",
-                //field: "variant.filter"
+                field: "_",
+                formatter: (_, row) => {
+                    const filters = row.genes[0].transcripts[0].variants.find(variant => variant.id === this.variant.id)?.filter;
+                    if (filters) {
+                        return filters.split(/[,;]/).map(filter => `<span class="badge">${filter}</span>`).join("");
+                    }
+                }
             },
             {
                 title: "Qual",
-                field: "qual"
+                field: "_",
+                formatter: (_, row) => row.genes[0].transcripts[0].variants.find(variant => variant.id === this.variant.id)?.qual
             }
         ];
     }

@@ -60,7 +60,7 @@ export default class RgaIndividualGrid extends LitElement {
             "CCNO", "CEP290", "CNGB3", "CUL7", "DNAAF1", "DOCK6", "EIF2B5", "ERCC6", "FLG", "HADA",
             "INPP5K", "MANIB1", "MERTK", "MUTYH", "NDUFAF5", "NDUFS7", "OTOG", "PAH", "PDZD7", "PHYH",
             "PKHD1", "PMM2", "RARS2", "SACS", "SGCA", "SIGMAR1", "SPG7", "TTN", "TYR", "USH2A", "WFS1"];
-        this._genes = ["GRIK5", "ACTN3", "COMT"];
+        this._genes = ["INPP5K"];
 
     }
 
@@ -157,7 +157,6 @@ export default class RgaIndividualGrid extends LitElement {
                     skip: params.data.offset || 0,
                     count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
                     include: "motherId,fatherId",
-
                     geneName: this._genes.join(","),
                     ...this._query,
                     limit: 50
@@ -218,7 +217,7 @@ export default class RgaIndividualGrid extends LitElement {
             [
                 {
                     title: "Individual Id",
-                    field: "sampleId",
+                    field: "id",
                     rowspan: 2
                 },
                 {
@@ -234,7 +233,7 @@ export default class RgaIndividualGrid extends LitElement {
                 },
                 {
                     title: "Homozygous",
-                    field: "stats.byType.HOM_ALT"
+                    field: "stats.byType.HOM_ALT",
                 },
                 {
                     title: "Compound Heterozygous",
@@ -258,11 +257,17 @@ export default class RgaIndividualGrid extends LitElement {
             ], [
                 {
                     title: "Total",
-                    field: "stats.byType.HOM_ALT"
+                    field: "stats.byType.HOM_ALT",
+                    formatter: (_, row) => {
+                        return this.getKnockoutCount(row.genes, "HOM_ALT");
+                    }
                 },
                 {
                     title: "Total",
-                    field: "ch"
+                    field: "ch",
+                    formatter: (_, row) => {
+                        return this.getKnockoutCount(row.genes, "COMP_HET");
+                    }
                 },
                 {
                     title: "Definitely",
@@ -278,6 +283,23 @@ export default class RgaIndividualGrid extends LitElement {
                 }
             ]
         ];
+    }
+
+    getKnockoutCount(genes, type) {
+        let total = 0;
+        // TODO first transcript taken into account
+        for (const gene of genes) {
+            const variants = gene.transcripts[0].variants;
+            for (const variant of variants) {
+                if (variant.knockoutType === type) {
+                    total++;
+                }
+            }
+        }
+        if (type === "COMP_HET") {
+            return total > 0 ? total/2 : "-";
+        }
+        return total > 0 ? total : "-";
     }
 
     async onDownload(e) {

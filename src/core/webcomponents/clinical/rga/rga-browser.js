@@ -123,7 +123,7 @@ export default class RgaBrowser extends LitElement {
     }
 
     queryObserver() {
-        if (this.opencgaSession) {
+        if (this.opencgaSession && this.opencgaSession.project) {
             if (this.query) {
                 this.preparedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
                 this.executedQuery = {study: this.opencgaSession.study.fqn, ...this.query};

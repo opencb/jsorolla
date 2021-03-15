@@ -67,7 +67,9 @@ export default class RgaVariantAllelePairs extends LitElement {
     }
 
     prepareData() {
-        this.tableData = [this.variant];
+        console.log("prepareData", this.variant)
+        // TODO first transcript of the first gene of the first individual
+        this.tableData = this.variant.individuals[0].genes[0].transcripts[0].variants
     }
 
     renderTable() {
@@ -100,11 +102,11 @@ export default class RgaVariantAllelePairs extends LitElement {
             {
                 title: "Allele",
                 field: "id",
-                formatter: (value, row, index) => VariantGridFormatter.variantFormatter(value, row, index, this.opencgaSession.project.organism.assembly, this._config)
+                formatter: (value, row, index) => row.chromosome ? VariantGridFormatter.variantFormatter(value, row, index, this.opencgaSession.project.organism.assembly, this._config) : value
             },
             {
                 title: "Pair type",
-                field: "pair"
+                field: "knockoutType"
             },
             {
                 title: "Type",
@@ -139,7 +141,6 @@ export default class RgaVariantAllelePairs extends LitElement {
 
     render() {
         return html`
-<!--            <div class="alert alert-warning">WIP</div>-->
             <div class="row">
                 <table id="${this.gridId}"></table>
             </div>
