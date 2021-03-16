@@ -81,7 +81,7 @@ export default class RgaVariantGrid extends LitElement {
         this.detailConfig = this.getDetailConfig();
         this.individual = null;
         this.toolbarConfig = {
-            columns: this._initTableColumns()[0]
+            columns: this._initTableColumns()
         };
     }
 
@@ -159,10 +159,10 @@ export default class RgaVariantGrid extends LitElement {
                 }
             },
             {title: "dbSNP", field: "dbSNP"},
-            {title: "Alt allele freq.", field: ""},
-            {title: "Variant type", field: ""},
+            {title: "Alt allele freq.", field: "alt_freq"},
+            {title: "Variant type", field: "type"},
             {title: "Consequence type", field: "consequenceType"},
-            {title: "ClinVar", field: ""},
+            {title: "ClinVar", field: "clinvar"},
             {
                 title: "Individuals",
                 field: "individuals",
@@ -183,17 +183,23 @@ export default class RgaVariantGrid extends LitElement {
     }
 
     onColumnChange(e) {
-        const ids = e.detail.value ?? "";
+        this.gridCommons.onColumnChange(e);
+
+        /* const ids = e.detail.value ?? "";
         this.table.bootstrapTable("hideAllColumns");
         this.table.bootstrapTable("showColumn", ["id", "dbSNP", "consequenceType", "individuals"]);
         if (ids) {
             ids.split(",").forEach(id => this.table.bootstrapTable("showColumn", id));
-        }
+        }*/
 
     }
 
     individualFormatter(value, row) {
 
+        console.error("QUEURY", this.query.individualId);
+        if (!this.query?.individualId) {
+            return "-";
+        }
         // return value.map(individual => individual.genes[0].transcripts[0].variants[0].knockoutType)
         const typeToColor = {
             "HOM_ALT": "#5b5bff",
@@ -207,21 +213,41 @@ export default class RgaVariantGrid extends LitElement {
                 c.knockoutType = variant.knockoutType;
             }
         }*/
-        let res = "";
+        const filteredIndividualIDs = this.query.individualId.split(/[,;]/);
         // TODO FIXME at the moment it takes into account the first variant of the first transcript of the first gene
-        for (const individual of value) {
-            for (const gene of individual.genes) {
-                const transcript = gene.transcripts[0];
-                for (const variant of transcript.variants) {
-                    if (variant.id === row.id) {
-                        res += `<a class="rga-individual-box" style="background: ${typeToColor[variant.knockoutType] ?? "#fff"}" tooltip-title="${individual.id}" tooltip-text="${variant.knockoutType}">&nbsp;</a>
-                                `;
-                        break;
+        return filteredIndividualIDs.map(individualId => {
+            for (const individual of value) {
+                if (individual.id === individualId) {
+                    const gene = individual.genes[0];
+                    const transcript = gene.transcripts[0];
+                    for (const variant of transcript.variants) {
+                        if (variant.id === row.id) {
+                            return `<a class="rga-individual-box" style="background: ${typeToColor[variant.knockoutType] ?? "#fff"}" tooltip-title="${individual.id}" tooltip-text="${variant.knockoutType}">&nbsp;</a>`;
+                        }
                     }
                 }
             }
+            return `<a class="rga-individual-box" style="background: '#fff' tooltip-title="${individualId}" tooltip-text="no knockout">&nbsp;</a>`;
+
+        }).join("");
+
+        /* for (const individual of value) {
+            for (const individualId of filteredIndividualIDs) {
+                if (individual.id === individualId) {
+                    const gene = individual.genes[0];
+                    const transcript = gene.transcripts[0];
+                    for (const variant of transcript.variants) {
+                        if (variant.id === row.id) {
+                            res += `<a class="rga-individual-box" style="background: ${typeToColor[variant.knockoutType] ?? "#fff"}" tooltip-title="${individual.id}" tooltip-text="${variant.knockoutType}">&nbsp;</a>
+                            `;
+                            break;
+                        }
+                    }
+                }
+
+            }
         }
-        return res;
+        return res;*/
     }
 
     renderTable() {

@@ -92,19 +92,28 @@ export default class RgaIndividualGrid extends LitElement {
                 {
                     title: "Gene",
                     field: "genes"
-                }, {
+                },
+                {
+                    title: "Sample",
+                    field: "sampleId",
+                    rowspan: 2
+                },
+                {
 
                     title: "Compound Heterozygous: Total",
                     field: "ch"
-                }, {
+                },
+                {
 
                     title: "Compound Heterozygous: Definitely",
                     field: "ch_2"
-                }, {
+                },
+                {
 
                     title: "Compound Heterozygous: Probable",
                     field: "ch_1"
-                }, {
+                },
+                {
 
                     title: "Compound Heterozygous: Possible",
                     field: "ch_0"

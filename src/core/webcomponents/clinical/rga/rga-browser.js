@@ -274,6 +274,17 @@ export default class RgaBrowser extends LitElement {
                         ]
                     },
                     {
+                        title: "Individual",
+                        collapsed: false,
+                        fields: [
+                            {
+                                id: "individualId",
+                                name: "Individual",
+                                description: "Individual selection"
+                            }
+                        ]
+                    },
+                    {
                         title: "Confidence",
                         fields: [
                             {
@@ -359,7 +370,11 @@ export default class RgaBrowser extends LitElement {
             
             <style>
                 .rga-individual-box {
-                    border:1px solid #b7b7b7; width: 10px;height: 16px; display:inline-block;
+                    border: 1px solid #8a8a8a;
+                    width: 12px;
+                    height: 16px;
+                    display: inline-block;
+                    margin-right: 1px;
                 }
 
             </style>

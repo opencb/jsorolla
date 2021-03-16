@@ -24,6 +24,7 @@ import "../../commons/filters/variant-type-filter.js";
 import "../../commons/filters/cohort-stats-filter.js";
 import "../../commons/filters/consequence-type-select-filter.js";
 import "../../commons/filters/clinvar-accessions-filter.js";
+import "../../commons/filters/individual-id-autocomplete.js";
 
 
 export default class RgaGeneFilter extends LitElement {
@@ -131,6 +132,29 @@ export default class RgaGeneFilter extends LitElement {
         return this.config.sections.length > 1 ? html`<section-filter .config="${section}" .filters="${htmlFields}">` : htmlFields;
     }
 
+    rgaIndividualFilter(subsection) {
+        const config = {
+            addButton: false,
+            fields: item => ({
+                name: item.id
+            }),
+            dataSource: (query, process) => {
+                const filters = {
+                    study: this.opencgaSession.study.fqn,
+                    limit: 20,
+                    count: false,
+                    include: "id",
+                    id: "~^" + query.toUpperCase()
+                };
+                this.opencgaSession.opencgaClient.individuals().search(filters).then(restResponse => {
+                    const results = restResponse.getResults();
+                    process(results.map(config.fields));
+                });
+            }
+        };
+        return html`<select-field-filter-autocomplete .opencgaSession="${this.opencgaSession}" .config=${config} .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></select-field-filter-autocomplete>`;
+    }
+
     _createSubSection(subsection) {
         let content = "";
         switch (subsection.id) {
@@ -169,7 +193,11 @@ export default class RgaGeneFilter extends LitElement {
                     </div>
                 `;
                 break;
-            default:
+        case "individualId":
+            content = this.rgaIndividualFilter(subsection);
+            break;
+
+        default:
                 console.error("Filter component not found", subsection?.id);
         }
         return html`
