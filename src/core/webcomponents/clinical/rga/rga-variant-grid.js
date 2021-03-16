@@ -192,7 +192,6 @@ export default class RgaVariantGrid extends LitElement {
 
     }
 
-    // TODO FIXME at the moment it takes into account the first variant of the first transcript of the first gene
     individualFormatter(value, row) {
 
         // return value.map(individual => individual.genes[0].transcripts[0].variants[0].knockoutType)
@@ -209,15 +208,15 @@ export default class RgaVariantGrid extends LitElement {
             }
         }*/
         let res = "";
+        // TODO FIXME at the moment it takes into account the first variant of the first transcript of the first gene
         for (const individual of value) {
             for (const gene of individual.genes) {
-                for (const transcript of gene.transcripts) {
-                    for (const variant of transcript.variants) {
-                        if (variant.id === row.id) {
-                            res+=`<a class="rga-individual-box" style="background: ${typeToColor[variant.knockoutType] ?? "#fff"}" tooltip-title="${individual.id}" tooltip-text="${variant.knockoutType}">&nbsp;</a>
+                const transcript = gene.transcripts[0];
+                for (const variant of transcript.variants) {
+                    if (variant.id === row.id) {
+                        res += `<a class="rga-individual-box" style="background: ${typeToColor[variant.knockoutType] ?? "#fff"}" tooltip-title="${individual.id}" tooltip-text="${variant.knockoutType}">&nbsp;</a>
                                 `;
-                            break;
-                        }
+                        break;
                     }
                 }
             }
@@ -334,10 +333,10 @@ export default class RgaVariantGrid extends LitElement {
                     name: "Clinical",
                     render: (variant, active, opencgaSession, cellbaseClient) => {
                         return html`
-                            <variant-annotation-clinical-view   .variantId="${variant?.id}"
-                                                                .opencgaSession="${opencgaSession}"
-                                                                .cellbaseClient="${cellbaseClient}">
-                                </variant-annotation-clinical-view>
+                            <variant-annotation-clinical-view .variantId="${variant?.id}"
+                                                              .opencgaSession="${opencgaSession}"
+                                                              .cellbaseClient="${cellbaseClient}">
+                            </variant-annotation-clinical-view>
                         `;
                     }
                 },
@@ -345,11 +344,12 @@ export default class RgaVariantGrid extends LitElement {
                     id: "popfreq-view",
                     name: "Population Frequencies",
                     render: (variant, active, opencgaSession, cellbaseClient) => {
-                        return html`<cellbase-population-frequency-grid .variantId="${variant?.id}"
-                                                                        .assembly="${opencgaSession?.project?.organism?.assembly}"
-                                                                        .cellbaseClient="${cellbaseClient}"
-                                                                        .active="${active}">
-                                    </cellbase-population-frequency-grid>`;
+                        return html`
+                            <cellbase-population-frequency-grid .variantId="${variant?.id}"
+                                                                .assembly="${opencgaSession?.project?.organism?.assembly}"
+                                                                .cellbaseClient="${cellbaseClient}"
+                                                                .active="${active}">
+                            </cellbase-population-frequency-grid>`;
                     }
                 }
             ]
@@ -360,14 +360,16 @@ export default class RgaVariantGrid extends LitElement {
         return html`
             <div class="container-fluid">
                 <opencb-grid-toolbar .config="${this.toolbarConfig}"
-                                 @columnChange="${this.onColumnChange}"
-                                 @download="${this.onDownload}">
+                                     @columnChange="${this.onColumnChange}"
+                                     @download="${this.onDownload}">
                 </opencb-grid-toolbar>
-            
+
                 <div class="row">
                     <table id="${this.gridId}"></table>
                 </div>
-                ${this.variant ? html`<detail-tabs .data="${this.variant}" .config="${this.detailConfig}" .opencgaSession="${this.opencgaSession}" .cellbaseClient="${this.cellbaseClient}"></detail-tabs>` : null}
+                ${this.variant ? html`
+                    <detail-tabs .data="${this.variant}" .config="${this.detailConfig}" .opencgaSession="${this.opencgaSession}"
+                                 .cellbaseClient="${this.cellbaseClient}"></detail-tabs>` : null}
             </div>
         `;
     }
