@@ -195,8 +195,6 @@ export default class RgaVariantGrid extends LitElement {
     }
 
     individualFormatter(value, row) {
-
-        console.error("QUEURY", this.query.individualId);
         if (!this.query?.individualId) {
             return "-";
         }

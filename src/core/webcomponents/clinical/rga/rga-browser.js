@@ -270,6 +270,11 @@ export default class RgaBrowser extends LitElement {
                                 id: "geneName",
                                 name: "Gene",
                                 description: "Gene selection"
+                            },
+                            {
+                                id: "knockoutType",
+                                name: "knockoutType",
+                                allowedValues: ["COMP_HET", "HOM_ALT"]
                             }
                         ]
                     },

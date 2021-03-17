@@ -96,6 +96,7 @@ export default class RgaVariantIndividualGrid extends LitElement {
         });
     }
 
+    // TODO only the first transcript is taken into account
     _initTableColumns() {
         return [
             {
@@ -105,6 +106,16 @@ export default class RgaVariantIndividualGrid extends LitElement {
             {
                 title: "Sample",
                 field: "sampleId"
+            },
+            {
+                title: "knockoutType",
+                field: "_",
+                formatter: (_, row) => row.genes[0].transcripts[0].variants.find(variant => variant.id === this.variant.id)?.knockoutType
+            },
+            {
+                title: "Type",
+                field: "_",
+                formatter: (_, row) => row.genes[0].transcripts[0].variants.find(variant => variant.id === this.variant.id)?.type
             },
             {
                 title: "Type",

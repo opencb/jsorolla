@@ -183,6 +183,9 @@ export default class RgaGeneFilter extends LitElement {
             case "numParents":
                 content = html`<checkbox-field-filter .value="${this.preparedQuery[subsection.id]}" .data="${subsection.allowedValues}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></checkbox-field-filter>`;
                 break;
+            case "knockoutType":
+                content = html`<select-field-filter multiple .data="${subsection.allowedValues}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></select-field-filter>`;
+                break;
             case "probandOnly":
                 content = html`
                     <div class="form-horizontal">
@@ -193,11 +196,10 @@ export default class RgaGeneFilter extends LitElement {
                     </div>
                 `;
                 break;
-        case "individualId":
-            content = this.rgaIndividualFilter(subsection);
-            break;
-
-        default:
+            case "individualId":
+                content = this.rgaIndividualFilter(subsection);
+                break;
+            default:
                 console.error("Filter component not found", subsection?.id);
         }
         return html`
