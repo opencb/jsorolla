@@ -111,8 +111,12 @@ export default class RgaIndividualVariants extends LitElement {
                 //formatter: (value, row, index) => VariantGridFormatter.variantFormatter(value, row, index, this.opencgaSession.project.organism.assembly, this._config)
             },
             {
-                title: "Type",
+                title: "Knockout Type",
                 field: "knockoutType"
+            },
+            {
+                title: "Type",
+                field: "type"
             },
             {
                 title: "GT",

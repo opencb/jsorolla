@@ -305,9 +305,9 @@ export default class RgaIndividualGrid extends LitElement {
                 }
             }
         }
-        if (type === "COMP_HET") {
+        /*if (type === "COMP_HET") {
             return total > 0 ? total/2 : "-";
-        }
+        }*/
         return total > 0 ? total : "-";
     }
 

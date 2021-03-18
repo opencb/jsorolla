@@ -89,25 +89,13 @@ export default class RgaGeneGrid extends LitElement {
                     field: "value"
                 }, {
 
-                    title: "Compound Heterozygous: Total",
-                    field: "ch"
+                    title: "Recessive Individuals",
+                    field: "ind_tot,ind_hom,ind_ch,ind_ch_def,ind_ch_prob,ind_ch_poss"
                 }, {
 
-                    title: "Compound Heterozygous: Definitely",
-                    field: "ch_2"
-                }, {
-
-                    title: "Compound Heterozygous: Probable",
-                    field: "ch_1"
-                }, {
-
-                    title: "Compound Heterozygous: Possible",
-                    field: "ch_0"
-                }/* , {
-
-                title: "Homozygous",
-                field: "hom"
-            }*/
+                    title: "Recessive Variants",
+                    field: "var_tot,var_hom,var_ch"
+                }
             ]
         };
 
@@ -150,7 +138,7 @@ export default class RgaGeneGrid extends LitElement {
                     limit: params.data.limit,
                     skip: params.data.offset || 0,
                     count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
-                    field: "geneName>>knockoutTypes>>numParents;geneName>>variants>>knockoutTypes>>numParents",
+                    field: "geneName>>knockoutTypes>>numParents>>individualId;geneName>>knockoutTypes>>numParents>>variants",
                     // geneName: this._genes.join(","),
                     ...this._query
                     // limit: 50
@@ -158,34 +146,60 @@ export default class RgaGeneGrid extends LitElement {
                 this.opencgaSession.opencgaClient.clinical().aggregationStatsRga(_filters)
                     .then(res => {
                         console.log("res", res);
-                        this.restResponse = res;
+                        // this.restResponse = res;
                         params.success(res);
                     })
                     .catch(e => {
                         console.error(e);
                         params.error(e);
                     });
-
-                /* this.opencgaSession.opencgaClient.clinical().queryRgaGene(_filters)
-                    .then(res => {
-                        console.log("res", res);
-                        params.success(res);
-                    })
-                    .catch(e => {
-                        console.error(e);
-                        params.error(e);
-                    });*/
             },
             responseHandler: response => {
                 // const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
+
+                // joining the 2 facets
+
+                const r = [];
+                if (response.getResults().length === 2) {
+                    let entry = {};
+                    for (const individualFacetGene of response.getResult(0).buckets) {
+                        console.log("individualFacetGene", individualFacetGene)
+                        // const individual_HOM_ALT = individualFacetGene.facetFields.find(facet => facet.name === "knockoutTypes").buckets.find(bucket => bucket.value === "HOM_ALT");
+                        // const individual_COMP_HET = individualFacetGene.facetFields.find(facet => facet.name === "knockoutTypes").buckets.find(bucket => bucket.value === "COMP_HET");
+                        // const variant_HOM_ALT = variantFacetGene.facetFields.find(facet => facet.name === "knockoutTypes").buckets.find(bucket => bucket.value === "HOM_ALT");
+                        // const variant_COMP_HET = variantFacetGene.facetFields.find(facet => facet.name === "knockoutTypes").buckets.find(bucket => bucket.value === "COMP_HET");
+
+                        const individualKnockoutTypes = individualFacetGene.facetFields.find(facet => facet.name === "knockoutTypes");
+                        const variantFacetGene = response.getResult(0).buckets.find(gene => gene.name === individualFacetGene.name);
+                        const variantKnockoutTypes = variantFacetGene.facetFields.find(facet => facet.name === "knockoutTypes");
+
+                        entry = {
+                            name: individualFacetGene.value,
+                            individualFacet: {
+                                HOM_ALT: individualKnockoutTypes.buckets.find(bucket => bucket.value === "HOM_ALT"),
+                                COMP_HET: individualKnockoutTypes.buckets.find(bucket => bucket.value === "COMP_HET"),
+                                count: individualKnockoutTypes.count
+                            },
+                            variantFacet: {
+                                HOM_ALT: variantKnockoutTypes.buckets.find(bucket => bucket.value === "HOM_ALT"),
+                                COMP_HET: variantKnockoutTypes.buckets.find(bucket => bucket.value === "COMP_HET"),
+                                count: variantKnockoutTypes.count
+                            }
+                        };
+                        r.push(entry);
+
+                    }
+                }
+                console.error("R", r)
                 return {
                     total: response.getResult(0)?.count ?? 0,
-                    rows: response.getResult(0)?.buckets ?? []
+                    rows: r ?? []
 
                 };
             },
             onClickRow: (row, selectedElement, field) => {
-                // console.log(row);
+                console.log(row);
+                //console.log("variant facet", this.restResponse.getResult(1).buckets.find(gene => gene.value === row.value))
                 this.gridCommons.onClickRow(row.id, row, selectedElement);
             },
             onCheck: (row, $element) => this.gridCommons.onCheck(row.id, row),
@@ -213,74 +227,87 @@ export default class RgaGeneGrid extends LitElement {
             [
                 {
                     title: "Gene",
-                    field: "value",
+                    field: "name",
                     rowspan: 2,
                     halign: "center",
-                    //formatter: this.geneIdFormatter
                 },
                 {
-                    title: "Recessive individuals",
-                    field: "_",
+                    title: "Recessive Individuals",
                     colspan: 6
                 },
                 {
                     title: "Recessive Variants",
-                    field: "_",
                     colspan: 3
                 }
             ],
             [
                 {
                     title: "Total",
-                    field: "count"
+                    field: "ind_tot",
+                    formatter: (_, row) => {
+                        return row.individualFacet.count;
+                    }
                 },
                 {
                     title: "Total Homozygous", // row.facetFields.find(facetField => facetField.name === "HOM_ALT")?.count ?? "n/a"
-                    field: "Homozygous",
+                    field: "ind_hom",
                     formatter: (_, row) => {
-                        const knockoutTypes = row.facetFields.find(facetField => facetField.name === "knockoutTypes");
-                        return knockoutTypes.buckets.find(bucket => bucket.value === "HOM_ALT")?.count ?? "n/a";
+                        /*const knockoutTypes = row.facetFields.find(facetField => facetField.name === "knockoutTypes");
+                        return knockoutTypes.buckets.find(bucket => bucket.value === "HOM_ALT")?.count ?? "n/a";*/
+                        return row.individualFacet.HOM_ALT?.count;
                     }
                 },
                 {
                     title: "CH Tot",
-                    field: "ch",
+                    field: "ind_ch",
                     formatter: (_, row) => {
-                        const knockoutTypes = row.facetFields.find(facetField => facetField.name === "knockoutTypes");
-                        return knockoutTypes.buckets.find(bucket => bucket.value === "COMP_HET")?.count ?? "-";
-                        // return "n/a"
+                        /*const knockoutTypes = row.facetFields.find(facetField => facetField.name === "knockoutTypes");
+                        return knockoutTypes.buckets.find(bucket => bucket.value === "COMP_HET")?.count ?? "-";*/
+                        return row.individualFacet.COMP_HET?.count;
                     }
                 },
                 {
                     title: "CH Tot Definite",
-                    field: "ch_2",
-                    formatter: (_, row) => this.getConfidenceCount(row.facetFields, "2")
+                    field: "ind_ch_def",
+                    formatter: (_, row) => {
+                        // this.getConfidenceCount(row.facetFields, "2")
+                        return row.individualFacet.COMP_HET?.facetFields?.find(facet => facet.name === "numParents").buckets.find(bucket => bucket.value === "2")?.count;
+                    }
                 },
                 {
                     title: "CH Probable",
-                    field: "ch_1",
-                    formatter: (_, row) => this.getConfidenceCount(row.facetFields, "1")
+                    field: "ind_ch_prob",
+                    formatter: (_, row) => {
+                        // this.getConfidenceCount(row.facetFields, "1")
+                        return row.individualFacet.COMP_HET?.facetFields?.find(facet => facet.name === "numParents").buckets.find(bucket => bucket.value === "1")?.count;
+                    }
                 },
                 {
                     title: "CH Possible",
-                    field: "ch_0",
-                    formatter: (_, row) => this.getConfidenceCount(row.facetFields, "0")
+                    field: "ind_ch_poss",
+                    formatter: (_, row) => {
+                        // this.getConfidenceCount(row.facetFields, "0")
+                        return row.individualFacet.COMP_HET?.facetFields?.find(facet => facet.name === "numParents").buckets.find(bucket => bucket.value === "0")?.count;
+                    }
                 },
                 // Recessive Variants
                 {
                     title: "Total",
-                    field: "",
+                    field: "var_tot",
                     formatter: (_, row) => {
-                        const gene = this.restResponse.getResult(1).buckets.find(gene => gene.value === row.value);
+                        /*const gene = this.restResponse.getResult(1).buckets.find(gene => gene.value === row.value);
                         const variantFacet = gene.facetFields.find(facet => facet.name === "variants");
-                        return variantFacet.count;
+                        return variantFacet.count;*/
+
+                        return row.variantFacet.count;
+
                     }
                 },
                 {
                     title: "Total Homozygous",
-                    field: "",
+                    field: "var_hom",
                     formatter: (_, row) => {
-                        // TODO note potential traversing of all the results EACH cell
+                        /*// TODO note potential traversing of all the results EACH cell
                         // counting all the HOM_ALT
                         const gene = this.restResponse.getResult(1).buckets.find(gene => gene.value === row.value);
                         const variantFacet = gene.facetFields.find(facet => facet.name === "variants");
@@ -292,14 +319,17 @@ export default class RgaGeneGrid extends LitElement {
                             res += hom;
 
                         }
-                        return res;
+                        return res;*/
+
+                        return row.variantFacet.HOM_ALT?.count;
+
                     }
                 },
                 {
                     title: "Total CH",
-                    field: "",
+                    field: "var_ch",
                     formatter: (_, row) => {
-                        // TODO note potential traversing of all the results EACH cell
+                       /* // TODO note potential traversing of all the results EACH cell
                         // counting all the HOM_ALT
                         const gene = this.restResponse.getResult(1).buckets.find(gene => gene.value === row.value);
                         const variantFacet = gene.facetFields.find(facet => facet.name === "variants");
@@ -311,13 +341,19 @@ export default class RgaGeneGrid extends LitElement {
                             res += hom;
 
                         }
-                        return res;
+                        return res;*/
+
+                        return row.variantFacet.COMP_HET?.count;
+
                     }
                 }
             ]
         ];
     }
 
+    /**
+     * @deprecated
+     */
     getConfidenceCount(facetFields, value) {
         // TODO note this code implies 4 nested loops
         const knockoutTypes = facetFields.find(facetField => facetField.name === "knockoutTypes");
