@@ -53,7 +53,7 @@ export default class OpencgaSampleBrowser extends LitElement {
     }
 
     _init() {
-        this._prefix = "sb" + UtilsNew.randomString(6);
+        this._prefix = UtilsNew.randomString(8);
 
         // These are for making the queries to server
         this.facetFields = [];
@@ -75,6 +75,7 @@ export default class OpencgaSampleBrowser extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
+
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
@@ -194,7 +195,7 @@ export default class OpencgaSampleBrowser extends LitElement {
                             id: "sample-variant-stats-view",
                             name: "Variant Stats",
                             render: (sample, active, opencgaSession) => {
-                                return html`<sample-variant-stats-view .sampleId="${sample.id}" .opencgaSession="${opencgaSession}"></sample-variant-stats-view>`;
+                                return html`<sample-variant-stats-view .sampleId="${sample.id}" .active="${active}" .opencgaSession="${opencgaSession}"></sample-variant-stats-view>`;
                             }
                         },
                         {
@@ -215,7 +216,8 @@ export default class OpencgaSampleBrowser extends LitElement {
                             id: "file-view",
                             name: "Files",
                             render: (sample, active, opencgaSession) => {
-                                return html`<opencga-file-grid .opencgaSession="${opencgaSession}" .query="${{sampleIds: sample.id}}"></opencga-file-grid>`;
+                                return html`
+                                    <opencga-file-grid .query="${{sampleIds: sample.id}}" .active="${active}" .config="${{downloadFile: this._config.downloadFile}}" .opencgaSession="${opencgaSession}" ></opencga-file-grid>`;
                             }
                         },
                         {
@@ -223,7 +225,7 @@ export default class OpencgaSampleBrowser extends LitElement {
                             name: "JSON Data",
                             mode: "development",
                             render: (sample, active, opencgaSession) => {
-                                return html`<json-viewer .data="${sample}"></json-viewer>`;
+                                return html`<json-viewer .data="${sample}" .active="${active}"></json-viewer>`;
                             }
                         }
                     ]
@@ -373,9 +375,9 @@ export default class OpencgaSampleBrowser extends LitElement {
     render() {
         return this._config ? html`
             <opencga-browser  resource="SAMPLE"
-                            .opencgaSession="${this.opencgaSession}"
-                            .query="${this.query}"
-                            .config="${this._config}">
+                              .opencgaSession="${this.opencgaSession}"
+                              .query="${this.query}"
+                              .config="${this._config}">
             </opencga-browser>` : null;
     }
 

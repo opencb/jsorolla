@@ -37,7 +37,7 @@ export default class CohortStatsFilter extends LitElement {
                 type: Object
             },
             cohorts: {
-                type: Object
+                type: Array
             },
             onlyCohortAll: {
                 type: Boolean
@@ -52,54 +52,57 @@ export default class CohortStatsFilter extends LitElement {
     }
 
     _init() {
-        this._prefix = "cf-" + UtilsNew.randomString(6);
-        this.defaultComparator = "<";
+        this._prefix = UtilsNew.randomString(8);
 
+        this.defaultComparator = "<";
     }
 
     connectedCallback() {
         super.connectedCallback();
+
         this.cohortsPerStudy = this.cohorts ? this.cohorts[this.opencgaSession.study.id] : null;
         this.state = {};
     }
 
     updated(_changedProperties) {
+        if (_changedProperties.has("opencgaSession") || _changedProperties.has("cohorts")) {
+            this.state = {};
+            this.cohortsPerStudy = this._getCohorts();
+            this.requestUpdate();
+        }
+
         if (_changedProperties.has("cohortStatsAlt")) {
             this.state = {};
             if (this.cohortStatsAlt) {
                 const cohorts = this.cohortStatsAlt.split(";");
                 cohorts.forEach(cohortStat => {
-                    const [project, study, cohortFreq] = cohortStat.split(":");
+                    const [studyId, cohortFreq] = cohortStat.split(":");
+                    console.log(studyId, cohortFreq);
                     const [cohort, comparator, value] = cohortFreq.split(/(<=?|>=?|=)/);
-                    this.state[project + ":" + study] = {cohort, comparator, value};
+                    this.state[studyId] = {cohort, comparator, value};
                 });
             }
             this.requestUpdate();
         }
-
-        if (_changedProperties.has("onlyCohortAll")) {
-            this.cohortsPerStudy = this._getCohortAll();
-            this.requestUpdate();
-        }
-
-        if (_changedProperties.has("opencgaSession")) {
-            this.state = {};
-            //this.cohortsPerStudy = this.cohorts ? this.cohorts[this.opencgaSession.project.id] : this._getCohortAll();
-            this.cohortsPerStudy = this._getCohortAll();
-            this.requestUpdate();
-        }
     }
 
-    _getCohortAll() {
-        let cohortsPerStudy = {};
-        if (this.opencgaSession && this.onlyCohortAll) {
-            for (let study of this.opencgaSession.project.studies) {
-                cohortsPerStudy[study.fqn] = [
-                    {id: "ALL", name: "All"}
-                ];
+    _getCohorts() {
+        let studiesAndCohorts = [];
+        if (this.opencgaSession?.project?.studies) { //  && this.onlyCohortAll
+            for (const study of this.opencgaSession.project.studies) {
+                if (study.cohorts?.length) {
+                    if (this.onlyCohortAll) {
+                        studiesAndCohorts.push({
+                            ...study,
+                            cohorts: [{id: "ALL"}]
+                        });
+                    } else {
+                        studiesAndCohorts = this.cohorts;
+                    }
+                }
             }
         }
-        return cohortsPerStudy;
+        return studiesAndCohorts;
     }
 
     handleCollapseAction(e) {
@@ -113,31 +116,21 @@ export default class CohortStatsFilter extends LitElement {
         }
     }
 
-    formatStudyId(fqn) {
+    getStudyIdFromFqn(fqn) {
         // replaces characters not valid in an DOM Element ID
-        return fqn.replace(/@|:/g, "_")
+        return fqn.split(":")[1]?.replace(/@|:/g, "_");
     }
 
     filterChange(e, study, cohort) {
         // e.detail.value is not defined iff you are changing the comparator and a value hasn't been set yet
-        if(e?.detail?.value) {
+        if (e?.detail?.value) {
             e.stopPropagation();
             this.state[study] = {cohort: cohort, comparator: e.detail.comparator, value: e.detail.numValue};
         } else {
             delete this.state[study];
         }
-        /*const {study, cohort, action} = e.target.dataset;
-        console.log("study, cohort, action", study, cohort, action)
-        if (action === "operator") {
-            const operator = e.target.value;
-            this.state[study] = {...this.state[study], cohort, operator};
-        }
-        if (action === "value") {
-            const value = e.target.value;
-            this.state[study] = {...this.state[study], cohort, operator: this.state[study]?.operator ?? "<", value};
-        }
-        */
-        const value = Object.entries(this.state).filter(([, v]) => v.value).map(([study, v]) => `${study}:${v.cohort}${v.comparator}${v.value}`).join(";");
+        // serialize this.state in the form of "STUDY_ID:COHORT_ID<VALUE;.."
+        const value = Object.entries(this.state).filter(([, v]) => v.value).map(([studyId, v]) => `${studyId}:${v.cohort}${v.comparator}${v.value}`).join(";");
         const event = new CustomEvent("filterChange", {
             detail: {
                 value: value
@@ -147,60 +140,44 @@ export default class CohortStatsFilter extends LitElement {
     }
 
     render() {
-        return this.cohortsPerStudy ? Object.entries(this.cohortsPerStudy).map(([study, cohort]) => html`
-            <div style="padding: 5px 0px">
-                <div style="padding-bottom: 5px">
-                    <i id="${this._prefix}${this.formatStudyId(study)}Icon" data-id="${this._prefix}${this.formatStudyId(study)}" data-cy="study-cohort-toggle" class="fa fa-plus"
-                       style="cursor: pointer;padding-right: 10px" @click="${this.handleCollapseAction}"></i>
-                    <span class="break-word">Study <strong>${study.split("@")[1]}</strong> cohorts</span> 
+        if (!this.cohortsPerStudy?.length) {
+            return html`<span>Cohort Variants Stats not available.</span>`;
+        }
+
+        return html`
+            ${this.cohortsPerStudy 
+            .map(study => html`
+                <div style="padding: 5px 0px">
+                    <div style="padding-bottom: 5px">
+                        <i id="${this._prefix}${this.getStudyIdFromFqn(study.fqn)}Icon" data-id="${this._prefix}${this.getStudyIdFromFqn(study.fqn)}"
+                           data-cy="study-cohort-toggle" class="fa fa-plus" style="cursor: pointer;padding-right: 10px"
+                           @click="${this.handleCollapseAction}"></i>
+                        <span class="break-word">Study <strong>${this.getStudyIdFromFqn(study.fqn)}</strong> cohorts</span> 
+                    </div>
+                    
+                    <div class="form-horizontal" id="${this._prefix}${this.getStudyIdFromFqn(study.fqn)}" hidden>
+                        ${study.cohorts
+                                .map(cohort => html`
+                                    <div class="form-group" style="margin: 5px 0px">
+                                        <number-field-filter
+                                                .value="${this.state?.[study.id]?.value ?
+                                                        (this.state?.[study.id]?.comparator ?? this.defaultComparator) + (this.state?.[study.id]?.value ?? "") :
+                                                        ""}"
+                                                .config="${{comparator: true, layout: [4, 3, 5]}}"
+                                                .label="${cohort.id}"
+                                                type="text"
+                                                data-study="${study.id}"
+                                                data-cohort="${cohort.id}"
+                                                data-action="comparator"
+                                                @filterChange="${e => this.filterChange(e, study.id, cohort.id)}">
+                                        </number-field-filter>
+                                    </div>
+                                `)
+                        }
+                    </div>
                 </div>
-                <div class="form-horizontal" id="${this._prefix}${this.formatStudyId(study)}" hidden>
-                    ${cohort.map(cohort => html`
-                        <div class="form-group" style="margin: 5px 0px">
-                            <number-field-filter
-                                .value="${this.state?.[study]?.value ? (this.state?.[study]?.comparator ?? this.defaultComparator) + (this.state?.[study]?.value ?? "") : ""}"
-                                .config="${{comparator: true, layout: [3,3,6]}}"
-                                .label="${cohort.name}"
-                                type="text"
-                                data-study="${study}"
-                                data-cohort="${cohort.id}"
-                                data-action="comparator"
-                                @filterChange="${e => this.filterChange(e, study, cohort.id)}">
-                            </number-field-filter>
-                            
-                            
-                            <!--<span class="col-md-4 control-label">${cohort.name}</span>
-                            <div class="col-md-4" style="padding: 0px 10px">
-                                <select id="${this._prefix}${study}${cohort.id}CohortOperator" name="${cohort.id}Operator"
-                                        class="form-control input-sm ${this._prefix}FilterSelect" style="padding: 0px 5px"
-                                        data-study="${study}"
-                                        data-cohort="${cohort.id}"
-                                        data-action="comparator"
-                                        @change="${e => this.filterChange(e, study, cohort.id)}">
-                                    ${["<", "<=", ">", ">="].map((op, i) => html`
-                                        <option .selected="${this.state[study]?.operator === op || i === 0}">${op}</option>
-                                    `)}
-                                </select>
-                            </div>
-                            <div class="col-md-4" style="padding: 0px 10px">
-                                <input type="text" class="form-control input-sm ${this._prefix}FilterTextInput"
-                                data-study="${study}"
-                                data-cohort="${cohort.id}"
-                                data-action="value"
-                                .value="${this.state[study]?.value ?? ""}"
-                                @input="${this.filterChange}">
-                            </div>
-                            -->
-                        </div>
-                    `)}
-                </div>
-            </div>`)
-            : html`
-                <span>Project not found</span>
-            `;
+            `)}`;
     }
-
-
 
 }
 

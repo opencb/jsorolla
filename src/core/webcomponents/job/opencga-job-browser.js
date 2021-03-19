@@ -234,7 +234,7 @@ export default class OpencgaJobBrowser extends LitElement {
                             name: "JSON Data",
                             mode: "development",
                             render: (job, active, opencgaSession) => {
-                                return html`<json-viewer .data="${job}"></json-viewer>`;
+                                return html`<json-viewer .data="${job}" .active="${active}"></json-viewer>`;
                             }
                         }
                     ]

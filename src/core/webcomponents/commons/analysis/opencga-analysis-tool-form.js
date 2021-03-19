@@ -64,7 +64,7 @@ export default class OpencgaAnalysisToolForm extends LitElement {
 
         // This should be executed on change of each field (or better just on actuator param change)
         if (this.config.sections && this.config.sections.length) {
-            this.config.sections.forEach( section => {
+            this.config.sections.forEach(section => {
                 if (section.parameters && section.parameters.length) {
                     section.parameters.forEach(param => {
                         param.value = param.defaultValue; // TODO change defaultValue to value in config?
@@ -90,7 +90,7 @@ export default class OpencgaAnalysisToolForm extends LitElement {
                 // handle the invalid form...
             } else {
                 // everything looks good!
-                const params = this.config.sections.reduce( (acc, curr) => [...acc, ...curr.parameters], []);
+                const params = this.config.sections.reduce((acc, curr) => [...acc, ...curr.parameters], []);
                 console.log(params);
             }
         });
@@ -101,9 +101,9 @@ export default class OpencgaAnalysisToolForm extends LitElement {
     async updated(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
             this.params.study = this.opencgaSession.study.fqn;
-            this.runnable = OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "EXECUTE_JOBS")
+            this.runnable = OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "EXECUTE_JOBS");
             await this.requestUpdate();
-            //await this.updateComplete;
+            // await this.updateComplete;
             UtilsNew.initTooltip(this);
         }
     }
@@ -123,7 +123,7 @@ export default class OpencgaAnalysisToolForm extends LitElement {
     }
 
     _operatorExec(a, b, operator) {
-        switch(operator) {
+        switch (operator) {
             case "==":
             case "===":
                 return a === b;
@@ -217,10 +217,8 @@ export default class OpencgaAnalysisToolForm extends LitElement {
                         ${JSON.stringify(this.config.sections, null, "\t")}
                     </pre>
                 -->
-                
-                ${JSON.stringify(this.data)}
                 <form id="${this._prefix}analysis-form" data-toggle="validator" data-feedback='{"success": "fa-check", "error": "fa-times"}' role="form">
-                    ${this.config.sections.map( (section, i) => html`
+                    ${this.config.sections.map((section, i) => html`
                          <div class="panel panel-default shadow-sm">
                              <div class="panel-heading" role="tab" id="${this._prefix}Heading${i}">
                                  <h4 class="panel-title">
@@ -233,7 +231,7 @@ export default class OpencgaAnalysisToolForm extends LitElement {
                              <div id="${this._prefix}section-${i}" class="panel-collapse ${!section.collapsed ? "in" : ""}" role="tabpanel" aria-labelledby="${this._prefix}${i}Heading">
                                  <div class="panel-body">
                                      <div class="row">
-                                         ${section.parameters && section.parameters.length ? section.parameters.map( param => html`
+                                         ${section.parameters && section.parameters.length ? section.parameters.map(param => html`
                                              <opencga-analysis-tool-form-field .opencgaSession="${this.opencgaSession}" .cellbaseClient=${this.cellbaseClient} .config="${param}" @fieldChange="${this.onFieldChange}"> </opencga-analysis-tool-form-field>
                                          `) : null }
                                      </div>
@@ -274,10 +272,10 @@ export default class OpencgaAnalysisToolForm extends LitElement {
                         </div>
                     ` : null}
                     <div class="pull-right button-wrapper">
-                        ${this.runnable 
-                            ? html`
-                                <button type="button" class="ripple btn btn-primary btn-lg" @click="${this.onRun}">Run</button>` 
-                            : html`
+                        ${this.runnable ?
+                            html`
+                                <button type="button" class="ripple btn btn-primary btn-lg" @click="${this.onRun}">Run</button>` :
+                            html`
                                 <a tooltip-title="Permission denied" tooltip-text="EXECUTE_JOB permission not available">
                                     <i class="fas fa-exclamation-circle text-danger"></i>
                                 </a>

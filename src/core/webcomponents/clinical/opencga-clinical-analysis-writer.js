@@ -52,9 +52,9 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
 
     _init() {
         this._prefix = UtilsNew.randomString(8);
-
         this.mode = "create";
         this.clinicalAnalysis = {};
+        this.checkProjects = false;
     }
 
     connectedCallback() {
@@ -68,7 +68,8 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
             // We store the available users from opencgaSession in 'clinicalAnalysis._users'
             this.clinicalAnalysis._users = [];
             if (this.opencgaSession && this.opencgaSession.study) {
-                let _users = CatalogUtils.getUsers(this.opencgaSession.study);
+                this.checkProjects = true;
+                const _users = CatalogUtils.getUsers(this.opencgaSession.study);
                 this.clinicalAnalysis = {
                     type: "SINGLE",
                     priority: "MEDIUM",
@@ -79,6 +80,8 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                     comments: [],
                     _users: _users
                 };
+            } else {
+                this.checkProjects = false;
             }
 
             this.requestUpdate();
@@ -95,12 +98,12 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                 this.clinicalAnalysis.type = e.detail.value.toUpperCase();
                 break;
             case "proband.id":
-                let _proband = this.clinicalAnalysis.family.members.filter(d => d.id === e.detail.value);
+                const _proband = this.clinicalAnalysis.family.members.filter(d => d.id === e.detail.value);
                 this.clinicalAnalysis.proband = _proband[0];
                 this.clinicalAnalysis.disorder = _proband[0].disorders && _proband[0].disorders.length > 0 ? _proband[0].disorders[0] : null;
                 break;
             case "disorder.id":
-                let _disorder = this.clinicalAnalysis.proband.disorders.filter(d => d.id === e.detail.value);
+                const _disorder = this.clinicalAnalysis.proband.disorders.filter(d => d.id === e.detail.value);
                 this.clinicalAnalysis.disorder = _disorder[0];
                 break;
             case "analyst.id":
@@ -142,7 +145,7 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                     this.clinicalAnalysis = {...this.clinicalAnalysis};
                     this.requestUpdate();
                 })
-                .catch(function(reason) {
+                .catch(function (reason) {
                     console.error(reason);
                 });
         }
@@ -157,7 +160,7 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
 
                     // Select as proband the first son/daughter with a disorder
                     if (this.clinicalAnalysis.family && this.clinicalAnalysis.family.members) {
-                        for (let member of this.clinicalAnalysis.family.members) {
+                        for (const member of this.clinicalAnalysis.family.members) {
                             if (member.disorders && member.disorders.length > 0 && member.father.id && member.mother.id) {
                                 this.clinicalAnalysis.proband = member;
                                 break;
@@ -172,7 +175,7 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                     this.clinicalAnalysis = {...this.clinicalAnalysis};
                     this.requestUpdate();
                 })
-                .catch(function(reason) {
+                .catch(function (reason) {
                     console.error(reason);
                 });
         }
@@ -191,14 +194,14 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                     this.clinicalAnalysis = {...this.clinicalAnalysis};
                     this.requestUpdate();
                 })
-                .catch(function(reason) {
+                .catch(function (reason) {
                     console.error(reason);
                 });
         }
     }
 
     notifyClinicalAnalysisWrite() {
-        let eventName = this.mode === "create" ? "clinicalAnalysisCreate" : "clinicalanalysischange";
+        const eventName = this.mode === "create" ? "clinicalAnalysisCreate" : "clinicalanalysischange";
         this.dispatchEvent(new CustomEvent(eventName, {
             detail: {
                 id: this.clinicalAnalysis.id,
@@ -235,7 +238,7 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                 infoIcon: "",
                 labelAlign: "left",
                 labelWidth: "4",
-                defaultLayout: "horizontal",
+                defaultLayout: "horizontal"
             },
             sections: [
                 {
@@ -303,7 +306,7 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                             type: "custom",
                             display: {
                                 visible: data => this.mode === "create",
-                                render: (data) => {
+                                render: data => {
                                     return html`
                                         <individual-id-autocomplete 
                                             .opencgaSession="${this.opencgaSession}" ?disabled=${this.mode === "update"} .config=${{
@@ -321,7 +324,7 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                             allowedValues: "proband.disorders",
                             required: true,
                             display: {
-                                apply: (disorder) => `${disorder.name} (${disorder.id})`,
+                                apply: disorder => `${disorder.name} (${disorder.id})`,
                                 errorMessage: "No proband selected"
                             }
                         },
@@ -350,9 +353,9 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                                     {
                                         name: "Status", field: "status.name", defaultValue: "-"
                                     }
-                                ],
+                                ]
                             }
-                        },
+                        }
                     ]
                 },
                 {
@@ -367,7 +370,7 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                             type: "custom",
                             display: {
                                 visible: data => this.mode === "create",
-                                render: (data) => {
+                                render: data => {
                                     return html`
                                         <family-id-autocomplete 
                                             .opencgaSession="${this.opencgaSession}" ?disabled=${this.mode === "update"} .config=${{
@@ -403,7 +406,7 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                             allowedValues: "proband.disorders",
                             required: true,
                             display: {
-                                apply: (disorder) => `${disorder.name} (${disorder.id})`,
+                                apply: disorder => `${disorder.name} (${disorder.id})`,
                                 errorMessage: "No family selected"
                             }
                         },
@@ -443,18 +446,18 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                                             render: disorders => {
                                                 if (disorders && disorders.length > 0) {
                                                     let id = disorders[0].id;
-                                                    let name = disorders[0].name;
+                                                    const name = disorders[0].name;
                                                     if (id?.startsWith("OMIM:")) {
                                                         id = html`<a href="https://omim.org/entry/${id.split(":")[1]}" target="_blank">${id}</a>`;
                                                     }
-                                                    return html`${name} (${id})`
+                                                    return html`${name} (${id})`;
                                                 } else {
                                                     return html`<span>N/A</span>`;
                                                 }
-                                            },
+                                            }
                                         }
                                     }
-                                ],
+                                ]
 
                             }
                         },
@@ -488,7 +491,7 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                             type: "custom",
                             display: {
                                 defaultLayout: "vertical",
-                                visible: data => application.appConfig === "opencb", //TODO pedigree doesnt work with families with over 2 generations
+                                visible: data => application.appConfig === "opencb", // TODO pedigree doesnt work with families with over 2 generations
                                 render: data => {
                                     if (data.family) {
                                         return html`<pedigree-view .family="${data.family}"></pedigree-view>`;
@@ -527,7 +530,7 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                             allowedValues: "proband.disorders",
                             required: true,
                             display: {
-                                apply: (disorder) => `${disorder.name} (${disorder.id})`,
+                                apply: disorder => `${disorder.name} (${disorder.id})`,
                                 errorMessage: "No proband selected"
                             }
                         },
@@ -560,9 +563,9 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                                     {
                                         name: "Status", field: "status.name", defaultValue: "-"
                                     }
-                                ],
+                                ]
                             }
-                        },
+                        }
                     ]
                 },
                 {
@@ -607,21 +610,21 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                             defaultValue: "",
                             display: {
                                 rows: 2,
-                                placeholder: "Initial comment...",
+                                placeholder: "Initial comment..."
                                 // render: comments => html`
                                 //     <clinical-analysis-comment-editor .comments="${comments}" .opencgaSession="${this.opencgaSession}"></clinical-analysis-comment-editor>`
                             }
                         }
                     ]
-                },
-            ],
+                }
+            ]
         };
     }
 
     execute(opencgaSession, clinicalAnalysis) {
         // Prepare the data for the REST create
         try {
-            let data = {...clinicalAnalysis};
+            const data = {...clinicalAnalysis};
 
             // remove private fields
             delete data._users;
@@ -686,15 +689,21 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
     }
 
     render() {
-        return html`
+        return this.checkProjects ? html`
            <data-form   .data="${this.clinicalAnalysis}" 
                         .config="${this._config}" 
                         @fieldChange="${e => this.onFieldChange(e)}" 
                         @clear="${this.onClear}" 
                         @submit="${this.onRun}">
             </data-form>
+        ` : html`
+            <div class="guard-page">
+               <i class="fas fa-lock fa-5x"></i>
+                <h3>No public projects available to browse. Please login to continue</h3>
+            </div>
         `;
     }
+
 }
 
 customElements.define("opencga-clinical-analysis-writer", OpencgaClinicalAnalysisWriter);

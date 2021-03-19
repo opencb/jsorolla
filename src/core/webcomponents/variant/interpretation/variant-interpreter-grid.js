@@ -188,7 +188,8 @@ export default class VariantInterpreterGrid extends LitElement {
                 pageSize: this._config.pageSize,
                 pageList: this._config.pageList,
                 paginationVAlign: "both",
-                formatShowingRows: (pageFrom, pageTo, totalRows, totalNotFiltered) => this.gridCommons.formatShowingRows(pageFrom, pageTo, totalRows, totalNotFiltered, this.isApproximateCount),
+                formatShowingRows: (pageFrom, pageTo, totalRows) =>
+                    this.gridCommons.formatShowingRows(pageFrom, pageTo, totalRows, null, this.isApproximateCount),
                 showExport: this._config.showExport,
                 detailView: this._config.detailView,
                 detailFormatter: this.detailFormatter,
@@ -232,7 +233,6 @@ export default class VariantInterpreterGrid extends LitElement {
 
                     this.opencgaSession.opencgaClient.clinical().queryVariant(filters)
                         .then(res => {
-                            console.log(res)
                             this.isApproximateCount = res.responses[0].attributes?.approximateCount ?? false;
                             params.success(res);
                         })
@@ -384,21 +384,24 @@ export default class VariantInterpreterGrid extends LitElement {
     }
 
     vcfDataFormatter(value, row, index) {
-        if (this.field.vcfColumn === "info") {
-            for (let file of row.studies[0].files) {
-                if (file.data[this.field.key]) {
-                    return file.data[this.field.key];
+        if (row.studies?.length > 0) {
+            if (this.field.vcfColumn === "info") {
+                for (let file of row.studies[0].files) {
+                    if (file.data[this.field.key]) {
+                        return file.data[this.field.key];
+                    }
+                }
+            } else {    // This must be FORMAT column
+                let sampleIndex = row.studies[0].samples.findIndex(sample => sample.sampleId === this.field.sample.id);
+                let index = row.studies[0].sampleDataKeys.findIndex(key => key === this.field.key);
+                if (index >= 0) {
+                    return row.studies[0].samples[sampleIndex].data[index];
                 }
             }
-        } else {    // This must be FORMAT column
-            let sampleIndex = row.studies[0].samples.findIndex(sample => sample.sampleId === this.field.sample.id);
-            let index = row.studies[0].sampleDataKeys.findIndex(key => key === this.field.key);
-            if (index >= 0) {
-                return row.studies[0].samples[sampleIndex].data[index];
-            } else {
-                return "-";
-            }
+        } else {
+            console.error("This should never happen: row.studies[] is not valid");
         }
+        return "-";
     }
 
     // DEPRECATED
@@ -897,7 +900,7 @@ export default class VariantInterpreterGrid extends LitElement {
         return {
             pagination: true,
             pageSize: 10,
-            pageList: [10, 25, 50],
+            pageList: [5, 10, 25],
             showExport: false,
             detailView: true,
             showReview: false,

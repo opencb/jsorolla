@@ -55,6 +55,7 @@ export default class GridCommons {
             to: to,
             numTotalResultsText: numTotalResultsText,
             approximateCountResult: approximateCountResult,
+            pageSize: bootstrapTableConfig.pageSize,
             response: {
                 total: numMatches,
                 rows: response.getResults()
@@ -201,16 +202,24 @@ export default class GridCommons {
     }
 
     // overrides the pagination info in bootstrap-table
-    formatShowingRows(pageFrom, pageTo, totalRows, totalNotFiltered, isApproximateCount) {
-        let message = `Showing <b>${pageFrom}</b> to <b>${pageTo}</b> of <b>${Number(totalRows).toLocaleString()}</b> records`;
-        if (isApproximateCount) {
-            message += ` (<span style="color: darkred; font-style: italic">approx.</span>)`;
+    formatShowingRows(pageFrom, pageTo, totalRows, totalRowsNotTruncated, isApproximateCount) {
+        const pagedFromFormatted = Number(pageFrom).toLocaleString();
+        const pagedToFormatted = Number(pageTo).toLocaleString();
+        let message;
+        if (!totalRowsNotTruncated) {
+            message = `Showing <b>${pagedFromFormatted}</b> to <b>${pagedToFormatted}</b> of <b>${Number(totalRows).toLocaleString()}</b> records`;
+            if (isApproximateCount) {
+                message += ` <span title="Approximate count" style="color: red; vertical-align: top; font-size: 1.0rem"><i class="fas fa-asterisk fa-xs"></i></span>`;
+            }
+        } else {
+            message = `
+                Showing <b>${pagedFromFormatted}</b> to <b>${pagedToFormatted}</b> of <b>${Number(totalRowsNotTruncated).toLocaleString()}</b> records
+                <span title="Only first 1M pages shown" style="color: darkorange; vertical-align: top; font-size: 1.0rem"><i class="fas fa-asterisk fa-xs"></i></span>`;
         }
         return message;
     }
 
     onColumnChange(e) {
-        //console.log("e.detail.id.split(\",\")", e.detail.id.split(","))
         if (e.detail.selected) {
             e.detail.id.split(",").forEach( id => this.context.table.bootstrapTable("showColumn", id));
         } else {

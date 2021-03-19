@@ -330,15 +330,14 @@ class VariantInterpreterBrowserCancer extends LitElement {
                     lockedFields: [{id: "sample"}]
                 },
                 callers: [
-                    {
-                        id: "caveman",
-                        queryString: "FILTER=PASS;CLPM=0;ASMD>=140"
-                    },
-                    {
-                        id: "pindel",
-                        queryString: "FILTER=PASS;QUAL>=250;REP<=9"
-                        // queryString: "FILTER=PASS;QUAL>=250"
-                    }
+                    // {
+                    //     id: "caveman",
+                    //     queryString: "FILTER=PASS;CLPM=0;ASMD>=140"
+                    // },
+                    // {
+                    //     id: "pindel",
+                    //     queryString: "FILTER=PASS;QUAL>=250;REP<=9"
+                    // }
                 ],
                 sections: [     // sections and subsections, structure and order is respected
                     {
@@ -348,9 +347,12 @@ class VariantInterpreterBrowserCancer extends LitElement {
                             {
                                 id: "sample-genotype",
                                 title: "Sample Genotype",
-                                // render: (eventHandler, query) => html`
-                                //     <div>Genotype filter for <span style="font-style: italic; word-break: break-all">${this._sample?.id}</span></div>
-                                //     <sample-genotype-filter .sample="${this._sample}" @filterChange="${eventHandler}"></sample-genotype-filter>`,
+                            },
+                            {
+                                id: "file-quality",
+                                title: "Quality Filters",
+                                tooltip: "VCF file based FILTER and QUAL filters",
+                                visible: UtilsNew.isEmpty(this.callerToFile)
                             },
                             ...callerFilters,
                         ]
@@ -369,11 +371,11 @@ class VariantInterpreterBrowserCancer extends LitElement {
                                 title: "Feature IDs (gene, SNPs, ...)",
                                 tooltip: tooltips.feature,
                             },
-                            {
-                                id: "diseasePanels",
-                                title: "Disease Panels",
-                                tooltip: tooltips.diseasePanels
-                            },
+                            // {
+                            //     id: "diseasePanels",
+                            //     title: "Disease Panels",
+                            //     tooltip: tooltips.diseasePanels
+                            // },
                             {
                                 id: "biotype",
                                 title: "Gene Biotype",
@@ -383,9 +385,25 @@ class VariantInterpreterBrowserCancer extends LitElement {
                             {
                                 id: "type",
                                 title: "Variant Type",
-                                types: ["SNV", "INDEL", "CNV", "INSERTION", "DELETION"],
+                                types: ["SNV", "INDEL", "COPY_NUMBER", "INSERTION", "DELETION", "BREAKEND"],
                                 tooltip: tooltips.type
                             }
+                        ]
+                    },
+                    {
+                        title: "Clinical",
+                        collapsed: true,
+                        fields: [
+                            {
+                                id: "diseasePanels",
+                                title: "Disease Panels",
+                                tooltip: tooltips.diseasePanels
+                            },
+                            {
+                                id: "clinvar",
+                                title: "ClinVar Accession",
+                                tooltip: tooltips.clinvar
+                            },
                         ]
                     },
                     {
@@ -436,14 +454,14 @@ class VariantInterpreterBrowserCancer extends LitElement {
                         ]
                     },
                     {
-                        title: "Phenotype-Disease",
+                        title: "Phenotype",
                         collapsed: true,
                         fields: [
-                            {
-                                id: "clinvar",
-                                title: "ClinVar Accessions",
-                                tooltip: tooltips.clinvar
-                            },
+                            // {
+                            //     id: "clinvar",
+                            //     title: "ClinVar Accessions",
+                            //     tooltip: tooltips.clinvar
+                            // },
                             {
                                 id: "go",
                                 title: "GO Accessions (max. 100 terms)",
@@ -510,7 +528,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                     grid: {
                         pagination: true,
                         pageSize: 10,
-                        pageList: [10, 25, 50],
+                        pageList: [5, 10, 25],
                         showExport: false,
                         detailView: true,
                         showReview: false,
@@ -578,7 +596,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
 
     render() {
         // Check Project exists
-        if (!this.opencgaSession || !this.opencgaSession.project) {
+        if (!this.opencgaSession?.study) {
             return html`
                 <div class="guard-page">
                     <i class="fas fa-lock fa-5x"></i>

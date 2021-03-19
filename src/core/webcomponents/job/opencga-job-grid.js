@@ -262,7 +262,7 @@ export default class OpencgaJobGrid extends LitElement {
             },
             {
                 title: "Status",
-                field: "internal.status.name",
+                field: "internal.status",
                 formatter: status => UtilsNew.jobStatusFormatter(status)
             },
 
@@ -357,7 +357,7 @@ export default class OpencgaJobGrid extends LitElement {
                                                         <tr class="detail-view-row">
                                                             <td>${job.id}</td>
                                                             <td>${job.tool.id}</td>
-                                                            <td>${UtilsNew.jobStatusFormatter(job.internal.status.name)}</td>
+                                                            <td>${UtilsNew.jobStatusFormatter(job.internal.status)}</td>
                                                             <td>${job.priority}</td>
                                                             <td>${moment(job.creationDate, "YYYYMMDDHHmmss").format("D MMM YYYY, h:mm:ss a")}</td>
                                                             <td>${job.visited}</td>

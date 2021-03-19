@@ -78,3 +78,10 @@
 #notifications-queue .alert-danger i {
     color: #f28c8b;
 }
+
+
+.circle-genotype-render .circle {
+    border-radius: 50%;
+    display: inline-block;
+    border: 2px solid black
+}

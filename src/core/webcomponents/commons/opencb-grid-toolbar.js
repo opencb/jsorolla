@@ -15,6 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
+import OpencgaCatalogUtils from "../../clients/opencga/opencga-catalog-utils.js";
 import UtilsNew from "./../../utilsNew.js";
 import "./opencga-export.js";
 
@@ -148,12 +149,15 @@ export default class OpencbGridToolbar extends LitElement {
                     margin-bottom: ${~this._config.buttons.indexOf("new") ? 10 : 5}px;
                 }
             </style>
+            
             <div class="opencb-grid-toolbar">
                 <div class="row">
-                    <div id="${this._prefix}ToolbarLeft" class="col-md-6"> 
-                        ${~this._config.buttons.indexOf("new") ? html`<a type="button" class="btn btn-default ripple btn-sm text-black" href="${this._config.newButtonLink}">
-                            <i id="${this._prefix}ColumnIcon" class="fa fa-columns icon-padding" aria-hidden="true"></i> New </span> 
-                        </a>` : null}
+                    <div id="${this._prefix}ToolbarLeft" class="col-md-6">
+                        ${this._config.showCreate && (!this.opencgaSession || (this.opencgaSession && OpencgaCatalogUtils.checkPermissions(this.opencgaSession?.study, this.opencgaSession?.user?.id, "WRITE_CLINICAL_ANALYSIS"))) ? html`
+                            <a type="button" class="btn btn-default ripple btn-sm text-black" href="${this._config.newButtonLink}">
+                                <i id="${this._prefix}ColumnIcon" class="fa fa-columns icon-padding" aria-hidden="true"></i> New </span> 
+                            </a>
+                        ` : null}
                     </div>
                     <div id="${this._prefix}toolbar" class="col-md-6">
                         <div class="form-inline text-right pull-right">

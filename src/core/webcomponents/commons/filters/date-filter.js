@@ -51,12 +51,8 @@ export default class DateFilter extends LitElement {
     connectedCallback() {
         super.connectedCallback();
         this._config = {...this.getDefaultConfig(), ...this.config};
-        //const currentYear = new Date().getFullYear();
-        //this.yearsToSearch = UtilsNew.range(currentYear - 5, currentYear + 1);
-
-
         this.years = UtilsNew.range(new Date().getFullYear() - 5, new Date().getFullYear() + 1); // years select
-        this.months = moment.monthsShort().map( (m,i) => ({id: `${i}`.padStart(2, 0), name:m}));  // months select (moment.months() for long names)
+        this.months = moment.monthsShort().map((m, i) => ({id: `${i + 1}`.padStart(2, 0), name: m})); // months select (moment.months() for long names)
 
 
         this.reset();
@@ -79,18 +75,18 @@ export default class DateFilter extends LitElement {
     }
 
     creationDateObserver() {
-        if(this.creationDate) {
-            let recent = this.creationDate.match(/(>=)(\d{4})(\d{2})(\d{2})/);
-            let [range, y1, m1, d1, y2, m2, d2] = this.creationDate.match(/(\d{4})?(\d{2})?(\d{2})?-?(\d{4})?(\d{2})?(\d{2})?/)
+        if (this.creationDate) {
+            const recent = this.creationDate.match(/(>=)(\d{4})(\d{2})(\d{2})/);
+            const [range, y1, m1, d1, y2, m2, d2] = this.creationDate.match(/(\d{4})?(\d{2})?(\d{2})?-?(\d{4})?(\d{2})?(\d{2})?/);
             if (recent) {
                 this.activeTab = "recent";
-                let [,, y, m, d] = recent;
+                const [,, y, m, d] = recent;
                 const now = moment();
                 const creationDate = moment([y, m - 1, d]);
                 this.selectedRecentDays = now.diff(creationDate, "days");
             }
 
-            if(y2 || m2 || d2) {
+            if (y2 || m2 || d2) {
                 // range date
                 this.activeTab = "range";
                 this.selectedPeriod = {
@@ -104,16 +100,16 @@ export default class DateFilter extends LitElement {
                         month: m2,
                         day: d2
                     }
-                }
+                };
 
             } else if (y1 || m1 || d1) {
-                //simple date
+                // simple date
                 this.activeTab = "date";
                 this.selectedDate = {
                     year: y1,
                     month: m1,
                     day: d1
-                }
+                };
             }
             this.requestUpdate();
 
@@ -136,7 +132,7 @@ export default class DateFilter extends LitElement {
             end: {
                 year: new Date().getFullYear()
             }
-        }
+        };
     }
 
     onFilterChange(e) {
@@ -167,7 +163,7 @@ export default class DateFilter extends LitElement {
                 this.selectedPeriod[endpoint][field] = e.detail.value;
             }
             this.date = `${this.selectedPeriod.start.year}${this.selectedPeriod.start.month ? `${this.selectedPeriod.start.month}${this.selectedPeriod.start.day ?? ""}` : ""}-` +
-                        `${this.selectedPeriod.end.year}${this.selectedPeriod.end.month ? `${this.selectedPeriod.end.month}${this.selectedPeriod.end.day ?? ""}` : ""}`
+                        `${this.selectedPeriod.end.year}${this.selectedPeriod.end.month ? `${this.selectedPeriod.end.month}${this.selectedPeriod.end.day ?? ""}` : ""}`;
         }
         this.requestUpdate();
         const event = new CustomEvent("filterChange", {
@@ -180,8 +176,8 @@ export default class DateFilter extends LitElement {
 
     daysInMonth(y, m) {
         if (y && m) {
-            const d = moment([y, m]).daysInMonth();
-            return UtilsNew.range(1, d + 1).map( d => `${d}`.padStart(2, 0));
+            const d = moment([y, m - 1]).daysInMonth();
+            return UtilsNew.range(1, d + 1).map(d => `${d}`.padStart(2, 0));
         } else {
             return [];
         }

@@ -53,7 +53,7 @@ export default class DetailTabs extends LitElement {
     connectedCallback() {
         super.connectedCallback();
         this._config = {...this.getDefaultConfig(), ...this.config};
-        this.activeTab = Object.assign({}, ...this._config.items.map( item => ({[item.id]: item.active ?? false}))); // this makes "active" field in config consistent with this.activeTab state. this.activeTab is the unique source of truth.
+        this.activeTab = Object.assign({}, ...this._config.items.map(item => ({[item.id]: item.active ?? false}))); // this makes "active" field in config consistent with this.activeTab state. this.activeTab is the unique source of truth.
     }
 
     updated(changedProperties) {
@@ -66,7 +66,7 @@ export default class DetailTabs extends LitElement {
         const tabId = e.currentTarget.dataset.id;
         $(".nav-tabs", this).removeClass("active");
         $(".tab-content div[role=tabpanel]", this).hide();
-        for (const tab in this.activeTab) this.activeTab[tab] = false;
+        this.activeTab = Object.assign({}, ...this._config.items.map(item => ({[item.id]: false})));
         $("#" + tabId + "-tab", this).show();
         this.activeTab[tabId] = true;
         this.requestUpdate();
@@ -88,6 +88,7 @@ export default class DetailTabs extends LitElement {
                     </div>` :
                 null
             }
+
             <div class="detail-tabs">
                 <ul class="nav nav-tabs" role="tablist">
                     ${this._config.items.length && this._config.items.map(item => {

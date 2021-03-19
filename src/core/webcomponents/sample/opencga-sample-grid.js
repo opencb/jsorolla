@@ -456,8 +456,8 @@ export default class OpencgaSampleGrid extends LitElement {
                     </opencb-grid-toolbar>` :
                 null
             }
-            
-            <div id="${this._prefix}GridTableDiv">
+    
+            <div id="${this._prefix}GridTableDiv" class="force-overflow">
                 <table id="${this._prefix}SampleBrowserGrid"></table>
             </div>
         `;

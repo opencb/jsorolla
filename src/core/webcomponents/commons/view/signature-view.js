@@ -109,6 +109,7 @@ export default class SignatureView extends LitElement {
                 data: []
             }
         };
+
         for (let count of counts) {
             if (count) {
                 const {pair} = substitutionClass(count.context);
@@ -200,11 +201,19 @@ export default class SignatureView extends LitElement {
     }
 
     render() {
+        if (this.signature?.errorState) {
+            return html`<div class="alert alert-danger">${this.signature.errorState}</div>`;
+        }
+
         return html`
             <div style="height: ${this._config.height}px">
-                ${this.signature?.errorState ? html`<div class="alert alert-danger">${this.signature.errorState}</div>`
-                    : this.signature ? html` <div id="${this._prefix}SignaturePlot"></div>`
-                    : html`<loading-spinner></loading-spinner>`
+                ${this.signature 
+                        ? html`
+                            <div style="margin: 10px">
+                                <h4>${this.signature.counts.map(s => s.total).reduce((a, b) => a + b, 0)} Substitutions</h4>
+                            </div>
+                            <div id="${this._prefix}SignaturePlot"></div>`
+                        : html`<loading-spinner></loading-spinner>`
                 }
             </div>
             <!-- list of files -->`

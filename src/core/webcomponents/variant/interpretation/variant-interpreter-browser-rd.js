@@ -305,6 +305,11 @@ class VariantInterpreterBrowserRd extends LitElement {
                         collapsed: false,
                         fields: [
                             {
+                                id: "sample-genotype",
+                                title: "Sample Genotype",
+                                visible: () => this.clinicalAnalysis.type.toUpperCase() === "SINGLE"
+                            },
+                            {
                                 id: "sample",
                                 title: "Sample Genotype",
                                 tooltip: tooltips.sample,
@@ -340,11 +345,11 @@ class VariantInterpreterBrowserRd extends LitElement {
                                 title: "Feature IDs (gene, SNPs, ...)",
                                 tooltip: tooltips.feature
                             },
-                            {
-                                id: "diseasePanels",
-                                title: "Disease Panels",
-                                tooltip: tooltips.diseasePanels
-                            },
+                            // {
+                            //     id: "diseasePanels",
+                            //     title: "Disease Panels",
+                            //     tooltip: tooltips.diseasePanels
+                            // },
                             {
                                 id: "biotype",
                                 title: "Gene Biotype",
@@ -354,9 +359,25 @@ class VariantInterpreterBrowserRd extends LitElement {
                             {
                                 id: "type",
                                 title: "Variant Type",
-                                types: ["SNV", "INDEL", "CNV", "INSERTION", "DELETION"],
+                                types: ["SNV", "INDEL", "COPY_NUMBER", "INSERTION", "DELETION"],
                                 tooltip: tooltips.type
                             }
+                        ]
+                    },
+                    {
+                        title: "Clinical",
+                        collapsed: true,
+                        fields: [
+                            {
+                                id: "diseasePanels",
+                                title: "Disease Panels",
+                                tooltip: tooltips.diseasePanels
+                            },
+                            {
+                                id: "clinvar",
+                                title: "ClinVar Accession",
+                                tooltip: tooltips.clinvar
+                            },
                         ]
                     },
                     {
@@ -407,14 +428,14 @@ class VariantInterpreterBrowserRd extends LitElement {
                         ]
                     },
                     {
-                        title: "Phenotype-Disease",
+                        title: "Phenotype",
                         collapsed: true,
                         fields: [
-                            {
-                                id: "clinvar",
-                                title: "ClinVar Accessions",
-                                tooltip: tooltips.clinvar
-                            },
+                            // {
+                            //     id: "clinvar",
+                            //     title: "ClinVar Accessions",
+                            //     tooltip: tooltips.clinvar
+                            // },
                             {
                                 id: "go",
                                 title: "GO Accessions (max. 100 terms)",
@@ -480,7 +501,7 @@ class VariantInterpreterBrowserRd extends LitElement {
                     grid: {
                         pagination: true,
                         pageSize: 10,
-                        pageList: [10, 25, 50],
+                        pageList: [5, 10, 25],
                         showExport: false,
                         detailView: true,
                         showReview: false,
@@ -545,7 +566,7 @@ class VariantInterpreterBrowserRd extends LitElement {
 
     render() {
         // Check Project exists
-        if (!this.opencgaSession || !this.opencgaSession.project) {
+        if (!this.opencgaSession?.study) {
             return html`
                 <div class="guard-page">
                     <i class="fas fa-lock fa-5x"></i>

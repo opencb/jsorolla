@@ -579,7 +579,7 @@ export default class VariantInterpreterGridFormatter {
                         content = VariantInterpreterGridFormatter._alleleGenotypeRenderer(row, sampleEntry);
                         break;
                     case "CIRCLE":
-                        content = VariantInterpreterGridFormatter._circleGenotypeRenderer(sampleEntry, file, 6);
+                        content = VariantInterpreterGridFormatter._circleGenotypeRenderer(sampleEntry, file, 10);
                         break;
                     case "VAF":
                         let vaf = VariantInterpreterGridFormatter._getVariantAlleleFraction(row, sampleEntry, file);
@@ -613,12 +613,13 @@ export default class VariantInterpreterGridFormatter {
         return resultHtml;
     }
 
-    static _circleGenotypeRenderer(sampleEntry, file, radius) {
-        let {left, right} = VariantInterpreterGridFormatter._getLeftRightColors(sampleEntry.data[0], file.data.FILTER);
-        return `<svg viewBox="0 0 70 30" xmlns="http://www.w3.org/2000/svg">
-                    <circle cx="20" cy="15" r="${radius ?? 6}" style="stroke: black;fill: ${left}"/>
-                    <circle cx="50" cy="15" r="${radius ?? 6}" style="stroke: black;fill: ${right}"/>
-                </svg>`;
+    static _circleGenotypeRenderer(sampleEntry, file, radius = 10) {
+        const {left, right} = VariantInterpreterGridFormatter._getLeftRightColors(sampleEntry.data[0], file.data.FILTER);
+        return `
+            <div class="circle-genotype-render">
+                <div class="circle" style="width: ${radius *2}px;height: ${radius *2}px;background: ${left}"></div>
+                <div class="circle" style="width: ${radius *2}px;height: ${radius *2}px;background: ${right}"></div>
+            </div>`;
     }
 
     static _vafGenotypeRenderer(vaf, depth, file, config) {
