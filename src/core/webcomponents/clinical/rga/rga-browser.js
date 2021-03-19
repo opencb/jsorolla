@@ -174,7 +174,7 @@ export default class RgaBrowser extends LitElement {
     }
 
     onClickPill(e) {
-        this._changeView(e.currentTarget.dataset.id);
+        this._changeView(e.currentTarget.dataset.tabId);
     }
 
     _changeView(tabId) {
@@ -429,7 +429,7 @@ export default class RgaBrowser extends LitElement {
                         <div class="btn-group content-pills" role="toolbar" aria-label="toolbar">
                             <div class="btn-group" role="group" style="margin-left: 0px">
                                 ${this._config.views && this._config.views.length ? this._config.views.map(tab => html`
-                                    <button type="button" class="btn btn-success ripple content-pills ${tab.active ? "active" : ""}" ?disabled=${tab.disabled} @click="${this.onClickPill}" data-id="${tab.id}">
+                                    <button type="button" class="btn btn-success ripple content-pills ${this.activeTab[tab.id] ? "active" : ""}" ?disabled=${tab.disabled} @click="${this.onClickPill}" data-tab-id="${tab.id}">
                                         <i class="${tab.icon ?? "fa fa-table"} icon-padding" aria-hidden="true"></i> ${tab.name}
                                     </button>
                                 `) : html`No view has been configured`}

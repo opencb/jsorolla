@@ -19,6 +19,8 @@ import UtilsNew from "../../../utilsNew.js";
 import GridCommons from "../../commons/grid-commons.js";
 import CatalogGridFormatter from "../../commons/catalog-grid-formatter.js";
 import "./rga-individual-variants.js";
+import "./rga-individual-family.js";
+
 
 export default class RgaIndividualGrid extends LitElement {
 
@@ -165,8 +167,8 @@ export default class RgaIndividualGrid extends LitElement {
                     // limit: params.data.limit,
                     skip: params.data.offset || 0,
                     count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
-                    // include: "motherId,fatherId",
-                    // geneName: this._genes.join(","),
+                    include: "genes,sampleId,phenotypes,disorders,motherId,fatherId",
+                    geneName: this._genes.join(","),
                     ...this._query,
                     limit: 50
                 };
@@ -242,11 +244,11 @@ export default class RgaIndividualGrid extends LitElement {
                 },
                 {
                     title: "Homozygous",
-                    field: "stats.byType.HOM_ALT",
+                    field: "",
                 },
                 {
                     title: "Compound Heterozygous",
-                    field: "stats.byType.COMP_HET",
+                    field: "",
                     colspan: 4
                 },
                 {
@@ -266,7 +268,7 @@ export default class RgaIndividualGrid extends LitElement {
             ], [
                 {
                     title: "Total",
-                    field: "stats.byType.HOM_ALT",
+                    field: "hom",
                     formatter: (_, row) => {
                         return this.getKnockoutCount(row.genes, "HOM_ALT");
                     }
@@ -280,15 +282,24 @@ export default class RgaIndividualGrid extends LitElement {
                 },
                 {
                     title: "Definitely",
-                    field: "ch_2"
+                    field: "ch_2",
+                    formatter: (_, row) => {
+                        return "TODO";
+                    }
                 },
                 {
                     title: "Probable",
-                    field: "ch_1"
+                    field: "ch_1",
+                    formatter: (_, row) => {
+                        return "TODO";
+                    }
                 },
                 {
                     title: "Possible",
-                    field: "ch_0"
+                    field: "ch_0",
+                    formatter: (_, row) => {
+                        return "TODO";
+                    }
                 }
             ]
         ];
@@ -312,7 +323,62 @@ export default class RgaIndividualGrid extends LitElement {
     }
 
     async onDownload(e) {
-
+        this.toolbarConfig = {...this.toolbarConfig, downloading: true};
+        await this.requestUpdate();
+        const params = {
+            study: this.opencgaSession.study.fqn,
+            count: false,
+            include: "genes,sampleId,phenotypes,disorders,motherId,fatherId",
+            ...this._query,
+            limit: 100
+        };
+        this.opencgaSession.opencgaClient.clinical().queryRgaIndividual(params)
+            .then(restResponse => {
+                const results = restResponse.getResults();
+                if (results) {
+                    // Check if user clicked in Tab or JSON format
+                    if (e.detail.option.toLowerCase() === "tab") {
+                        const dataString = [
+                            [
+                                "IndividualId" +
+                                "Sample" +
+                                "Gene",
+                                "Total HOM",
+                                "Total CH",
+                                "CH Definite",
+                                "CH Probable",
+                                "CH Possible",
+                                "Phenotypes",
+                                "Disorders"
+                            ].join("\t"),
+                            ...results.map(_ => [
+                                _.id,
+                                _.sampleId,
+                                this.geneFormatter(_.genes),
+                                this.getKnockoutCount(_.genes, "HOM_ALT"),
+                                this.getKnockoutCount(_.genes, "COMP_HET"),
+                                "",
+                                "",
+                                "",
+                                CatalogGridFormatter.phenotypesFormatter(_.phenotypes),
+                                _.disorders.length ? _.disorders.map(CatalogGridFormatter.disorderFormatter) : "-"
+                            ].join("\t"))];
+                        UtilsNew.downloadData(dataString, "rga_individual_" + this.opencgaSession.study.id + ".txt", "text/plain");
+                    } else {
+                        UtilsNew.downloadData(JSON.stringify(results, null, "\t"), "rga_individual_" + this.opencgaSession.study.id + ".json", "application/json");
+                    }
+                } else {
+                    console.error("Error in result format");
+                }
+            })
+            .catch(response => {
+                console.log(response);
+                UtilsNew.notifyError(response);
+            })
+            .finally(() => {
+                this.toolbarConfig = {...this.toolbarConfig, downloading: false};
+                this.requestUpdate();
+            });
     }
 
     getDetailConfig() {
@@ -334,7 +400,8 @@ export default class RgaIndividualGrid extends LitElement {
                     id: "family-view",
                     name: "Family",
                     render: (individual, active, opencgaSession) => {
-                        return html`<opencga-family-view .individualId="${individual.id}" .opencgaSession="${opencgaSession}"></opencga-family-view>`;
+                        return html`<rga-individual-family .individual="${individual}" .opencgaSession="${opencgaSession}"></rga-individual-family>`;
+                        //return html`<opencga-family-view .individualId="${individual.id}" .opencgaSession="${opencgaSession}"></opencga-family-view>`;
                     }
                 }
             ]

@@ -71,7 +71,7 @@ export default class RgaGeneFilter extends LitElement {
     }
 
     firstUpdated(_changedProperties) {
-        super.firstUpdated(_changedProperties);
+        //super.firstUpdated(_changedProperties);
         UtilsNew.initTooltip(this);
     }
 
@@ -82,6 +82,8 @@ export default class RgaGeneFilter extends LitElement {
         if (changedProperties.has("opencgaSession")) {
             // this.updateVariableSets();
         }
+        UtilsNew.initTooltip(this);
+
     }
 
     onSearch() {

@@ -148,7 +148,7 @@ export default class RgaVariantGrid extends LitElement {
             {
                 title: "Variant",
                 field: "id",
-                formatter: (value, row, index) => VariantGridFormatter.variantFormatter(value, row, index, this.opencgaSession.project.organism.assembly, this._config)
+                formatter: (value, row, index) => VariantGridFormatter.variantFormatter(value, row, index, this.opencgaSession.project.organism.assembly)
             },
             {
                 title: "Gene",
