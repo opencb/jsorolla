@@ -126,30 +126,31 @@ export default class OpencgaExport extends LitElement {
         if (this.config.resource === "FILE") {
             q = {...q, type: this.config.resource};
         }
+
         let ws = `${this.resourceMap[this.config.resource]}/${this.method}`;
         if (this.config.resource === "VARIANT") {
             this.method = "query";
-            ws = `analysis/variant/query`;
+            ws = "analysis/variant/query";
 
         } else {
             this.method = "search";
         }
+
         switch (language) {
-        case "url":
-                if (this.config.resource === "FILE") {
-                    q = {...q, type: this.config.resource};
-                }
+            case "url":
                 return `${this.opencgaSession.server.host}/webservices/rest/v2/${ws}?${UtilsNew.encodeObject(q)}`;
             case "curl":
                 return `curl -X GET --header "Accept: application/json" --header "Authorization: Bearer ${this.opencgaSession.token}" "${this.opencgaSession.server.host}/webservices/rest/v2/${ws}?${UtilsNew.encodeObject({...this.query, study: this.opencgaSession.study.fqn})}/"`;
             case "wget":
-                if (this.config.resource === "FILE") {
-                    q = {...q, type: this.config.resource};
-                }
                 return `wget -O ${this.resourceMap[this.config.resource]}.txt "${this.opencgaSession.server.host}/webservices/rest/v2/${ws}?${UtilsNew.encodeObject(q)}"`;
-            case "js": return this.generateJs();
-            case "python": return this.generatePython();
-            case "r": return this.generateR();
+            case "cli":
+                return `opencga.sh ${this.resourceMap[this.config.resource]} ${this.method} ${Object.entries(q).map(([k, v]) => `--${k} "${v}"`).join(" ")}`;
+            case "js":
+                return this.generateJs();
+            case "python":
+                return this.generatePython();
+            case "r":
+                return this.generateR();
         }
     }
 
@@ -454,6 +455,9 @@ const client = new OpenCGAClient({
                         <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab.code["python"]})}" @click="${this._changeTab}" data-view-id="code"
                                 data-tab-id="python">Python
                         </button>
+                        <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab.code["cli"]})}" @click="${this._changeTab}" data-view-id="code"
+                                data-tab-id="cli">CLI
+                        </button>
                         <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab.code["r"]})}" @click="${this._changeTab}" data-view-id="code"
                                 data-tab-id="r">R
                         </button>
@@ -478,7 +482,14 @@ const client = new OpenCGAClient({
                                     ${this.generateCode("r")}
                                 </div>
                             </div>
-                            
+                        </div>
+                        <div id="${this._prefix}cli" class="content-tab">
+                            <div class="code-wrapper">
+                                <div class="clipboard-button" data-clipboard-target="div.language-r" @click="${this.clipboard}"><i class="far fa-copy"></i></div>
+                                <div class="code language-cli">
+                                    ${this.generateCode("cli")}
+                                </div>
+                            </div>
                         </div>
                         <div id="${this._prefix}js" class="content-tab">
                             <div class="code-wrapper">

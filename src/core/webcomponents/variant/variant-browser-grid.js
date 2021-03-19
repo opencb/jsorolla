@@ -746,6 +746,7 @@ export default class VariantBrowserGrid extends LitElement {
                         .config="${this.toolbarConfig}"
                         @columnChange="${this.onColumnChange}"
                         @download="${this.onDownload}"
+                        @export="${this.onDownload}"
                         @sharelink="${this.onShare}">
                 </opencb-grid-toolbar>
                 
