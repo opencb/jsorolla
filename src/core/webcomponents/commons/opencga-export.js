@@ -132,7 +132,6 @@ export default class OpencgaExport extends LitElement {
         if (this.config.resource === "VARIANT") {
             this.method = "query";
             ws = "analysis/variant/query";
-
         } else {
             this.method = "search";
         }
@@ -156,7 +155,6 @@ export default class OpencgaExport extends LitElement {
     }
 
     generateR() {
-        // TODO add token
         const q = {...this.query, study: this.opencgaSession.study.fqn};
         const clientsName = {
             "VARIANT": "variantClient",
@@ -211,28 +209,25 @@ const client = new OpenCGAClient({
 
     async launchJob(e) {
         if (this.config.resource === "VARIANT") {
-            const data = {...this.query, study: this.opencgaSession.study.fqn, summary: true};
             try {
-                console.error("launching ", data, {study: this.opencgaSession.study.fqn, jobId: this.jobId})
+                const data = {...this.query,
+                    study: this.opencgaSession.study.fqn,
+                    summary: true,
+                    outputFileName: "variants"
+                };
                 let params = {study: this.opencgaSession.study.fqn};
                 if (this.jobId) {
                     params = {...params, jobId: this.jobId};
                 }
-                console.error("launching ", data, params)
-
-                await this.opencgaSession.opencgaClient.variants().runExport(data, params);
-
-                new NotificationQueue().push("Job is going to be added", null, "info");
-
+                const restResponse = await this.opencgaSession.opencgaClient.variants().runExport(data, params);
+                const job = restResponse.getResult(0);
+                new NotificationQueue().push(`Job ${job.id} is now PENDING`, null, "info");
             } catch (e) {
-                console.error(e)
-                new NotificationQueue().push("Error", null, "error");
-
+                console.error(e);
+                UtilsNew.notifyError(e);
             }
-
-
         } else {
-            // m = "search";
+
         }
     }
 
@@ -241,12 +236,11 @@ const client = new OpenCGAClient({
     }
 
     changeJobId(e) {
-        console.log("value", e.target.value);
         this.jobId = e.target.value;
     }
 
     clipboard(e) {
-
+        new NotificationQueue().push("Code has been copied to Clipboard", null, "success");
     }
 
     changeMode(e) {
@@ -308,7 +302,7 @@ const client = new OpenCGAClient({
                                         <div class="form-group">
                                             <label for="inputPassword" class="col-sm-2 control-label">Job Id</label>
                                             <div class="col-sm-10">
-                                                <input type="text" class="form-control" placeholder="job id" @change="${this.changeJobId}">
+                                                <input type="text" class="form-control" placeholder="job id" @input="${this.changeJobId}">
                                             </div>
                                         </div>
                                     </div>` :
