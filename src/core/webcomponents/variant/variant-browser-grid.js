@@ -113,7 +113,7 @@ export default class VariantBrowserGrid extends LitElement {
         // Config for the grid toolbar
         this.toolbarConfig = {
             resource: "VARIANT",
-            buttons: ["columns", "download", "export"],
+            buttons: ["columns", "export"],
             columns: this._createDefaultColumns()
                 .flat()
                 .filter(f => f.title && !fieldToHide.includes(f.field) && (f.visible ?? true))
