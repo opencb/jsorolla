@@ -17,6 +17,7 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import {classMap} from "/web_modules/lit-html/directives/class-map.js";
 import UtilsNew from "../../utilsNew.js";
+import {NotificationQueue} from "../Notification.js";
 
 
 export default class OpencgaExport extends LitElement {
@@ -167,28 +168,28 @@ export default class OpencgaExport extends LitElement {
             "CLINICAL_ANALYSIS": "clinicalAnalysisClient",
             "JOB": "jobClient"
         };
-        return `library(opencgaR)
+        const str = `library(opencgaR)
 con <- initOpencgaR(host = "${this.opencgaSession.server.host}", version = "v2")
 con <- opencgaLogin(opencga = con, userid = "", passwd = "")
-${this.resourceMap[this.config.resource]} = ${clientsName[this.config.resource]}(OpencgaR = con, endpointName = "${this.method}", params = list(${Object.entries(q).map(([k, v]) => `${k}='${v}'`).join(", ")}, limit=10, include="id"))
-`.split(/[\r\n]/g).filter(Boolean).map(line => html`<div class="code-line">${line}</div>`);
+${this.resourceMap[this.config.resource]} = ${clientsName[this.config.resource]}(OpencgaR = con, endpointName = "${this.method}", params = list(${Object.entries(q).map(([k, v]) => `${k}='${v}'`).join(", ")}, limit=10, include="id"))`;
+        return this.lineSplitter(str);
     }
 
     generatePython() {
         const q = {...this.query, study: this.opencgaSession.study.fqn};
-        return `
+        const str = `
 from pyopencga.opencga_config import ClientConfiguration
 from pyopencga.opencga_client import OpencgaClient
 
 config = ClientConfiguration({"rest": {"host": "${this.opencgaSession.server.host}"}})
 oc = OpencgaClient(config, token="${this.opencgaSession.token}")
 ${this.resourceMap[this.config.resource]} = oc.${this.resourceMap[this.config.resource]}.${this.method}(include='id', limit=10, ${Object.entries(q).map(([k, v]) => `${k}='${v}'`).join(", ")})
-print(${this.resourceMap[this.config.resource]}.get_responses())
-`.split(/[\r\n]/g).filter(Boolean).map(line => html`<div class="code-line">${line}</div>`);
+print(${this.resourceMap[this.config.resource]}.get_responses())`;
+        return this.lineSplitter(str);
     }
 
     generateJs() {
-        return `
+        const str = `
 import {OpenCGAClient} from "./opencga-client.js";
 const client = new OpenCGAClient({
     host: "${this.opencgaSession.server.host}",
@@ -204,7 +205,44 @@ const client = new OpenCGAClient({
     } catch (e) {
         console.error(e)
     }
-})();`.split(/[\r\n]/g).filter(Boolean).map(line => html`<div class="code-line">${line}</div>`);
+})();`;
+        return this.lineSplitter(str);
+    }
+
+    async launchJob(e) {
+        if (this.config.resource === "VARIANT") {
+            const data = {...this.query, study: this.opencgaSession.study.fqn, summary: true};
+            try {
+                console.error("launching ", data, {study: this.opencgaSession.study.fqn, jobId: this.jobId})
+                let params = {study: this.opencgaSession.study.fqn};
+                if (this.jobId) {
+                    params = {...params, jobId: this.jobId};
+                }
+                console.error("launching ", data, params)
+
+                await this.opencgaSession.opencgaClient.variants().runExport(data, params);
+
+                new NotificationQueue().push("Job is going to be added", null, "info");
+
+            } catch (e) {
+                console.error(e)
+                new NotificationQueue().push("Error", null, "error");
+
+            }
+
+
+        } else {
+            // m = "search";
+        }
+    }
+
+    lineSplitter(multilineStr) {
+        return multilineStr.split(/[\r\n]/g).filter(Boolean).map(line => html`<div class="code-line">${line}</div>`);
+    }
+
+    changeJobId(e) {
+        console.log("value", e.target.value);
+        this.jobId = e.target.value;
     }
 
     clipboard(e) {
@@ -234,104 +272,7 @@ const client = new OpenCGAClient({
         return html`
             <style>
 
-                .export-buttons {
-                    width: 100px;
-                    height: 100px;
-                    margin: 0 10px 0 0;
-                    flex-direction: column;
-                    display: inline-flex;
-                    justify-content: center;
-                    align-items: center;
-                }
-
-                .export-buttons.active i {
-                    color: grey;
-                }
-
-                .export-buttons i {
-                    color: #cbcbcb;
-                }
-
-                .export-buttons-text {
-
-                }
-
-                .export-section.mode {
-                    height: 80px;
-                }
-
-                .export-section-title {
-
-                }
-
-                opencga-export code {
-                    white-space: pre;
-                }
-            
-                .code-wrapper {
-                    position: relative;
-                    color: rgb(230, 236, 241);
-                    margin: 32px 0px;
-                    display: block;
-                    hyphens: none;
-                    padding: 24px 24px 24px 8px;
-                    overflow: auto;
-                    tab-size: 2;
-                    direction: ltr;
-                    font-size: 14px;
-                    background: rgb(24, 48, 85);
-                    text-align: left;
-                    word-break: normal;
-                    font-family: "Source Code Pro", Consolas, Menlo, Monaco, Courier, monospace;
-                    line-height: 1.4;
-                    /*white-space: pre;*/
-                    word-spacing: normal;
-                    border-radius: 3px;
-                }
-
-                .code-wrapper div.code-line {
-                    display: block;
-                    font: inherit;
-                    padding: 0px 14px 0px 44px;
-                    position: relative;
-                    overflow-wrap: normal;
-                    white-space: pre;
-                    counter-increment: line 1;
-                }
-
-
-                .code-wrapper div.code-line:before {
-                    top: 2px;
-                    left: 4px;
-                    color: rgb(92, 105, 117);
-                    width: 24px;
-                    bottom: 0px;
-                    content: counter(line);
-                    display: inline-block;
-                    overflow: hidden;
-                    position: absolute;
-                    font-size: 12px;
-                    text-align: right;
-                    /*white-space: nowrap;*/
-                    text-overflow: ellipsis;
-                    background-color: transparent;
-                    user-select: none;
-
-                }
-
-                div.clipboard-button {
-                    position: absolute;
-                    right: 5px;
-                    top: 5px;
-                    display: block;
-                    font-size: 20px;
-                    color: #c5c5c5;
-                    cursor: pointer;
-                }
-
-                div.clipboard-button:hover {
-                    color: white;
-                }
+                
             </style>
             <div>
                 <ul class="nav nav-tabs">
@@ -370,23 +311,26 @@ const client = new OpenCGAClient({
                                                 <input type="text" class="form-control" placeholder="job id" @change="${this.changeJobId}">
                                             </div>
                                         </div>
-                                    </div>` : null}
+                                    </div>` :
+                                        html`
+                                    <div class="form-group">
+                                        <div class="col-md-12">
+                                            <h4 class="export-section-title">Format</h4>
+                                            <button type="button" class="btn export-buttons ripple ${classMap({active: this.format === "tab"})}" data-format="tab" @click="${this.changeFormat}">
+                                                <i class="fas fa-file-export fa-2x"></i>
+                                                <span class="export-buttons-text">CSV</span>
+                                            </button>
+                                            <button type="button" class="btn export-buttons ripple ${classMap({active: this.format === "json"})}" data-format="json" @click="${this.changeFormat}">
+                                                <i class="fas fa-file-export fa-2x"></i>
+                                                <span class="export-buttons-text">JSON</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                `}
                             </div>
                         </div>
 
-                        <div class="form-group">
-                            <div class="col-md-12">
-                                <h4 class="export-section-title">Format</h4>
-                                <button type="button" class="btn export-buttons ripple ${classMap({active: this.format === "tab"})}" data-format="tab" @click="${this.changeFormat}">
-                                    <i class="fas fa-file-export fa-2x"></i>
-                                    <span class="export-buttons-text">CSV</span>
-                                </button>
-                                <button type="button" class="btn export-buttons ripple ${classMap({active: this.format === "json"})}" data-format="json" @click="${this.changeFormat}">
-                                    <i class="fas fa-file-export fa-2x"></i>
-                                    <span class="export-buttons-text">JSON</span>
-                                </button>
-                            </div>
-                        </div>
+                        
                     </form>
 
                     <div class="modal-footer">
@@ -395,7 +339,7 @@ const client = new OpenCGAClient({
                                 <button type="button" class="btn btn-primary btn-lg ripple" @click="${this.onDownloadClick}">
                                     ${this.config?.downloading === true ? html`<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>` : null} <i class="fa fa-download icon-padding" aria-hidden="true"></i> Download
                                 </button>` : html`
-                                <button type="button" class="btn btn-primary btn-lg ripple">Launch job</button>`
+                                <button type="button" class="btn btn-primary btn-lg ripple" @click="${this.launchJob}">Launch job</button>`
                             }
                     </div>
                     
