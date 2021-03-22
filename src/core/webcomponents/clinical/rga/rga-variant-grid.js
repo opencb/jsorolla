@@ -70,7 +70,7 @@ export default class RgaVariantGrid extends LitElement {
             "CCNO", "CEP290", "CNGB3", "CUL7", "DNAAF1", "DOCK6", "EIF2B5", "ERCC6", "FLG", "HADA",
             "INPP5K", "MANIB1", "MERTK", "MUTYH", "NDUFAF5", "NDUFS7", "OTOG", "PAH", "PDZD7", "PHYH",
             "PKHD1", "PMM2", "RARS2", "SACS", "SGCA", "SIGMAR1", "SPG7", "TTN", "TYR", "USH2A", "WFS1"];
-        this._genes = ["INPP5K"];
+        this._genes = ["INPP5K,MANIB1"];
 
     }
 
@@ -154,8 +154,11 @@ export default class RgaVariantGrid extends LitElement {
                 title: "Gene",
                 field: "gene",
                 formatter: (_, row) => {
-                    // TODO first individual, first gene is taken into account
-                    return row.individuals[0].genes[0].name;
+                    // optional chaining because individuals will be empty in case the user doesn't have the permissions to see it
+                    //return row.individuals?.[0]?.genes?.[0]?.name;
+                    const genes = new Set();
+                    row.individuals.forEach(individual => individual.genes.forEach(gene => genes.add(gene.name)));
+                    return Array.from(genes.keys());
                 }
             },
             {title: "dbSNP", field: "dbSNP"},
@@ -165,8 +168,13 @@ export default class RgaVariantGrid extends LitElement {
             {title: "ClinVar", field: "clinvar"},
             {
                 title: "Individuals",
-                field: "individuals",
-                formatter: this.individualFormatter.bind(this)
+                filed: "numIndividuals",
+                formatter: (_, row) => {
+                    return `${row.numIndividuals}${row.individuals.length !== row.numIndividuals ? `<span title="Only ${row.individuals.length} are visible"><b>*</b></span>` : ""}`
+                }
+                // individual matrix
+                // field: "individuals",
+                // formatter: this.individualFormatter.bind(this)
 
             }
             /* ...this.samples.map(sample => {
