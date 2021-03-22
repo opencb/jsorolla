@@ -164,7 +164,7 @@ export default class VariantBrowser extends LitElement {
             } else {
                 // console.error("same queries")
             }
-            this.requestUpdate();
+            // this.requestUpdate();
         }
     }
 
