@@ -212,7 +212,6 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                         exclude: "files",
                         ...this.query
                     };
-
                     try {
                         const data = await this.fetchData(query);
                         params.success(data);
@@ -255,7 +254,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                 onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse),
                 onPostBody: function (data) {
                     // Add qtip2 tooltips to Interpretation genotypes
-                    /*$("div.interpretation-tooltip").qtip({
+                    /* $("div.interpretation-tooltip").qtip({
                         content: {
                             title: "Clinical Interpreters",
                             text: function (event, api) {
@@ -343,7 +342,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
     interpretationFormatter(value, row) {
         let html = "";
         if (row.interpretation?.primaryFindings?.length > 0) {
-            let reviewedVariants = row.interpretation.primaryFindings.filter(v => v.status === "REVIEWED");
+            const reviewedVariants = row.interpretation.primaryFindings.filter(v => v.status === "REVIEWED");
             html = `<div>
                         <span style="margin: 5px 0">${row.interpretation.primaryFindings.length} variants</span>
                     </div>
@@ -688,8 +687,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                                         <a href="javascript: void 0" class="btn force-text-left" data-action="delete">
                                             <i class="fas fa-trash icon-padding" aria-hidden="true"></i> Delete
                                         </a>
-                                    </li>` :
-                                null
+                                    </li>` : ""
                             }
                         </ul>
                     </div>`,
@@ -727,18 +725,18 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                 // Check if user clicked in Tab or JSON format
                 if (e.detail.option.toLowerCase() === "tab") {
                     dataString = [
-                        ["Case ID", "Proband ID", "Family (#members)", "Disorder", "Type", "Interpretations", "Status", "Priority", "Assigned To", "Creation Date"].join("\t"),
+                        ["Case ID", "Proband ID", "Family (#members)", "Disorder", "Type", "Interpretation IDs", "Status", "Priority", "Assigned To", "Creation Date"].join("\t"),
                         ...result.map(_ => [
                             _.id,
                             _.proband.id,
-                            _.family?.id && _.family?.members.length ? `${_.family.id} (${_.family.members.length})` : "",
+                            _.family?.id && _.family?.members.length ? `${_.family.id} (${_.family.members.length})` : "-",
                             _?.disorder?.id ?? "-",
-                            _.type,
-                            _.interpretations?.join(",") ?? "-",
-                            _.status.name,
-                            _.priority,
-                            _.analyst.assignee,
-                            _.creationDate
+                            _.type ?? "-",
+                            _.interpretation?.id ? `${_.interpretation.id}(primary)${_.secondaryInterpretations.length ? (", " + _.secondaryInterpretations.map(s => s.id).join(", ")) : ""}` : "-",
+                            _.status?.id ?? "-",
+                            _.priority?.id ?? "-",
+                            _.analyst?.assignee ?? "-",
+                            _.creationDate ? CatalogGridFormatter.dateFormatter(_.creationDate) : "-"
                         ].join("\t"))];
                     UtilsNew.downloadData([dataString.join("\n")], "cases_" + this.opencgaSession.study.id + ".txt", "text/plain");
                 } else {
@@ -787,13 +785,13 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
         return html`
             ${this._config.showToolbar ?
                 html`
-                    <opencb-grid-toolbar    .config="${this.toolbarConfig}"
+                    <opencb-grid-toolbar    .opencgaSession="${this.opencgaSession}"
+                                            .config="${this.toolbarConfig}"
                                             @columnChange="${this.onColumnChange}"
                                             @download="${this.onDownload}">
                     </opencb-grid-toolbar>` :
                 null
             }
-    
             <div id="${this._prefix}GridTableDiv" class="force-overflow">
                 <table id="${this._prefix}ClinicalAnalysisGrid"></table>
             </div>

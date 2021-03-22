@@ -65,13 +65,12 @@ export default class DisorderIdAutocomplete extends LitElement {
             dataSource: (query, process) => {
                 const filters = {
                     study: this.opencgaSession.study.fqn,
-                    limit: 20,
+                    //limit: 20, // limit is not supported in distinct WSs
                     count: false,
-                    //include: "id",
-                    disorders: "~^" + query.toUpperCase()
+                    disorders: "~^" + query
                 };
-                this.opencgaSession.opencgaClient.individuals().distinct("disorders.id", filters).then(restResponse => {
-                    const results = restResponse.getResults();
+                this.opencgaSession.opencgaClient.individuals().distinct("disorders.name", filters).then(restResponse => {
+                    const results = restResponse.getResults().filter(disorder => disorder.startsWith(query));
                     process(results.map(this._config.fields));
                 });
             }

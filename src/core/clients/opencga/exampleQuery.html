@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Basic usage of OpenCGA Client</title>
+</head>
+<body>
+<h2>Basic usage of OpenCGA Client</h2>
+
+<pre id="response"></pre>
+
+<script>
+    const application = {} // quickfix
+</script>
+
+<script type="module">
+    import {OpenCGAClient} from "./opencga-client.js";
+    import {RestResponse} from "./../rest-response.js";
+
+    const host = "";
+    const user = "";
+    const password = "";
+    const token = "";
+
+    /**
+     *  Query using a token
+    */
+    (async () => {
+        try {
+            const client = new OpenCGAClient({
+                host: "http://bioinfo.hpc.cam.ac.uk/opencga-prod",
+                version: "v2",
+                cookies: {active: false},
+                token: token
+            });
+
+            const restResponse = await client.samples().search({limit:10, study: "demo@population:1000g"});
+            console.table(restResponse.getResults());
+        } catch (response) {
+            if (response instanceof RestResponse) {
+                console.error(response.getEvents());
+            } else {
+                console.error(response);
+            }
+        }
+    })();
+
+    /**
+     *  Login and query (Opencga Session)
+     */
+    (async () => {
+        try {
+            const client = new OpenCGAClient({
+                host: "http://bioinfo.hpc.cam.ac.uk/opencga-prod",
+                version: "v2",
+                cookies: {active: false},
+            });
+            
+            await client.login(user, password);
+            const session = await client.createSession();
+            const restResponse = await session.opencgaClient.samples().search({limit:10, study: session.study.fqn});
+            console.log(restResponse.getResults());
+        } catch (response) {
+            if (response instanceof RestResponse) {
+                console.error(response.getEvents());
+            } else {
+                console.error(response);
+            }
+        }
+    })();
+</script>
+</body>
+</html>
+
+

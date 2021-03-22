@@ -67,9 +67,8 @@ export default class CheckboxFieldFilter extends LitElement {
             } else {
                 this.state = {};
             }
-            this.requestUpdate();
-        }
-        if (changedProperties.has("data")) {
+            if (changedProperties.has("data")) {
+            }
         }
     }
 
@@ -89,8 +88,8 @@ export default class CheckboxFieldFilter extends LitElement {
         return html`
             <ul class="magic-checkbox-wrapper">
                 ${this.data.map((el, i) => {
-            const {id, name} = UtilsNew.isObject(el) ? el : {id: el, name: el};
-            return html`
+                    const {id, name} = UtilsNew.isObject(el) ? el : {id: el, name: el};
+                    return html`
                         <li>
                             <input class="magic-checkbox" type="checkbox" id="${this._prefix}checkbox${i}" .checked="${this.state[id]}" value="${id}" @click="${this.filterChange}">
                             <label for="${this._prefix}checkbox${i}">

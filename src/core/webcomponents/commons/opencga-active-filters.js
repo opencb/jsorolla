@@ -86,15 +86,12 @@ export default class OpencgaActiveFilters extends LitElement {
     }
 
     firstUpdated() {
-        // super.connectedCallback();
-
         // Small trick to force the warning message display after DOM is renderer
         this.query = {...this.query};
 
         // We need to init _previousQuery with query in order to work before executing any search
         this._previousQuery = this.query;
 
-        // console.log("CONFIG", this.filters)
         // If there is any active filter we set the first one in the initialisation
         if (typeof this.filters !== "undefined" && UtilsNew.isEmpty(this.query)) {
             for (const filter of this.filters) {
@@ -132,6 +129,94 @@ export default class OpencgaActiveFilters extends LitElement {
         }
     }
 
+    opencgaSessionObserver() {
+        if (this.opencgaClient instanceof OpenCGAClient && UtilsNew.isNotUndefined(this.opencgaSession.token)) {
+            this.refreshFilters();
+        }
+    }
+
+    queryObserver() {
+        const _queryList = [];
+        const keys = Object.keys(this.query);
+        for (const keyIdx in keys) {
+            const key = keys[keyIdx];
+            if (UtilsNew.isNotEmpty(this.query[key]) && (!this._config.hiddenFields || (this._config.hiddenFields && !this._config.hiddenFields.includes(key)))) {
+
+                // TODO review. why is this in a loop?
+                const queryString = JSON.stringify(UtilsNew.objectSort(this.query));
+                const prevQueryString = JSON.stringify(UtilsNew.objectSort(this._previousQuery));
+                if (queryString !== prevQueryString) {
+                    this.querySelector("#" + this._prefix + "Warning").style.display = "block";
+                } else {
+                    this.querySelector("#" + this._prefix + "Warning").style.display = "none";
+                }
+
+                // We use the alias to rename the key
+                let title = key;
+                if (UtilsNew.isNotUndefinedOrNull(this._config.alias) && UtilsNew.isNotUndefinedOrNull(this._config.alias[key])) {
+                    title = this._config.alias[key];
+                }
+
+                // We convert the Query entry object into an array of small objects (queryList)
+                let value = this.query[key];
+                if (typeof value === "boolean") {
+                    value = value.toString();
+                }
+
+                let filterFields = [];
+
+                // in case of annotation
+                if (key === "annotation") {
+                    filterFields = value.split(";");
+                } else if (key === "study") {
+                    // We fist have need to remove defaultStudy from 'filterFields' and 'value'
+                    filterFields = value.split(/[,;]/).filter(fqn => fqn !== this.defaultStudy);
+                    // defaultStudy was the only one present so no need to render anything
+                    if (!filterFields.length) {
+                        continue;
+                    }
+                    value = filterFields.join(/[,;]/);
+                } else {
+                    // If we find a field with both ; and , or the field has been defined as complex, we will only
+                    // separate by ;
+                    if ((value.indexOf(";") !== -1 && value.indexOf(",") !== -1) || this._config.complexFields.indexOf(key) !== -1) {
+                        filterFields = value.split(new RegExp(";"));
+                    } else {
+                        filterFields = value.split(new RegExp("[,;]"));
+                    }
+                }
+
+
+                const locked = UtilsNew.isNotUndefinedOrNull(this.lockedFieldsMap[key]);
+                const lockedTooltip = UtilsNew.isNotUndefinedOrNull(this.lockedFieldsMap[key]) ? this.lockedFieldsMap[key].message : "";
+
+                // Just in case one is a flag
+                if (filterFields.length === 0) {
+                    _queryList.push({name: key, text: title, locked: locked, message: lockedTooltip});
+                } else {
+                    if (filterFields.length === 1) {
+                        if (value.indexOf(">") !== -1 || value.indexOf("<") !== -1 || value.indexOf("=") !== -1) {
+                            _queryList.push({name: key, text: title + ": " + value, locked: locked, message: lockedTooltip});
+                        } else {
+                            _queryList.push({name: key, text: title + " = " + value, locked: locked, message: lockedTooltip});
+                        }
+                        //                                }
+                    } else {
+                        _queryList.push({name: key, text: title, items: filterFields, locked: locked, message: lockedTooltip});
+                    }
+                }
+            }
+        }
+        this.queryList = _queryList;
+
+        this.requestUpdate();
+    }
+
+    searchClicked() {
+        $("#" + this._prefix + "Warning").hide();
+        this._previousQuery = this.query;
+    }
+
     configObserver() {
         this._config = Object.assign({}, this.getDefaultConfig(), this.config);
 
@@ -145,13 +230,17 @@ export default class OpencgaActiveFilters extends LitElement {
     }
 
     facetQueryObserver() {
-        const queryString = JSON.stringify(UtilsNew.objectSort(this.facetQuery));
-        const prevQueryString = JSON.stringify(UtilsNew.objectSort(this._facetQuery));
-        if (Object.keys(this.facetQuery).length && (queryString !== prevQueryString)) {
-            this.querySelector("#" + this._prefix + "Warning").style.display = "block";
-            this._facetQuery = this.facetQuery;
+        // console.log("facetQueryObserver", this.facetQuery)
+        if (Object.keys(this.facetQuery).length) {
+            // console.log("compare:", UtilsNew.objectCompare(this.facetQuery, this._facetQuery))
+            if (!UtilsNew.objectCompare(this.facetQuery, this._facetQuery)) {
+                this.querySelector("#" + this._prefix + "Warning").style.display = "block";
+                this._facetQuery = this.facetQuery;
+            } else {
+                this.querySelector("#" + this._prefix + "Warning").style.display = "none";
+            }
         } else {
-            this.querySelector("#" + this._prefix + "Warning").style.display = "none";
+            this._facetQuery = {};
         }
     }
 
@@ -180,12 +269,6 @@ export default class OpencgaActiveFilters extends LitElement {
         return !!this?.opencgaSession?.token;
     }
 
-    opencgaSessionObserver() {
-        if (this.opencgaClient instanceof OpenCGAClient && UtilsNew.isNotUndefined(this.opencgaSession.token)) {
-            this.refreshFilters();
-        }
-    }
-
     refreshFilters() {
         this.opencgaClient.users().filters(this.opencgaSession.user.id).then(restResponse => {
             const result = restResponse.getResults();
@@ -196,14 +279,14 @@ export default class OpencgaActiveFilters extends LitElement {
             } else {
                 this._filters = [...(this.filters || [])];
             }
-            this.requestUpdate();
+            this.requestUpdate().then(() => UtilsNew.initTooltip(this));
         });
     }
 
     // TODO recheck & refactor
     save() {
-        const filterName = PolymerUtils.getValue(this._prefix + "filterName");
-        const filterDescription = PolymerUtils.getValue(this._prefix + "filterDescription");
+        const filterName = $("#" + (this._prefix + "filterName")).val();
+        const filterDescription = $("#" + (this._prefix + "filterDescription")).val();
 
         const query = this.query;
         if (query.study) {
@@ -219,7 +302,7 @@ export default class OpencgaActiveFilters extends LitElement {
         // Remove ignored params
         // When saving a filter we do no twant to save the exact sample or file ID, otherwise the filter cannot be reused
         if (this._config?.save?.ignoreParams) {
-            for (let param of this._config?.save?.ignoreParams) {
+            for (const param of this._config.save.ignoreParams) {
                 delete query[param];
             }
         }
@@ -235,6 +318,7 @@ export default class OpencgaActiveFilters extends LitElement {
                     // updating an existing filter
                     const data = {
                         description: filterDescription,
+                        resource: this.resource,
                         query: query,
                         options: {}
                     };
@@ -257,7 +341,12 @@ export default class OpencgaActiveFilters extends LitElement {
                                                 this._filters[i] = restResponse.response[0].result[0];
                                             }
                                         }
-
+                                        Swal.fire(
+                                            "Filter Saved",
+                                            "Filter has been saved.",
+                                            "success"
+                                        );
+                                        this.requestUpdate().then(() => UtilsNew.initTooltip(this));
                                     } else {
                                         console.error(restResponse);
                                         Swal.fire(
@@ -266,8 +355,8 @@ export default class OpencgaActiveFilters extends LitElement {
                                             "error"
                                         );
                                     }
-                                    PolymerUtils.setValue(this._prefix + "filterName", "");
-                                    PolymerUtils.setValue(this._prefix + "filterDescription", "");
+                                    $("#" + this._prefix + "filterName").val("");
+                                    $("#" + this._prefix + "filterDescription").val("");
                                 }).catch(restResponse => {
                                     console.error(restResponse);
                                     Swal.fire(
@@ -292,13 +381,14 @@ export default class OpencgaActiveFilters extends LitElement {
                         .then(restResponse => {
                             if (!restResponse.getEvents?.("ERROR")?.length) {
                                 this._filters = [...this._filters, data];
-                                PolymerUtils.setValue(this._prefix + "filterName", "");
-                                PolymerUtils.setValue(this._prefix + "filterDescription", "");
+                                $("#" + this._prefix + "filterName").val("");
+                                $("#" + this._prefix + "filterDescription").val("");
                                 Swal.fire(
                                     "Filter Saved",
                                     "Filter has been saved.",
                                     "success"
                                 );
+                                this.requestUpdate().then(() => UtilsNew.initTooltip(this));
                             } else {
                                 console.error(restResponse);
                                 Swal.fire(
@@ -334,6 +424,11 @@ export default class OpencgaActiveFilters extends LitElement {
     }
 
     onServerFilterChange(e) {
+        // suppress if I have clicked on an action buttons
+        if (e.target.className !== "id-filter-button") {
+            return;
+        }
+
         this.querySelector("#" + this._prefix + "Warning").style.display = "none";
         if (!UtilsNew.isUndefinedOrNull(this._filters)) {
             // We look for the filter name in the filters array
@@ -343,9 +438,9 @@ export default class OpencgaActiveFilters extends LitElement {
 
                     // We need to merge the selected filter query with the "save.ignoreParams" of the current query,
                     // otherwise the sample or file are deleted.
-                    let _query = {};
+                    const _query = {};
                     if (this._config?.save?.ignoreParams) {
-                        for (let key of Object.keys(this.query)) {
+                        for (const key of Object.keys(this.query)) {
                             if (this._config.save.ignoreParams.includes(key)) {
                                 _query[key] = this.query[key];
                             }
@@ -482,94 +577,15 @@ export default class OpencgaActiveFilters extends LitElement {
 
         console.log("onQueryFacetDelete", e.target.dataset.filterName);
         delete this.facetQuery[e.target.dataset.filterName];
-        this.facetQuery = {...this.facetQuery};
+        // NOTE we don't update this.facetQuery reference because facetQueryObserver() is being called already by this chain:
+        // `activeFacetChange` event triggers onActiveFacetChange() => onRun() in opencga-browser => [...] => facetQueryObserver() in opencga-active-filters
+        // this.facetQuery = {...this.facetQuery};
+
         this.dispatchEvent(new CustomEvent("activeFacetChange", {
             detail: this.facetQuery,
             bubbles: true,
             composed: true
         }));
-    }
-
-    queryObserver() {
-        const _queryList = [];
-        const keys = Object.keys(this.query);
-        for (const keyIdx in keys) {
-            const key = keys[keyIdx];
-            if (UtilsNew.isNotEmpty(this.query[key]) && (!this._config.hiddenFields || (this._config.hiddenFields && !this._config.hiddenFields.includes(key)))) {
-
-                // TODO review. why is this in a loop?
-                const queryString = JSON.stringify(UtilsNew.objectSort(this.query));
-                const prevQueryString = JSON.stringify(UtilsNew.objectSort(this._previousQuery));
-                if (queryString !== prevQueryString) {
-                    this.querySelector("#" + this._prefix + "Warning").style.display = "block";
-                } else {
-                    this.querySelector("#" + this._prefix + "Warning").style.display = "none";
-                }
-
-                // We use the alias to rename the key
-                let title = key;
-                if (UtilsNew.isNotUndefinedOrNull(this._config.alias) && UtilsNew.isNotUndefinedOrNull(this._config.alias[key])) {
-                    title = this._config.alias[key];
-                }
-
-                // We convert the Query entry object into an array of small objects (queryList)
-                let value = this.query[key];
-                if (typeof value === "boolean") {
-                    value = value.toString();
-                }
-
-                let filterFields = [];
-
-                // in case of annotation
-                if (key === "annotation") {
-                    filterFields = value.split(";");
-                } else if (key === "study") {
-                    // We fist have need to remove defaultStudy from 'filterFields' and 'value'
-                    filterFields = value.split(/[,;]/).filter(fqn => fqn !== this.defaultStudy);
-                    // defaultStudy was the only one present so no need to render anything
-                    if (!filterFields.length) {
-                        continue;
-                    }
-                    value = filterFields.join(/[,;]/);
-                } else {
-                    // If we find a field with both ; and , or the field has been defined as complex, we will only
-                    // separate by ;
-                    if ((value.indexOf(";") !== -1 && value.indexOf(",") !== -1) || this._config.complexFields.indexOf(key) !== -1) {
-                        filterFields = value.split(new RegExp(";"));
-                    } else {
-                        filterFields = value.split(new RegExp("[,;]"));
-                    }
-                }
-
-
-                const locked = UtilsNew.isNotUndefinedOrNull(this.lockedFieldsMap[key]);
-                const lockedTooltip = UtilsNew.isNotUndefinedOrNull(this.lockedFieldsMap[key]) ? this.lockedFieldsMap[key].message : "";
-
-                // Just in case one is a flag
-                if (filterFields.length === 0) {
-                    _queryList.push({name: key, text: title, locked: locked, message: lockedTooltip});
-                } else {
-                    if (filterFields.length === 1) {
-                        if (value.indexOf(">") !== -1 || value.indexOf("<") !== -1 || value.indexOf("=") !== -1) {
-                            _queryList.push({name: key, text: title + ": " + value, locked: locked, message: lockedTooltip});
-                        } else {
-                            _queryList.push({name: key, text: title + " = " + value, locked: locked, message: lockedTooltip});
-                        }
-                        //                                }
-                    } else {
-                        _queryList.push({name: key, text: title, items: filterFields, locked: locked, message: lockedTooltip});
-                    }
-                }
-            }
-        }
-        this.queryList = _queryList;
-
-        this.requestUpdate();
-    }
-
-    searchClicked() {
-        PolymerUtils.hide(this._prefix + "Warning");
-        this._previousQuery = this.query;
     }
 
     _isMultiValued(item) {
@@ -620,9 +636,10 @@ export default class OpencgaActiveFilters extends LitElement {
                     <span><strong>Warning!</strong></span>&nbsp;&nbsp;Filters have changed, please click on <strong> ${this._config.searchButtonText} </strong> to update the results.
                 </div>
             `}
-        
-            <!-- <div class="alert alert-info">query ${JSON.stringify(this.query)}</div>
-            <div class="alert alert-info">queryList ${JSON.stringify(this.queryList)}</div> -->
+
+            <!--<div class="alert alert-info">query ${JSON.stringify(this.query)}</div>
+            <div class="alert alert-info">queryList ${JSON.stringify(this.queryList)}</div>
+             <div class="alert alert-info">facetQuery ${JSON.stringify(this.facetQuery)}</div>-->
             <div class="panel panel-default">
                 <div class="panel-body" style="padding: 8px 10px">
                     <div class="lhs">
@@ -643,9 +660,13 @@ export default class OpencgaActiveFilters extends LitElement {
                                                 <a data-filter-id="${item.id}" class="filtersLink" style="cursor: pointer;color: ${!item.active ? "black" : "green"}" 
                                                         @click="${this.onServerFilterChange}">
                                                     <span class="id-filter-button">${item.id}</span>
-                                                    <span class="delete-filter-button" title="Delete filter" data-filter-id="${item.id}" @click="${this.serverFilterDelete}">
-                                                        <i title="${Object.entries(item.query).map(([k, v]) => k + "=" + v).join(", ")}" class="fas fa-eye"></i>
-                                                        <i class="fas fa-trash"></i>
+                                                    <span class="action-buttons">
+                                                        <span tooltip-title="${item.id}"
+                                                              tooltip-text="${(item.description ? item.description + "<br>" : "") + Object.entries(item.query).map(([k, v]) => `<b>${k}</b> = ${v}`).join("<br>")}"
+                                                              data-filter-id="${item.id}">
+                                                            <i class="fas fa-eye"></i>
+                                                        </span>
+                                                        <i data-cy="delete" tooltip-title="Delete filter" class="fas fa-trash" data-filter-id="${item.id}" @click="${this.serverFilterDelete}"></i>
                                                     </span>
                                                 </a>
                                             </li>`
@@ -769,7 +790,7 @@ export default class OpencgaActiveFilters extends LitElement {
                         ` : null}
                     </div>
                     <!-- aggregation stat section -->
-                    ${this.facetActive && Object.keys(this.facetQuery).length ? html`
+                    ${this.facetActive && this.facetQuery && Object.keys(this.facetQuery).length ? html`
                         <div class="facet-wrapper">
                             <p class="active-filter-label">Aggregation fields</p>
                                 <div class="button-list">

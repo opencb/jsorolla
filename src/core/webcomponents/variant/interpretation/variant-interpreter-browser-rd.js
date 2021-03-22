@@ -176,6 +176,9 @@ class VariantInterpreterBrowserRd extends LitElement {
         if (this.clinicalAnalysis?.interpretation?.primaryFindings?.length) {
             this.savedVariants = this.clinicalAnalysis?.interpretation?.primaryFindings?.map(v => v.id);
         }
+
+        this._config = {...this.getDefaultConfig(), ...this.config};
+        this.requestUpdate();
     }
 
     /**
@@ -292,8 +295,8 @@ class VariantInterpreterBrowserRd extends LitElement {
                         // "gene": "Gene",
                         "ct": "Consequence Types",
                     },
-                    complexFields: ["sample", "genotype"],
-                    hiddenFields: ["sample"],
+                    complexFields: ["sample", "fileData"],
+                    hiddenFields: [],
                     lockedFields: [{id: "sample"}]
                 },
                 sections: [
@@ -301,6 +304,11 @@ class VariantInterpreterBrowserRd extends LitElement {
                         title: "Sample",
                         collapsed: false,
                         fields: [
+                            {
+                                id: "sample-genotype",
+                                title: "Sample Genotype",
+                                visible: () => this.clinicalAnalysis.type.toUpperCase() === "SINGLE"
+                            },
                             {
                                 id: "sample",
                                 title: "Sample Genotype",
@@ -337,11 +345,11 @@ class VariantInterpreterBrowserRd extends LitElement {
                                 title: "Feature IDs (gene, SNPs, ...)",
                                 tooltip: tooltips.feature
                             },
-                            {
-                                id: "diseasePanels",
-                                title: "Disease Panels",
-                                tooltip: tooltips.diseasePanels
-                            },
+                            // {
+                            //     id: "diseasePanels",
+                            //     title: "Disease Panels",
+                            //     tooltip: tooltips.diseasePanels
+                            // },
                             {
                                 id: "biotype",
                                 title: "Gene Biotype",
@@ -351,9 +359,25 @@ class VariantInterpreterBrowserRd extends LitElement {
                             {
                                 id: "type",
                                 title: "Variant Type",
-                                types: ["SNV", "INDEL", "CNV", "INSERTION", "DELETION"],
+                                types: ["SNV", "INDEL", "COPY_NUMBER", "INSERTION", "DELETION"],
                                 tooltip: tooltips.type
                             }
+                        ]
+                    },
+                    {
+                        title: "Clinical",
+                        collapsed: true,
+                        fields: [
+                            {
+                                id: "diseasePanels",
+                                title: "Disease Panels",
+                                tooltip: tooltips.diseasePanels
+                            },
+                            {
+                                id: "clinvar",
+                                title: "ClinVar Accession",
+                                tooltip: tooltips.clinvar
+                            },
                         ]
                     },
                     {
@@ -374,16 +398,44 @@ class VariantInterpreterBrowserRd extends LitElement {
                             {
                                 id: "populationFrequency",
                                 title: "Select Population Frequency",
+                                allowedFrequencies: "0.001,0.005,0.01",
                                 tooltip: tooltips.populationFrequencies,
-                                showSetAll: false
+                                showSetAll: false,
+                                // TODO read this from the StudyConfiguration in OpenCGA 2.1
+                                populationFrequencies: {
+                                    studies: [
+                                        {
+                                            id: "1kG_phase3",
+                                            title: "1000 Genomes",
+                                            populations: [
+                                                {
+                                                    id: "ALL", title: "All populations [ALL]"
+                                                },
+                                            ]
+                                        },
+                                        {
+                                            id: "GNOMAD_GENOMES",
+                                            title: "gnomAD Genomes",
+                                            populations: [
+                                                {
+                                                    id: "ALL", title: "gnomAD [ALL]"
+                                                },
+                                            ]
+                                        }
+                                    ]
+                                }
                             }
                         ]
                     },
                     {
-                        title: "Phenotype-Disease",
+                        title: "Phenotype",
                         collapsed: true,
                         fields: [
-
+                            // {
+                            //     id: "clinvar",
+                            //     title: "ClinVar Accessions",
+                            //     tooltip: tooltips.clinvar
+                            // },
                             {
                                 id: "go",
                                 title: "GO Accessions (max. 100 terms)",
@@ -393,11 +445,6 @@ class VariantInterpreterBrowserRd extends LitElement {
                                 id: "hpo",
                                 title: "HPO Accessions",
                                 tooltip: tooltips.hpo
-                            },
-                            {
-                                id: "clinvar",
-                                title: "ClinVar Accessions",
-                                tooltip: tooltips.clinvar
                             },
                         ]
                     },
@@ -454,7 +501,7 @@ class VariantInterpreterBrowserRd extends LitElement {
                     grid: {
                         pagination: true,
                         pageSize: 10,
-                        pageList: [10, 25, 50],
+                        pageList: [5, 10, 25],
                         showExport: false,
                         detailView: true,
                         showReview: false,
@@ -519,7 +566,7 @@ class VariantInterpreterBrowserRd extends LitElement {
 
     render() {
         // Check Project exists
-        if (!this.opencgaSession || !this.opencgaSession.project) {
+        if (!this.opencgaSession?.study) {
             return html`
                 <div class="guard-page">
                     <i class="fas fa-lock fa-5x"></i>

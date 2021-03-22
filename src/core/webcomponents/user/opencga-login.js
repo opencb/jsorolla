@@ -61,6 +61,24 @@ export default class OpencgaLogin extends LitElement {
     firstUpdated(changedProperties) {
         $("#formLogin").validator("update");
         $("#formLogin").validator().on("submit", e => this.submitLogin(e));
+        this.redirect();
+    }
+
+    updated(changedProperties) {
+        if (changedProperties.has("opencgaSession")) {
+            this.redirect();
+        }
+    }
+
+    redirect() {
+        if (this.opencgaSession?.study) {
+            // window.location.hash = "#home";
+            this.dispatchEvent(new CustomEvent("redirect", {
+                detail: {
+                    hash: "#home"
+                }
+            }));
+        }
     }
 
     submitLogin(e) {
@@ -90,7 +108,6 @@ export default class OpencgaLogin extends LitElement {
                                 } else if (restResponse) {
                                     this.querySelector("#opencgaUser").value = "";
                                     this.querySelector("#opencgaPassword").value = "";
-                                    //console.log("response", restResponse);
                                     const token = restResponse.getResult(0).token;
                                     const decoded = jwt_decode(token); // TODO expose as module
                                     const dateExpired = new Date(decoded.exp * 1000);
@@ -116,19 +133,10 @@ export default class OpencgaLogin extends LitElement {
                             if (response instanceof RestResponse) {
                                 if (response.getEvents?.("ERROR")?.length) {
                                     this.errorState = response.getEvents("ERROR");
-                                    new NotificationQueue().push(this.errorState[0].name, this.errorState[0].message, "error");
+                                    this.errorState.forEach(error => new NotificationQueue().push(error.name, error.message, "ERROR"));
                                 } else {
                                     this.errorState = [{name: "Generic Server Error", message: JSON.stringify(response)}];
                                     new NotificationQueue().push(this.errorState[0].name, this.errorState[0].message, "error");
-                                    /* this.dispatchEvent(new CustomEvent(_this.notifyEventMessage, {
-                                        detail: {
-                                            title: this.errorState[0].name,
-                                            message: this.errorState[0].message,
-                                            type: UtilsNew.MESSAGE_ERROR
-                                        },
-                                        bubbles: true,
-                                        composed: true
-                                    }));*/
                                 }
                             } else if (response instanceof Error) {
                                 this.errorState = [{name: response.name, message: response.message}];

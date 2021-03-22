@@ -15,6 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
+import OpencgaCatalogUtils from "../../clients/opencga/opencga-catalog-utils.js";
 import UtilsNew from "./../../utilsNew.js";
 
 
@@ -31,13 +32,16 @@ export default class OpencbGridToolbar extends LitElement {
 
     static get properties() {
         return {
+            opencgaSession: {
+                type: Object
+            },
             rightToolbar: {
                 type: Array
             },
             config: {
                 type: Object
             }
-        }
+        };
     }
 
     _init() {
@@ -54,9 +58,9 @@ export default class OpencbGridToolbar extends LitElement {
     update(changedProperties) {
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
-            console.log("this._config", this._config)
+            console.log("this._config", this._config);
         }
-        super.update(changedProperties)
+        super.update(changedProperties);
     }
 
     onDownloadFile(e) {
@@ -111,10 +115,10 @@ export default class OpencbGridToolbar extends LitElement {
         };
     }
 
-    render(){
-        let rightButtons = []
+    render() {
+        const rightButtons = [];
         if (this.rightToolbar && this.rightToolbar.length > 0) {
-            for (let rightButton of this.rightToolbar) {
+            for (const rightButton of this.rightToolbar) {
                 rightButtons.push(rightButton.render());
             }
         }
@@ -127,15 +131,18 @@ export default class OpencbGridToolbar extends LitElement {
                     margin-top: 5px;
                 }
                 .opencb-grid-toolbar {
-                    margin-bottom: ${~this._config.buttons.indexOf("new") ? 10 : 5}px;
+                    margin-bottom: 10px;
                 }
             </style>
+            
             <div class="opencb-grid-toolbar">
                 <div class="row">
-                    <div id="${this._prefix}ToolbarLeft" class="col-md-6"> 
-                        ${~this._config.buttons.indexOf("new") ? html`<a type="button" class="btn btn-default ripple btn-sm text-black" href="${this._config.newButtonLink}">
-                            <i id="${this._prefix}ColumnIcon" class="fa fa-columns icon-padding" aria-hidden="true"></i> New </span> 
-                        </a>` : null}
+                    <div id="${this._prefix}ToolbarLeft" class="col-md-6">
+                        ${this._config.showCreate && (!this.opencgaSession || (this.opencgaSession && OpencgaCatalogUtils.checkPermissions(this.opencgaSession?.study, this.opencgaSession?.user?.id, "WRITE_CLINICAL_ANALYSIS"))) ? html`
+                            <a type="button" class="btn btn-default ripple btn-sm text-black" href="${this._config.newButtonLink}">
+                                <i id="${this._prefix}ColumnIcon" class="fa fa-columns icon-padding" aria-hidden="true"></i> New </span> 
+                            </a>
+                        ` : null}
                     </div>
                     <div id="${this._prefix}toolbar" class="col-md-6">
                         <div class="form-inline text-right pull-right">
@@ -152,8 +159,8 @@ export default class OpencbGridToolbar extends LitElement {
                                                         <input type="checkbox" @click="${this.checkboxToggle}" .checked="${this.isTrue(item.visible)}"/>
                                                         <label class="checkmark-label">${item.title}</label>
                                                     </a>
-                                                </li>`)
-                                            : null}
+                                                </li>`) :
+                                            null}
                                     </ul>
                                 </div>
                             ` : null
@@ -180,7 +187,7 @@ export default class OpencbGridToolbar extends LitElement {
                                 <button type="button" class="btn btn-default btn-sm" data-toggle="popover" data-placement="bottom" @click="onShareLink">
                                     <i class="fa fa-share-alt icon-padding" aria-hidden="true"></i> Share
                                 </button>
-                            ` : null 
+                            ` : null
                             }
                             
                             ${rightButtons && rightButtons.length > 0 ? rightButtons.map(rightButton => html`

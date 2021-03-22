@@ -60,6 +60,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
         this._filters = [];
         this.resource = "CLINICAL_ANALYSIS";
         this.query = {};
+        this.checkProjects = false;
     }
 
     connectedCallback() {
@@ -78,9 +79,12 @@ export default class OpencgaClinicalReviewCases extends LitElement {
 
     opencgaSessionObserver() {
         this.filters = this._config.filter.examples;
-        if (this.opencgaSession) {
+        if (this?.opencgaSession?.study) {
+            this.checkProjects = true;
             this.refreshFilters();
             this.users = this.opencgaSession.study.groups.find(group => group.id === "@members" || group.name === "@members").userIds;
+        } else {
+            this.checkProjects = false;
         }
     }
 
@@ -106,11 +110,15 @@ export default class OpencgaClinicalReviewCases extends LitElement {
     }
 
     onServerFilterChange(e) {
-        console.log("onFilterChange", e);
+        // suppress if I actually have clicked on an action buttons
+        if (e.target.className !== "id-filter-button") {
+            return;
+        }
+
         for (const filter of this._filters) {
             if (e.currentTarget.dataset.filterId === filter.id) {
-                this._query = filter.query;
-                this.setQueryFilters(this._query);
+                this.query = filter.query;
+                this.requestUpdate();
                 break;
             }
         }
@@ -155,13 +163,6 @@ export default class OpencgaClinicalReviewCases extends LitElement {
         });
     }
 
-    onFilterInputText(e) {
-        const filterId = e.currentTarget.dataset.id;
-        const value = e.currentTarget.value;
-
-        this.updateInputTextMenuItem(filterId, value);
-    }
-
     launchModal() {
         $(PolymerUtils.getElementById(this._prefix + "SaveModal")).modal("show");
     }
@@ -175,7 +176,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
             } else {
                 this._filters = [...(this.filters || [])];
             }
-            this.requestUpdate();
+            this.requestUpdate().then(() => UtilsNew.initTooltip(this));
         });
     }
 
@@ -228,7 +229,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                                 this._filters[i] = restResponse.response[0].result[0];
                                             }
                                         }
-
+                                        this.requestUpdate().then(() => UtilsNew.initTooltip(this));
                                     } else {
                                         console.error(restResponse);
                                         Swal.fire(
@@ -270,6 +271,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                     "Filter has been saved.",
                                     "success"
                                 );
+                                this.requestUpdate().then(() => UtilsNew.initTooltip(this));
                             } else {
                                 console.error(restResponse);
                                 Swal.fire(
@@ -370,7 +372,8 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                 multiSelection: false,
                 showActions: true,
                 toolbar: {
-                    buttons: ["columns", "download", "new"],
+                    showCreate: true,
+                    buttons: ["columns", "download"],
                     newButtonLink: "#clinical-analysis-writer/"
                 }
             }
@@ -378,7 +381,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
     }
 
     render() {
-        return this.opencgaSession ? html`
+        return this.checkProjects ? html`
         <style>
         
             .filter-button {
@@ -438,21 +441,26 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                                 <a><i class="fas fa-cloud-upload-alt icon-padding"></i> <strong>Saved Filters</strong></a>
                                             </li>
                                             ${this._filters && this._filters.length ?
-                                                this._filters.map(item => item.separator ?
-                                                    html`
-                                                        <li role="separator" class="divider"></li>` :
-                                                    html`
-                                                        <li>
-                                                            <a data-filter-id="${item.id}" class="filtersLink" style="cursor: pointer;color: ${!item.active ? "black" : "green"}" 
-                                                                    @click="${this.onServerFilterChange}">
-                                                                <span class="id-filter-button"> ${item.id}</span>
-                                                                <span class="delete-filter-button" title="Delete filter" data-filter-id="${item.id}" 
-                                                                        @click="${this.serverFilterDelete}"><i class="fas fa-times"></i>
-                                                                </span>
-                                                            </a>
-                                                        </li>`
+                                                    this._filters.map(item => item.separator ?
+                                                            html`
+                                                                <li role="separator" class="divider"></li>` :
+                                                            html`
+                                                                <li>
+                                                                    <a data-filter-id="${item.id}" class="filtersLink" style="cursor: pointer;color: ${!item.active ? "black" : "green"}"
+                                                                       @click="${this.onServerFilterChange}">
+                                                                        <span class="id-filter-button">${item.id}</span>
+                                                                        <span class="action-buttons">
+                                                                            <span tooltip-title="${item.id}"
+                                                                                  tooltip-text="${(item.description ? item.description + "<br>" : "") + Object.entries(item.query).map(([k, v]) => `<b>${k}</b> = ${v}`).join("<br>")}"
+                                                                                  data-filter-id="${item.id}">
+                                                                                <i class="fas fa-eye"></i>
+                                                                            </span>
+                                                                            <i data-cy="delete" tooltip-title="Delete filter" class="fas fa-trash" data-filter-id="${item.id}" @click="${this.serverFilterDelete}"></i>
+                                                                        </span>
+                                                                    </a>
+                                                                </li>`
                                                     ) :
-                                                html`<li><a class="help-block">No filters found</a></li>`
+                                                    html`<li><a class="help-block">No filters found</a></li>`
                                             }
                                             
                                             <li role="separator" class="divider"></li>
@@ -481,7 +489,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                                 <li style="padding: 5px;">
                                                     <div style="display: inline-flex; width: 300px;">
                                                         <label class="filter-label">Case ID:</label>
-                                                        <clinical-analysis-id-autocomplete .opencgaSession="${this.opencgaSession}" @filterChange="${e => this.onFilterChange("id", e.detail.value)}"></clinical-analysis-id-autocomplete>
+                                                        <clinical-analysis-id-autocomplete .config=${{showList: true}} .value="${this.query?.id}" .opencgaSession="${this.opencgaSession}" @filterChange="${e => this.onFilterChange("id", e.detail.value)}"></clinical-analysis-id-autocomplete>
                                                     </div>
                                                 </li>
                                             </ul>
@@ -500,7 +508,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                             <li style="padding: 5px;">
                                                 <div style="display: inline-flex; width: 300px;">
                                                     <label class="filter-label">Sample ID:</label>
-                                                    <sample-id-autocomplete .opencgaSession="${this.opencgaSession}" @filterChange="${e => this.onFilterChange("sample", e.detail.value)}"></sample-id-autocomplete>
+                                                    <sample-id-autocomplete .config=${{showList: true}} .value="${this.query?.sample}" .opencgaSession="${this.opencgaSession}" @filterChange="${e => this.onFilterChange("sample", e.detail.value)}"></sample-id-autocomplete>
                                                 </div>
                                             </li>
                                         </ul>
@@ -518,7 +526,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                             <li style="padding: 5px;">
                                                 <div style="display: inline-flex;width: 300px">
                                                     <label class="filter-label">Proband ID:</label>
-                                                    <proband-id-autocomplete .opencgaSession="${this.opencgaSession}" @filterChange="${e => this.onFilterChange("proband", e.detail.value)}"></proband-id-autocomplete>
+                                                    <proband-id-autocomplete .config=${{showList: true}} .value="${this.query?.proband}"  .opencgaSession="${this.opencgaSession}" @filterChange="${e => this.onFilterChange("proband", e.detail.value)}"></proband-id-autocomplete>
                                                 </div>
                                             </li>
                                         </ul>
@@ -536,7 +544,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                             <li style="padding: 5px;">
                                                 <div style="display: inline-flex; width: 300px;">
                                                     <label class="filter-label">Family ID:</label>
-                                                    <family-id-autocomplete .opencgaSession="${this.opencgaSession}" @filterChange="${e => this.onFilterChange("family", e.detail.value)}"></family-id-autocomplete>
+                                                    <family-id-autocomplete .config=${{showList: true}} .value="${this.query?.family}"  .opencgaSession="${this.opencgaSession}" @filterChange="${e => this.onFilterChange("family", e.detail.value)}"></family-id-autocomplete>
                                                 </div>
                                             </li>
                                         </ul>
@@ -548,13 +556,13 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                     <div class="btn-group">
                                         <button type="button" class="dropdown-toggle btn btn-default filter-button"
                                                 id="${this._prefix}disorderMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                                            <span class="ocap-text-button">Disorder: <span>${this.query.disorder ?? "All"}</span></span>&nbsp; <span class="caret"></span>
+                                            <span class="ocap-text-button">Disorder: <span>${this.query?.disorder ?? "All"}</span></span>&nbsp; <span class="caret"></span>
                                         </button>
                                         <ul class="dropdown-menu" aria-labelledby="${this._prefix}DisorderMenu">
                                             <li style="padding: 5px;">
                                                 <div style="display: inline-flex; width: 300px;">
-                                                    <label class="filter-label">Disorder ID:</label>
-                                                    <disorder-id-autocomplete .opencgaSession="${this.opencgaSession}" @filterChange="${e => this.onFilterChange("disorder", e.detail.value)}"></disorder-id-autocomplete>
+                                                    <label class="filter-label">Disorder:</label>
+                                                    <disorder-id-autocomplete .config=${{showList: true}} .value="${this.query?.disorder}"  .opencgaSession="${this.opencgaSession}" @filterChange="${e => this.onFilterChange("disorder", e.detail.value)}"></disorder-id-autocomplete>
                                                 </div>
                                             </li>
                                         </ul>
@@ -564,14 +572,14 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                     ${~this._config.filter.sections[0].fields.findIndex(field => field.id === "type") ? html`
                                     <!-- Type -->
                                     <div class="btn-group">
-                                        <select-field-filter placeholder="Type" multiple .data="${["SINGLE", "FAMILY", "CANCER"]}" @filterChange="${e => this.onFilterChange("type", e.detail.value)}"></select-field-filter>
+                                        <select-field-filter placeholder="Type" multiple .data="${["SINGLE", "FAMILY", "CANCER"]}" .value=${this.query?.type} @filterChange="${e => this.onFilterChange("type", e.detail.value)}"></select-field-filter>
                                     </div>
                                     ` : null}
                                     
                                     ${~this._config.filter.sections[0].fields.findIndex(field => field.id === "status") ? html`
                                     <!-- Status -->
                                     <div class="btn-group">
-                                        <clinical-status-filter placeholder="${"Status: All"}" .statuses="${this.opencgaSession?.study?.configuration?.clinical?.status ?? []}" @filterChange="${e => this.onFilterChange("status", e.detail.value)}"></clinical-status-filter>
+                                        <clinical-status-filter placeholder="${"Status: All"}" .statuses="${this.opencgaSession?.study?.configuration?.clinical?.status ?? []}" .value=${this.query?.status} @filterChange="${e => this.onFilterChange("status", e.detail.value)}"></clinical-status-filter>
                                     ` : null}
                                     
                                     ${~this._config.filter.sections[0].fields.findIndex(field => field.id === "priority") ? html`
@@ -635,7 +643,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
 
                     <div style="margin-top: 25px">
                         <opencga-clinical-analysis-grid .opencgaSession="${this.opencgaSession}"
-                                                        .query="${this._query}"
+                                                        .query="${this.query}"
                                                         .config="${this._config.grid}"
                                                         @selectrow="${this.onSelectClinicalAnalysis}">
                         </opencga-clinical-analysis-grid>
@@ -708,7 +716,12 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                 </div>
             </div>
         </div>
-        ` : null;
+        ` : html`
+            <div class="guard-page">
+               <i class="fas fa-lock fa-5x"></i>
+                <h3>No public projects available to browse. Please login to continue</h3>
+            </div>
+        `;
     }
 
 }

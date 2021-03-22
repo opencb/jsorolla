@@ -29,7 +29,7 @@ import "../commons/filters/sample-id-autocomplete.js";
 import "../commons/filters/individual-id-autocomplete.js";
 
 
-export default class OpencgaSampleFilter extends LitElement {
+export default class SampleBrowserFilter extends LitElement {
 
     constructor() {
         super();
@@ -61,9 +61,8 @@ export default class OpencgaSampleFilter extends LitElement {
         };
     }
 
-
     _init() {
-        this._prefix = "osf-" + UtilsNew.randomString(6);
+        this._prefix = UtilsNew.randomString(8);
 
         this.annotationFilterConfig = {
             class: "small",
@@ -78,11 +77,13 @@ export default class OpencgaSampleFilter extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
+
         this.preparedQuery = {...this.query}; // propagates here the iva-app query object
     }
 
     firstUpdated(_changedProperties) {
         super.firstUpdated(_changedProperties);
+
         UtilsNew.initTooltip(this);
     }
 
@@ -100,17 +101,14 @@ export default class OpencgaSampleFilter extends LitElement {
     }
 
     queryObserver() {
-        console.log("queryObserver()", this.query);
         this.preparedQuery = this.query || {};
         this.requestUpdate();
     }
 
     onFilterChange(key, value) {
-        console.log("filterChange", {[key]: value});
         if (value && value !== "") {
             this.preparedQuery = {...this.preparedQuery, ...{[key]: value}};
         } else {
-            console.log("deleting", key, "from preparedQuery");
             delete this.preparedQuery[key];
             this.preparedQuery = {...this.preparedQuery};
         }
@@ -158,27 +156,39 @@ export default class OpencgaSampleFilter extends LitElement {
         let content = "";
         switch (subsection.id) {
             case "id":
-                content = html`<sample-id-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></sample-id-autocomplete>
-                `;
+                content = html`
+                    <sample-id-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}" 
+                                            @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
+                    </sample-id-autocomplete>`;
                 break;
             case "individualId":
-                content = html`<individual-id-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></individual-id-autocomplete>`;
+                content = html`
+                    <individual-id-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}" 
+                                                @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
+                    </individual-id-autocomplete>`;
                 break;
             case "fileIds":
-                content = html`<file-name-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></file-name-autocomplete>`;
+                content = html`
+                    <file-name-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}" 
+                                            @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
+                    </file-name-autocomplete>`;
                 break;
             case "source":
             case "phenotypes":
-                content = html`<text-field-filter placeholder="${subsection.placeholder}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></text-field-filter>`;
+                content = html`
+                    <text-field-filter placeholder="${subsection.placeholder}" .value="${this.preparedQuery[subsection.id]}" 
+                                       @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
+                    </text-field-filter>`;
                 break;
             case "annotations":
-                content = html`<opencga-annotation-filter-modal .opencgaSession="${this.opencgaSession}"
-                                                      .opencgaClient="${this.opencgaSession.opencgaClient}"
-                                                      resource="SAMPLE"
-                                                      .config="${this.annotationFilterConfig}"
-                                                      .selectedVariablesText="${this.preparedQuery.annotation}"
-                                                      @annotationChange="${this.onAnnotationChange}">
-                        </opencga-annotation-filter-modal>`;
+                content = html`
+                    <opencga-annotation-filter-modal .opencgaSession="${this.opencgaSession}"
+                                                     .opencgaClient="${this.opencgaSession.opencgaClient}"
+                                                     resource="SAMPLE"
+                                                     .config="${this.annotationFilterConfig}"
+                                                     .selectedVariablesText="${this.preparedQuery.annotation}"
+                                                     @annotationChange="${this.onAnnotationChange}">
+                    </opencga-annotation-filter-modal>`;
                 break;
             case "somatic":
                 content = html`<somatic-filter .value="${this.preparedQuery.somatic}" @filterChange="${e => this.onFilterChange("somatic", e.detail.value)}"></somatic-filter>`;
@@ -191,18 +201,18 @@ export default class OpencgaSampleFilter extends LitElement {
         }
 
         return html`
-                    <div class="form-group">
-                        <div class="browser-subsection" id="${subsection.id}">${subsection.name}
-                            ${subsection.description ? html`
-                                <div class="tooltip-div pull-right">
-                                    <a tooltip-title="${subsection.name}" tooltip-text="${subsection.description}"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
-                                </div>` : null }
-                        </div>
-                        <div id="${this._prefix}${subsection.id}" class="subsection-content">
-                            ${content}
-                         </div>
-                    </div>
-                `;
+            <div class="form-group">
+                <div class="browser-subsection" id="${subsection.id}">${subsection.name}
+                    ${subsection.description ? html`
+                        <div class="tooltip-div pull-right">
+                            <a tooltip-title="${subsection.name}" tooltip-text="${subsection.description}"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
+                        </div>` : null 
+                    }
+                </div>
+                <div id="${this._prefix}${subsection.id}" class="subsection-content">
+                    ${content}
+                </div>
+            </div>`;
     }
 
     render() {
@@ -225,4 +235,4 @@ export default class OpencgaSampleFilter extends LitElement {
 
 }
 
-customElements.define("opencga-sample-filter", OpencgaSampleFilter);
+customElements.define("sample-browser-filter", SampleBrowserFilter);

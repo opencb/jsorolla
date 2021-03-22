@@ -153,7 +153,7 @@ export default class UtilsNew {
     }
 
     static initTooltip(scope) {
-        $("a[tooltip-title]", scope).each(function () {
+        $("a[tooltip-title], span[tooltip-title]", scope).each(function () {
             $(this).qtip({
                 content: {
                     title: $(this).attr("tooltip-title"),
@@ -190,25 +190,26 @@ export default class UtilsNew {
         return document.createRange().createContextualFragment(`${html}`);
     }
 
-    static jobStatusFormatter(status) {
-        switch (status) {
+    static jobStatusFormatter(status, appendDescription = false) {
+        const description = appendDescription && status.description ? `<br>${status.description}` : "";
+        switch (status.name) {
             case "PENDING":
             case "QUEUED":
             case "REGISTERING":
             case "UNREGISTERED":
-                return `<span class="text-primary"><i class="far fa-clock"></i> ${status}</span>`;
+                return `<span class="text-primary"><i class="far fa-clock"></i> ${status.name}${description}</span>`;
             case "RUNNING":
-                return `<span class="text-primary"><i class="fas fa-sync-alt anim-rotate"></i> ${status}</span>`;
+                return `<span class="text-primary"><i class="fas fa-sync-alt anim-rotate"></i> ${status.name}${description}</span>`;
             case "DONE":
-                return `<span class="text-success"><i class="fas fa-check-circle"></i> ${status}</span>`;
+                return `<span class="text-success"><i class="fas fa-check-circle"></i> ${status.name}${description}</span>`;
             case "ERROR":
-                return `<span class="text-danger"><i class="fas fa-exclamation-circle"></i> ${status}</span>`;
+                return `<span class="text-danger"><i class="fas fa-exclamation-circle"></i> ${status.name}${description}</span>`;
             case "UNKNOWN":
-                return `<span class="text-danger"><i class="fas fa-exclamation-circle"></i> ${status}</span>`;
+                return `<span class="text-danger"><i class="fas fa-exclamation-circle"></i> ${status.name}${description}</span>`;
             case "ABORTED":
-                return `<span class="text-warning"><i class="fas fa-ban"></i> ${status}</span>`;
+                return `<span class="text-warning"><i class="fas fa-ban"></i> ${status.name}${description}</span>`;
             case "DELETED":
-                return `<span class="text-primary"><i class="fas fa-trash-alt"></i> ${status}</span>`;
+                return `<span class="text-primary"><i class="fas fa-trash-alt"></i> ${status.name}${description}</span>`;
         }
         return "-";
     }
@@ -346,7 +347,7 @@ export default class UtilsNew {
      * @param {boolean} addMissingKeys Flag for adding or not keys not present in the array `keys`
      * @returns {Object} ordered Ordered object
      */
-    static objectKeySort(unordered, keys, addMissingKeys) {
+    static objectKeySort(unordered, keys, addMissingKeys = false) {
         if (!unordered) {
             console.log("Parameter unordered is not valued: ", unordered);
             return null;
@@ -364,7 +365,7 @@ export default class UtilsNew {
             }
         }
         // We check if there is any other unordered key not present in the keys array
-        if (addMissingKeys && Object.keys(unordered).length !== keys.length) {
+        if (addMissingKeys === true && Object.keys(unordered).length !== keys.length) {
             for (const unorderedKey of Object.keys(unordered)) {
                 if (!keys.includes(unorderedKey)) {
                     ordered[unorderedKey] = unordered[unorderedKey];

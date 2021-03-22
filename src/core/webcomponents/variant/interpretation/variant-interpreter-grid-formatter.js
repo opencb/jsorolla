@@ -111,7 +111,7 @@ export default class VariantInterpreterGridFormatter {
                                                    </div>`;
             }
         }
-        return `<a class='predictionTooltip' tooltip-title="Classification" tooltip-text='${clinicalSignificanceTooltipText}'>
+        return `<a class='predictionTooltip' tooltip-title="Classification" tooltip-text="${clinicalSignificanceTooltipText}">
                     ${clinicalSignificanceHtml}
                 </a>`;
     }
@@ -190,7 +190,7 @@ export default class VariantInterpreterGridFormatter {
                     }
                 }
 
-                if (file.call?.variantId) {
+                if (file?.call?.variantId) {
                     originalCall = file.call.variantId.replace("<", "&lt;").replace(">", "&gt;");
                     if (originalCall.includes(",")) {
                         const split = originalCall.split(",");
@@ -393,13 +393,17 @@ export default class VariantInterpreterGridFormatter {
                 const soArray = [];
                 if (re.genomicFeature.consequenceTypes && re.genomicFeature.consequenceTypes.length > 0) {
                     for (const so of re.genomicFeature.consequenceTypes) {
-                        let color = "black";
-                        if (variantGrid.consequenceTypeColors?.consequenceTypeToColor && variantGrid.consequenceTypeColors?.consequenceTypeToColor[so.name]) {
-                            color = variantGrid.consequenceTypeColors?.consequenceTypeToColor[so.name];
-                        }
+                        let color = variantGrid.consequenceTypeColors?.consequenceTypeToColor[so.name] || "black";
+                        // if (variantGrid.consequenceTypeColors?.consequenceTypeToColor && variantGrid.consequenceTypeColors?.consequenceTypeToColor[so.name]) {
+                        //     color = variantGrid.consequenceTypeColors?.consequenceTypeToColor[so.name];
+                        // }
                         soArray.push(`<div style="color: ${color}; margin-bottom: 5px">
-                                    ${so.name} (<a href="http://www.sequenceontology.org/browser/current_svn/term/${so.accession}" target="_blank">${so.accession}</a>)
-                                  </div>`);
+                                        <span style="padding-right: 5px">${so.name}</span> 
+                                        <a title="Go to Sequence Ontology ${so.accession} term" 
+                                            href="http://www.sequenceontology.org/browser/current_svn/term/${so.accession}" target="_blank">
+                                            <i class="fas fa-external-link-alt"></i>
+                                        </a>
+                                      </div>`);
                     }
                 }
 
@@ -575,7 +579,7 @@ export default class VariantInterpreterGridFormatter {
                         content = VariantInterpreterGridFormatter._alleleGenotypeRenderer(row, sampleEntry);
                         break;
                     case "CIRCLE":
-                        content = VariantInterpreterGridFormatter._circleGenotypeRenderer(sampleEntry, file, 6);
+                        content = VariantInterpreterGridFormatter._circleGenotypeRenderer(sampleEntry, file, 10);
                         break;
                     case "VAF":
                         let vaf = VariantInterpreterGridFormatter._getVariantAlleleFraction(row, sampleEntry, file);
@@ -609,12 +613,13 @@ export default class VariantInterpreterGridFormatter {
         return resultHtml;
     }
 
-    static _circleGenotypeRenderer(sampleEntry, file, radius) {
-        let {left, right} = VariantInterpreterGridFormatter._getLeftRightColors(sampleEntry.data[0], file.data.FILTER);
-        return `<svg viewBox="0 0 70 30" xmlns="http://www.w3.org/2000/svg">
-                    <circle cx="20" cy="15" r="${radius ?? 6}" style="stroke: black;fill: ${left}"/>
-                    <circle cx="50" cy="15" r="${radius ?? 6}" style="stroke: black;fill: ${right}"/>
-                </svg>`;
+    static _circleGenotypeRenderer(sampleEntry, file, radius = 10) {
+        const {left, right} = VariantInterpreterGridFormatter._getLeftRightColors(sampleEntry.data[0], file.data.FILTER);
+        return `
+            <div class="circle-genotype-render">
+                <div class="circle" style="width: ${radius *2}px;height: ${radius *2}px;background: ${left}"></div>
+                <div class="circle" style="width: ${radius *2}px;height: ${radius *2}px;background: ${right}"></div>
+            </div>`;
     }
 
     static _vafGenotypeRenderer(vaf, depth, file, config) {
@@ -827,6 +832,9 @@ export default class VariantInterpreterGridFormatter {
     }
 
     static _getSampleGenotypeTooltipText(variant, sampleEntry, file) {
+        if (!sampleEntry) {
+            return "NA";
+        }
         // Fetch sampleFormat and file to simplify code
         const sampleFormat = sampleEntry.data;
 

@@ -130,7 +130,7 @@ export default class OpencgaIndividualDetail extends LitElement {
                     name: "JSON Data",
                     mode: "development",
                     render: (individual, active, opencgaSession) => {
-                        return html`<json-viewer .data="${individual}"></json-viewer>`;
+                        return html`<json-viewer .data="${individual}" .active="${active}"></json-viewer>`;
                     }
                 }
             ]

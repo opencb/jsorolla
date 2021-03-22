@@ -48,6 +48,9 @@ export default class OpencgaFileGrid extends LitElement {
             },
             config: {
                 type: Object
+            },
+            active: {
+                type: Boolean
             }
         };
     }
@@ -56,6 +59,7 @@ export default class OpencgaFileGrid extends LitElement {
         this._prefix = "fg" + UtilsNew.randomString(6);
         this.gridId = this._prefix + "FileBrowserGrid";
         this._config = this.getDefaultConfig();
+        this.active = true;
     }
 
     connectedCallback() {
@@ -72,7 +76,7 @@ export default class OpencgaFileGrid extends LitElement {
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("opencgaSession") || changedProperties.has("query")) {
+        if ((changedProperties.has("opencgaSession") || changedProperties.has("query") || changedProperties.has("active")) && this.active) {
             this.propertyObserver();
         }
 
@@ -84,7 +88,7 @@ export default class OpencgaFileGrid extends LitElement {
 
     propertyObserver() {
         this.toolbarConfig = {
-            columns: this._getDefaultColumns()
+            columns: this._getDefaultColumns().filter(column => column.visible !== false)
         };
         this.renderTable();
     }
@@ -253,6 +257,7 @@ export default class OpencgaFileGrid extends LitElement {
             {
                 title: "Actions",
                 field: "id",
+                visible: this._config.downloadFile ?? true, // it comes from opencga-sample-browser.config.js
                 formatter: (value, row) => {
                     const url = this.opencgaSession.server.host + "/webservices/rest/" + this.opencgaSession.server.version + "/files/" + value + "/download?study=" + this.opencgaSession.study.fqn + "&sid=" + this.opencgaSession.token;
                     return `<a class="btn btn-small btn-default ripple one-line" target="_blank" href="${url}"> <i class="fas fa-download"></i> Download</a>`;

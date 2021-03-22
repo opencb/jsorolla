@@ -35,7 +35,7 @@ export default class VariantTypeFilter extends LitElement {
     static get properties() {
         return {
             type: {
-                type: Object
+                type: String
             },
             config: {
                 type: Object
@@ -44,25 +44,29 @@ export default class VariantTypeFilter extends LitElement {
     }
 
     _init() {
-        this._prefix = "crf-" + UtilsNew.randomString(6) + "_";
-        this._config = this.getDefaultConfig();
+        this._prefix = UtilsNew.randomString(8);
+
         this.selectedVariantTypes = [];
-        this.requestUpdate();
+        this._config = this.getDefaultConfig();
     }
 
-    connectedCallback() {
-        super.connectedCallback();
-        this._config = {...this.getDefaultConfig(), ...this.config};
-    }
+    // connectedCallback() {
+    //     super.connectedCallback();
+    //     this._config = {...this.getDefaultConfig(), ...this.config};
+    // }
 
-    updated(_changedProperties) {
-        if (_changedProperties.has("type")) {
+    updated(changedProperties) {
+        if (changedProperties.has("type")) {
             if (this.type) {
                 this.selectedVariantTypes = this.type.split(",");
             } else {
                 this.selectedVariantTypes = [];
             }
             this.requestUpdate();
+        }
+
+        if (changedProperties.has("config")) {
+            this._config = {...this.getDefaultConfig(), ...this.config};
         }
     }
 
@@ -76,12 +80,6 @@ export default class VariantTypeFilter extends LitElement {
         this.dispatchEvent(event);
     }
 
-    getDefaultConfig() {
-        return {
-            types: VARIANT_TYPES,
-            layout: "vertical"
-        };
-    }
     toggle(type) {
         const checkbox = this.querySelector(`input[value=${type}]`);
         if (!~this.selectedVariantTypes.indexOf(type)) {
@@ -92,6 +90,13 @@ export default class VariantTypeFilter extends LitElement {
             checkbox.checked = false;
         }
         this.filterChange();
+    }
+
+    getDefaultConfig() {
+        return {
+            types: VARIANT_TYPES,
+            layout: "vertical"
+        };
     }
 
     render() {

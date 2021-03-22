@@ -48,59 +48,15 @@ class AlignmentStatsView extends LitElement {
     }
 
     _init() {
-        this._prefix = "vcis-" + UtilsNew.randomString(6);
+        this._prefix = UtilsNew.randomString(8);
 
         this._config = this.getDefaultConfig();
     }
 
     connectedCallback() {
         super.connectedCallback();
-        this._config = {...this.getDefaultConfig(), ...this.config};
-        // this.alignmentStats = {
-        //     "fileId": "bam:SonsAlignedBamFile.bam",
-        //     "sampleId": "ISDBM322015",
-        //     "rawTotalSequences": 32116828,
-        //     "filteredSequences": 0,
-        //     "sequences": 32116828,
-        //     "isSorted": 1,
-        //     "firstFragments": 16058414,
-        //     "lastFragments": 16058414,
-        //     "readsMapped": 31299207,
-        //     "readsMappedAndPaired": 31120474,
-        //     "readsUnmapped": 817621,
-        //     "readsProperlyPaired": 30066492,
-        //     "readsPaired": 32116828,
-        //     "readsDuplicated": 1121410,
-        //     "readsMq0": 2369927,
-        //     "readsQcFailed": 0,
-        //     "nonPrimaryAlignments": 0,
-        //     "totalLength": -1404452776,
-        //     "totalFirstFragmentLength": 1445257260,
-        //     "totalLastFragmentLength": 1445257260,
-        //     "basesMapped": 2816928630,
-        //     "basesMappedCigar": 2812285689,
-        //     "basesTrimmed": 0,
-        //     "basesDuplicated": 100926900,
-        //     "mismatches": 8428924,
-        //     "errorRate": 0.002997179,
-        //     "averageLength": 90.0,
-        //     "averageFirstFragmentLength": 90.0,
-        //     "averageLastFragmentLength": 90.0,
-        //     "maximumLength": 90,
-        //     "maximumFirstFragmentLength": 90,
-        //     "maximumLastFragmentLength": 90,
-        //     "averageQuality": 34.8,
-        //     "insertSizeAverage": 153.6,
-        //     "insertSizeStandardDeviation": 46.3,
-        //     "inwardOrientedPairs": 15081995,
-        //     "outwardOrientedPairs": 452217,
-        //     "pairsWithOtherOrientation": 12645,
-        //     "pairsOnDifferentChromosomes": 13380,
-        //     "percentageOfProperlyPairedReads": 93.6
-        // };
-    }
 
-    firstUpdated(_changedProperties) {
+        this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
     updated(changedProperties) {
@@ -135,7 +91,10 @@ class AlignmentStatsView extends LitElement {
                             ${// Read column name from configuration if exist, otherwise use sampleId from the stats object
                                 this._config?.columns?.length 
                                     ? this._config.columns.map( col => html`<th class="${col.classes}">${col.name}</th>`)
-                                    : this.alignmentStats.map( stat => html`<th>${stat.sampleId}</th>`)
+                                    : this.alignmentStats.map( stat => {
+                                            let splitFields = stat.fileId.split(":");
+                                            return html`<th>${splitFields[splitFields.length - 1]}</th>`;
+                                        })
                             }
                         </tr>
                     </thead>
@@ -188,10 +147,10 @@ class AlignmentStatsView extends LitElement {
                     name: "File",
                     field: "fileId"
                 },
-                {
-                    name: "Sample ID",
-                    field: "sampleId"
-                },
+                // {
+                //     name: "Sample ID",
+                //     field: "sampleId"
+                // },
                 {
                     name: "rawTotalSequences",
                     field: "rawTotalSequences"
@@ -199,6 +158,14 @@ class AlignmentStatsView extends LitElement {
                 {
                     name: "filteredSequences",
                     field: "filteredSequences"
+                },
+                {
+                    name: "readsDuplicated",
+                    field: "readsDuplicated"
+                },
+                {
+                    name: "insertSizeAverage",
+                    field: "insertSizeAverage"
                 },
                 {
                     name: "sequences",
@@ -235,10 +202,6 @@ class AlignmentStatsView extends LitElement {
                 {
                     name: "readsPaired",
                     field: "readsPaired"
-                },
-                {
-                    name: "readsDuplicated",
-                    field: "readsDuplicated"
                 },
                 {
                     name: "readsMq0",
@@ -315,10 +278,6 @@ class AlignmentStatsView extends LitElement {
                 {
                     name: "averageQuality",
                     field: "averageQuality"
-                },
-                {
-                    name: "insertSizeAverage",
-                    field: "insertSizeAverage"
                 },
                 {
                     name: "insertSizeStandardDeviation",

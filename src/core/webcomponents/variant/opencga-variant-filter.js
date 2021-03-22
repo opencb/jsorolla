@@ -316,7 +316,7 @@ export default class OpencgaVariantFilter extends LitElement {
                     </h4>
                 </div>
                 <div id="${this._prefix}${id}" class="panel-collapse collapse ${collapsed}" role="tabpanel" aria-labelledby="${this._prefix}${id}Heading">
-                    <div class="panel-body">
+                    <div class="panel-body" style="padding-top: 5px">
                         ${section.fields && section.fields.length && section.fields.map(field => html`
                             ${this._isFilterVisible(field)
                                 ? this._createSubSection(field)
@@ -342,14 +342,25 @@ export default class OpencgaVariantFilter extends LitElement {
                         content = html`<study-filter .opencgaSession="${this.opencgaSession}" @filterChange="${e => this.onFilterChange("study", e.detail.value)}"></study-filter>`;
                     }
                     break;
-                case "cohort":   //._cohorts="${this._cohorts}"
-                    content = html`<cohort-stats-filter .opencgaSession="${this.opencgaSession}" 
-                                    .cohorts="${subsection.cohorts}" .onlyCohortAll=${subsection.onlyCohortAll} .cohortStatsAlt="${this.preparedQuery.cohortStatsAlt}" 
-                                    @filterChange="${e => this.onFilterChange("cohortStatsAlt", e.detail.value)}">
-                               </cohort-stats-filter>`;
+                case "cohort":
+                    // FIXME subsection.cohorts must be renamed to subsection.studies
+                    if (subsection.onlyCohortAll === true || subsection.cohorts?.[0].cohorts?.length > 0) {
+                        content = html`
+                            <cohort-stats-filter .opencgaSession="${this.opencgaSession}" 
+                                                 .cohorts="${subsection.cohorts}" 
+                                                 .onlyCohortAll=${subsection.onlyCohortAll} 
+                                                 .cohortStatsAlt="${this.preparedQuery.cohortStatsAlt}" 
+                                                 @filterChange="${e => this.onFilterChange("cohortStatsAlt", e.detail.value)}">
+                            </cohort-stats-filter>`;
+                    }
                     break;
                 case "sample":
-                    content = html`<sample-filter .opencgaSession="${this.opencgaSession}" .clinicalAnalysis="${subsection.clinicalAnalysis}" .query="${this.preparedQuery}" @sampleFilterChange="${e => this.onSampleFilterChange(e.detail.value)}"></sample-filter>`;
+                    content = html`
+                        <sample-filter .opencgaSession="${this.opencgaSession}" 
+                                       .clinicalAnalysis="${subsection.clinicalAnalysis}" 
+                                       .query="${this.preparedQuery}" 
+                                       @sampleFilterChange="${e => this.onSampleFilterChange(e.detail.value)}">
+                        </sample-filter>`;
                     break;
                 case "sample-genotype":
                     content = html`<sample-genotype-filter .sample="${this.preparedQuery.sample}" @filterChange="${e => this.onFilterChange("sample", e.detail.value)}"></sample-genotype-filter>`;
@@ -392,10 +403,26 @@ export default class OpencgaVariantFilter extends LitElement {
                     content = html`<biotype-filter .config="${this.config}" .biotype=${this.preparedQuery.biotype} @filterChange="${e => this.onFilterChange("biotype", e.detail.value)}"></biotype-filter>`;
                     break;
                 case "type":
-                    content = html`<variant-type-filter .config="${this.config}" .type="${this.preparedQuery.type}" @filterChange="${e => this.onFilterChange("type", e.detail.value)}"></variant-type-filter>`;
+                    let config = {};
+                    if (subsection.types) {
+                        config = {
+                            types: subsection.types
+                        }
+                    }
+                    content = html`
+                        <variant-type-filter .type="${this.preparedQuery.type}"
+                                             .config="${config}"
+                                             @filterChange="${e => this.onFilterChange("type", e.detail.value)}">
+                        </variant-type-filter>`;
                     break;
                 case "populationFrequency":
-                    content = html`<population-frequency-filter .populationFrequencies="${populationFrequencies}" ?showSetAll="${subsection.showSetAll}" .populationFrequencyAlt="${this.preparedQuery.populationFrequencyAlt}" @filterChange="${e => this.onFilterChange("populationFrequencyAlt", e.detail.value)}"></population-frequency-filter>`;
+                    content = html`
+                        <population-frequency-filter .populationFrequencies="${subsection.populationFrequencies}" 
+                                                     .allowedFrequencies="${subsection.allowedFrequencies}"
+                                                     ?showSetAll="${subsection.showSetAll}" 
+                                                     .populationFrequencyAlt="${this.preparedQuery.populationFrequencyAlt}" 
+                                                     @filterChange="${e => this.onFilterChange("populationFrequencyAlt", e.detail.value)}">
+                        </population-frequency-filter>`;
                     break;
                 case "consequenceType":
                     content = html`<consequence-type-filter .consequenceTypes="${this.consequenceTypes}" .ct="${this.preparedQuery.ct}"  @filterChange="${e => this.onFilterChange("ct", e.detail.value)}"></consequence-type-filter>`;

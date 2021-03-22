@@ -127,11 +127,16 @@ export default class OpencgaFamilyGrid extends LitElement {
                 formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
 
                 ajax: params => {
+                    const sort = this.table.bootstrapTable("getOptions").sortName ? {
+                        sort: this.table.bootstrapTable("getOptions").sortName,
+                        order: this.table.bootstrapTable("getOptions").sortOrder
+                    } : {};
                     const _filters = {
                         study: this.opencgaSession.study.fqn,
                         limit: params.data.limit,
                         skip: params.data.offset || 0,
                         count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
+                        ...sort,
                         ...this.query
                     };
                     this.opencgaSession.opencgaClient.families().search(_filters)
@@ -207,9 +212,6 @@ export default class OpencgaFamilyGrid extends LitElement {
                 },
                 onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse),
                 onPostBody: (data) => {
-                    // Add tooltips
-                    this.catalogUiUtils.addTooltip("div.phenotypesTooltip", "Phenotypes");
-                    this.catalogUiUtils.addTooltip("div.membersTooltip", "Members");
                 }
             });
         }
