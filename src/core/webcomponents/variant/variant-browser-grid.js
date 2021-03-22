@@ -713,7 +713,7 @@ export default class VariantBrowserGrid extends LitElement {
             showExport: false,
             detailView: true,
             detailFormatter: this.detailFormatter,
-
+            showToolbar: true,
             showSelectCheckbox: false,
             multiSelection: false,
             nucleotideGenotype: true,
@@ -739,20 +739,21 @@ export default class VariantBrowserGrid extends LitElement {
     }
 
     render() {
-        return html`           
-            <div>
-                <opencb-grid-toolbar
-                        .opencgaSession="${this.opencgaSession}"
-                        .config="${this.toolbarConfig}"
-                        @columnChange="${this.onColumnChange}"
-                        @download="${this.onDownload}"
-                        @export="${this.onDownload}"
-                        @sharelink="${this.onShare}">
-                </opencb-grid-toolbar>
+        return html`
+            ${this._config.showToolbar ?
+                html`
+                    <opencb-grid-toolbar  .config="${this.toolbarConfig}"
+                                          .query="${this.query}"
+                                          .opencgaSession="${this.opencgaSession}"
+                                          @columnChange="${this.onColumnChange}"
+                                          @download="${this.onDownload}"
+                                          @export="${this.onDownload}">
+                    </opencb-grid-toolbar>` :
+                null
+            }
                 
-                <div>
-                    <table id="${this.gridId}"></table>
-                </div>
+            <div>
+                <table id="${this.gridId}"></table>
             </div>
         `;
     }
