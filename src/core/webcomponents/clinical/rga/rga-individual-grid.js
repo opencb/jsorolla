@@ -75,7 +75,7 @@ export default class RgaIndividualGrid extends LitElement {
     }
 
     firstUpdated(_changedProperties) {
-        //this.table = $("#" + this.gridId);
+        // this.table = $("#" + this.gridId);
     }
 
     updated(changedProperties) {
@@ -163,7 +163,7 @@ export default class RgaIndividualGrid extends LitElement {
             ajax: params => {
                 const _filters = {
                     study: this.opencgaSession.study.fqn,
-                    //order: params.data.order,
+                    // order: params.data.order,
                     // limit: params.data.limit,
                     skip: params.data.offset || 0,
                     count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
@@ -184,7 +184,7 @@ export default class RgaIndividualGrid extends LitElement {
             },
             responseHandler: response => {
                 const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
-                return result.response;
+                return this.mapResult(result.response);
             },
             onClickRow: (row, selectedElement, field) => {
                 console.log(row);
@@ -223,6 +223,25 @@ export default class RgaIndividualGrid extends LitElement {
         return value.length ? (value.length > 20 ? `${value.length} genes` : value.map(gene => gene.name)) : "-";
     }
 
+    mapResult(results) {
+        const rows = results.rows.map(ind => {
+            const ch = this.getKnockoutCount(ind.genes, "COMP_HET");
+            return {
+                ...ind,
+                homozygous: this.getKnockoutCount(ind.genes, "HOM_ALT"),
+                ch: ch,
+                ch_definite: ind.fatherId && ind.motherId ? ch : null,
+                ch_probable: (ind.fatherId && !ind.motherId) || (!ind.fatherId && ind.motherId) ? ch : null,
+                ch_possible: !ind.fatherId && !ind.motherId ? ch : null
+            };
+
+        });
+        return {
+            total: results.total,
+            rows: rows
+        };
+    }
+
     _initTableColumns() {
         return [
             [
@@ -244,7 +263,7 @@ export default class RgaIndividualGrid extends LitElement {
                 },
                 {
                     title: "Homozygous",
-                    field: "",
+                    field: ""
                 },
                 {
                     title: "Compound Heterozygous",
@@ -268,38 +287,39 @@ export default class RgaIndividualGrid extends LitElement {
             ], [
                 {
                     title: "Total",
-                    field: "hom",
-                    formatter: (_, row) => {
+                    field: "homozygous",
+                    /*formatter: (_, row) => {
                         return this.getKnockoutCount(row.genes, "HOM_ALT");
-                    }
+                    }*/
                 },
                 {
                     title: "Total",
                     field: "ch",
-                    formatter: (_, row) => {
+                    /*formatter: (_, row) => {
                         return this.getKnockoutCount(row.genes, "COMP_HET");
-                    }
+                    }*/
                 },
                 {
-                    title: "Definitely",
-                    field: "ch_2",
-                    formatter: (_, row) => {
-                        return "TODO";
-                    }
+                    title: "Definite",
+                    field: "ch_definite",
+                    /* formatter: (_, row) => {
+                        console.error("ROW", row);
+                        return row.fatherId && row.motherId ? this.getKnockoutCount(row.genes, "COMP_HET") : "-";
+                    }*/
                 },
                 {
                     title: "Probable",
-                    field: "ch_1",
-                    formatter: (_, row) => {
-                        return "TODO";
-                    }
+                    field: "ch_probable",
+                    /*formatter: (_, row) => {
+                        return (row.fatherId && !row.motherId) || (!row.fatherId && row.motherId) ? this.getKnockoutCount(row.genes, "COMP_HET") : "-";
+                    }*/
                 },
                 {
                     title: "Possible",
-                    field: "ch_0",
-                    formatter: (_, row) => {
-                        return "TODO";
-                    }
+                    field: "ch_possible",
+                    /*formatter: (_, row) => {
+                        return !row.fatherId && !row.motherId ? this.getKnockoutCount(row.genes, "COMP_HET") : "-";
+                    }*/
                 }
             ]
         ];
@@ -316,7 +336,7 @@ export default class RgaIndividualGrid extends LitElement {
                 }
             }
         }
-        /*if (type === "COMP_HET") {
+        /* if (type === "COMP_HET") {
             return total > 0 ? total/2 : "-";
         }*/
         return total > 0 ? total : "-";
@@ -355,11 +375,11 @@ export default class RgaIndividualGrid extends LitElement {
                                 _.id,
                                 _.sampleId,
                                 this.geneFormatter(_.genes),
-                                this.getKnockoutCount(_.genes, "HOM_ALT"),
-                                this.getKnockoutCount(_.genes, "COMP_HET"),
-                                "",
-                                "",
-                                "",
+                                _.homozygous,
+                                _.ch,
+                                _.ch_definite,
+                                _.ch_probable,
+                                _.ch_possible,
                                 CatalogGridFormatter.phenotypesFormatter(_.phenotypes),
                                 _.disorders.length ? _.disorders.map(CatalogGridFormatter.disorderFormatter) : "-"
                             ].join("\t"))];
@@ -401,7 +421,7 @@ export default class RgaIndividualGrid extends LitElement {
                     name: "Family",
                     render: (individual, active, opencgaSession) => {
                         return html`<rga-individual-family .individual="${individual}" .opencgaSession="${opencgaSession}"></rga-individual-family>`;
-                        //return html`<opencga-family-view .individualId="${individual.id}" .opencgaSession="${opencgaSession}"></opencga-family-view>`;
+                        // return html`<opencga-family-view .individualId="${individual.id}" .opencgaSession="${opencgaSession}"></opencga-family-view>`;
                     }
                 }
             ]

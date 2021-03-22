@@ -73,20 +73,38 @@ export default class RgaIndividualFamily extends LitElement {
             // TODO all genes but first transcript taken into account
             const variants = this.individual.genes.flatMap(gene => gene.transcripts[0].variants);
 
+            const familyIds = [this.individual.motherId, this.individual.fatherId].filter(Boolean);
+            console.log("familyIds", familyIds)
+            console.log(variants[0])
+            const _filters = {
+                study: this.opencgaSession.study.fqn,
+                familyMembers: familyIds.join(","),
+                summary: true
+                //variants: variants[0].id
+            };
+            /*this.opencgaSession.opencgaClient.variants().query(_filters)
+                .then(restResponse => {
+                    console.error("RGA restResponse",restResponse);
+
+                })
+                .catch(e => {
+                    console.error(e);
+                    //params.error(e);
+                });*/
+
             this.tableData = variants;
         }
 
     }
 
-    // TODO continue
-    getVariantInfo(individualIds) {
+    getVariantInfo(individualIds, variantId) {
         const _filters = {
             study: this.opencgaSession.study.fqn,
-            includeIndividual: "112000791,115001977,115001981"
+            includeIndividual: individualIds
         };
         this.opencgaSession.opencgaClient.clinical().queryRgaVariant(_filters)
-            .then(res => {
-                console.log("res", res);
+            .then(restResponse => {
+                console.log("restResponse",restResponse);
 
             })
             .catch(e => {
@@ -139,7 +157,7 @@ export default class RgaIndividualFamily extends LitElement {
                     title: "Gene",
                     field: "genes",
                     rowspan: 2,
-                    formatter: this.geneFormatter
+                    //formatter: this.geneFormatter
                 },
                 {
                     title: "Knockout Type",
