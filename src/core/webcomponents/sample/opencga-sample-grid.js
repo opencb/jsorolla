@@ -92,7 +92,7 @@ export default class OpencgaSampleGrid extends LitElement {
         // Config for the grid toolbar
         this.toolbarConfig = {
             resource: "SAMPLE",
-            buttons: ["columns", "download", "export"],
+            buttons: ["columns", "download"],
             columns: this._getDefaultColumns()
         };
 
