@@ -61,11 +61,11 @@ export default class VariantBrowserDetail extends LitElement {
     }
 
     firstUpdated(_changedProperties) {
-        this._config = { ...this.getDefaultConfig(), ...this.config };
-        for (let view of this._config.views) {
-            switch (view.id) {
+        this._config = {...this.getDefaultConfig(), ...this.config};
+        for (const item of this._config.items) {
+            switch (item.id) {
                 case "cohortStats":
-                    this.cohortConfig = { cohorts: view.cohorts };
+                    this.cohortConfig = {cohorts: item.cohorts};
                     break;
             }
         }
@@ -80,7 +80,7 @@ export default class VariantBrowserDetail extends LitElement {
 
     variantIdObserver() {
         if (this.cellbaseClient && this.variantId) {
-            this.cellbaseClient.get("genomic", "variant", this.variantId, "annotation", { assembly: this.opencgaSession.project.organism.assembly }, {})
+            this.cellbaseClient.get("genomic", "variant", this.variantId, "annotation", {assembly: this.opencgaSession.project.organism.assembly}, {})
                 .then(response => {
                     this.variant = {
                         id: this.variantId,
@@ -101,7 +101,7 @@ export default class VariantBrowserDetail extends LitElement {
                     id: "annotationSummary",
                     name: "Summary",
                     active: true,
-                    render: (variant) => {
+                    render: variant => {
                         return html`
                             <cellbase-variant-annotation-summary
                                     .variantAnnotation="${variant.annotation}"
@@ -135,7 +135,7 @@ export default class VariantBrowserDetail extends LitElement {
                 {
                     id: "annotationClinical",
                     name: "Clinical",
-                    render: (variant) => {
+                    render: variant => {
                         return html`
                             <variant-annotation-clinical-view
                                     .traitAssociation="${variant.annotation.traitAssociation}"
