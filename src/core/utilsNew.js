@@ -389,4 +389,10 @@ export default class UtilsNew {
         return new Promise(resolve => setTimeout(() => resolve(), ms));
     }
 
+    static encodeObject(obj) {
+        return Object.entries(obj).map(([k, v]) => {
+            return `${encodeURIComponent(k)}=${encodeURIComponent(v)}`;
+        }).join("&");
+    }
+
 }
