@@ -339,7 +339,7 @@ export default class RgaIndividualGrid extends LitElement {
         /* if (type === "COMP_HET") {
             return total > 0 ? total/2 : "-";
         }*/
-        return total > 0 ? total : "-";
+        return total > 0 ? total : null;
     }
 
     async onDownload(e) {
@@ -360,8 +360,8 @@ export default class RgaIndividualGrid extends LitElement {
                     if (e.detail.option.toLowerCase() === "tab") {
                         const dataString = [
                             [
-                                "IndividualId" +
-                                "Sample" +
+                                "IndividualId",
+                                "Sample",
                                 "Gene",
                                 "Total HOM",
                                 "Total CH",

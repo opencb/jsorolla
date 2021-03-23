@@ -73,26 +73,32 @@ export default class RgaIndividualFamily extends LitElement {
             // TODO all genes but first transcript taken into account
             const variants = this.individual.genes.flatMap(gene => gene.transcripts[0].variants);
 
-            const familyIds = [this.individual.motherId, this.individual.fatherId].filter(Boolean);
-            console.log("familyIds", familyIds)
-            console.log(variants[0])
-            const _filters = {
-                study: this.opencgaSession.study.fqn,
-                familyMembers: familyIds.join(","),
-                summary: true
-                //variants: variants[0].id
-            };
-            /*this.opencgaSession.opencgaClient.variants().query(_filters)
-                .then(restResponse => {
-                    console.error("RGA restResponse",restResponse);
+            try {
+                /* const familyIds = [this.individual.motherId, this.individual.fatherId].filter(Boolean);
+                console.log("familyIds", familyIds)
+                console.log(variants[0])
+                const i_params = {
+                    study: this.opencgaSession.study.fqn,
+                    id: familyIds.join(","),
+                    include: "id,samples"
+                };
+                let individualResponse = await this.opencgaSession.opencgaClient.individuals().search(i_params);
+                console.log("individuals", individualResponse.getResults())
+                if (individualResponse.getResults().length) {
+                    const individuals = individualResponse.getResults();
+                    const v_params = {
+                        study: this.opencgaSession.study.fqn,
+                        includeSample: individuals.map(individual => individual.samples[0].id).join(","),
+                        // TODO include regions?
+                        summary: true
+                    };
+                    let variantResponse = await this.opencgaSession.opencgaClient.variants().query(v_params);
+                    console.log("variantResponse", variantResponse)
+                    */
 
-                })
-                .catch(e => {
-                    console.error(e);
-                    //params.error(e);
-                });*/
-
-            this.tableData = variants;
+                this.tableData = variants;
+            } catch (e) {
+            }
         }
 
     }
@@ -104,12 +110,12 @@ export default class RgaIndividualFamily extends LitElement {
         };
         this.opencgaSession.opencgaClient.clinical().queryRgaVariant(_filters)
             .then(restResponse => {
-                console.log("restResponse",restResponse);
+                console.log("restResponse", restResponse);
 
             })
             .catch(e => {
                 console.error(e);
-                //params.error(e);
+                // params.error(e);
             });
     }
 
@@ -156,14 +162,14 @@ export default class RgaIndividualFamily extends LitElement {
                 {
                     title: "Gene",
                     field: "genes",
-                    rowspan: 2,
-                    //formatter: this.geneFormatter
+                    rowspan: 2
+                    // formatter: this.geneFormatter
                 },
                 {
                     title: "Knockout Type",
                     field: "knockoutType",
                     rowspan: 2
-                    /*formatter: row => {
+                    /* formatter: row => {
                         this.table.bootstrapTable("updateRow", {index: 1, row: {id: "123"}});
                     }*/
                 },
