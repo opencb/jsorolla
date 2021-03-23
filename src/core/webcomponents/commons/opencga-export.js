@@ -49,7 +49,7 @@ export default class OpencgaExport extends LitElement {
         this._prefix = "sf-" + UtilsNew.randomString(6) + "_";
         this.activeTab = {
             link: {url: true},
-            code: {python: true}
+            code: {cli: true}
         };
 
         this.resourceMap = {
@@ -244,7 +244,8 @@ const client = new OpenCGAClient({
     }
 
     changeMode(e) {
-        this.mode = e.currentTarget.value;
+        e.preventDefault();
+        this.mode = e.currentTarget.dataset.mode;
         this.requestUpdate();
     }
 
@@ -278,53 +279,62 @@ const client = new OpenCGAClient({
             <div class="tab-content">
                 <div id="plain_text" class="tab-pane active">
                     <form class="form-horizontal">
+                        
+                        <div class="form-group">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <div class="col-md-12">
+                                        <h4 class="export-section-title">Format</h4>
+                                        <button type="button" class="btn export-buttons ripple ${classMap({active: this.format === "tab"})}" data-format="tab" @click="${this.changeFormat}">
+                                            <i class="fas fa-table fa-2x"></i>
+                                            <span class="export-buttons-text">${this.config.resource === "VARIANT" ? "VCF" : "CSV"}</span>
+                                        </button>
+                                        <button type="button" class="btn export-buttons ripple ${classMap({active: this.format === "json"})}" data-format="json" @click="${this.changeFormat}">
+                                            <i class="fas fa-file-code fa-2x"></i>
+                                            <span class="export-buttons-text">JSON</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         <div class="form-group">
                             <div class="col-md-12">
                                 <h4 class="export-section-title">Mode</h4>
                                 <div class="">
-                                    <label class="radio-inline">
+                                    <button type="button" class="btn export-buttons ripple ${classMap({active: this.mode === "sync"})}" data-mode="sync" @click="${this.changeMode}">
+                                        <i class="fas fa-download fa-2x"></i>
+                                        <span class="export-buttons-text">Download</span>
+                                        <span class="export-buttons-description">Immediate donwload. Limited to the first 1000 entries.</span>
+                                    </button>
+                                    <button type="button" class="btn export-buttons ripple ${classMap({active: this.mode === "async"})}" data-mode="async" @click="${this.changeMode}">
+                                        <i class="fas fa-rocket fa-2x"></i>
+                                        <span class="export-buttons-text">Job</span>
+                                        <span class="export-buttons-description">description</span>
+
+                                    </button>
+                                    <!--<label class="radio-inline">
                                         <input type="radio" name="inlineRadioOptions" id="mode_immediate" value="sync" checked @click="${this.changeMode}"> Download
                                     </label>
                                     <label class="radio-inline">
                                         <input type="radio" name="inlineRadioOptions" id="mode_job" value="async" @click="${this.changeMode}"> Schedule a job
-                                    </label>
+                                    </label> -->
                                 </div>
                             </div>
                         </div>
-                        <div class="form-group">
-                            <div class="col-md-12">
-                                <div class="alert alert-info">
-                                    <i class="fa fa-info-circle url"></i>
-                                    ${this.mode === "sync" ? "The download is immediate, but the results are limited to the first 1000." : "An async job will be scheduled. [...]"}
-                                </div>
-                                ${this.mode === "async" ? html`
-                                    <div class="form-horizontal">
-                                        <div class="form-group">
-                                            <label for="inputPassword" class="col-sm-2 control-label">Job Id</label>
-                                            <div class="col-sm-10">
-                                                <input type="text" class="form-control" placeholder="job id" @input="${this.changeJobId}">
-                                            </div>
-                                        </div>
-                                    </div>` :
-                                        html`
-                                    <div class="form-group">
-                                        <div class="col-md-12">
-                                            <h4 class="export-section-title">Format</h4>
-                                            <button type="button" class="btn export-buttons ripple ${classMap({active: this.format === "tab"})}" data-format="tab" @click="${this.changeFormat}">
-                                                <i class="fas fa-file-export fa-2x"></i>
-                                                <span class="export-buttons-text">CSV</span>
-                                            </button>
-                                            <button type="button" class="btn export-buttons ripple ${classMap({active: this.format === "json"})}" data-format="json" @click="${this.changeFormat}">
-                                                <i class="fas fa-file-export fa-2x"></i>
-                                                <span class="export-buttons-text">JSON</span>
-                                            </button>
-                                        </div>
-                                    </div>
-                                `}
-                            </div>
+                        <div class="alert alert-info">
+                            <i class="fa fa-info-circle url"></i>
+                            ${this.mode === "sync" ? "The download is immediate, but the results are limited to the first 1000." : "An async job will be scheduled. [...]"}
                         </div>
 
-                        
+                        ${this.mode === "async" ? html`
+                            <div class="form-horizontal">
+                                <div class="form-group">
+                                    <label for="inputPassword" class="col-sm-2 control-label">Job ID</label>
+                                    <div class="col-sm-10">
+                                        <input type="text" class="form-control" placeholder="Enter Job ID, leave empty for default." @input="${this.changeJobId}">
+                                    </div>
+                                </div>
+                            </div>` : null}
                     </form>
 
                     <div class="modal-footer">
@@ -341,8 +351,7 @@ const client = new OpenCGAClient({
 
 
                 <div id="link" class="tab-pane">
-                    <h3>Links</h3>
-                    <div class="btn-group" role="toolbar" aria-label="toolbar">
+                    <div class="btn-group btn-group-tab" role="toolbar" aria-label="toolbar">
                         <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab.link["url"]})}" @click="${this._changeTab}" data-view-id="link"
                                 data-tab-id="url">URL
                         </button>
@@ -388,13 +397,12 @@ const client = new OpenCGAClient({
 
 
                 <div id="code" class="tab-pane">
-                    <h3>Code</h3>
-                    <div class="btn-group" role="toolbar" aria-label="toolbar">
-                        <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab.code["python"]})}" @click="${this._changeTab}" data-view-id="code"
-                                data-tab-id="python">Python
-                        </button>
+                    <div class="btn-group btn-group-tab" role="toolbar" aria-label="toolbar">
                         <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab.code["cli"]})}" @click="${this._changeTab}" data-view-id="code"
                                 data-tab-id="cli">CLI
+                        </button>
+                        <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab.code["python"]})}" @click="${this._changeTab}" data-view-id="code"
+                                data-tab-id="python">Python
                         </button>
                         <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab.code["r"]})}" @click="${this._changeTab}" data-view-id="code"
                                 data-tab-id="r">R
@@ -405,7 +413,15 @@ const client = new OpenCGAClient({
                     </div>
 
                     <div class="content-tab-wrapper">
-                        <div id="${this._prefix}python" class="content-tab active">
+                        <div id="${this._prefix}cli" class="content-tab active">
+                            <div class="code-wrapper">
+                                <div class="clipboard-button" data-clipboard-target="div.language-r" @click="${this.clipboard}"><i class="far fa-copy"></i></div>
+                                <div class="code language-cli">
+                                    ${this.generateCode("cli")}
+                                </div>
+                            </div>
+                        </div>
+                        <div id="${this._prefix}python" class="content-tab">
                             <div class="code-wrapper">
                                 <div class="clipboard-button" data-clipboard-target="div.language-python" @click="${this.clipboard}"><i class="far fa-copy"></i></div>
                                 <div class="code language-python">
@@ -421,14 +437,6 @@ const client = new OpenCGAClient({
                                 </div>
                             </div>
                         </div>
-                        <div id="${this._prefix}cli" class="content-tab">
-                            <div class="code-wrapper">
-                                <div class="clipboard-button" data-clipboard-target="div.language-r" @click="${this.clipboard}"><i class="far fa-copy"></i></div>
-                                <div class="code language-cli">
-                                    ${this.generateCode("cli")}
-                                </div>
-                            </div>
-                        </div>
                         <div id="${this._prefix}js" class="content-tab">
                             <div class="code-wrapper">
                                 <div class="clipboard-button" data-clipboard-target="div.language-javascript" @click="${this.clipboard}"><i class="far fa-copy"></i></div>
@@ -436,7 +444,6 @@ const client = new OpenCGAClient({
                                     ${this.generateCode("js")}
                                 </div>
                             </div>
-                            
                         </div>
 
                         <div class="modal-footer">
