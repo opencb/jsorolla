@@ -62,7 +62,7 @@ export default class RgaIndividualGrid extends LitElement {
             "CCNO", "CEP290", "CNGB3", "CUL7", "DNAAF1", "DOCK6", "EIF2B5", "ERCC6", "FLG", "HADA",
             "INPP5K", "MANIB1", "MERTK", "MUTYH", "NDUFAF5", "NDUFS7", "OTOG", "PAH", "PDZD7", "PHYH",
             "PKHD1", "PMM2", "RARS2", "SACS", "SGCA", "SIGMAR1", "SPG7", "TTN", "TYR", "USH2A", "WFS1"];
-        this._genes = ["INPP5K"];
+        //this._genes = ["INPP5K"];
 
     }
 
@@ -169,6 +169,7 @@ export default class RgaIndividualGrid extends LitElement {
                     count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
                     include: "genes,sampleId,phenotypes,disorders,motherId,fatherId",
                     geneName: this._genes.join(","),
+                    individualId: "112000791",
                     ...this._query,
                     limit: 50
                 };
@@ -184,6 +185,268 @@ export default class RgaIndividualGrid extends LitElement {
             },
             responseHandler: response => {
                 const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
+
+                const individuals = {
+                    total: 2,
+                    rows: [
+                        {
+                            id: "ind1",
+                            motherId: "115000155",
+                            fatherId: "115000154",
+                            motherSamples: ["LP3000021-DNA_A03"],
+                            fatherSamples: ["LP3000021-DNA_B04"],
+                            genes: [
+                                {
+                                    name: "gene1",
+                                    transcripts: [
+                                        {
+                                            id: "tr1",
+                                            variants: [
+                                                {
+                                                    id: "gene1_tr1_var1",
+                                                    knockoutType: "HOM_ALT"
+                                                },
+                                                {
+                                                    id: "gene1_tr1_var2",
+                                                    knockoutType: "HOM_ALT"
+                                                },
+                                                {
+                                                    id: "gene1_tr1_var3",
+                                                    knockoutType: "HOM_ALT"
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            id: "tr2",
+                                            variants: [
+                                                {
+                                                    id: "gene1_tr2_var1",
+                                                    knockoutType: "HOM_ALT"
+                                                },
+                                                {
+                                                    id: "gene1_tr2_var2",
+                                                    knockoutType: "HOM_ALT"
+                                                },
+                                                {
+                                                    id: "gene1_tr2_var3",
+                                                    knockoutType: "HOM_ALT"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    name: "gene2",
+                                    transcripts: [
+                                        {
+                                            id: "tr1",
+                                            variants: [
+                                                {
+                                                    id: "gene2_tr1_var",
+                                                    knockoutType: "HOM_ALT"
+                                                },
+                                                {
+                                                    id: "gene2_tr1_var2",
+                                                    knockoutType: "HOM_ALT"
+                                                },
+                                                {
+                                                    id: "gene2_tr1_var3",
+                                                    knockoutType: "HOM_ALT"
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            id: "tr2",
+                                            variants: [
+                                                {
+                                                    id: "gene2_tr2_var1",
+                                                    knockoutType: "HOM_ALT"
+                                                },
+                                                {
+                                                    id: "gene2_tr2_var2",
+                                                    knockoutType: "COMP_HET"
+                                                },
+                                                {
+                                                    id: "gene2_tr2_var3",
+                                                    knockoutType: "HOM_ALT"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            id: "ind2",
+                            motherId: "002",
+                            genes: [
+                                {
+                                    name: "gene3",
+                                    transcripts: [
+                                        {
+                                            id: "tr1",
+                                            variants: [
+                                                {
+                                                    id: "gene3_tr1_var1",
+                                                    knockoutType: "HOM_ALT"
+                                                },
+                                                {
+                                                    id: "gene3_tr1_var2",
+                                                    knockoutType: "HOM_ALT"
+                                                },
+                                                {
+                                                    id: "gene3_tr1_var3",
+                                                    knockoutType: "HOM_ALT"
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            id: "tr2",
+                                            variants: [
+                                                {
+                                                    id: "gene3_tr2_var1",
+                                                    knockoutType: "HOM_ALT"
+                                                },
+                                                {
+                                                    id: "gene3_tr2_var2",
+                                                    knockoutType: "HOM_ALT"
+                                                },
+                                                {
+                                                    id: "gene3_tr2_var3",
+                                                    knockoutType: "HOM_ALT"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    name: "gene2",
+                                    transcripts: [
+                                        {
+                                            id: "tr1",
+                                            variants: [
+                                                {
+                                                    id: "gene2_tr1_var1",
+                                                    knockoutType: "HOM_ALT"
+                                                },
+                                                {
+                                                    id: "gene2_tr1_var2",
+                                                    knockoutType: "HOM_ALT"
+                                                },
+                                                {
+                                                    id: "gene2_tr1_var3",
+                                                    knockoutType: "HOM_ALT"
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            id: "tr2",
+                                            variants: [
+                                                {
+                                                    id: "gene2_tr2_var1",
+                                                    knockoutType: "HOM_ALT"
+                                                },
+                                                {
+                                                    id: "gene2_tr2_var2",
+                                                    knockoutType: "COMP_HET"
+                                                },
+                                                {
+                                                    id: "gene2_tr2_var3",
+                                                    knockoutType: "HOM_ALT"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            id: "ind2",
+                            fatherId: "002",
+                            motherId: "002",
+                            genes: [
+                                {
+                                    name: "gene4",
+                                    transcripts: [
+                                        {
+                                            id: "tr1",
+                                            variants: [
+                                                {
+                                                    id: "gene4_tr1_var1",
+                                                    knockoutType: "HOM_ALT"
+                                                },
+                                                {
+                                                    id: "gene4_tr1_var2",
+                                                    knockoutType: "HOM_ALT"
+                                                },
+                                                {
+                                                    id: "gene4_tr1_var3",
+                                                    knockoutType: "HOM_ALT"
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            id: "tr2",
+                                            variants: [
+                                                {
+                                                    id: "gene4_tr2_var1",
+                                                    knockoutType: "HOM_ALT"
+                                                },
+                                                {
+                                                    id: "gene4_tr2_var2",
+                                                    knockoutType: "HOM_ALT"
+                                                },
+                                                {
+                                                    id: "gene4_tr2_var3",
+                                                    knockoutType: "HOM_ALT"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    name: "gene2",
+                                    transcripts: [
+                                        {
+                                            id: "tr1",
+                                            variants: [
+                                                {
+                                                    id: "gene2_tr1_var1",
+                                                    knockoutType: "HOM_ALT"
+                                                },
+                                                {
+                                                    id: "gene2_tr1_var1",
+                                                    knockoutType: "HOM_ALT"
+                                                },
+                                                {
+                                                    id: "gene2_tr1_var1",
+                                                    knockoutType: "HOM_ALT"
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            id: "tr2",
+                                            variants: [
+                                                {
+                                                    id: "gene2_tr2_var1",
+                                                    knockoutType: "HOM_ALT"
+                                                },
+                                                {
+                                                    id: "gene2_tr2_var2",
+                                                    knockoutType: "COMP_HET"
+                                                },
+                                                {
+                                                    id: "gene2_tr2_var3",
+                                                    knockoutType: "HOM_ALT"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                };
                 return this.mapResult(result.response);
             },
             onClickRow: (row, selectedElement, field) => {
@@ -220,7 +483,13 @@ export default class RgaIndividualGrid extends LitElement {
     }
 
     geneFormatter(value, row) {
-        return value.length ? (value.length > 20 ? `${value.length} genes` : value.map(gene => gene.name)) : "-";
+        // return value.length ? (value.length > 20 ? `${value.length} genes` : value.map(gene => gene.name)) : "-";
+        const genes = value.map(gene => `${gene.name}`).join(", ");
+        if (value && value.length > 20) {
+            return `<a tooltip-title="Phenotypes" tooltip-text='${genes}'> ${value.length} genes</a>`;
+        } else {
+            return genes;
+        }
     }
 
     mapResult(results) {
@@ -281,27 +550,27 @@ export default class RgaIndividualGrid extends LitElement {
                     title: "Disorders",
                     field: "disorders",
                     rowspan: 2,
-                    formatter: disorders => disorders.length ? disorders.map(CatalogGridFormatter.disorderFormatter) : "-"
+                    formatter: disorders => disorders?.length ? disorders.map(CatalogGridFormatter.disorderFormatter) : "-"
 
                 }
             ], [
                 {
                     title: "Total",
-                    field: "homozygous",
-                    /*formatter: (_, row) => {
+                    field: "homozygous"
+                    /* formatter: (_, row) => {
                         return this.getKnockoutCount(row.genes, "HOM_ALT");
                     }*/
                 },
                 {
                     title: "Total",
-                    field: "ch",
-                    /*formatter: (_, row) => {
+                    field: "ch"
+                    /* formatter: (_, row) => {
                         return this.getKnockoutCount(row.genes, "COMP_HET");
                     }*/
                 },
                 {
                     title: "Definite",
-                    field: "ch_definite",
+                    field: "ch_definite"
                     /* formatter: (_, row) => {
                         console.error("ROW", row);
                         return row.fatherId && row.motherId ? this.getKnockoutCount(row.genes, "COMP_HET") : "-";
@@ -309,15 +578,15 @@ export default class RgaIndividualGrid extends LitElement {
                 },
                 {
                     title: "Probable",
-                    field: "ch_probable",
-                    /*formatter: (_, row) => {
+                    field: "ch_probable"
+                    /* formatter: (_, row) => {
                         return (row.fatherId && !row.motherId) || (!row.fatherId && row.motherId) ? this.getKnockoutCount(row.genes, "COMP_HET") : "-";
                     }*/
                 },
                 {
                     title: "Possible",
-                    field: "ch_possible",
-                    /*formatter: (_, row) => {
+                    field: "ch_possible"
+                    /* formatter: (_, row) => {
                         return !row.fatherId && !row.motherId ? this.getKnockoutCount(row.genes, "COMP_HET") : "-";
                     }*/
                 }
@@ -327,15 +596,28 @@ export default class RgaIndividualGrid extends LitElement {
 
     getKnockoutCount(genes, type) {
         let total = 0;
-        // TODO first transcript taken into account
-        for (const gene of genes) {
+
+
+        gene:
+            for (const gene of genes) {
+                for (const transcript of gene.transcripts) {
+                    for (const variant of transcript.variants) {
+                        if (variant.knockoutType === type) {
+                            total++;
+                            continue gene;
+                        }
+                    }
+                }
+            }
+
+        /* for (const gene of genes) {
             const variants = gene.transcripts[0].variants;
             for (const variant of variants) {
                 if (variant.knockoutType === type) {
                     total++;
                 }
             }
-        }
+        }*/
         /* if (type === "COMP_HET") {
             return total > 0 ? total/2 : "-";
         }*/
@@ -420,7 +702,8 @@ export default class RgaIndividualGrid extends LitElement {
                     id: "family-view",
                     name: "Family",
                     render: (individual, active, opencgaSession) => {
-                        return html`<rga-individual-family .individual="${individual}" .opencgaSession="${opencgaSession}"></rga-individual-family>`;
+                        return html`
+                            <rga-individual-family .individual="${individual}" .active=${active} .opencgaSession="${opencgaSession}"></rga-individual-family>`;
                         // return html`<opencga-family-view .individualId="${individual.id}" .opencgaSession="${opencgaSession}"></opencga-family-view>`;
                     }
                 }
@@ -454,7 +737,8 @@ export default class RgaIndividualGrid extends LitElement {
             <div id="${this._prefix}GridTableDiv">
                 <table id="${this._prefix}RgaIndividualBrowserGrid"></table>
             </div>
-            ${this.individual ? html`<detail-tabs .data="${this.individual}" .config="${this.detailConfig}" .opencgaSession="${this.opencgaSession}"></detail-tabs>`: ""}
+            ${this.individual ? html`
+                <detail-tabs .data="${this.individual}" .config="${this.detailConfig}" .opencgaSession="${this.opencgaSession}"></detail-tabs>` : ""}
         `;
     }
 

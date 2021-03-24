@@ -69,9 +69,19 @@ export default class RgaIndividualVariants extends LitElement {
 
     prepareData() {
         if (this.individual) {
-            // TODO all genes but first transcript taken into account
-            const variants = this.individual.genes.flatMap(gene => gene.transcripts[0].variants);
-            this.tableData = variants;
+            // TODO Check if the same variant can have a different set of consequence types in 2 different transcripts
+            const uniqueVariants = {};
+            for (const gene of this.individual.genes) {
+                for (const transcript of gene.transcripts) {
+                    for (const variant of transcript.variants) {
+                        uniqueVariants[variant.id] = {
+                            ...variant,
+                            geneName: gene.name
+                        };
+                    }
+                }
+            }
+            this.tableData = Object.values(uniqueVariants);
         }
 
     }
@@ -97,9 +107,7 @@ export default class RgaIndividualVariants extends LitElement {
                 // this is not triggered in case of static data
             },
             onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse),
-            onPostBody: data => {
-            }
-
+            onPostBody: () => UtilsNew.initTooltip(this)
         });
     }
 
@@ -108,7 +116,11 @@ export default class RgaIndividualVariants extends LitElement {
             {
                 title: "id",
                 field: "id",
-                //formatter: (value, row, index) => VariantGridFormatter.variantFormatter(value, row, index, this.opencgaSession.project.organism.assembly, this._config)
+                formatter: (value, row, index) => row.chromosome ? VariantGridFormatter.variantFormatter(value, row, index, this.opencgaSession.project.organism.assembly) : value
+            },
+            {
+                title: "Gene",
+                field: "geneName"
             },
             {
                 title: "Knockout Type",
@@ -122,10 +134,10 @@ export default class RgaIndividualVariants extends LitElement {
                 title: "GT",
                 field: "genotype"
             },
-            {
+            /*{
                 title: "Depth",
                 field: ""
-            },
+            },*/
             {
                 title: "Filter",
                 field: "filter",

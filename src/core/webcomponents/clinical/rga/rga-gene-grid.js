@@ -139,7 +139,7 @@ export default class RgaGeneGrid extends LitElement {
                     skip: params.data.offset || 0,
                     count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
                     field: "geneName>>knockoutTypes>>numParents>>individualId;geneName>>knockoutTypes>>numParents>>variants",
-                    // geneName: this._genes.join(","),
+                    geneName: this._genes.join(","),
                     ...this._query
                     // limit: 50
                 };
