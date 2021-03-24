@@ -52,12 +52,18 @@ export default class StudyDashboard extends LitElement {
         this._config = { ...this.getDefaultConfig(), ...this.config };
     }
 
-    // update(changedProperties) {
-    //     if (changedProperties.has("config")) {
-    //         this._config = { ...this.getDefaultConfig(), ...this.config };
-    //     }
-    //     super.update(changedProperties);
-    // }
+    update(changedProperties) {
+        if (changedProperties.has("opencgaSession")) {
+            this.usersAndProjects = this.getProjetcsPerUser();
+        }
+        super.update(changedProperties);
+    }
+
+    getProjetcsPerUser() {
+        let users = [];
+
+        return users;
+    }
 
     getDefaultConfig() {
         return {
@@ -92,8 +98,10 @@ export default class StudyDashboard extends LitElement {
             </style>
 
 
-            <tool-header title="${this._config.title}"></tool-header>
+<!--            <tool-header title="${this._config.title}"></tool-header>-->
             <div class="row"> 
+                <h3>${this.opencgaSession.user.name} (${this.opencgaSession.user.id})</h3>
+                <hr>
                     ${this.opencgaSession.projects.map(project => html`    
                         <div class="col-md-4">
                             <div class="panel panel-default">
