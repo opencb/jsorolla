@@ -62,9 +62,17 @@ export default class StudyDashboard extends LitElement {
     }
 
     getProjectPerUser() {
-        let users = [];
-
+        // let users = this.opencgaSession.projects.map(project => project.fqn.split('@')[0]); return duplicate users
+        let users = [...new Set(this.opencgaSession.projects.map(project => this._getUserProject(project)))];
         return users;
+    }
+
+    _verifyUserAndProject(pro,user){
+        return this._getUserProject(pro) == user;
+    }
+
+    _getUserProject(project){
+        return project.fqn.split('@')[0];
     }
 
     getDefaultConfig() {
@@ -129,37 +137,42 @@ export default class StudyDashboard extends LitElement {
 
 <!--            <tool-header title="${this._config.title}"></tool-header>-->
             <div class="row"> 
-                <h3>${this.opencgaSession.user.name} (${this.opencgaSession.user.id})</h3>
-                <hr>
-                    ${this.opencgaSession.projects.map(project => html`    
-                        <div class="col-md-4">
-                            <div class="panel panel-default">
-                                <div class="panel-body text-center">
-                                    <h4>${project.name}</h4>
-                                </div>
-                            </div>
-                            
-                            <div class="row">
-                                ${project.studies.map(study => html`    
-                                    <div class="col-md-4">
-                                        <div class="panel panel-default child">
-                                            <div class="panel-body text-center">
-                                                ${study.name}
-                                            </div>
-                                        </div>
-                                    </div>`
-                                )}
+                
+                <!-- Show Project by user-->
+                ${this.usersAndProjects.map(user => {
+                    return html `
+                        <h3>${user}</h3>
+                        <hr>
+                        ${this.opencgaSession.projects.filter(pro => this._verifyUserAndProject(pro,user)).map(project => { 
+                            return html`
                                 <div class="col-md-4">
-                                    <div class="panel panel-default child"  @click="${() => this.showModal('study')}">
+                                    <div class="panel panel-default">
                                         <div class="panel-body text-center">
-                                            <i class="fas fa-plus"></i>
-                                            <p>New Study</p>
+                                            <h4>${project.name}</h4>
                                         </div>
-                                    </div>              
-                                </div>       
-                            </div>
-                        </div>`
-                    )}
+                                    </div>
+                                    
+                                    <div class="row">
+                                        ${project.studies.map(study => html`    
+                                            <div class="col-md-4">
+                                                <div class="panel panel-default child">
+                                                    <div class="panel-body text-center">
+                                                        ${study.name}
+                                                    </div>
+                                                </div>
+                                            </div>`
+                                        )}
+                                        <div class="col-md-4">
+                                            <div class="panel panel-default child"  @click="${() => this.showModal('study')}">
+                                                <div class="panel-body text-center">
+                                                    <i class="fas fa-plus"></i>
+                                                    <p>New Study</p>
+                                                </div>
+                                            </div>              
+                                        </div>       
+                                    </div>
+                                </div>
+                            `})}
                     <div class="col-md-4">
                         <div class="panel panel-default"  @click="${() => this.showModal('project')}">
                             <div class="panel-body text-center">
@@ -168,8 +181,10 @@ export default class StudyDashboard extends LitElement {
                             </div>
                         </div>              
                     </div>
+                `})} 
             </div>
-            
+            <!-- TODO: These modals can be a single one, the component will be rendered according to whether you have selected: study or project inside div. modal-body -->
+            <!-- Modal New Project -->
             <div id="newProject" class="modal fade"  tabindex="-1" role="dialog">
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
@@ -186,6 +201,7 @@ export default class StudyDashboard extends LitElement {
                 </div>
             </div>
 
+            <!-- Modal New Study -->
             <div id="newStudy" class="modal fade"  tabindex="-1" role="dialog">
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
