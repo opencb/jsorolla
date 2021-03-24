@@ -18,7 +18,7 @@ import { LitElement, html } from "/web_modules/lit-element.js";
 import UtilsNew from "./../../utilsNew.js";
 import "../commons/tool-header.js";
 
-export default class StudyEditor extends LitElement {
+export default class ProjectEditor extends LitElement {
 
     constructor() {
         super();
@@ -146,15 +146,6 @@ export default class StudyEditor extends LitElement {
     }
 
     render() {
-        // Check if there is any project available
-        // console.log(this.opencgaSession)
-        // if (!this.opencgaSession?.study) {
-        //     return html`
-        //         <div class="guard-page">
-        //         <i class="fas fa-lock fa-5x"></i>
-        //             <h3>No public projects available to browse. Please login to continue</h3>
-        //         </div>`;
-        // }
 
         return html`
             <data-form  .data=${this.newStudy}
@@ -168,4 +159,4 @@ export default class StudyEditor extends LitElement {
 
 }
 
-customElements.define("study-editor", StudyEditor);
+customElements.define("project-editor", ProjectEditor);

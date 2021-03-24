@@ -17,6 +17,8 @@
 import { LitElement, html } from "/web_modules/lit-element.js";
 import UtilsNew from "./../../utilsNew.js";
 import "../commons/tool-header.js";
+import "./study-editor.js";
+import "../project/project-editor.js";
 
 export default class StudyDashboard extends LitElement {
 
@@ -54,12 +56,12 @@ export default class StudyDashboard extends LitElement {
 
     update(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
-            this.usersAndProjects = this.getProjetcsPerUser();
+            this.usersAndProjects = this.getProjectPerUser();
         }
         super.update(changedProperties);
     }
 
-    getProjetcsPerUser() {
+    getProjectPerUser() {
         let users = [];
 
         return users;
@@ -73,6 +75,33 @@ export default class StudyDashboard extends LitElement {
         };
     }
 
+    showModal(type) {
+        let modalType = {
+            "project": () => {
+                $("#newProject").modal("show");
+            },
+            "study": () => {
+                $("#newStudy").modal("show");
+            }
+        }
+        modalType[type]();
+    }
+
+
+    onHide(type) {
+        let modalType = {
+            "project": () => {
+                $("#newProject").modal("hide");
+            },
+            "study": () => {
+                $("#newStudy").modal("hide");
+            }
+        }
+        modalType[type]();
+    }
+
+
+
     render() {
         // Check if there is any project available
         console.log(this.opencgaSession)
@@ -85,7 +114,7 @@ export default class StudyDashboard extends LitElement {
         }
 
         return html`
-
+            
             <style>
             .panel.panel-default:hover {
                 background-color: #eee;
@@ -119,9 +148,9 @@ export default class StudyDashboard extends LitElement {
                                             </div>
                                         </div>
                                     </div>`
-        )}
+                                )}
                                 <div class="col-md-4">
-                                    <div class="panel panel-default child">
+                                    <div class="panel panel-default child"  @click="${() => this.showModal('study')}">
                                         <div class="panel-body text-center">
                                             <i class="fas fa-plus"></i>
                                             <p>New Study</p>
@@ -130,44 +159,49 @@ export default class StudyDashboard extends LitElement {
                                 </div>       
                             </div>
                         </div>`
-        )}
-                <div class="col-md-4">
-                    <div class="panel panel-default">
-                        <div class="panel-body text-center">
-                            <i class="fas fa-plus"></i>
-                            <p>Project</p>
-                        </div>
-                    </div>              
-                </div>
+                    )}
+                    <div class="col-md-4">
+                        <div class="panel panel-default"  @click="${() => this.showModal('project')}">
+                            <div class="panel-body text-center">
+                                <i class="fas fa-plus"></i>
+                                <p>Project</p>
+                            </div>
+                        </div>              
+                    </div>
             </div>
             
-
-
-            <!-- <div class="row hi-icon-wrap hi-icon-effect-9 hi-icon-animation">
-                ${this.app?.menu?.filter(this.isVisible).map(item => html`
-                    ${item.submenu ? html`
-                        <a class="icon-wrapper" data-cat-id="cat-${item.id}" data-title="${item.name}" href="#cat-${item.id}/${this._checkProjects() ? `${this.opencgaSession.project.id}/${this.opencgaSession.study.id}` : ""}">
-                            <div class="hi-icon">
-                                <img alt="${item.name}" src="img/tools/icons/${item.icon}" />
-                            </div>
-                            <p>${item.name}</p>
-                            <span class="smaller"></span>
-                        </a>
-                    ` : html`
-                        <a class="icon-wrapper" href="#${item.id}/${this._checkProjects() ? `${this.opencgaSession.project.id}/${this.opencgaSession.study.id}` : ""}">
-                            <div class="hi-icon">
-                                <img alt="${item.name}" src="${item.logo}" />
-                            </div>
-                            <p>${item.name}</p>
-                            <span class="smaller"></span>
-                        </a>
-                    `}
-                `)}
-            </div> -->
+            <div id="newProject" class="modal fade"  tabindex="-1" role="dialog">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title">New Project</h4>
+                        </div>
+                        <div class="modal-body">
+                            <project-editor
+                                @hide="${() => this.onHide('project')}">
+                            </project-editor>
+                        </div>
+                    </div>
+                </div>
             </div>
-        `;
-    }
 
+            <div id="newStudy" class="modal fade"  tabindex="-1" role="dialog">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title">New study</h4>
+                        </div>
+                        <div class="modal-body">
+                            <study-editor
+                                @hide="${() => this.onHide('study')}">
+                            </study-editor>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+    }
 }
 
 customElements.define("study-dashboard", StudyDashboard);
