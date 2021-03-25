@@ -62,6 +62,7 @@ export default class RgaGeneFilter extends LitElement {
         this.query = {};
         this.preparedQuery = {};
         this.searchButton = true;
+        this.allowedPopFrequencies = "0,0.0001,0.0005,0.001,0.005,0.01,0.05,1";
     }
 
     connectedCallback() {
@@ -171,7 +172,7 @@ export default class RgaGeneFilter extends LitElement {
                             </cohort-stats-filter>`;
                 break;
             case "populationFrequencyAlt":
-                content = html`<population-frequency-filter .populationFrequencies="${populationFrequencies}" ?showSetAll="${subsection.showSetAll}" .populationFrequencyAlt="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange("populationFrequencyAlt", e.detail.value)}"></population-frequency-filter>`;
+                content = html`<population-frequency-filter .populationFrequencies="${populationFrequencies}" .allowedFrequencies=${this.allowedPopFrequencies} ?showSetAll="${subsection.showSetAll}" .populationFrequencyAlt="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange("populationFrequencyAlt", e.detail.value)}"></population-frequency-filter>`;
                 break;
             case "type":
                 content = html`<variant-type-filter .type="${this.preparedQuery[subsection.id]}" .config="${subsection}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></variant-type-filter>`;
