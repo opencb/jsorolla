@@ -56,7 +56,6 @@ export default class RgaVariantIndividualGrid extends LitElement {
         }
 
         if (changedProperties.has("variant")) {
-            console.error(this.variant)
             this.prepareData();
             this.renderTable();
         }

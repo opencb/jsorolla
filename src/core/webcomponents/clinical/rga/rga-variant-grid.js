@@ -61,6 +61,7 @@ export default class RgaVariantGrid extends LitElement {
         this.rendered = false;
         this.variantId = null;
 
+        this.queryGuard = false;
         this.colToShow = 2;
 
         this.prevQuery = {};
@@ -92,20 +93,25 @@ export default class RgaVariantGrid extends LitElement {
         // console.log("this.active", this.active);
         if ((changedProperties.has("opencgaSession") || changedProperties.has("query") || changedProperties.has("config") || changedProperties.has("active")) && this.active) {
             console.log("renderTable");
-            this.renderTable();
-        }
-
-        if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
-            this.requestUpdate();
+            this.propertyObserver();
         }
 
         // TODO in this case update doesn't work
         // super.update(changedProperties);
-
     }
 
-    /**
+    propertyObserver() {
+        // With each property change we must updated config and create the columns again. No extra checks are needed.
+        this._config = Object.assign(this.getDefaultConfig(), this.config);
+
+        // prevent the render of the table in case neither geneName or individual are in query
+        if (this.queryGuard && !this.query?.geneName && !this.query?.individualId) {
+            return;
+        }
+        this.renderTable();
+    }
+
+        /**
      * @deprecated
      */
     prepareData() {
@@ -143,6 +149,21 @@ export default class RgaVariantGrid extends LitElement {
 
     }
 
+    clinicalPopulationFrequenciesFormatter(value, row) {
+        if (row) {
+            const popFreqMap = new Map();
+            console.log("row.populationFrequencies", row.populationFrequencies)
+            if (row?.populationFrequencies?.length > 0) {
+                for (const popFreq of row.populationFrequencies) {
+                    popFreqMap.set(popFreq.study + ":" + popFreq.population, Number(popFreq.altAlleleFreq).toFixed(4));
+                }
+            }
+            return VariantGridFormatter.createPopulationFrequenciesTable(this._config.populationFrequencies, popFreqMap, populationFrequencies.style);
+        } else {
+            return "-";
+        }
+    }
+
     _initTableColumns() {
         return [
             {
@@ -162,7 +183,13 @@ export default class RgaVariantGrid extends LitElement {
                 }
             },
             {title: "dbSNP", field: "dbSNP"},
-            {title: "Alt allele freq.", field: "alt_freq"},
+            {
+                title: "Alt allele freq.",
+                field: "populationFrequencies",
+                formatter: (value, row) => {
+                    return this.clinicalPopulationFrequenciesFormatter(value, row)
+                }
+            },
             {title: "Variant type", field: "type"},
             {title: "Consequence type", field: "consequenceType"},
             {title: "ClinVar", field: "clinvar"},
@@ -170,7 +197,11 @@ export default class RgaVariantGrid extends LitElement {
                 title: "Individuals",
                 filed: "numIndividuals",
                 formatter: (_, row) => {
-                    return `${row.numIndividuals}${row.individuals.length !== row.numIndividuals ? `<span title="Only ${row.individuals.length} are visible"><b>*</b></span>` : ""}`
+                    let diff = "";
+                    if (row.individuals.length !== row.numIndividuals) {
+                        diff = row.numIndividuals - row.individuals.length;
+                    }
+                    return `${row.numIndividuals}${diff ? `<span title="${diff} ${diff > 1 ? "are" : "is"} hidden"><b>*</b></span>` : ""}`
                 }
                 // individual matrix
                 // field: "individuals",
@@ -202,6 +233,9 @@ export default class RgaVariantGrid extends LitElement {
 
     }
 
+    /**
+     * not used at the moment
+     */
     individualFormatter(value, row) {
         if (!this.query?.individualId) {
             return "-";
@@ -236,29 +270,9 @@ export default class RgaVariantGrid extends LitElement {
             return `<a class="rga-individual-box" style="background: '#fff' tooltip-title="${individualId}" tooltip-text="no knockout">&nbsp;</a>`;
 
         }).join("");
-
-        /* for (const individual of value) {
-            for (const individualId of filteredIndividualIDs) {
-                if (individual.id === individualId) {
-                    const gene = individual.genes[0];
-                    const transcript = gene.transcripts[0];
-                    for (const variant of transcript.variants) {
-                        if (variant.id === row.id) {
-                            res += `<a class="rga-individual-box" style="background: ${typeToColor[variant.knockoutType] ?? "#fff"}" tooltip-title="${individual.id}" tooltip-text="${variant.knockoutType}">&nbsp;</a>
-                            `;
-                            break;
-                        }
-                    }
-                }
-
-            }
-        }
-        return res;*/
     }
 
     renderTable() {
-
-
         this._query = {...this.query, study: this.opencgaSession.study.fqn}; // we want to support a query obj param both with or without study.
         // console.log("UtilsNew.objectCompare(this._query, this.prevQuery)", UtilsNew.objectCompare(this._query, this.prevQuery));
         if (!this.active || UtilsNew.objectCompare(this._query, this.prevQuery)) {
@@ -273,9 +287,9 @@ export default class RgaVariantGrid extends LitElement {
             method: "get",
             sidePagination: "server",
             uniqueId: "id",
-            // pageSize: this._config.pageSize,
-            // pageList: this._config.pageList,
-            pagination: true,
+            pageSize: this._config.pageSize,
+            pageList: this._config.pageList,
+            pagination: this._config.pagination,
             paginationVAlign: "both",
             // formatShowingRows: this.gridCommons.formatShowingRows,
             gridContext: this,
@@ -321,7 +335,9 @@ export default class RgaVariantGrid extends LitElement {
                 this.gridCommons.onLoadSuccess({rows: data, total: data.length});
                 if (data[0]) {
                     // it selects the first row (we don't use `selectrow` event in this case)
-                    this.variant = data[0];
+                    this.variant = data[0] ? data[0] : null;
+                } else {
+                    this.variant = null;
                 }
                 this.requestUpdate();
             }
@@ -334,6 +350,27 @@ export default class RgaVariantGrid extends LitElement {
     }
 
     getDefaultConfig() {
+        return {
+            pagination: true,
+            pageSize: 10,
+            pageList: [10, 25, 50],
+            showExport: false,
+            detailView: false,
+            detailFormatter: undefined, // function with the detail formatter
+            multiSelection: false,
+            populationFrequencies: [
+                "GNOMAD_EXOMES:ALL",
+                "GNOMAD_GENOMES:ALL",
+                "ESP6500:ALL",
+                "GONL:ALL",
+                "EXAC:ALL",
+                "1kG_phase3:ALL",
+                "MGP:ALL",
+                "DISCOVER:ALL",
+                "UK10K:ALL"
+            ]
+
+        };
     }
 
     getDetailConfig() {
@@ -389,6 +426,10 @@ export default class RgaVariantGrid extends LitElement {
     }
 
     render() {
+        if (this.queryGuard && !this.query?.geneName && !this.query?.individualId) {
+            return html`<div class="alert alert-info"><i class="fas fa-3x fa-info-circle align-middle"></i> Please select a set of Genes or Individuals</div>`;
+        }
+
         return html`
             <div class="container-fluid">
                 <opencb-grid-toolbar .config="${this.toolbarConfig}"

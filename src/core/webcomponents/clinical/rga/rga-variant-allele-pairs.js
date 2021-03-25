@@ -69,7 +69,7 @@ export default class RgaVariantAllelePairs extends LitElement {
     prepareData() {
         console.log("prepareData", this.variant)
         // TODO first transcript of the first gene of the first individual
-        this.tableData = this.variant.individuals[0].genes[0].transcripts[0].variants;
+        this.tableData = this.variant.individuals.length ? this.variant.individuals[0].genes[0].transcripts[0].variants : [];
     }
 
     renderTable() {

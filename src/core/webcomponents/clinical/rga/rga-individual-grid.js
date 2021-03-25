@@ -58,11 +58,13 @@ export default class RgaIndividualGrid extends LitElement {
         this.prevQuery = {};
         this._query = {};
 
+        this.queryGuard = false;
+
         this._genes = ["GRIK5", "ACTN3", "COMT", "TTN", "ABCA12", "ALMS1", "ALOX12B", "ATP8A2", "BLM",
             "CCNO", "CEP290", "CNGB3", "CUL7", "DNAAF1", "DOCK6", "EIF2B5", "ERCC6", "FLG", "HADA",
             "INPP5K", "MANIB1", "MERTK", "MUTYH", "NDUFAF5", "NDUFS7", "OTOG", "PAH", "PDZD7", "PHYH",
             "PKHD1", "PMM2", "RARS2", "SACS", "SGCA", "SIGMAR1", "SPG7", "TTN", "TYR", "USH2A", "WFS1"];
-        //this._genes = ["INPP5K"];
+        // this._genes = ["INPP5K"];
 
     }
 
@@ -87,6 +89,12 @@ export default class RgaIndividualGrid extends LitElement {
     propertyObserver() {
         // With each property change we must updated config and create the columns again. No extra checks are needed.
         this._config = Object.assign(this.getDefaultConfig(), this.config);
+
+        // prevent the render of the table in case neither geneName or individual are in query
+        if (this.queryGuard && !this.query?.geneName && !this.query?.individualId) {
+            return;
+        }
+
         this._columns = this._initTableColumns();
         // Config for the grid toolbar
         this.toolbarConfig = {
@@ -151,9 +159,9 @@ export default class RgaIndividualGrid extends LitElement {
             sidePagination: "server",
             uniqueId: "id",
             // Table properties
-            pagination: this._config.pagination,
             pageSize: this._config.pageSize,
             pageList: this._config.pageList,
+            pagination: this._config.pagination,
             paginationVAlign: "both",
             formatShowingRows: this.gridCommons.formatShowingRows,
             showExport: this._config.showExport,
@@ -168,8 +176,8 @@ export default class RgaIndividualGrid extends LitElement {
                     skip: params.data.offset || 0,
                     count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
                     include: "genes,sampleId,phenotypes,disorders,motherId,fatherId",
-                    //geneName: this._genes.join(","),
-                    //individualId: "112000791",
+                    // geneName: this._genes.join(","),
+                    // individualId: "112000791",
                     ...this._query,
                     limit: 50
                 };
@@ -185,7 +193,6 @@ export default class RgaIndividualGrid extends LitElement {
             },
             responseHandler: response => {
                 const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
-
                 const individuals = {
                     total: 2,
                     rows: [
@@ -494,10 +501,10 @@ export default class RgaIndividualGrid extends LitElement {
 
     mapResult(results) {
         const rows = results.rows.map(ind => {
-            const ch = this.getKnockoutCount(ind.genes, "COMP_HET");
+            const ch = this.getKnockoutGeneCount(ind.genes, "COMP_HET");
             return {
                 ...ind,
-                homozygous: this.getKnockoutCount(ind.genes, "HOM_ALT"),
+                homozygous: this.getKnockoutGeneCount(ind.genes, "HOM_ALT"),
                 ch: ch,
                 ch_definite: ind.fatherId && ind.motherId ? ch : null,
                 ch_probable: (ind.fatherId && !ind.motherId) || (!ind.fatherId && ind.motherId) ? ch : null,
@@ -594,21 +601,25 @@ export default class RgaIndividualGrid extends LitElement {
         ];
     }
 
-    getKnockoutCount(genes, type) {
+    /**
+     * Counts the knocked-out genes by Knockout type
+     * @param {Array} genes Gene Array
+     * @param {String} knockoutType Knockout type (HOM|COMP_HET)
+     * @returns {number|null} Either the number of genes or null
+     */
+    getKnockoutGeneCount(genes, knockoutType) {
         let total = 0;
-
-
         gene:
-            for (const gene of genes) {
-                for (const transcript of gene.transcripts) {
-                    for (const variant of transcript.variants) {
-                        if (variant.knockoutType === type) {
-                            total++;
-                            continue gene;
-                        }
+        for (const gene of genes) {
+            for (const transcript of gene.transcripts) {
+                for (const variant of transcript.variants) {
+                    if (variant.knockoutType === knockoutType) {
+                        total++;
+                        continue gene;
                     }
                 }
             }
+        }
 
         /* for (const gene of genes) {
             const variants = gene.transcripts[0].variants;
@@ -719,16 +730,17 @@ export default class RgaIndividualGrid extends LitElement {
             showExport: false,
             detailView: false,
             detailFormatter: undefined, // function with the detail formatter
-            multiSelection: false,
-            header: {
-                horizontalAlign: "center",
-                verticalAlign: "bottom"
-            }
+            multiSelection: false
         };
     }
 
     render() {
+        if (this.queryGuard && !this.query?.geneName && !this.query?.individualId) {
+            return html`<div class="alert alert-info"><i class="fas fa-3x fa-info-circle align-middle"></i> Please select a set of Genes or Individuals</div>`;
+        }
         return html`
+
+            this.query ${JSON.stringify(this.query.geneName)}
             <opencb-grid-toolbar .config="${this.toolbarConfig}"
                                  @columnChange="${this.onColumnChange}"
                                  @download="${this.onDownload}">
