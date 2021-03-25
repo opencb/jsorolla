@@ -168,8 +168,8 @@ export default class RgaIndividualGrid extends LitElement {
                     skip: params.data.offset || 0,
                     count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
                     include: "genes,sampleId,phenotypes,disorders,motherId,fatherId",
-                    geneName: this._genes.join(","),
-                    individualId: "112000791",
+                    //geneName: this._genes.join(","),
+                    //individualId: "112000791",
                     ...this._query,
                     limit: 50
                 };

@@ -231,7 +231,7 @@ export default class RgaIndividualFamily extends LitElement {
                 },
                 {
                     title: "Gene",
-                    field: "genes",
+                    field: "geneName",
                     rowspan: 2
                     // formatter: this.geneFormatter
                 },

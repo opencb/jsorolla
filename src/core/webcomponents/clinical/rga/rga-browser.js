@@ -66,7 +66,6 @@ export default class RgaBrowser extends LitElement {
 
     _init() {
         this._prefix = "facet" + UtilsNew.randomString(6);
-
         this.query = {};
         this.preparedQuery = {};
         this.executedQuery = {};
@@ -80,6 +79,9 @@ export default class RgaBrowser extends LitElement {
         this.activeTab = {"gene-tab": true};
         this.detail = {};
         this.resource = "rga";
+
+        // LoF as defaultQuery
+        this.defaultQuery = {consequenceType: "transcript_ablation,splice_acceptor_variant,splice_donor_variant,stop_gained,frameshift_variant,stop_lost,start_lost,transcript_amplification,inframe_insertion,inframe_deletion"};
     }
 
     connectedCallback() {
@@ -105,16 +107,11 @@ export default class RgaBrowser extends LitElement {
     }
 
     opencgaSessionObserver() {
-        if (this.opencgaSession && this.opencgaSession.project) {
+        if (this?.opencgaSession?.study?.fqn) {
             this.checkProjects = true;
-            this.query = {study: this.opencgaSession.study.fqn};
+            this.query = {study: this.opencgaSession.study.fqn, ...this.defaultQuery};
+            this.preparedQuery = {study: this.opencgaSession.study.fqn, ...this.defaultQuery};
 
-            // TODO FIXME
-            /** temp fix this.onRun(): when you switch study this.facetQuery contains the old study when you perform a new Aggregation query.
-             *  As a consequence, we need to update preparedQuery as this.onRun() uses it (without it the old study is in query in table result as well)
-             */
-            this.preparedQuery = {study: this.opencgaSession.study.fqn};
-            this.onRun();
 
             // this.requestUpdate().then(() => $(".bootstrap-select", this).selectpicker());
         } else {
@@ -123,22 +120,29 @@ export default class RgaBrowser extends LitElement {
     }
 
     queryObserver() {
-        if (this.opencgaSession && this.opencgaSession.project) {
-            if (this.query) {
-                this.preparedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
-                this.executedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
+        if (this?.opencgaSession?.study?.fqn) {
+            // NOTE UtilsNew.objectCompare avoid repeating remote requests.
+            console.error("query observer", this.query)
+            if (!UtilsNew.objectCompare(this.query, this._query)) {
+                this._query = this.query;
+                if (this.query) {
+                    this.preparedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
+                    this.executedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
+                } else {
+                    this.preparedQuery = {study: this.opencgaSession.study.fqn, ...this.defaultQuery};
+                    this.executedQuery = {study: this.opencgaSession.study.fqn, ...this.defaultQuery};
+                }
+                // onServerFilterChange() in opencga-active-filters drops a filterchange event when the Filter dropdown is used
+                this.dispatchEvent(new CustomEvent("queryChange", {
+                        detail: this.preparedQuery
+                    }
+                ));
+                this.detail = {};
             } else {
-                this.preparedQuery = {study: this.opencgaSession.study.fqn};
-                this.executedQuery = {study: this.opencgaSession.study.fqn};
+                // console.error("same queries")
             }
+            this.requestUpdate();
         }
-        // onServerFilterChange() in opencga-active-filters drops a filterchange event when the Filter dropdown is used
-        this.dispatchEvent(new CustomEvent("queryChange", {
-            detail: this.preparedQuery
-        }
-        ));
-        this.detail = {};
-        this.requestUpdate();
     }
 
     notifySearch(query) {
@@ -152,25 +156,11 @@ export default class RgaBrowser extends LitElement {
     }
 
     async onRun() {
-        // this event keeps in sync the query object in opencga-browser with the general one in iva-app (this.queries)
-        // it is also in charge of update executedQuery (notifySearch -> onQueryFilterSearch() on iva-app.js -> this.queries updated -> queryObserver() in opencga-browser).
-        // if we want to dismiss the general query feature (that is browsers remembering your last query even if you change view) replace the following line with:
-        // this.executedQuery = {...this.preparedQuery}; this.requestUpdate();
+        // NOTE notifySearch() triggers this chain: notifySearch -> onQueryFilterSearch() on iva-app.js -> this.queries updated -> queryObserver() here in rga-browser
+        // queryObserver() here stops the repetition of the remote request by checking if it has changed
         this.query = {...this.preparedQuery};
-        // this.requestUpdate();
-        // this.notifySearch(this.preparedQuery);
-
-        /* if (Object.keys(this.selectedFacet).length) {
-            this.facetQuery = {
-                ...this.preparedQuery,
-                study: this.opencgaSession.study.fqn,
-                // timeout: 60000,
-                field: Object.values(this.selectedFacetFormatted).map(v => v.formatted).join(";")
-            };
-            this._changeView("facet-tab");
-        } else {
-            this.facetQuery = null;
-        }*/
+        // updates this.queries in iva-app
+        this.notifySearch(this.preparedQuery);
     }
 
     onClickPill(e) {
