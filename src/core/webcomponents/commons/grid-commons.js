@@ -66,8 +66,8 @@ export default class GridCommons {
     onClickRow(rowId, row, selectedElement) {
         $("#" + this.gridId + " tr").removeClass("success");
         $(selectedElement).addClass("success");
-        //$("#" + this.gridId + " tr td").removeClass("success");
-        //$("td", selectedElement).addClass("success");
+        // $("#" + this.gridId + " tr td").removeClass("success");
+        // $("td", selectedElement).addClass("success");
 
         this.context.dispatchEvent(new CustomEvent("selectrow", {
             detail: {
@@ -94,7 +94,7 @@ export default class GridCommons {
     }
 
     onCheckAll(rows, others) {
-        for (let row of rows) {
+        for (const row of rows) {
             // delete row.checkbox;
             this.checkedRows.set(row.id, row);
         }
@@ -120,7 +120,7 @@ export default class GridCommons {
     }
 
     onUncheckAll(rows, others) {
-        for (let row of rows) {
+        for (const row of rows) {
             this.checkedRows.delete(row.id);
         }
         this.context.dispatchEvent(new CustomEvent("checkrow", {
@@ -136,7 +136,7 @@ export default class GridCommons {
     onLoadSuccess(data, firstRowIndex = 2, idField) {
         // TODO the event `selectrow` with null values is fired in case of empty result and in case of error both. Create a common method.
         if (data.rows && data.rows.length > 0) {
-            let table = $("#" + this.gridId);
+            const table = $("#" + this.gridId);
 
             if (this.checkedRows && this.checkedRows.size > 0) {
                 for (let i = 0; i < data.rows.length; i++) {
@@ -147,10 +147,10 @@ export default class GridCommons {
             }
 
             if (table[0]) {
-                table.find("tr[data-index=0]").addClass("success")
+                table.find("tr[data-index=0]").addClass("success");
             }
 
-            let id = idField ? idField : "id";
+            const id = idField ? idField : "id";
             this.context.dispatchEvent(new CustomEvent("selectrow", {
                 detail: {
                     id: data.rows[0][id],
@@ -180,10 +180,10 @@ export default class GridCommons {
 
         // in some cases `response` is a string (in case the error state doesn't come from the server there is no restResponse instance, so we send a custom error msg)
         let msg = "Generic Error";
-        if(response?.getEvents?.("ERROR")?.length) {
-            msg = response.getEvents("ERROR").map( error => error.message).join("<br>");
+        if (response?.getEvents?.("ERROR")?.length) {
+            msg = response.getEvents("ERROR").map(error => `${error.name}: ${error.message ?? ""}`).join("<br>");
         } else if (response instanceof Error) {
-            msg = `<h2>${response.name}</h2><br>${response.message}`;
+            msg = `<h2>${response.name}</h2><br>${response.message ?? ""}`;
         } else if (response instanceof Object) {
             msg = JSON.stringify(response);
         } else if (typeof response === "string") {
@@ -209,7 +209,7 @@ export default class GridCommons {
         if (!totalRowsNotTruncated) {
             message = `Showing <b>${pagedFromFormatted}</b> to <b>${pagedToFormatted}</b> of <b>${Number(totalRows).toLocaleString()}</b> records`;
             if (isApproximateCount) {
-                message += ` <span title="Approximate count" style="color: red; vertical-align: top; font-size: 1.0rem"><i class="fas fa-asterisk fa-xs"></i></span>`;
+                message += " <span title=\"Approximate count\" style=\"color: red; vertical-align: top; font-size: 1.0rem\"><i class=\"fas fa-asterisk fa-xs\"></i></span>";
             }
         } else {
             message = `
@@ -221,9 +221,9 @@ export default class GridCommons {
 
     onColumnChange(e) {
         if (e.detail.selected) {
-            e.detail.id.split(",").forEach( id => this.context.table.bootstrapTable("showColumn", id));
+            e.detail.id.split(",").forEach(id => this.context.table.bootstrapTable("showColumn", id));
         } else {
-            e.detail.id.split(",").forEach( id => this.context.table.bootstrapTable("hideColumn", id));
+            e.detail.id.split(",").forEach(id => this.context.table.bootstrapTable("hideColumn", id));
         }
     }
 

@@ -121,9 +121,9 @@ export default class OpencgaBrowser extends LitElement {
             this.queryObserver();
         }
         if (changedProperties.has("selectedFacet")) {
-            this.selectedFacetObserver();
+            this.facetQueryBuilder();
         }
-        super.update(changedProperties)
+        super.update(changedProperties);
     }
 
     opencgaSessionObserver() {
@@ -138,7 +138,7 @@ export default class OpencgaBrowser extends LitElement {
             this.preparedQuery = {study: this.opencgaSession.study.fqn};
             this.facetQuery = null;
             this.selectedFacetFormatted = null;
-            this.requestUpdate();
+            // this.requestUpdate();
             // this.onRun();
 
             // this.requestUpdate().then(() => $(".bootstrap-select", this).selectpicker());
@@ -148,22 +148,43 @@ export default class OpencgaBrowser extends LitElement {
     }
 
     queryObserver() {
-        if (this.opencgaSession) {
-            if (this.query) {
-                this.preparedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
-                this.executedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
+        if (this?.opencgaSession?.study?.fqn) {
+            // NOTE UtilsNew.objectCompare avoid repeating remote requests.
+            console.error("query observer", this.query)
+            if (!UtilsNew.objectCompare(this.query, this._query)) {
+                this._query = this.query;
+                if (this.query) {
+                    this.preparedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
+                    this.executedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
+                } else {
+                    this.preparedQuery = {study: this.opencgaSession.study.fqn};
+                    this.executedQuery = {study: this.opencgaSession.study.fqn};
+                }
+                // onServerFilterChange() in opencga-active-filters drops a filterchange event when the Filter dropdown is used
+                this.dispatchEvent(new CustomEvent("queryChange", {
+                    detail: this.preparedQuery
+                }
+                ));
+                this.detail = {};
             } else {
-                this.preparedQuery = {study: this.opencgaSession.study.fqn};
-                this.executedQuery = {study: this.opencgaSession.study.fqn};
+                // console.error("same queries")
             }
+            // this.requestUpdate();
         }
-        // onServerFilterChange() in opencga-active-filters drops a filterchange event when the Filter dropdown is used
-        this.dispatchEvent(new CustomEvent("queryChange", {
-            detail: this.preparedQuery
+    }
+
+    facetQueryBuilder() {
+        if (Object.keys(this.selectedFacet).length) {
+            this.facetQuery = {
+                ...this.preparedQuery,
+                study: this.opencgaSession.study.fqn,
+                // timeout: 60000,
+                field: Object.values(this.selectedFacetFormatted).map(v => v.formatted).join(";")
+            };
+            this._changeView("facet-tab");
+        } else {
+            this.facetQuery = null;
         }
-        ));
-        this.detail = {};
-        this.requestUpdate();
     }
 
     notifySearch(query) {
@@ -177,13 +198,14 @@ export default class OpencgaBrowser extends LitElement {
     }
 
     async onRun() {
-        // this event keeps in sync the query object in opencga-browser with the general one in iva-app (this.queries)
-        // it is also in charge of update executedQuery (notifySearch -> onQueryFilterSearch() on iva-app.js -> this.queries updated -> queryObserver() in opencga-browser).
-        // if we want to dismiss the general query feature (that is browsers remembering your last query even if you change view) replace the following line with:
-        // this.executedQuery = {...this.preparedQuery}; this.requestUpdate();
+        // NOTE notifySearch() triggers this chain: notifySearch -> onQueryFilterSearch() on iva-app.js -> this.queries updated -> queryObserver() in opencga-browser
+        // queryObserver() here stops the repetition of the remote request by checking if it has changed
+        this.query = {...this.preparedQuery};
+        // updates this.queries in iva-app
         this.notifySearch(this.preparedQuery);
 
-        if (Object.keys(this.selectedFacet).length) {
+        this.facetQueryBuilder();
+        /* if (Object.keys(this.selectedFacet).length) {
             this.facetQuery = {
                 ...this.preparedQuery,
                 study: this.opencgaSession.study.fqn,
@@ -193,7 +215,7 @@ export default class OpencgaBrowser extends LitElement {
             this._changeView("facet-tab");
         } else {
             this.facetQuery = null;
-        }
+        }*/
     }
 
     onFilterChange(e) {
@@ -215,22 +237,27 @@ export default class OpencgaBrowser extends LitElement {
     }
 
     onQueryFilterChange(e) {
+        // console.log("onQueryFilterChange")
         this.preparedQuery = e.detail.query;
         this.requestUpdate();
     }
 
     onActiveFilterChange(e) {
+        // console.log("onActiveFilterChange");
         this.preparedQuery = {study: this.opencgaSession.study.fqn, ...e.detail};
         this.query = {study: this.opencgaSession.study.fqn, ...e.detail};
+        this.facetQueryBuilder();
     }
 
     onActiveFilterClear() {
-        console.log("onActiveFilterClear");
+        // console.log("onActiveFilterClear");
         this.query = {study: this.opencgaSession.study.fqn};
         this.preparedQuery = {...this.query};
+        this.facetQueryBuilder();
     }
 
     onFacetQueryChange(e) {
+        // console.log("onFacetQueryChange");
         this.selectedFacetFormatted = e.detail.value;
         this.requestUpdate();
     }

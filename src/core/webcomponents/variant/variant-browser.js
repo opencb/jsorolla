@@ -106,22 +106,25 @@ export default class VariantBrowser extends LitElement {
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
-    updated(changedProperties) {
+    update(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
             this.opencgaSessionObserver();
         }
-
         if (changedProperties.has("query")) {
             this.queryObserver();
         }
-
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
         }
+        if (changedProperties.has("selectedFacet")) {
+            this.facetQueryBuilder();
+        }
+        super.update(changedProperties);
     }
 
     opencgaSessionObserver() {
         if (this?.opencgaSession?.study?.fqn) {
+            this.checkProjects = true;
             this.query = {study: this.opencgaSession.study.fqn};
 
             // TODO FIXME
@@ -129,35 +132,54 @@ export default class VariantBrowser extends LitElement {
              *  As a consequence, we need to update preparedQuery as this.onRun() uses it (without it the old study is in query in table result as well)
              */
             this.preparedQuery = {study: this.opencgaSession.study.fqn};
-            this.selectedFacet = {};
+            this.facetQuery = null;
+            this.selectedFacetFormatted = null;
+            //this.requestUpdate();
+            // this.onRun();
 
-            this.onRun();
+            // this.requestUpdate().then(() => $(".bootstrap-select", this).selectpicker());
+        } else {
+            this.checkProjects = false;
         }
-
-        // Config uses web component properties, we need to reload config object
-        this._config = {...this.getDefaultConfig(), ...this.config};
-        this.requestUpdate();
     }
 
     queryObserver() {
-        // Query passed is executed and set to variant-filter, active-filters and variant-grid components
-        // (it checks just for undefined, empty object is a valid value)
         if (this?.opencgaSession?.study?.fqn) {
-            if (this.query) {
-                this.preparedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
-                this.executedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
+            // NOTE UtilsNew.objectCompare avoid repeating remote requests.
+            if (!UtilsNew.objectCompare(this.query, this._query)) {
+                this._query = this.query;
+                if (this.query) {
+                    this.preparedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
+                    this.executedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
+                } else {
+                    this.preparedQuery = {study: this.opencgaSession.study.fqn};
+                    this.executedQuery = {study: this.opencgaSession.study.fqn};
+                }
+                // onServerFilterChange() in opencga-active-filters drops a filterchange event when the Filter dropdown is used
+                this.dispatchEvent(new CustomEvent("queryChange", {
+                        detail: this.preparedQuery
+                    }
+                ));
+                this.detail = {};
             } else {
-                this.preparedQuery = {study: this.opencgaSession.study.fqn};
-                this.executedQuery = {study: this.opencgaSession.study.fqn};
+                // console.error("same queries")
             }
+            // this.requestUpdate();
         }
-        // onServerFilterChange() in opencga-active-filters drops a filterchange event when the Filter dropdown is used
-        this.dispatchEvent(new CustomEvent("queryChange", {
-                detail: this.preparedQuery
-            }
-        ));
+    }
 
-        this.requestUpdate();
+    facetQueryBuilder() {
+        if (Object.keys(this.selectedFacet).length) {
+            this.facetQuery = {
+                ...this.preparedQuery,
+                study: this.opencgaSession.study.fqn,
+                // timeout: 60000,
+                field: Object.values(this.selectedFacetFormatted).map(v => v.formatted).join(";")
+            };
+            this._changeView("facet-tab");
+        } else {
+            this.facetQuery = null;
+        }
     }
 
     notifySearch(query) {
@@ -171,14 +193,14 @@ export default class VariantBrowser extends LitElement {
     }
 
     async onRun() {
-        // this event keeps in sync the query object in variant-browser with the general one in iva-app (this.queries)
-        // it is also in charge of update executedQuery (notifySearch -> onQueryFilterSearch() on iva-app.js -> this.queries updated -> queryObserver() in variant-browser).
-        // if we want to dismiss the general query feature (that is browsers remembering your last query even if you change view) replace the following line with:
-        // this.executedQuery = {...this.preparedQuery};
-        // this.requestUpdate();
+        // NOTE notifySearch() triggers this chain: notifySearch -> onQueryFilterSearch() on iva-app.js -> this.queries updated -> queryObserver() in variant-browser
+        // queryObserver() here stops the repetition of the remote request by checking if it has changed
+        this.query = {...this.preparedQuery};
+        // updates this.queries in iva-app
         this.notifySearch(this.preparedQuery);
 
-        if (Object.keys(this.selectedFacet).length) {
+        this.facetQueryBuilder();
+        /* if (Object.keys(this.selectedFacet).length) {
             this.facetQuery = {
                 ...this.preparedQuery,
                 study: this.opencgaSession.study.fqn,
@@ -188,7 +210,7 @@ export default class VariantBrowser extends LitElement {
             this._changeView("facet-tab");
         } else {
             this.facetQuery = null;
-        }
+        }*/
     }
 
     onClickPill(e) {
@@ -205,33 +227,33 @@ export default class VariantBrowser extends LitElement {
         this.requestUpdate();
     }
 
-
-    onVariantFilterChange(e) {
-        this.preparedQuery = e.detail.query;
-        this.requestUpdate();
-    }
-
     onVariantFilterSearch(e) {
         this.preparedQuery = e.detail.query;
         this.executedQuery = e.detail.query;
         this.requestUpdate();
     }
 
+    onQueryFilterChange(e) {
+        this.preparedQuery = e.detail.query;
+        this.requestUpdate();
+    }
 
     onActiveFilterChange(e) {
-        // this.query = {...e.detail};
-        this.preparedQuery = {...e.detail};
-        this.onRun(); // TODO recheck queryObserver is supposed to handle the update of the grid
+        // console.log("onActiveFilterChange");
+        this.preparedQuery = {study: this.opencgaSession.study.fqn, ...e.detail};
+        this.query = {study: this.opencgaSession.study.fqn, ...e.detail};
+        this.facetQueryBuilder();
     }
 
     onActiveFilterClear() {
-        // this.query = {study: this.opencgaSession.study.fqn};
-        this.preparedQuery = {study: this.opencgaSession.study.fqn};
-        this.onRun(); // TODO recheck queryObserver is supposed to handle the update of the grid
+        // console.log("onActiveFilterClear");
+        this.query = {study: this.opencgaSession.study.fqn};
+        this.preparedQuery = {...this.query};
+        this.facetQueryBuilder();
     }
 
-
-    onVariantFacetChange(e) {
+    onFacetQueryChange(e) {
+        // console.log("onFacetQueryChange");
         this.selectedFacetFormatted = e.detail.value;
         this.requestUpdate();
     }
@@ -657,15 +679,17 @@ export default class VariantBrowser extends LitElement {
                                                     .consequenceTypes="${this.consequenceTypes}"
                                                     .searchButton="${false}"
                                                     .config="${this._config.filter}"
-                                                    @queryChange="${this.onVariantFilterChange}"
-                                                    @querySearch="${this.onVariantFilterSearch}">
+                                                    @queryChange="${this.onQueryFilterChange}"
+                                                    @querySearch="${this.onVariantFilterSearch}"
+                                                    @activeFacetChange="${this.onActiveFacetChange}"
+                                                    @activeFacetClear="${this.onActiveFacetClear}">
                             </opencga-variant-filter>
                         </div>
 
                         <div role="tabpanel" class="tab-pane" id="facet_tab">
                             <facet-filter .selectedFacet="${this.selectedFacet}"
                                           .config="${this._config.aggregation}"
-                                          @facetQueryChange="${this.onVariantFacetChange}">
+                                          @facetQueryChange="${this.onFacetQueryChange}">
                             </facet-filter>
                         </div>
                     </div>
@@ -723,7 +747,7 @@ export default class VariantBrowser extends LitElement {
                                                         .cellbaseClient="${this.cellbaseClient}"
                                                         .variantId="${this.variantId}"
                                                         .config="${this._config.filter.detail}">
-                                    </variant-browser-detail-view>
+                                    </variant-browser-detail>
                             </div>
 
                             <div id="facet-tab" class="content-tab">
