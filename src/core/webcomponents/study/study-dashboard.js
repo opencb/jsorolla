@@ -172,13 +172,28 @@ export default class StudyDashboard extends LitElement {
                                     <div class="col-md-4">
                                         <div class="panel panel-default">
                                             <div class="panel-body text-center">
+                                                <div style="float: right">
+                                                    <i class="fas fa-ellipsis-v"></i>
+                                                </div>
                                                 <h4>${project.name}</h4>
+                                                <div>
+                                                    <span class="help-text">${project.description || "No description available"}</span>
+                                                </div>
+                                                <div>
+                                                    <span>${project.organism.scientificName} (${project.organism.assembly})</span>
+                                                </div>
+                                                <div>
+                                                    ${project.fqn}
+                                                </div>
+                                                <div>
+                                                    <span>Created on ${UtilsNew.dateFormatter(project.creationDate)}</span>
+                                                </div>
                                             </div>
                                         </div>
 
                                         <div class="row">
                                             ${project.studies.map(study => html`
-                                                <div class="col-md-4">
+                                                <div class="col-md-6">
                                                 <!-- TODO: Pass Info Study to the Study admin -->
                                                     <a href="#study-admin">
                                                         <div class="panel panel-default child" >
@@ -189,7 +204,7 @@ export default class StudyDashboard extends LitElement {
                                                     </a>
                                                 </div>`
                                             )}
-                                            <div class="col-md-4">
+                                            <div class="col-md-6">
                                             <button type="button" class="btn outline primary btn-lg btn-block child" @click="${() => this.showModal('study')}">
                                                 <i class="fas fa-plus"></i>
                                                 <p>New Study</p>
