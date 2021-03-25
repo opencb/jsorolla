@@ -85,3 +85,120 @@
     display: inline-block;
     border: 2px solid black
 }
+
+
+/******   opencga-export   *********/
+.export-buttons {
+    width: 180px;
+    height: 90px;
+    margin: 0 10px 0 0;
+    flex-direction: column;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.export-buttons.active i {
+    color: grey;
+}
+
+.export-buttons i {
+    color: #cbcbcb;
+}
+
+.export-buttons-description {
+    font-size: .7em;
+    text-transform: none;
+}
+
+.export-section.mode {
+    height: 80px;
+}
+
+.export-section-title {
+
+}
+
+opencga-export code {
+    white-space: pre;
+}
+
+opencga-export button[data-tab-id="cli"][data-view-id="code"] {
+    margin-right: 10px;
+}
+
+opencga-export .btn-group-tab {
+    margin-top: 20px;
+}
+
+.code-wrapper {
+    position: relative;
+    color: rgb(230, 236, 241);
+    margin: 32px 0;
+    display: block;
+    hyphens: none;
+    padding: 24px 0;
+    overflow: auto;
+    tab-size: 2;
+    direction: ltr;
+    font-size: 14px;
+    background: rgb(24, 48, 85);
+    text-align: left;
+    word-break: normal;
+    font-family: "Source Code Pro", Consolas, Menlo, Monaco, Courier, monospace;
+    line-height: 1.4;
+    /*white-space: pre;*/
+    word-spacing: normal;
+    border-radius: 3px;
+}
+
+.code-wrapper .code {
+    word-break: break-all;
+    margin: 0 20px;
+}
+
+.code-wrapper div.code-line {
+    display: block;
+    font: inherit;
+    padding: 0 0 0 20px;
+    position: relative;
+    overflow-wrap: normal;
+    white-space: pre-wrap;
+    counter-increment: line 1;
+    word-break: break-all;
+    line-height: 1.7;
+}
+
+
+.code-wrapper div.code-line:before {
+    top: 2px;
+    left: -15px;
+    color: rgb(92, 105, 117);
+    width: 24px;
+    bottom: 0px;
+    content: counter(line);
+    display: inline-block;
+    overflow: hidden;
+    position: absolute;
+    font-size: 12px;
+    text-align: right;
+    /*white-space: nowrap;*/
+    text-overflow: ellipsis;
+    background-color: transparent;
+    user-select: none;
+
+}
+
+div.clipboard-button {
+    position: absolute;
+    right: 5px;
+    top: 5px;
+    display: block;
+    font-size: 20px;
+    color: #c5c5c5;
+    cursor: pointer;
+}
+
+div.clipboard-button:hover {
+    color: white;
+}

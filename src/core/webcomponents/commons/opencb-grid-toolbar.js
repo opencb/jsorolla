@@ -17,7 +17,7 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import OpencgaCatalogUtils from "../../clients/opencga/opencga-catalog-utils.js";
 import UtilsNew from "./../../utilsNew.js";
-
+import "./opencga-export.js";
 
 export default class OpencbGridToolbar extends LitElement {
 
@@ -38,6 +38,9 @@ export default class OpencbGridToolbar extends LitElement {
             rightToolbar: {
                 type: Array
             },
+            query: {
+                type: Object
+            },
             config: {
                 type: Object
             }
@@ -50,15 +53,15 @@ export default class OpencbGridToolbar extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
-
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
 
     update(changedProperties) {
+        if (changedProperties.has("query")) {
+        }
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
-            console.log("this._config", this._config);
         }
         super.update(changedProperties);
     }
@@ -67,6 +70,15 @@ export default class OpencbGridToolbar extends LitElement {
         this.dispatchEvent(new CustomEvent("download", {
             detail: {
                 option: e.target.dataset.downloadOption
+            }
+        }));
+    }
+
+    onExport(e) {
+        // simply forwarding from opencga-export to file-grid
+        this.dispatchEvent(new CustomEvent("export", {
+            detail: {
+                ...e.detail
             }
         }));
     }
@@ -102,6 +114,10 @@ export default class OpencbGridToolbar extends LitElement {
         return UtilsNew.isUndefinedOrNull(value) || value;
     }
 
+    openModal(e) {
+        $(`#${this._prefix}export-modal`, this).modal("show");
+    }
+
     getDefaultConfig() {
         return {
             label: "records",
@@ -131,7 +147,7 @@ export default class OpencbGridToolbar extends LitElement {
                     margin-top: 5px;
                 }
                 .opencb-grid-toolbar {
-                    margin-bottom: 10px;
+                    margin-bottom: ${~this._config.buttons.indexOf("new") ? 10 : 5}px;
                 }
             </style>
             
@@ -175,12 +191,21 @@ export default class OpencbGridToolbar extends LitElement {
                                     </button>
                                     <ul class="dropdown-menu btn-sm">
                                         ${this._config.download.length ? this._config.download.map(item => html`
-                                                <li><a href="javascript:;" data-download-option="${item}" @click="${this.onDownloadFile}">${item}</a></li>
+                                            <li><a href="javascript:;" data-download-option="${item}" @click="${this.onDownloadFile}">${item}</a></li>
                                         `) : null}
                                     </ul>
                                 </div>
                             ` : null
                             }
+                            
+                            ${~this._config.buttons.indexOf("export") ? html`
+                                <div class="btn-group">
+                                    <button type="button" class="btn btn-default ripple btn-sm" @click="${this.openModal}">
+                                        <i class="fa fa-download icon-padding" aria-hidden="true"></i> Export
+                                    </button>
+                                </div>
+                            ` : null}
+
             
                             <!--Share URL-->
                             ${this.showShareLink ? html`
@@ -199,7 +224,24 @@ export default class OpencbGridToolbar extends LitElement {
                         </div>
                     </div>
                 </div>
-            </div>`;
+            </div>
+            
+            <div class="modal fade" tabindex="-1" id="${this._prefix}export-modal" role="dialog">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        ${this._config.downloading ? html`<div class="overlay"><loading-spinner></loading-spinner></div>` : null}
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title">Export</h4>
+                        </div>
+                        <div class="modal-body">
+                            <opencga-export .config="${this._config}" .query=${this.query} .opencgaSession="${this.opencgaSession}" @export="${this.onExport}"></opencga-export>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        
+        `;
     }
 
 }

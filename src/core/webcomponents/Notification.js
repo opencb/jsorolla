@@ -101,7 +101,7 @@ export class NotificationElement extends LitElement {
     _init() {
         this.iconMap = {
             info: "fa fa-info-circle fa-2x",
-            success: "fa fa-thumbs-up fa-2x",
+            success: "fa fa-check fa-2x",
             warning: "fa fa-exclamation-triangle fa-2x",
             danger: "fa ffa fa-exclamation-circle fa-2x",
             error: "fa ffa fa-exclamation-circle fa-2x"
