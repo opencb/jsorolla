@@ -62,7 +62,7 @@ export default class StudyDashboard extends LitElement {
     }
 
     getProjectPerUser() {
-        return [...new Set(this.opencgaSession.projects.map(project => project.fqn.split('@')[0]))];
+        return [...new Set(this.opencgaSession.projects?.map(project => project.fqn.split('@')[0]))];
     }
 
     // _verifyUserAndProject(pro,user){
@@ -108,7 +108,6 @@ export default class StudyDashboard extends LitElement {
 
     render() {
         // Check if there is any project available
-        console.log(this.opencgaSession)
         if (!this.opencgaSession?.study) {
             return html`
                 <div class="guard-page">
@@ -127,6 +126,34 @@ export default class StudyDashboard extends LitElement {
                 .panel.panel-default.child {
                     height: 85px
                 }
+
+                .btn.outline {
+                    border: 1px solid black;
+                    background-color: white;
+                    color: black;
+                    padding: 14px 28px;
+                    font-size: 16px;
+                    cursor: pointer;
+                }
+
+                .btn.outline.child {
+                    height:85px
+                }
+
+                .outline.primary {
+                    border-color:#286090;
+                    color: #286090;
+                }
+
+                .primary:hover {
+                    background: #286090;
+                    color: white;
+                }
+
+
+
+
+
             </style>
 
             <div class="row">
@@ -156,23 +183,19 @@ export default class StudyDashboard extends LitElement {
                                                 </div>`
                                             )}
                                             <div class="col-md-4">
-                                                <div class="panel panel-default child"  @click="${() => this.showModal('study')}">
-                                                    <div class="panel-body text-center">
-                                                        <i class="fas fa-plus"></i>
-                                                        <p>New Study</p>
-                                                    </div>
-                                                </div>
+                                            <button type="button" class="btn outline primary btn-lg btn-block child" @click="${() => this.showModal('study')}">
+                                                <i class="fas fa-plus"></i>
+                                                <p>New Study</p>
+                                            </button>
                                             </div>
                                         </div>
                                     </div>
                                 `})}
                             <div class="col-md-4">
-                                <div class="panel panel-default"  @click="${() => this.showModal('project')}">
-                                    <div class="panel-body text-center">
-                                        <i class="fas fa-plus"></i>
-                                        <p>New Project</p>
-                                    </div>
-                                </div>
+                                <button type="button" class="btn outline primary btn-lg btn-block" @click="${() => this.showModal('project')}">
+                                    <i class="fas fa-plus"></i>
+                                    <p>New Project</p>
+                                </button>
                             </div>
                         </div>
                     `})}
