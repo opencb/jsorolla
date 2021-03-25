@@ -101,9 +101,6 @@ export default class RgaBrowser extends LitElement {
         if (changedProperties.has("query")) {
             this.queryObserver();
         }
-        if (changedProperties.has("selectedFacet")) {
-            this.selectedFacetObserver();
-        }
     }
 
     opencgaSessionObserver() {
@@ -310,7 +307,8 @@ export default class RgaBrowser extends LitElement {
                             {
                                 id: "populationFrequencyAlt",
                                 name: "",
-                                type: "POPULATION_FREQUENCY_FILTER"
+                                type: "POPULATION_FREQUENCY_FILTER",
+                                onlyPopFreqAll: true
                             },
                             {
                                 id: "type",

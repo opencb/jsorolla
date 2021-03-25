@@ -25,7 +25,7 @@ import "../../commons/filters/cohort-stats-filter.js";
 import "../../commons/filters/consequence-type-select-filter.js";
 import "../../commons/filters/clinvar-accessions-filter.js";
 import "../../commons/filters/individual-id-autocomplete.js";
-
+import "../../commons/filters/population-frequency-filter.js";
 
 export default class RgaGeneFilter extends LitElement {
 
@@ -172,7 +172,7 @@ export default class RgaGeneFilter extends LitElement {
                             </cohort-stats-filter>`;
                 break;
             case "populationFrequencyAlt":
-                content = html`<population-frequency-filter .populationFrequencies="${populationFrequencies}" .allowedFrequencies=${this.allowedPopFrequencies} ?showSetAll="${subsection.showSetAll}" .populationFrequencyAlt="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange("populationFrequencyAlt", e.detail.value)}"></population-frequency-filter>`;
+                content = html`<population-frequency-filter .populationFrequencies="${populationFrequencies}" .allowedFrequencies=${this.allowedPopFrequencies} ?onlyPopFreqAll="${subsection.onlyPopFreqAll}" .populationFrequencyAlt="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange("populationFrequencyAlt", e.detail.value)}"></population-frequency-filter>`;
                 break;
             case "type":
                 content = html`<variant-type-filter .type="${this.preparedQuery[subsection.id]}" .config="${subsection}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></variant-type-filter>`;
