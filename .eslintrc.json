@@ -35,7 +35,7 @@
     "keyword-spacing": "error",
     "space-in-parens": ["error", "never"],
     "no-case-declarations": 0,
-    "one-var": ["warn", "consecutive"]
+    "one-var":  ["error", { "initialized": "never", "uninitialized": "always" }]
   },
   "plugins": [
     "cypress"
