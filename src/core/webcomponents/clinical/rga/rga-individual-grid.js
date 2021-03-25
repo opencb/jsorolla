@@ -738,8 +738,6 @@ export default class RgaIndividualGrid extends LitElement {
             return html`<div class="alert alert-info"><i class="fas fa-3x fa-info-circle align-middle"></i> Please select a set of Genes or Individuals</div>`;
         }
         return html`
-
-            this.query ${JSON.stringify(this.query.geneName)}
             <opencb-grid-toolbar .config="${this.toolbarConfig}"
                                  @columnChange="${this.onColumnChange}"
                                  @download="${this.onDownload}">
