@@ -298,12 +298,11 @@ export default class RgaVariantGrid extends LitElement {
                 const _filters = {
                     study: this.opencgaSession.study.fqn,
                     // order: params.data.order,
-                    // limit: params.data.limit,
+                    limit: params.data.limit,
                     skip: params.data.offset || 0,
                     count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
                     geneName: this._genes.join(","),
                     ...this._query,
-                    limit: 50
                 };
                 this.opencgaSession.opencgaClient.clinical().queryRgaVariant(_filters)
                     .then(res => {

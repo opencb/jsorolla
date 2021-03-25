@@ -108,7 +108,6 @@ export default class RgaGeneGrid extends LitElement {
         }
 
         this._query = {...this.query, study: this.opencgaSession.study.fqn}; // we want to support a query obj param both with or without study.
-        console.log("UtilsNew.objectCompare(this._query, this.prevQuery)", UtilsNew.objectCompare(this._query, this.prevQuery));
         if (UtilsNew.objectCompare(this._query, this.prevQuery)) {
             return;
         }

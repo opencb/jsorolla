@@ -119,7 +119,6 @@ export default class RgaBrowser extends LitElement {
     queryObserver() {
         if (this?.opencgaSession?.study?.fqn) {
             // NOTE UtilsNew.objectCompare avoid repeating remote requests.
-            console.error("query observer", this.query)
             if (!UtilsNew.objectCompare(this.query, this._query)) {
                 this._query = this.query;
                 if (this.query) {
@@ -260,7 +259,7 @@ export default class RgaBrowser extends LitElement {
                             },
                             {
                                 id: "knockoutType",
-                                name: "knockoutType",
+                                name: "Knockout Type",
                                 allowedValues: ["COMP_HET", "HOM_ALT"]
                             }
                         ]
