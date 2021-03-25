@@ -207,7 +207,7 @@ export default class PopulationFrequencyFilter extends LitElement {
                                                                 }}">
                                         </select-field-filter>
                                     </div>
-                                    <div class="col-md-5" style="padding: 0px">
+                                    <div class="col-md-5" style="padding: 0 0 0 5px;">
                                         <select-field-filter    .data="${allowedFrequenciesArray}" 
                                                                 .value="${this.state[study.id + ":" + popFreq.id]?.value}"
                                                                 placeholder="Frequency ..."
