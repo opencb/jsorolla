@@ -127,6 +127,10 @@ export default class StudyDashboard extends LitElement {
                     height: 85px
                 }
 
+                .panel-body.text-center .text-name {
+                    font-size: 16px
+                }
+
                 .btn.outline {
                     border: 1px solid black;
                     background-color: white;
@@ -177,7 +181,7 @@ export default class StudyDashboard extends LitElement {
                                                 <div class="col-md-4">
                                                     <div class="panel panel-default child">
                                                         <div class="panel-body text-center">
-                                                            ${study.name}
+                                                        <p class="text-name">${study.name}</p>
                                                         </div>
                                                     </div>
                                                 </div>`
