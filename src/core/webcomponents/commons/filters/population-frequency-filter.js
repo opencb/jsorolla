@@ -46,6 +46,9 @@ export default class PopulationFrequencyFilter extends LitElement {
             },
             showSetAll: {
                 type: Boolean
+            },
+            onlyPopFreqAll: {
+                type: Boolean
             }
         };
     }
@@ -57,6 +60,9 @@ export default class PopulationFrequencyFilter extends LitElement {
         this.state = {};
         this.comparatorState = {};
         this.defaultComparator = "<";
+
+        // forces to show just the ALL popFreq
+        this.onlyPopFreqAll = false;
     }
 
     // updated(changedProperties) {
@@ -64,6 +70,14 @@ export default class PopulationFrequencyFilter extends LitElement {
     //         this.populationFrequencyAltObserver();
     //     }
     // }
+
+    connectedCallback() {
+        super.connectedCallback();
+
+        if (this.onlyPopFreqAll) {
+
+        }
+    }
 
     update(changedProperties) {
         if (changedProperties.has("populationFrequencies")) {
@@ -78,9 +92,21 @@ export default class PopulationFrequencyFilter extends LitElement {
     populationFrequenciesObserver() {
         if (this.populationFrequencies?.studies?.length) {
             this.state = {};
-            for (let study of this.populationFrequencies.studies) {
-                for (let population of study.populations) {
-                    this.state[study.id + ":" + population.id] = {comparator: "<"};
+            if (!this.onlyPopFreqAll) {
+                this._populationFrequencies = this.populationFrequencies;
+                for (const study of this.populationFrequencies.studies) {
+                    for (const population of study.populations) {
+                        this.state[study.id + ":" + population.id] = {comparator: "<"};
+                    }
+                }
+            } else {
+                this._populationFrequencies = {studies: []};
+                for (const study of this.populationFrequencies.studies) {
+                    this._populationFrequencies.studies.push({
+                        ...study,
+                        populations: study.populations.filter(study => study.id === "ALL")
+                    });
+                    this.state[study.id + ":ALL"] = {comparator: "<"};
                 }
             }
         }
@@ -162,8 +188,8 @@ export default class PopulationFrequencyFilter extends LitElement {
     }
 
     notify() {
-        let popFreqFilters = [];
-        for (let [studyPopulationId, data] of Object.entries(this.state)) {
+        const popFreqFilters = [];
+        for (const [studyPopulationId, data] of Object.entries(this.state)) {
             if (data.comparator && data.value) {
                 popFreqFilters.push(studyPopulationId + data.comparator + data.value);
             }
@@ -177,15 +203,15 @@ export default class PopulationFrequencyFilter extends LitElement {
     }
 
     render() {
-        if (!this.populationFrequencies?.studies?.length) {
+        if (!this._populationFrequencies?.studies?.length) {
             return html`No Population Frequencies defined`;
         }
 
         if (this.allowedFrequencies) {
             // Convert the String into an Array one single time here
-            let allowedFrequenciesArray = this.allowedFrequencies.split(",");
+            const allowedFrequenciesArray = this.allowedFrequencies.split(",");
             return html`
-                ${this.populationFrequencies.studies.map(study => html`
+                ${this._populationFrequencies.studies.map(study => html`
                     <div style="padding-top: 10px">
                         <div style="margin-bottom: 5px">
                             <i id="${this._prefix}${study.id}Icon" data-id="${this._prefix}${study.id}" class="fa fa-plus" data-cy="pop-freq-toggle-${study.id}"
@@ -203,7 +229,7 @@ export default class PopulationFrequencyFilter extends LitElement {
                                         <select-field-filter    .data="${["<", ">="]}"
                                                                 .value="${this.state[study.id + ":" + popFreq.id]?.comparator}"
                                                                 @filterChange="${e => {
-                                                                    this.filterSelectChange(e, study.id + ":" + popFreq.id, "comparator")
+                                                                    this.filterSelectChange(e, study.id + ":" + popFreq.id, "comparator");
                                                                 }}">
                                         </select-field-filter>
                                     </div>
@@ -212,7 +238,7 @@ export default class PopulationFrequencyFilter extends LitElement {
                                                                 .value="${this.state[study.id + ":" + popFreq.id]?.value}"
                                                                 placeholder="Frequency ..."
                                                                 @filterChange="${e => {
-                                                                    this.filterSelectChange(e, study.id + ":" + popFreq.id, "value")
+                                                                    this.filterSelectChange(e, study.id + ":" + popFreq.id, "value");
                                                                 }}">
                                         </select-field-filter>
                                     </div>
@@ -234,7 +260,7 @@ export default class PopulationFrequencyFilter extends LitElement {
                     }
                 </style>
                 
-                ${this.populationFrequencies.studies.map(study => html`
+                ${this._populationFrequencies.studies.map(study => html`
                     <div style="padding-top: 10px">
                         <div style="margin-bottom: 5px">
                             <i id="${this._prefix}${study.id}Icon" data-id="${this._prefix}${study.id}" class="fa fa-plus" data-cy="pop-freq-toggle-${study.id}"
@@ -256,9 +282,9 @@ export default class PopulationFrequencyFilter extends LitElement {
                             ` : ""}
                             ${study.populations && study.populations.length && study.populations.map(popFreq => html`
                                 <number-field-filter
-                                        .value="${this.state[study.id + ":" + popFreq.id]?.value 
-                                                ? ((this.state[study.id + ":" + popFreq.id]?.comparator ?? this.defaultComparator) + this.state[study.id + ":" + popFreq.id]?.value) 
-                                                : ""}"
+                                        .value="${this.state[study.id + ":" + popFreq.id]?.value ?
+                                                ((this.state[study.id + ":" + popFreq.id]?.comparator ?? this.defaultComparator) + this.state[study.id + ":" + popFreq.id]?.value) :
+                                                ""}"
                                         .config="${{comparator: true, layout: [4, 3, 5]}}"
                                         .label="${popFreq.id}"
                                         type="text"
@@ -271,6 +297,7 @@ export default class PopulationFrequencyFilter extends LitElement {
             `;
         }
     }
+
 }
 
 customElements.define("population-frequency-filter", PopulationFrequencyFilter);
