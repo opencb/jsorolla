@@ -179,11 +179,14 @@ export default class StudyDashboard extends LitElement {
                                         <div class="row">
                                             ${project.studies.map(study => html`
                                                 <div class="col-md-4">
-                                                    <div class="panel panel-default child">
-                                                        <div class="panel-body text-center">
-                                                        <p class="text-name">${study.name}</p>
+                                                <!-- TODO: Pass Info Study to the Study admin -->
+                                                    <a href="#study-admin">
+                                                        <div class="panel panel-default child" >
+                                                            <div class="panel-body text-center">
+                                                            <p class="text-name">${study.name}</p>
+                                                            </div>
                                                         </div>
-                                                    </div>
+                                                    </a>
                                                 </div>`
                                             )}
                                             <div class="col-md-4">
