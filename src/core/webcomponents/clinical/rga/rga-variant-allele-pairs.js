@@ -68,7 +68,7 @@ export default class RgaVariantAllelePairs extends LitElement {
 
     prepareData() {
         console.log("prepareData", this.variant)
-        // TODO DONE first transcript of the first gene of the first individual
+        // TODO FIXED - first transcript of the first gene of the first individual
         const uniqueVariants = {};
         for (const individual of this.variant.individuals) {
             for (const gene of individual.genes) {
@@ -78,6 +78,14 @@ export default class RgaVariantAllelePairs extends LitElement {
                             ...variant,
                             geneName: gene.name
                         };
+                        // the following loop collects all the consequence types found for the variant
+                        for (const ct of variant.sequenceOntologyTerms) {
+                            if (uniqueVariants[variant.id].aggregatedSequenceOntologyTerms) {
+                                uniqueVariants[variant.id].aggregatedSequenceOntologyTerms[ct.accession] = ct;
+                            } else {
+                                uniqueVariants[variant.id].aggregatedSequenceOntologyTerms = {[ct.accession]: ct};
+                            }
+                        }
                     }
                 }
             }
@@ -124,12 +132,20 @@ export default class RgaVariantAllelePairs extends LitElement {
                 field: "type"
             },
             {
-                title: "Alt. freq",
-                field: "freq"
+                title: "Alternate allele frequency",
+                field: "populationFrequencies",
+                formatter: (value, row) => {
+                    return this.clinicalPopulationFrequenciesFormatter(value, row);
+                }
             },
             {
                 title: "Consequence Type",
-                field: "consequenceType"
+                field: "aggregatedSequenceOntologyTerms",
+                formatter: value => {
+                    if (value) {
+                        return Object.values(value).map(ct => `<span>${ct.name} (${ct.accession})</span>`).join(", ");
+                    }
+                }
             },
             {
                 title: "ClinVar",
@@ -137,16 +153,40 @@ export default class RgaVariantAllelePairs extends LitElement {
             },
             {
                 title: "Num. Individuals",
-                field: "individuals",
-                formatter: value => value?.length ?? "n/a"
+                field: "numIndividuals"
             }
         ];
     }
 
+    clinicalPopulationFrequenciesFormatter(value, row) {
+        if (row) {
+            const popFreqMap = new Map();
+            console.log("row.populationFrequencies", row.populationFrequencies)
+            if (row?.populationFrequencies?.length > 0) {
+                for (const popFreq of row.populationFrequencies) {
+                    popFreqMap.set(popFreq.study + ":" + popFreq.population, Number(popFreq.altAlleleFreq).toFixed(4));
+                }
+            }
+            return VariantGridFormatter.createPopulationFrequenciesTable(this._config.populationFrequencies, popFreqMap, populationFrequencies.style);
+        } else {
+            return "-";
+        }
+    }
+
     getDefaultConfig() {
         return {
-            title: "Allele Pairs"
-
+            title: "Allele Pairs",
+            populationFrequencies: [
+                "GNOMAD_EXOMES:ALL",
+                "GNOMAD_GENOMES:ALL",
+                "ESP6500:ALL",
+                "GONL:ALL",
+                "EXAC:ALL",
+                "1kG_phase3:ALL",
+                "MGP:ALL",
+                "DISCOVER:ALL",
+                "UK10K:ALL"
+            ]
         };
     }
 

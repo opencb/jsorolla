@@ -68,8 +68,11 @@ export default class RgaIndividualVariants extends LitElement {
     }
 
     prepareData() {
+        /**
+         * iterates over all the genes, all the transcripts, all the variants and builds a `uniqueVariants` map.
+         * It also collects all the Consequence Types
+         */
         if (this.individual) {
-            // TODO Check if the same variant can have a different set of consequence types in 2 different transcripts
             const uniqueVariants = {};
             for (const gene of this.individual.genes) {
                 for (const transcript of gene.transcripts) {
@@ -78,6 +81,14 @@ export default class RgaIndividualVariants extends LitElement {
                             ...variant,
                             geneName: gene.name
                         };
+                        // the following loop collects all the consequence types found for the variant
+                        for (const ct of variant.sequenceOntologyTerms) {
+                            if (uniqueVariants[variant.id].aggregatedSequenceOntologyTerms) {
+                                uniqueVariants[variant.id].aggregatedSequenceOntologyTerms[ct.accession] = ct;
+                            } else {
+                                uniqueVariants[variant.id].aggregatedSequenceOntologyTerms = {[ct.accession]: ct};
+                            }
+                        }
                     }
                 }
             }
@@ -111,6 +122,20 @@ export default class RgaIndividualVariants extends LitElement {
         });
     }
 
+    clinicalPopulationFrequenciesFormatter(value, row) {
+        if (row) {
+            const popFreqMap = new Map();
+            if (row?.populationFrequencies?.length > 0) {
+                for (const popFreq of row.populationFrequencies) {
+                    popFreqMap.set(popFreq.study + ":" + popFreq.population, Number(popFreq.altAlleleFreq).toFixed(4));
+                }
+            }
+            return VariantGridFormatter.createPopulationFrequenciesTable(this._config.populationFrequencies, popFreqMap, populationFrequencies.style);
+        } else {
+            return "-";
+        }
+    }
+
     _initTableColumns() {
         return [
             {
@@ -123,21 +148,33 @@ export default class RgaIndividualVariants extends LitElement {
                 field: "geneName"
             },
             {
-                title: "Knockout Type",
-                field: "knockoutType"
+                title: "Alternate allele frequency",
+                field: "populationFrequencies",
+                formatter: (value, row) => {
+                    return this.clinicalPopulationFrequenciesFormatter(value, row);
+                }
             },
             {
                 title: "Type",
                 field: "type"
             },
             {
+                title: "Consequence type",
+                field: "aggregatedSequenceOntologyTerms",
+                formatter: value => {
+                    if (value) {
+                        return Object.values(value).map(ct => `<span>${ct.name} (${ct.accession})</span>`).join(", ");
+                    }
+                }
+            },
+            {
+                title: "Knockout Type",
+                field: "knockoutType"
+            },
+            {
                 title: "GT",
                 field: "genotype"
             },
-            /*{
-                title: "Depth",
-                field: ""
-            },*/
             {
                 title: "Filter",
                 field: "filter",
@@ -152,8 +189,30 @@ export default class RgaIndividualVariants extends LitElement {
 
     getDefaultConfig() {
         return {
-            title: "Individual"
+            title: "Individual",
+            populationFrequencies: [
+                "GNOMAD_EXOMES:ALL",
+                "GNOMAD_GENOMES:ALL",
+                "ESP6500:ALL",
+                "GONL:ALL",
+                "EXAC:ALL",
+                "1kG_phase3:ALL",
+                "MGP:ALL",
+                "DISCOVER:ALL",
+                "UK10K:ALL"
+            ],
+            consequenceType: {
+                gencodeBasic: true,
+                filterByBiotype: true,
+                filterByConsequenceType: true,
 
+                canonicalTranscript: false,
+                highQualityTranscripts: false,
+                proteinCodingTranscripts: false,
+                worstConsequenceTypes: true,
+
+                showNegativeConsequenceTypes: true
+            }
         };
     }
 

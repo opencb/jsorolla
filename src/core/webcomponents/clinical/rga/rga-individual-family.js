@@ -167,8 +167,6 @@ export default class RgaIndividualFamily extends LitElement {
             gridContext: this,
             formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
             ajax: async params => {
-
-
                 /**
                  * this.tableDataMap is the full list of unique variants per individual
                  */

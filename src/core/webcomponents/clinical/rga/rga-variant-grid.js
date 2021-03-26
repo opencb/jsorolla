@@ -71,7 +71,7 @@ export default class RgaVariantGrid extends LitElement {
             "CCNO", "CEP290", "CNGB3", "CUL7", "DNAAF1", "DOCK6", "EIF2B5", "ERCC6", "FLG", "HADA",
             "INPP5K", "MANIB1", "MERTK", "MUTYH", "NDUFAF5", "NDUFS7", "OTOG", "PAH", "PDZD7", "PHYH",
             "PKHD1", "PMM2", "RARS2", "SACS", "SGCA", "SIGMAR1", "SPG7", "TTN", "TYR", "USH2A", "WFS1"];
-        //this._genes = ["INPP5K,MANIB1"];
+        this._genes = ["INPP5K,MANIB1"];
 
     }
 
@@ -149,21 +149,6 @@ export default class RgaVariantGrid extends LitElement {
 
     }
 
-    clinicalPopulationFrequenciesFormatter(value, row) {
-        if (row) {
-            const popFreqMap = new Map();
-            console.log("row.populationFrequencies", row.populationFrequencies)
-            if (row?.populationFrequencies?.length > 0) {
-                for (const popFreq of row.populationFrequencies) {
-                    popFreqMap.set(popFreq.study + ":" + popFreq.population, Number(popFreq.altAlleleFreq).toFixed(4));
-                }
-            }
-            return VariantGridFormatter.createPopulationFrequenciesTable(this._config.populationFrequencies, popFreqMap, populationFrequencies.style);
-        } else {
-            return "-";
-        }
-    }
-
     _initTableColumns() {
         return [
             {
@@ -182,17 +167,29 @@ export default class RgaVariantGrid extends LitElement {
                     return Array.from(genes.keys());
                 }
             },
-            {title: "dbSNP", field: "dbSNP"},
             {
-                title: "Alt allele freq.",
+                title: "dbSNP",
+                field: "dbSNP",
+                formatter: (value, row) => {
+                    return this.dbSNPFormatter(value, row)
+                }},
+            {
+                title: "Alternate allele frequency",
                 field: "populationFrequencies",
                 formatter: (value, row) => {
                     return this.clinicalPopulationFrequenciesFormatter(value, row)
                 }
             },
             {title: "Variant type", field: "type"},
-            {title: "Consequence type", field: "consequenceType"},
-            {title: "ClinVar", field: "clinvar"},
+            {
+                title: "Consequence type",
+                field: "sequenceOntologyTerms",
+                formatter: this.consequenceTypeFormatter
+            },
+            {
+                title: "ClinVar",
+                field: "clinvar"
+            },
             {
                 title: "Individuals",
                 filed: "numIndividuals",
@@ -221,16 +218,63 @@ export default class RgaVariantGrid extends LitElement {
             })*/];
     }
 
+    clinicalPopulationFrequenciesFormatter(value, row) {
+        if (row) {
+            const popFreqMap = new Map();
+            console.log("row.populationFrequencies", row.populationFrequencies)
+            if (row?.populationFrequencies?.length > 0) {
+                for (const popFreq of row.populationFrequencies) {
+                    popFreqMap.set(popFreq.study + ":" + popFreq.population, Number(popFreq.altAlleleFreq).toFixed(4));
+                }
+            }
+            return VariantGridFormatter.createPopulationFrequenciesTable(this._config.populationFrequencies, popFreqMap, populationFrequencies.style);
+        } else {
+            return "-";
+        }
+    }
+
+    dbSNPFormatter(value, row) {
+        const dbSNPs = new Set();
+        for (const individual of row.individuals) {
+            for (const gene of individual.genes) {
+                for (const transcript of gene.transcripts) {
+                    for (const variant of transcript.variants) {
+                        if (variant.dbSNP) {
+                            dbSNPs.add(variant.dbSNP);
+                        }
+                    }
+                }
+            }
+        }
+        return Object.keys(dbSNPs).map(dbSNP => `<span>${dbSNP})</span>`).join(", ");
+    }
+
+    consequenceTypeFormatter(value, row) {
+        const uniqueCT = {};
+        for (const individual of row.individuals) {
+            for (const gene of individual.genes) {
+                for (const transcript of gene.transcripts) {
+                    for (const variant of transcript.variants) {
+                        for (const ct of variant.sequenceOntologyTerms) {
+                            uniqueCT[ct.accession] = {
+                                ...ct
+                            };
+                        }
+                    }
+                }
+            }
+        }
+        return Object.values(uniqueCT).map(ct => `<span>${ct.name} (${ct.accession})</span>`).join(", ");
+    }
+
     onColumnChange(e) {
         this.gridCommons.onColumnChange(e);
-
         /* const ids = e.detail.value ?? "";
         this.table.bootstrapTable("hideAllColumns");
         this.table.bootstrapTable("showColumn", ["id", "dbSNP", "consequenceType", "individuals"]);
         if (ids) {
             ids.split(",").forEach(id => this.table.bootstrapTable("showColumn", id));
         }*/
-
     }
 
     /**

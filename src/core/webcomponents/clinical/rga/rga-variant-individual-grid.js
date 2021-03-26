@@ -66,8 +66,8 @@ export default class RgaVariantIndividualGrid extends LitElement {
     }
 
     prepareData() {
-
-
+        this.hiddenIndividuals = this.variant.numIndividuals - this.variant.individuals.length;
+        this.requestUpdate();
     }
 
     renderTable() {
@@ -117,11 +117,6 @@ export default class RgaVariantIndividualGrid extends LitElement {
                 formatter: (_, row) => row.genes[0].transcripts[0].variants.find(variant => variant.id === this.variant.id)?.type
             },
             {
-                title: "Type",
-                field: "_",
-                formatter: (_, row) => row.genes[0].transcripts[0].variants.find(variant => variant.id === this.variant.id)?.type
-            },
-            {
                 title: "GT",
                 field: "_",
                 formatter: (_, row) => row.genes[0].transcripts[0].variants.find(variant => variant.id === this.variant.id)?.genotype
@@ -158,6 +153,10 @@ export default class RgaVariantIndividualGrid extends LitElement {
     render() {
         return html`
             <h3 class="break-word">Individual presenting ${this.variant?.id}</h3>
+
+            ${this.hiddenIndividuals > 0 ? html`
+                <div class="alert alert-warning"><i class="fas fa-3x fa-exclamation-circle align-middle"></i>  ${this.hiddenIndividuals} individual${this.hiddenIndividuals > 1 ? "s are" : " is"} hidden due to your permission settings.</div>
+            ` : null}
             <div class="row">
                 <table id="${this.gridId}"></table>
             </div>
