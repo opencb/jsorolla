@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {html, LitElement} from "/web_modules/lit-element.js";
+import { html, LitElement } from "/web_modules/lit-element.js";
 import UtilsNew from "./../../utilsNew.js";
 import "../commons/tool-header.js";
 import "./study-editor.js";
@@ -154,6 +154,9 @@ export default class StudyDashboard extends LitElement {
                     color: white;
                 }
 
+                .btn-custom {
+                    margin-top:20px
+                }
 
 
 
@@ -163,17 +166,37 @@ export default class StudyDashboard extends LitElement {
             <div class="row">
                 <!-- Show Project by User-->
                 ${this.users.map(user => {
-                    return html `
+            return html`
                         <div class="col-md-12">
-                            <h3>${user}</h3>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h3>${user}</h3>
+                                </div>
+                                <div class="col-md-6 ">
+                                    <div class="pull-right">
+                                        <button class="btn-custom btn btn-primary" @click="${() => this.showModal('project')}">New Project</button>
+                                    </div>
+                                </div>
+                            </div>
                             <hr>
                             ${this.opencgaSession.projects.filter(proj => proj.fqn.startsWith(user + "@")).map(project => {
-                                return html`
+                return html`
                                     <div class="col-md-4">
                                         <div class="panel panel-default">
                                             <div class="panel-body text-center">
                                                 <div style="float: right">
-                                                    <i class="fas fa-ellipsis-v"></i>
+                                                    <div class="dropdown">
+                                                        <a id="dLabel" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                        <i class="fas fa-ellipsis-v"></i>
+                                                        </a>
+                                                        <ul class="dropdown-menu" aria-labelledby="dLabel" role="menu">
+                                                            <li><a>New Study</a></li>
+                                                            <li><a>Edit</a></li>
+                                                            <li><a>Duplicate</a></li>
+                                                            <li class="divider"></li>
+                                                            <li><a>Delete</a></li>
+                                                        </ul>
+                                                        </div>
                                                 </div>
                                                 <h4>${project.name}</h4>
                                                 <div>
@@ -203,7 +226,7 @@ export default class StudyDashboard extends LitElement {
                                                         </div>
                                                     </a>
                                                 </div>`
-                                            )}
+                )}
                                             <div class="col-md-6">
                                             <button type="button" class="btn outline primary btn-lg btn-block child" @click="${() => this.showModal('study')}">
                                                 <i class="fas fa-plus"></i>
