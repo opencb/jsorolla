@@ -81,6 +81,11 @@ export default class StudyDashboard extends LitElement {
         };
     }
 
+    actionModal(id, action) {
+        // action: show or hide
+        $(`#new${id}`).modal(action);
+    }
+
     showModal(type) {
         let modalType = {
             "project": () => {
@@ -93,7 +98,6 @@ export default class StudyDashboard extends LitElement {
         modalType[type]();
     }
 
-
     onHide(type) {
         let modalType = {
             "project": () => {
@@ -105,6 +109,36 @@ export default class StudyDashboard extends LitElement {
         }
         modalType[type]();
     }
+
+    
+    renderModal(id, name, type) {
+        let modalType = {
+            "project": html`
+                <project-editor
+                    @hide="${() => this.actionModal('Project', 'hide')}">
+                </project-editor>`,
+
+            "study": html`
+                <study-editor
+                    @hide="${() => this.actionModal('Study', 'hide')}">
+                </study-editor>`,
+        }
+        return html`
+            <div id="${id}" class="modal fade"  tabindex="-1" role="dialog">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title">New ${name}</h4>
+                        </div>
+                        <div class="modal-body">
+                            ${modalType[type]}
+                        </div>
+                    </div>
+                </div>
+            </div>`
+    }
+
 
     render() {
         // Check if there is any project available
@@ -157,10 +191,6 @@ export default class StudyDashboard extends LitElement {
                 .btn-custom {
                     margin-top:20px
                 }
-
-
-
-
             </style>
 
             <div class="row">
@@ -174,7 +204,7 @@ export default class StudyDashboard extends LitElement {
                                 </div>
                                 <div class="col-md-6 ">
                                     <div class="pull-right">
-                                        <button class="btn-custom btn btn-primary" @click="${() => this.showModal('project')}">New Project</button>
+                                        <button class="btn-custom btn btn-primary" @click="${() => this.actionModal('Project', 'show')}">New Project</button>
                                     </div>
                                 </div>
                             </div>
@@ -190,11 +220,11 @@ export default class StudyDashboard extends LitElement {
                                                         <i class="fas fa-ellipsis-v"></i>
                                                         </a>
                                                         <ul class="dropdown-menu" aria-labelledby="dLabel" role="menu">
-                                                            <li><a>New Study</a></li>
+                                                            <li><a @click="${() => this.actionModal('Study', 'show')}">New Study</a></li>
                                                             <li><a>Edit</a></li>
-                                                            <li><a>Duplicate</a></li>
+                                                            <li class="disabled"><a>Duplicate</a></li>
                                                             <li class="divider"></li>
-                                                            <li><a>Delete</a></li>
+                                                            <li class="disabled"><a>Delete</a></li>
                                                         </ul>
                                                         </div>
                                                 </div>
@@ -227,60 +257,18 @@ export default class StudyDashboard extends LitElement {
                                                     </a>
                                                 </div>`
                 )}
-                                            <div class="col-md-6">
-                                            <button type="button" class="btn outline primary btn-lg btn-block child" @click="${() => this.showModal('study')}">
-                                                <i class="fas fa-plus"></i>
-                                                <p>New Study</p>
-                                            </button>
-                                            </div>
                                         </div>
                                     </div>
                                 `})}
-                            <div class="col-md-4">
-                                <button type="button" class="btn outline primary btn-lg btn-block" @click="${() => this.showModal('project')}">
-                                    <i class="fas fa-plus"></i>
-                                    <p>New Project</p>
-                                </button>
-                            </div>
                         </div>
                     `})}
             </div>
             
             <!-- TODO: These modals can be a single one, the component will be rendered according to whether you have selected: study or project inside div. modal-body -->
-            <!-- Modal New Project -->
-            <div id="newProject" class="modal fade"  tabindex="-1" role="dialog">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                            <h4 class="modal-title">New Project</h4>
-                        </div>
-                        <div class="modal-body">
-                            <project-editor
-                                    @hide="${() => this.onHide('project')}">
-                            </project-editor>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Modal New Study -->
-            <div id="newStudy" class="modal fade"  tabindex="-1" role="dialog">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                            <h4 class="modal-title">New study</h4>
-                        </div>
-                        <div class="modal-body">
-                            <study-editor
-                                    @hide="${() => this.onHide('study')}">
-                            </study-editor>
-                        </div>
-                    </div>
-                </div>
-            </div>`;
+            <!-- Modal New Project --> <!-- Modal New Study -->
+            ${this.renderModal("newProject", 'Project', 'project')}
+            ${this.renderModal("newStudy", 'Study', 'study')}
+            `;
     }
 }
-
 customElements.define("study-dashboard", StudyDashboard);
