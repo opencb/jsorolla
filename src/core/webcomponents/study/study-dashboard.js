@@ -191,6 +191,10 @@ export default class StudyDashboard extends LitElement {
                 .btn-custom {
                     margin-top:20px
                 }
+
+                @media (min-width:992px){
+                    .row.auto-clear .col-md-4:nth-child(3n+1){clear:left;}
+                }
             </style>
 
             <div class="row">
@@ -209,6 +213,7 @@ export default class StudyDashboard extends LitElement {
                                 </div>
                             </div>
                             <hr>
+                            <div class="row auto-clear"> 
                             ${this.opencgaSession.projects.filter(proj => proj.fqn.startsWith(user + "@")).map(project => {
                                 return html`
                                     <div class="col-md-4">
@@ -256,10 +261,11 @@ export default class StudyDashboard extends LitElement {
                                                         </div>
                                                     </a>
                                                 </div>`
-                                            )}
+                )}
                                         </div>
                                     </div>
                                 `})}
+                            </div>
                         </div>
                     `})}
             </div>
