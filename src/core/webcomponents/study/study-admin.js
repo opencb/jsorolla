@@ -38,6 +38,9 @@ export default class StudyAdmin extends LitElement {
             config: {
                 type: Object
             },
+            studyId: {
+                type: String
+            },
             study: {
                 type: Object
             }
@@ -53,10 +56,19 @@ export default class StudyAdmin extends LitElement {
         this._config = { ...this.getDefaultConfig(), ...this.config };
     }
 
-    // update(changedProperties) {
-
-    //     super.update(changedProperties);
-    // }
+    update(changedProperties) {
+        if (changedProperties.has("studyId")) {
+            for (const project of this.opencgaSession.projects) {
+                for (const study of project.studies) {
+                    if (study.id === this.studyId || study.fqn === this.studyId) {
+                        this.study = study;
+                        break;
+                    }
+                }
+            }
+        }
+        super.update(changedProperties);
+    }
 
 
     getDefaultConfig() {
@@ -79,6 +91,13 @@ export default class StudyAdmin extends LitElement {
                 <div class="col-md-10 text-center">
                 <!-- TODO: Overview Module -->
                     Content Module    
+                    
+                    <div>
+                        <div>${this.study.fqn}</div>
+                        <div>Groups: ${this.study.groups.map(g => g.id).join(", ")}</div>
+                        <div>${this.study.creationDate}</div>
+                        <div>${this.study.description}</div>
+                    </div>
                 </div>
             </div>`;
     }
