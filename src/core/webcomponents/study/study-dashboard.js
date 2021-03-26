@@ -110,7 +110,7 @@ export default class StudyDashboard extends LitElement {
         modalType[type]();
     }
 
-    
+
     renderModal(id, name, type) {
         let modalType = {
             "project": html`
@@ -158,7 +158,7 @@ export default class StudyDashboard extends LitElement {
                 }
 
                 .panel.panel-default.child {
-                    height: 85px
+                    height: 120px
                 }
 
                 .panel-body.text-center .text-name {
@@ -210,23 +210,23 @@ export default class StudyDashboard extends LitElement {
                             </div>
                             <hr>
                             ${this.opencgaSession.projects.filter(proj => proj.fqn.startsWith(user + "@")).map(project => {
-                return html`
+                                return html`
                                     <div class="col-md-4">
                                         <div class="panel panel-default">
                                             <div class="panel-body text-center">
                                                 <div style="float: right">
                                                     <div class="dropdown">
                                                         <a id="dLabel" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                        <i class="fas fa-ellipsis-v"></i>
+                                                            <i class="fas fa-ellipsis-v"></i>
                                                         </a>
                                                         <ul class="dropdown-menu" aria-labelledby="dLabel" role="menu">
-                                                            <li><a @click="${() => this.actionModal('Study', 'show')}">New Study</a></li>
-                                                            <li><a>Edit</a></li>
-                                                            <li class="disabled"><a>Duplicate</a></li>
+                                                            <li><a @click="${() => this.actionModal('Study', 'show')}"><i class="fas fa-file"></i> New Study</a></li>
+                                                            <li><a><i class="fas fa-edit"></i>Edit</a></li>
+                                                            <li class="disabled"><a><i class="fas fa-copy"></i> Duplicate</a></li>
                                                             <li class="divider"></li>
-                                                            <li class="disabled"><a>Delete</a></li>
+                                                            <li class="disabled"><a><i class="fas fa-trash"></i> Delete</a></li>
                                                         </ul>
-                                                        </div>
+                                                    </div>
                                                 </div>
                                                 <h4>${project.name}</h4>
                                                 <div>
@@ -243,7 +243,6 @@ export default class StudyDashboard extends LitElement {
                                                 </div>
                                             </div>
                                         </div>
-
                                         <div class="row">
                                             ${project.studies.map(study => html`
                                                 <div class="col-md-6">
@@ -251,21 +250,21 @@ export default class StudyDashboard extends LitElement {
                                                     <a href="#study-admin/${study.fqn}">
                                                         <div class="panel panel-default child" >
                                                             <div class="panel-body text-center">
-                                                            <p class="text-name">${study.name}</p>
+                                                                <div class="text-name">${study.name}</div>
+                                                                <div><span class="help-text">${study.description || "No description available"}</span></div>
                                                             </div>
                                                         </div>
                                                     </a>
                                                 </div>`
-                )}
+                                            )}
                                         </div>
                                     </div>
                                 `})}
                         </div>
                     `})}
             </div>
-            
             <!-- TODO: These modals can be a single one, the component will be rendered according to whether you have selected: study or project inside div. modal-body -->
-            <!-- Modal New Project --> <!-- Modal New Study -->
+            <!-- Modal New Project , Modal New Study -->
             ${this.renderModal("newProject", 'Project', 'project')}
             ${this.renderModal("newStudy", 'Study', 'study')}
             `;
