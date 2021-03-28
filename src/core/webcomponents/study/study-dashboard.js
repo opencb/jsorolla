@@ -115,12 +115,12 @@ export default class StudyDashboard extends LitElement {
         let modalType = {
             "project": html`
                 <project-editor
-                    @hide="${() => this.actionModal('Project', 'hide')}">
+                        @hide="${() => this.actionModal('Project', 'hide')}">
                 </project-editor>`,
 
             "study": html`
                 <study-editor
-                    @hide="${() => this.actionModal('Study', 'hide')}">
+                        @hide="${() => this.actionModal('Study', 'hide')}">
                 </study-editor>`,
         }
         return html`
@@ -197,14 +197,13 @@ export default class StudyDashboard extends LitElement {
                 }
             </style>
 
-            <div class="row">
+            <div>
                 <!-- Show Project by User-->
                 ${this.users.map(user => {
-            return html`
-                        <div class="col-md-12">
-                            <div class="row">
+                    return html`
+                            <div class="row" style="border-bottom:  rgba(201, 76, 76, 0.7);}">
                                 <div class="col-md-6">
-                                    <h3>${user}</h3>
+                                    <h2><i class="fas fa-user fa-sm icon-padding"></i>${user}</h2>
                                 </div>
                                 <div class="col-md-6 ">
                                     <div class="pull-right">
@@ -212,68 +211,98 @@ export default class StudyDashboard extends LitElement {
                                     </div>
                                 </div>
                             </div>
-                            <hr>
-                            <div class="row auto-clear"> 
-                            ${this.opencgaSession.projects.filter(proj => proj.fqn.startsWith(user + "@")).map(project => {
-                                return html`
-                                    <div class="col-md-4">
-                                        <div class="panel panel-default">
-                                            <div class="panel-body text-center">
-                                                <div style="float: right">
-                                                    <div class="dropdown">
-                                                        <a id="dLabel" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                            <i class="fas fa-ellipsis-v"></i>
-                                                        </a>
-                                                        <ul class="dropdown-menu" aria-labelledby="dLabel" role="menu">
-                                                            <li><a @click="${() => this.actionModal('Study', 'show')}"><i class="fas fa-file"></i> New Study</a></li>
-                                                            <li><a><i class="fas fa-edit"></i>Edit</a></li>
-                                                            <li class="disabled"><a><i class="fas fa-copy"></i> Duplicate</a></li>
-                                                            <li class="divider"></li>
-                                                            <li class="disabled"><a><i class="fas fa-trash"></i> Delete</a></li>
-                                                        </ul>
+
+                            <div class="row auto-clear">
+                                <div class="col-md-12">
+                                    <h3>Projects and Studies</h3>
+                                </div>
+                                ${this.opencgaSession.projects.filter(proj => proj.fqn.startsWith(user + "@")).map(project => {
+                                    return html`
+                                        <div class="col-md-4">
+                                            <div class="panel panel-default shadow">
+                                                <div class="panel-body text-center">
+                                                    <!-- Vertical dots   -->
+                                                    <div style="float: right">
+                                                        <div class="dropdown">
+                                                            <a id="dLabel" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                                <i class="fas fa-ellipsis-v fa-lg"></i>
+                                                            </a>
+                                                            <ul class="dropdown-menu" aria-labelledby="dLabel" role="menu">
+                                                                <li>
+                                                                    <a @click="${() => this.actionModal('Study', 'show')}">
+                                                                        <i class="fas fa-file icon-padding"></i> New Study
+                                                                    </a>
+                                                                </li>
+                                                                <li class="divider"></li>
+                                                                <li>
+                                                                    <a><i class="fas fa-edit icon-padding"></i>Edit</a>
+                                                                </li>
+                                                                <li class="disabled">
+                                                                    <a><i class="fas fa-copy icon-padding"></i> Duplicate</a>
+                                                                </li>
+                                                                <li class="disabled">
+                                                                    <a><i class="fas fa-trash icon-padding"></i> Delete</a>
+                                                                </li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <h4>${project.name}</h4>
+                                                    <div>
+                                                        ${project.description ? html`
+                                                            <span>${project.description}</span>
+                                                        ` : html`
+                                                            <span style="font-style: italic">No description available</span>`
+                                                        }
+                                                    </div>
+                                                    <div>
+                                                        <span>${project.organism.scientificName} ${project.organism.assembly}</span>
+                                                    </div>
+                                                    <div>
+                                                        <span>${project.fqn}</span>
+                                                    </div>
+                                                    <div>
+                                                        <span>Created on ${UtilsNew.dateFormatter(project.creationDate)}</span>
                                                     </div>
                                                 </div>
-                                                <h4>${project.name}</h4>
-                                                <div>
-                                                    <span class="help-text">${project.description || "No description available"}</span>
-                                                </div>
-                                                <div>
-                                                    <span>${project.organism.scientificName} (${project.organism.assembly})</span>
-                                                </div>
-                                                <div>
-                                                    ${project.fqn}
-                                                </div>
-                                                <div>
-                                                    <span>Created on ${UtilsNew.dateFormatter(project.creationDate)}</span>
-                                                </div>
+                                            </div>
+                                            
+                                            <div class="row" style="padding: 5px 10px">
+                                                ${project.studies.map(study => html`
+                                                    <div class="col-md-6">
+                                                        <!-- TODO: Pass Info Study to the Study admin -->
+                                                        <a href="#study-admin/${study.fqn}">
+                                                            <div class="panel panel-default shadow-sm">
+                                                                <div class="panel-body text-center" style="color: black">
+                                                                    <div>
+                                                                        <h4>${study.name}</h4>
+                                                                    </div>
+                                                                    <div>
+                                                                        <span class="help-text">${study.description || "No description available"}</span>
+                                                                    </div>
+                                                                    <div>
+                                                                        <span>${study.fqn}</span>
+                                                                    </div>
+                                                                    <div>
+                                                                        <span>Created on ${UtilsNew.dateFormatter(study.creationDate)}</span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </a>
+                                                    </div>`
+                                                )}
                                             </div>
                                         </div>
-                                        <div class="row">
-                                            ${project.studies.map(study => html`
-                                                <div class="col-md-6">
-                                                <!-- TODO: Pass Info Study to the Study admin -->
-                                                    <a href="#study-admin/${study.fqn}">
-                                                        <div class="panel panel-default child" >
-                                                            <div class="panel-body text-center">
-                                                                <div class="text-name">${study.name}</div>
-                                                                <div><span class="help-text">${study.description || "No description available"}</span></div>
-                                                            </div>
-                                                        </div>
-                                                    </a>
-                                                </div>`
-                )}
-                                        </div>
-                                    </div>
-                                `})}
+                                    `})}
                             </div>
-                        </div>
                     `})}
             </div>
+            
             <!-- TODO: These modals can be a single one, the component will be rendered according to whether you have selected: study or project inside div. modal-body -->
             <!-- Modal New Project , Modal New Study -->
             ${this.renderModal("newProject", 'Project', 'project')}
             ${this.renderModal("newStudy", 'Study', 'study')}
-            `;
+        `;
     }
 }
 customElements.define("study-dashboard", StudyDashboard);
