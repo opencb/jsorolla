@@ -16,7 +16,7 @@
 
 import { html, LitElement } from "/web_modules/lit-element.js";
 import UtilsNew from "./../../utilsNew.js";
-
+import "./study-admin-users.js";
 export default class StudyAdmin extends LitElement {
 
     constructor() {
@@ -35,13 +35,13 @@ export default class StudyAdmin extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            config: {
-                type: Object
-            },
             studyId: {
                 type: String
             },
             study: {
+                type: Object
+            },
+            config: {
                 type: Object
             }
         };
@@ -183,7 +183,7 @@ export default class StudyAdmin extends LitElement {
                     nav.sidebar{
                         position: fixed;
                         height: 100%;
-                        width: 240px;
+                        width: 250px;
                         margin-left: -160px;
                         float: left;
                         /* z-index: 8000; */
@@ -259,7 +259,7 @@ export default class StudyAdmin extends LitElement {
                         <!-- Collect the nav links, forms, and other content for toggling -->
                         <div class="collapse navbar-collapse navbar-ex1-collapse admin-side-navbar">
                             <ul class="nav navbar-nav left">
-                                <li class="active">
+                                <li>
                                     <a data-id="Dashboard" style="cursor: pointer" @click="${this.onSideNavClick}">Dashboard
                                         <span class="pull-right" style="font-size: 16px"><i class="fas fa-tachometer-alt"></i></span>
                                     </a>
@@ -301,13 +301,14 @@ export default class StudyAdmin extends LitElement {
 
                 <div class="col-md-10">
                     <!-- Content Module  -->
-                    <div class="content-tab-wrapper admin-content-tab" style="margin: 0px 10px">
+                    <div class="content-tab-wrapper admin-content-tab" style="margin: 0px 20px">
                         <div id="${this._prefix}Dashboard" role="tabpanel" class="tab-pane content-tab">
                             <h3>Dashboard</h3>
                         </div>
 
                         <div id="${this._prefix}UsersAndGroups" role="tabpanel" class="tab-pane content-tab active">
-                            <h3>Users And Groups</h3>
+                            <h3><i class="fas fa-user-friends icon-padding"></i>Users And Groups</h3>
+                            <study-admin-users .opencgaSession="${this.opencgaSession}" .study="${this.study}"></study-admin-users>
                         </div>
 
                         <div id="${this._prefix}Permissions" role="tabpanel" class="tab-pane content-tab">
