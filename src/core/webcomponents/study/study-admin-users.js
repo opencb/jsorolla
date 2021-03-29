@@ -58,7 +58,7 @@ export default class StudyAdminUsers extends LitElement {
     connectedCallback() {
         super.connectedCallback();
 
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this._config = { ...this.getDefaultConfig(), ...this.config };
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
     }
 
@@ -67,7 +67,7 @@ export default class StudyAdminUsers extends LitElement {
             for (const project of this.opencgaSession.projects) {
                 for (const study of project.studies) {
                     if (study.id === this.studyId || study.fqn === this.studyId) {
-                        this.study = {...study};
+                        this.study = { ...study };
                         break;
                     }
                 }
@@ -88,7 +88,7 @@ export default class StudyAdminUsers extends LitElement {
         this.opencgaSession.opencgaClient.studies().groups(this.study.fqn)
             .then(response => {
                 for (const group of response.responses[0].results) {
-                    this.groupsMap.set(group.id, group.userIds.map(u => {return {id: u, name: u, creationDate: "20210213000000"}}));
+                    this.groupsMap.set(group.id, group.userIds.map(u => { return { id: u, name: u, creationDate: "20210213000000" } }));
                 }
                 this.users = this.groupsMap.get("@members");
                 this.renderUserGrid();
@@ -120,14 +120,14 @@ export default class StudyAdminUsers extends LitElement {
             onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
             onPostBody: data => {
                 // We call onLoadSuccess to select first row
-                this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 1);
+                this.gridCommons.onLoadSuccess({ rows: data, total: data.length }, 1);
             }
         });
     }
 
     groupFormatter(value, row) {
         const checked = this.field.groupsMap?.get(this.field.groupId).findIndex(e => e.id === row.id) !== -1;
-        return `<input type="checkbox" ${checked ? "checked": ""} ${row.id === this.field.owner ? "disabled" : ""}>`;
+        return `<input type="checkbox" ${checked ? "checked" : ""} ${row.id === this.field.owner ? "disabled" : ""}>`;
     }
 
     _getDefaultColumns() {
@@ -158,7 +158,7 @@ export default class StudyAdminUsers extends LitElement {
                 {
                     title: "User Name",
                     field: "name",
-                    formatter:(value, row) => {
+                    formatter: (value, row) => {
                         return value === this.owner ? `<span style="font-weight: bold">${value} (owner)</span>` : value
                     },
                     rowspan: 2,
@@ -207,14 +207,22 @@ export default class StudyAdminUsers extends LitElement {
         };
     }
 
+    // TODO: we can use this one as search without search button.. if pass 3 character this gonna look the user.
+    onUserFieldChange(e) {
+        this.userId = e.detail.value;
+        if (!this.userId) {
+            this.users = this.groupsMap.get("@members");
+            this.renderUserGrid();
+        }
+    }
+
     onUserSearch(e) {
-        // const userId = e.detail.value || "imedina";
-        // if (userId) {
-        //     this.users = this.groupsMap.get("@members").filter(user => user.id.startsWith(userId));
-        // }else {
-        //     this.users = this.groupsMap.get("@members");
-        // }
-        // this.renderUserGrid();
+        if (this.userId) {
+            this.users = this.groupsMap.get("@members").filter(user => user.id.startsWith(this.userId));
+        } else {
+            this.users = this.groupsMap.get("@members");
+        }
+        this.renderUserGrid();
     }
 
     onAddUserFieldChange(e, isCancelled) {
@@ -250,15 +258,20 @@ export default class StudyAdminUsers extends LitElement {
     render() {
         return html`
             <div class="pull-left" style="margin: 10px 0px">
-                <div style="display:inline-block; margin: 0px 0px">
-                    <!-- SEARCH USER -->
-                    <div class="btn-group">
+                <!-- SEARCH USER -->    
+                <div class="form-inline">
+                    <div class="form-group">
+                        <text-field-filter 
+                            .value="${this.userId}" 
+                            placeholder="Search user"
+                            @filterChange="${e => this.onUserFieldChange(e)}">
+                        </text-field-filter>
+                    </div>
                         <button type="button" id="${this._prefix}SearchUserMenu" class="btn btn-default btn-sm ripple"
                                 aria-haspopup="true" aria-expanded="false" title="Add new user to ${this.study?.name} study"
                                 @click="${this.onUserSearch}">
-                            <i class="fas fa-user icon-padding" aria-hidden="true"></i> Search
+                        <i class="fas fa-user icon-padding" aria-hidden="true"></i> Search
                         </button>
-                    </div>
                 </div>
             </div>
 
@@ -276,8 +289,10 @@ export default class StudyAdminUsers extends LitElement {
                                     <span style="font-weight: bold">User ID</span>
                                 </div>
                                 <div style="margin: 10px 0px">
-                                    <text-field-filter .value="${this.addUserId}" placeholder="new user ID..."
-                                                       @filterChange="${e => this.onAddUserFieldChange(e)}">
+                                    <text-field-filter 
+                                        .value="${this.addUserId}" 
+                                        placeholder="new user ID..."
+                                        @filterChange="${e => this.onAddUserFieldChange(e)}">
                                     </text-field-filter>
                                 </div>
                                 <div class="pull-right" style="margin: 5px">
@@ -305,12 +320,15 @@ export default class StudyAdminUsers extends LitElement {
                                 </div>
                                 <div style="margin: 10px 5px">
                                     ${this.groupsMap?.get("@members")
-                                            ?.filter(user => !this.study.fqn.startsWith(user.id + "@"))    // we cannot remove the owner
-                                            ?.map(user => html`
+                ?.filter(user => !this.study.fqn.startsWith(user.id + "@"))    // we cannot remove the owner
+                ?.map(user => html`
                                                 <div>
                                                     <span style="margin: 0px 5px">
-                                                        <input type="checkbox" value="${user.id}" .checked="${this.removeUserSet?.has(user.id)}"
-                                                               @click="${this.onRemoveUserFieldChange}">
+                                                        <input 
+                                                            type="checkbox" 
+                                                            value="${user.id}" 
+                                                            .checked="${this.removeUserSet?.has(user.id)}"
+                                                            @click="${this.onRemoveUserFieldChange}">
                                                     </span>
                                                     <span>${user.id}</span>
                                                 </div>
