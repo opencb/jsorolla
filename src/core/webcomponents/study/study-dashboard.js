@@ -86,29 +86,193 @@ export default class StudyDashboard extends LitElement {
         $(`#new${id}`).modal(action);
     }
 
-    // showModal(type) {
-    //     let modalType = {
-    //         "project": () => {
-    //             $("#newProject").modal("show");
-    //         },
-    //         "study": () => {
-    //             $("#newStudy").modal("show");
-    //         }
-    //     }
-    //     modalType[type]();
-    // }
+    renderVerticalDotAction() {
+        return html`
+            <div style="float: right; padding-right:10px; padding-top:5px">
+                <div class="dropdown">
+                    <a id="dLabel" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-ellipsis-v fa-lg"></i>
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="dLabel" role="menu">
+                        <li>
+                            <a @click="${() => this.actionModal('Study', 'show')}">
+                                <i class="fas fa-file icon-padding"></i> New Study
+                            </a>
+                        </li>
+                        <li class="divider"></li>
+                        <li>
+                            <a><i class="fas fa-edit icon-padding"></i>Edit</a>
+                        </li>
+                        <li class="disabled">
+                            <a><i class="fas fa-copy icon-padding"></i> Duplicate</a>
+                        </li>
+                        <li class="disabled">
+                            <a><i class="fas fa-trash icon-padding"></i> Delete</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>`
+    }
 
-    // onHide(type) {
-    //     let modalType = {
-    //         "project": () => {
-    //             $("#newProject").modal("hide");
-    //         },
-    //         "study": () => {
-    //             $("#newStudy").modal("hide");
-    //         }
-    //     }
-    //     modalType[type]();
-    // }
+    renderProjectAndStudies(project) {
+        return html`
+        <div class="col-md-4">
+            <div class="panel panel-default shadow">
+                <div class="panel-body text-center">
+                    <!-- Vertical dots   -->
+                    ${this.renderVerticalDotAction()}
+                    <div style="float: right">
+                        <div class="dropdown">
+                            <a id="dLabel" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fas fa-ellipsis-v fa-lg"></i>
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="dLabel" role="menu">
+                                <li>
+                                    <a @click="${() => this.actionModal('Study', 'show')}">
+                                        <i class="fas fa-file icon-padding"></i> New Study
+                                    </a>
+                                </li>
+                                <li class="divider"></li>
+                                <li>
+                                    <a><i class="fas fa-edit icon-padding"></i>Edit</a>
+                                </li>
+                                <li class="disabled">
+                                    <a><i class="fas fa-copy icon-padding"></i> Duplicate</a>
+                                </li>
+                                <li class="disabled">
+                                    <a><i class="fas fa-trash icon-padding"></i> Delete</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <h4>${project.name}</h4>
+                    <div>
+                        ${project.description ? html`
+                            <span>${project.description}</span>
+                        ` : html`
+                            <span style="font-style: italic">No description available</span>`
+            }
+                    </div>
+                    <div>
+                        <span>${project.organism.scientificName} ${project.organism.assembly}</span>
+                    </div>
+                    <div>
+                        <span>${project.fqn}</span>
+                    </div>
+                    <div>
+                        <span>Created on ${UtilsNew.dateFormatter(project.creationDate)}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row" style="padding: 5px 10px">
+                ${project.studies.map(study => html`
+                    <div class="col-md-6">
+                        <!-- TODO: Pass Info Study to the Study admin -->
+                        <a href="#study-admin/${study.fqn}">
+                            <div class="panel panel-default shadow-sm">
+                                <div class="panel-body text-center" style="color: black">
+                                    <div>
+                                        <h4>${study.name}</h4>
+                                    </div>
+                                    <div>
+                                        <span class="help-text">${study.description || "No description available"}</span>
+                                    </div>
+                                    <div>
+                                        <span>${study.fqn}</span>
+                                    </div>
+                                    <div>
+                                        <span>Created on ${UtilsNew.dateFormatter(study.creationDate)}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>`
+            )}
+            </div>
+        </div>
+        `
+    }
+
+    // Project and Studies Style Alternative
+    renderProjectAndStudiesAlt(project) {
+        return html`
+        <style>
+
+        .panel-body.project{
+            padding-top:0px;
+            padding-bottom:0px;
+        }
+
+        .border-dotted-right {
+            border:2px solid #000;
+            outline: 1px dashed #fff;
+            outline-offset: -1px;
+            background-color:var(--main-bg-color);
+            height:220px;
+            color:#fff;
+        }
+
+        </style>
+        <div class="row project">
+            <div class="panel panel-default shadow">
+                <!-- Vertical dots   -->
+                ${this.renderVerticalDotAction()}
+                <div class="panel-body project">
+                    <div class="row">
+                        <div class="col-md-2 border-dotted-right">
+                        <h3>Projects</h3>
+                            <div class="text-block text-center">
+                                <h4>${project.name}</h4>
+                                <div>
+                                    ${project.description ? html`
+                                        <span>${project.description}</span>
+                                    ` : html`
+                                        <span style="font-style: italic">No description available</span>`
+                                    }
+                                </div>
+                                <div>
+                                    <span>${project.organism.scientificName} ${project.organism.assembly}</span>
+                                </div>
+                                <div>
+                                    <span>${project.fqn}</span>
+                                </div>
+                                <div>
+                                    <span>Created on ${UtilsNew.dateFormatter(project.creationDate)}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-10">
+                            ${project.studies.map(study => html`
+                                <div class="col-md-3">
+                                    <!-- TODO: Pass Info Study to the Study admin -->
+                                    <a href="#study-admin/${study.fqn}">
+                                        <div class="panel panel-default child shadow-sm">
+                                            <div class="panel-body text-center" style="color: black">
+                                                <div>
+                                                    <h4>${study.name}</h4>
+                                                </div>
+                                                <div>
+                                                    <span class="help-text">${study.description || "No description available"}</span>
+                                                </div>
+                                                <div>
+                                                    <span>${study.fqn}</span>
+                                                </div>
+                                                <div>
+                                                    <span>Created on ${UtilsNew.dateFormatter(study.creationDate)}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </div>`
+                            )}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>`
+    }
 
 
     renderModal(id, name, type) {
@@ -152,13 +316,8 @@ export default class StudyDashboard extends LitElement {
 
         return html`
             <style>
-                .panel.panel-default:hover {
+                .panel.panel-default.child:hover {
                     background-color: #eee;
-                    text-decoration: none;
-                }
-
-                .panel.panel-default.child {
-                    height: 120px
                 }
 
                 .panel-body.text-center .text-name {
@@ -195,12 +354,13 @@ export default class StudyDashboard extends LitElement {
                 @media (min-width:992px){
                     .row.auto-clear .col-md-4:nth-child(3n+1){clear:left;}
                 }
+
             </style>
 
             <div>
                 <!-- Show Project by User-->
                 ${this.users.map(user => {
-                    return html`
+            return html`
                             <div class="row" style="border-bottom:  rgba(201, 76, 76, 0.7);}">
                                 <div class="col-md-6">
                                     <h2><i class="fas fa-user fa-sm icon-padding"></i>${user}</h2>
@@ -216,84 +376,8 @@ export default class StudyDashboard extends LitElement {
                                 <div class="col-md-12">
                                     <h3>Projects and Studies</h3>
                                 </div>
-                                ${this.opencgaSession.projects.filter(proj => proj.fqn.startsWith(user + "@")).map(project => {
-                                    return html`
-                                        <div class="col-md-4">
-                                            <div class="panel panel-default shadow">
-                                                <div class="panel-body text-center">
-                                                    <!-- Vertical dots   -->
-                                                    <div style="float: right">
-                                                        <div class="dropdown">
-                                                            <a id="dLabel" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                                <i class="fas fa-ellipsis-v fa-lg"></i>
-                                                            </a>
-                                                            <ul class="dropdown-menu" aria-labelledby="dLabel" role="menu">
-                                                                <li>
-                                                                    <a @click="${() => this.actionModal('Study', 'show')}">
-                                                                        <i class="fas fa-file icon-padding"></i> New Study
-                                                                    </a>
-                                                                </li>
-                                                                <li class="divider"></li>
-                                                                <li>
-                                                                    <a><i class="fas fa-edit icon-padding"></i>Edit</a>
-                                                                </li>
-                                                                <li class="disabled">
-                                                                    <a><i class="fas fa-copy icon-padding"></i> Duplicate</a>
-                                                                </li>
-                                                                <li class="disabled">
-                                                                    <a><i class="fas fa-trash icon-padding"></i> Delete</a>
-                                                                </li>
-                                                            </ul>
-                                                        </div>
-                                                    </div>
-                                                    
-                                                    <h4>${project.name}</h4>
-                                                    <div>
-                                                        ${project.description ? html`
-                                                            <span>${project.description}</span>
-                                                        ` : html`
-                                                            <span style="font-style: italic">No description available</span>`
-                                                        }
-                                                    </div>
-                                                    <div>
-                                                        <span>${project.organism.scientificName} ${project.organism.assembly}</span>
-                                                    </div>
-                                                    <div>
-                                                        <span>${project.fqn}</span>
-                                                    </div>
-                                                    <div>
-                                                        <span>Created on ${UtilsNew.dateFormatter(project.creationDate)}</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            
-                                            <div class="row" style="padding: 5px 10px">
-                                                ${project.studies.map(study => html`
-                                                    <div class="col-md-6">
-                                                        <!-- TODO: Pass Info Study to the Study admin -->
-                                                        <a href="#study-admin/${study.fqn}">
-                                                            <div class="panel panel-default shadow-sm">
-                                                                <div class="panel-body text-center" style="color: black">
-                                                                    <div>
-                                                                        <h4>${study.name}</h4>
-                                                                    </div>
-                                                                    <div>
-                                                                        <span class="help-text">${study.description || "No description available"}</span>
-                                                                    </div>
-                                                                    <div>
-                                                                        <span>${study.fqn}</span>
-                                                                    </div>
-                                                                    <div>
-                                                                        <span>Created on ${UtilsNew.dateFormatter(study.creationDate)}</span>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </a>
-                                                    </div>`
-                                                )}
-                                            </div>
-                                        </div>
-                                    `})}
+                                <div class="clearfix"></div>
+                                ${this.opencgaSession.projects.filter(proj => proj.fqn.startsWith(user + "@")).map(project => this.renderProjectAndStudiesAlt(project))}
                             </div>
                     `})}
             </div>
