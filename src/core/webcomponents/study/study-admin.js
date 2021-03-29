@@ -260,37 +260,49 @@ export default class StudyAdmin extends LitElement {
                         <div class="collapse navbar-collapse navbar-ex1-collapse admin-side-navbar">
                             <ul class="nav navbar-nav left">
                                 <li>
-                                    <a data-id="Dashboard" style="cursor: pointer" @click="${this.onSideNavClick}">Dashboard
+                                    <p class="navbar-text">Study Administration</p>
+                                </li>
+                                <li>
+                                    <a data-id="Dashboard" style="margin: 0px 5px; cursor: pointer" @click="${this.onSideNavClick}">Dashboard
                                         <span class="pull-right" style="font-size: 16px"><i class="fas fa-tachometer-alt"></i></span>
                                     </a>
                                 </li>
                                 <li class="active">
-                                    <a data-id="UsersAndGroups" style="cursor: pointer" @click="${this.onSideNavClick}">Users and Groups
+                                    <a data-id="UsersAndGroups" style="margin: 0px 5px; cursor: pointer" @click="${this.onSideNavClick}">Users and Groups
                                         <span class="pull-right" style="font-size: 16px"><i class="fas fa-user-friends"></i></span>
                                     </a>
                                 </li>
                                 <li>
-                                    <a data-id="Permissions" style="cursor: pointer" @click="${this.onSideNavClick}">Permissions
+                                    <a data-id="Permissions" style="margin: 0px 5px; cursor: pointer" @click="${this.onSideNavClick}">Permissions
                                         <span class="pull-right" style="font-size: 16px"><i class="fas fa-key"></i></span>
                                     </a>
                                 </li>
                                 <li>
-                                    <a data-id="Sample" style="cursor: pointer" @click="${this.onSideNavClick}">Sample
+                                    <a data-id="Permissions" style="margin: 0px 5px; cursor: pointer" @click="${this.onSideNavClick}">Audit
+                                        <span class="pull-right" style="font-size: 16px"><i class="fas fa-key"></i></span>
+                                    </a>
+                                </li>
+
+                                <li>
+                                    <p class="navbar-text">Data Management</p>
+                                </li>
+                                <li>
+                                    <a data-id="Sample" style="margin: 0px 5px; cursor: pointer" @click="${this.onSideNavClick}">Sample
                                         <span class="pull-right" style="font-size: 16px"><i class="fas fa-vial"></i></span>
                                     </a>
                                 </li>
                                 <li>
-                                    <a data-id="Individual" style="cursor: pointer" @click="${this.onSideNavClick}">Individual
+                                    <a data-id="Individual" style="margin: 0px 5px; cursor: pointer" @click="${this.onSideNavClick}">Individual
                                         <span class="pull-right" style="font-size: 16px"><i class="fas fa-user"></i></span>
                                     </a>
                                 </li>
                                 <li>
-                                    <a data-id="Family" style="cursor: pointer" @click="${this.onSideNavClick}">Family
+                                    <a data-id="Family" style="margin: 0px 5px; cursor: pointer" @click="${this.onSideNavClick}">Family
                                         <span class="pull-right" style="font-size: 16px"><i class="fas fa-users"></i></span>
                                     </a>
                                 </li>
                                 <li>
-                                    <a data-id="Cohort" style="cursor: pointer" @click="${this.onSideNavClick}">Cohort
+                                    <a data-id="Cohort" style="margin: 0px 5px; cursor: pointer" @click="${this.onSideNavClick}">Cohort
                                         <span class="pull-right" style="font-size: 16px"><i class="fas fa-bezier-curve"></i></span>
                                     </a>
                                 </li>

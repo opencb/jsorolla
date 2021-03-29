@@ -79,9 +79,11 @@ export default class StudyAdminUsers extends LitElement {
         }
         super.update(changedProperties);
     }
-    studyObserver() {
-        this.groupsMap = new Map();
 
+    studyObserver() {
+        this.owner = this.study.fqn.split("@")[0];
+
+        this.groupsMap = new Map();
         this.opencgaSession.opencgaClient.studies().groups(this.study.fqn)
             .then(response => {
                 for (const group of response.responses[0].results) {
@@ -124,7 +126,7 @@ export default class StudyAdminUsers extends LitElement {
     groupFormatter(value, row) {
         // const groupId = this.field.groupId;
         const checked = this.field.groupsMap?.get(this.field.groupId).findIndex(e => e.id === row.id) !== -1;
-        return `<input type="checkbox" ${checked ? "checked": ""}>`;
+        return `<input type="checkbox" ${checked ? "checked": ""} ${row.id === this.field.owner ? "disabled" : ""}>`;
     }
 
     _getDefaultColumns() {
@@ -139,7 +141,8 @@ export default class StudyAdminUsers extends LitElement {
                         title: group,
                         field: {
                             groupId: group,
-                            groupsMap: this.groupsMap
+                            groupsMap: this.groupsMap,
+                            owner: this.owner
                         },
                         rowspan: 1,
                         colspan: 1,
@@ -155,7 +158,7 @@ export default class StudyAdminUsers extends LitElement {
                     title: "User Name",
                     field: "name",
                     formatter:(value, row) => {
-                        return this.study.fqn.startsWith(value + "@") ? `<span style="font-weight: bold">${value} (owner)</span>` : value
+                        return value === this.owner ? `<span style="font-weight: bold">${value} (owner)</span>` : value
                     },
                     rowspan: 2,
                     colspan: 1,
