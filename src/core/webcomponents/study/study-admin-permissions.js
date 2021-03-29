@@ -60,19 +60,22 @@ export default class StudyAdminPermissions extends LitElement {
             "VIEW_SAMPLE_VARIANTS", "WRITE_FAMILY_ANNOTATIONS", "VIEW_SAMPLES", "WRITE_INDIVIDUAL_ANNOTATIONS", "VIEW_SAMPLE_ANNOTATIONS",
             "VIEW_CLINICAL_ANALYSIS"];
         this.permissions = [];
-        for (const permission of this.permissionString) {
-            this.permissions.push(
-                {
-                    id: permission
-                }
-            );
-        }
+        // for (const permission of this.permissionString) {
+        //     this.permissions.push(
+        //         {
+        //             id: permission
+        //         }
+        //     );
+        // }
+        this.permissions = this.permissionString.map(perm => {return { id: perm }})
+        this.studyPermissions = this.permissions;
+        console.log(this.permissions)
     }
 
     connectedCallback() {
         super.connectedCallback();
 
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this._config = { ...this.getDefaultConfig(), ...this.config };
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
     }
 
@@ -88,7 +91,7 @@ export default class StudyAdminPermissions extends LitElement {
             for (const project of this.opencgaSession.projects) {
                 for (const study of project.studies) {
                     if (study.id === this.studyId || study.fqn === this.studyId) {
-                        this.study = {...study};
+                        this.study = { ...study };
                         break;
                     }
                 }
@@ -111,7 +114,7 @@ export default class StudyAdminPermissions extends LitElement {
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
             columns: this._getDefaultColumns(),
-            data: this.permissions,
+            data: this.studyPermissions,
             sidePagination: "local",
 
             // Set table properties, these are read from config property
@@ -127,7 +130,7 @@ export default class StudyAdminPermissions extends LitElement {
             onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
             onPostBody: data => {
                 // We call onLoadSuccess to select first row
-                this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 1);
+                this.gridCommons.onLoadSuccess({ rows: data, total: data.length }, 1);
             }
         });
     }
@@ -137,7 +140,7 @@ export default class StudyAdminPermissions extends LitElement {
             return `<input type="checkbox" checked disabled>`;
         } else {
             const checked = this.field.acl?.[this.field.groupId]?.includes(row.id);
-            return `<input type="checkbox" ${checked ? "checked": ""}>`;
+            return `<input type="checkbox" ${checked ? "checked" : ""}>`;
         }
     }
 
@@ -209,8 +212,46 @@ export default class StudyAdminPermissions extends LitElement {
         };
     }
 
+
+    // TODO: we can use this one as search without search button.. if pass 3 character this gonna look the user.
+    onPermissionFieldChange(e) {
+        this.studyPermission = e.detail.value;
+        if (!this.studyPermission) {
+            this.studyPermissions = this.permissions;
+            this.renderPermissionGrid();
+        }
+    }
+
+    onPermissionSearch(e) {
+        if (this.studyPermission) {
+            this.studyPermissions = this.permissions.filter(perm => perm.id.startsWith(this.studyPermission.toUpperCase()));
+        } else {
+            this.studyPermissions = this.permissions
+        }
+        this.renderPermissionGrid();
+    }
+
     render() {
         return html`
+            <div class="pull-left" style="margin: 10px 0px">
+                <!-- SEARCH Permission -->    
+                <div class="form-inline">
+                    <div class="form-group">
+                        <text-field-filter 
+                            .value="${this.studyPermission}" 
+                            placeholder="Search permission"
+                            @filterChange="${this.onPermissionFieldChange}">
+                        </text-field-filter>
+                    </div>
+                        <button type="button" id="${this._prefix}SearchPermissionMenu" class="btn btn-default btn-sm ripple"
+                                aria-haspopup="true" aria-expanded="false" title="Search study permission"
+                                @click="${this.onPermissionSearch}">
+                            <i class="fas fa-user icon-padding" aria-hidden="true"></i> Search
+                        </button>
+                </div>
+            </div>
+
+
             <div id="${this._prefix}GridTableDiv" class="force-overflow" style="margin: 20px 0px">
                 <table id="${this._prefix}PermissionBrowserGrid"></table>
             </div>
