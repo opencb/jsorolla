@@ -100,6 +100,11 @@ export default class StudyAdmin extends LitElement {
     render() {
         return html`
             <style>
+                .row.left {
+                    margin-left: -30px;
+                    margin-top: -10px
+                }
+
                 /*Remove rounded coners*/
                 nav.sidebar.navbar {
                     border-radius: 0px;
@@ -186,7 +191,7 @@ export default class StudyAdmin extends LitElement {
                         position: fixed;
                         height: 100%;
                         width: 250px;
-                        margin-left: -160px;
+                        margin-left: -200px;
                         float: left;
                         /* z-index: 8000; */
                         margin-bottom: 0px;
@@ -243,7 +248,7 @@ export default class StudyAdmin extends LitElement {
 
             </style>
 
-            <div class="row">
+            <div class="row left">
                 <div class="col-md-2">
                     <!-- Navigation -->
                     <nav class="navbar navbar-inverse sidebar" role="navigation">
