@@ -77,6 +77,7 @@ export default class StudyAdminUsers extends LitElement {
         if (changedProperties.has("study")) {
             this.studyObserver();
         }
+
         super.update(changedProperties);
     }
 

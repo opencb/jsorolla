@@ -17,6 +17,7 @@
 import { html, LitElement } from "/web_modules/lit-element.js";
 import UtilsNew from "./../../utilsNew.js";
 import "./study-admin-users.js";
+import "./study-admin-permissions.js";
 export default class StudyAdmin extends LitElement {
 
     constructor() {
@@ -324,7 +325,8 @@ export default class StudyAdmin extends LitElement {
                         </div>
 
                         <div id="${this._prefix}Permissions" role="tabpanel" class="tab-pane content-tab">
-                            <h3>Permissions</h3>
+                            <h3><i class="fas fa-key icon-padding"></i>Permissions</h3>
+                            <study-admin-permissions .opencgaSession="${this.opencgaSession}" .study="${this.study}"></study-admin-permissions>
                         </div>
 
                         <div id="${this._prefix}Sample" role="tabpanel" class="tab-pane content-tab">
