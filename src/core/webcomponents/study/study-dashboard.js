@@ -86,29 +86,29 @@ export default class StudyDashboard extends LitElement {
         $(`#new${id}`).modal(action);
     }
 
-    showModal(type) {
-        let modalType = {
-            "project": () => {
-                $("#newProject").modal("show");
-            },
-            "study": () => {
-                $("#newStudy").modal("show");
-            }
-        }
-        modalType[type]();
-    }
+    // showModal(type) {
+    //     let modalType = {
+    //         "project": () => {
+    //             $("#newProject").modal("show");
+    //         },
+    //         "study": () => {
+    //             $("#newStudy").modal("show");
+    //         }
+    //     }
+    //     modalType[type]();
+    // }
 
-    onHide(type) {
-        let modalType = {
-            "project": () => {
-                $("#newProject").modal("hide");
-            },
-            "study": () => {
-                $("#newStudy").modal("hide");
-            }
-        }
-        modalType[type]();
-    }
+    // onHide(type) {
+    //     let modalType = {
+    //         "project": () => {
+    //             $("#newProject").modal("hide");
+    //         },
+    //         "study": () => {
+    //             $("#newStudy").modal("hide");
+    //         }
+    //     }
+    //     modalType[type]();
+    // }
 
 
     renderModal(id, name, type) {
