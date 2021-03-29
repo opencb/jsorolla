@@ -52,7 +52,7 @@ export default class StudyAdminUsers extends LitElement {
     _init() {
         this._prefix = UtilsNew.randomString(8);
 
-        this.gridId = this._prefix + "SampleBrowserGrid";
+        this.gridId = this._prefix + "UsersAndGroupsBrowserGrid";
     }
 
     connectedCallback() {
@@ -67,7 +67,7 @@ export default class StudyAdminUsers extends LitElement {
             for (const project of this.opencgaSession.projects) {
                 for (const study of project.studies) {
                     if (study.id === this.studyId || study.fqn === this.studyId) {
-                        this.study = study;
+                        this.study = {...study};
                         break;
                     }
                 }
@@ -90,6 +90,7 @@ export default class StudyAdminUsers extends LitElement {
                 for (const group of response.responses[0].results) {
                     this.groupsMap.set(group.id, group.userIds.map(u => {return {id: u, name: u, creationDate: "20210213000000"}}));
                 }
+                this.users = this.groupsMap.get("@members");
                 this.renderUserGrid();
                 this.requestUpdate();
             })
@@ -103,7 +104,7 @@ export default class StudyAdminUsers extends LitElement {
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
             columns: this._getDefaultColumns(),
-            data: this.groupsMap.get("@members"),
+            data: this.users,
             sidePagination: "local",
 
             // Set table properties, these are read from config property
@@ -113,7 +114,7 @@ export default class StudyAdminUsers extends LitElement {
             pageList: this._config.pageList,
             showExport: this._config.showExport,
             detailView: this._config.detailView,
-            detailFormatter: this.detailFormatter,
+            // detailFormatter: this.detailFormatter,
             formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
 
             onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
@@ -125,7 +126,6 @@ export default class StudyAdminUsers extends LitElement {
     }
 
     groupFormatter(value, row) {
-        // const groupId = this.field.groupId;
         const checked = this.field.groupsMap?.get(this.field.groupId).findIndex(e => e.id === row.id) !== -1;
         return `<input type="checkbox" ${checked ? "checked": ""} ${row.id === this.field.owner ? "disabled" : ""}>`;
     }
@@ -207,6 +207,16 @@ export default class StudyAdminUsers extends LitElement {
         };
     }
 
+    onUserSearch(e) {
+        // const userId = e.detail.value || "imedina";
+        // if (userId) {
+        //     this.users = this.groupsMap.get("@members").filter(user => user.id.startsWith(userId));
+        // }else {
+        //     this.users = this.groupsMap.get("@members");
+        // }
+        // this.renderUserGrid();
+    }
+
     onAddUserFieldChange(e, isCancelled) {
         if (isCancelled) {
             this.addUserId = "";
@@ -239,6 +249,19 @@ export default class StudyAdminUsers extends LitElement {
 
     render() {
         return html`
+            <div class="pull-left" style="margin: 10px 0px">
+                <div style="display:inline-block; margin: 0px 0px">
+                    <!-- SEARCH USER -->
+                    <div class="btn-group">
+                        <button type="button" id="${this._prefix}SearchUserMenu" class="btn btn-default btn-sm ripple"
+                                aria-haspopup="true" aria-expanded="false" title="Add new user to ${this.study?.name} study"
+                                @click="${this.onUserSearch}">
+                            <i class="fas fa-user icon-padding" aria-hidden="true"></i> Search
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <div class="pull-right" style="margin: 10px 0px">
                 <div style="display:inline-block; margin: 0px 20px">
                     <!-- ADD USER -->
@@ -364,7 +387,7 @@ export default class StudyAdminUsers extends LitElement {
             </div>
 
             <div id="${this._prefix}GridTableDiv" class="force-overflow">
-                <table id="${this._prefix}SampleBrowserGrid"></table>
+                <table id="${this._prefix}UsersAndGroupsBrowserGrid"></table>
             </div>
         `;
     }

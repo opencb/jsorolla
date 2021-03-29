@@ -51,7 +51,7 @@ export default class StudyAdminPermissions extends LitElement {
     _init() {
         this._prefix = UtilsNew.randomString(8);
 
-        this.gridId = this._prefix + "SampleBrowserGrid";
+        this.gridId = this._prefix + "PermissionBrowserGrid";
 
         this.permissionString = ["VIEW_FILES", "VIEW_FILE_ANNOTATIONS", "WRITE_INDIVIDUALS", "VIEW_COHORTS", "VIEW_FAMILY_ANNOTATIONS",
             "WRITE_FAMILIES", "VIEW_FILE_HEADER", "VIEW_FILE_CONTENT", "VIEW_INDIVIDUALS", "VIEW_AGGREGATED_VARIANTS",
@@ -76,12 +76,19 @@ export default class StudyAdminPermissions extends LitElement {
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
     }
 
+    // Note: WE NEED this function because we are rendering using JQuery not lit-element API
+    firstUpdated(changedProperties) {
+        if (changedProperties.has("study")) {
+            this.studyObserver();
+        }
+    }
+
     update(changedProperties) {
         if (changedProperties.has("studyId")) {
             for (const project of this.opencgaSession.projects) {
                 for (const study of project.studies) {
                     if (study.id === this.studyId || study.fqn === this.studyId) {
-                        this.study = study;
+                        this.study = {...study};
                         break;
                     }
                 }
@@ -96,11 +103,10 @@ export default class StudyAdminPermissions extends LitElement {
     }
 
     studyObserver() {
-        this.renderUserGrid();
-        // this.requestUpdate();
+        this.renderPermissionGrid();
     }
 
-    renderUserGrid() {
+    renderPermissionGrid() {
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
@@ -115,7 +121,7 @@ export default class StudyAdminPermissions extends LitElement {
             pageList: this._config.pageList,
             showExport: this._config.showExport,
             detailView: this._config.detailView,
-            detailFormatter: this.detailFormatter,
+            // detailFormatter: this.detailFormatter,
             formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
 
             onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
@@ -137,15 +143,15 @@ export default class StudyAdminPermissions extends LitElement {
 
     _getDefaultColumns() {
         let groupColumns = [];
-        if (this.study.acl) {
+        if (this.study.groups) {
             // Make sure @members and @admins are the last groups
-            const groups = [...Object.keys(this.study.acl)].filter(g => g !== "@members" && g !== "@admins");
+            const groups = this.study.groups.filter(g => g.id !== "@members" && g.id !== "@admins").map(g => g.id);
             groups.push("@members");
             groups.push("@admins");
             for (const group of groups) {
                 groupColumns.push(
                     {
-                        title: group,
+                        title: group === "@members" ? "Default" : group,
                         field: {
                             groupId: group,
                             acl: this.study.acl
@@ -163,6 +169,12 @@ export default class StudyAdminPermissions extends LitElement {
                 {
                     title: "Study Permission",
                     field: "id",
+                    rowspan: 2,
+                    colspan: 1,
+                },
+                {
+                    title: "Default",
+                    // field: "id",
                     rowspan: 2,
                     colspan: 1,
                 },
@@ -193,14 +205,14 @@ export default class StudyAdminPermissions extends LitElement {
             multiSelection: false,
             showSelectCheckbox: true,
             showToolbar: true,
-            showActions: true
+            showActions: true,
         };
     }
 
     render() {
         return html`
-            <div id="${this._prefix}GridTableDiv" class="force-overflow"style="margin: 20px 0px">
-                <table id="${this._prefix}SampleBrowserGrid"></table>
+            <div id="${this._prefix}GridTableDiv" class="force-overflow" style="margin: 20px 0px">
+                <table id="${this._prefix}PermissionBrowserGrid"></table>
             </div>
         `;
     }
