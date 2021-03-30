@@ -88,18 +88,18 @@ export default class StudyAdminAudit extends LitElement {
     }
 
     studyObserver() {
-        this.renderPermissionGrid();
+        this.renderRemoteTable();
     }
 
     renderRemoteTable() {
-        if (this.opencgaSession.opencgaClient && this.opencgaSession.study) {
-            const filters = {...this.query};
-            // TODO fix and replicate this in all browsers (the current filter is not "filters", it is actually built in the ajax() function in bootstrapTable)
-            if (UtilsNew.isNotUndefinedOrNull(this.lastFilters) &&
-                JSON.stringify(this.lastFilters) === JSON.stringify(filters)) {
-                // Abort destroying and creating again the grid. The filters have not changed
-                return;
-            }
+        if (this.opencgaSession.opencgaClient && this.study) {
+            // const filters = {...this.query};
+            // // TODO fix and replicate this in all browsers (the current filter is not "filters", it is actually built in the ajax() function in bootstrapTable)
+            // if (UtilsNew.isNotUndefinedOrNull(this.lastFilters) &&
+            //     JSON.stringify(this.lastFilters) === JSON.stringify(filters)) {
+            //     // Abort destroying and creating again the grid. The filters have not changed
+            //     return;
+            // }
 
             this.table = $("#" + this.gridId);
             this.table.bootstrapTable("destroy");
@@ -119,50 +119,20 @@ export default class StudyAdminAudit extends LitElement {
                 detailFormatter: this._config.detailFormatter,
                 gridContext: this,
                 formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+
                 ajax: params => {
                     const _filters = {
-                        study: this.opencgaSession.study.fqn,
+                        study: this.study.fqn,
                         limit: params.data.limit,
                         skip: params.data.offset || 0,
                         count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
-                        ...filters
+                        // ...filters
                     };
                     // Store the current filters
-                    this.lastFilters = {..._filters};
-                    this.opencgaSession.opencgaClient.studies().searchAudit(_filters)
-                        .then(sampleResponse => {
-                            // Fetch clinical analysis to display the Case ID
-                            const individualIds = sampleResponse.getResults().map(sample => sample.individualId).filter(Boolean).join(",");
-                            if (individualIds) {
-                                this.opencgaSession.opencgaClient.clinical().search(
-                                    {
-                                        member: individualIds,
-                                        study: this.opencgaSession.study.fqn,
-                                        exclude: "proband.samples,family,interpretation,files"
-                                    })
-                                    .then(caseResponse => {
-                                        // We store the Case ID in the individual attribute
-                                        // Note clinical search results are not sorted
-                                        // FIXME at the moment we only search by proband
-                                        const map = {};
-                                        for (const clinicalAnalysis of caseResponse.responses[0].results) {
-                                            if (!map[clinicalAnalysis.proband.id]) {
-                                                map[clinicalAnalysis.proband.id] = [];
-                                            }
-                                            map[clinicalAnalysis.proband.id].push(clinicalAnalysis);
-                                        }
-                                        for (const sample of sampleResponse.responses[0].results) {
-                                            sample.attributes.OPENCGA_CLINICAL_ANALYSIS = map[sample.individualId];
-                                        }
-                                        params.success(sampleResponse);
-                                    })
-                                    .catch(e => {
-                                        console.error(e);
-                                        params.error(e);
-                                    });
-                            } else {
-                                params.success(sampleResponse);
-                            }
+                    // this.lastFilters = {..._filters};
+                    this.opencgaSession.opencgaClient.studies().searchAudit(this.study.fqn, _filters)
+                        .then(res => {
+                            params.success(res)
                         })
                         .catch(e => {
                             console.error(e);
@@ -185,18 +155,6 @@ export default class StudyAdminAudit extends LitElement {
                         }
                     }
                 },
-                onCheck: (row, $element) => {
-                    this.gridCommons.onCheck(row.id, row);
-                },
-                onCheckAll: rows => {
-                    this.gridCommons.onCheckAll(rows);
-                },
-                onUncheck: (row, $element) => {
-                    this.gridCommons.onUncheck(row.id, row);
-                },
-                onUncheckAll: rows => {
-                    this.gridCommons.onUncheckAll(rows);
-                },
                 onLoadSuccess: data => {
                     this.gridCommons.onLoadSuccess(data, 1);
                 },
@@ -208,30 +166,11 @@ export default class StudyAdminAudit extends LitElement {
         }
     }
 
-    renderPermissionGrid() {
-        this.table = $("#" + this.gridId);
-        this.table.bootstrapTable("destroy");
-        this.table.bootstrapTable({
-            columns: this._getDefaultColumns(),
-            data: this.studyPermissions,
-            sidePagination: "local",
-
-            // Set table properties, these are read from config property
-            uniqueId: "id",
-            pagination: this._config.pagination,
-            pageSize: this._config.pageSize,
-            pageList: this._config.pageList,
-            showExport: this._config.showExport,
-            detailView: this._config.detailView,
-            // detailFormatter: this.detailFormatter,
-            formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
-
-            onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
-            onPostBody: data => {
-                // We call onLoadSuccess to select first row
-                this.gridCommons.onLoadSuccess({ rows: data, total: data.length }, 1);
-            }
-        });
+    detailFormatter(index, row) {
+        return `<div style="margin: 20px">
+                    <h4>Action Params</h4>
+                    <pre>${JSON.stringify(row.params, null, 2)}</pre>
+                </div>`;
     }
 
     _getDefaultColumns() {
@@ -250,21 +189,20 @@ export default class StudyAdminAudit extends LitElement {
             },
             {
                 title: "Action",
-                field: "action",
-                formatter: (value, row) => `${row.action}-${row.resource}`
+                field: "action"
+            },
+            {
+                title: "Resource Type",
+                field: "resource"
             },
             {
                 title: "Resource ID",
                 field: "resourceId",
             },
             {
-                title: "Study Permission",
-                field: "id",
-            },
-            {
                 title: "Date",
                 field: "date",
-                formatter: (value) => `${UtilsNew.dateFormatter(value)}`
+                formatter: (value) => value ? UtilsNew.dateFormatter(UtilsNew.getDatetime(value)) : "NA"
             },
             {
                 title: "Status",
@@ -276,11 +214,11 @@ export default class StudyAdminAudit extends LitElement {
     getDefaultConfig() {
         return {
             pagination: true,
-            pageSize: 25,
-            pageList: [25, 50],
+            pageSize: 10,
+            pageList: [10, 25, 50],
             showExport: false,
-            detailView: false,
-            detailFormatter: null, // function with the detail formatter
+            detailView: true,
+            detailFormatter: this.detailFormatter, // function with the detail formatter
             multiSelection: false,
             showSelectCheckbox: true,
             showToolbar: true,
@@ -310,7 +248,20 @@ export default class StudyAdminAudit extends LitElement {
     render() {
         return html`
             <div class="pull-left" style="margin: 10px 0px">
-               
+                <div class="btn-group" data-cy="form-case">
+                    <button type="button" class="dropdown-toggle btn btn-default filter-button"
+                            id="${this._prefix}caseMenu"
+                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                        <span class="ocap-text-button">Case: <span>${this.query?.id ?? "All"}</span></span>&nbsp;<span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="${this._prefix}caseMenu">
+                        <li style="padding: 5px;">
+                            <div style="display: inline-flex; width: 300px;">
+                                <label class="filter-label">Case ID:</label>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
             </div>
 
             <div id="${this._prefix}GridTableDiv" class="force-overflow" style="margin: 20px 0px">

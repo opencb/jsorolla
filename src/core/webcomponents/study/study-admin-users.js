@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import { html, LitElement } from "/web_modules/lit-element.js";
-import UtilsNew from "./../../utilsNew.js";
+import { LitElement, html } from "/web_modules/lit-element.js";
+import UtilsNew from "../../utilsNew.js";
 import GridCommons from "../commons/grid-commons.js";
 import "../commons/filters/text-field-filter.js";
 
@@ -63,6 +63,13 @@ export default class StudyAdminUsers extends LitElement {
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
     }
 
+    // Note: WE NEED this function because we are rendering using JQuery not lit-element API
+    firstUpdated(changedProperties) {
+        if (changedProperties.has("study")) {
+            this.studyObserver();
+        }
+    }
+
     update(changedProperties) {
         if (changedProperties.has("studyId")) {
             for (const project of this.opencgaSession.projects) {
@@ -88,14 +95,25 @@ export default class StudyAdminUsers extends LitElement {
         this.groupsMap = new Map();
         this.opencgaSession.opencgaClient.studies().groups(this.study.fqn)
             .then(response => {
-                for (const group of response.responses[0].results) {
-                    this.groupsMap.set(group.id, group.userIds.map(u => {
-                        return { id: u, name: u, creationDate: "20210213" }
-                    }));
+                const groups = response.responses[0].results;
+                // Remove in OpenCGA 2.1
+                if (groups[0].users) {
+                    for (const group of groups) {
+                        this.groupsMap.set(group.id, group.users);
+                    }
+                } else {
+                    for (const group of response.responses[0].results) {
+                        this.groupsMap.set(group.id, group.userIds.map(u => {
+                            return { id: u, name: u }
+                        }));
+                    }
                 }
+
                 this.users = this.groupsMap.get("@members");
+                this.sortedUserIds = this.groupsMap.get("@members").map(user => user.id).sort();
+
                 this.renderUserGrid();
-                this.requestUpdate();
+                // this.requestUpdate();
             })
             .catch(response => {
                 console.error("An error occurred fetching clinicalAnalysis: ", response);
@@ -182,9 +200,9 @@ export default class StudyAdminUsers extends LitElement {
                 },
                 {
                     title: "Created on",
-                    field: "creationDate",
+                    field: "account.creationDate",
                     formatter: (value, row) => {
-                        return UtilsNew.dateFormatter(value)
+                        return value ? UtilsNew.dateFormatter(value) : "NA"
                     },
                     rowspan: 2,
                     colspan: 1,
@@ -305,7 +323,7 @@ export default class StudyAdminUsers extends LitElement {
                         <i class="fas fa-search" aria-hidden="true"></i>
                     </button>
                     <datalist id="${this._prefix}MemberUsers">
-                        ${this.groupsMap?.get("@members").map(user => user.id).sort().map(userId => html`
+                        ${this.sortedUserIds?.map(userId => html`
                             <option value="${userId}"></option>
                         `)}
                     </datalist>
