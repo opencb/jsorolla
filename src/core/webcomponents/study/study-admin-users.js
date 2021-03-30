@@ -53,6 +53,7 @@ export default class StudyAdminUsers extends LitElement {
         this._prefix = UtilsNew.randomString(8);
 
         this.gridId = this._prefix + "UsersAndGroupsBrowserGrid";
+        this.searchUserId = "";
     }
 
     connectedCallback() {
@@ -183,6 +184,21 @@ export default class StudyAdminUsers extends LitElement {
                     colspan: groupColumns.length,
                     align: "center"
                 },
+                // {
+                //     title: "Actions",
+                //     formatter: (value, row) => `
+                //         <div class="dropdown">
+                //             <button class="btn btn-danger btn-small ripple" type="button" data-toggle="dropdown">
+                //                 <span><i class="fas fa-times icon-padding" aria-hidden="true"></i> Remove</span>
+                //             </button>
+                //         </div>`,
+                //     events: {
+                //         "click a": this.onActionClick.bind(this)
+                //     },
+                //     rowspan: 2,
+                //     colspan: 1,
+                //     visible: !this._config.columns?.hidden?.includes("actions")
+                // }
             ],
             [
                 ...groupColumns
@@ -208,21 +224,23 @@ export default class StudyAdminUsers extends LitElement {
     }
 
     // TODO: we can use this one as search without search button.. if pass 3 character this gonna look the user.
-    onUserFieldChange(e) {
-        this.userId = e.detail.value;
-        if (!this.userId) {
-            this.users = this.groupsMap.get("@members");
-            this.renderUserGrid();
-        }
+    onUserSearchFieldChange(e) {
+        this.searchUserId = e.currentTarget.value;
     }
 
-    onUserSearch(e) {
-        if (this.userId) {
-            this.users = this.groupsMap.get("@members").filter(user => user.id.startsWith(this.userId));
+    onUserSearch(e, clear) {
+        if (clear) {
+            this.searchUserId = "";
+        }
+
+        if (this.searchUserId) {
+            this.users = this.groupsMap.get("@members").filter(user => user.id.includes(this.searchUserId));
         } else {
             this.users = this.groupsMap.get("@members");
         }
+
         this.renderUserGrid();
+        this.requestUpdate();
     }
 
     onAddUserFieldChange(e, isCancelled) {
@@ -258,20 +276,27 @@ export default class StudyAdminUsers extends LitElement {
     render() {
         return html`
             <div class="pull-left" style="margin: 10px 0px">
-                <!-- SEARCH USER -->    
+                <!-- SEARCH USER -->
                 <div class="form-inline">
                     <div class="form-group">
-                        <text-field-filter 
-                            .value="${this.userId}" 
-                            placeholder="Search user"
-                            @filterChange="${e => this.onUserFieldChange(e)}">
-                        </text-field-filter>
+                        <input type="text" .value="${this.searchUserId || ""}" class="form-control" list="${this._prefix}MemberUsers" placeholder="Search by user ID..." 
+                               @change="${this.onUserSearchFieldChange}">
                     </div>
-                        <button type="button" id="${this._prefix}SearchUserMenu" class="btn btn-default btn-sm ripple"
-                                aria-haspopup="true" aria-expanded="false" title="Add new user to ${this.study?.name} study"
-                                @click="${this.onUserSearch}">
-                        <i class="fas fa-user icon-padding" aria-hidden="true"></i> Search
-                        </button>
+                    <button type="button" id="${this._prefix}ClearUserMenu" class="btn btn-default btn-xs ripple"
+                            aria-haspopup="true" aria-expanded="false" title="Clear users from ${this.study?.name} study"
+                            @click="${e => this.onUserSearch(e, true)}">
+                        <i class="fas fa-times" aria-hidden="true"></i>
+                    </button>
+                    <button type="button" id="${this._prefix}SearchUserMenu" class="btn btn-default btn-xs ripple"
+                            aria-haspopup="true" aria-expanded="false" title="Filter user from ${this.study?.name} study"
+                            @click="${e => this.onUserSearch(e, false)}">
+                        <i class="fas fa-search" aria-hidden="true"></i>
+                    </button>
+                    <datalist id="${this._prefix}MemberUsers">
+                        ${this.groupsMap?.get("@members").map(user => user.id).sort().map(userId => html`
+                            <option value="${userId}"></option>
+                        `)}
+                    </datalist>
                 </div>
             </div>
 
@@ -289,10 +314,10 @@ export default class StudyAdminUsers extends LitElement {
                                     <span style="font-weight: bold">User ID</span>
                                 </div>
                                 <div style="margin: 10px 0px">
-                                    <text-field-filter 
-                                        .value="${this.addUserId}" 
-                                        placeholder="new user ID..."
-                                        @filterChange="${e => this.onAddUserFieldChange(e)}">
+                                    <text-field-filter
+                                            .value="${this.addUserId}"
+                                            placeholder="new user ID..."
+                                            @filterChange="${e => this.onAddUserFieldChange(e)}">
                                     </text-field-filter>
                                 </div>
                                 <div class="pull-right" style="margin: 5px">
@@ -320,15 +345,15 @@ export default class StudyAdminUsers extends LitElement {
                                 </div>
                                 <div style="margin: 10px 5px">
                                     ${this.groupsMap?.get("@members")
-                ?.filter(user => !this.study.fqn.startsWith(user.id + "@"))    // we cannot remove the owner
-                ?.map(user => html`
+                                            ?.filter(user => !this.study.fqn.startsWith(user.id + "@"))    // we cannot remove the owner
+                                            ?.map(user => html`
                                                 <div>
                                                     <span style="margin: 0px 5px">
-                                                        <input 
-                                                            type="checkbox" 
-                                                            value="${user.id}" 
-                                                            .checked="${this.removeUserSet?.has(user.id)}"
-                                                            @click="${this.onRemoveUserFieldChange}">
+                                                        <input
+                                                                type="checkbox"
+                                                                value="${user.id}"
+                                                                .checked="${this.removeUserSet?.has(user.id)}"
+                                                                @click="${this.onRemoveUserFieldChange}">
                                                     </span>
                                                     <span>${user.id}</span>
                                                 </div>
