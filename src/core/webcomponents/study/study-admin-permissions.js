@@ -65,6 +65,7 @@ export default class StudyAdminPermissions extends LitElement {
             }
         });
         this.studyPermissions = this.permissions;
+        this.searchPermission = ""
     }
 
     connectedCallback() {
@@ -215,19 +216,24 @@ export default class StudyAdminPermissions extends LitElement {
 
     // TODO: we can use this one as search without search button.. if pass 3 character this gonna look the user.
     onPermissionFieldChange(e) {
-        this.studyPermission = e.detail.value;
-        if (!this.studyPermission) {
-            this.studyPermissions = this.permissions;
-            this.renderPermissionGrid();
-        }
+        this.searchPermission = e.currentTarget.value;
+        // if (!this.studyPermission) {
+        //     this.studyPermissions = this.permissions;
+        //     this.renderPermissionGrid();
+        // }
     }
 
-    onPermissionSearch(e) {
-        if (this.studyPermission) {
-            this.studyPermissions = this.permissions.filter(perm => perm.id.startsWith(this.studyPermission.toUpperCase()));
+    onPermissionSearch(e,clear) {
+        if(clear){
+            this.searchPermission = "";
+        }
+
+        if (this.searchPermission) {
+            this.studyPermissions = this.permissions.filter(perm => perm.id.includes(this.searchPermission.toUpperCase()));
         } else {
             this.studyPermissions = this.permissions
         }
+
         this.renderPermissionGrid();
     }
 
@@ -237,17 +243,27 @@ export default class StudyAdminPermissions extends LitElement {
                 <!-- SEARCH Permission -->    
                 <div class="form-inline">
                     <div class="form-group">
-                        <text-field-filter 
-                            .value="${this.studyPermission}" 
-                            placeholder="Search permission"
-                            @filterChange="${this.onPermissionFieldChange}">
-                        </text-field-filter>
+                        <input type="text" 
+                            .value="${this.searchPermission || ""}" 
+                            class="form-control" 
+                            list="${this._prefix}Permissions" placeholder="Search by Permission ..." 
+                            @change="${this.onPermissionFieldChange}">
                     </div>
-                        <button type="button" id="${this._prefix}SearchPermissionMenu" class="btn btn-default btn-sm ripple"
-                                aria-haspopup="true" aria-expanded="false" title="Search study permission"
-                                @click="${this.onPermissionSearch}">
-                            <i class="fas fa-user icon-padding" aria-hidden="true"></i> Search
-                        </button>
+                    <button type="button" id="${this._prefix}ClearPermissionMenu" class="btn btn-default btn-xs ripple"
+                            aria-haspopup="true" aria-expanded="false" title="Clear permission from ${this.study?.name} study"
+                            @click="${e => this.onPermissionSearch(e, true)}">
+                        <i class="fas fa-times" aria-hidden="true"></i>
+                    </button>
+                    <button type="button" id="${this._prefix}SearchPermissionMenu" class="btn btn-default btn-xs ripple"
+                            aria-haspopup="true" aria-expanded="false" title="Filter permission from ${this.study?.name} study"
+                            @click="${e => this.onPermissionSearch(e, false)}">
+                        <i class="fas fa-search" aria-hidden="true"></i>
+                    </button>
+                    <datalist id="${this._prefix}Permissions">
+                        ${this.permissionString?.map(perm => html`
+                            <option value="${perm}"></option>
+                        `)}
+                    </datalist>
                 </div>
             </div>
 
