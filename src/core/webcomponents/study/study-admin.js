@@ -18,6 +18,7 @@ import { html, LitElement } from "/web_modules/lit-element.js";
 import UtilsNew from "./../../utilsNew.js";
 import "./study-admin-users.js";
 import "./study-admin-permissions.js";
+import "./study-admin-audit.js";
 
 export default class StudyAdmin extends LitElement {
 
@@ -285,8 +286,8 @@ export default class StudyAdmin extends LitElement {
                                     </a>
                                 </li>
                                 <li>
-                                    <a data-id="Permissions" style="margin: 0px 5px; cursor: pointer" @click="${this.onSideNavClick}">Audit
-                                        <span class="pull-right" style="font-size: 16px"><i class="fas fa-key"></i></span>
+                                    <a data-id="Audit" style="margin: 0px 5px; cursor: pointer" @click="${this.onSideNavClick}">Audit
+                                        <span class="pull-right" style="font-size: 16px"><i class="fas fa-book"></i></span>
                                     </a>
                                 </li>
 
@@ -333,6 +334,11 @@ export default class StudyAdmin extends LitElement {
                         <div id="${this._prefix}Permissions" role="tabpanel" class="tab-pane content-tab">
                             <h3><i class="fas fa-key icon-padding"></i>Permissions</h3>
                             <study-admin-permissions .opencgaSession="${this.opencgaSession}" .study="${this.study}"></study-admin-permissions>
+                        </div>
+
+                        <div id="${this._prefix}Audit" role="tabpanel" class="tab-pane content-tab">
+                            <h3><i class="fas fa-book icon-padding"></i>Audit</h3>
+                            <study-admin-audit .opencgaSession="${this.opencgaSession}" .study="${this.study}"></study-admin-audit>
                         </div>
 
                         <div id="${this._prefix}Sample" role="tabpanel" class="tab-pane content-tab">
