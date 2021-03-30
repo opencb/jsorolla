@@ -19,6 +19,10 @@ import UtilsNew from "./../../utilsNew.js";
 import "./study-admin-users.js";
 import "./study-admin-permissions.js";
 import "./study-admin-audit.js";
+import "./study-admin-sample.js";
+import "./study-admin-individual.js";
+import "./study-admin-family.js";
+import "./study-admin-cohort.js";
 
 export default class StudyAdmin extends LitElement {
 
@@ -342,19 +346,23 @@ export default class StudyAdmin extends LitElement {
                         </div>
 
                         <div id="${this._prefix}Sample" role="tabpanel" class="tab-pane content-tab">
-                            <h3>Sample</h3>
+                            <h3><i class="fas fa-vial icon-padding"></i>Sample</h3>
+                            <study-admin-sample .opencgaSession="${this.opencgaSession}" .study="${this.study}"></study-admin-sample>
                         </div>
 
                         <div id="${this._prefix}Individual" role="tabpanel" class="tab-pane content-tab">
-                            <h3>Individual</h3>
+                            <h3><i class="fas fa-user icon-padding"></i>Individual</h3>
+                            <study-admin-individual .opencgaSession="${this.opencgaSession}" .study="${this.study}"></study-admin-individual>
                         </div>
 
                         <div id="${this._prefix}Family" role="tabpanel" class="tab-pane content-tab">
-                            <h3>Family</h3>
+                            <h3><i class="fas fa-users icon-padding"></i>Family</h3>
+                            <study-admin-family .opencgaSession="${this.opencgaSession}" .study="${this.study}"></study-admin-family>
                         </div>
 
                         <div id="${this._prefix}Cohort" role="tabpanel" class="tab-pane content-tab">
-                            <h3>Cohort</h3>
+                            <h3><i class="fas fa-bezier-curve icon-padding"></i>Cohort</h3>
+                            <study-admin-cohort .opencgaSession="${this.opencgaSession}" .study="${this.study}"></study-admin-cohort>
                         </div>
                     </div>
                 </div>
