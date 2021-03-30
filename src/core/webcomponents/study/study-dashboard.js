@@ -222,7 +222,7 @@ export default class StudyDashboard extends LitElement {
                 <div class="panel-body project">
                     <div class="row">
                         <div class="col-md-2 border-dotted-right">
-                        <h3>Projects</h3>
+                        <h3>Project</h3>
                             <div class="text-block text-center">
                                 <h4>${project.name}</h4>
                                 <div>
