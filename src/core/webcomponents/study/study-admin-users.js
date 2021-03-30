@@ -89,7 +89,9 @@ export default class StudyAdminUsers extends LitElement {
         this.opencgaSession.opencgaClient.studies().groups(this.study.fqn)
             .then(response => {
                 for (const group of response.responses[0].results) {
-                    this.groupsMap.set(group.id, group.userIds.map(u => { return { id: u, name: u, creationDate: "20210213000000" } }));
+                    this.groupsMap.set(group.id, group.userIds.map(u => {
+                        return { id: u, name: u, creationDate: "20210213" }
+                    }));
                 }
                 this.users = this.groupsMap.get("@members");
                 this.renderUserGrid();
@@ -164,6 +166,7 @@ export default class StudyAdminUsers extends LitElement {
                     },
                     rowspan: 2,
                     colspan: 1,
+                    sortable: true
                 },
                 {
                     title: "User ID",
@@ -174,6 +177,15 @@ export default class StudyAdminUsers extends LitElement {
                 {
                     title: "Email",
                     field: "email",
+                    rowspan: 2,
+                    colspan: 1,
+                },
+                {
+                    title: "Created on",
+                    field: "creationDate",
+                    formatter: (value, row) => {
+                        return UtilsNew.dateFormatter(value)
+                    },
                     rowspan: 2,
                     colspan: 1,
                 },
@@ -363,7 +375,7 @@ export default class StudyAdminUsers extends LitElement {
                                     <button type="button" class="btn btn-primary ${this.removeUserSet?.size > 0 ? "" : "disabled"}"
                                             @click="${e => this.onRemoveUserFieldChange(e, true)}" style="margin: 0px 5px">Cancel
                                     </button>
-                                    <button type="button" class="btn btn-primary ${this.removeUserSet?.size > 0 ? "" : "disabled"}"
+                                    <button type="button" class="btn btn-danger ${this.removeUserSet?.size > 0 ? "" : "disabled"}"
                                             @click="${this.onSaveInterpretation}">Remove
                                     </button>
                                 </div>
@@ -419,7 +431,7 @@ export default class StudyAdminUsers extends LitElement {
                                     <button type="button" class="btn btn-primary ${this.removeUserSet?.size > 0 ? "" : "disabled"}"
                                             @click="${e => this.onRemoveUserFieldChange(e, true)}" style="margin: 0px 5px">Cancel
                                     </button>
-                                    <button type="button" class="btn btn-primary ${this.removeUserSet?.size > 0 ? "" : "disabled"}"
+                                    <button type="button" class="btn btn-danger ${this.removeUserSet?.size > 0 ? "" : "disabled"}"
                                             @click="${this.onSaveInterpretation}">Remove
                                     </button>
                                 </div>

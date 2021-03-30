@@ -59,17 +59,12 @@ export default class StudyAdminPermissions extends LitElement {
             "VIEW_INDIVIDUAL_ANNOTATIONS", "VIEW_PANELS", "VIEW_FAMILIES", "VIEW_JOBS", "WRITE_SAMPLE_ANNOTATIONS", "WRITE_JOBS",
             "VIEW_SAMPLE_VARIANTS", "WRITE_FAMILY_ANNOTATIONS", "VIEW_SAMPLES", "WRITE_INDIVIDUAL_ANNOTATIONS", "VIEW_SAMPLE_ANNOTATIONS",
             "VIEW_CLINICAL_ANALYSIS"];
-        this.permissions = [];
-        // for (const permission of this.permissionString) {
-        //     this.permissions.push(
-        //         {
-        //             id: permission
-        //         }
-        //     );
-        // }
-        this.permissions = this.permissionString.map(perm => {return { id: perm }})
+        this.permissions = this.permissionString.map(perm => {
+            return {
+                id: perm
+            }
+        });
         this.studyPermissions = this.permissions;
-        console.log(this.permissions)
     }
 
     connectedCallback() {
@@ -149,7 +144,7 @@ export default class StudyAdminPermissions extends LitElement {
         if (this.study.groups) {
             // Make sure @members and @admins are the last groups
             const groups = this.study.groups.filter(g => g.id !== "@members" && g.id !== "@admins").map(g => g.id);
-            groups.push("@members");
+            // groups.push("@members");
             groups.push("@admins");
             for (const group of groups) {
                 groupColumns.push(
@@ -174,12 +169,17 @@ export default class StudyAdminPermissions extends LitElement {
                     field: "id",
                     rowspan: 2,
                     colspan: 1,
+                    sortable: true
                 },
                 {
-                    title: "Default",
-                    // field: "id",
+                    title: "Default Member Permission",
+                    field: {
+                        groupId: "@members",
+                        acl: this.study.acl
+                    },
                     rowspan: 2,
                     colspan: 1,
+                    formatter: this.groupFormatter
                 },
                 {
                     title: "Groups",
