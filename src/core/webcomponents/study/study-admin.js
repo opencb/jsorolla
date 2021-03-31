@@ -65,7 +65,7 @@ export default class StudyAdmin extends LitElement {
     }
 
     update(changedProperties) {
-        if (changedProperties.has("studyId")) {
+        if (changedProperties.has("studyId") || changedProperties.has("opencgaSession")) {
             for (const project of this.opencgaSession.projects) {
                 for (const study of project.studies) {
                     if (study.id === this.studyId || study.fqn === this.studyId) {

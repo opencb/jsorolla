@@ -82,7 +82,7 @@ export default class StudyAdminUsers extends LitElement {
             }
         }
 
-        if (changedProperties.has("study")) {
+        if (changedProperties.has("study") || changedProperties.has("opencgaSession")) {
             this.studyObserver();
         }
 
@@ -90,34 +90,36 @@ export default class StudyAdminUsers extends LitElement {
     }
 
     studyObserver() {
-        this.owner = this.study.fqn.split("@")[0];
+        if (this.study) {
+            this.owner = this.study.fqn.split("@")[0];
 
-        this.groupsMap = new Map();
-        this.opencgaSession.opencgaClient.studies().groups(this.study.fqn)
-            .then(response => {
-                const groups = response.responses[0].results;
-                // Remove in OpenCGA 2.1
-                if (groups[0].users) {
-                    for (const group of groups) {
-                        this.groupsMap.set(group.id, group.users);
+            this.groupsMap = new Map();
+            this.opencgaSession.opencgaClient.studies().groups(this.study.fqn)
+                .then(response => {
+                    const groups = response.responses[0].results;
+                    // Remove in OpenCGA 2.1
+                    if (groups[0].users) {
+                        for (const group of groups) {
+                            this.groupsMap.set(group.id, group.users);
+                        }
+                    } else {
+                        for (const group of response.responses[0].results) {
+                            this.groupsMap.set(group.id, group.userIds.map(u => {
+                                return { id: u, name: u }
+                            }));
+                        }
                     }
-                } else {
-                    for (const group of response.responses[0].results) {
-                        this.groupsMap.set(group.id, group.userIds.map(u => {
-                            return { id: u, name: u }
-                        }));
-                    }
-                }
 
-                this.users = this.groupsMap.get("@members");
-                this.sortedUserIds = this.groupsMap.get("@members").map(user => user.id).sort();
+                    this.users = this.groupsMap.get("@members");
+                    this.sortedUserIds = this.groupsMap.get("@members").map(user => user.id).sort();
 
-                this.renderUserGrid();
-                // this.requestUpdate();
-            })
-            .catch(response => {
-                console.error("An error occurred fetching clinicalAnalysis: ", response);
-            });
+                    this.renderUserGrid();
+                    this.requestUpdate();
+                })
+                .catch(response => {
+                    console.error("An error occurred fetching clinicalAnalysis: ", response);
+                });
+        }
     }
 
     renderUserGrid() {
@@ -273,7 +275,7 @@ export default class StudyAdminUsers extends LitElement {
         this.requestUpdate();
     }
 
-    onAddUserFieldChange(e, isCancelled) {
+    onUserAddFieldChange(e, isCancelled) {
         if (isCancelled) {
             this.addUserId = "";
         } else {
@@ -282,7 +284,38 @@ export default class StudyAdminUsers extends LitElement {
         this.requestUpdate();
     }
 
-    onRemoveUserFieldChange(e, isCancelled) {
+    onUserAdd(e) {
+        if (this.groupsMap.get("@members").includes(this.addUserId)) {
+            console.log("User already exists in the study")
+            return;
+        }
+
+        this.opencgaSession.opencgaClient.studies().updateUsers(this.study.fqn, "@members",{users: [this.addUserId]}, {action: "ADD"})
+            .then(res => {
+                this.addUserId = "";
+                this.requestUpdate();
+
+                this.dispatchEvent(new CustomEvent("studyUpdateRequest", {
+                    detail: {
+                        value: this.study.fqn
+                    },
+                    bubbles: true,
+                    composed: true
+                }));
+
+                Swal.fire(
+                    "Use Add",
+                    "User added correctly.",
+                    "success"
+                );
+            })
+            .catch(e => {
+                console.error(e);
+                params.error(e);
+            });
+    }
+
+    onUserRemoveFieldChange(e, isCancelled) {
         if (isCancelled) {
             this.removeUserSet = new Set();
         } else {
@@ -292,6 +325,31 @@ export default class StudyAdminUsers extends LitElement {
             this.removeUserSet.add(e.currentTarget.value)
         }
         this.requestUpdate();
+    }
+
+    onUserRemove(e) {
+        let userIds = [];
+        for (let userId of this.removeUserSet.keys()) {
+            userIds.push(userId);
+        }
+
+        this.opencgaSession.opencgaClient.studies().updateUsers(this.study.fqn, "@members",{users: userIds}, {action: "REMOVE"})
+            .then(res => {
+                this.removeUserSet = new Set();
+                this.requestUpdate();
+
+                this.dispatchEvent(new CustomEvent("studyUpdateRequest", {
+                    detail: {
+                        value: this.study.fqn
+                    },
+                    bubbles: true,
+                    composed: true
+                }));
+            })
+            .catch(e => {
+                console.error(e);
+                params.error(e);
+            });
     }
 
     onAddGroupFieldChange(e, isCancelled) {
@@ -347,15 +405,15 @@ export default class StudyAdminUsers extends LitElement {
                                     <text-field-filter
                                             .value="${this.addUserId}"
                                             placeholder="new user ID..."
-                                            @filterChange="${e => this.onAddUserFieldChange(e)}">
+                                            @filterChange="${e => this.onUserAddFieldChange(e)}">
                                     </text-field-filter>
                                 </div>
                                 <div class="pull-right" style="margin: 5px">
                                     <button type="button" class="btn btn-primary ${this.addUserId?.length > 0 ? "" : "disabled"}"
-                                            @click="${e => this.onAddUserFieldChange(e, true)}" style="margin: 0px 5px">Cancel
+                                            @click="${e => this.onUserAddFieldChange(e, true)}" style="margin: 0px 5px">Cancel
                                     </button>
                                     <button type="button" class="btn btn-primary ${this.addUserId?.length > 0 ? "" : "disabled"}"
-                                            @click="${this.onSaveInterpretation}">Add
+                                            @click="${this.onUserAdd}">Add
                                     </button>
                                 </div>
                             </li>
@@ -383,7 +441,7 @@ export default class StudyAdminUsers extends LitElement {
                                                                 type="checkbox"
                                                                 value="${user.id}"
                                                                 .checked="${this.removeUserSet?.has(user.id)}"
-                                                                @click="${this.onRemoveUserFieldChange}">
+                                                                @click="${this.onUserRemoveFieldChange}">
                                                     </span>
                                                     <span>${user.id}</span>
                                                 </div>
@@ -391,10 +449,10 @@ export default class StudyAdminUsers extends LitElement {
                                 </div>
                                 <div class="pull-right" style="margin: 5px">
                                     <button type="button" class="btn btn-primary ${this.removeUserSet?.size > 0 ? "" : "disabled"}"
-                                            @click="${e => this.onRemoveUserFieldChange(e, true)}" style="margin: 0px 5px">Cancel
+                                            @click="${e => this.onUserRemoveFieldChange(e, true)}" style="margin: 0px 5px">Cancel
                                     </button>
                                     <button type="button" class="btn btn-danger ${this.removeUserSet?.size > 0 ? "" : "disabled"}"
-                                            @click="${this.onSaveInterpretation}">Remove
+                                            @click="${this.onUserRemove}">Remove
                                     </button>
                                 </div>
                             </li>
