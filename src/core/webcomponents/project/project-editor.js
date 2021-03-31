@@ -33,6 +33,9 @@ export default class ProjectEditor extends LitElement {
 
     static get properties() {
         return {
+            project: {
+                type: Object
+            },
             opencgaSession: {
                 type: Object
             },
@@ -44,7 +47,8 @@ export default class ProjectEditor extends LitElement {
 
     _init() {
         this._prefix = UtilsNew.randomString(8);
-        this.newStudy = {}
+
+        this.project = {};
     }
 
     connectedCallback() {
@@ -68,25 +72,26 @@ export default class ProjectEditor extends LitElement {
     //     };
     // }
 
-    onSaveFieldChange(e) {
-        console.log(e.detail.param)
+    onFieldChange(e) {
+        switch (e.detail.param) {
+            case "id":
+            case "name":
+            case "description":
+                this.project[e.detail.param] = e.detail.value;
+                break;
+            case "organism.scientificName":
+            case "organism.assembly":
+                const param = e.detail.param.split(".")[1];
+                if (!this.project.organism) {
+                    this.project.organism = {};
+                }
+                this.project.organism[param] = e.detail.value;
+                break;
+        }
     }
 
     getSaveForm(e) {
         console.log(e.detail.param)
-    }
-
-    onSave(e) {
-        console.log(e.detail.param)
-        console.log("Prueba")
-    }
-
-    onHide() {
-        this.dispatchEvent(new CustomEvent("hide", {
-            detail: {},
-            bubbles: true,
-            composed: true
-        }));
     }
 
     getStudyFormConfig() {
@@ -101,42 +106,53 @@ export default class ProjectEditor extends LitElement {
             },
             display: {
                 style: "margin: 25px 50px 0px 0px",
-                // mode: {
-                //     type: "modal",
-                //     title: "Review Variant",
-                //     buttonClass: "btn-link"
-                // },
-                labelWidth: 3,
+                labelWidth: 4,
                 labelAlign: "right",
-                defaultValue: "",
                 defaultLayout: "horizontal",
+                defaultValue: "",
             },
             sections: [
                 {
                     elements: [
                         {
                             name: "id",
-                            field: "ID",
-                            type: "select",
-                            allowedValues: ["NOT_REVIEWED", "REVIEW_REQUESTED", "REVIEWED", "DISCARDED", "REPORTED"],
+                            field: "id",
+                            type: "input-text",
                             display: {
+                                placeholder: "Add a short ID...",
                             }
                         },
                         {
                             name: "Name",
-                            field: "discussion",
+                            field: "name",
                             type: "input-text",
                             display: {
-                                placeholder: "Add a Name",
+                                placeholder: "Project name...",
                             }
                         },
                         {
-                            name: "Comments",
-                            field: "comments",
+                            name: "Species",
+                            field: "organism.scientificName",
                             type: "input-text",
                             display: {
-                                placeholder: "Add a description",
-                                rows: 5
+                                placeholder: "e.g. Homo sapiens, ...",
+                            }
+                        },
+                        {
+                            name: "Species Assembly",
+                            field: "organism.assembly",
+                            type: "input-text",
+                            display: {
+                                placeholder: "e.g. GRCh38",
+                            }
+                        },
+                        {
+                            name: "Description",
+                            field: "description",
+                            type: "input-text",
+                            display: {
+                                rows: 3,
+                                placeholder: "Project description...",
                             }
                         },
                     ]
@@ -145,13 +161,46 @@ export default class ProjectEditor extends LitElement {
         }
     }
 
-    render() {
 
+    onHide() {
+        this.dispatchEvent(new CustomEvent("hide", {
+            detail: {},
+            bubbles: true,
+            composed: true
+        }));
+    }
+
+    onSave(e) {
+        this.opencgaSession.opencgaClient.projects().create(this.project)
+            .then(res => {
+                this.project = {};
+                this.requestUpdate();
+
+                this.dispatchEvent(new CustomEvent("sessionUpdateRequest", {
+                    detail: {
+                    },
+                    bubbles: true,
+                    composed: true
+                }));
+
+                Swal.fire(
+                    "New Project",
+                    "New project created correctly.",
+                    "success"
+                );
+            })
+            .catch(e => {
+                console.error(e);
+                params.error(e);
+            });
+    }
+
+    render() {
         return html`
-            <data-form  .data=${this.newStudy}
+            <data-form  .data=${this.project}
                         .config="${this.getStudyFormConfig()}"
+                        @fieldChange="${e => this.onFieldChange(e)}"
                         @clear="${this.onHide}"
-                        @fieldChange="${e => this.onSaveFieldChange(e)}"
                         @submit="${this.onSave}">
             </data-form>
         `;

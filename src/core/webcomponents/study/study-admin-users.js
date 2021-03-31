@@ -345,6 +345,12 @@ export default class StudyAdminUsers extends LitElement {
                     bubbles: true,
                     composed: true
                 }));
+
+                Swal.fire(
+                    "Use Delete",
+                    "User deleted correctly.",
+                    "success"
+                );
             })
             .catch(e => {
                 console.error(e);

@@ -281,6 +281,7 @@ export class OpenCGAClient {
                 _this._notifySessionEvent("signingIn", "Fetching User data");
                 _this.users().info(_this._config.userId)
                     .then(async response => {
+                        debugger
                         const session = {};
                         session.user = response.getResult(0);
                         session.token = _this._config.token;
@@ -298,13 +299,25 @@ export class OpenCGAClient {
                             lastAccess: new Date().getTime()
                         });
 
+
+                        session.projects = session.user.projects;
+
+
                         // Fetch authorised Projects and Studies
                         _this._notifySessionEvent("signingIn", "Fetching Projects and Studies");
                         _this.projects().search({})
                             .then(async function (response) {
                                 try {
-                                    session.projects = response.response[0].result;
-                                    if (session.projects?.length && session?.projects[0]?.studies.length) {
+                                    // session.projects = response.responses[0].results;
+                                    debugger
+                                    for (const project of response.responses[0].results) {
+                                        let projectIndex = session.projects.findIndex(proj => proj.fqn === project.fqn);
+                                        if (projectIndex < 0) {
+                                            session.projects.push(project);
+                                        }
+                                    }
+                                    debugger
+                                    if (session.projects?.length) {    // && session?.projects[0]?.studies.length
                                         const studies = [];
                                         for (const project of session.projects) {
                                             // project.alias = project.alias || project.fqn || null;
@@ -366,9 +379,9 @@ export class OpenCGAClient {
                                             session.study = session.study ?? session.projects[0].studies[0];
                                         }
 
-                                        if (!session.project || !session.study) {
-                                            throw new Error("Default study not found");
-                                        }
+                                        // if (!session.project || !session.study) {
+                                        //     throw new Error("Default study not found");
+                                        // }
 
                                         // Fetch the Disease Panels for each Study
                                         // _this._notifySessionEvent("signingIn", "Fetching Disease Panels");
