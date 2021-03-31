@@ -36,6 +36,9 @@ export default class ProjectEditor extends LitElement {
             project: {
                 type: Object
             },
+            mode: {
+                type: String
+            },
             opencgaSession: {
                 type: Object
             },
@@ -48,7 +51,14 @@ export default class ProjectEditor extends LitElement {
     _init() {
         this._prefix = UtilsNew.randomString(8);
 
-        this.project = {};
+        this.project = {
+            id: "asas",
+            name: "assasa",
+            organism: {
+                assembly: "sasaas"
+            }
+        };
+        this.mode = this.project?.id ? "UPDATE" : "CREATE";
     }
 
     connectedCallback() {
@@ -120,6 +130,7 @@ export default class ProjectEditor extends LitElement {
                             type: "input-text",
                             display: {
                                 placeholder: "Add a short ID...",
+                                disabled: this.mode === "UPDATE"
                             }
                         },
                         {
@@ -128,6 +139,16 @@ export default class ProjectEditor extends LitElement {
                             type: "input-text",
                             display: {
                                 placeholder: "Project name...",
+                            }
+                        },
+                        {
+                            name: "Creation Date",
+                            field: "creationDate",
+                            type: "input-text",
+                            display: {
+                                placeholder: "Project name...",
+                                visible: this.mode === "UPDATE",
+                                disabled: this.mode === "UPDATE"
                             }
                         },
                         {
