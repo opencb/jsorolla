@@ -290,8 +290,18 @@ export default class StudyAdmin extends LitElement {
                                     </a>
                                 </li>
                                 <li>
+                                    <a data-id="VaribleSets" style="margin: 0px 5px; cursor: pointer" @click="${this.onSideNavClick}">Variable Sets
+                                        <span class="pull-right" style="font-size: 16px"><i class="fas fa-book"></i></span>
+                                    </a>
+                                </li>
+                                <li>
                                     <a data-id="Audit" style="margin: 0px 5px; cursor: pointer" @click="${this.onSideNavClick}">Audit
                                         <span class="pull-right" style="font-size: 16px"><i class="fas fa-book"></i></span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a data-id="Configuration" style="margin: 0px 5px; cursor: pointer" @click="${this.onSideNavClick}">Configuration
+                                        <span class="pull-right" style="font-size: 16px"><i class="fas fa-cog"></i></span>
                                     </a>
                                 </li>
 
