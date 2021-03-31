@@ -54,12 +54,15 @@ export default class StudyAdminAudit extends LitElement {
 
     _init() {
         this._prefix = UtilsNew.randomString(8);
+
         this._filters = [];
         this.query = {};
-        this.sortedUserIds = []
+        this.sortedUserIds = [];
         this.gridId = this._prefix + "AuditBrowserGrid";
-        this._statusType = ["SUCCESS", "ERROR"]
-        this._resourceType = ["AUDIT", "USER", "PROJECT", "STUDY", "FILE", "SAMPLE", "JOB", "INDIVIDUAL,COHORT", "DISEASE_PANEL", "FAMILY", "CLINICAL_ANALYSIS", "INTERPRETATION", "VARIANT", "ALIGNMENT", "CLINICAL", "EXPRESSION", "FUNCTIONAL"]
+        this.actionValues = ["SEARCH", "LINK", "INFO", "CREATE"];
+        this.resourceTypeValues = ["AUDIT", "USER", "PROJECT", "STUDY", "FILE", "SAMPLE", "JOB", "INDIVIDUAL", "COHORT", "DISEASE_PANEL",
+            "FAMILY", "CLINICAL_ANALYSIS", "INTERPRETATION", "VARIANT", "ALIGNMENT", "CLINICAL", "EXPRESSION", "FUNCTIONAL"];
+        this.statusTypeValues = ["SUCCESS", "ERROR"];
     }
 
     connectedCallback() {
@@ -70,12 +73,11 @@ export default class StudyAdminAudit extends LitElement {
     }
 
     // Note: WE NEED this function because we are rendering using JQuery not lit-element API
-    firstUpdated(changedProperties) { 
-        // it not neccesary
-        // if (changedProperties.has("study")) {
-        //     this.studyObserver();
-        // }
-    }
+    // firstUpdated(changedProperties) {
+    //     if (changedProperties.has("study")) {
+    //         this.studyObserver();
+    //     }
+    // }
 
     update(changedProperties) {
         if (changedProperties.has("studyId")) {
@@ -88,6 +90,7 @@ export default class StudyAdminAudit extends LitElement {
                 }
             }
         }
+
         if (changedProperties.has("study")) {
             this.studyObserver();
         }
@@ -95,6 +98,7 @@ export default class StudyAdminAudit extends LitElement {
         if (changedProperties.has("query")) {
             this.propertyObserver();
         }
+
         super.update(changedProperties);
     }
 
@@ -115,7 +119,7 @@ export default class StudyAdminAudit extends LitElement {
                 }
             }
             this.users = this.groupsMap.get("@members");
-            this.sortedUserIds = [...this.groupsMap.get("@members").map(user => user.id).sort()];   
+            this.sortedUserIds = [...this.groupsMap.get("@members").map(user => user.id).sort()];
             // With the requestUpdate, work to get users for the filter
             this.requestUpdate()
         } catch (err) {
@@ -149,7 +153,7 @@ export default class StudyAdminAudit extends LitElement {
                 pagination: this._config.pagination,
                 pageSize: this._config.pageSize,
                 pageList: this._config.pageList,
-                paginationVAlign: "both",
+                // paginationVAlign: "both",
                 formatShowingRows: this.gridCommons.formatShowingRows,
                 showExport: this._config.showExport,
                 detailView: this._config.detailView,
@@ -263,10 +267,10 @@ export default class StudyAdminAudit extends LitElement {
                     {
                         title: "",
                         fields: [
-                            { id: "user" },
+                            { id: "userId" },
+                            { id: "resource" },
                             { id: "action" },
                             { id: "status" },
-                            { id: "resource" }
                         ]
                     }
                 ],
@@ -285,176 +289,138 @@ export default class StudyAdminAudit extends LitElement {
     }
 
     clear(e) {
-        this.query = {}
+        this.query = {};
     }
 
-    onServerFilterChange(e) {
-        // suppress if I actually have clicked on an action buttons
-        if (e.target.className !== "id-filter-button") {
-            return;
-        }
+    // onServerFilterChange(e) {
+    //     // suppress if I actually have clicked on an action buttons
+    //     if (e.target.className !== "id-filter-button") {
+    //         return;
+    //     }
+    //
+    //     for (const filter of this._filters) {
+    //         if (e.currentTarget.dataset.filterId === filter.id) {
+    //             this.query = filter.query;
+    //             this.requestUpdate();
+    //             break;
+    //         }
+    //     }
+    // }
 
-        for (const filter of this._filters) {
-            if (e.currentTarget.dataset.filterId === filter.id) {
-                this.query = filter.query;
-                this.requestUpdate();
-                break;
-            }
-        }
-    }
+    // serverFilterDelete(e) {
+    //     const { filterId } = e.currentTarget.dataset;
+    //     Swal.fire({
+    //         title: "Are you sure?",
+    //         text: "The filter will be deleted. The operation cannot be reverted.",
+    //         icon: "warning",
+    //         showCancelButton: true,
+    //         confirmButtonColor: "#d33",
+    //         cancelButtonColor: "#3085d6",
+    //         confirmButtonText: "Yes"
+    //     }).then(result => {
+    //         if (result.value) {
+    //             const data = {
+    //                 id: filterId,
+    //                 resource: this.resource,
+    //                 options: {}
+    //             };
+    //             this.opencgaSession.opencgaClient.users().updateFilters(this.opencgaSession.user.id, data, { action: "REMOVE" })
+    //                 .then(restResponse => {
+    //                     console.log("restResponse", restResponse);
+    //                     Swal.fire(
+    //                         "Filter Deleted",
+    //                         "Filter has been deleted.",
+    //                         "success"
+    //                     );
+    //                     this.refreshFilters();
+    //                 }).catch(restResponse => {
+    //                 if (restResponse.getEvents?.("ERROR")?.length) {
+    //                     const msg = restResponse.getEvents("ERROR").map(error => error.message).join("<br>");
+    //                     new NotificationQueue().push("Error deleting filter", msg, "error");
+    //                 } else {
+    //                     new NotificationQueue().push("Error deleting filter", "", "error");
+    //                 }
+    //                 console.error(restResponse);
+    //             });
+    //         }
+    //     });
+    // }
 
-    serverFilterDelete(e) {
-        const { filterId } = e.currentTarget.dataset;
-        Swal.fire({
-            title: "Are you sure?",
-            text: "The filter will be deleted. The operation cannot be reverted.",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#d33",
-            cancelButtonColor: "#3085d6",
-            confirmButtonText: "Yes"
-        }).then(result => {
-            if (result.value) {
-                const data = {
-                    id: filterId,
-                    resource: this.resource,
-                    options: {}
-                };
-                this.opencgaSession.opencgaClient.users().updateFilters(this.opencgaSession.user.id, data, { action: "REMOVE" })
-                    .then(restResponse => {
-                        console.log("restResponse", restResponse);
-                        Swal.fire(
-                            "Filter Deleted",
-                            "Filter has been deleted.",
-                            "success"
-                        );
-                        this.refreshFilters();
-                    }).catch(restResponse => {
-                        if (restResponse.getEvents?.("ERROR")?.length) {
-                            const msg = restResponse.getEvents("ERROR").map(error => error.message).join("<br>");
-                            new NotificationQueue().push("Error deleting filter", msg, "error");
-                        } else {
-                            new NotificationQueue().push("Error deleting filter", "", "error");
-                        }
-                        console.error(restResponse);
-                    });
-            }
-        });
-    }
+    // launchModal() {
+    //     $(PolymerUtils.getElementById(this._prefix + "SaveModal")).modal("show");
+    // }
 
-    launchModal() {
-        $(PolymerUtils.getElementById(this._prefix + "SaveModal")).modal("show");
-    }
-
-    save() {
-        console.log("Save Button")
-    }
-
-    // TODO: we can use this one as search without search button.. if pass 3 character this gonna look the user.
-    onPermissionFieldChange(e) {
-        this.studyPermission = e.detail.value;
-        if (!this.studyPermission) {
-            this.studyPermissions = this.permissions;
-            this.renderPermissionGrid();
-        }
-    }
-
-    onPermissionSearch(e) {
-        if (this.studyPermission) {
-            this.studyPermissions = this.permissions.filter(perm => perm.id.startsWith(this.studyPermission.toUpperCase()));
-        } else {
-            this.studyPermissions = this.permissions
-        }
-        this.renderPermissionGrid();
-    }
+    // save() {
+    //     console.log("Save Button")
+    // }
 
     render() {
         return html`
             <div class="pull-left" style="margin: 10px 0px">
                 <div class="lhs">
-                    ${~this._config.filter.sections[0].fields.findIndex(field => field.id === "user") ? html` 
+
+                    ${~this._config.filter.sections[0].fields.findIndex(field => field.id === "userId") ? html`
                         <!-- User ID -->
                         <div class="btn-group">
-                            <select-field-filter 
-                                placeholder="${"User: All"}" 
-                                .opencgaSession="${this.opencgaSession}" 
-                                .config=${this._config}
-                                .data="${this.sortedUserIds}"
-                                .value="${this.query?.user}" 
-                                @filterChange="${e => this.onFilterChange("user", e.detail.value)}">
+                            <select-field-filter
+                                    .opencgaSession="${this.opencgaSession}"
+                                    .config=${this._config}
+                                    .data="${this.sortedUserIds}"
+                                    .value="${this.query?.userId}"
+                                    placeholder="${"User: All"}"
+                                    multiple
+                                    @filterChange="${e => this.onFilterChange("userId", e.detail.value)}">
                             </select-field-filter>
                         </div>
                     `: null}
+
                     ${~this._config.filter.sections[0].fields.findIndex(field => field.id === "action") ? html`
                         <!-- TODO: Action build autocomplete-->
                         <div class="btn-group">
-                            <select-field-filter 
-                                placeholder="${"Action: All"}" 
-                                .opencgaSession="${this.opencgaSession}" 
-                                .config=${this._config}
-                                .value="${this.query?.action}" 
-                                @filterChange="${e => this.onFilterChange("action", e.detail.value)}">
+                            <select-field-filter
+                                    .opencgaSession="${this.opencgaSession}"
+                                    .data="${this.actionValues}"
+                                    .config=${this._config}
+                                    .value="${this.query?.action}"
+                                    placeholder="${"Action: All"}"
+                                    multiple
+                                    @filterChange="${e => this.onFilterChange("action", e.detail.value)}">
                             </select-field-filter>
                         </div>
-                        ` : null}
-                        ${~this._config.filter.sections[0].fields.findIndex(field => field.id === "resource") ? html`
+                    ` : null}
+
+                    ${~this._config.filter.sections[0].fields.findIndex(field => field.id === "resource") ? html`
                         <!-- Resource -->
                         <div class="btn-group">
-                            <select-field-filter 
-                                placeholder="${"Resource: All"}" 
-                                multiple
-                                .data="${this._resourceType}"
-                                .value=${this.query?.resource} 
-                                @filterChange="${e => this.onFilterChange("resource", e.detail.value)}">
+                            <select-field-filter
+                                    .data="${this.resourceTypeValues}"
+                                    .value=${this.query?.resource}
+                                    placeholder="${"Resource: All"}"
+                                    @filterChange="${e => this.onFilterChange("resource", e.detail.value)}">
                             </select-field-filter>
                         </div>
-                        ` : null}
-                        ${~this._config.filter.sections[0].fields.findIndex(field => field.id === "status") ? html`
+                    ` : null}
+
+                    ${~this._config.filter.sections[0].fields.findIndex(field => field.id === "status") ? html`
                         <!-- Status -->
                         <div class="btn-group">
-                            <select-field-filter 
-                                placeholder="${"Status: All"}" 
-                                multiple
-                                .data="${this._statusType}"
-                                .value=${this.query?.status} 
-                                @filterChange="${e => this.onFilterChange("status", e.detail.value)}">
+                            <select-field-filter
+                                    .data="${this.statusTypeValues}"
+                                    .value=${this.query?.status}
+                                    placeholder="${"Status: All"}"
+                                    @filterChange="${e => this.onFilterChange("status", e.detail.value)}">
                             </select-field-filter>
                         </div>
-                        ` : null}
-                </div>
-                ${false ? html`
-                    <div class="rhs" style="padding: 7px">
-                        <button type="button" class="btn btn-primary btn-sm ripple" @click="${this.clear}">
-                            <i class="fa fa-times icon-padding" aria-hidden="true"></i> Clear
+                    ` : null}
+                    
+                    <div class="btn-group">
+                        <button type="button" id="${this._prefix}ClearAuditMenu" class="btn btn-default btn-xs ripple"
+                                aria-haspopup="true" aria-expanded="false" title="Clear filters"
+                                @click="${e => this.clear(e)}">
+                            <i class="fas fa-times" aria-hidden="true"></i>
                         </button>
-                        <div class="dropdown saved-filter-wrapper">
-                            <button type="button" class="btn btn-primary btn-sm dropdown-toggle ripple" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <i class="fa fa-filter icon-padding" aria-hidden="true"></i> Filters <span class="caret"></span>
-                            </button>
-                            <ul class="dropdown-menu">
-                                <li><a style="font-weight: bold">Saved Filters</a></li>
-                                ${this._filters && this._filters.length ?
-                    this._filters.map(item => item.separator ? html`
-                                        <li role="separator" class="divider"></li>
-                                    ` : html`
-                                        <li>
-                                            <a data-filter-id="${item.id}" style="cursor: pointer;color: ${!item.active ? "black" : "green"}" title="${item.description ?? ""}" @click="${this.onServerFilterChange}" class="filtersLink">
-                                                <span class="id-filter-button">&nbsp;&nbsp;${item.id}</span>
-                                                <span class="delete-filter-button" title="Delete filter" data-filter-id="${item.id}" @click="${this.serverFilterDelete}"><i class="fas fa-times"></i></span>
-                                            </a>
-                                        </li>`) :
-                    null}
-
-                                ${this.opencgaSession?.token ? html`
-                                    <li role="separator" class="divider"></li>
-                                    <li>
-                                        <a style="cursor: pointer" @click="${this.launchModal}"><i class="fa fa-floppy-o icon-padding" aria-hidden="true"></i> Save...</a>
-                                    </li>
-                                ` : null}
-                            </ul>
-                        </div>
                     </div>
-                ` : null}
+                </div>
             </div>
 
             <div id="${this._prefix}GridTableDiv" class="force-overflow" style="margin: 20px 0px">
@@ -462,36 +428,36 @@ export default class StudyAdminAudit extends LitElement {
             </div>
 
             <!-- Modal -->
-        <div class="modal fade" id="${this._prefix}SaveModal" tabindex="-1" role="dialog"
-            aria-labelledby="${this._prefix}SaveModalLabel" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                        <h4 class="modal-title" id="${this._prefix}SaveModalLabel">Filter</h4>
-                    </div>
-                    <div class="modal-body">
-                        <div class="form-group row">
-                            <label for="filterName" class="col-xs-2 col-form-label">Name</label>
-                            <div class="col-xs-10">
-                                <input class="form-control" type="text" id="${this._prefix}filterName">
+            <div class="modal fade" id="${this._prefix}SaveModal" tabindex="-1" role="dialog"
+                 aria-labelledby="${this._prefix}SaveModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                            <h4 class="modal-title" id="${this._prefix}SaveModalLabel">Filter</h4>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group row">
+                                <label for="filterName" class="col-xs-2 col-form-label">Name</label>
+                                <div class="col-xs-10">
+                                    <input class="form-control" type="text" id="${this._prefix}filterName">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="${this._prefix}filterDescription" class="col-xs-2 col-form-label">Description</label>
+                                <div class="col-xs-10">
+                                    <input class="form-control" type="text" id="${this._prefix}filterDescription">
+                                </div>
                             </div>
                         </div>
-                        <div class="form-group row">
-                            <label for="${this._prefix}filterDescription" class="col-xs-2 col-form-label">Description</label>
-                            <div class="col-xs-10">
-                                <input class="form-control" type="text" id="${this._prefix}filterDescription">
-                            </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${this.save}">Save</button>
                         </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${this.save}">Save</button>
                     </div>
                 </div>
             </div>
-        </div>
         `;
     }
 }
