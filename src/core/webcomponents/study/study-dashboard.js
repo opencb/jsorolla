@@ -88,10 +88,10 @@ export default class StudyDashboard extends LitElement {
 
     renderVerticalDotAction() {
         return html`
-            <div style="float: right; padding-right:10px; padding-top:5px">
+            <div style="float: right; padding:10px">
                 <div class="dropdown">
                     <a id="dLabel" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <i class="fas fa-ellipsis-v fa-lg"></i>
+                        <i class="fas fa-ellipsis-v fa-lg" style="color:#fff"></i>
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="dLabel" role="menu">
                         <li>
@@ -114,6 +114,7 @@ export default class StudyDashboard extends LitElement {
             </div>`
     }
 
+    // Project and Studies Style (OLD)
     renderProjectAndStudies(project) {
         return html`
         <div class="col-md-4">
@@ -121,31 +122,6 @@ export default class StudyDashboard extends LitElement {
                 <div class="panel-body text-center">
                     <!-- Vertical dots   -->
                     ${this.renderVerticalDotAction()}
-                    <div style="float: right">
-                        <div class="dropdown">
-                            <a id="dLabel" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <i class="fas fa-ellipsis-v fa-lg"></i>
-                            </a>
-                            <ul class="dropdown-menu" aria-labelledby="dLabel" role="menu">
-                                <li>
-                                    <a @click="${() => this.actionModal('Study', 'show')}">
-                                        <i class="fas fa-file icon-padding"></i> New Study
-                                    </a>
-                                </li>
-                                <li class="divider"></li>
-                                <li>
-                                    <a><i class="fas fa-edit icon-padding"></i>Edit</a>
-                                </li>
-                                <li class="disabled">
-                                    <a><i class="fas fa-copy icon-padding"></i> Duplicate</a>
-                                </li>
-                                <li class="disabled">
-                                    <a><i class="fas fa-trash icon-padding"></i> Delete</a>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                    
                     <h4>${project.name}</h4>
                     <div>
                         ${project.description ? html`
@@ -199,38 +175,44 @@ export default class StudyDashboard extends LitElement {
     renderProjectAndStudiesAlt(project) {
         return html`
         <style>
+            .panel-body.project{
+                padding-top:0px;
+                padding-bottom:0px;
+            }
 
-        .panel-body.project{
-            padding-top:0px;
-            padding-bottom:0px;
-        }
-
-        .border-dotted-right {
-            border:2px solid #000;
-            outline: 1px dashed #fff;
-            outline-offset: -1px;
-            background-color:var(--main-bg-color);
-            height:220px;
-            color:#fff;
-        }
-
+            .border-dotted-right {
+                border:2px solid #000;
+                outline: 1px dashed #fff;
+                outline-offset: -1px;
+                background-color:var(--main-bg-color);
+                height:220px;
+                color:#fff;
+                padding: 0px;
+            }
+            /* This to has the same height all studies.. */
+            .panel-body.studies {
+                overflow: hidden;
+                white-space: nowrap;
+                text-overflow: ellipsis; /*TODO: fix, this style not working*/
+            }
         </style>
+
         <div class="row project">
             <div class="panel panel-default shadow">
-                <!-- Vertical dots   -->
-                ${this.renderVerticalDotAction()}
                 <div class="panel-body project">
                     <div class="row">
                         <div class="col-md-2 border-dotted-right">
-                        <h3>Project</h3>
-                            <div class="text-block text-center">
+                        <!-- Vertical dots   -->
+                        ${this.renderVerticalDotAction()}    
+                        <h3 style="margin:5px">Project</h3>
+                            <div class="text-block text-center" style="padding-top: 5px;">
                                 <h4>${project.name}</h4>
                                 <div>
                                     ${project.description ? html`
                                         <span>${project.description}</span>
                                     ` : html`
                                         <span style="font-style: italic">No description available</span>`
-                                    }
+            }
                                 </div>
                                 <div>
                                     <span>${project.organism.scientificName} ${project.organism.assembly}</span>
@@ -244,34 +226,39 @@ export default class StudyDashboard extends LitElement {
                             </div>
                         </div>
                         <div class="col-md-10">
-                            ${project.studies.map(study => html`
-                                <div class="col-md-3">
-                                    <!-- TODO: Pass Info Study to the Study admin -->
-                                    <a href="#study-admin/${study.fqn}">
-                                        <div class="panel panel-default child shadow-sm">
-                                            <div class="panel-body text-center" style="color: black">
-                                                <div>
-                                                    <h4>${study.name}</h4>
-                                                </div>
-                                                <div>
-                                                    <span class="help-text">${study.description || "No description available"}</span>
-                                                </div>
-                                                <div>
-                                                    <span>${study.fqn}</span>
-                                                </div>
-                                                <div>
-                                                    <span>Created on ${UtilsNew.dateFormatter(study.creationDate)}</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </a>
-                                </div>`
-                            )}
+                            <h4 style="margin:10px;margin-bottom:15px">Studies</h4>
+                            <!-- Show Study by project -->
+                            ${project.studies.map(study => this.renderStudies(study))}
                         </div>
                     </div>
                 </div>
             </div>
         </div>`
+    }
+
+    renderStudies(study) {
+        return html`
+            <div class="col-md-3">
+                <!-- TODO: Pass Info Study to the Study admin -->
+                <a href="#study-admin/${study.fqn}">
+                    <div class="panel panel-default child shadow-sm">
+                        <div class="panel-body studies text-center" style="color: black">
+                            <div>
+                                <h4>${study.name}</h4>
+                            </div>
+                            <div>
+                                <span class="help-text">${study.description || "No description available"}</span>
+                            </div>
+                            <div>
+                                <span>${study.fqn}</span>
+                            </div>
+                            <div>
+                                <span>Created on ${UtilsNew.dateFormatter(study.creationDate)}</span>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>`
     }
 
 
@@ -354,32 +341,32 @@ export default class StudyDashboard extends LitElement {
                 @media (min-width:992px){
                     .row.auto-clear .col-md-4:nth-child(3n+1){clear:left;}
                 }
-
             </style>
 
             <div>
                 <!-- Show Project by User-->
                 ${this.users.map(user => {
             return html`
-                            <div class="row" style="border-bottom:  rgba(201, 76, 76, 0.7);}">
-                                <div class="col-md-6">
-                                    <h2><i class="fas fa-user fa-sm icon-padding"></i>${user}</h2>
-                                </div>
-                                <div class="col-md-6 ">
-                                    <div class="pull-right">
-                                        <button class="btn-custom btn btn-primary" @click="${() => this.actionModal('Project', 'show')}">New Project</button>
-                                    </div>
+                        <div class="row" style="border-bottom:  rgba(201, 76, 76, 0.7);}">
+                            <div class="col-md-6">
+                                <h2><i class="fas fa-user fa-sm icon-padding"></i>${user}</h2>
+                            </div>
+                            <div class="col-md-6 ">
+                                <div class="pull-right">
+                                    <button class="btn-custom btn btn-primary" @click="${() => this.actionModal('Project', 'show')}">New Project</button>
                                 </div>
                             </div>
+                        </div>
 
-                            <div class="row auto-clear">
-                                <div class="col-md-12">
-                                    <h3>Projects and Studies</h3>
-                                </div>
-                                <div class="clearfix"></div>
-                                ${this.opencgaSession.projects.filter(proj => proj.fqn.startsWith(user + "@")).map(project => this.renderProjectAndStudiesAlt(project))}
-                            </div>
-                    `})}
+                        <div class="row auto-clear">
+                            <!-- <div class="col-md-12">
+                                <h3>Projects and Studies</h3>
+                            </div> -->
+                            <div class="clearfix"></div>
+                            <!-- Show Project and Studies -->
+                            ${this.opencgaSession.projects.filter(proj => proj.fqn.startsWith(user + "@")).map(project => this.renderProjectAndStudiesAlt(project))}
+                        </div>`
+        })}
             </div>
             
             <!-- TODO: These modals can be a single one, the component will be rendered according to whether you have selected: study or project inside div. modal-body -->
