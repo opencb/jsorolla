@@ -115,6 +115,7 @@ export default class StudyAdminUsers extends LitElement {
 
                     this.renderUserGrid();
                     this.requestUpdate();
+                    console.log(this.groupsMap)
                 })
                 .catch(response => {
                     console.error("An error occurred fetching clinicalAnalysis: ", response);
@@ -150,7 +151,8 @@ export default class StudyAdminUsers extends LitElement {
 
     groupFormatter(value, row) {
         const checked = this.field.groupsMap?.get(this.field.groupId).findIndex(e => e.id === row.id) !== -1;
-        return `<input type="checkbox" ${checked ? "checked" : ""} ${row.id === this.field.owner ? "disabled" : ""}>`;
+        //TODO: Add this to the input @click=${this.onGroupAddOrRemoveUser} 
+        return `<input type="checkbox" ${checked ? "checked" : ""} ${row.id === this.field.owner ? "disabled" : "" }>`;
     }
 
     _getDefaultColumns() {
@@ -255,6 +257,9 @@ export default class StudyAdminUsers extends LitElement {
         };
     }
 
+    onGroupAddOrRemoveUser(e) {
+        console.log("Row selected:",e.currentTarget.value)
+    }
     // TODO: we can use this one as search without search button.. if pass 3 character this gonna look the user.
     onUserSearchFieldChange(e) {
         this.searchUserId = e.currentTarget.value;
@@ -290,7 +295,7 @@ export default class StudyAdminUsers extends LitElement {
             return;
         }
 
-        this.opencgaSession.opencgaClient.studies().updateUsers(this.study.fqn, "@members",{users: [this.addUserId]}, {action: "ADD"})
+        this.opencgaSession.opencgaClient.studies().updateUsers(this.study.fqn, "@members", { users: [this.addUserId] }, { action: "ADD" })
             .then(res => {
                 this.addUserId = "";
                 this.requestUpdate();
@@ -333,7 +338,7 @@ export default class StudyAdminUsers extends LitElement {
             userIds.push(userId);
         }
 
-        this.opencgaSession.opencgaClient.studies().updateUsers(this.study.fqn, "@members",{users: userIds}, {action: "REMOVE"})
+        this.opencgaSession.opencgaClient.studies().updateUsers(this.study.fqn, "@members", { users: userIds }, { action: "REMOVE" })
             .then(res => {
                 this.removeUserSet = new Set();
                 this.requestUpdate();
@@ -352,9 +357,9 @@ export default class StudyAdminUsers extends LitElement {
                     "success"
                 );
             })
-            .catch(e => {
-                console.error(e);
-                params.error(e);
+            .catch(err => {
+                console.error(err);
+                params.error(err);
             });
     }
 
@@ -367,6 +372,82 @@ export default class StudyAdminUsers extends LitElement {
         this.requestUpdate();
     }
 
+    onGroupAdd(e) {
+        if (this.groupsMap.has(`@${this.addGroupId}`)) {
+            console.log("Groups already exists in the study")
+            return;
+        }
+        // TODO: Check it's this work well
+        // this.opencgaSession.opencgaClient.studies().updateGroups(this.study.fqn, { id: this.addGroupId }, { action: "ADD" })
+        //     .then(res => {
+        //         this.addGroupId = "";
+        //         this.requestUpdate();
+
+        //         this.dispatchEvent(new CustomEvent("studyUpdateRequest", {
+        //             detail: {
+        //                 value: this.study.fqn
+        //             },
+        //             bubbles: true,
+        //             composed: true
+        //         }));
+
+        //         Swal.fire(
+        //             "Group Add",
+        //             "Grpup created correctly.",
+        //             "success"
+        //         );
+        //     })
+        //     .catch(err => {
+        //         console.error(err);
+        //         params.error(err);
+        //     });
+    }
+
+    onGroupRemoveFieldChange(e, isCancelled) {
+        if (isCancelled) {
+            this.removeGroupSet = new Set();
+        } else {
+            if (!this.removeGroupSet) {
+                this.removeGroupSet = new Set();
+            }
+            this.removeGroupSet.add(e.currentTarget.value)
+        }
+        this.requestUpdate();
+    }
+
+    onGroupRemove(e) {
+        let groupIds = [];
+        for (let groupId of this.removeGroupSet.keys()) {
+            groupIds.push(groupId);
+        }
+
+        console.log("GroupId to remove: ", groupIds)
+        // TODO: Check it's this work well
+        // this.opencgaSession.opencgaClient.studies().updateGroups(this.study.fqn, { id: groupIds }, { action: "REMOVE" })
+        //     .then(res => {
+        //         this.removeUserSet = new Set();
+        //         this.requestUpdate();
+
+        //         this.dispatchEvent(new CustomEvent("studyUpdateRequest", {
+        //             detail: {
+        //                 value: this.study.fqn
+        //             },
+        //             bubbles: true,
+        //             composed: true
+        //         }));
+
+        //         Swal.fire(
+        //             "Group Delete",
+        //             "Group deleted correctly.",
+        //             "success"
+        //         );
+        //     })
+        //     .catch(err => {
+        //         console.error(err);
+        //         params.error(err);
+        //     });
+    }
+
     render() {
         return html`
             <div class="pull-left" style="margin: 10px 0px">
@@ -374,7 +455,7 @@ export default class StudyAdminUsers extends LitElement {
                 <div class="form-inline">
                     <div class="form-group">
                         <input type="text" .value="${this.searchUserId || ""}" class="form-control" list="${this._prefix}MemberUsers" placeholder="Search by user ID..." 
-                               @change="${this.onUserSearchFieldChange}">
+                            @change="${this.onUserSearchFieldChange}">
                     </div>
                     <button type="button" id="${this._prefix}ClearUserMenu" class="btn btn-default btn-xs ripple"
                             aria-haspopup="true" aria-expanded="false" title="Clear users from ${this.study?.name} study"
@@ -439,8 +520,8 @@ export default class StudyAdminUsers extends LitElement {
                                 </div>
                                 <div style="margin: 10px 5px">
                                     ${this.groupsMap?.get("@members")
-                                            ?.filter(user => !this.study.fqn.startsWith(user.id + "@"))    // we cannot remove the owner
-                                            ?.map(user => html`
+                ?.filter(user => !this.study.fqn.startsWith(user.id + "@"))    // we cannot remove the owner
+                ?.map(user => html`
                                                 <div>
                                                     <span style="margin: 0px 5px">
                                                         <input
@@ -479,8 +560,10 @@ export default class StudyAdminUsers extends LitElement {
                                     <span style="font-weight: bold">New Group ID</span>
                                 </div>
                                 <div style="margin: 10px 0px">
-                                    <text-field-filter .value="${this.addGroupId}" placeholder="new group ID..."
-                                                       @filterChange="${e => this.onAddGroupFieldChange(e)}">
+                                    <text-field-filter 
+                                        .value="${this.addGroupId}" 
+                                        placeholder="new group ID..."
+                                        @filterChange="${e => this.onAddGroupFieldChange(e)}">
                                     </text-field-filter>
                                 </div>
                                 <div class="pull-right" style="margin: 5px">
@@ -488,7 +571,7 @@ export default class StudyAdminUsers extends LitElement {
                                             @click="${e => this.onAddGroupFieldChange(e, true)}" style="margin: 0px 5px">Cancel
                                     </button>
                                     <button type="button" class="btn btn-primary ${this.addGroupId?.length > 0 ? "" : "disabled"}"
-                                            @click="${this.onSaveInterpretation}">Add
+                                            @click="${this.onGroupAdd}">Add
                                     </button>
                                 </div>
                             </li>
@@ -507,14 +590,26 @@ export default class StudyAdminUsers extends LitElement {
                                     <span style="font-weight: bold">Delete Group</span>
                                 </div>
                                 <div style="margin: 10px 5px">
-                                    <div>To be implemented</div>
+                                    ${[...this.groupsMap?.keys()].filter(group => group != "@members")    // we cannot remove the @member
+                ?.map(group => html`
+                                        <div>
+                                            <span style="margin: 0px 5px">
+                                                <input
+                                                        type="checkbox"
+                                                        value="${group}"
+                                                        .checked="${this.removeGroupSet?.has(group)}"
+                                                        @click="${this.onGroupRemoveFieldChange}">
+                                            </span>
+                                            <span>${group}</span>
+                                        </div>
+                                    `)}
                                 </div>
                                 <div class="pull-right" style="margin: 5px">
-                                    <button type="button" class="btn btn-primary ${this.removeUserSet?.size > 0 ? "" : "disabled"}"
-                                            @click="${e => this.onRemoveUserFieldChange(e, true)}" style="margin: 0px 5px">Cancel
+                                    <button type="button" class="btn btn-primary ${this.removeGroupSet?.size > 0 ? "" : "disabled"}"
+                                            @click="${e => this.onGroupRemoveFieldChange(e, true)}" style="margin: 0px 5px">Cancel
                                     </button>
-                                    <button type="button" class="btn btn-danger ${this.removeUserSet?.size > 0 ? "" : "disabled"}"
-                                            @click="${this.onSaveInterpretation}">Remove
+                                    <button type="button" class="btn btn-danger ${this.removeGroupSet?.size > 0 ? "" : "disabled"}"
+                                            @click="${this.onGroupRemove}">Remove
                                     </button>
                                 </div>
                             </li>
