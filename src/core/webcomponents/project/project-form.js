@@ -75,7 +75,7 @@ export default class ProjectForm extends LitElement {
     //     };
     // }
 
-    
+
 
     onFieldChange(e) {
         switch (e.detail.param) {
@@ -95,8 +95,53 @@ export default class ProjectForm extends LitElement {
         }
     }
 
-    getSaveForm(e) {
-        console.log(e.detail.param)
+    saveProject() {
+        this.opencgaSession.opencgaClient.projects().create(this.project)
+            .then(res => {
+                this.project = {};
+                this.requestUpdate();
+
+                this.dispatchSessionUpdateRequest();
+
+                Swal.fire(
+                    "New Project",
+                    "New project created correctly.",
+                    "success"
+                );
+            })
+            .catch(err => {
+                console.error(err);
+                params.error(err);
+            });
+    }
+
+    updateProject() {
+        this.opencgaSession.opencgaClient.projects().update(this.project?.fqn,this.project)
+            .then(res => {
+                this.project = {};
+                this.requestUpdate();
+
+                this.dispatchSessionUpdateRequest();
+
+                Swal.fire(
+                    "Edit Project",
+                    "project updated correctly.",
+                    "success"
+                );
+            })
+            .catch(err => {
+                console.error(err);
+                params.error(err);
+            });
+    }
+
+    dispatchSessionUpdateRequest() {
+        this.dispatchEvent(new CustomEvent("sessionUpdateRequest", {
+            detail: {
+            },
+            bubbles: true,
+            composed: true
+        }));
     }
 
     getStudyFormConfig() {
@@ -107,7 +152,7 @@ export default class ProjectForm extends LitElement {
             buttons: {
                 show: true,
                 cancelText: "Cancel",
-                okText: "Save"
+                okText: this.mode === "CREATE" ? "Save" : "Update"
             },
             display: {
                 style: "margin: 25px 50px 0px 0px",
@@ -187,29 +232,15 @@ export default class ProjectForm extends LitElement {
     }
 
     onSave(e) {
-        this.opencgaSession.opencgaClient.projects().create(this.project)
-            .then(res => {
-                this.project = {};
-                this.requestUpdate();
-
-                this.dispatchEvent(new CustomEvent("sessionUpdateRequest", {
-                    detail: {
-                    },
-                    bubbles: true,
-                    composed: true
-                }));
-
-                Swal.fire(
-                    "New Project",
-                    "New project created correctly.",
-                    "success"
-                );
-            })
-            .catch(err => {
-                console.error(err);
-                params.error(err);
-            });
+        // TODO: Check it's ok ?
+        if (mode == "CREATE") {
+            this.saveProject()
+        } else {
+            this.updateProject()
+        }
     }
+
+
 
     render() {
         return html`
