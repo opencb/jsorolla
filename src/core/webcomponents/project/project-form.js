@@ -18,12 +18,13 @@ import { LitElement, html } from "/web_modules/lit-element.js";
 import UtilsNew from "./../../utilsNew.js";
 import "../commons/tool-header.js";
 
-export default class ProjectEditor extends LitElement {
+export default class ProjectForm extends LitElement {
 
     constructor() {
         super();
 
         // Set status and init private properties
+
         this._init();
     }
 
@@ -50,15 +51,7 @@ export default class ProjectEditor extends LitElement {
 
     _init() {
         this._prefix = UtilsNew.randomString(8);
-
-        this.project = {
-            id: "asas",
-            name: "assasa",
-            organism: {
-                assembly: "sasaas"
-            }
-        };
-        this.mode = this.project?.id ? "UPDATE" : "CREATE";
+        this.project = {}
     }
 
     connectedCallback() {
@@ -81,6 +74,8 @@ export default class ProjectEditor extends LitElement {
     //         active: false
     //     };
     // }
+
+    
 
     onFieldChange(e) {
         switch (e.detail.param) {
@@ -210,9 +205,9 @@ export default class ProjectEditor extends LitElement {
                     "success"
                 );
             })
-            .catch(e => {
-                console.error(e);
-                params.error(e);
+            .catch(err => {
+                console.error(err);
+                params.error(err);
             });
     }
 
@@ -229,4 +224,4 @@ export default class ProjectEditor extends LitElement {
 
 }
 
-customElements.define("project-editor", ProjectEditor);
+customElements.define("project-form", ProjectForm);

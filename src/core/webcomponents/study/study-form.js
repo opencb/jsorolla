@@ -18,7 +18,7 @@ import { LitElement, html } from "/web_modules/lit-element.js";
 import UtilsNew from "./../../utilsNew.js";
 import "../commons/tool-header.js";
 
-export default class StudyEditor extends LitElement {
+export default class StudyForm extends LitElement {
 
     constructor() {
         super();
@@ -33,6 +33,9 @@ export default class StudyEditor extends LitElement {
 
     static get properties() {
         return {
+            project: {
+                type: Object
+            },
             opencgaSession: {
                 type: Object
             },
@@ -49,27 +52,23 @@ export default class StudyEditor extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
-
         // this._config = { ...this.getDefaultConfig(), ...this.config };
     }
 
-    // update(changedProperties) {
-    //     if (changedProperties.has("opencgaSession")) {
-    //         this.usersAndProjects = this.getProjetcsPerUser();
-    //     }
-    //     super.update(changedProperties);
-    // }
+    update(changedProperties) {
+        // checking if this component receive the project
+        console.log("Project for the new Study: ",this.project?.fqn) 
+        super.update(changedProperties);
+    }
 
-    // getDefaultConfig() {
-    //     return {
-    //         title: "Study Dashboard",
-    //         icon: "variant_browser.svg",
-    //         active: false
-    //     };
-    // }
-
-    onSaveFieldChange(e) {
-        console.log(e.detail.param)
+    onFieldChange(e) {
+        switch (e.detail.param) {
+            case "id":
+            case "name":
+            case "description":
+                this.study[e.detail.param] = e.detail.value;
+                break;
+        }
     }
 
     getSaveForm(e) {
@@ -77,8 +76,29 @@ export default class StudyEditor extends LitElement {
     }
 
     onSave(e) {
-        console.log(e.detail.param)
-        console.log("Prueba")
+        // TODO: Check it's ok ?
+        this.opencgaSession.opencgaClient.studies().create(this.study, { project: this.project.fqn })
+            .then(res => {
+                this.study = {};
+                this.requestUpdate();
+
+                this.dispatchEvent(new CustomEvent("sessionUpdateRequest", {
+                    detail: {
+                    },
+                    bubbles: true,
+                    composed: true
+                }));
+
+                Swal.fire(
+                    "New Study",
+                    "New Study created correctly.",
+                    "success"
+                );
+            })
+            .catch(err => {
+                console.error(err);
+                params.error(err);
+            });
     }
 
     onHide() {
@@ -116,27 +136,27 @@ export default class StudyEditor extends LitElement {
                     elements: [
                         {
                             name: "id",
-                            field: "ID",
-                            type: "select",
-                            allowedValues: ["NOT_REVIEWED", "REVIEW_REQUESTED", "REVIEWED", "DISCARDED", "REPORTED"],
+                            field: "id",
+                            type: "input-text",
                             display: {
+                                placeholder: "Add a short ID...",
                             }
                         },
                         {
                             name: "Name",
-                            field: "discussion",
+                            field: "name",
                             type: "input-text",
                             display: {
-                                placeholder: "Add a Name",
+                                placeholder: "Study name...",
                             }
                         },
                         {
-                            name: "Comments",
-                            field: "comments",
+                            name: "Description",
+                            field: "description",
                             type: "input-text",
                             display: {
-                                placeholder: "Add a description",
-                                rows: 5
+                                rows: 3,
+                                placeholder: "Study description...",
                             }
                         },
                     ]
@@ -146,21 +166,11 @@ export default class StudyEditor extends LitElement {
     }
 
     render() {
-        // Check if there is any project available
-        // console.log(this.opencgaSession)
-        // if (!this.opencgaSession?.study) {
-        //     return html`
-        //         <div class="guard-page">
-        //         <i class="fas fa-lock fa-5x"></i>
-        //             <h3>No public projects available to browse. Please login to continue</h3>
-        //         </div>`;
-        // }
-
         return html`
             <data-form  .data=${this.newStudy}
                         .config="${this.getStudyFormConfig()}"
+                        @fieldChange="${e => this.onFieldChange(e)}"
                         @clear="${this.onHide}"
-                        @fieldChange="${e => this.onSaveFieldChange(e)}"
                         @submit="${this.onSave}">
             </data-form>
         `;
@@ -168,4 +178,4 @@ export default class StudyEditor extends LitElement {
 
 }
 
-customElements.define("study-editor", StudyEditor);
+customElements.define("study-form", StudyForm);
