@@ -176,7 +176,7 @@ export default class RgaIndividualGrid extends LitElement {
                     skip: params.data.offset || 0,
                     count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
                     include: "genes,sampleId,phenotypes,disorders,motherId,fatherId",
-                    geneName: this._genes.join(","),
+                    // geneName: this._genes.join(","),
                     // individualId: "112000791",
                     ...this._query,
                 };
@@ -467,10 +467,8 @@ export default class RgaIndividualGrid extends LitElement {
             onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse),
             onPostBody: data => {
                 this.gridCommons.onLoadSuccess({rows: data, total: data.length});
-                if (data[0]) {
-                    // it selects the first row (we don't use `selectrow` event in this case)
-                    this.individual = data[0];
-                }
+                // it selects the first row (we don't use `selectrow` event in this case)
+                this.individual = data[0] ?? null;
                 this.requestUpdate();
             }
         });
@@ -492,7 +490,7 @@ export default class RgaIndividualGrid extends LitElement {
         // return value.length ? (value.length > 20 ? `${value.length} genes` : value.map(gene => gene.name)) : "-";
         const genes = value.map(gene => `${gene.name}`).join(", ");
         if (value && value.length > 20) {
-            return `<a tooltip-title="Phenotypes" tooltip-text='${genes}'> ${value.length} genes</a>`;
+            return `<a tooltip-title="Genes" tooltip-text='${genes}'> ${value.length} genes</a>`;
         } else {
             return genes;
         }
@@ -543,7 +541,7 @@ export default class RgaIndividualGrid extends LitElement {
                 {
                     title: "Compound Heterozygous",
                     field: "",
-                    colspan: 4
+                    colspan: 3
                 },
                 {
                     title: "Phenotypes",
@@ -567,13 +565,14 @@ export default class RgaIndividualGrid extends LitElement {
                         return this.getKnockoutCount(row.genes, "HOM_ALT");
                     }*/
                 },
+                /*
                 {
                     title: "Total",
                     field: "ch"
-                    /* formatter: (_, row) => {
+                    /!* formatter: (_, row) => {
                         return this.getKnockoutCount(row.genes, "COMP_HET");
-                    }*/
-                },
+                    }*!/
+                },*/
                 {
                     title: "Definite",
                     field: "ch_definite"

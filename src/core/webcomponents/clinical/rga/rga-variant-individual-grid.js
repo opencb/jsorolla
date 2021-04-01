@@ -122,10 +122,6 @@ export default class RgaVariantIndividualGrid extends LitElement {
                 formatter: (_, row) => row.genes[0].transcripts[0].variants.find(variant => variant.id === this.variant.id)?.genotype
             },
             {
-                title: "DP",
-                field: "dp"
-            },
-            {
                 title: "Filter",
                 field: "_",
                 formatter: (_, row) => {

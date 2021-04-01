@@ -71,7 +71,7 @@ export default class RgaVariantGrid extends LitElement {
             "CCNO", "CEP290", "CNGB3", "CUL7", "DNAAF1", "DOCK6", "EIF2B5", "ERCC6", "FLG", "HADA",
             "INPP5K", "MANIB1", "MERTK", "MUTYH", "NDUFAF5", "NDUFS7", "OTOG", "PAH", "PDZD7", "PHYH",
             "PKHD1", "PMM2", "RARS2", "SACS", "SGCA", "SIGMAR1", "SPG7", "TTN", "TYR", "USH2A", "WFS1"];
-        this._genes = ["INPP5K,MANIB1"];
+        // this._genes = ["INPP5K,MANIB1"];
 
     }
 
@@ -111,7 +111,7 @@ export default class RgaVariantGrid extends LitElement {
         this.renderTable();
     }
 
-        /**
+    /**
      * @deprecated
      */
     prepareData() {
@@ -161,44 +161,53 @@ export default class RgaVariantGrid extends LitElement {
                 field: "gene",
                 formatter: (_, row) => {
                     // optional chaining because individuals will be empty in case the user doesn't have the permissions to see it
-                    //return row.individuals?.[0]?.genes?.[0]?.name;
+                    // return row.individuals?.[0]?.genes?.[0]?.name;
                     const genes = new Set();
                     row.individuals.forEach(individual => individual.genes.forEach(gene => genes.add(gene.name)));
-                    return Array.from(genes.keys());
+                    return Array.from(genes.keys()).join(", ");
                 }
             },
             {
                 title: "dbSNP",
                 field: "dbSNP",
                 formatter: (value, row) => {
-                    return this.dbSNPFormatter(value, row)
+                    return this.dbSNPFormatter(value, row);
                 }},
             {
                 title: "Alternate allele frequency",
                 field: "populationFrequencies",
                 formatter: (value, row) => {
-                    return this.clinicalPopulationFrequenciesFormatter(value, row)
+                    return this.clinicalPopulationFrequenciesFormatter(value, row);
                 }
             },
-            {title: "Variant type", field: "type"},
+            {
+                title: "Variant type",
+                field: "type"
+            },
+            {
+                title: "Allele count",
+                field: "alleleCount",
+                formatter: this.alleleCountFormatter
+            },
             {
                 title: "Consequence type",
                 field: "sequenceOntologyTerms",
                 formatter: this.consequenceTypeFormatter
             },
             {
-                title: "ClinVar",
-                field: "clinvar"
+                title: "Clinical Significance",
+                field: "clinicalSignificance",
+                formatter: value => value?.join(", ")
             },
             {
                 title: "Individuals",
                 filed: "numIndividuals",
                 formatter: (_, row) => {
-                    let diff = "";
+                    let hiddenIndividuals = "";
                     if (row.individuals.length !== row.numIndividuals) {
-                        diff = row.numIndividuals - row.individuals.length;
+                        hiddenIndividuals = row.numIndividuals - row.individuals.length;
                     }
-                    return `${row.numIndividuals}${diff ? `<span title="${diff} ${diff > 1 ? "are" : "is"} hidden"><b>*</b></span>` : ""}`
+                    return `${row.numIndividuals} <a tooltip-title="Individuals" tooltip-position-at="left bottom" tooltip-position-my="right top" tooltip-text="${hiddenIndividuals ? `${hiddenIndividuals} individual${hiddenIndividuals > 1 ? "s are" : " is"} hidden due to your permission settings.` : ""}"><i class="text-warning fas fa-exclamation-circle align-middle"></i></a>`;
                 }
                 // individual matrix
                 // field: "individuals",
@@ -218,10 +227,23 @@ export default class RgaVariantGrid extends LitElement {
             })*/];
     }
 
+    alleleCountFormatter(value, row) {
+        const uniqueVariants = {};
+        for (const individual of row.individuals) {
+            for (const gene of individual.genes) {
+                for (const transcript of gene.transcripts) {
+                    for (const variant of transcript.variants) {
+                        uniqueVariants[variant.id] = variant.id;
+                    }
+                }
+            }
+        }
+        return Object.keys(uniqueVariants).length;
+    }
+
     clinicalPopulationFrequenciesFormatter(value, row) {
         if (row) {
             const popFreqMap = new Map();
-            console.log("row.populationFrequencies", row.populationFrequencies)
             if (row?.populationFrequencies?.length > 0) {
                 for (const popFreq of row.populationFrequencies) {
                     popFreqMap.set(popFreq.study + ":" + popFreq.population, Number(popFreq.altAlleleFreq).toFixed(4));
@@ -346,7 +368,7 @@ export default class RgaVariantGrid extends LitElement {
                     skip: params.data.offset || 0,
                     count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
                     geneName: this._genes.join(","),
-                    ...this._query,
+                    ...this._query
                 };
                 this.opencgaSession.opencgaClient.clinical().queryRgaVariant(_filters)
                     .then(res => {
@@ -376,12 +398,8 @@ export default class RgaVariantGrid extends LitElement {
             onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse),
             onPostBody: data => {
                 this.gridCommons.onLoadSuccess({rows: data, total: data.length});
-                if (data[0]) {
-                    // it selects the first row (we don't use `selectrow` event in this case)
-                    this.variant = data[0] ? data[0] : null;
-                } else {
-                    this.variant = null;
-                }
+                // it selects the first row (we don't use `selectrow` event in this case)
+                this.variant = data[0] ?? null;
                 this.requestUpdate();
             }
 

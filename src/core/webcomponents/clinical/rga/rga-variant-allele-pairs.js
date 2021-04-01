@@ -68,7 +68,6 @@ export default class RgaVariantAllelePairs extends LitElement {
 
     prepareData() {
         console.log("prepareData", this.variant)
-        // TODO FIXED - first transcript of the first gene of the first individual
         const uniqueVariants = {};
         for (const individual of this.variant.individuals) {
             for (const gene of individual.genes) {
@@ -148,8 +147,9 @@ export default class RgaVariantAllelePairs extends LitElement {
                 }
             },
             {
-                title: "ClinVar",
-                field: "clinvar"
+                title: "Clinical Significance",
+                field: "clinicalSignificance",
+                formatter: value => value?.join(", ")
             },
             {
                 title: "Num. Individuals",

@@ -231,7 +231,7 @@ export default class RgaGeneGrid extends LitElement {
                 },
                 {
                     title: "Recessive Individuals",
-                    colspan: 6
+                    colspan: 5
                 },
                 {
                     title: "Recessive Variants",
@@ -247,7 +247,7 @@ export default class RgaGeneGrid extends LitElement {
                     }
                 },
                 {
-                    title: "Total Homozygous", // row.facetFields.find(facetField => facetField.name === "HOM_ALT")?.count ?? "n/a"
+                    title: "Homozygous", // row.facetFields.find(facetField => facetField.name === "HOM_ALT")?.count ?? "n/a"
                     field: "ind_hom",
                     formatter: (_, row) => {
                         /* const knockoutTypes = row.facetFields.find(facetField => facetField.name === "knockoutTypes");
@@ -255,17 +255,17 @@ export default class RgaGeneGrid extends LitElement {
                         return row.individualFacet.HOM_ALT?.count;
                     }
                 },
-                {
+                /*{
                     title: "CH Tot",
                     field: "ind_ch",
                     formatter: (_, row) => {
-                        /* const knockoutTypes = row.facetFields.find(facetField => facetField.name === "knockoutTypes");
-                        return knockoutTypes.buckets.find(bucket => bucket.value === "COMP_HET")?.count ?? "-";*/
+                        /!* const knockoutTypes = row.facetFields.find(facetField => facetField.name === "knockoutTypes");
+                        return knockoutTypes.buckets.find(bucket => bucket.value === "COMP_HET")?.count ?? "-";*!/
                         return row.individualFacet.COMP_HET?.count;
                     }
-                },
+                },*/
                 {
-                    title: "CH Tot Definite",
+                    title: "CH - Definite",
                     field: "ind_ch_def",
                     formatter: (_, row) => {
                         // this.getConfidenceCount(row.facetFields, "2")
@@ -273,14 +273,14 @@ export default class RgaGeneGrid extends LitElement {
                     }
                 },
                 {
-                    title: "CH Probable",
+                    title: "CH - Probable",
                     field: "ind_ch_prob",
                     formatter: (_, row) => {
                         return this.getConfidenceCount(row, "1");
                     }
                 },
                 {
-                    title: "CH Possible",
+                    title: "CH - Possible",
                     field: "ind_ch_poss",
                     formatter: (_, row) => {
                         return this.getConfidenceCount(row, "0");
@@ -300,7 +300,7 @@ export default class RgaGeneGrid extends LitElement {
                     }
                 },
                 {
-                    title: "Total Homozygous",
+                    title: "Homozygous",
                     field: "var_hom",
                     formatter: (_, row) => {
                         /* // TODO note potential traversing of all the results EACH cell
@@ -322,7 +322,7 @@ export default class RgaGeneGrid extends LitElement {
                     }
                 },
                 {
-                    title: "Total CH",
+                    title: "CH",
                     field: "var_ch",
                     formatter: (_, row) => {
                         /* // TODO note potential traversing of all the results EACH cell
