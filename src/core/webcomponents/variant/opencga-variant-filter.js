@@ -35,8 +35,9 @@ import "../commons/filters/population-frequency-filter.js";
 import "../commons/filters/protein-substitution-score-filter.js";
 import "../commons/filters/sample-filter.js";
 import "../commons/filters/study-filter.js";
-import "../commons/filters/variant-type-filter.js";
+import "../commons/filters/variant-file-filter.js";
 import "../commons/filters/variant-caller-info-filter.js";
+import "../commons/filters/variant-type-filter.js";
 
 export default class OpencgaVariantFilter extends LitElement {
 
@@ -365,6 +366,17 @@ export default class OpencgaVariantFilter extends LitElement {
                 case "sample-genotype":
                     content = html`<sample-genotype-filter .sample="${this.preparedQuery.sample}" @filterChange="${e => this.onFilterChange("sample", e.detail.value)}"></sample-genotype-filter>`;
                     break;
+                case "variant-file":
+                    let files = [];
+                    if (subsection.params?.files) {
+                        files = Object.entries(subsection.params.files).map(([key, value]) => value.name);
+                    }
+                    content = html`
+                        <variant-file-filter 
+                                .files="${files}" 
+                                @filterChange="${e => this.onFilterChange("file", e.detail.value)}">
+                        </variant-file-filter>`;
+                    break;
                 case "file-quality":
                     // content = html`<file-qual-filter .qual="${this.preparedQuery.qual}" @filterChange="${e => this.onFilterChange("qual", e.detail.value)}"></file-qual-filter>`;
                     let depth;
@@ -467,6 +479,8 @@ export default class OpencgaVariantFilter extends LitElement {
                 case "brass":
                 case "manta":
                 case "tnhaplotyper2":
+                case "pisces":
+                case "craft":
                     content = html`
                         <variant-caller-info-filter .caller="${subsection.id}" 
                                                     .fileId="${subsection.params.fileId}" 

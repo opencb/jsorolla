@@ -387,6 +387,38 @@ export default class VariantCallerInfoFilter extends LitElement {
                             defaultValue: "",
                         }
                     ]
+                },
+                {
+                    title: "",
+                    display: {
+                        visible: this.caller === "pisces"
+                    },
+                    elements: [
+                        {
+                            name: "PASS",
+                            field: "FILTER",
+                            type: "checkbox",
+                        },
+                        {
+                            name: "DP",
+                            field: "DP",
+                            type: "input-number",
+                            defaultValue: "",
+                        },
+                    ]
+                },
+                {
+                    title: "",
+                    display: {
+                        visible: this.caller === "craft"
+                    },
+                    elements: [
+                        {
+                            name: "PASS",
+                            field: "FILTER",
+                            type: "checkbox",
+                        },
+                    ]
                 }
             ]
         };
