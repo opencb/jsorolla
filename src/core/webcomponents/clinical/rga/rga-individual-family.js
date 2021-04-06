@@ -55,6 +55,7 @@ export default class RgaIndividualFamily extends LitElement {
         this.gridId = this._prefix + "KnockoutIndividualFamGrid";
         this.tableDataMap = {};
         this.individual = null;
+        this.wip = true;
     }
 
     async updated(changedProperties) {
@@ -62,8 +63,6 @@ export default class RgaIndividualFamily extends LitElement {
         }
 
         if ((changedProperties.has("individual") || changedProperties.has("active")) && this.active) {
-            console.log("individual changed", this.individual);
-            console.log("this.active", this.active);
             await this.prepareData();
             this.renderTable();
         }
@@ -307,10 +306,10 @@ export default class RgaIndividualFamily extends LitElement {
     gtFormatter(value, sampleIndex) {
         if (value?.studies?.[0]?.sampleDataKeys.length) {
             const gtIndex = value.studies[0].sampleDataKeys.indexOf("GT");
-            console.log("gtIndex", gtIndex)
+            // console.log("gtIndex", gtIndex)
             if (~gtIndex) {
-                console.log("gtIndex", gtIndex)
-                console.log("sampleGT", value.studies[0].samples[sampleIndex])
+                // console.log("gtIndex", gtIndex)
+                // console.log("sampleGT", value.studies[0].samples[sampleIndex])
                 return value.studies[0].samples?.[sampleIndex].data[gtIndex];
             }
         }
@@ -324,7 +323,11 @@ export default class RgaIndividualFamily extends LitElement {
     }
 
     render() {
+        if (this.wip) {
+            return html`<div class="alert alert-warning"><i class="fas fa-3x fa-info-circle align-middle"></i> WIP </div>`;
+        }
         return html`
+            
             <div class="row">
                 <table id="${this.gridId}"></table>
             </div>
