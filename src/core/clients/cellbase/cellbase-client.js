@@ -32,6 +32,7 @@ export class CellBaseClient {
             this.indexedDBCache = new IndexedDBCache(this._config.cache.database);
             this._initCache();
         }
+        this.check();
     }
 
     getDefaultConfig() {
@@ -45,15 +46,30 @@ export class CellBaseClient {
             },
             cache: {
                 active: false,
-                database: `${this.species}_${this.version}_cellbase_cache`,
+                // TODO FIXME database: `${this.species}_${this.version}_cellbase_cache`,
                 subcategories: ["genomic_chromosome", "genomic_region", "genomic_variant", "feature_gene", "feature_variation",
                     "feature_clinical", "feature_id", "feature_protein", "feature_transcript"]
             }
         };
     }
 
-    // TODO check CellBase URL and other variables.
-    check() {}
+    check() {
+        const globalEvent = new CustomEvent("signingInError", {
+            detail: {
+                value: "Cellbase host not available."
+            }
+        });
+        this.getMeta("about")
+            .then(response => {
+                if (response?.response?.[0]?.result[0]["Program: "] !== "CellBase (OpenCB)") {
+                    globalThis.dispatchEvent(globalEvent);
+                }
+            })
+            .catch(e => {
+                console.error(e);
+                globalThis.dispatchEvent(globalEvent);
+            });
+    }
 
     _initCache() {
         this.indexedDBCache.createObjectStores(this._config.cache.subcategories);
@@ -66,13 +82,10 @@ export class CellBaseClient {
         return this.get(args.category, args.subcategory, args.id, args.resource, args.params, args.options);
     }
 
-    getMeta(param, options) {
-        if (options === undefined) {
-            options = {};
-        }
-        let hosts = options.hosts || this._config.hosts;
-        let version = options.version || this._config.version;
-        let count = 0;
+    getMeta(param, options = {}) {
+        const hosts = options.hosts || this._config.hosts;
+        const version = options.version || this._config.version;
+        const count = 0;
         // let response;
         let url = `${hosts[count]}/webservices/rest/${version}/` + "meta" + `/${param}`;
 
@@ -94,16 +107,12 @@ export class CellBaseClient {
         return RestClient.call(url, options);
     }
 
-    getFiles(folderId, resource, params, options) {
-        if (options === undefined) {
-            options = {};
-        }
-        let hosts = options.hosts || this._config.hosts;
-        let version = options.version || this._config.version;
-        let species = options.species || this._config.species;
+    getFiles(folderId, resource, params, options = {}) {
+        const hosts = options.hosts || this._config.hosts;
+        const version = options.version || this._config.version;
+        const species = options.species || this._config.species;
+        const count = 0;
 
-        // TODO fixme count is not defined
-        debugger
         let url = `http://${hosts[count]}/webservices/rest/${version}/${species}/` + "files";
 
         if (typeof folderId !== "undefined" && folderId !== null && folderId !== "") {
@@ -113,7 +122,7 @@ export class CellBaseClient {
         }
 
         // We add the query params formatted in URL
-        let queryParamsUrl = this._createSuffixKey(params, false);
+        const queryParamsUrl = this._createSuffixKey(params, false);
         if (typeof queryParamsUrl !== "undefined" && queryParamsUrl !== null && queryParamsUrl !== "") {
             url += `?${queryParamsUrl}`;
         }
@@ -140,25 +149,26 @@ export class CellBaseClient {
         return this.get("feature", "regulatory", id, resource, params, options);
     }
 
-    get(category, subcategory, ids, resource, params, options) {
-        if (options === undefined) {
-            options = {};
-        }
+    async get(category, subcategory, ids, resource, params, options = {}) {
         // we store the options from the parameter or from the default values in config
         let hosts = options.hosts || this._config.hosts;
+
+        if (!hosts) {
+            throw new Error("Cellbase host not defined");
+        }
         if (typeof hosts === "string") {
             hosts = hosts.split(",");
         }
-        let cache = options.cache || this._config.cache;
+        const cache = options.cache || this._config.cache;
 
         let response;
         if (cache.active) {
-            let os = `${category}_${subcategory}`;
+            const os = `${category}_${subcategory}`;
 
-            let nonCachedIds = [];
+            const nonCachedIds = [];
 
-            let cacheKeys = [];
-            let suffixKey = this._createSuffixKey(params, true);
+            const cacheKeys = [];
+            const suffixKey = this._createSuffixKey(params, true);
 
             let idArray = [];
             if (ids !== undefined && ids !== null) {
@@ -171,8 +181,8 @@ export class CellBaseClient {
             }
 
             console.time("Cache time:");
-            let _this = this;
-            response = new Promise(function(resolve, reject) {
+            const _this = this;
+            response = new Promise(function (resolve, reject) {
                 _this.indexedDBCache.getAll(os, cacheKeys, function (results) {
                     let uncachedQueries = false;
                     for (let i = 0; i < results.length; i++) {
@@ -184,12 +194,12 @@ export class CellBaseClient {
                         }
                     }
 
-                    options.cacheFn = function(dataResponse) {
+                    options.cacheFn = function (dataResponse) {
                         // we add the new fetched data to the cache
-                        let suffixKey = _this._createSuffixKey(params, true);
+                        const suffixKey = _this._createSuffixKey(params, true);
                         // We make a copy of dataResponse
-                        let query = {};
-                        for (let i in dataResponse) {
+                        const query = {};
+                        for (const i in dataResponse) {
                             query[i] = dataResponse[i];
                         }
                         // And remove the key response
@@ -197,7 +207,7 @@ export class CellBaseClient {
 
                         if (idArray.length > 0) {
                             for (let i = 0; i < dataResponse.response.length; i++) {
-                                let result = {
+                                const result = {
                                     query: query,
                                     data: dataResponse.response[i]
                                 };
@@ -208,7 +218,7 @@ export class CellBaseClient {
                             }
                         } else {
                             for (let i = 0; i < dataResponse.response.length; i++) {
-                                let result = {
+                                const result = {
                                     query: query,
                                     data: dataResponse.response[i]
                                 };
@@ -222,7 +232,7 @@ export class CellBaseClient {
                         // response = _this._callRestWebService(hosts, category, subcategory, nonCachedIds, resource, params, options);
                         resolve(_this._callRestWebService(hosts, category, subcategory, nonCachedIds, resource, params, options));
                     } else {
-                        let queryResponse = results[0].query;
+                        const queryResponse = results[0].query;
                         queryResponse["response"] = [];
                         for (let i = 0; i < results.length; i++) {
                             queryResponse.response.push(results[i].data);
@@ -244,17 +254,18 @@ export class CellBaseClient {
     }
 
     _callRestWebService(hosts, category, subcategory, ids, resource, params, options) {
-        let version = options.version || this._config.version;
-        let species = options.species || this._config.species;
+        const version = options.version || this._config.version;
+        const species = options.species || this._config.species;
 
-        let count = 0;
+        const count = 0;
+        const url = this._createRestUrl(hosts[count], version, species, category, subcategory, ids, resource, params);
+        /*
         let response;
-        let url = this._createRestUrl(hosts[count], version, species, category, subcategory, ids, resource, params);
-
-        let userError = options.error;
-        let _this = this;
+        const userError = options.error;
+        const _this = this;
         // if the URL query fails we try with next host
-        options.error = function() {
+
+         options.error = function () {
             if (++count < hosts.length) {
                 // we need a new URL
                 url = _this._createRestUrl(hosts[count], version, species, category, subcategory, ids, resource, params);
@@ -262,10 +273,8 @@ export class CellBaseClient {
             } else {
                 userError(this);
             }
-        };
-
-        response = RestClient.call(url, options);
-        return response;
+        };*/
+        return RestClient.call(url, options);
     }
 
 
@@ -290,7 +299,7 @@ export class CellBaseClient {
         }
 
         // We add the query params formatted in URL
-        let queryParamsUrl = this._createSuffixKey(params, false);
+        const queryParamsUrl = this._createSuffixKey(params, false);
         if (typeof queryParamsUrl !== "undefined" && queryParamsUrl != null && queryParamsUrl !== "") {
             url += `?${queryParamsUrl}`;
         }
@@ -299,9 +308,9 @@ export class CellBaseClient {
 
     _createSuffixKey(params, suffix) {
         // Do not remove the sort! we need to sort the array to ensure that the key of the cache will be correct
-        let keyArray = _.keys(params).sort();
-        let keyValueArray = [];
-        for (let i in keyArray) {
+        const keyArray = _.keys(params).sort();
+        const keyValueArray = [];
+        for (const i in keyArray) {
             keyValueArray.push(`${keyArray[i]}=${encodeURIComponent(params[keyArray[i]])}`);
         }
         let suffixKey = keyValueArray.join("&");
