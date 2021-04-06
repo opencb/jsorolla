@@ -505,6 +505,7 @@ export default class DataForm extends LitElement {
                                    .classes="${element.display?.updated ? "updated" : ""}" 
                                    @filterChange="${e => this.onFilterChange(element.field, e.detail.value)}">
                 </text-field-filter>
+                ${element?.display?.help?.mode === "block" && element?.display?.help?.text ? html`<span class="help-block" style="margin: 5px">${element.display.help.text}</span>` : null}
             </div>
         `;
     }

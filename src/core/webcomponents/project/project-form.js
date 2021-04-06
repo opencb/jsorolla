@@ -160,18 +160,28 @@ export default class ProjectForm extends LitElement {
                 labelAlign: "right",
                 defaultLayout: "horizontal",
                 defaultValue: "",
+                help: {
+                    mode: "block", // icon
+                }
             },
             sections: [
                 {
                     elements: [
                         {
-                            name: "id",
+                            name: "Project ID",
                             field: "id",
                             type: "input-text",
+                            required: true,
                             display: {
                                 placeholder: "Add a short ID...",
-                                disabled: this.mode === "UPDATE"
-                            }
+                                disabled: this.mode === "UPDATE",
+                                help: {
+                                    text: "short project id for thehis as;lsal"
+                                },
+                                validation: {
+
+                                }
+                            },
                         },
                         {
                             name: "Name",

@@ -16,6 +16,65 @@
 
 export default class OpencgaCatalogUtils {
 
+    static getUserIds(study, groups = ["@members"]) {
+        if (!Array.isArray(groups)) {
+            groups = [groups];
+        }
+
+        return study?.groups
+            .filter(g => groups.includes(g))
+            .map(g => g.userIds)
+            .filter(user => user !== "*");
+    }
+
+    static getProjectOwner(project) {
+        if (!project) {
+            return null;
+        }
+        return project.fqn.split('@')[0];
+    }
+
+    /**
+     * Return an unique list of owners
+     * @param projects
+     * @returns {string|any[]}
+     */
+    static getProjectOwners(projects) {
+        if (!projects) {
+            return null;
+        }
+        return [...new Set(projects?.map(project => project.fqn.split('@')[0]))];
+    }
+
+    _checkParam(param, defaultValue) {
+        if (!param) {
+            return defaultValue;
+        }
+    }
+
+    static checkUserAccountView(user, loggedUser) {
+        if (loggedUser === "opencga") {
+            return true;
+        } else {
+            if (loggedUser === user) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    static checkProjectPermissions(project, user) {
+        if (user === "opencga") {
+            return true;
+        } else {
+            let owner = this.getProjectOwner(project);
+            if (owner === user) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /**
      * Check if the user has the right the permissions in the study.
      * @param study

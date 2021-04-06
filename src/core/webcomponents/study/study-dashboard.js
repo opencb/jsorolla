@@ -16,6 +16,7 @@
 
 import { html, LitElement } from "/web_modules/lit-element.js";
 import UtilsNew from "./../../utilsNew.js";
+import OpencgaCatalogUtils from "../../clients/opencga/opencga-catalog-utils.js"
 import "../commons/tool-header.js";
 import "./study-form.js";
 import "../project/project-form.js";
@@ -57,22 +58,11 @@ export default class StudyDashboard extends LitElement {
 
     update(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
-            this.users = this.getProjectPerUser();
+            // this.users = [...new Set(this.opencgaSession.projects?.map(project => project.fqn.split('@')[0]))];
+            this.owners = OpencgaCatalogUtils.getProjectOwners(this.opencgaSession.projects);
         }
         super.update(changedProperties);
     }
-
-    getProjectPerUser() {
-        return [...new Set(this.opencgaSession.projects?.map(project => project.fqn.split('@')[0]))];
-    }
-
-    // _verifyUserAndProject(pro,user){
-    //     return this._getUserProject(pro) == user;
-    // }
-
-    // _getUserProject(project){
-    //     return project.fqn.split('@')[0];
-    // }
 
     getDefaultConfig() {
         return {
@@ -85,18 +75,18 @@ export default class StudyDashboard extends LitElement {
     actionModal(modalId, action, project = {}, mode = "CREATE") {
         // action: show or hide
         // mode: CREATE or UPDATE
-        if (modalId == 'Project') {
-            this.mode = mode
-            if (project && mode == "UPDATE") {
-                this.project = project
+        if (modalId === 'Project') {
+            this.mode = mode;
+            if (project && mode === "UPDATE") {
+                this.project = project;
             } else {
-                this.project = {}
+                this.project = {};
             }
         } else {
             // This for new Study
-            this.project = project
+            this.project = project;
         }
-        this.requestUpdate()
+        this.requestUpdate();
         $(`#new${modalId}`).modal(action);
     }
 
@@ -188,7 +178,7 @@ export default class StudyDashboard extends LitElement {
     }
 
     // Project and Studies Style Alternative
-    renderProjectAndStudiesAlt(project,user) {
+    renderProjectAndStudiesAlt(project, user) {
         return html`
             <style>
                 .panel-body.project{
@@ -219,7 +209,7 @@ export default class StudyDashboard extends LitElement {
                         <div class="row">
                             <div class="col-md-2 border-dotted-right">
                                 <!-- Vertical dots   -->
-                                ${user !== this.opencgaSession?.user?.id ? "" : html`${this.renderVerticalDotAction(project)}`}                                 
+                                ${OpencgaCatalogUtils.checkUserAccountView(user, this.opencgaSession?.user?.id) ? html`${this.renderVerticalDotAction(project)}` : ""}                                 
                                 <h3 style="margin:5px">Project</h3>
                                 <div class="text-block text-center" style="padding-top: 5px;">
                                     <h4>${project.name}</h4>
@@ -297,7 +287,7 @@ export default class StudyDashboard extends LitElement {
                 </study-form>`,
         }
         return html`
-            <div id="${id}" class="modal fade"  tabindex="-1" role="dialog">
+            <div id="${id}" class="modal fade" tabindex="-1" role="dialog">
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
@@ -309,7 +299,7 @@ export default class StudyDashboard extends LitElement {
                         </div>
                     </div>
                 </div>
-            </div>`
+            </div>`;
     }
 
 
@@ -367,16 +357,16 @@ export default class StudyDashboard extends LitElement {
 
             <div>
                 <!-- Show Project by User-->
-                ${this.users.map(user => {
+                ${this.owners.map(owner => {
                     return html`
                         <div class="row" style="border-bottom: rgba(201, 76, 76, 0.7);}">
                             <div class="col-md-6">
-                                <h2><i class="fas fa-user fa-sm" style="padding-right: 10px"></i>${user}</h2>
+                                <h2><i class="fas fa-user fa-sm" style="padding-right: 10px"></i>${owner}</h2>
                             </div>
                             <div class="col-md-6">
                                 <div class="pull-right">
                                     <button class="btn-custom btn btn-primary" 
-                                        ?disabled=${user !== this.opencgaSession?.user?.id} 
+                                        ?disabled=${!OpencgaCatalogUtils.checkUserAccountView(owner, this.opencgaSession?.user?.id)} 
                                         @click="${() => this.actionModal('Project', 'show')}">New Project
                                     </button>
                                 </div>
@@ -390,7 +380,7 @@ export default class StudyDashboard extends LitElement {
                             <div class="clearfix"></div>
                             <!-- Show Project and Studies -->
                             <div class="col-md-12">
-                                ${this.opencgaSession.projects.filter(proj => proj.fqn.startsWith(user + "@")).map(project => this.renderProjectAndStudiesAlt(project,user))}
+                                ${this.opencgaSession.projects.filter(proj => proj.fqn.startsWith(owner + "@")).map(project => this.renderProjectAndStudiesAlt(project,owner))}
                             </div>
                         </div>`
                 })}
