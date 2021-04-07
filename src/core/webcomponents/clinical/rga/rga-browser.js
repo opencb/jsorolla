@@ -391,7 +391,6 @@ export default class RgaBrowser extends LitElement {
                             <li role="presentation" class="active">
                                 <a href="#filters_tab" aria-controls="profile" role="tab" data-toggle="tab">Filters</a>
                             </li>
-                            ${this._config.aggregation ? html`<li role="presentation"><a href="#facet_tab" aria-controls="home" role="tab" data-toggle="tab">Aggregation</a></li>` : null}
                         </ul>
                         
                         <div class="tab-content">
@@ -407,14 +406,6 @@ export default class RgaBrowser extends LitElement {
                                 </rga-gene-filter>
                             </div>
                             
-                            ${this._config.aggregation ? html`
-                                <div role="tabpanel" class="tab-pane" id="facet_tab" aria-expanded="true">
-                                    <facet-filter .config="${this._config.aggregation}"
-                                                  .selectedFacet="${this.selectedFacet}"
-                                                  @facetQueryChange="${this.onFacetQueryChange}">
-                                    </facet-filter>
-                                </div>
-                            ` : null}
                         </div>
                     </div>
     
@@ -431,8 +422,7 @@ export default class RgaBrowser extends LitElement {
                         </div>
                         
                         <div>
-                            <opencga-active-filters facetActive 
-                                                    .resource="${this.resource}"
+                            <opencga-active-filters .resource="${this.resource}"
                                                     .opencgaSession="${this.opencgaSession}"
                                                     .defaultStudy="${this.opencgaSession?.study?.fqn}"
                                                     .query="${this.preparedQuery}"

@@ -131,18 +131,18 @@ export default class RgaGeneGrid extends LitElement {
             detailFormatter: this._config.detailFormatter,
             formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
             ajax: params => {
+                const fields = "geneName>>knockoutTypes>>numParents>>individualId;geneName>>knockoutTypes>>numParents>>variants"
                 const _filters = {
                     study: this.opencgaSession.study.fqn,
                     // order: params.data.order,
                     limit: params.data.limit,
                     skip: params.data.offset || 0,
                     count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
-                    field: "geneName>>knockoutTypes>>numParents>>individualId;geneName>>knockoutTypes>>numParents>>variants",
                     // geneName: this._genes.join(","),
                     ...this._query
                     // limit: 50
                 };
-                this.opencgaSession.opencgaClient.clinical().aggregationStatsRga(_filters)
+                this.opencgaSession.opencgaClient.clinical().aggregationStatsRga(fields, _filters)
                     .then(res => {
                         console.log("res", res);
                         // this.restResponse = res;
