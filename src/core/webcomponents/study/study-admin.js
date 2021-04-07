@@ -23,6 +23,7 @@ import "./study-admin-sample.js";
 import "./study-admin-individual.js";
 import "./study-admin-family.js";
 import "./study-admin-cohort.js";
+import "./study-admin-configuration.js"
 
 export default class StudyAdmin extends LitElement {
 
@@ -353,6 +354,11 @@ export default class StudyAdmin extends LitElement {
                         <div id="${this._prefix}Audit" role="tabpanel" class="tab-pane content-tab">
                             <h3><i class="fas fa-book icon-padding" style="padding-right: 10px"></i>Audit</h3>
                             <study-admin-audit .opencgaSession="${this.opencgaSession}" .study="${this.study}"></study-admin-audit>
+                        </div>
+
+                        <div id="${this._prefix}Configuration" role="tabpanel" class="tab-pane content-tab">
+                            <h3><i class="fas fa-cog icon-padding" style="padding-right: 10px"></i>Configuration</h3>
+                            <study-admin-configuration .opencgaSession="${this.opencgaSession}" .study="${this.study}"></study-admin-configuration>
                         </div>
 
                         <div id="${this._prefix}Sample" role="tabpanel" class="tab-pane content-tab">

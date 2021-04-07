@@ -66,6 +66,7 @@ export default class StudyAdminPermissions extends LitElement {
         });
         this.studyPermissions = this.permissions;
         this.searchPermission = ""
+        this.activeTab = {};
     }
 
     connectedCallback() {
@@ -213,6 +214,21 @@ export default class StudyAdminPermissions extends LitElement {
         };
     }
 
+    //Todo: Refactor Tabs Pill as a component similar to details Tabs 
+    onClickPill(e) {
+        this._changeView(e.currentTarget.dataset.id);
+    }
+
+    _changeView(tabId) {
+        $(".content-pills", this).removeClass("active");
+        $(".content-tab", this).removeClass("active");
+        for (const tab in this.activeTab) this.activeTab[tab] = false;
+        $(`button.content-pills[data-id=${tabId}]`, this).addClass("active");
+        $("#" + tabId, this).addClass("active");
+        this.activeTab[tabId] = true;
+        this.requestUpdate();
+    }
+    ////////////////////////////////////////////////
 
     // TODO: we can use this one as search without search button.. if pass 3 character this gonna look the user.
     onPermissionFieldChange(e) {
@@ -223,8 +239,8 @@ export default class StudyAdminPermissions extends LitElement {
         // }
     }
 
-    onPermissionSearch(e,clear) {
-        if(clear){
+    onPermissionSearch(e, clear) {
+        if (clear) {
             this.searchPermission = "";
         }
 
@@ -239,39 +255,62 @@ export default class StudyAdminPermissions extends LitElement {
 
     render() {
         return html`
-            <div class="pull-left" style="margin: 10px 0px">
-                <!-- SEARCH Permission -->    
-                <div class="form-inline">
-                    <div class="form-group">
-                        <input type="text" 
-                            .value="${this.searchPermission || ""}" 
-                            class="form-control" 
-                            list="${this._prefix}Permissions" placeholder="Search by Permission ..." 
-                            @change="${this.onPermissionFieldChange}">
+
+            <!-- Permissions Tabs Pill -->    
+            <div>
+                <div class="btn-group content-pills" role="toolbar" aria-label="toolbar">
+                    <div class="btn-group" role="group" style="margin-left: 0px">
+                        <button type="button" class="btn btn-success active ripple content-pills" @click="${this.onClickPill}" data-id="permission-tab">
+                            <i class="fa fa-table icon-padding" aria-hidden="true"></i> Permissions
+                        </button>
+                        <button type="button" class="btn btn-success ripple content-pills" @click="${this.onClickPill}" data-id="permissions-rules-tab">
+                            <i class="fas fa-clipboard icon-padding" aria-hidden="true"></i> Permission Rules
+                        </button>
                     </div>
-                    <button type="button" id="${this._prefix}ClearPermissionMenu" class="btn btn-default btn-xs ripple"
-                            aria-haspopup="true" aria-expanded="false" title="Clear permission from ${this.study?.name} study"
-                            @click="${e => this.onPermissionSearch(e, true)}">
-                        <i class="fas fa-times" aria-hidden="true"></i>
-                    </button>
-                    <button type="button" id="${this._prefix}SearchPermissionMenu" class="btn btn-default btn-xs ripple"
-                            aria-haspopup="true" aria-expanded="false" title="Filter permission from ${this.study?.name} study"
-                            @click="${e => this.onPermissionSearch(e, false)}">
-                        <i class="fas fa-search" aria-hidden="true"></i>
-                    </button>
-                    <datalist id="${this._prefix}Permissions">
-                        ${this.permissionString?.map(perm => html`
-                            <option value="${perm}"></option>
-                        `)}
-                    </datalist>
                 </div>
             </div>
 
+            <div class="main-view">
+                <!-- Permission Tab -->  
+                <div id="permission-tab" class="content-tab active">
+                    <!-- SEARCH Permission -->  
+                    <div class="pull-left" style="margin: 10px 0px">
+                        <div class="form-inline">
+                            <div class="form-group">
+                                <input type="text" 
+                                    .value="${this.searchPermission || ""}" 
+                                    class="form-control" 
+                                    list="${this._prefix}Permissions" placeholder="Search by Permission ..." 
+                                    @change="${this.onPermissionFieldChange}">
+                            </div>
+                            <button type="button" id="${this._prefix}ClearPermissionMenu" class="btn btn-default btn-xs ripple"
+                                    aria-haspopup="true" aria-expanded="false" title="Clear permission from ${this.study?.name} study"
+                                    @click="${e => this.onPermissionSearch(e, true)}">
+                                <i class="fas fa-times" aria-hidden="true"></i>
+                            </button>
+                            <button type="button" id="${this._prefix}SearchPermissionMenu" class="btn btn-default btn-xs ripple"
+                                    aria-haspopup="true" aria-expanded="false" title="Filter permission from ${this.study?.name} study"
+                                    @click="${e => this.onPermissionSearch(e, false)}">
+                                <i class="fas fa-search" aria-hidden="true"></i>
+                            </button>
+                            <datalist id="${this._prefix}Permissions">
+                                ${this.permissionString?.map(perm => html`
+                                    <option value="${perm}"></option>
+                                `)}
+                            </datalist>
+                        </div>
+                    </div>
+            
+                    <!-- GRID Permission -->
+                    <div id="${this._prefix}GridTableDiv" class="force-overflow" style="margin: 20px 0px">
+                        <table id="${this._prefix}PermissionBrowserGrid"></table>
+                    </div>
+                </div>
 
-            <div id="${this._prefix}GridTableDiv" class="force-overflow" style="margin: 20px 0px">
-                <table id="${this._prefix}PermissionBrowserGrid"></table>
-            </div>
-        `;
+                <div id="permissions-rules-tab" class="content-tab">
+                    <h1>Permission Rules Component</h1>
+                </div>
+            </div>`;
     }
 }
 
