@@ -165,7 +165,7 @@ export default class RgaGeneFilter extends LitElement {
                 content = html`<text-field-filter placeholder="${subsection.placeholder}" .value="${this.preparedQuery[subsection.id]}" .separator="${",;"}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></text-field-filter>`;
                 break;
             case "geneName":
-                content = html`<feature-filter placeholder="${subsection.placeholder}" .cellbaseClient="${this.cellbaseClient}" .value="${this.preparedQuery[subsection.id]}" .separator="${",;"}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></feature-filter>`;
+                content = html`<feature-filter placeholder="${subsection.placeholder}" .cellbaseClient="${this.cellbaseClient}" .query="${this.preparedQuery[subsection.id]}" .separator="${",;"}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></feature-filter>`;
                 break;
             case "cohort":
                 content = html`<cohort-stats-filter .opencgaSession="${this.opencgaSession}" .onlyCohortAll=${true} .cohortStatsAlt="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
