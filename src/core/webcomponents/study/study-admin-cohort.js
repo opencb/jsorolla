@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-import {html, LitElement} from "/web_modules/lit-element.js";
+import { html, LitElement } from "/web_modules/lit-element.js";
 import UtilsNew from "./../../utilsNew.js";
 import GridCommons from "../commons/grid-commons.js";
+import "../cohort/cohort-form.js"
 
 export default class StudyAdminCohort extends LitElement {
 
@@ -93,7 +94,7 @@ export default class StudyAdminCohort extends LitElement {
 
     renderRemoteTable() {
         if (this.opencgaSession.opencgaClient && this.opencgaSession.study) {
-            const filters = {...this.query};
+            const filters = { ...this.query };
             // TODO fix and replicate this in all browsers (the current filter is not "filters", it is actually built in the ajax() function in bootstrapTable)
             if (UtilsNew.isNotUndefinedOrNull(this.lastFilters) &&
                 JSON.stringify(this.lastFilters) === JSON.stringify(filters)) {
@@ -128,7 +129,7 @@ export default class StudyAdminCohort extends LitElement {
                         ...filters
                     };
                     // Store the current filters
-                    this.lastFilters = {..._filters};
+                    this.lastFilters = { ..._filters };
                     this.opencgaSession.opencgaClient.studies().searchAudit(_filters)
                         .then(sampleResponse => {
                             // Fetch clinical analysis to display the Case ID
@@ -288,16 +289,60 @@ export default class StudyAdminCohort extends LitElement {
         };
     }
 
+    // TODO: explore how to refactor those functions actionModal & renderModal (soon)
+    actionModal(modalId, action, cohort = {}, mode = "CREATE") {
+        // action: show or hide
+        // mode: CREATE or UPDATE
+        this.mode = mode;
+        if (cohort && mode === "UPDATE") {
+            this.cohort = cohort;
+        } else {
+            this.cohort = {};
+        }
+        this.requestUpdate();
+        $(`#${modalId}`).modal(action);
+    }
+
+    renderModal(modalId, name) {
+        return html`
+            <div id="${modalId}" class="modal fade" tabindex="-1" role="dialog">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title">New ${name}</h4>
+                        </div>
+                        <div class="modal-body">
+                            <cohort-form
+                                .opencgaSession="${this.opencgaSession}"
+                                .mode=${this.mode}
+                                @hide="${() => this.actionModal(modalId, 'hide')}">
+                            </cohort-form>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+    }
 
     render() {
         return html`
             <div class="pull-left" style="margin: 10px 0px">
-                cohort Component
+                Cohort Component
+            </div>
+
+            <div class="pull-right" style="margin: 10px 0px">
+                <div style="display:inline-block; margin: 0px 20px">
+                    <button class="btn-custom btn btn-primary" 
+                        @click="${() => this.actionModal('newCohort', 'show')}">New Cohort
+                    </button>
+                </div>
             </div>
 
             <!-- <div id="${this._prefix}GridTableDiv" class="force-overflow" style="margin: 20px 0px">
                 <table id="${this._prefix}AuditBrowserGrid"></table>
             </div> -->
+
+            ${this.renderModal('newCohort', 'Sample')}
         `;
     }
 }

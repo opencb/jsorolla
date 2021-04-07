@@ -18,7 +18,7 @@ import { LitElement, html } from "/web_modules/lit-element.js";
 import UtilsNew from "./../../utilsNew.js";
 import "../commons/tool-header.js";
 
-export default class SampleEditor extends LitElement {
+export default class CohortForm extends LitElement {
 
     constructor() {
         super();
@@ -36,6 +36,9 @@ export default class SampleEditor extends LitElement {
             opencgaSession: {
                 type: Object
             },
+            mode: {
+                type: String
+            },
             config: {
                 type: Object
             }
@@ -44,7 +47,7 @@ export default class SampleEditor extends LitElement {
 
     _init() {
         this._prefix = UtilsNew.randomString(8);
-        this.newSample = {}
+        this.newCohort = {}
     }
 
     connectedCallback() {
@@ -73,7 +76,7 @@ export default class SampleEditor extends LitElement {
         }));
     }
 
-    getSampleFormConfig() {
+    getCohortFormConfig() {
         return {
             title: "Edit",
             icon: "fas fa-edit",
@@ -132,8 +135,8 @@ export default class SampleEditor extends LitElement {
     render() {
 
         return html`
-            <data-form  .data=${this.newSample}
-                        .config="${this.getSampleFormConfig()}"
+            <data-form  .data=${this.newCohort}
+                        .config="${this.getCohortFormConfig()}"
                         @clear="${this.onHide}"
                         @fieldChange="${e => this.onSaveFieldChange(e)}"
                         @submit="${this.onSave}">
@@ -143,4 +146,4 @@ export default class SampleEditor extends LitElement {
 
 }
 
-customElements.define("sample-editor", SampleEditor);
+customElements.define("cohort-form", CohortForm);
