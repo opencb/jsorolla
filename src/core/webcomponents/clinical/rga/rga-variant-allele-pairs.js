@@ -67,7 +67,7 @@ export default class RgaVariantAllelePairs extends LitElement {
     }
 
     prepareData() {
-        console.log("prepareData", this.variant)
+        // console.log("prepareData", this.variant);
         const uniqueVariants = {};
         for (const individual of this.variant.individuals) {
             for (const gene of individual.genes) {
@@ -102,7 +102,7 @@ export default class RgaVariantAllelePairs extends LitElement {
             uniqueId: "id",
             pagination: true,
             paginationVAlign: "both",
-            //formatShowingRows: this.gridCommons.formatShowingRows,
+            // formatShowingRows: this.gridCommons.formatShowingRows,
             gridContext: this,
             formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
             onClickRow: (row, selectedElement, field) => {
@@ -150,18 +150,19 @@ export default class RgaVariantAllelePairs extends LitElement {
                 title: "Clinical Significance",
                 field: "clinicalSignificance",
                 formatter: value => value?.join(", ")
-            },
-            {
+            }
+            /* {
+                // this value is not available
                 title: "Num. Individuals",
                 field: "numIndividuals"
-            }
+            }*/
         ];
     }
 
     clinicalPopulationFrequenciesFormatter(value, row) {
         if (row) {
             const popFreqMap = new Map();
-            console.log("row.populationFrequencies", row.populationFrequencies)
+            // console.log("row.populationFrequencies", row.populationFrequencies);
             if (row?.populationFrequencies?.length > 0) {
                 for (const popFreq of row.populationFrequencies) {
                     popFreqMap.set(popFreq.study + ":" + popFreq.population, Number(popFreq.altAlleleFreq).toFixed(4));

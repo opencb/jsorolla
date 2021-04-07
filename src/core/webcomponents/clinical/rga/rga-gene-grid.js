@@ -199,7 +199,6 @@ export default class RgaGeneGrid extends LitElement {
             return {
                 total: response.getResult(0)?.count ?? 0,
                 rows: r
-
             };
         } else {
             console.error("Unexpected facet results");
