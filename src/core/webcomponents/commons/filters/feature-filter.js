@@ -58,12 +58,14 @@ export default class FeatureFilter extends LitElement {
     updated(_changedProperties) {
         // XRefs, Gene and Variant Ids
         if (_changedProperties.has("query")) {
-            if (this.query["xref"]) {
-                this.value = this.query["xref"];
+            if (this.query.xref) {
+                this.value = this.query.xref;
             } else if (this.query.ids) {
                 this.value = this.query.ids;
             } else if (this.query.gene) {
                 this.value = this.query.gene;
+            } else if (this.query.geneName) {
+                this.value = this.query.geneName;
             } else {
                 this.value = "";
             }
