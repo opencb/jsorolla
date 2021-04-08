@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "/web_modules/lit-element.js";
-import {classMap} from "/web_modules/lit-html/directives/class-map.js";
+import { LitElement, html } from "/web_modules/lit-element.js";
+import { classMap } from "/web_modules/lit-html/directives/class-map.js";
 import UtilsNew from "../../../utilsNew.js";
 
 export default class DetailTabs extends LitElement {
@@ -52,8 +52,8 @@ export default class DetailTabs extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
-        this._config = {...this.getDefaultConfig(), ...this.config};
-        this.activeTab = Object.assign({}, ...this._config.items.map(item => ({[item.id]: item.active ?? false}))); // this makes "active" field in config consistent with this.activeTab state. this.activeTab is the unique source of truth.
+        this._config = { ...this.getDefaultConfig(), ...this.config };
+        this.activeTab = Object.assign({}, ...this._config.items.map(item => ({ [item.id]: item.active ?? false }))); // this makes "active" field in config consistent with this.activeTab state. this.activeTab is the unique source of truth.
     }
 
     updated(changedProperties) {
@@ -66,8 +66,19 @@ export default class DetailTabs extends LitElement {
         const tabId = e.currentTarget.dataset.id;
         $(".nav-tabs", this).removeClass("active");
         $(".tab-content div[role=tabpanel]", this).hide();
-        this.activeTab = Object.assign({}, ...this._config.items.map(item => ({[item.id]: false})));
+        this.activeTab = Object.assign({}, ...this._config.items.map(item => ({ [item.id]: false })));
         $("#" + tabId + "-tab", this).show();
+        this.activeTab[tabId] = true;
+        this.requestUpdate();
+    }
+
+    _changeView(e) {
+        const tabId = e.currentTarget.dataset.id;
+        $(".content-pills", this).removeClass("active");
+        $(".content-tab", this).removeClass("active");
+        for (const tab in this.activeTab) this.activeTab[tab] = false;
+        $(`button.content-pills[data-id=${tabId}]`, this).addClass("active");
+        $("#" + tabId + "-tab", this).addClass("active");
         this.activeTab[tabId] = true;
         this.requestUpdate();
     }
@@ -81,6 +92,8 @@ export default class DetailTabs extends LitElement {
 
     render() {
         return html`
+
+
             ${this._config.showTitle ?
                 html`
                     <div class="panel">
@@ -89,30 +102,66 @@ export default class DetailTabs extends LitElement {
                 null
             }
 
-            <div class="detail-tabs">
-                <ul class="nav nav-tabs" role="tablist">
+            <!-- Details tabs with ul (traditional tabs)-->
+            ${!this._config.display?.mode || this._config.display?.mode === "tablist" ? html`
+                <div class="detail-tabs">
+                    <ul class="nav nav-tabs" role="tablist">
+                        ${this._config.items.length && this._config.items.map(item => {
+                            if (typeof item.mode === "undefined" || item.mode === this.opencgaSession.mode) {
+                                return html`
+                                    <li role="presentation" class="${classMap({ active: this.activeTab[item.id] })}">
+                                        <a href="#${this._prefix}${item.id}" role="tab" data-toggle="tab" data-id="${item.id}" @click="${this._changeBottomTab}">
+                                            <span>${item.name}</span>
+                                        </a>
+                                    </li>`;
+                            }
+                        })}
+                    </ul>
+                    <div class="tab-content">
+                        ${this._config.items.length && this._config.items.map(item => {
+                            if (typeof item.mode === "undefined" || item.mode === this.opencgaSession.mode) {
+                                return html`
+                                    <div id="${item.id}-tab" class="tab-pane ${classMap({ active: item.active })}" role="tabpanel">
+                                        ${item.render(this.data, this.activeTab[item.id], this.opencgaSession, this.cellbaseClient)}
+                                    </div>`;
+                            }
+                        })}
+                    </div>
+                </div>
+            `: null}
+            
+            <!-- //////////////////////////////////////////// -->
+
+            ${this._config.display?.mode === "pills" ? html`
+            <!-- Details tabs with button (pills tabs)-->
+                <div class="btn-group content-pills" role="toolbar" aria-label="toolbar">
+                    <div class="btn-group" role="group" style="margin-left: 0px">
+                        ${this._config.items.length && this._config.items.map(item => {
+                    if (typeof item.mode === "undefined" || item.mode === this.opencgaSession.mode) {
+                        return html`
+                            <button 
+                                class="btn btn-success ripple content-pills ${classMap({ active: this.activeTab[item.id] })}"     
+                                type="button" data-id="${item.id}" @click="${this._changeView}">
+                                <i class="fa fa-table icon-padding" aria-hidden="true"></i> ${item.name}
+                            </button>
+                        `;
+                    }
+                })}
+                    </div>
+                </div>
+
+                <div class="main-view">
                     ${this._config.items.length && this._config.items.map(item => {
                         if (typeof item.mode === "undefined" || item.mode === this.opencgaSession.mode) {
                             return html`
-                                <li role="presentation" class="${classMap({active: this.activeTab[item.id]})}">
-                                    <a href="#${this._prefix}${item.id}" role="tab" data-toggle="tab" data-id="${item.id}" @click="${this._changeBottomTab}">
-                                        <span>${item.name}</span>
-                                    </a>
-                                </li>`;
-                        }
-                    })}
-                </ul>
-                <div class="tab-content">
-                    ${this._config.items.length && this._config.items.map(item => {
-                        if (typeof item.mode === "undefined" || item.mode === this.opencgaSession.mode) {
-                            return html`
-                                <div id="${item.id}-tab" class="tab-pane ${classMap({active: item.active})}" role="tabpanel">
+                                <div id="${item.id}-tab" class="content-tab ${classMap({ active: item.active })}">
                                     ${item.render(this.data, this.activeTab[item.id], this.opencgaSession, this.cellbaseClient)}
                                 </div>`;
                         }
                     })}
                 </div>
-            </div>
+            `: null}
+            <!-- //////////////////////////////////////////// -->
         `;
     }
 

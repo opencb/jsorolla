@@ -57,9 +57,7 @@ export default class StudyAdminConfiguration extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
-
         this._config = { ...this.getDefaultConfig(), ...this.config };
-        
     }
 
     // Note: WE NEED this function because we are rendering using JQuery not lit-element API
@@ -276,66 +274,60 @@ export default class StudyAdminConfiguration extends LitElement {
 
     getDefaultConfig() {
         return {
-            pagination: true,
-            pageSize: 25,
-            pageList: [25, 50],
-            showExport: false,
-            detailView: false,
-            detailFormatter: null, // function with the detail formatter
-            multiSelection: false,
-            showSelectCheckbox: true,
-            showToolbar: true,
-            showActions: true,
-        };
-    }
+            display: {
+                mode: "pills"
+            },
+            items: [
+                {
+                    id: "clinical",
+                    name: "Clinical",
+                    active: true,
+                    render: () => {
+                        return html`
+                            <h1>Clinical Component</h1>
+                        `
+                    }
+                },
+                {
+                    id: "variants",
+                    name: "Variants",
+                    active: false,
+                    render: () => {
+                        return html`
+                            <h1>Variant Component</h1>
+                        `
+                    }
+                }
+            ]
+    };
+}
 
 
-    //Todo: Refactor Tabs Pill as a component similar to details Tabs 
-    onClickPill(e) {
-        this._changeView(e.currentTarget.dataset.id);
-    }
+// //Todo: Refactor Tabs Pill as a component similar to details Tabs 
+// onClickPill(e) {
+//     this._changeView(e.currentTarget.dataset.id);
+// }
 
-    _changeView(tabId) {
-        $(".content-pills", this).removeClass("active");
-        $(".content-tab", this).removeClass("active");
-        for (const tab in this.activeTab) this.activeTab[tab] = false;
-        $(`button.content-pills[data-id=${tabId}]`, this).addClass("active");
-        $("#" + tabId, this).addClass("active");
-        this.activeTab[tabId] = true;
-        this.requestUpdate();
-    }
-    ////////////////////////////////////////////////
+// _changeView(tabId) {
+//     $(".content-pills", this).removeClass("active");
+//     $(".content-tab", this).removeClass("active");
+//     for (const tab in this.activeTab) this.activeTab[tab] = false;
+//     $(`button.content-pills[data-id=${tabId}]`, this).addClass("active");
+//     $("#" + tabId, this).addClass("active");
+//     this.activeTab[tabId] = true;
+//     this.requestUpdate();
+// }
+// ////////////////////////////////////////////////
 
 
-    render() {
-        return html`
-            
-                <div>
-                    <div class="btn-group content-pills" role="toolbar" aria-label="toolbar">
-                        <div class="btn-group" role="group" style="margin-left: 0px">
-                            <button type="button" class="btn btn-success active ripple content-pills" @click="${this.onClickPill}" data-id="clinical-tab">
-                                <i class="fa fa-table icon-padding" aria-hidden="true"></i> Clinical
-                            </button>
-                            <button type="button" class="btn btn-success ripple content-pills" @click="${this.onClickPill}" data-id="variant-tab">
-                                <i class="fas fa-clipboard icon-padding" aria-hidden="true"></i> Variants
-                            </button>
-                        </div>
-                    </div>
-                </div>    
-            
-            <!-- Permissions Tabs Pill -->    
-            
-            <div class="main-view">
-                <div id="clinical-tab" class="content-tab active" >
-                    <h1>Clinical Component</h1>
-                </div>
-                
-                <div id="variant-tab" class="content-tab">
-                    <h1>Variant Component</h1>
-                </div>
-            </div>
+render() {
+    return html`
+            <detail-tabs
+                .config="${this._config}"
+                .opencgaSession="${this.opencgaSession}">
+            </detail-tabs>
         `;
-    }
+}
 }
 
 customElements.define("study-admin-configuration", StudyAdminConfiguration);
