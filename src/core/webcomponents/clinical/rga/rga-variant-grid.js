@@ -203,11 +203,14 @@ export default class RgaVariantGrid extends LitElement {
                 title: "Individuals",
                 filed: "numIndividuals",
                 formatter: (_, row) => {
-                    let hiddenIndividuals = "";
+                    let hiddenIndividuals = 0;
                     if (row.individuals.length !== row.numIndividuals) {
                         hiddenIndividuals = row.numIndividuals - row.individuals.length;
                     }
-                    return `${row.numIndividuals} <a tooltip-title="Individuals" tooltip-position-at="left bottom" tooltip-position-my="right top" tooltip-text="${hiddenIndividuals ? `${hiddenIndividuals} individual${hiddenIndividuals > 1 ? "s are" : " is"} hidden due to your permission settings.` : ""}"><i class="text-warning fas fa-exclamation-circle align-middle"></i></a>`;
+                    return `${row.numIndividuals}
+                        ${hiddenIndividuals > 0 ? `<a tooltip-title="Individuals" tooltip-position-at="left bottom" tooltip-position-my="right top"
+                                                          tooltip-text="${hiddenIndividuals} individual${hiddenIndividuals > 1 ? "s are" : " is"} hidden due to your permission settings."><i
+                            class="text-warning fas fa-exclamation-circle align-middle"></i></a>` : ""}`;
                 }
                 // individual matrix
                 // field: "individuals",
@@ -277,10 +280,12 @@ export default class RgaVariantGrid extends LitElement {
             for (const gene of individual.genes) {
                 for (const transcript of gene.transcripts) {
                     for (const variant of transcript.variants) {
-                        for (const ct of variant.sequenceOntologyTerms) {
-                            uniqueCT[ct.accession] = {
-                                ...ct
-                            };
+                        if (row.id === variant.id) {
+                            for (const ct of variant.sequenceOntologyTerms) {
+                                uniqueCT[ct.accession] = {
+                                    ...ct
+                                };
+                            }
                         }
                     }
                 }
@@ -371,11 +376,10 @@ export default class RgaVariantGrid extends LitElement {
                     ...this._query
                 };
                 this.opencgaSession.opencgaClient.clinical().queryRgaVariant(_filters)
-                    .then(res => {
-                        // console.log("res", res);
-                        // this.data = res.getResults();
+                    .then(rgaVariantResponse => {
+                        // console.log("rgaVariantResponse", rgaVariantResponse);
                         // this.prepareData();
-                        params.success(res);
+                        params.success(rgaVariantResponse);
                     })
                     .catch(e => {
                         console.error(e);
@@ -445,7 +449,7 @@ export default class RgaVariantGrid extends LitElement {
                     active: true,
                     render: (variant, active, opencgaSession) => {
                         return html`
-                            <rga-variant-individual-grid .variant="${variant}"></rga-variant-individual-grid>
+                            <rga-variant-individual-grid .variant="${variant}" .opencgaSession="${opencgaSession}"></rga-variant-individual-grid>
                         `;
                     }
                 },
@@ -502,8 +506,11 @@ export default class RgaVariantGrid extends LitElement {
                     <table id="${this.gridId}"></table>
                 </div>
                 ${this.variant ? html`
-                    <detail-tabs .data="${this.variant}" .config="${this.detailConfig}" .opencgaSession="${this.opencgaSession}"
-                                 .cellbaseClient="${this.cellbaseClient}"></detail-tabs>` : null}
+                    <detail-tabs .data="${this.variant}"
+                                 .config="${this.detailConfig}"
+                                 .opencgaSession="${this.opencgaSession}"
+                                 .cellbaseClient="${this.cellbaseClient}"></detail-tabs>
+                ` : null}
             </div>
         `;
     }
