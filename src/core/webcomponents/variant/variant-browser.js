@@ -506,6 +506,7 @@ export default class VariantBrowser extends LitElement {
                         {
                             id: "annotationPropFreq",
                             name: "Population Frequencies",
+                            mode: "",
                             render: (variant, active) => {
                                 return html`
                                     <cellbase-population-frequency-grid
@@ -747,7 +748,7 @@ export default class VariantBrowser extends LitElement {
                                                         .cellbaseClient="${this.cellbaseClient}"
                                                         .variantId="${this.variantId}"
                                                         .config="${this._config.filter.detail}">
-                                    </variant-browser-detail>
+                                </variant-browser-detail>
                             </div>
 
                             <div id="facet-tab" class="content-tab">
