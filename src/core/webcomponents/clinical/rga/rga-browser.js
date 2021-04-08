@@ -292,14 +292,14 @@ export default class RgaBrowser extends LitElement {
                                 type: "checkbox",
                                 allowedValues: [{id: 0, name: "No parents"}, {id: 1, name: "One parent"}, {id: 2, name: "Two parents"}]
                             },
-                            {
+                            /*{
                                 id: "probandOnly",
                                 name: "Affected individuals (proband) only",
                                 type: "boolean",
                                 defaultValue: "no",
                                 tooltip: "other info here"
                                 // allowedValues: ["father", "mother"]
-                            }
+                            }*/
                         ]
                     },
                     {
