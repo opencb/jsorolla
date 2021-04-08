@@ -17,6 +17,7 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../utilsNew.js";
 import "./../../commons/view/detail-tabs.js";
+import CatalogGridFormatter from "../../commons/catalog-grid-formatter.js";
 
 
 export default class RgaVariantIndividualGrid extends LitElement {
@@ -66,7 +67,20 @@ export default class RgaVariantIndividualGrid extends LitElement {
     }
 
     prepareData() {
-        this.hiddenIndividuals = this.variant.numIndividuals - this.variant.individuals.length;
+        if (this.variant?.individuals?.length) {
+            this.tableDataLn = this.variant.individuals.length;
+            this.individualIds = this.variant.individuals.map(individual => individual.id);
+            this.hiddenIndividuals = this.variant.numIndividuals - this.variant.individuals.length;
+            this.tableDataMap = {};
+            for (const individual of this.variant.individuals) {
+                this.tableDataMap[individual.id] = individual;
+            }
+        } else {
+            this.tableDataLn = 0;
+            this.individualIds = [];
+            this.hiddenIndividuals = this.variant.numIndividuals;
+            this.tableDataMap = {};
+        }
         this.requestUpdate();
     }
 
@@ -74,15 +88,37 @@ export default class RgaVariantIndividualGrid extends LitElement {
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
-            data: this.variant.individuals,
+            // data: this.variant.individuals,
             columns: this._initTableColumns(),
-            sidePagination: "local",
+            sidePagination: "server",
             uniqueId: "id",
             pagination: true,
             paginationVAlign: "both",
-            //formatShowingRows: this.gridCommons.formatShowingRows,
+            // formatShowingRows: this.gridCommons.formatShowingRows,
             gridContext: this,
             formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+            ajax: async params => {
+                try {
+                    const pageNumber = this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1;
+                    const pageSize = this.table.bootstrapTable("getOptions").pageSize;
+                    const startIndividual = pageNumber * pageSize - pageSize;
+                    const endIndividual = pageNumber * pageSize;
+                    if (this.individualIds.length) {
+                        const clinicalResponse = await this.getClinicalInfo(this.individualIds, startIndividual, endIndividual);
+                        this.tableData = this.updateTableData(this.tableDataMap, clinicalResponse.getResults());
+                    } else {
+                        this.tableData = [];
+                    }
+                    params.success({
+                        total: this.tableDataLn,
+                        rows: this.tableData.slice(startIndividual, endIndividual)
+                    });
+                } catch (e) {
+                    console.error(e);
+                    params.error(e);
+                }
+            },
+
             onClickRow: (row, selectedElement, field) => {
             },
             onLoadSuccess: data => {
@@ -93,6 +129,47 @@ export default class RgaVariantIndividualGrid extends LitElement {
             }
 
         });
+    }
+
+    /**
+     * Get clinical info only for the subset of individual defined by startVariant and endVariant indexes.
+     */
+    async getClinicalInfo(individualIds, startIndividual, endIndividual) {
+        try {
+            const slicedIndividuals = this.variant.individuals.slice(startIndividual, endIndividual);
+            if (slicedIndividuals.length && individualIds.length) {
+                return this.opencgaSession.opencgaClient.clinical().search(
+                    {
+                        individual: individualIds,
+                        study: this.opencgaSession.study.fqn,
+                        include: "id,proband.id"
+                    });
+            } else {
+                console.error("params error");
+                return []
+            }
+        } catch (e) {
+            console.error(e);
+            UtilsNew.notifyError(e);
+        }
+
+    }
+
+    /**
+     * Update tableDataMap (containing all the individuals) with the clinical info just fetched.
+     */
+    updateTableData(tableDataMap, clinicalData) {
+        const _tableDataMap = tableDataMap;
+        clinicalData.forEach(clinicalAnalysis => {
+            if (_tableDataMap[clinicalAnalysis.proband.id]?.attributes?.OPENCGA_CLINICAL_ANALYSIS) {
+                _tableDataMap[clinicalAnalysis.proband.id].attributes.OPENCGA_CLINICAL_ANALYSIS.push(clinicalAnalysis);
+            } else {
+                _tableDataMap[clinicalAnalysis.proband.id].attributes = {
+                    OPENCGA_CLINICAL_ANALYSIS: [clinicalAnalysis]
+                };
+            }
+        });
+        return Object.values(_tableDataMap);
     }
 
     // TODO only the first transcript is taken into account
@@ -135,8 +212,18 @@ export default class RgaVariantIndividualGrid extends LitElement {
                 title: "Qual",
                 field: "_",
                 formatter: (_, row) => row.genes[0].transcripts[0].variants.find(variant => variant.id === this.variant.id)?.qual
+            },
+            {
+                title: "Case ID",
+                field: "attributes.OPENCGA_CLINICAL_ANALYSIS",
+                // rowspan: 2, //TODO misconfiguration here silently fails. Open a gh issue in their repo
+                formatter: (value, row) => CatalogGridFormatter.caseFormatter(value, row, row.id, this.opencgaSession)
             }
         ];
+    }
+
+    getVariantInfo(row) {
+        // TODO
     }
 
     getDefaultConfig() {
