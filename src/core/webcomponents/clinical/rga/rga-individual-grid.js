@@ -178,12 +178,47 @@ export default class RgaIndividualGrid extends LitElement {
                     include: "genes,sampleId,phenotypes,disorders,motherId,fatherId",
                     // geneName: this._genes.join(","),
                     // individualId: "112000791",
-                    ...this._query,
+                    ...this._query
                 };
                 this.opencgaSession.opencgaClient.clinical().queryRgaIndividual(_filters)
-                    .then(res => {
-                        console.log("res", res);
-                        params.success(res);
+                    .then(rgaIndividualResponse => {
+
+                        // fetching Case Id of all the individuals (paginated)
+                        const individualIds = rgaIndividualResponse.getResults().map(individual => individual.id).filter(Boolean).join(",");
+                        if (individualIds) {
+                            this.opencgaSession.opencgaClient.clinical().search(
+                                {
+                                    individual: individualIds,
+                                    study: this.opencgaSession.study.fqn,
+                                    include: "id,proband.id"
+                                })
+                                .then(caseResponse => {
+                                    // We store the Case ID in the individual attribute
+                                    // Note clinical search results are not sorted
+                                    // FIXME at the moment we only search by proband
+                                    const map = {};
+                                    for (const clinicalAnalysis of caseResponse.getResults()) {
+                                        if (!map[clinicalAnalysis.proband.id]) {
+                                            map[clinicalAnalysis.proband.id] = [];
+                                        }
+                                        map[clinicalAnalysis.proband.id].push(clinicalAnalysis);
+                                    }
+                                    for (const individual of rgaIndividualResponse.getResults()) {
+                                        individual.attributes = {
+                                            OPENCGA_CLINICAL_ANALYSIS: map[individual.id]
+                                        };
+                                    }
+                                    params.success(rgaIndividualResponse);
+                                })
+                                .catch(e => {
+                                    console.error(e);
+                                    params.error(e);
+                                });
+                        } else {
+                            params.success(rgaIndividualResponse);
+                        }
+
+
                     })
                     .catch(e => {
                         console.error(e);
@@ -498,14 +533,22 @@ export default class RgaIndividualGrid extends LitElement {
 
     mapResult(results) {
         const rows = results.rows.map(ind => {
-            const ch = this.getKnockoutGeneCount(ind.genes, "COMP_HET");
+            const totalConfidence = this.getKnockoutGeneCount(ind.genes, "COMP_HET");
+            const ch = {
+                total: totalConfidence
+            };
+            // set definite, probable, possible according to the parents data
+            if (ind.fatherId && ind.motherId) {
+                ch.definite = totalConfidence;
+            } else if ((ind.fatherId && !ind.motherId) || (!ind.fatherId && ind.motherId)) {
+                ch.probable = totalConfidence;
+            } else if (!ind.fatherId && !ind.motherId) {
+                ch.possible = totalConfidence;
+            }
             return {
                 ...ind,
                 homozygous: this.getKnockoutGeneCount(ind.genes, "HOM_ALT"),
-                ch: ch,
-                ch_definite: ind.fatherId && ind.motherId ? ch : null,
-                ch_probable: (ind.fatherId && !ind.motherId) || (!ind.fatherId && ind.motherId) ? ch : null,
-                ch_possible: !ind.fatherId && !ind.motherId ? ch : null
+                ch
             };
 
         });
@@ -556,6 +599,12 @@ export default class RgaIndividualGrid extends LitElement {
                     rowspan: 2,
                     formatter: disorders => disorders?.length ? disorders.map(CatalogGridFormatter.disorderFormatter) : "-"
 
+                },
+                {
+                    title: "Case ID",
+                    field: "attributes.OPENCGA_CLINICAL_ANALYSIS",
+                    rowspan: 2,
+                    formatter: (value, row) => CatalogGridFormatter.caseFormatter(value, row, row.id, this.opencgaSession)
                 }
             ], [
                 {
@@ -575,7 +624,7 @@ export default class RgaIndividualGrid extends LitElement {
                 },*/
                 {
                     title: "Definite",
-                    field: "ch_definite"
+                    field: "ch.definite"
                     /* formatter: (_, row) => {
                         console.error("ROW", row);
                         return row.fatherId && row.motherId ? this.getKnockoutCount(row.genes, "COMP_HET") : "-";
@@ -583,14 +632,14 @@ export default class RgaIndividualGrid extends LitElement {
                 },
                 {
                     title: "Probable",
-                    field: "ch_probable"
+                    field: "ch.probable"
                     /* formatter: (_, row) => {
                         return (row.fatherId && !row.motherId) || (!row.fatherId && row.motherId) ? this.getKnockoutCount(row.genes, "COMP_HET") : "-";
                     }*/
                 },
                 {
                     title: "Possible",
-                    field: "ch_possible"
+                    field: "ch.possible"
                     /* formatter: (_, row) => {
                         return !row.fatherId && !row.motherId ? this.getKnockoutCount(row.genes, "COMP_HET") : "-";
                     }*/
