@@ -58,7 +58,7 @@ export default class DetailTabs extends LitElement {
     connectedCallback() {
         super.connectedCallback();
         this._config = { ...this.getDefaultConfig(), ...this.config };
-        
+
         // this makes "active" field in config consistent with this.activeTab state. this.activeTab is the unique source of truth.
         this.activeTab = { ...this._config.items.map(item => ({ [item.id]: item.active ?? false })) };
     }
@@ -71,11 +71,15 @@ export default class DetailTabs extends LitElement {
         super.update(changedProperties);
     }
 
+    propertyObserver() {
+        this._config = { ...this.getDefaultConfig(), ...this.config };
+    }
+
     _changeBottomTab(e) {
         const tabId = e.currentTarget.dataset.id;
         let selfComponent = this;
 
-        if (this.mode == 'tabs' ) {
+        if (this.mode == 'tabs') {
             // In this case we will only select the first element with the class nav-tabs. 
             // (We don't want to affect also the child components or elements that use the same class).
             selfComponent.querySelector('.nav-tabs').classList.remove('active')
@@ -87,7 +91,7 @@ export default class DetailTabs extends LitElement {
             // $(".tab-content div[role=tabpanel]", this).hide();
 
             this.activeTab = Object.assign({}, ...this._config.items.map(item => ({ [item.id]: false })));
-            
+
 
             selfComponent.querySelectorAll(`#${tabId}-tab`).forEach(element => {
                 element.style.display = 'block';
@@ -154,7 +158,7 @@ export default class DetailTabs extends LitElement {
             }
 
             <!-- Details tabs with ul (traditional tabs)-->
-            ${this.mode === "tabs"? html`
+            ${this.mode === "tabs" ? html`
                 <div class="detail-tabs">
                     <ul class="nav nav-tabs" role="tablist">
                         ${this._config.items.length && this._config.items.map(item => {
@@ -203,8 +207,8 @@ export default class DetailTabs extends LitElement {
 
                 <div class="main-view ${this._config.display?.contentClass}" style="${this._config.display?.contentStyle}">
                     ${this._config.items.length && this._config.items.map(item => {
-                            if (typeof item.mode === "undefined" || item.mode === this.opencgaSession.mode) {
-                                return html`
+                        if (typeof item.mode === "undefined" || item.mode === this.opencgaSession.mode) {
+                            return html`
                                 <div id="${item.id}-tab" class="content-tab ${classMap({ active: item.active })}">
                                     ${item.render(this.data, this.activeTab[item.id], this.opencgaSession, this.cellbaseClient)}
                                 </div>`;

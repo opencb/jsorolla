@@ -69,9 +69,6 @@ export default class StudyAdminConfiguration extends LitElement {
 
     getDefaultConfig() {
         return {
-            // display: {
-            //     mode: "pills"
-            // },
             items: [
                 {
                     id: "clinical",
