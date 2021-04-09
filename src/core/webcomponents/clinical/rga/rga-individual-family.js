@@ -63,7 +63,7 @@ export default class RgaIndividualFamily extends LitElement {
         }
 
         if ((changedProperties.has("individual") || changedProperties.has("active")) && this.active) {
-            await this.prepareData();
+            this.prepareData();
             this.renderTable();
         }
 
@@ -72,7 +72,6 @@ export default class RgaIndividualFamily extends LitElement {
         }
     }
 
-    // TODO clean
     async prepareData() {
         if (this.individual) {
             try {
@@ -81,32 +80,23 @@ export default class RgaIndividualFamily extends LitElement {
                 // fatherSampleId:LP3000018-DNA_A03
 
                 this.sampleIds = ["LP3000108-DNA_B02", "LP3000021-DNA_B04", "LP3000018-DNA_A03"];
-
-                /*/!**
+                /**
                  * this.tableDataMap is the full list of unique variants per individual
-                 *!/
-                for (const gene of this.individual.genes) {
-                    for (const transcript of gene.transcripts) {
-                        for (const variant of transcript.variants) {
-                            this.tableDataMap[variant.id] = {
-                                ...variant,
-                                geneName: gene.name
-                            };
+                 */
+                if (UtilsNew.isEmpty(this.tableDataMap)) {
+                    for (const gene of this.individual.genes) {
+                        for (const transcript of gene.transcripts) {
+                            for (const variant of transcript.variants) {
+                                this.tableDataMap[variant.id] = {
+                                    ...variant,
+                                    geneName: gene.name
+                                };
+                            }
                         }
                     }
-                }*/
-
-
-                console.log("this.table.bootstrapTable(\"getOptions\").pageNumber", this.table.bootstrapTable("getOptions").pageNumber);
-
-                // const sampleIds = ["LP3000108-DNA_B02", "LP3000021-DNA_B04", "LP3000018-DNA_A03"];
-                // const variantResponse = await this.getVariantInfo(sampleIds, 0, 5);
-                // console.error("uniqueVariants", this.tableDataMap);
-                // console.error("variantResponse", variantResponse.getResults());
-                // const variantData = variantResponse.getResults();
-                //
-                // console.log("Object.values(uniqueVariants)", Object.values(this.tableDataMap));
-                // this.tableData = this.updateTableData(this.tableDataMap, variantData);
+                    this.variantIds = Object.keys(this.tableDataMap);
+                    this.tableDataLn = this.variantIds.length;
+                }
 
             } catch (e) {
 
@@ -120,7 +110,6 @@ export default class RgaIndividualFamily extends LitElement {
      */
     async getVariantInfo(sampleIds, startVariant, endVariant) {
         // formatter: VariantInterpreterGridFormatter.sampleGenotypeFormatter,
-
         try {
             const slicedVariant = this.variantIds.slice(startVariant, endVariant);
             if (slicedVariant.length && sampleIds.length) {
@@ -166,24 +155,6 @@ export default class RgaIndividualFamily extends LitElement {
             gridContext: this,
             formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
             ajax: async params => {
-                /**
-                 * this.tableDataMap is the full list of unique variants per individual
-                 */
-                if (UtilsNew.isEmpty(this.tableDataMap)) {
-                    for (const gene of this.individual.genes) {
-                        for (const transcript of gene.transcripts) {
-                            for (const variant of transcript.variants) {
-                                this.tableDataMap[variant.id] = {
-                                    ...variant,
-                                    geneName: gene.name
-                                };
-                            }
-                        }
-                    }
-                    this.variantIds = Object.keys(this.tableDataMap);
-                    this.tableDataLn = this.variantIds.length;
-                }
-
                 try {
                     const pageNumber = this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1;
                     const pageSize = this.table.bootstrapTable("getOptions").pageSize;

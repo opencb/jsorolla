@@ -201,8 +201,8 @@ export default class RgaGeneGrid extends LitElement {
                 rows: r
             };
         } else {
-            console.error("Unexpected facet results");
-            return null;
+            // no results
+            return [];
         }
     }
 

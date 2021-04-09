@@ -288,7 +288,7 @@ export default class RgaBrowser extends LitElement {
                             {
                                 id: "numParents",
                                 name: "Include families with",
-                                description: "description....",
+                                description: "Confidence selection",
                                 type: "checkbox",
                                 allowedValues: [{id: 0, name: "No parents"}, {id: 1, name: "One parent"}, {id: 2, name: "Two parents"}]
                             },
