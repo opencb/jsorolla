@@ -60,7 +60,12 @@ export default class DetailTabs extends LitElement {
         this._config = { ...this.getDefaultConfig(), ...this.config };
 
         // this makes "active" field in config consistent with this.activeTab state. this.activeTab is the unique source of truth.
-        this.activeTab = { ...this._config.items.map(item => ({ [item.id]: item.active ?? false })) };
+        
+        this.activeTab = Object.assign({}, ...this._config.items.map(item => ({ [item.id]: item.active ?? false })));
+    
+        // This bring an array of object instead a just one object as above
+        // this.activeTab = {...this._config.items.map(item => ({ [item.id]: item.active ?? false }))};
+        
     }
 
     update(changedProperties) {
@@ -91,8 +96,6 @@ export default class DetailTabs extends LitElement {
             // $(".tab-content div[role=tabpanel]", this).hide();
 
             this.activeTab = Object.assign({}, ...this._config.items.map(item => ({ [item.id]: false })));
-
-
             selfComponent.querySelectorAll(`#${tabId}-tab`).forEach(element => {
                 element.style.display = 'block';
             })
@@ -195,9 +198,9 @@ export default class DetailTabs extends LitElement {
                         ${this._config.items.length && this._config.items.map(item => {
                             if (typeof item.mode === "undefined" || item.mode === this.opencgaSession.mode) {
                                 return html`
-                                    <button class="btn ${this._config.display?.pillTitleClass} ${this.activeTab[item.id] ? "active" : ""}"     
+                                    <button class="btn ${this._config.display?.pillTitleClass} ${this.activeTab[item.id] ? "active" : ""} "     
                                             type="button" data-id="${item.id}" @click="${this._changeBottomTab}">
-                                        <i class="fa fa-table icon-padding" aria-hidden="true"></i>
+                                        <i class="${item?.icon} icon-padding" aria-hidden="true"></i>
                                         <span style="${this._config.display?.pillTitleStyle}">${item.name}</span>
                                     </button>`;
                                 }

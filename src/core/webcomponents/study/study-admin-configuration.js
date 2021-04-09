@@ -73,6 +73,7 @@ export default class StudyAdminConfiguration extends LitElement {
                 {
                     id: "clinical",
                     name: "Clinical",
+                    icon: "fas fa-notes-medical",
                     active: true,
                     render: () => {
                         return html`
@@ -83,6 +84,7 @@ export default class StudyAdminConfiguration extends LitElement {
                 {
                     id: "variants",
                     name: "Variants",
+                    icon: "fas fa-dna",
                     active: false,
                     render: () => {
                         return html`

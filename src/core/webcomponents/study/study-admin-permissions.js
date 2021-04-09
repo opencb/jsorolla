@@ -100,6 +100,7 @@ export default class StudyAdminPermissions extends LitElement {
                 {
                     id: "permissions",
                     name: "Permissions",
+                    icon: "fa fa-table icon-padding",
                     active: true,
                     render: (study, active, opencgaSession) => {
                         return html`
@@ -114,6 +115,7 @@ export default class StudyAdminPermissions extends LitElement {
                 {
                     id: "permissionRules",
                     name: "Permission Rules",
+                    icon: "fas fa-clipboard-list",
                     active: false,
                     render: () => {
                         return html`
