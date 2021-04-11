@@ -56,21 +56,34 @@ export default class DetailTabs extends LitElement {
         this._prefix = UtilsNew.randomString(8);
 
         // mode by default, if the component no use this property
-        this.mode = this.mode === undefined ? DetailTabs.TABS_MODE : this.mode;
+        this.mode = this.mode || DetailTabs.TABS_MODE;
     }
 
     connectedCallback() {
         super.connectedCallback();
 
         this._config = { ...this.getDefaultConfig(), ...this.config };
-        // this makes "active" field in config consistent with this.activeTab state. this.activeTab is the unique source of truth.
-        this.activeTab = Object.assign({}, ...this._config.items.map(item => ({ [item.id]: item.active ?? false })));
+
+        // Read active tabs from config, if not active tab is found then FIRST one is selected.
+        let numActive = 0;
+        let _activeTabs = {};
+        for (const item of this._config.items) {
+            _activeTabs[item.id] = item.active || false;
+            if (item.active) {
+                numActive++;
+            }
+        }
+        // Set default active tab
+        if (numActive === 0) {
+            _activeTabs[this._config.items[0].id] = true;
+        }
+        this.activeTabs = _activeTabs;
     }
 
     _changeBottomTab(e) {
-        this.activeTab = Object.assign({}, ...this._config.items.map(item => ({ [item.id]: false })));
+        this.activeTabs = Object.assign({}, ...this._config.items.map(item => ({ [item.id]: false })));
         const tabId = e.currentTarget.dataset.id;
-        this.activeTab[tabId] = true;
+        this.activeTabs[tabId] = true;
         this.requestUpdate();
     }
     
@@ -79,7 +92,7 @@ export default class DetailTabs extends LitElement {
             ${this._config.items.length && this._config.items.map(item => {
                 if (typeof item.mode === "undefined" || item.mode === this.opencgaSession.mode) {
                     return html`
-                        <li role="presentation" class="${this._config.display?.tabTitleClass} ${this.activeTab[item.id] ? "active" : ""}" style="${this._config.display?.tabTitleStyle}">
+                        <li role="presentation" class="${this._config.display?.tabTitleClass} ${this.activeTabs[item.id] ? "active" : ""}" style="${this._config.display?.tabTitleStyle}">
                             <a href="#${this._prefix}${item.id}" role="tab" data-toggle="tab" data-id="${item.id}" @click="${this._changeBottomTab}">
                                 <span>${item.name}</span>
                             </a>
@@ -94,8 +107,8 @@ export default class DetailTabs extends LitElement {
             ${this._config.items.length && this._config.items.map(item => {
                 if (typeof item.mode === "undefined" || item.mode === this.opencgaSession.mode) {
                     return html`
-                        <div id="${item.id}-tab" role="tabpanel" style="display: ${this.activeTab[item.id] ? "block" : "none"}">
-                            ${item.render(this.data, this.activeTab[item.id], this.opencgaSession, this.cellbaseClient)}
+                        <div id="${item.id}-tab" role="tabpanel" style="display: ${this.activeTabs[item.id] ? "block" : "none"}">
+                            ${item.render(this.data, this.activeTabs[item.id], this.opencgaSession, this.cellbaseClient)}
                         </div>`;
                 }
             })}
@@ -115,7 +128,19 @@ export default class DetailTabs extends LitElement {
                 contentClass: "",
                 contentStyle: "padding: 10px",
             },
-            items: []
+            // Example:
+            // items: [
+            //     {
+            //         id: "clinical",
+            //         name: "Clinical",
+            //         icon: "fas fa-notes-medical",
+            //         active: true,
+            //         render: () => {
+            //             return html`
+            //                 <h3>Clinical Component</h3>`;
+            //         }
+            //     },
+            // ]
         };
     }
 
