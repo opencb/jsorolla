@@ -99,7 +99,7 @@ export default class StudyAdminPermissions extends LitElement {
             items: [
                 {
                     id: "permissions",
-                    name: "Permissions",
+                    name: "Study Permissions",
                     icon: "fa fa-table icon-padding",
                     active: true,
                     render: (study, active, opencgaSession) => {
@@ -108,8 +108,7 @@ export default class StudyAdminPermissions extends LitElement {
                                 .study=${study}
                                 .active=${active}
                                 .opencgaSession=${opencgaSession}>
-                            </permission-browser-view>
-                        `
+                            </permission-browser-view>`;
                     }
                 },
                 {
@@ -119,8 +118,7 @@ export default class StudyAdminPermissions extends LitElement {
                     active: false,
                     render: () => {
                         return html`
-                            <h1>Permission rules Component</h1>
-                        `
+                            <h1>Permission rules Component</h1>`;
                     }
                 }
             ]
@@ -129,12 +127,14 @@ export default class StudyAdminPermissions extends LitElement {
 
     render() {
         return html`
-            <detail-tabs
-                .data=${this.study}
-                .mode=${"pills"}
-                .config="${this._config}"
-                .opencgaSession="${this.opencgaSession}">
-            </detail-tabs>
+            <div style="margin: 20px">
+                <detail-tabs
+                        .data=${this.study}
+                        .mode=${"pills"}
+                        .config="${this._config}"
+                        .opencgaSession="${this.opencgaSession}">
+                </detail-tabs>
+            </div>
             `;
     }
 }
