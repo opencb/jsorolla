@@ -281,7 +281,6 @@ export class OpenCGAClient {
                 _this._notifySessionEvent("signingIn", "Fetching User data");
                 _this.users().info(_this._config.userId)
                     .then(async response => {
-                        debugger
                         const session = {};
                         session.user = response.getResult(0);
                         session.token = _this._config.token;
@@ -309,30 +308,18 @@ export class OpenCGAClient {
                             .then(async function (response) {
                                 try {
                                     // session.projects = response.responses[0].results;
-                                    debugger
                                     for (const project of response.responses[0].results) {
                                         let projectIndex = session.projects.findIndex(proj => proj.fqn === project.fqn);
                                         if (projectIndex < 0) {
                                             session.projects.push(project);
                                         }
                                     }
-                                    debugger
                                     if (session.projects?.length) {    // && session?.projects[0]?.studies.length
                                         const studies = [];
                                         for (const project of session.projects) {
                                             // project.alias = project.alias || project.fqn || null;
                                             if (project.studies?.length > 0) {
                                                 for (const study of project.studies) {
-                                                    // TODO This MUST be removed now, no need to keep this backward compatability
-                                                    // If study.alias does not exist we are NOT in version 1.3, we set fqn from 1.4
-                                                    // if (study.alias === undefined || study.alias === "") {
-                                                    //     if (study.fqn.includes(":")) {
-                                                    //         study.alias = study.fqn.split(":")[1];
-                                                    //     } else {
-                                                    //         study.alias = study.fqn;
-                                                    //     }
-                                                    // }
-
                                                     // We need to store the user permission fr the all the studies fetched
                                                     _this._notifySessionEvent("signingIn", "Fetching User permissions");
                                                     let acl = null;

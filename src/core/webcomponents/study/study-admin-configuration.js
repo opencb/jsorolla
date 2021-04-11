@@ -15,7 +15,8 @@
  */
 
 import { html, LitElement } from "/web_modules/lit-element.js";
-import UtilsNew from "./../../utilsNew.js";
+import UtilsNew from "../../utilsNew.js";
+import DetailTabs from "../commons/view/detail-tabs.js";
 
 export default class StudyAdminConfiguration extends LitElement {
 
@@ -77,19 +78,17 @@ export default class StudyAdminConfiguration extends LitElement {
                     active: true,
                     render: () => {
                         return html`
-                            <h1>Clinical Component</h1>
-                        `
+                            <h3>Clinical Component</h3>`;
                     }
                 },
                 {
                     id: "variants",
                     name: "Variants",
                     icon: "fas fa-dna",
-                    active: false,
+                    // active: false,
                     render: () => {
                         return html`
-                            <h1>Variant Component</h1>
-                        `
+                            <h3>Variant Component</h3>`;
                     }
                 }
             ]
@@ -99,11 +98,14 @@ export default class StudyAdminConfiguration extends LitElement {
 
 render() {
     return html`
+        <div style="margin: 20px">
             <detail-tabs
-                .config="${this._config}"
-                .mode="${"pills"}"
-                .opencgaSession="${this.opencgaSession}">
+                    .config="${this._config}"
+                    .mode="${DetailTabs.PILLS_MODE}"
+                    .opencgaSession="${this.opencgaSession}">
             </detail-tabs>
+        </div>
+            
         `;
 }
 }

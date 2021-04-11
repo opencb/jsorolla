@@ -338,46 +338,51 @@ export default class StudyAdmin extends LitElement {
                     <!-- Content Module  -->
                     <div class="content-tab-wrapper admin-content-tab" style="margin: 0px 20px">
                         <div id="${this._prefix}Dashboard" role="tabpanel" class="tab-pane content-tab">
-                            <h3>Dashboard</h3>
+                            <h2>Dashboard</h2>
                         </div>
 
                         <div id="${this._prefix}UsersAndGroups" role="tabpanel" class="tab-pane content-tab active">
-                            <h3><i class="fas fa-user-friends icon-padding" style="padding-right: 10px"></i>Users And Groups</h3>
+                            <h2><i class="fas fa-user-friends icon-padding" style="padding-right: 10px"></i>Users And Groups</h2>
                             <study-admin-users .opencgaSession="${this.opencgaSession}" .study="${this.study}"></study-admin-users>
                         </div>
 
                         <div id="${this._prefix}Permissions" role="tabpanel" class="tab-pane content-tab">
-                            <h3><i class="fas fa-key icon-padding" style="padding-right: 10px"></i>Permissions</h3>
+                            <h2><i class="fas fa-key icon-padding" style="padding-right: 10px"></i>Permissions</h2>
+                            <study-admin-permissions .opencgaSession="${this.opencgaSession}" .study="${this.study}"></study-admin-permissions>
+                        </div>
+
+                        <div id="${this._prefix}VaribleSets" role="tabpanel" class="tab-pane content-tab">
+                            <h2><i class="fas fa-key icon-padding" style="padding-right: 10px"></i>Variable Sets</h2>
                             <study-admin-permissions .opencgaSession="${this.opencgaSession}" .study="${this.study}"></study-admin-permissions>
                         </div>
 
                         <div id="${this._prefix}Audit" role="tabpanel" class="tab-pane content-tab">
-                            <h3><i class="fas fa-book icon-padding" style="padding-right: 10px"></i>Audit</h3>
+                            <h2><i class="fas fa-book icon-padding" style="padding-right: 10px"></i>Audit</h2>
                             <study-admin-audit .opencgaSession="${this.opencgaSession}" .study="${this.study}"></study-admin-audit>
                         </div>
 
                         <div id="${this._prefix}Configuration" role="tabpanel" class="tab-pane content-tab">
-                            <h3><i class="fas fa-cog icon-padding" style="padding-right: 10px"></i>Configuration</h3>
+                            <h2><i class="fas fa-cog icon-padding" style="padding-right: 10px"></i>Configuration</h2>
                             <study-admin-configuration .opencgaSession="${this.opencgaSession}" .study="${this.study}"></study-admin-configuration>
                         </div>
 
                         <div id="${this._prefix}Sample" role="tabpanel" class="tab-pane content-tab">
-                            <h3><i class="fas fa-vial icon-padding" style="padding-right: 10px"></i>Sample</h3>
+                            <h2><i class="fas fa-vial icon-padding" style="padding-right: 10px"></i>Sample</h2>
                             <study-admin-sample .opencgaSession="${this.opencgaSession}" .study="${this.study}"></study-admin-sample>
                         </div>
 
                         <div id="${this._prefix}Individual" role="tabpanel" class="tab-pane content-tab">
-                            <h3><i class="fas fa-user icon-padding" style="padding-right: 10px"></i>Individual</h3>
+                            <h2><i class="fas fa-user icon-padding" style="padding-right: 10px"></i>Individual</h2>
                             <study-admin-individual .opencgaSession="${this.opencgaSession}" .study="${this.study}"></study-admin-individual>
                         </div>
 
                         <div id="${this._prefix}Family" role="tabpanel" class="tab-pane content-tab">
-                            <h3><i class="fas fa-users icon-padding" style="padding-right: 10px"></i>Family</h3>
+                            <h2><i class="fas fa-users icon-padding" style="padding-right: 10px"></i>Family</h2>
                             <study-admin-family .opencgaSession="${this.opencgaSession}" .study="${this.study}"></study-admin-family>
                         </div>
 
                         <div id="${this._prefix}Cohort" role="tabpanel" class="tab-pane content-tab">
-                            <h3><i class="fas fa-bezier-curve icon-padding" style="padding-right: 10px"></i>Cohort</h3>
+                            <h2><i class="fas fa-bezier-curve icon-padding" style="padding-right: 10px"></i>Cohort</h2>
                             <study-admin-cohort .opencgaSession="${this.opencgaSession}" .study="${this.study}"></study-admin-cohort>
                         </div>
                     </div>
