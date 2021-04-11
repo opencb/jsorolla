@@ -20,6 +20,9 @@ import "../commons/tool-header.js";
 
 export default class SampleForm extends LitElement {
 
+    static CREATE_MODE = "create";
+    static UPDATE_MODE = "update";
+    
     constructor() {
         super();
         this._init();
@@ -31,6 +34,9 @@ export default class SampleForm extends LitElement {
 
     static get properties() {
         return {
+            sample: {
+                type: Object
+            },
             study: {
                 type: Object
             },
@@ -48,29 +54,125 @@ export default class SampleForm extends LitElement {
 
     _init() {
         this._prefix = UtilsNew.randomString(8);
+
+        // We initialise the sample in for CREATE
         this.sample = {}
     }
 
     connectedCallback() {
         super.connectedCallback();
 
-        // this._config = { ...this.getDefaultConfig(), ...this.config };
+        this._config = { ...this.getDefaultConfig(), ...this.config };
     }
 
-    // update(changedProperties) {
-    //     if (changedProperties.has("opencgaSession")) {
-    //         this.usersAndProjects = this.getProjetcsPerUser();
-    //     }
-    //     super.update(changedProperties);
-    // }
+    onFieldChange(e) {
+        switch (e.detail.param) {
+            case "id":
+            case "name":
+            case "description":
+                this.sample[e.detail.param] = e.detail.value;
+                break;
+        }
+    }
 
-    // getDefaultConfig() {
-    //     return {
-    //         title: "Study Dashboard",
-    //         icon: "variant_browser.svg",
-    //         active: false
-    //     };
-    // }
+    dispatchSessionUpdateRequest() {
+        this.dispatchEvent(new CustomEvent("sessionUpdateRequest", {
+            detail: {
+            },
+            bubbles: true,
+            composed: true
+        }));
+    }
+
+    getDefaultConfig() {
+        return {
+            title: "Edit",
+            icon: "fas fa-edit",
+            type: "form",
+            buttons: {
+                show: true,
+                cancelText: "Cancel",
+                okText: this.mode === SampleForm.CREATE_MODE ? "Save" : "Update"
+            },
+            display: {
+                // width: "8",
+                style: "margin: 10px",
+                labelWidth: 3,
+                labelAlign: "right",
+                defaultLayout: "horizontal",
+                defaultValue: "",
+                help: {
+                    mode: "block", // icon
+                }
+            },
+            sections: [
+                {
+                    elements: [
+                        {
+                            name: "Sample ID",
+                            field: "id",
+                            type: "input-text",
+                            required: true,
+                            display: {
+                                placeholder: "Add a short ID...",
+                                disabled: this.mode === SampleForm.UPDATE_MODE,
+                                help: {
+                                    text: "short Sample id for thehis as;lsal"
+                                },
+                                validation: {
+
+                                }
+                            },
+                        },
+                        {
+                            name: "Name",
+                            field: "name",
+                            type: "input-text",
+                            display: {
+                                placeholder: "Sample name...",
+                            }
+                        },
+                        {
+                            name: "Creation Date",
+                            field: "creationDate",
+                            type: "input-text",
+                            display: {
+                                placeholder: "Sample name...",
+                                visible: this.mode === SampleForm.UPDATE_MODE,
+                                disabled: this.mode === SampleForm.UPDATE_MODE
+                            }
+                        },
+                        {
+                            name: "Species",
+                            field: "organism.scientificName",
+                            type: "input-text",
+                            display: {
+                                placeholder: "e.g. Homo sapiens, ...",
+                            }
+                        },
+                        {
+                            name: "Species Assembly",
+                            field: "organism.assembly",
+                            type: "input-text",
+                            display: {
+                                placeholder: "e.g. GRCh38",
+                            }
+                        },
+                        {
+                            name: "Description",
+                            field: "description",
+                            type: "input-text",
+                            display: {
+                                rows: 3,
+                                placeholder: "Sample description...",
+                            }
+                        },
+                    ]
+                }
+            ]
+        }
+    }
+
 
     saveSample() {
         // this.opencgaSession.opencgaClient.projects().create(this.project)
@@ -111,140 +213,26 @@ export default class SampleForm extends LitElement {
         //         params.error(err);
         //     });
     }
-
-    dispatchSessionUpdateRequest() {
-        this.dispatchEvent(new CustomEvent("sessionUpdateRequest", {
-            detail: {
-            },
-            bubbles: true,
-            composed: true
-        }));
-    }
-
-    getStudyFormConfig() {
-        return {
-            title: "Edit",
-            icon: "fas fa-edit",
-            type: "form",
-            buttons: {
-                show: true,
-                cancelText: "Cancel",
-                okText: this.mode === "CREATE" ? "Save" : "Update"
-            },
-            display: {
-                style: "margin: 25px 50px 0px 0px",
-                labelWidth: 4,
-                labelAlign: "right",
-                defaultLayout: "horizontal",
-                defaultValue: "",
-                help: {
-                    mode: "block", // icon
-                }
-            },
-            sections: [
-                {
-                    elements: [
-                        {
-                            name: "Sample ID",
-                            field: "id",
-                            type: "input-text",
-                            required: true,
-                            display: {
-                                placeholder: "Add a short ID...",
-                                disabled: this.mode === "UPDATE",
-                                help: {
-                                    text: "short Sample id for thehis as;lsal"
-                                },
-                                validation: {
-
-                                }
-                            },
-                        },
-                        {
-                            name: "Name",
-                            field: "name",
-                            type: "input-text",
-                            display: {
-                                placeholder: "Sample name...",
-                            }
-                        },
-                        {
-                            name: "Creation Date",
-                            field: "creationDate",
-                            type: "input-text",
-                            display: {
-                                placeholder: "Sample name...",
-                                visible: this.mode === "UPDATE",
-                                disabled: this.mode === "UPDATE"
-                            }
-                        },
-                        {
-                            name: "Species",
-                            field: "organism.scientificName",
-                            type: "input-text",
-                            display: {
-                                placeholder: "e.g. Homo sapiens, ...",
-                            }
-                        },
-                        {
-                            name: "Species Assembly",
-                            field: "organism.assembly",
-                            type: "input-text",
-                            display: {
-                                placeholder: "e.g. GRCh38",
-                            }
-                        },
-                        {
-                            name: "Description",
-                            field: "description",
-                            type: "input-text",
-                            display: {
-                                rows: 3,
-                                placeholder: "Sample description...",
-                            }
-                        },
-                    ]
-                }
-            ]
-        }
-    }
-
-    onFieldChange(e) {
-        switch (e.detail.param) {
-            case "id":
-            case "name":
-            case "description":
-                this.sample[e.detail.param] = e.detail.value;
-                break;
-        }
-    }
-
-    onHide() {
-        this.dispatchEvent(new CustomEvent("hide", {
-            detail: {},
-            bubbles: true,
-            composed: true
-        }));
-    }
-
-    onSave(e) {
-        // TODO: Check it's ok ?
-        if (mode == "CREATE") {
+    
+    onSubmit(e) {
+        if (mode === SampleForm.CREATE_MODE) {
             this.saveSample()
         } else {
             this.updateSample()
         }
     }
 
+    onClear() {
 
+    }
 
     render() {
         return html`
             <data-form  .data=${this.sample}
-                        .config="${this.getStudyFormConfig()}"
+                        .config="${this._config}"
                         @fieldChange="${e => this.onFieldChange(e)}"
-                        @clear="${this.onHide}"
-                        @submit="${this.onSave}">
+                        @clear="${this.onClear}"
+                        @submit="${this.onSubmit}">
             </data-form>
         `;
     }
