@@ -17,6 +17,7 @@
 import { html, LitElement } from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
 import DetailTabs from "../commons/view/detail-tabs.js";
+import OpencgaCatalogUtils from "../../clients/opencga/opencga-catalog-utils.js"
 
 export default class StudyAdminConfiguration extends LitElement {
 
@@ -97,6 +98,16 @@ export default class StudyAdminConfiguration extends LitElement {
 
 
 render() {
+
+
+    if(!OpencgaCatalogUtils.isAdmin(this.opencgaSession.study,this.opencgaSession.user.id)){
+        return html`
+        <div class="guard-page">
+            <i class="fas fa-lock fa-5x"></i>
+            <h3>No permission to view this page</h3>
+        </div>`
+    }
+
     return html`
         <div style="margin: 20px">
             <detail-tabs

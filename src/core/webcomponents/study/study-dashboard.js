@@ -90,29 +90,30 @@ export default class StudyDashboard extends LitElement {
         $(`#new${modalId}`).modal(action);
     }
 
-    renderVerticalDotAction(project) {
+    renderVerticalDotAction(user, project) {
+        const isAdmin = OpencgaCatalogUtils.checkUserAccountView(user, this.opencgaSession?.user?.id);
         return html`
             <div style="float: right; padding:10px">
                 <div class="dropdown">
                     <a id="dLabel" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         <i class="fas fa-ellipsis-v fa-lg" style="color:#fff"></i>
                     </a>
-                    <ul class="dropdown-menu" aria-labelledby="dLabel" role="menu">
-                        <li>
+                    <ul class="dropdown-menu disabled" aria-labelledby="dLabel" role="menu">
+                        <li class="${!isAdmin ? "disabled" : ""}"> 
                             <a @click="${() => this.actionModal('Study', 'show', project)}">
                                 <i class="fas fa-file icon-padding"></i> New Study
                             </a>
                         </li>
                         <li class="divider"></li>
-                        <li>
+                        <li class="${!isAdmin ? "disabled" : ""}"> 
                             <a @click="${() => this.actionModal('Project', 'show', project, 'UPDATE')}">
                                 <i class="fas fa-edit icon-padding"></i>Edit
                             </a>
                         </li>
-                        <li class="disabled">
+                        <li class="${!isAdmin ? "disabled" : ""}"> 
                             <a><i class="fas fa-copy icon-padding"></i> Duplicate</a>
                         </li>
-                        <li class="disabled">
+                        <li class="${!isAdmin ? "disabled" : ""}"> 
                             <a><i class="fas fa-trash icon-padding"></i> Delete</a>
                         </li>
                     </ul>
@@ -127,7 +128,7 @@ export default class StudyDashboard extends LitElement {
                 <div class="panel panel-default shadow">
                     <div class="panel-body text-center">
                         <!-- Vertical dots   -->
-                        ${this.renderVerticalDotAction()}
+                        <!-- {this.renderVerticalDotAction()} -->
                         <h4>${project.name}</h4>
                         <div>
                             ${project.description ? html`
@@ -209,7 +210,8 @@ export default class StudyDashboard extends LitElement {
                         <div class="row">
                             <div class="col-md-2 border-dotted-right">
                                 <!-- Vertical dots   -->
-                                ${OpencgaCatalogUtils.checkUserAccountView(user, this.opencgaSession?.user?.id) ? html`${this.renderVerticalDotAction(project)}` : ""}                                 
+                                <!-- ${OpencgaCatalogUtils.checkUserAccountView(user, this.opencgaSession?.user?.id) ? html`${this.renderVerticalDotAction(project)}` : ""} -->
+                                ${this.renderVerticalDotAction(user, project)}                                 
                                 <h3 style="margin:5px">Project</h3>
                                 <div class="text-block text-center" style="padding-top: 5px;">
                                     <h4>${project.name}</h4>
@@ -218,7 +220,7 @@ export default class StudyDashboard extends LitElement {
                                             <span>${project.description}</span>
                                         ` : html`
                                             <span style="font-style: italic">No description available</span>`
-            }
+                                }
                                     </div>
                                     <div>
                                         <span>${project.organism.scientificName} ${project.organism.assembly}</span>
@@ -248,18 +250,22 @@ export default class StudyDashboard extends LitElement {
                 <!-- TODO: Pass Info Study to the Study admin -->
                 <a href="#study-admin/${study.fqn}">
                     <div class="panel panel-default child shadow-sm">
-                        <div class="panel-body studies text-center" style="color: black">
-                            <div>
-                                <h4>${study.name}</h4>
-                            </div>
-                            <div>
-                                <span class="help-text">${study.description || "No description available"}</span>
-                            </div>
-                            <div>
-                                <span>${study.fqn}</span>
-                            </div>
-                            <div>
-                                <span>Created on ${UtilsNew.dateFormatter(study.creationDate)}</span>
+                        <div class="panel-body studies" style="color: black">
+                            ${this.opencgaSession.study.fqn === study.fqn ?
+                                html`<span class="label label-success pull-right">Current</span>` : ""}
+                            <div class="text-block text-center"  style="padding-top:10px;">
+                                <div>
+                                    <h4>${study.name}</h4>
+                                </div>
+                                <div>
+                                    <span class="help-text">${study.description || "No description available"}</span>
+                                </div>
+                                <div>
+                                    <span>${study.fqn}</span>
+                                </div>
+                                <div>
+                                    <span>Created on ${UtilsNew.dateFormatter(study.creationDate)}</span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -353,6 +359,11 @@ export default class StudyDashboard extends LitElement {
                 @media (min-width:992px){
                     .row.auto-clear .col-md-4:nth-child(3n+1){clear:left;}
                 }
+                /* Move to global.css */
+                /* This prevent to execute a onClick event. */
+                .disabled:active{
+                    pointer-events:none
+                }
             </style>
 
             <div>
@@ -380,7 +391,7 @@ export default class StudyDashboard extends LitElement {
                             <div class="clearfix"></div>
                             <!-- Show Project and Studies -->
                             <div class="col-md-12">
-                                ${this.opencgaSession.projects.filter(proj => proj.fqn.startsWith(owner + "@")).map(project => this.renderProjectAndStudiesAlt(project,owner))}
+                                ${this.opencgaSession.projects.filter(proj => proj.fqn.startsWith(owner + "@")).map(project => this.renderProjectAndStudiesAlt(project, owner))}
                             </div>
                         </div>`
                 })}

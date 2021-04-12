@@ -17,6 +17,7 @@
 import { LitElement, html } from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
 import GridCommons from "../commons/grid-commons.js";
+import OpencgaCatalogUtils from "../../clients/opencga/opencga-catalog-utils.js"
 import "../commons/filters/text-field-filter.js";
 
 export default class StudyAdminUsers extends LitElement {
@@ -92,7 +93,6 @@ export default class StudyAdminUsers extends LitElement {
     studyObserver() {
         if (this.study) {
             this.owner = this.study.fqn.split("@")[0];
-
             this.groupsMap = new Map();
             this.opencgaSession.opencgaClient.studies().groups(this.study.fqn)
                 .then(response => {
@@ -150,8 +150,14 @@ export default class StudyAdminUsers extends LitElement {
     }
 
     groupFormatter(value, row) {
+        // const isOwner = this.field.owner === this.field.loggedUser;
+        const isOwner = OpencgaCatalogUtils.checkUserAccountView(this.field.owner,this.field.loggedUser)
         const checked = this.field.groupsMap?.get(this.field.groupId).findIndex(e => e.id === row.id) !== -1;
-        return `<input type="checkbox" ${checked ? "checked" : ""} ${row.id === this.field.owner ? "disabled" : "" }>`;
+        if (this.field.groupId === "@admins") {
+            return `<input type="checkbox" ${checked ? "checked" : ""} ${!isOwner ? "disabled" : ""}>`;
+        } else {
+            return `<input type="checkbox" ${checked ? "checked" : ""} ${row.id === this.field.owner ? "disabled" : ""}>`;
+        }
     }
 
     onCheck(e, value, row, group, context) {
@@ -171,7 +177,8 @@ export default class StudyAdminUsers extends LitElement {
                         field: {
                             groupId: group,
                             groupsMap: this.groupsMap,
-                            owner: this.owner
+                            owner: this.owner,
+                            loggedUser: this.opencgaSession?.user?.id
                         },
                         rowspan: 1,
                         colspan: 1,
@@ -453,10 +460,14 @@ export default class StudyAdminUsers extends LitElement {
     }
 
     render() {
-        // CHeck is the user si Admin
-        // if (isAdmin) {
-        //     return html`No permission`;
-        // }
+
+        if(!OpencgaCatalogUtils.isAdmin(this.opencgaSession.study,this.opencgaSession.user.id)){
+            return html`
+            <div class="guard-page">
+                <i class="fas fa-lock fa-5x"></i>
+                <h3>No permission to view this page</h3>
+            </div>`
+        }
 
         return html`
             <div class="pull-left" style="margin: 10px 0px">
@@ -464,7 +475,7 @@ export default class StudyAdminUsers extends LitElement {
                 <div class="form-inline">
                     <div class="form-group">
                         <input type="text" .value="${this.searchUserId || ""}" class="form-control" list="${this._prefix}MemberUsers" placeholder="Search by user ID..."
-                               @change="${this.onUserSearchFieldChange}">
+                            @change="${this.onUserSearchFieldChange}">
                     </div>
                     <button type="button" id="${this._prefix}ClearUserMenu" class="btn btn-default btn-xs ripple"
                             aria-haspopup="true" aria-expanded="false" title="Clear users from ${this.study?.name} study"

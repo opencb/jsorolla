@@ -74,7 +74,7 @@ export default class OpencgaCatalogUtils {
         }
         return false;
     }
-
+    
     /**
      * Check if the user has the right the permissions in the study.
      * @param study
@@ -116,6 +116,31 @@ export default class OpencgaCatalogUtils {
                     }
                 }
             }
+        }
+        return false;
+    }
+
+    /**
+     * Check if the user has the right the permissions in the study.
+     * @param study
+     * @param user
+     * @returns {boolean}
+     */
+        static isAdmin(study, userLogged) {
+        if (!study || !userLogged) {
+            console.error(`No valid parameters, study: ${study}, user: ${userLogged}`);
+            return false;
+        }
+        // Check if user is the Study owner
+        let _studyOwner = study.fqn.split("@")[0];
+        if (userLogged === _studyOwner) {
+            return true;
+        } else {
+            // Check if user is a Study admin, belongs to @admins group
+            let admins = study.groups.find(group => group.id === "@admins");
+            if (admins.userIds.includes(userLogged)) {
+                return true;
+            } 
         }
         return false;
     }

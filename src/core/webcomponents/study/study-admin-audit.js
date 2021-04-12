@@ -17,6 +17,7 @@
 import { html, LitElement } from "/web_modules/lit-element.js";
 import UtilsNew from "./../../utilsNew.js";
 import GridCommons from "../commons/grid-commons.js";
+import OpencgaCatalogUtils from "../../clients/opencga/opencga-catalog-utils.js"
 import PolymerUtils from "../PolymerUtils.js";
 
 export default class StudyAdminAudit extends LitElement {
@@ -355,6 +356,16 @@ export default class StudyAdminAudit extends LitElement {
     // }
 
     render() {
+
+        
+        if(!OpencgaCatalogUtils.isAdmin(this.opencgaSession.study,this.opencgaSession.user.id)){
+            return html`
+            <div class="guard-page">
+                <i class="fas fa-lock fa-5x"></i>
+                <h3>No permission to view this page</h3>
+            </div>`
+        }
+
         return html`
             <div class="pull-left" style="margin: 10px 0px">
                 <div class="lhs">
@@ -429,7 +440,7 @@ export default class StudyAdminAudit extends LitElement {
 
             <!-- Modal -->
             <div class="modal fade" id="${this._prefix}SaveModal" tabindex="-1" role="dialog"
-                 aria-labelledby="${this._prefix}SaveModalLabel" aria-hidden="true">
+                aria-labelledby="${this._prefix}SaveModalLabel" aria-hidden="true">
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
