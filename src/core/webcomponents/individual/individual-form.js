@@ -20,10 +20,11 @@ import "../commons/tool-header.js";
 
 export default class IndividualForm extends LitElement {
 
+    static CREATE_MODE = "create";
+    static UPDATE_MODE = "update";
+
     constructor() {
         super();
-
-        // Set status and init private properties
         this._init();
     }
 
@@ -33,6 +34,15 @@ export default class IndividualForm extends LitElement {
 
     static get properties() {
         return {
+            individual: {
+                type: Object
+            },
+            study: {
+                type: Object
+            },
+            mode: {
+                type: String
+            },
             opencgaSession: {
                 type: Object
             },
@@ -49,8 +59,7 @@ export default class IndividualForm extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
-
-        // this._config = { ...this.getDefaultConfig(), ...this.config };
+        this._config = { ...this.getDefaultConfig(), ...this.config };
     }
 
     onFieldChange(e) {
@@ -99,9 +108,52 @@ export default class IndividualForm extends LitElement {
         }
     }
 
+    saveIndividual() {
+        // this.opencgaSession.opencgaClient.projects().create(this.project)
+        //     .then(res => {
+        //         this.sample = {};
+        //         this.requestUpdate();
+
+        //         this.dispatchSessionUpdateRequest();
+
+        //         Swal.fire(
+        //             "New Sample",
+        //             "New Sample created correctly.",
+        //             "success"
+        //         );
+        //     })
+        //     .catch(err => {
+        //         console.error(err);
+        //         params.error(err);
+        //     });
+    }
+
+    updateIndividual() {
+        // this.opencgaSession.opencgaClient.projects().update(this.Sample?.fqn,this.Sample)
+        //     .then(res => {
+        //         this.Sample = {};
+        //         this.requestUpdate();
+
+        //         this.dispatchSessionUpdateRequest();
+
+        //         Swal.fire(
+        //             "Edit Sample",
+        //             "Sample updated correctly.",
+        //             "success"
+        //         );
+        //     })
+        //     .catch(err => {
+        //         console.error(err);
+        //         params.error(err);
+        //     });
+    }
 
     onSave(e) {
-        console.log(e.detail.param)
+        if (mode === SampleForm.CREATE_MODE) {
+            this.saveSample()
+        } else {
+            this.updateSample()
+        }
     }
 
     onHide() {
@@ -112,7 +164,10 @@ export default class IndividualForm extends LitElement {
         }));
     }
 
-    getIndividualFormConfig() {
+    onClear() {
+    }
+
+    getDefaultConfig() {
         return {
             title: "Edit",
             icon: "fas fa-edit",
@@ -123,19 +178,20 @@ export default class IndividualForm extends LitElement {
                 okText: "Save"
             },
             display: {
-                style: "margin: 25px 50px 0px 0px",
+
                 // mode: {
                 //     type: "modal",
                 //     title: "Review Variant",
                 //     buttonClass: "btn-link"
                 // },
-                labelWidth: 3,
-                labelAlign: "right",
-                defaultValue: "",
+                with: "8",
+                labelAlign: "left",
+                labelWidth: "4",
                 defaultLayout: "horizontal",
             },
             sections: [
                 {
+                    title: "Individual General Information",
                     elements: [
                         {
                             name: "Individual id",
@@ -143,9 +199,9 @@ export default class IndividualForm extends LitElement {
                             type: "input-text",
                             display: {
                                 placeholder: "Add a short ID...",
-                                disabled: this.mode === "UPDATE",
+                                disabled: this.mode === IndividualForm.UPDATE_MODE,
                                 help: {
-                                    text: "shor individual id for..."
+                                    text: "short individual id for..."
                                 },
                             }
                         },
@@ -158,7 +214,7 @@ export default class IndividualForm extends LitElement {
                             }
                         },
                         {
-                            name: "father id",
+                            name: "Father id",
                             field: "father",
                             type: "input-text",
                             display: {
@@ -166,7 +222,7 @@ export default class IndividualForm extends LitElement {
                             }
                         },
                         {
-                            name: "mother id",
+                            name: "Mother id",
                             field: "mother",
                             type: "input-text",
                             display: {
@@ -177,7 +233,13 @@ export default class IndividualForm extends LitElement {
                             name: "Sex",
                             field: "sex",
                             type: "select",
-                            allowedValues: ["M", "F", "None"],
+                            allowedValues: ["MALE", "FEMALE", "UNKNOWN", "UNDETERMINED"],
+                            display: {}
+                        },
+                        {
+                            name: "Birth",
+                            field: "dateOfBirth",
+                            type: "input-text",
                             display: {}
                         },
                         {
@@ -189,27 +251,28 @@ export default class IndividualForm extends LitElement {
                         {
                             name: "Parental Consanguinity",
                             field: "parentalConsanguinity",
-                            type: "input-text",
+                            type: "checkbox",
                             display: {}
                         },
                         {
                             name: "Karyotypic Sex",
                             field: "karyotypicSex",
-                            type: "input-text",
+                            type: "select",
+                            allowedValues: ["UNKNOWN", "XX", "XY", "XO", "XXY", "XXX", "XXYY", "XXXY", "XXXX", "XYY", "OTHER"],
                             display: {}
                         },
                         {
-                            name: "Ethnicity",
-                            field: "ethnicity",
-                            type: "input-text",
-                            display: {}
-                        },
-                        {
-                            name: "life Status",
+                            name: "Life Status",
                             field: "lifeStatus",
-                            type: "input-text",
+                            type: "select",
+                            allowedValues: ["ALIVE", "ABORTED", "DECEASED", "UNBORN", "STILLBORN", "MISCARRIAGE", "UNKNOWN"],
                             display: {}
                         },
+                    ]
+                },
+                {
+                    title: "Location Info",
+                    elements: [
                         {
                             name: "Address",
                             field: "location.address",
@@ -239,7 +302,12 @@ export default class IndividualForm extends LitElement {
                             field: "location.country",
                             type: "input-text",
                             display: {}
-                        },
+                        }
+                    ]
+                },
+                {
+                    title: "Population Info",
+                    elements: [
                         {
                             name: "Population name",
                             field: "population.name",
@@ -247,7 +315,7 @@ export default class IndividualForm extends LitElement {
                             display: {}
                         },
                         {
-                            name: "subpopulation",
+                            name: "Subpopulation",
                             field: "population.subpopulation",
                             type: "input-text",
                             display: {}
@@ -260,7 +328,7 @@ export default class IndividualForm extends LitElement {
                                 rows: 3,
                                 placeholder: "add a description...",
                             }
-                        },
+                        }
                     ]
                 }
             ]
@@ -271,9 +339,9 @@ export default class IndividualForm extends LitElement {
 
         return html`
             <data-form  .data=${this.individual}
-                        .config="${this.getIndividualFormConfig()}"
-                        @clear="${this.onHide}"
+                        .config="${this._config}"
                         @fieldChange="${e => this.onFieldChange(e)}"
+                        @clear="${this.onHide}"
                         @submit="${this.onSave}">
             </data-form>
         `;

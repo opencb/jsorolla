@@ -18,11 +18,11 @@ import { LitElement, html } from "/web_modules/lit-element.js";
 import UtilsNew from "./../../utilsNew.js";
 import "../commons/tool-header.js";
 
-export default class CohortForm extends LitElement {
+export default class FamilyForm extends LitElement {
 
     static CREATE_MODE = "create";
     static UPDATE_MODE = "update";
-
+    
     constructor() {
         super();
         this._init();
@@ -34,8 +34,8 @@ export default class CohortForm extends LitElement {
 
     static get properties() {
         return {
-            studyId: {
-                type: String
+            family: {
+                type: Object
             },
             study: {
                 type: Object
@@ -54,11 +54,14 @@ export default class CohortForm extends LitElement {
 
     _init() {
         this._prefix = UtilsNew.randomString(8);
-        this.cohort = {}
+
+        // We initialise the family in for CREATE
+        this.famiy = {}
     }
 
     connectedCallback() {
         super.connectedCallback();
+
         this._config = { ...this.getDefaultConfig(), ...this.config };
     }
 
@@ -67,7 +70,7 @@ export default class CohortForm extends LitElement {
             case "id":
             case "name":
             case "description":
-                this.Cohort[e.detail.param] = e.detail.value;
+                this.family[e.detail.param] = e.detail.value;
                 break;
         }
     }
@@ -81,7 +84,6 @@ export default class CohortForm extends LitElement {
         }));
     }
 
-
     getDefaultConfig() {
         return {
             title: "Edit",
@@ -90,7 +92,7 @@ export default class CohortForm extends LitElement {
             buttons: {
                 show: true,
                 cancelText: "Cancel",
-                okText: this.mode === CohortForm.CREATE_MODE ? "Save" : "Update"
+                okText: this.mode === FamilyForm.CREATE_MODE ? "Save" : "Update"
             },
             display: {
                 // width: "8",
@@ -107,13 +109,13 @@ export default class CohortForm extends LitElement {
                 {
                     elements: [
                         {
-                            name: "Cohort ID",
+                            name: "Family ID",
                             field: "id",
                             type: "input-text",
                             required: true,
                             display: {
                                 placeholder: "Add a short ID...",
-                                disabled: this.mode === CohortForm.UPDATE_MODE,
+                                disabled: this.mode === FamilyForm.UPDATE_MODE,
                                 help: {
                                     text: "short Sample id for thehis as;lsal"
                                 },
@@ -123,37 +125,27 @@ export default class CohortForm extends LitElement {
                             },
                         },
                         {
-                            name: "Cohort Type",
-                            field: "cohort",
-                            type: "select",
-                            allowedValues: ["CASE_CONTROL","CASE_SET","CONTROL_SET","PAIRED","PAIRED_TUMOR","AGGREGATE","TIME_SERIES","FAMILY","TRIO","COLLECTION"],
-                            display: {}
+                            name: "Name",
+                            field: "name",
+                            type: "input-text",
+                            display: {
+                                placeholder: "Family name...",
+                            }
                         },
-                        // {
-                        //     name: "Creation Date",
-                        //     field: "creationDate",
-                        //     type: "input-text",
-                        //     display: {
-                        //         placeholder: "Sample name...",
-                        //         visible: this.mode === CohortForm.UPDATE_MODE,
-                        //         disabled: this.mode === CohortForm.UPDATE_MODE
-                        //     }
-                        // },
                         {
                             name: "Description",
                             field: "description",
                             type: "input-text",
                             display: {
-                                placeholder: "e.g. Homo sapiens, ...",
+                                rows: 3,
+                                placeholder: "Family name...",
                             }
                         },
                         {
-                            name: "Num. Samples",
-                            field: "numSamples",
-                            type: "input-text",
-                            display: {
-                                placeholder: "e.g. GRCh38",
-                            }
+                            name: "Expected Size",
+                            field: "expectedSize",
+                            type: "input-text"
+                            
                         },
                         {
                             name: "Status name",
@@ -179,10 +171,11 @@ export default class CohortForm extends LitElement {
         }
     }
 
-    saveCohort() {
+
+    saveFamily() {
         // this.opencgaSession.opencgaClient.projects().create(this.project)
         //     .then(res => {
-        //         this.Cohort = {};
+        //         this.family = {};
         //         this.requestUpdate();
 
         //         this.dispatchSessionUpdateRequest();
@@ -199,7 +192,7 @@ export default class CohortForm extends LitElement {
         //     });
     }
 
-    updateCohort() {
+    updateFamily() {
         // this.opencgaSession.opencgaClient.projects().update(this.Sample?.fqn,this.Sample)
         //     .then(res => {
         //         this.Sample = {};
@@ -218,12 +211,12 @@ export default class CohortForm extends LitElement {
         //         params.error(err);
         //     });
     }
-
+    
     onSubmit(e) {
-        if (mode === CohortForm.CREATE_MODE) {
-            this.saveCohort()
+        if (mode === FamilyForm.CREATE_MODE) {
+            this.saveFamily()
         } else {
-            this.updateCohort()
+            this.updateFamily()
         }
     }
 
@@ -233,10 +226,10 @@ export default class CohortForm extends LitElement {
 
     render() {
         return html`
-            <data-form  .data=${this.cohort}
+            <data-form  .data=${this.family}
                         .config="${this._config}"
                         @fieldChange="${e => this.onFieldChange(e)}"
-                        @clear=${this.onClear}
+                        @clear="${this.onClear}"
                         @submit="${this.onSubmit}">
             </data-form>
         `;
@@ -244,4 +237,4 @@ export default class CohortForm extends LitElement {
 
 }
 
-customElements.define("cohort-form", CohortForm);
+customElements.define("family-form", FamilyForm);

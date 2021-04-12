@@ -118,8 +118,7 @@ export default class StudyAdminSample extends LitElement {
                         .mode="${DetailTabs.PILLS_MODE}"
                         .opencgaSession="${this.opencgaSession}">
                 </detail-tabs>
-            </div>
-        `;
+            </div>`;
     }
 }
 

@@ -22,7 +22,7 @@ export default class SampleForm extends LitElement {
 
     static CREATE_MODE = "create";
     static UPDATE_MODE = "update";
-    
+
     constructor() {
         super();
         this._init();
@@ -107,6 +107,7 @@ export default class SampleForm extends LitElement {
             },
             sections: [
                 {
+                    title: "Sample General Information",
                     elements: [
                         {
                             name: "Sample ID",
@@ -129,33 +130,7 @@ export default class SampleForm extends LitElement {
                             field: "name",
                             type: "input-text",
                             display: {
-                                placeholder: "Sample name...",
-                            }
-                        },
-                        {
-                            name: "Creation Date",
-                            field: "creationDate",
-                            type: "input-text",
-                            display: {
-                                placeholder: "Sample name...",
-                                visible: this.mode === SampleForm.UPDATE_MODE,
-                                disabled: this.mode === SampleForm.UPDATE_MODE
-                            }
-                        },
-                        {
-                            name: "Species",
-                            field: "organism.scientificName",
-                            type: "input-text",
-                            display: {
-                                placeholder: "e.g. Homo sapiens, ...",
-                            }
-                        },
-                        {
-                            name: "Species Assembly",
-                            field: "organism.assembly",
-                            type: "input-text",
-                            display: {
-                                placeholder: "e.g. GRCh38",
+                                placeholder: "Sample description...",
                             }
                         },
                         {
@@ -164,9 +139,107 @@ export default class SampleForm extends LitElement {
                             type: "input-text",
                             display: {
                                 rows: 3,
+                                placeholder: "Sample name...",
+                                visible: this.mode === SampleForm.UPDATE_MODE,
+                                disabled: this.mode === SampleForm.UPDATE_MODE
+                            }
+                        },
+                        {
+                            name: "IndividualId",
+                            field: "individualId",
+                            type: "input-text",
+                            display: {
+                                placeholder: "e.g. Homo sapiens, ...",
+                            }
+                        },
+                        {
+                            name: "Somatic",
+                            field: "somatic",
+                            type: "checkbox"
+                        },
+                        {
+                            name: "Status name",
+                            field: "status.name",
+                            type: "input-text",
+                            display: {
+                                rows: 3,
                                 placeholder: "Sample description...",
                             }
                         },
+                        {
+                            name: "Status Description",
+                            field: "status.description",
+                            type: "input-text",
+                            display: {
+                                rows: 3,
+                                placeholder: "Sample description...",
+                            }
+                        },
+                    ]
+                },
+                {
+                    title: "Processing Info",
+                    elements: [
+                        {
+                            name: "Product",
+                            field: "processing.product",
+                            type: "input-text"
+                        },
+                        {
+                            name: "Preparation Method",
+                            field: "processing.preparationMethod",
+                            type: "input-text"
+                        },
+                        {
+                            name: "Extraction Method",
+                            field: "processing.extrationMethod",
+                            type: "input-text"
+                        },
+                        {
+                            name: "Lab Sample Id",
+                            field: "processing.labSambpleId",
+                            type: "input-text"
+                        },
+                        {
+                            name: "Extraction Method",
+                            field: "processing.quantity",
+                            type: "input-text"
+                        },
+                        {
+                            name: "Extraction Method",
+                            field: "processing.date",
+                            type: "input-text"
+                        }
+                    ]
+                },
+                {
+                    title: "Collection Info",
+                    elements: [
+                        {
+                            name: "Tissue",
+                            field: "collection.tissue",
+                            type: "input-text",
+                        },
+                        {
+                            name: "Organ",
+                            field: "collection.organ",
+                            type: "input-text"
+                        },
+                        {
+                            name: "Quantity",
+                            field: "collection.quantity",
+                            type: "input-text"
+                        },
+                        {
+                            name: "Method",
+                            field: "collection.method",
+                            type: "input-text"
+                        },
+                        {
+                            name: "Date",
+                            field: "collection.date",
+                            type: "input-text"
+                        }
                     ]
                 }
             ]
@@ -213,7 +286,7 @@ export default class SampleForm extends LitElement {
         //         params.error(err);
         //     });
     }
-    
+
     onSubmit(e) {
         if (mode === SampleForm.CREATE_MODE) {
             this.saveSample()
