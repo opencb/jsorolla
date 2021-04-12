@@ -453,6 +453,11 @@ export default class StudyAdminUsers extends LitElement {
     }
 
     render() {
+        // CHeck is the user si Admin
+        // if (isAdmin) {
+        //     return html`No permission`;
+        // }
+
         return html`
             <div class="pull-left" style="margin: 10px 0px">
                 <!-- SEARCH USER -->

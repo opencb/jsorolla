@@ -65,22 +65,16 @@ export default class DetailTabs extends LitElement {
         this._config = { ...this.getDefaultConfig(), ...this.config };
 
         // Read active tabs from config, if not active tab is found then FIRST one is selected.
-        let numActive = 0;
-        let _activeTabs = {};
-        for (const item of this._config.items) {
-            _activeTabs[item.id] = item.active || false;
-            if (item.active) {
-                numActive++;
-            }
-        }
+        let _activeTabs = Object.assign({}, ...this._config.items.map(item => ({ [item.id]: item.active ?? false })));
         // Set default active tab
-        if (numActive === 0) {
+        let activeIndex = this._config.items.findIndex(item => item.active);
+        if (activeIndex < 0) {
             _activeTabs[this._config.items[0].id] = true;
         }
         this.activeTabs = _activeTabs;
     }
 
-    _changeBottomTab(e) {
+    changeBottomTab(e) {
         this.activeTabs = Object.assign({}, ...this._config.items.map(item => ({ [item.id]: false })));
         const tabId = e.currentTarget.dataset.id;
         this.activeTabs[tabId] = true;
@@ -93,7 +87,7 @@ export default class DetailTabs extends LitElement {
                 if (typeof item.mode === "undefined" || item.mode === this.opencgaSession.mode) {
                     return html`
                         <li role="presentation" class="${this._config.display?.tabTitleClass} ${this.activeTabs[item.id] ? "active" : ""}" style="${this._config.display?.tabTitleStyle}">
-                            <a href="#${this._prefix}${item.id}" role="tab" data-toggle="tab" data-id="${item.id}" @click="${this._changeBottomTab}">
+                            <a href="#${this._prefix}${item.id}" role="tab" data-toggle="tab" data-id="${item.id}" @click="${this.changeBottomTab}">
                                 <span>${item.name}</span>
                             </a>
                         </li>`;
