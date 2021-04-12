@@ -40,13 +40,13 @@ export default class StudyAdmin extends LitElement {
 
     static get properties() {
         return {
-            opencgaSession: {
-                type: Object
-            },
             studyId: {
                 type: String
             },
             study: {
+                type: Object
+            },
+            opencgaSession: {
                 type: Object
             },
             config: {
@@ -76,9 +76,9 @@ export default class StudyAdmin extends LitElement {
                 }
             }
         }
+
         super.update(changedProperties);
     }
-
 
     getDefaultConfig() {
         return {

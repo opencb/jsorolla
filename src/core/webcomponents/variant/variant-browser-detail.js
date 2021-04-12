@@ -62,6 +62,7 @@ export default class VariantBrowserDetail extends LitElement {
 
     firstUpdated(_changedProperties) {
         this._config = {...this.getDefaultConfig(), ...this.config};
+
         for (const item of this._config.items) {
             switch (item.id) {
                 case "cohortStats":

@@ -322,6 +322,7 @@ export class OpenCGAClient {
                                                 for (const study of project.studies) {
                                                     // We need to store the user permission fr the all the studies fetched
                                                     _this._notifySessionEvent("signingIn", "Fetching User permissions");
+
                                                     let acl = null;
                                                     const admins = study.groups.find(g => g.id === "@admins");
                                                     if (admins.userIds?.includes(session.user.id)) {
@@ -360,10 +361,14 @@ export class OpenCGAClient {
                                         /** if the user doesn't have his own Default study in User config then there the fallback is:
                                          *  first study of the first project
                                          */
-                                        // If no We select the first project and study as default
+                                        // We select the first project and study as default
                                         if (!session.project && !session.study) {
-                                            session.project = session.project ?? session.projects[0];
-                                            session.study = session.study ?? session.projects[0].studies[0];
+                                            for (const project of session.projects) {
+                                                if (project.studies?.length > 0) {
+                                                    session.project = project;
+                                                    session.study = project.studies[0];
+                                                }
+                                            }
                                         }
 
                                         // if (!session.project || !session.study) {
