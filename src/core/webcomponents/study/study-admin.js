@@ -106,6 +106,20 @@ export default class StudyAdmin extends LitElement {
     render() {
         return html`
             <style>
+
+                .navbar.navbar-inverse.main-navbar{
+                    position:fixed; 
+                    top:0; 
+                    width:100%;
+                    z-index: 1000;
+                }
+
+                div.page-title {
+                    position:fixed;
+                    top:50px;
+                    width:100%;
+                }
+
                 .row.left {
                     margin-left: -30px;
                     margin-top: -10px
@@ -114,6 +128,7 @@ export default class StudyAdmin extends LitElement {
                 /*Remove rounded coners*/
                 nav.sidebar.navbar {
                     border-radius: 0px;
+                    top:125px;
                 }
 
                 nav.sidebar, .main {
@@ -334,7 +349,7 @@ export default class StudyAdmin extends LitElement {
                     </nav>
                 </div>
 
-                <div class="col-md-10">
+                <div class="col-md-10" style="top:150px;z-index:-1">
                     <!-- Content Module  -->
                     <div class="content-tab-wrapper admin-content-tab" style="margin: 0px 20px">
                         <div id="${this._prefix}Dashboard" role="tabpanel" class="tab-pane content-tab">
