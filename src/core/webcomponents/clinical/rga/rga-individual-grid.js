@@ -76,10 +76,6 @@ export default class RgaIndividualGrid extends LitElement {
 
     }
 
-    firstUpdated(_changedProperties) {
-        // this.table = $("#" + this.gridId);
-    }
-
     updated(changedProperties) {
         if ((changedProperties.has("opencgaSession") || changedProperties.has("query") || changedProperties.has("config") || changedProperties.has("active")) && this.active) {
             this.propertyObserver();
@@ -143,14 +139,13 @@ export default class RgaIndividualGrid extends LitElement {
     }
 
     renderTable() {
-
         this._query = {...this.query, study: this.opencgaSession.study.fqn}; // we want to support a query obj param both with or without study.
         // Checks if the component is not visible or the query hasn't changed
         if (!this.active || UtilsNew.objectCompare(this._query, this.prevQuery)) {
             return;
         }
-
         this.prevQuery = {...this._query};
+
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
