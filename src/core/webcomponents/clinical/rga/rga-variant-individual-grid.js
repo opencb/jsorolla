@@ -18,6 +18,7 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../utilsNew.js";
 import "./../../commons/view/detail-tabs.js";
 import CatalogGridFormatter from "../../commons/catalog-grid-formatter.js";
+import GridCommons from "../../commons/grid-commons.js";
 
 
 export default class RgaVariantIndividualGrid extends LitElement {
@@ -50,6 +51,11 @@ export default class RgaVariantIndividualGrid extends LitElement {
         this._config = this.getDefaultConfig();
         this.gridId = this._prefix + "VIGrid";
 
+    }
+
+    connectedCallback() {
+        super.connectedCallback();
+        this.gridCommons = new GridCommons(this.gridId, this, this._config);
     }
 
     updated(changedProperties) {
