@@ -63,7 +63,7 @@ export default class SimpleChart extends LitElement {
     }
 
     _init(){
-        this._prefix = "plot-" + UtilsNew.randomString(6);
+        this._prefix = UtilsNew.randomString(8);
 
         // Initially we set the default config, this will be overridden if 'config' is passed
         this._config = this.getDefaultConfig();
@@ -86,6 +86,9 @@ export default class SimpleChart extends LitElement {
                 switch (this.type) {
                     case "column":
                         this.renderColumnChart();
+                        break;
+                    case "bar":
+                        this.renderBarChart();
                         break;
                     case "pie":
                         this.renderPieChart();
@@ -120,6 +123,58 @@ export default class SimpleChart extends LitElement {
                     enabled: true
                 },
                 crosshair: true,
+                ...this._config.xAxis
+            },
+            yAxis: {
+                title: {
+                    text: this.yAxisTitle || ""
+                },
+                min: 0,
+                ...this._config.yAxis
+            },
+            plotOptions: {
+                column: {
+                    pointPadding: 0.2,
+                    borderWidth: 0
+                },
+                ...this._config.plotOptions
+            },
+            series: Object.entries(this.data).map( ([name, data]) => (
+                {
+                    name: name,
+                    data: Array.isArray(data) ? data : [data] // TODO Proper fix after facet-result-view refactor. Most of the variant stats are Maps with a single datapoint, in other cases we need array (facets)
+                })
+            ),
+            credits: {
+                enabled: false
+            },
+        });
+    }
+
+    renderBarChart() {
+        this._config = {...this.getDefaultConfig(), ...this.config};
+        Highcharts.chart(this._prefix + "chart", {
+            chart: {
+                type: "bar",
+                ...this._config.chart
+            },
+            title: {
+                text: this.title,
+                ...this._config.title
+            },
+            subtitle: {
+                text: this.subtitle,
+                ...this._config.subtitle
+            },
+            xAxis: {
+                title: {
+                    text: this.xAxisTitle || ""
+                },
+                label: {
+                    enabled: true
+                },
+                crosshair: true,
+                // categories: Object.keys(this.data).map(elem => elem),
                 ...this._config.xAxis
             },
             yAxis: {

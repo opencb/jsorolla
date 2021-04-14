@@ -132,7 +132,6 @@ export default class CircosView extends LitElement {
                 }
             ]
         }
-        debugger
 
         this.opencgaSession.opencgaClient.variants().runCircos(query, {study: this.opencgaSession.study.fqn})
             .then( restResult => {
