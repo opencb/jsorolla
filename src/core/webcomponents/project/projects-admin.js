@@ -1,5 +1,5 @@
-/**
- * Copyright 2015-2019 OpenCB
+/*
+ * Copyright 2015-2016 OpenCB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,13 +15,13 @@
  */
 
 import { html, LitElement } from "/web_modules/lit-element.js";
-import UtilsNew from "./../../utilsNew.js";
+import UtilsNew from "../../utilsNew.js";
 import OpencgaCatalogUtils from "../../clients/opencga/opencga-catalog-utils.js"
 import "../commons/tool-header.js";
-import "./study-form.js";
-import "../project/project-form.js";
+import "../study/study-form.js";
+import "./project-form.js";
 
-export default class StudyDashboard extends LitElement {
+export default class ProjectsAdmin extends LitElement {
 
     constructor() {
         super();
@@ -404,4 +404,4 @@ export default class StudyDashboard extends LitElement {
         `;
     }
 }
-customElements.define("study-dashboard", StudyDashboard);
+customElements.define("projects-admin", ProjectsAdmin);

@@ -393,6 +393,8 @@ export class OpenCGAClient {
                                         //     }
                                         // }
                                     }
+                                    
+                                    debugger
                                     resolve(session);
                                 } catch (e) {
                                     console.error("Error getting study permissions, cohorts or disease panels");
