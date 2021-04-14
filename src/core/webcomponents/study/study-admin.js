@@ -118,6 +118,7 @@ export default class StudyAdmin extends LitElement {
                     position:fixed;
                     top:50px;
                     width:100%;
+                    z-index:1
                 }
 
                 .row.left {
@@ -349,7 +350,7 @@ export default class StudyAdmin extends LitElement {
                     </nav>
                 </div>
 
-                <div class="col-md-10" style="top:150px;z-index:-1">
+                <div class="col-md-10" style="top:150px;">
                     <!-- Content Module  -->
                     <div class="content-tab-wrapper admin-content-tab" style="margin: 0px 20px">
                         <div id="${this._prefix}Dashboard" role="tabpanel" class="tab-pane content-tab">
