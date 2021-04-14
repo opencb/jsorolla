@@ -388,13 +388,7 @@ export default class StudyAdminUsers extends LitElement {
                 this.addGroupId = "";
                 this.requestUpdate();
 
-                this.dispatchEvent(new CustomEvent("studyUpdateRequest", {
-                    detail: {
-                        value: this.study.fqn
-                    },
-                    bubbles: true,
-                    composed: true
-                }));
+                this.notifyStudyUpdateRequest();
 
                 Swal.fire(
                     "Group Add",
@@ -432,32 +426,38 @@ export default class StudyAdminUsers extends LitElement {
             groupIds.push(groupId);
         }
 
-        console.log("GroupId to remove: ", groupIds)
-        // TODO: Check it's this work well
-        // this.opencgaSession.opencgaClient.studies().updateGroups(this.study.fqn, { id: groupIds }, { action: "REMOVE" })
-        //     .then(res => {
-        //         this.removeUserSet = new Set();
-        //         this.requestUpdate();
+        this.opencgaSession.opencgaClient.studies().updateGroups(this.study.fqn, { id: groupIds }, { action: "REMOVE" })
+            .then(res => {
+                this.removeUserSet = new Set();
+                this.requestUpdate();
 
-        //         this.dispatchEvent(new CustomEvent("studyUpdateRequest", {
-        //             detail: {
-        //                 value: this.study.fqn
-        //             },
-        //             bubbles: true,
-        //             composed: true
-        //         }));
+                // Option 1. CatalogUtils.notifyStudyUpdateRequest();
+                // Option 2. CatalogUtils.notify("studyUpdateRequest", this.study.fqn);
+                // Option 3. CatalogUtils.notify(STUDY_UPDATE_REQUEST, this.study.fqn), true, true;
+                this.notifyStudyUpdateRequest();
 
-        //         Swal.fire(
-        //             "Group Delete",
-        //             "Group deleted correctly.",
-        //             "success"
-        //         );
-        //     })
-        //     .catch(err => {
-        //         console.error(err);
-        //         params.error(err);
-        //     });
+                Swal.fire(
+                    "Group Delete",
+                    "Group deleted correctly.",
+                    "success"
+                );
+            })
+            .catch(err => {
+                console.error(err);
+                params.error(err);
+            });
     }
+
+    notifyStudyUpdateRequest() {
+        this.dispatchEvent(new CustomEvent("studyUpdateRequest", {
+            detail: {
+                value: this.study.fqn
+            },
+            bubbles: true,
+            composed: true
+        }));
+    }
+    
 
     render() {
 
