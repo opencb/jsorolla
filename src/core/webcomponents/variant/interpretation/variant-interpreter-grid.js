@@ -235,6 +235,8 @@ export default class VariantInterpreterGrid extends LitElement {
                     this.opencgaSession.opencgaClient.clinical().queryVariant(filters)
                         .then(res => {
                             this.isApproximateCount = res.responses[0].attributes?.approximateCount ?? false;
+                            // console.log(res.responses[0].results);
+                            // debugger
                             params.success(res);
                         })
                         .catch(e => {
@@ -455,7 +457,6 @@ export default class VariantInterpreterGrid extends LitElement {
         // Multiple file callers are supported.
         let vcfDataColumns = [];
         let fileCallers = this.clinicalAnalysis.files.filter(file => file.format === "VCF" && file.software?.name).map(file => file.software.name);
-        debugger
         if (this._config.callers?.length > 0 && fileCallers?.length > 0) {
             for (let caller of this._config.callers) {
                 if (fileCallers.includes(caller.id)) {
@@ -668,7 +669,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     align: "center"
                 },
                 {
-                    title: "Prediction",
+                    title: `${this.clinicalAnalysis.type !== "CANCER" ? `ACMG-based <br> Automatic Prediction` : "Prediction"}`,
                     field: "prediction",
                     rowspan: 1,
                     colspan: 1,
