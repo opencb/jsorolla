@@ -81,11 +81,12 @@ export default class IndividualForm extends LitElement {
             case "location.city":
             case "location.state":
             case "location.country":
+                let cat = e.detail.param.split(".")[0];
                 param = e.detail.param.split(".")[1];
-                if (!this.individual.location) {
-                    this.individual.location = {};
+                if (!this.individual[cat]) {
+                    this.individual[cat] = {};
                 }
-                this.individual.location[param] = e.detail.value;
+                this.individual[cat][param] = e.detail.value;
                 break;
             case "population.name":
             case "population.subpopulation":

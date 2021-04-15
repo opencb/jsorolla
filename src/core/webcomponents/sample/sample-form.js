@@ -20,8 +20,9 @@ import "../commons/tool-header.js";
 
 export default class SampleForm extends LitElement {
 
-    static CREATE_MODE = "create";
+    // static VIEW_MODE = "view";
     static UPDATE_MODE = "update";
+    static CREATE_MODE = "create";
 
     constructor() {
         super();
@@ -68,11 +69,12 @@ export default class SampleForm extends LitElement {
     onFieldChange(e) {
         switch (e.detail.param) {
             case "id":
-            case "name":
+            case "individualId":
             case "description":
                 this.sample[e.detail.param] = e.detail.value;
                 break;
         }
+        // this.requestUpdate();
     }
 
     dispatchSessionUpdateRequest() {
@@ -141,15 +143,27 @@ export default class SampleForm extends LitElement {
                                 rows: 3,
                                 placeholder: "Sample name...",
                                 visible: this.mode === SampleForm.UPDATE_MODE,
-                                disabled: this.mode === SampleForm.UPDATE_MODE
+                                disabled: this.mode === SampleForm.UPDATE_MODE,
+                                // render: (sample) => html`
+                                //     <sample-id-autocomplete 
+                                //             .value="${sample?.individualId}"
+                                //             .opencgaSession="${this.opencgaSession}" 
+                                //             @filterChange="${e => this.onFieldChange({detail: {param: "individualId", value: e.detail.value}})}">
+                                //     </sample-id-autocomplete>`
                             }
                         },
                         {
                             name: "Individual ID",
                             field: "individualId",
-                            type: "input-text",
+                            type: "custom",
                             display: {
                                 placeholder: "e.g. Homo sapiens, ...",
+                                render: (sample) => html`
+                                    <individual-id-autocomplete 
+                                            .value="${sample?.individualId}"
+                                            .opencgaSession="${this.opencgaSession}" 
+                                            @filterChange="${e => this.onFieldChange({detail: {param: "individualId", value: e.detail.value}})}">
+                                    </individual-id-autocomplete>`
                             }
                         },
                         {
