@@ -148,6 +148,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                             fileDataFilters.push(this.callerToFile[caller.id].name + ":" + caller.queryString);
                         }
                     }
+
                     this.query = {
                         ...this.query,
                         fileData: fileDataFilters.join(","),
@@ -258,7 +259,6 @@ class VariantInterpreterBrowserCancer extends LitElement {
     onVariantFilterChange(e) {
         console.trace(e)
         this.preparedQuery = e.detail.query;
-        debugger
         // TODO quick fix to avoid warning message on sample
         // if (!this.predefinedFilter) {
         //     this.executedQuery = e.detail.query;
@@ -293,7 +293,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
 
     getDefaultConfig() {
         // Prepare dynamic Variant Caller INFO filters
-        let callers = ["Caveman", "strelka", "Pindel", "ASCAT", "Canvas", "BRASS", "Manta", "TNhaplotyper2"];
+        let callers = ["Caveman", "strelka", "Pindel", "ASCAT", "Canvas", "BRASS", "Manta", "TNhaplotyper2", "Pisces", "CRAFT"];
         let callerFilters = [];
         for (let caller of callers) {
             let callerId = caller.toLowerCase();
@@ -351,6 +351,13 @@ class VariantInterpreterBrowserCancer extends LitElement {
                                 title: "Sample Genotype",
                             },
                             {
+                                id: "variant-file",
+                                title: "VCF File",
+                                params: {
+                                    files: this.callerToFile,
+                                }
+                            },
+                            {
                                 id: "file-quality",
                                 title: "Quality Filters",
                                 tooltip: "VCF file based FILTER and QUAL filters",
@@ -387,7 +394,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                             {
                                 id: "type",
                                 title: "Variant Type",
-                                types: ["SNV", "INDEL", "COPY_NUMBER", "INSERTION", "DELETION", "BREAKEND"],
+                                types: ["SNV", "INDEL", "COPY_NUMBER", "INSERTION", "DELETION", "DUPLICATION", "MNV", "BREAKEND"],
                                 tooltip: tooltips.type
                             }
                         ]

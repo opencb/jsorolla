@@ -776,17 +776,31 @@ export default class VariantInterpreterGridFormatter {
             depth = values.PR + values.NR;
         }
 
-        if (file?.fileId.includes("tnhaplotyper2")) {
-            // let index = variant.studies[0].sampleDataKeys.findIndex(key => key === "AF");
+        // if (file?.fileId.includes("tnhaplotyper2")) {
+        //     // let index = variant.studies[0].sampleDataKeys.findIndex(key => key === "AF");
+        //     let index = variant.studies[0].sampleDataKeys.findIndex(key => key === "AD");
+        //     if (index >= 0) {
+        //         let AD = sampleEntry.data[index];
+        //         let ads = AD.split(",");
+        //         depth = 0;
+        //         for (let ad of ads) {
+        //             depth += Number.parseInt(ad);
+        //         }
+        //         vaf = Number.parseInt(ads[1]) / depth;
+        //     }
+        // }
+
+        if (variant?.studies[0].sampleDataKeys.includes("AD")) {
             let index = variant.studies[0].sampleDataKeys.findIndex(key => key === "AD");
             if (index >= 0) {
                 let AD = sampleEntry.data[index];
                 let ads = AD.split(",");
+                let alt = ads.length === 2 ? ads[1] : "0";
                 depth = 0;
                 for (let ad of ads) {
                     depth += Number.parseInt(ad);
                 }
-                vaf = Number.parseInt(ads[1]) / depth;
+                vaf = Number.parseInt(alt) / depth;
             }
         }
 

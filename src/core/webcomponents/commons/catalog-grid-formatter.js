@@ -20,28 +20,48 @@ import UtilsNew from "../../utilsNew.js";
 export default class CatalogGridFormatter {
 
     static phenotypesFormatter(value, row) {
-        if (value && value.length > 0) {
-            const tooltip = [...value].sort((a, b) => a.status === "OBSERVED" ? -1 : 1).map(phenotype => {
-                return `
+        if (value && value.length === 0) {
+            return "-";
+        }
+
+        const tooltip = [...value].sort((a, b) => a.status === "OBSERVED" ? -1 : 1).map(phenotype => {
+            return `
                     <p>
                         ${phenotype.source && phenotype.source.toUpperCase() === "HPO" ?
-                    `<span>${phenotype.name} (<a target="_blank" href="https://hpo.jax.org/app/browse/term/${phenotype.id}">${phenotype.id}</a>) - ${phenotype.status}</span>` :
-                    `<span>${phenotype.id} - ${phenotype.status}</span>`}
+                `<span>${phenotype.name} (<a target="_blank" href="https://hpo.jax.org/app/browse/term/${phenotype.id}">${phenotype.id}</a>) - ${phenotype.status}</span>` :
+                `<span>${phenotype.id} - ${phenotype.status}</span>`}
                     </p>`;
-            }).join("");
+        }).join("");
+
+        if (value && value.length > 0) {
             return `<a tooltip-title="Phenotypes" tooltip-text='${tooltip}'> ${value.length} term${value.length > 1 ? "s" : ""} found</a>`;
         } else {
-            return "-";
+            // TODO Think about this
+            return `<div>${tooltip}</div>`;
         }
     }
 
     static disorderFormatter(value, row) {
         if (value && value.id) {
-            const idHtml = value.id.startsWith("OMIM:") ?
-                `<a href="https://omim.org/entry/${value.id.split(":")[1]}" target="_blank">${value.id}
-                        <i class="fas fa-external-link-alt" aria-hidden="true" style="padding-left: 5px"></i>
-                   </a>` :
-                `${value.id}`;
+            let idHtml;
+            const split = value.id.split(":");
+            switch(split[0]) {
+                case "HP":
+                    idHtml = `
+                        <a href="https://hpo.jax.org/app/browse/term/${value.id}" target="_blank">${value.id}
+                            <i class="fas fa-external-link-alt" aria-hidden="true" style="padding-left: 5px"></i>
+                        </a>`;
+                    break;
+                case "OMIM":
+                    idHtml = `
+                        <a href="https://omim.org/entry/${split[1]}" target="_blank">${value.id}
+                            <i class="fas fa-external-link-alt" aria-hidden="true" style="padding-left: 5px"></i>
+                        </a>`;
+                    break;
+                default:
+                    idHtml = value.id;
+                    break;
+            }
             if (value.name) {
                 return `${value.name} <span style="white-space: nowrap">(${idHtml})</span>`;
             } else {

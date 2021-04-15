@@ -118,9 +118,17 @@ class ClinicalAnalysisEditor extends LitElement {
     }
 
     renderStatus(status) {
+        let statuses;
+        let configStatuses = this.opencgaSession.study?.configuration?.clinical?.status[this.clinicalAnalysis.type];
+        if (configStatuses && configStatuses.length > 0) {
+            statuses = configStatuses;
+        } else {
+            statuses = ClinicalAnalysisUtils.getStatuses();
+        }
+
         return html`
             <div class="">
-                <select-field-filter .data="${ClinicalAnalysisUtils.getStatuses()}" .value="${status.id}"
+                <select-field-filter .data="${statuses}" .value="${status.id}"
                                      .classes="${this.updateParams.status ? "updated" : ""}"
                                      @filterChange="${e => {e.detail.param = "status.id"; this.onFieldChange(e)}}">
                 </select-field-filter>

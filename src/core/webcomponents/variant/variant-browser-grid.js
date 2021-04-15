@@ -398,7 +398,8 @@ export default class VariantBrowserGrid extends LitElement {
             for (const study of row.studies) {
                 if (study.studyId === this.meta.study) {
                     for (const cohortStat of study.stats) {
-                        cohortStats.set(cohortStat.cohortId, Number(cohortStat.altAlleleFreq).toFixed(4));
+                        let freq = Number(cohortStat.altAlleleFreq);
+                        cohortStats.set(cohortStat.cohortId, freq > 0 ? freq.toPrecision(2) : 0);
                     }
                     break;
                 }
@@ -415,7 +416,8 @@ export default class VariantBrowserGrid extends LitElement {
             for (const popFreqIdx in row.annotation.populationFrequencies) {
                 const popFreq = row.annotation.populationFrequencies[popFreqIdx];
                 if (this.meta.study === popFreq.study) { // && this.meta.populationMap[popFreq.population] === true
-                    popFreqMap.set(popFreq.population, Number(popFreq.altAlleleFreq).toFixed(4));
+                    let freq = Number(popFreq.altAlleleFreq);
+                    popFreqMap.set(popFreq.population, freq > 0 ? freq.toPrecision(2) : 0);
                 }
             }
             return VariantGridFormatter.createPopulationFrequenciesTable(this.meta.populations, popFreqMap, this.meta.context.populationFrequencies.style);
