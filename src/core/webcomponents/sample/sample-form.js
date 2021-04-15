@@ -17,6 +17,8 @@
 import { LitElement, html } from "/web_modules/lit-element.js";
 import UtilsNew from "./../../utilsNew.js";
 import "../commons/tool-header.js";
+import "./phenotype.form.js";
+
 
 export default class SampleForm extends LitElement {
 
@@ -58,23 +60,13 @@ export default class SampleForm extends LitElement {
 
         // We initialise the sample in for CREATE
         this.sample = {}
+        this.phenotype = {}
+        
     }
 
     connectedCallback() {
         super.connectedCallback();
-
         this._config = { ...this.getDefaultConfig(), ...this.config };
-    }
-
-    onFieldChange(e) {
-        switch (e.detail.param) {
-            case "id":
-            case "individualId":
-            case "description":
-                this.sample[e.detail.param] = e.detail.value;
-                break;
-        }
-        // this.requestUpdate();
     }
 
     dispatchSessionUpdateRequest() {
@@ -162,7 +154,7 @@ export default class SampleForm extends LitElement {
                                     <individual-id-autocomplete 
                                             .value="${sample?.individualId}"
                                             .opencgaSession="${this.opencgaSession}" 
-                                            @filterChange="${e => this.onFieldChange({detail: {param: "individualId", value: e.detail.value}})}">
+                                            @filterChange="${e => this.onFieldChange({ detail: { param: "individualId", value: e.detail.value } })}">
                                     </individual-id-autocomplete>`
                             }
                         },
@@ -260,11 +252,90 @@ export default class SampleForm extends LitElement {
                             }
                         }
                     ]
-                }
+                },
+                {
+                    elements:[
+                        {
+                            field: "phenotype",
+                            type: "custom",
+                            display: {
+                                render: (sample) => html`
+                                        <phenotype-form 
+                                            .sample="${this.sample}"
+                                            .phenotype="${this.phenotype}"
+                                            .opencgaSession="${this.opencgaSession}" 
+                                            @fieldChange="${e => this.onFieldChange(e)}">
+                                        </phenotype-form>
+                                    `
+                            }
+                        }
+                    ]
+                },
+                // {
+                //     elements: [
+                //         {
+                //             field: "phenotype",
+                //             type: "custom",
+                //             display: {
+                //                 style: "border:dashed 1px darkgray, padding:10px",
+                //                 render: (sample) => {
+                //                     let innerConfig = {
+                //                         title: "Edit",
+                //                         icon: "fas fa-edit",
+                //                         buttons: {
+                //                             show: true,
+                //                             cancelText: "Cancel",
+                //                             showText: "Add a phenotype",
+                //                             test: true
+                //                         },
+                //                         display: {
+                //                             labelWidth: 3,
+                //                             labelAlign: "right",
+                //                             defaultLayout: "horizontal",
+                //                             type: "subform",
+                //                         },
+                //                         sections: [
+                //                             {
+                //                                 elements: [
+                //                                     {
+                //                                         name: "Age of on set",
+                //                                         field: "phenotype.ageOfOnset",
+                //                                         type: "input-text",
+                //                                         display: {
+                //                                             placeholder: "Name ...",
+                //                                         }
+                //                                     },
+                //                                     {
+                //                                         name: "Status",
+                //                                         field: "phenotype.status",
+                //                                         type: "select",
+                //                                         allowedValues: ["OBSERVED", "NOT_OBSERVED", "UNKNOW"],
+                //                                         display: {
+                //                                             placeholder: "select a status...",
+                //                                         }
+                //                                     },
+                //                                 ]
+                //                             }
+                //                         ]
+                //                     }
+
+                //                     return html`
+                //                     <data-form  
+                //                         .data=${this.sample}
+                //                         .config="${innerConfig}"
+                //                         @fieldChange="${e => this.onFieldChange(e)}"
+                //                         @clear="${this.onClear}"
+                //                         @submitSubform="${this.onAddItem}"
+                //                         @cancelSubform="${this.onCancelSubForm}">
+                //                     </data-form>`
+                //                 }
+                //             }
+                //         }
+                //     ]
+                // }
             ]
         }
     }
-
 
     saveSample() {
         // this.opencgaSession.opencgaClient.projects().create(this.project)
@@ -306,25 +377,89 @@ export default class SampleForm extends LitElement {
         //     });
     }
 
-    onSubmit(e) {
-        if (mode === SampleForm.CREATE_MODE) {
-            this.saveSample()
-        } else {
-            this.updateSample()
+
+
+    onFieldChange(e) {
+        let param = e.detail.param;
+        let value = e.detail.value;
+        console.log("Woring", e.detail)
+
+        if (param.includes(".")) {
+            let cat = param.split(".")[0]
+            let prop = param.split(".")[1] 
+            
+            if (param.search("phenotype") >= 0) {
+                this.phenotype[prop] = value
+                return
+            }
+
+            if (!this.sample[cat]) {
+                this.sample[cat] = {};
+            }
+
+            this.sample[cat][prop] = value;
+            return
         }
+
+        this.sample[param] = value
+        console.log("test: ",this.sample,this.phenotype)
+        
+
+        // switch (e.detail.param) {
+        //     case "id":
+        //     case "individualId":
+        //     case "description":
+        //         this.sample[e.detail.param] = e.detail.value;
+        //         break;
+        //     case "phenotype.ageOfOnset":
+        //     case "phenotype.status":
+        //         param = e.detail.param.split(".")[1]
+        //         this.phenotype[param] = e.detail.value;
+        // }
     }
 
     onClear() {
-
+        console.log("OnClear sample form")
     }
+
+    onSubmit(e) {
+        console.log(this.sample, this.phenotype, this)
+        // this.phenotype = {}
+        // this.requestUpdate()
+    }
+
+
+    onAddItem(e) {
+        // TODO: refactor parentNode (look another way to get values from subform instead this.parentNode)
+        // this inside this function is: data-form (subform)
+        // this.parentNode is: this class sample-form
+        parent = this.parentNode;
+        if (!parent.sample.phenotype) {
+            parent.sample.phenotype = []
+        }
+        parent.sample.phenotype.push(parent.phenotype)
+        console.log("added Item and close", parent.sample)
+        parent.phenotype = {}
+
+
+        document.querySelector(".subform-test select-field-filter").value = ""
+        document.querySelector(".subform-test text-field-filter").value = ""
+    }
+
+    onCancelSubForm(e) {
+        
+        
+    }
+
 
     render() {
         return html`
-            <data-form  .data=${this.sample}
-                        .config="${this._config}"
-                        @fieldChange="${e => this.onFieldChange(e)}"
-                        @clear="${this.onClear}"
-                        @submit="${this.onSubmit}">
+            <data-form  
+                .data=${this.sample}
+                .config="${this._config}"
+                @fieldChange="${e => this.onFieldChange(e)}"
+                @clear="${this.onClear}"
+                @submit="${this.onSubmit}">
             </data-form>
         `;
     }
