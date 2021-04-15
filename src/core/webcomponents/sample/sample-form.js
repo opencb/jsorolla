@@ -130,7 +130,7 @@ export default class SampleForm extends LitElement {
                             field: "name",
                             type: "input-text",
                             display: {
-                                placeholder: "Sample description...",
+                                placeholder: "Name ...",
                             }
                         },
                         {
@@ -145,7 +145,7 @@ export default class SampleForm extends LitElement {
                             }
                         },
                         {
-                            name: "IndividualId",
+                            name: "Individual ID",
                             field: "individualId",
                             type: "input-text",
                             display: {
@@ -162,7 +162,6 @@ export default class SampleForm extends LitElement {
                             field: "status.name",
                             type: "input-text",
                             display: {
-                                rows: 3,
                                 placeholder: "Sample description...",
                             }
                         },
@@ -196,19 +195,22 @@ export default class SampleForm extends LitElement {
                             type: "input-text"
                         },
                         {
-                            name: "Lab Sample Id",
+                            name: "Lab Sample ID",
                             field: "processing.labSambpleId",
                             type: "input-text"
                         },
                         {
-                            name: "Extraction Method",
+                            name: "Quantity",
                             field: "processing.quantity",
                             type: "input-text"
                         },
                         {
-                            name: "Extraction Method",
+                            name: "Date",
                             field: "processing.date",
-                            type: "input-text"
+                            type: "input-date",
+                            display: {
+                                render: date => moment(date, "YYYYMMDDHHmmss").format("DD/MM/YYYY"),
+                            }
                         }
                     ]
                 },
@@ -238,7 +240,10 @@ export default class SampleForm extends LitElement {
                         {
                             name: "Date",
                             field: "collection.date",
-                            type: "input-text"
+                            type: "input-date",
+                            display: {
+                                render: date => moment(date, "YYYYMMDDHHmmss").format("DD/MM/YYYY"),
+                            }
                         }
                     ]
                 }

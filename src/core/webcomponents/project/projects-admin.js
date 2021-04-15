@@ -98,22 +98,22 @@ export default class ProjectsAdmin extends LitElement {
                     <a id="dLabel" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         <i class="fas fa-ellipsis-v fa-lg" style="color:#fff"></i>
                     </a>
-                    <ul class="dropdown-menu disabled" aria-labelledby="dLabel" role="menu">
-                        <li class="${!isAdmin ? "disabled" : ""}"> 
+                    <ul class="dropdown-menu" aria-labelledby="dLabel" role="menu">
+                        <li class="${!isAdmin ? "disabled" : "item-pointer"}"> 
                             <a @click="${() => this.actionModal('Study', 'show', project)}">
                                 <i class="fas fa-file icon-padding"></i> New Study
                             </a>
                         </li>
                         <li class="divider"></li>
-                        <li class="${!isAdmin ? "disabled" : ""}"> 
+                        <li class="${!isAdmin ? "disabled" : "item-pointer"}"> 
                             <a @click="${() => this.actionModal('Project', 'show', project, 'UPDATE')}">
                                 <i class="fas fa-edit icon-padding"></i>Edit
                             </a>
                         </li>
-                        <li class="${!isAdmin ? "disabled" : ""}"> 
+                        <li class="${!isAdmin ? "disabled" : "item-pointer"}"> 
                             <a><i class="fas fa-copy icon-padding"></i> Duplicate</a>
                         </li>
-                        <li class="${!isAdmin ? "disabled" : ""}"> 
+                        <li class="${!isAdmin ? "disabled" : "item-pointer"}"> 
                             <a><i class="fas fa-trash icon-padding"></i> Delete</a>
                         </li>
                     </ul>
@@ -135,7 +135,7 @@ export default class ProjectsAdmin extends LitElement {
                                 <span>${project.description}</span>
                             ` : html`
                                 <span style="font-style: italic">No description available</span>`
-            }
+                            }
                         </div>
                         <div>
                             <span>${project.organism.scientificName} ${project.organism.assembly}</span>
@@ -172,7 +172,7 @@ export default class ProjectsAdmin extends LitElement {
                                 </div>
                             </a>
                         </div>`
-            )}
+                    )}
                 </div>
             </div>
         `
@@ -220,7 +220,7 @@ export default class ProjectsAdmin extends LitElement {
                                             <span>${project.description}</span>
                                         ` : html`
                                             <span style="font-style: italic">No description available</span>`
-                                }
+                                        }
                                     </div>
                                     <div>
                                         <span>${project.organism.scientificName} ${project.organism.assembly}</span>
@@ -252,7 +252,7 @@ export default class ProjectsAdmin extends LitElement {
                     <div class="panel panel-default child shadow-sm">
                         <div class="panel-body studies" style="color: black">
                             ${this.opencgaSession.study.fqn === study.fqn ?
-                                html`<span class="label label-success pull-right">Current</span>` : ""}
+                html`<span class="label label-success pull-right">Current</span>` : ""}
                             <div class="text-block text-center"  style="padding-top:10px;">
                                 <div>
                                     <h4>${study.name}</h4>
@@ -364,12 +364,16 @@ export default class ProjectsAdmin extends LitElement {
                 .disabled:active{
                     pointer-events:none
                 }
+
+                .item-pointer > a{
+                    cursor:pointer
+                }
             </style>
 
             <div>
                 <!-- Show Project by User-->
                 ${this.owners.map(owner => {
-                    return html`
+            return html`
                         <div class="row" style="border-bottom: rgba(201, 76, 76, 0.7);}">
                             <div class="col-md-6">
                                 <h2><i class="fas fa-user fa-sm" style="padding-right: 10px"></i>${owner}</h2>
@@ -394,7 +398,7 @@ export default class ProjectsAdmin extends LitElement {
                                 ${this.opencgaSession.projects.filter(proj => proj.fqn.startsWith(owner + "@")).map(project => this.renderProjectAndStudiesAlt(project, owner))}
                             </div>
                         </div>`
-                })}
+        })}
             </div>
 
             <!-- TODO: These modals can be a single one, the component will be rendered according to whether you have selected: study or project inside div. modal-body -->

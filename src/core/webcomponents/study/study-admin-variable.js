@@ -15,16 +15,16 @@
  */
 
 import { html, LitElement } from "/web_modules/lit-element.js";
-import UtilsNew from "../../utilsNew.js";
-import DetailTabs from "../commons/view/detail-tabs.js";
+import UtilsNew from "./../../utilsNew.js";
+import GridCommons from "../commons/grid-commons.js";
 import OpencgaCatalogUtils from "../../clients/opencga/opencga-catalog-utils.js"
+import "../permission/permission-browser-grid.js";
 
-export default class StudyAdminConfiguration extends LitElement {
+
+export default class StudyAdminVariable extends LitElement {
 
     constructor() {
         super();
-
-        // Set status and init private properties
         this._init();
     }
 
@@ -34,10 +34,13 @@ export default class StudyAdminConfiguration extends LitElement {
 
     static get properties() {
         return {
-            study: {
+            opencgaSession: {
                 type: Object
             },
-            opencgaSession: {
+            studyId: {
+                type: String
+            },
+            study: {
                 type: Object
             },
             config: {
@@ -54,43 +57,40 @@ export default class StudyAdminConfiguration extends LitElement {
         super.connectedCallback();
 
         this._config = { ...this.getDefaultConfig(), ...this.config };
-    }
-
-    // Note: WE NEED this function because we are rendering using JQuery not lit-element API
-    firstUpdated(changedProperties) {
-
+    
     }
 
     update(changedProperties) {
 
-        // if (changedProperties.has("study")) {
-        // }
-
         super.update(changedProperties);
+    }
+
+    studyObserver() {
+
     }
 
     getDefaultConfig() {
         return {
             items: [
                 {
-                    id: "clinical",
-                    name: "Clinical",
-                    icon: "fas fa-notes-medical",
+                    id: "view-variable",
+                    name: "View Variable",
+                    icon: "fa fa-table icon-padding",
                     active: true,
                     render: () => {
                         return html`
-                            <div class="guard-page">
-                                <i class="fas fa-pencil-ruler fa-5x"></i>
-                                <h3>Component under construction</h3>
-                                <h3>(Coming Soon)</h3>
-                            </div>`;
+                        <div class="guard-page">
+                            <i class="fas fa-pencil-ruler fa-5x"></i>
+                            <h3>Component under construction</h3>
+                            <h3>(Coming Soon)</h3>
+                        </div>`;
                     }
                 },
                 {
-                    id: "variants",
-                    name: "Variants",
-                    icon: "fas fa-dna",
-                    // active: false,
+                    id: "create-variabel",
+                    name: "Create Variable",
+                    icon: "fas fa-clipboard-list",
+                    active: false,
                     render: () => {
                         return html`
                             <div class="guard-page">
@@ -101,32 +101,30 @@ export default class StudyAdminConfiguration extends LitElement {
                     }
                 }
             ]
-    };
-}
-
-
-render() {
-
-
-    if(!OpencgaCatalogUtils.isAdmin(this.opencgaSession.study,this.opencgaSession.user.id)){
-        return html`
-        <div class="guard-page">
-            <i class="fas fa-lock fa-5x"></i>
-            <h3>No permission to view this page</h3>
-        </div>`
+        };
     }
 
-    return html`
-        <div style="margin: 20px">
-            <detail-tabs
-                    .config="${this._config}"
-                    .mode="${DetailTabs.PILLS_MODE}"
-                    .opencgaSession="${this.opencgaSession}">
-            </detail-tabs>
-        </div>
-            
-        `;
-}
+    render() {
+
+        if (!OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id)) {
+            return html`
+            <div class="guard-page">
+                <i class="fas fa-lock fa-5x"></i>
+                <h3>No permission to view this page</h3>
+            </div>`
+        }
+
+        return html`
+            <div style="margin: 20px">
+                <detail-tabs
+                        .data=${this.study}
+                        .mode=${"pills"}
+                        .config="${this._config}"
+                        .opencgaSession="${this.opencgaSession}">
+                </detail-tabs>
+            </div>
+            `;
+    }
 }
 
-customElements.define("study-admin-configuration", StudyAdminConfiguration);
+customElements.define("study-admin-variable", StudyAdminVariable);

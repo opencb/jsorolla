@@ -184,9 +184,9 @@ export default class IndividualForm extends LitElement {
                 //     title: "Review Variant",
                 //     buttonClass: "btn-link"
                 // },
+                labelWidth: 3,
                 with: "8",
-                labelAlign: "left",
-                labelWidth: "4",
+                labelAlign: "right",
                 defaultLayout: "horizontal",
             },
             sections: [

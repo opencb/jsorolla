@@ -423,9 +423,8 @@ export default class StudyAdminUsers extends LitElement {
     onGroupRemove(e) {
         let groupIds = [];
         for (let groupId of this.removeGroupSet.keys()) {
-            groupIds.push(groupId);
+            groupIds.push(groupId)
         }
-
         this.opencgaSession.opencgaClient.studies().updateGroups(this.study.fqn, { id: groupIds }, { action: "REMOVE" })
             .then(res => {
                 this.removeUserSet = new Set();
@@ -435,12 +434,7 @@ export default class StudyAdminUsers extends LitElement {
                 // Option 2. CatalogUtils.notify("studyUpdateRequest", this.study.fqn);
                 // Option 3. CatalogUtils.notify(STUDY_UPDATE_REQUEST, this.study.fqn), true, true;
                 this.notifyStudyUpdateRequest();
-
-                Swal.fire(
-                    "Group Delete",
-                    "Group deleted correctly.",
-                    "success"
-                );
+                this.showMessage("Group Delete","Group deleted correctly.","success")
             })
             .catch(err => {
                 console.error(err);
@@ -456,6 +450,10 @@ export default class StudyAdminUsers extends LitElement {
             bubbles: true,
             composed: true
         }));
+    }
+
+    showMessage(title,message,status){
+        Swal.fire(title,message,status);
     }
     
 

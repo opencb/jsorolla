@@ -18,12 +18,14 @@ import { html, LitElement } from "/web_modules/lit-element.js";
 import UtilsNew from "./../../utilsNew.js";
 import "./study-admin-users.js";
 import "./study-admin-permissions.js";
+import "./study-admin-variable.js";
 import "./study-admin-audit.js";
 import "./study-admin-sample.js";
 import "./study-admin-individual.js";
 import "./study-admin-family.js";
 import "./study-admin-cohort.js";
 import "./study-admin-configuration.js"
+
 
 export default class StudyAdmin extends LitElement {
 
@@ -354,7 +356,11 @@ export default class StudyAdmin extends LitElement {
                     <!-- Content Module  -->
                     <div class="content-tab-wrapper admin-content-tab" style="margin: 0px 20px">
                         <div id="${this._prefix}Dashboard" role="tabpanel" class="tab-pane content-tab">
-                            <h2>Dashboard</h2>
+                            <div class="guard-page">
+                                <i class="fas fa-pencil-ruler fa-5x"></i>
+                                <h3>Component under construction</h3>
+                                <h3>(Coming Soon)</h3>
+                            </div>;
                         </div>
 
                         <div id="${this._prefix}UsersAndGroups" role="tabpanel" class="tab-pane content-tab active">
@@ -369,7 +375,7 @@ export default class StudyAdmin extends LitElement {
 
                         <div id="${this._prefix}VaribleSets" role="tabpanel" class="tab-pane content-tab">
                             <h2><i class="fas fa-key icon-padding" style="padding-right: 10px"></i>Variable Sets</h2>
-                            <study-admin-permissions .opencgaSession="${this.opencgaSession}" .study="${this.study}"></study-admin-permissions>
+                            <study-admin-variable .opencgaSession="${this.opencgaSession}" .study="${this.study}"></study-admin-variable>
                         </div>
 
                         <div id="${this._prefix}Audit" role="tabpanel" class="tab-pane content-tab">
