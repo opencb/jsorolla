@@ -17,6 +17,7 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../utilsNew.js";
 import "./../../commons/view/detail-tabs.js";
+import GridCommons from "../../commons/grid-commons.js";
 import VariantInterpreterGridFormatter from "../../variant/interpretation/variant-interpreter-grid-formatter.js";
 import VariantGridFormatter from "../../variant/variant-grid-formatter.js";
 
@@ -55,7 +56,13 @@ export default class RgaIndividualFamily extends LitElement {
         this.gridId = this._prefix + "KnockoutIndividualFamGrid";
         this.tableDataMap = {};
         this.individual = null;
-        this.wip = true;
+        this.wip = false;
+    }
+
+    connectedCallback() {
+        super.connectedCallback();
+        this.gridCommons = new GridCommons(this.gridId, this, this._config);
+
     }
 
     async updated(changedProperties) {
@@ -79,7 +86,13 @@ export default class RgaIndividualFamily extends LitElement {
                 // motherSampleId:LP3000021-DNA_B04
                 // fatherSampleId:LP3000018-DNA_A03
 
-                this.sampleIds = ["LP3000108-DNA_B02", "LP3000021-DNA_B04", "LP3000018-DNA_A03"];
+                this.sampleIds = [
+                    this.individual.sampleId,
+                    this.individual.fatherSampleId2,
+                    this.individual.motherSampleId
+                ];
+                console.error("this.sampleIds", this.sampleIds)
+
                 /**
                  * this.tableDataMap is the full list of unique variants per individual
                  */
@@ -275,6 +288,7 @@ export default class RgaIndividualFamily extends LitElement {
     }
 
     gtFormatter(value, sampleIndex) {
+        console.error("value?.studies?.[0]", value?.studies?.[0])
         if (value?.studies?.[0]?.sampleDataKeys.length) {
             const gtIndex = value.studies[0].sampleDataKeys.indexOf("GT");
             // console.log("gtIndex", gtIndex)

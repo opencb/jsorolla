@@ -166,10 +166,8 @@ export default class RgaVariantGrid extends LitElement {
             },
             {
                 title: "dbSNP",
-                field: "dbSNP",
-                formatter: (value, row) => {
-                    return this.dbSNPFormatter(value, row);
-                }},
+                field: "dbSnp"
+            },
             {
                 title: "Alternate allele frequency",
                 field: "populationFrequencies",
