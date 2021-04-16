@@ -88,14 +88,18 @@ class VariantInterpreterQcOverview extends LitElement {
 
     clinicalAnalysisObserver() {
         if (this.opencgaSession && this.clinicalAnalysis?.proband?.samples) {
-            let somaticSample = this.clinicalAnalysis.proband.samples.find(sample => sample.somatic === true);
-            debugger
-            if (somaticSample) {
-                let bamFileId = somaticSample.fileIds.find(fileId => fileId.endsWith(".bam"));
-                this.opencgaSession.opencgaClient.files().info(bamFileId, {study: this.opencgaSession.study.fqn})
+            let bamFileIds = [];
+            for (const sample of this.clinicalAnalysis.proband.samples) {
+                bamFileIds.push(sample.fileIds.find(fileId => fileId.endsWith(".bam")));
+            }
+            if (bamFileIds) {
+                this.opencgaSession.opencgaClient.files().info(bamFileIds.join(","), {study: this.opencgaSession.study.fqn})
                     .then(response => {
-                        let annotSet = response.responses[0].results[0].annotationSets.find(annotSet => annotSet.id === "opencga_alignment_stats");
-                        this.alignmentStats = [annotSet.annotations];
+                        this.alignmentStats = [];
+                        for (const file of response.responses[0].results) {
+                            let annotSet = file.annotationSets.find(annotSet => annotSet.id === "opencga_alignment_stats");
+                            this.alignmentStats.push(annotSet.annotations);
+                        }
                     })
                     .catch(response => {
                         console.error("An error occurred fetching clinicalAnalysis: ", response);
