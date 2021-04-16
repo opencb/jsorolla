@@ -143,7 +143,7 @@ export default class OpencgaSampleGrid extends LitElement {
                         limit: params.data.limit,
                         skip: params.data.offset || 0,
                         count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
-                        exclude: "qualityControl,annotationSets",
+                        exclude: "qualityControl",
                         ...filters
                     };
                     // Store the current filters
