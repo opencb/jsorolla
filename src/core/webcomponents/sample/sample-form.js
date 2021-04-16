@@ -259,6 +259,10 @@ export default class SampleForm extends LitElement {
                             field: "phenotype",
                             type: "custom",
                             display: {
+                                layout: "vertical",
+                                defaultLayout: "vertical",
+                                width: 12,
+                                style: "padding-left: 0px",
                                 render: (sample) => html`
                                         <phenotype-form 
                                             .sample="${this.sample}"
