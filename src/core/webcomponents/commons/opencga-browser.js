@@ -150,7 +150,6 @@ export default class OpencgaBrowser extends LitElement {
     queryObserver() {
         if (this?.opencgaSession?.study?.fqn) {
             // NOTE UtilsNew.objectCompare avoid repeating remote requests.
-            console.error("query observer", this.query)
             if (!UtilsNew.objectCompare(this.query, this._query)) {
                 this._query = this.query;
                 if (this.query) {
