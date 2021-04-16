@@ -173,7 +173,7 @@ export default class VariantBrowser extends LitElement {
             this.facetQuery = {
                 ...this.preparedQuery,
                 study: this.opencgaSession.study.fqn,
-                // timeout: 60000,
+                // FIXME rename fields to field
                 fields: Object.values(this.selectedFacetFormatted).map(v => v.formatted).join(";")
             };
             this._changeView("facet-tab");
