@@ -33,13 +33,13 @@ class VariantInterpreterQcSummary extends LitElement {
 
     static get properties() {
         return {
-            opencgaSession: {
-                type: Object
-            },
             clinicalAnalysisId: {
                 type: String
             },
             clinicalAnalysis: {
+                type: Object
+            },
+            opencgaSession: {
                 type: Object
             },
             config: {
@@ -50,18 +50,20 @@ class VariantInterpreterQcSummary extends LitElement {
 
     _init() {
         this._prefix = UtilsNew.randomString(8);
+
         this._config = this.getDefaultConfig();
     }
 
     connectedCallback() {
         super.connectedCallback();
+
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
     updated(changedProperties) {
-        // if (changedProperties.has("clinicalAnalysis")) {
-        //     this.setAlignmentstats();
-        // }
+        if (changedProperties.has("clinicalAnalysis")) {
+            this.clinicalAnalysisObserver();
+        }
 
         if (changedProperties.has("clinicalAnalysisId")) {
             this.clinicalAnalysisIdObserver();
@@ -77,6 +79,22 @@ class VariantInterpreterQcSummary extends LitElement {
             this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
                 .then(response => {
                     this.clinicalAnalysis = response.responses[0].results[0];
+                    // this.requestUpdate();
+                })
+                .catch(response => {
+                    console.error("An error occurred fetching clinicalAnalysis: ", response);
+                });
+        }
+    }
+
+    clinicalAnalysisObserver() {
+        if (this.opencgaSession && this.clinicalAnalysis) {
+            let somaticSample = this.clinicalAnalysis.proband?.samples.find(s => s.somatic);
+            let bamFile = somaticSample.fileIds.find(f => f.endsWith(".bam"));
+            this.opencgaSession.opencgaClient.files().info(bamFile, {study: this.opencgaSession.study.fqn})
+                .then(response => {
+                    let annotationSet = response.responses[0].results[0].annotationSets.find(annotSet => annotSet.variableSetId === "bamQcStats");
+                    this.annotations = annotationSet.annotations;
                     this.requestUpdate();
                 })
                 .catch(response => {
@@ -102,37 +120,24 @@ class VariantInterpreterQcSummary extends LitElement {
                     collapsed: false,
                     elements: [
                         {
-                            name: "Case ID",
-                            field: "id"
+                            name: "SD insert size",
+                            field: "sdInsertSize",
+                            type: "basic"
                         },
                         {
-                            name: "Proband",
-                            field: "proband.id",
-                            type: "custom",
-                            display: {
-                                render: probandId => html`<strong>${probandId}</strong>`
-                            }
+                            name: "Average insert size",
+                            field: "avgInsertSize",
+                            type: "basic"
                         },
                         {
-                            name: "Disorder",
-                            field: "disorder",
-                            type: "custom",
-                            display: {
-                                render: disorder => {
-                                    if(disorder) {
-                                        let id;
-                                        if (disorder.id?.startsWith("OMIM:")) {
-                                            id = html`<a href="https://omim.org/entry/${disorder.id.split(":")[1]}" target="_blank">${disorder.id}</a>`;
-                                        }
-                                        return html`${disorder.name || "-"} (${id})`
-                                    } else return "-";
-
-                                }
-                            }
+                            name: "Duplicate read rate",
+                            field: "duplicateReadRate",
+                            type: "basic"
                         },
                         {
-                            name: "Analysis Type",
-                            field: "type"
+                            name: "Average sequence depth",
+                            field: "avgSequenceDepth",
+                            type: "basic"
                         },
                     ]
                 },
@@ -144,23 +149,23 @@ class VariantInterpreterQcSummary extends LitElement {
         // Check Project exists
         if (!this.opencgaSession.project) {
             return html`
-                    <div>
-                        <h3><i class="fas fa-lock"></i> No public projects available to browse. Please login to continue</h3>
-                    </div>`;
+                <div>
+                    <h3><i class="fas fa-lock"></i> No public projects available to browse. Please login to continue</h3>
+                </div>`;
         }
 
         // Check Clinical Analysis exist
         if (!this.clinicalAnalysis) {
             return html`
-                    <div>
-                        <h3><i class="fas fa-lock"></i> No Case found</h3>
-                    </div>`;
+                <div>
+                    <h3><i class="fas fa-lock"></i> No Case found</h3>
+                </div>`;
         }
 
         // Alignment stats are the same for FAMILY and CANCER analysis
         return html`
             <div class="container" style="margin: 20px 10px">
-                <data-form .data=${this.clinicalAnalysis} .config="${this._config}"></data-form>
+                <data-form .data=${this.annotations} .config="${this._config}"></data-form>
             </div>
         `;
     }
