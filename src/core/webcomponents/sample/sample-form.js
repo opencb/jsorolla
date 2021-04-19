@@ -20,6 +20,7 @@ import "../commons/tool-header.js";
 import "./phenotype.form.js";
 
 
+
 export default class SampleForm extends LitElement {
 
     // static VIEW_MODE = "view";
@@ -61,13 +62,41 @@ export default class SampleForm extends LitElement {
         // We initialise the sample in for CREATE
         this.sample = {}
         this.phenotype = {}
-        
+
     }
 
     connectedCallback() {
         super.connectedCallback();
+        this.updateParams = {}
         this._config = { ...this.getDefaultConfig(), ...this.config };
     }
+
+    update(changedProperties) {
+        if (changedProperties.has("study")) {
+            this.studyObserver()
+        }
+
+        if (changedProperties.has("sample")) {
+            this.sampleObserver()
+        }
+
+        super.update(changedProperties);
+    }
+
+    studyObserver() {
+
+
+    }
+
+    sampleObserver(){
+        if(this.mode === SampleForm.UPDATE_MODE){
+            this._sample = JSON.parse(JSON.stringify(this.sample))
+            this.requestUpdate()
+        }
+
+
+    }
+
 
     dispatchSessionUpdateRequest() {
         this.dispatchEvent(new CustomEvent("sessionUpdateRequest", {
@@ -254,7 +283,7 @@ export default class SampleForm extends LitElement {
                     ]
                 },
                 {
-                    elements:[
+                    elements: [
                         {
                             field: "phenotype",
                             type: "custom",
@@ -275,71 +304,11 @@ export default class SampleForm extends LitElement {
                         }
                     ]
                 },
-                // {
-                //     elements: [
-                //         {
-                //             field: "phenotype",
-                //             type: "custom",
-                //             display: {
-                //                 style: "border:dashed 1px darkgray, padding:10px",
-                //                 render: (sample) => {
-                //                     let innerConfig = {
-                //                         title: "Edit",
-                //                         icon: "fas fa-edit",
-                //                         buttons: {
-                //                             show: true,
-                //                             cancelText: "Cancel",
-                //                             showText: "Add a phenotype",
-                //                             test: true
-                //                         },
-                //                         display: {
-                //                             labelWidth: 3,
-                //                             labelAlign: "right",
-                //                             defaultLayout: "horizontal",
-                //                             type: "subform",
-                //                         },
-                //                         sections: [
-                //                             {
-                //                                 elements: [
-                //                                     {
-                //                                         name: "Age of on set",
-                //                                         field: "phenotype.ageOfOnset",
-                //                                         type: "input-text",
-                //                                         display: {
-                //                                             placeholder: "Name ...",
-                //                                         }
-                //                                     },
-                //                                     {
-                //                                         name: "Status",
-                //                                         field: "phenotype.status",
-                //                                         type: "select",
-                //                                         allowedValues: ["OBSERVED", "NOT_OBSERVED", "UNKNOW"],
-                //                                         display: {
-                //                                             placeholder: "select a status...",
-                //                                         }
-                //                                     },
-                //                                 ]
-                //                             }
-                //                         ]
-                //                     }
-
-                //                     return html`
-                //                     <data-form  
-                //                         .data=${this.sample}
-                //                         .config="${innerConfig}"
-                //                         @fieldChange="${e => this.onFieldChange(e)}"
-                //                         @clear="${this.onClear}"
-                //                         @submitSubform="${this.onAddItem}"
-                //                         @cancelSubform="${this.onCancelSubForm}">
-                //                     </data-form>`
-                //                 }
-                //             }
-                //         }
-                //     ]
-                // }
             ]
         }
     }
+
+
 
     saveSample() {
         // this.opencgaSession.opencgaClient.projects().create(this.project)
@@ -384,42 +353,71 @@ export default class SampleForm extends LitElement {
 
 
     onFieldChange(e) {
-        let param = e.detail.param;
-        let value = e.detail.value;
-        console.log("Woring", e.detail)
+        // let param = e.detail.param;
+        let field = ""
+        let prop = ""
+        // let value = e.detail.value;
 
-        if (param.includes(".")) {
-            let cat = param.split(".")[0]
-            let prop = param.split(".")[1] 
-            
-            if (param.search("phenotype") >= 0) {
-                this.phenotype[prop] = value
-                return
-            }
+        // if (param.includes(".")) {
+        //     let cat = param.split(".")[0]
+        //     let prop = param.split(".")[1]
 
-            if (!this.sample[cat]) {
-                this.sample[cat] = {};
-            }
+        //     if (param.search("phenotype") >= 0) {
+        //         this.phenotype[prop] = value
+        //         return
+        //     }
 
-            this.sample[cat][prop] = value;
-            return
-        }
+        //     if (!this.sample[cat]) {
+        //         this.sample[cat] = {};
+        //     }
 
-        this.sample[param] = value
-        console.log("test: ",this.sample,this.phenotype)
-        
-
-        // switch (e.detail.param) {
-        //     case "id":
-        //     case "individualId":
-        //     case "description":
-        //         this.sample[e.detail.param] = e.detail.value;
-        //         break;
-        //     case "phenotype.ageOfOnset":
-        //     case "phenotype.status":
-        //         param = e.detail.param.split(".")[1]
-        //         this.phenotype[param] = e.detail.value;
+        //     this.sample[cat][prop] = value;
+        //     return
         // }
+
+        // this.sample[param] = value
+        // console.log("test: ", this.sample, this.phenotype)
+
+
+        switch (e.detail.param) {
+            case "id":
+            case "description":
+            case "individualId":
+            case "somatic":
+                if (this._sample[e.detail.param] !== e.detail.value && e.detail.value !== null) {
+                    this.sample[e.detail.param] = e.detail.value;
+                    this.updateParams[e.detail.param] = e.detail.value;
+                } else {
+                    this.sample[e.detail.param] = this._sample[e.detail.param].id;
+                    delete this.updateParams[e.detail.param];
+                }
+                break;
+            case "status.name":
+            case "status.description":
+            case "processing.product":
+            case "processing.preparationMethod":
+            case "processing.extrationMethod":
+            case "processing.labSambpleId":
+            case "processing.quantity":
+            case "processing.date":
+            case "collection.tissue":
+            case "collection.organ":
+            case "collection.quantity":
+            case "collection.method":
+            case "collection.date":
+                field = e.detail.param.split(".")[0];
+                prop = e.detail.param.split(".")[1];
+                if(this._sample[field]){
+                    this.sample[field] = {}
+                }
+
+                this.sample[field][prop] = e.detail.value
+                break;
+            case "phenotype.ageOfOnset":
+            case "phenotype.status":
+                prop = e.detail.param.split(".")[1]
+                this.phenotype[prop] = e.detail.value;
+        }
     }
 
     onClear() {
@@ -451,8 +449,8 @@ export default class SampleForm extends LitElement {
     }
 
     onCancelSubForm(e) {
-        
-        
+
+
     }
 
 
