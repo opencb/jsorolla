@@ -325,7 +325,7 @@ export default class VariantBrowser extends LitElement {
                                 onlyCohortAll: false,
                                 tooltip: tooltips.cohort,
                                 // cohorts: this.cohorts
-                                cohorts: this.opencgaSession.project.studies
+                                cohorts: this.opencgaSession?.project?.studies
                             }
                         ]
                     },
