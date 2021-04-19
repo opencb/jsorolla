@@ -88,10 +88,11 @@ export default class RgaIndividualFamily extends LitElement {
 
                 this.sampleIds = [
                     this.individual.sampleId,
-                    this.individual.fatherSampleId2,
+                    this.individual.fatherSampleId,
                     this.individual.motherSampleId
                 ];
-                console.error("this.sampleIds", this.sampleIds)
+                // in case fatherSampleId is missing, the response studies[].samples[] of variants().query() would contains only 2 entries
+                this.motherSampleIndx = this.individual.fatherSampleId && this.individual.motherSampleId ? 2 : 1;
 
                 /**
                  * this.tableDataMap is the full list of unique variants per individual
@@ -230,17 +231,20 @@ export default class RgaIndividualFamily extends LitElement {
                     colspan: 2
                 },
                 {
-                    title: "Mother<br>" + this.sampleIds[1],
+                    title: "Father<br>" + this.sampleIds[1],
                     field: "id",
-                    colspan: 2
+                    colspan: 2,
+                    visible: !!this.sampleIds[1]
                 },
                 {
-                    title: "Father<br>" + this.sampleIds[2],
+                    title: "Mother<br>" + this.sampleIds[2],
                     field: "",
-                    colspan: 2
+                    colspan: 2,
+                    visible: !!this.sampleIds[2]
                 }
             ],
             [
+                // proband
                 {
                     title: "GT",
                     field: "variantData",
@@ -248,54 +252,53 @@ export default class RgaIndividualFamily extends LitElement {
                 },
                 {
                     title: "Filter",
-                    field: "filter",
-                    formatter: filters => {
-                        if (filters) {
-                            return filters.split(/[,;]/).map(filter => `<span class="badge">${filter}</span>`).join("");
-                        }
-                    }
+                    field: "variantData",
+                    formatter: value => this.filterFormatter(value, 0)
                 },
+                // father
                 {
                     title: "GT",
                     field: "variantData",
+                    visible: !!this.sampleIds[1],
                     formatter: value => this.gtFormatter(value, 1)
                 },
                 {
                     title: "Filter",
-                    field: "filter",
-                    formatter: filters => {
-                        if (filters) {
-                            return filters.split(/[,;]/).map(filter => `<span class="badge">${filter}</span>`).join("");
-                        }
-                    }
+                    field: "variantData",
+                    visible: !!this.sampleIds[1],
+                    formatter: value => this.filterFormatter(value, 1)
+
                 },
+                // mother
                 {
                     title: "GT",
                     field: "variantData",
-                    formatter: value => this.gtFormatter(value, 2)
+                    visible: !!this.sampleIds[2],
+                    formatter: value => this.gtFormatter(value, this.motherSampleIndx)
                 },
                 {
                     title: "Filter",
-                    field: "filter",
-                    formatter: filters => {
-                        if (filters) {
-                            return filters.split(/[,;]/).map(filter => `<span class="badge">${filter}</span>`).join("");
-                        }
-                    }
+                    field: "variantData",
+                    visible: !!this.sampleIds[2],
+                    formatter: value => this.filterFormatter(value, this.motherSampleIndx)
+
                 }
             ]
         ];
     }
 
+    filterFormatter(value, sampleIndex) {
+        const fileIndex = value?.studies?.[0]?.samples?.[sampleIndex]?.fileIndex;
+        if (fileIndex !== undefined) {
+            return `<span class="badge">${value?.studies?.[0]?.files[fileIndex].data.FILTER}</span>`;
+        }
+    }
+
     gtFormatter(value, sampleIndex) {
-        console.error("value?.studies?.[0]", value?.studies?.[0])
         if (value?.studies?.[0]?.sampleDataKeys.length) {
             const gtIndex = value.studies[0].sampleDataKeys.indexOf("GT");
-            // console.log("gtIndex", gtIndex)
             if (~gtIndex) {
-                // console.log("gtIndex", gtIndex)
-                // console.log("sampleGT", value.studies[0].samples[sampleIndex])
-                return value.studies[0].samples?.[sampleIndex].data[gtIndex];
+                return value.studies[0].samples?.[sampleIndex]?.data?.[gtIndex];
             }
         }
     }
@@ -303,7 +306,6 @@ export default class RgaIndividualFamily extends LitElement {
     getDefaultConfig() {
         return {
             title: "Individual"
-
         };
     }
 
