@@ -16,18 +16,28 @@
 
 import UtilsNew from "../../utilsNew.js";
 
-export default class CatalogUtils {
+export default class CatalogWebUtils {
 
     constructor() {
 
     }
 
-    static getUsers(study) {
-        let _users = study?.groups
-            .find(group => group.id === "@members")
-            .userIds.filter(user => user !== "*");
-        return _users;
+    // static getUsers(study) {
+    //     let _users = study?.groups
+    //         .find(group => group.id === "@members")
+    //         .userIds.filter(user => user !== "*");
+    //     return _users;
+    // }
+
+    notify() {
+        this.dispatchEvent(new CustomEvent("sessionUpdateRequest", {
+            detail: {
+            },
+            bubbles: true,
+            composed: true
+        }));
     }
+
     static parseVariableSetVariablesForDisplay(variables, tags, margin, config) {
         config = Object.assign({
             marginStep: 15,

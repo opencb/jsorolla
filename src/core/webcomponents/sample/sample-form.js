@@ -20,15 +20,14 @@ import "../commons/tool-header.js";
 import "./phenotype.form.js";
 
 
-
 export default class SampleForm extends LitElement {
 
-    // static VIEW_MODE = "view";
     static UPDATE_MODE = "update";
     static CREATE_MODE = "create";
 
     constructor() {
         super();
+
         this._init();
     }
 
@@ -41,13 +40,14 @@ export default class SampleForm extends LitElement {
             sample: {
                 type: Object
             },
-            study: {
-                type: Object
-            },
             mode: {
                 type: String
             },
             opencgaSession: {
+                type: Object
+            },
+            // TODO Thisnk abut the need of this parameter
+            study: {
                 type: Object
             },
             config: {
@@ -60,44 +60,35 @@ export default class SampleForm extends LitElement {
         this._prefix = UtilsNew.randomString(8);
 
         // We initialise the sample in for CREATE
-        this.sample = {}
-        this.phenotype = {}
-
+        this.sample = {};
+        this.updateParams = {};
+        this.phenotype = {};
     }
 
     connectedCallback() {
         super.connectedCallback();
-        this.updateParams = {}
+
+        this.updateParams = {};
         this._config = { ...this.getDefaultConfig(), ...this.config };
     }
 
     update(changedProperties) {
-        if (changedProperties.has("study")) {
-            this.studyObserver()
-        }
-
         if (changedProperties.has("sample")) {
-            this.sampleObserver()
+            this.sampleObserver();
         }
 
         super.update(changedProperties);
     }
 
-    studyObserver() {
-
-
-    }
-
-    sampleObserver(){
-        if(this.mode === SampleForm.UPDATE_MODE){
-            this._sample = JSON.parse(JSON.stringify(this.sample))
-            this.requestUpdate()
+    sampleObserver() {
+        // When updating wee need to keep a private copy of the original object
+        if (this.sample && this.mode === SampleForm.UPDATE_MODE) {
+            this._sample = JSON.parse(JSON.stringify(this.sample));
+            this.requestUpdate();
         }
-
-
     }
 
-
+    // TODO move to a generic Utils class
     dispatchSessionUpdateRequest() {
         this.dispatchEvent(new CustomEvent("sessionUpdateRequest", {
             detail: {
