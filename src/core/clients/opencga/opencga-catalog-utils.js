@@ -16,6 +16,13 @@
 
 export default class OpencgaCatalogUtils {
 
+     static getUsers(study) {
+        let _users = study?.groups
+            .find(group => group.id === "@members")
+            .userIds.filter(user => user !== "*");
+        return _users;
+    }
+
     static getUserIds(study, groups = ["@members"]) {
         if (!Array.isArray(groups)) {
             groups = [groups];

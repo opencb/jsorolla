@@ -18,7 +18,8 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
 import "../commons/view/data-form.js";
 import {NotificationQueue} from "../Notification.js";
-import CatalogUtils from "../commons/catalog-utils.js";
+// import CatalogUtils from "../commons/catalog-utils.js";
+import OpencgaCatalogUtils from "../../clients/opencga/opencga-catalog-utils.js"
 import "../commons/filters/clinical-priority-filter.js";
 
 export default class OpencgaClinicalAnalysisWriter extends LitElement {
@@ -69,7 +70,7 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
             this.clinicalAnalysis._users = [];
             if (this.opencgaSession && this.opencgaSession.study) {
                 this.checkProjects = true;
-                const _users = CatalogUtils.getUsers(this.opencgaSession.study);
+                const _users = OpencgaCatalogUtils.getUsers(this.opencgaSession.study);
                 this.clinicalAnalysis = {
                     type: "SINGLE",
                     priority: "MEDIUM",
