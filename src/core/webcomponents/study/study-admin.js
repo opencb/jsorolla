@@ -219,6 +219,8 @@ export default class StudyAdmin extends LitElement {
                         float: left;
                         /* z-index: 8000; */
                         margin-bottom: 0px;
+                        overflow-y:auto;
+                        padding-bottom:10%
                     }
 
                     /*give sidebar 100% width;*/

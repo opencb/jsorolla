@@ -17,7 +17,7 @@
 import { LitElement, html } from "/web_modules/lit-element.js";
 import UtilsNew from "./../../utilsNew.js";
 import "../commons/tool-header.js";
-import "./phenotype.form.js";
+import "./phenotype-form.js";
 
 
 export default class SampleForm extends LitElement {
