@@ -18,7 +18,7 @@ import { LitElement, html } from "/web_modules/lit-element.js";
 import UtilsNew from "./../../utilsNew.js";
 import "../commons/tool-header.js";
 import "./phenotype-form.js";
-
+import "../annotations/annotation-form.js";
 
 export default class SampleForm extends LitElement {
 
@@ -63,6 +63,7 @@ export default class SampleForm extends LitElement {
         this.sample = {};
         this.updateParams = {};
         this.phenotype = {};
+        this.annotationSets = {};
     }
 
     connectedCallback() {
@@ -292,6 +293,23 @@ export default class SampleForm extends LitElement {
                                         </phenotype-form>
                                     `
                             }
+                        },
+                        {
+                            field: "annotationSets",
+                            type: "custom",
+                            display: {
+                                layout: "vertical",
+                                defaultLayout: "vertical",
+                                width: 12,
+                                style: "padding-left: 0px",
+                                render: (sample) => html`
+                                        <annotation-form 
+                                            .sample="${this.sample}"
+                                            .opencgaSession="${this.opencgaSession}" 
+                                            @fieldChange="${e => this.onFieldChange(e)}">
+                                        </annotation-form>
+                                    `
+                            }
                         }
                     ]
                 },
@@ -369,7 +387,6 @@ export default class SampleForm extends LitElement {
         // this.sample[param] = value
         // console.log("test: ", this.sample, this.phenotype)
 
-
         switch (e.detail.param) {
             case "id":
             case "description":
@@ -398,7 +415,7 @@ export default class SampleForm extends LitElement {
             case "collection.date":
                 field = e.detail.param.split(".")[0];
                 prop = e.detail.param.split(".")[1];
-                if(this._sample[field]){
+                if (this._sample[field]) {
                     this.sample[field] = {}
                 }
 
@@ -406,8 +423,14 @@ export default class SampleForm extends LitElement {
                 break;
             case "phenotype.ageOfOnset":
             case "phenotype.status":
-                prop = e.detail.param.split(".")[1]
+                prop = e.detail.param.split(".")[1];
                 this.phenotype[prop] = e.detail.value;
+                break;
+            case "annotationSet.id":
+            case "annotationSet.name":
+                prop = e.detail.param.split(".")[1];
+                this.annotationSets[prop] = e.detail.value;
+                break;
         }
     }
 
@@ -420,30 +443,6 @@ export default class SampleForm extends LitElement {
         // this.phenotype = {}
         // this.requestUpdate()
     }
-
-
-    onAddItem(e) {
-        // TODO: refactor parentNode (look another way to get values from subform instead this.parentNode)
-        // this inside this function is: data-form (subform)
-        // this.parentNode is: this class sample-form
-        parent = this.parentNode;
-        if (!parent.sample.phenotype) {
-            parent.sample.phenotype = []
-        }
-        parent.sample.phenotype.push(parent.phenotype)
-        console.log("added Item and close", parent.sample)
-        parent.phenotype = {}
-
-
-        document.querySelector(".subform-test select-field-filter").value = ""
-        document.querySelector(".subform-test text-field-filter").value = ""
-    }
-
-    onCancelSubForm(e) {
-
-
-    }
-
 
     render() {
         return html`

@@ -15,12 +15,12 @@
  */
 
 import { LitElement, html } from "/web_modules/lit-element.js";
-import UtilsNew from "../../utilsNew.js";
+import UtilsNew from "./../../utilsNew.js";
 import "../commons/tool-header.js";
+import "../commons/filters/variableset-id-autocomplete.js";
 
-export default class PhenotypeForm extends LitElement {
+export default class AnnotationForm extends LitElement {
 
-    // static VIEW_MODE = "view";
     static UPDATE_MODE = "update";
     static CREATE_MODE = "create";
 
@@ -52,10 +52,7 @@ export default class PhenotypeForm extends LitElement {
 
     _init() {
         this._prefix = UtilsNew.randomString(8);
-
-        // We initialise the sample in for CREATE
-        // this.sample = {}
-        this.phenotype = {}
+        this.annotationSets = []
         this.showSubForm = false;
     }
 
@@ -80,7 +77,7 @@ export default class PhenotypeForm extends LitElement {
             buttons: {
                 show: true,
                 cancelText: "Cancel",
-                classes:"pull-right"
+                classes: "pull-right"
             },
             display: {
                 labelWidth: 3,
@@ -91,20 +88,32 @@ export default class PhenotypeForm extends LitElement {
                 {
                     elements: [
                         {
-                            name: "Age of on set",
-                            field: "phenotype.ageOfOnset",
+                            name: "Id",
+                            field: "annotationSet.id",
+                            type: "input-text",
+                            display: {
+                                placeholder: "Id ...",
+                            }
+                        },
+                        {
+                            name: "Name",
+                            field: "annotationSet.name",
                             type: "input-text",
                             display: {
                                 placeholder: "Name ...",
                             }
                         },
                         {
-                            name: "Status",
-                            field: "phenotype.status",
-                            type: "select",
-                            allowedValues: ["OBSERVED", "NOT_OBSERVED", "UNKNOW"],
+                            name: "Variable Set Id",
+                            field: "variableSetId",
+                            type: "custom",
                             display: {
-                                placeholder: "select a status...",
+                                render: (sample) => html`
+                                    <variableset-id-autocomplete 
+                                            .value="${sample?.variableSetId}"
+                                            .opencgaSession="${this.opencgaSession}" 
+                                            @filterChange="${e => this.onFieldChange({ detail: { param: "variableSetId", value: e.detail.value } })}">
+                                    </variableset-id-autocomplete>`
                             }
                         },
                     ]
@@ -114,57 +123,45 @@ export default class PhenotypeForm extends LitElement {
     }
 
     onSubmit(e) {
-        // TODO: refactor parentNode (look another way to get values from subform instead this.parentNode)
-        // this inside this function is: data-form (subform)
-        // this.parentNode is: this class sample-form
-
-        // The properties of the sample-form can be accessed this way. 
-        // I had to do it this way just because of the phenotype property.
-        //the phenotype property has a fixed instance (even if you leave it empty or create a new instance), 
-        //trying to add the element in the list of phenotypes inside sample will overwrite the first element of the array (line #130).
         let parentForm = document.querySelector("sample-form")
 
-        if (!this.sample.phenotype) {
-            this.sample.phenotype = []
+        if (!this.sample.annotationSets) {
+            this.sample.annotationSets = []
         }
-        
-        // this.sample.phenotype.push(this.phenotype) Override the first element of the array
-        // this.phenotype = {} or this.phenotype = new Object() it's not work
-        
-        this.sample.phenotype.push(parentForm.phenotype)
-        // maybe this work
-        // this.sample.phenotype = {... this.sample.phenotype,phenotype: this.phenotype}
-        parentForm.phenotype = {}
 
-        console.log("added Item and close", this.sample)
-        
-        document.querySelector(".subform-test select-field-filter").value = ""
-        document.querySelector(".subform-test text-field-filter").value = ""
+        this.sample.annotationSets.push(parentForm.annotationSets)
+        parentForm.annotationSets = {}
+
+        console.log("added Item and close", this.annotationSets)
+
+        // document.querySelector(".subform-test select-field-filter").value = ""
+        // document.querySelector(".subform-test text-field-filter").value = ""
+        // TODO: Look other way to clean field.
         this.onShowForm()
 
     }
 
     onClear(e) {
         // This not work very well.
-        console.log("Cancel Subform phenotype")
+        console.log("Cancel Subform annotation")
         this.onShowForm()
         //to clear input text..
         // TODO: look how to binding property with data-form to avoid use querySelector
-        document.querySelector(".subform-test select-field-filter").value = ""
-        document.querySelector(".subform-test text-field-filter").value = ""
-        console.log(this.phenotype)
+        // document.querySelector(".subform-test select-field-filter").value = ""
+        // document.querySelector(".subform-test text-field-filter").value = ""
+        console.log(this.annotationSets)
 
         // avoid to execute other components listen this function too
         // sample-form has this function too.. without e.stopPropagation both function are called
         e.stopPropagation()
     }
-    
-    onRemoveItem(item,e){
+
+    onRemoveItem(item, e) {
         console.log("Elemento: ", item)
-        
+
         this.sample = {
             ...this.sample,
-            phenotype: this.sample.phenotype.filter(element => element !== item)
+            annotationSets: this.sample.annotationSets.filter(element => element !== item)
         };
     }
 
@@ -178,21 +175,21 @@ export default class PhenotypeForm extends LitElement {
         return html`
         <div class="row">
             <div class="col-md-2" style="padding: 10px 20px">
-                <h3>Phenotype</h3>
+                <h3>Annotation Sets</h3>
             </div>
             <div class="col-md-10" style="padding: 10px 20px">
                 <button type="button" class="btn btn-primary ripple pull-right" @click="${this.onShowForm}">
-                    Add Phenotype
+                    Add Annotation
                 </button>
             </div>
             <div class="clearfix"></div>
             <hr style="margin:0px"> 
             <div class="col-md-12" style="padding: 10px 20px">
-                ${this.sample?.phenotype?.map((item) => html`
-                    <span class="label label-primary" style="font-size: 14px; margin:5px; padding-right:0px; display:inline-block">${item.ageOfOnset}
+                ${this.sample?.annotationSets?.map((item) => html`
+                    <span class="label label-primary" style="font-size: 14px; margin:5px; padding-right:0px; display:inline-block">${item.name}
                         <span class="badge" style="cursor:pointer" @click=${() => this.onRemoveItem(item, this)}>X</span>
                     </span>`
-                )}
+        )}
             </div>
         </div>
 
@@ -209,4 +206,4 @@ export default class PhenotypeForm extends LitElement {
 
 }
 
-customElements.define("phenotype-form", PhenotypeForm);
+customElements.define("annotation-form", AnnotationForm);
