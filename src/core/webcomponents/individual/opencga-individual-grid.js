@@ -19,7 +19,7 @@ import UtilsNew from "../../utilsNew.js";
 import {NotificationQueue} from "../Notification.js";
 import GridCommons from "../commons/grid-commons.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
-import CatalogUtils from "../commons/catalog-utils.js";
+import CatalogWebUtils from "../commons/catalog-web-utils.js";
 import "../commons/opencb-grid-toolbar.js";
 
 
@@ -58,7 +58,7 @@ export default class OpencgaIndividualGrid extends LitElement {
     _init() {
         this._prefix = "VarIndividualGrid" + UtilsNew.randomString(6);
 
-        this.catalogUiUtils = new CatalogUtils();
+        this.catalogUiUtils = new CatalogWebUtils();
         this.gridId = this._prefix + "IndividualBrowserGrid";
     }
 
