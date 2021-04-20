@@ -57,7 +57,7 @@ export default class SampleBrowserFilter extends LitElement {
             },
             config: {
                 type: Object
-            },
+            }
         };
     }
 
@@ -118,9 +118,9 @@ export default class SampleBrowserFilter extends LitElement {
 
     onAnnotationChange(e) {
         if (e.detail.value) {
-            this.preparedQuery.annotation = e.detail.value
+            this.preparedQuery.annotation = e.detail.value;
         } else {
-            delete this.preparedQuery.annotation
+            delete this.preparedQuery.annotation;
         }
         this.preparedQuery = {...this.preparedQuery};
         this.notifyQuery(this.preparedQuery);
@@ -206,12 +206,12 @@ export default class SampleBrowserFilter extends LitElement {
                     ${subsection.description ? html`
                         <div class="tooltip-div pull-right">
                             <a tooltip-title="${subsection.name}" tooltip-text="${subsection.description}"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
-                        </div>` : null 
+                        </div>` : null
                     }
                 </div>
-                <div id="${this._prefix}${subsection.id}" class="subsection-content">
-                    ${content}
-                </div>
+               <div id="${this._prefix}${subsection.id}" class="subsection-content" data-cy="${subsection.id}">
+                   ${content}
+               </div>
             </div>`;
     }
 
@@ -227,7 +227,7 @@ export default class SampleBrowserFilter extends LitElement {
             
             <div class="panel-group" id="${this._prefix}Accordion" role="tablist" aria-multiselectable="true">
                 <div class="">            
-                    ${this.config.sections && this.config.sections.length ? this.config.sections.map( section => this._createSection(section)) : html`No filter has been configured.`}
+                    ${this.config.sections && this.config.sections.length ? this.config.sections.map(section => this._createSection(section)) : html`No filter has been configured.`}
                 </div>
             </div>
         `;
