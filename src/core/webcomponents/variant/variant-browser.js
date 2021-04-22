@@ -744,7 +744,7 @@ export default class VariantBrowser extends LitElement {
                                 <!-- Bottom tabs with specific variant information -->
                                 <variant-browser-detail .opencgaSession="${this.opencgaSession}"
                                                         .cellbaseClient="${this.cellbaseClient}"
-                                                        .variantId="${this.variantId}"
+                                                        .variant="${this.variant}"
                                                         .config="${this._config.filter.detail}">
                                     </variant-browser-detail>
                             </div>

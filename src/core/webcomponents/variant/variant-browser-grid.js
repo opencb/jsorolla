@@ -169,6 +169,7 @@ export default class VariantBrowserGrid extends LitElement {
                         skip: params.data.offset || 0,
                         count: !tableOptions.pageNumber || tableOptions.pageNumber === 1,
                         summary: !this.query.sample && !this.query.family,
+                        // includeStudy: "all",
                         ...this.query
                     };
                     this.opencgaSession.opencgaClient.variants().query(filters)
