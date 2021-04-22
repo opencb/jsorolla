@@ -122,7 +122,7 @@ export default class PhenotypeForm extends LitElement {
         // I had to do it this way just because of the phenotype property.
         //the phenotype property has a fixed instance (even if you leave it empty or create a new instance), 
         //trying to add the element in the list of phenotypes inside sample will overwrite the first element of the array (line #130).
-        let parentForm = document.querySelector("sample-form-create")
+        let parentForm = document.querySelector("sample-create")
 
         if (!this.sample.phenotype) {
             this.sample.phenotype = []
@@ -147,7 +147,7 @@ export default class PhenotypeForm extends LitElement {
     onClear(e) {
         // self = this component (Phenotype-form)
         let self = this
-        let parentForm = document.querySelector("sample-form-create")
+        let parentForm = document.querySelector("sample-create")
         console.log("Cancel Subform phenotype", self)
         
         // TODO: look how to binding property with data-form to avoid use querySelector

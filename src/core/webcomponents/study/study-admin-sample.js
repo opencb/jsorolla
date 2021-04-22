@@ -16,7 +16,7 @@
 
 import { html, LitElement } from "/web_modules/lit-element.js";
 import DetailTabs from "../commons/view/detail-tabs.js";
-import SampleFormCreate from "../sample/sample-form-create.js";
+import SampleCreate from "../sample/sample-create.js";
 import UtilsNew from "./../../utilsNew.js";
 
 export default class StudyAdminSample extends LitElement {
@@ -93,9 +93,9 @@ export default class StudyAdminSample extends LitElement {
                         return html`
                             <div class="row">
                                 <div class="col-md-6" style="margin: 20px 10px">
-                                    <sample-form-create
+                                    <sample-create
                                             .opencgaSession="${opencgaSession}">
-                                    </sample-form-create>
+                                    </sample-create>
                                 </div>
                             </div>`;
                     }

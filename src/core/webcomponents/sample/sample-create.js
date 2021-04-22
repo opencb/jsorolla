@@ -20,7 +20,7 @@ import "../commons/tool-header.js";
 import "./phenotype-form.js";
 import "../annotations/annotationSet-form.js";
 
-export default class SampleFormCreate extends LitElement {
+export default class SampleCreate extends LitElement {
 
     constructor() {
         super();
@@ -437,4 +437,4 @@ export default class SampleFormCreate extends LitElement {
 
 }
 
-customElements.define("sample-form-create", SampleFormCreate);
+customElements.define("sample-create", SampleCreate);
