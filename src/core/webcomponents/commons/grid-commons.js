@@ -133,7 +133,7 @@ export default class GridCommons {
     }
 
     // TODO rename in onPostBody??
-    onLoadSuccess(data, firstRowIndex = 2, idField) {
+    onLoadSuccess(data, firstRowIndex = 2, idField = "id") {
         // TODO the event `selectrow` with null values is fired in case of empty result and in case of error both. Create a common method.
         if (data.rows && data.rows.length > 0) {
             const table = $("#" + this.gridId);
@@ -149,11 +149,9 @@ export default class GridCommons {
             if (table[0]) {
                 table.find("tr[data-index=0]").addClass("success");
             }
-
-            const id = idField ? idField : "id";
             this.context.dispatchEvent(new CustomEvent("selectrow", {
                 detail: {
-                    id: data.rows[0][id],
+                    id: data.rows[0][idField],
                     row: data.rows[0]
                 }
             }));
