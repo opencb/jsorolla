@@ -55,7 +55,7 @@ export default class PhenotypeForm extends LitElement {
 
         // We initialise the sample in for CREATE
         // this.sample = {}
-        this.phenotype = {}
+        // this.phenotype = {}
         this.showSubForm = false;
     }
 
@@ -145,17 +145,23 @@ export default class PhenotypeForm extends LitElement {
     }
 
     onClear(e) {
-        // This not work very well.
-        console.log("Cancel Subform phenotype")
-        this.onShowForm()
-        //to clear input text..
+        // self = this component (Phenotype-form)
+        let self = this
+        let parentForm = document.querySelector("sample-form-create")
+        console.log("Cancel Subform phenotype", self)
+        
         // TODO: look how to binding property with data-form to avoid use querySelector
-        document.querySelector(".subform-test select-field-filter").value = ""
-        document.querySelector(".subform-test text-field-filter").value = ""
-        console.log(this.phenotype)
+        //to clear input text..
+        
+        self.querySelector("input").value = ""
+        self.querySelector(".subform-test text-field-filter").value = ""
+        
+        parentForm.phenotype = {}
 
         // avoid to execute other components listen this function too
-        // sample-form has this function too.. without e.stopPropagation both function are called
+        // sample-form has this function too.. 
+        //without e.stopPropagation both function are called
+        this.onShowForm()
         e.stopPropagation()
     }
     
