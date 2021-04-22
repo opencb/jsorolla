@@ -57,6 +57,18 @@ export default class AnnotationSetForm extends LitElement {
         this.showSubForm = false;
     }
 
+    update(changedProperties) {
+        this.variableSetObserver()
+        super.update(changedProperties);
+    }
+
+    async variableSetObserver() {
+        const resp = await this.opencgaSession.opencgaClient.studies().variableSets(this.opencgaSession.study.fqn)
+        const variableSets = resp.responses[0].results;
+        console.log("Load VariableSets: ", variableSets)
+
+    }
+
     connectedCallback() {
         super.connectedCallback();
         this._config = { ...this.getDefaultConfig(), ...this.config };
@@ -144,9 +156,9 @@ export default class AnnotationSetForm extends LitElement {
         }
     }
 
-    onFieldChange(e){
+    onFieldChange(e) {
         console.log(e.detail.param, e.detail.value)
-        if(e.detail.param === "variableSetId"){
+        if (e.detail.param === "variableSetId") {
             let self_dataForm = this.querySelector("data-form")
             this.showAnnotation = true;
             self_dataForm.requestUpdate()
