@@ -45,7 +45,7 @@ export default class CatalogGridFormatter {
         if (value && value.id) {
             let idHtml;
             const split = value.id.split(":");
-            switch(split[0]) {
+            switch (split[0]) {
                 case "HP":
                     idHtml = `
                         <a href="https://hpo.jax.org/app/browse/term/${value.id}" target="_blank">${value.id}
@@ -63,7 +63,7 @@ export default class CatalogGridFormatter {
                     break;
             }
             if (value.name) {
-                return `${value.name} <span style="white-space: nowrap">(${idHtml})</span>`;
+                return `<span data-cy="disorder-name">${value.name}</span> <span style="white-space: nowrap">(${idHtml})</span>`;
             } else {
                 return `${idHtml}`;
             }

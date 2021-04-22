@@ -102,13 +102,12 @@ export default class VariantBrowser extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
-
-        this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
     update(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
             this.opencgaSessionObserver();
+            this._config = {...this.getDefaultConfig(), ...this.config};
         }
         if (changedProperties.has("query")) {
             this.queryObserver();
@@ -325,7 +324,7 @@ export default class VariantBrowser extends LitElement {
                                 onlyCohortAll: false,
                                 tooltip: tooltips.cohort,
                                 // cohorts: this.cohorts
-                                cohorts: this.opencgaSession.project.studies
+                                cohorts: this.opencgaSession?.project?.studies
                             }
                         ]
                     },
@@ -746,7 +745,7 @@ export default class VariantBrowser extends LitElement {
                                 <!-- Bottom tabs with specific variant information -->
                                 <variant-browser-detail .opencgaSession="${this.opencgaSession}"
                                                         .cellbaseClient="${this.cellbaseClient}"
-                                                        .variantId="${this.variantId}"
+                                                        .variant="${this.variant}"
                                                         .config="${this._config.filter.detail}">
                                 </variant-browser-detail>
                             </div>

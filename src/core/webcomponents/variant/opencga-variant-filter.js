@@ -192,8 +192,8 @@ export default class OpencgaVariantFilter extends LitElement {
          */
         if (key instanceof Object && value instanceof Object) {
             // this.preparedQuery = {...this.preparedQuery, ...value};
-            for (let k of Object.keys(key)) {
-                let v = value[k];
+            for (const k of Object.keys(key)) {
+                const v = value[k];
                 if (v && v !== "") {
                     this.preparedQuery = {...this.preparedQuery, ...{[k]: v}};
                 } else {
@@ -240,7 +240,7 @@ export default class OpencgaVariantFilter extends LitElement {
         let fileDataArray = [];
         if (this.preparedQuery.fileData) {
             fileDataArray = this.preparedQuery.fileData.split(",");
-            let fileDataIndex = fileDataArray.findIndex(e => e.startsWith(fileId));
+            const fileDataIndex = fileDataArray.findIndex(e => e.startsWith(fileId));
             if (fileDataIndex >= 0) {
                 fileDataArray[fileDataIndex] = fileDataFilter;
             } else {
@@ -319,9 +319,9 @@ export default class OpencgaVariantFilter extends LitElement {
                 <div id="${this._prefix}${id}" class="panel-collapse collapse ${collapsed}" role="tabpanel" aria-labelledby="${this._prefix}${id}Heading">
                     <div class="panel-body" style="padding-top: 5px">
                         ${section.fields && section.fields.length && section.fields.map(field => html`
-                            ${this._isFilterVisible(field)
-                                ? this._createSubSection(field)
-                                : null
+                            ${this._isFilterVisible(field) ?
+                                this._createSubSection(field) :
+                                null
                             }`
                         )}
                     </div>
@@ -381,7 +381,7 @@ export default class OpencgaVariantFilter extends LitElement {
                     // content = html`<file-qual-filter .qual="${this.preparedQuery.qual}" @filterChange="${e => this.onFilterChange("qual", e.detail.value)}"></file-qual-filter>`;
                     let depth;
                     if (this.preparedQuery?.sampleData) {
-                        let sampleDataFilters = this.preparedQuery.sampleData.split(";");
+                        const sampleDataFilters = this.preparedQuery.sampleData.split(";");
                         depth = sampleDataFilters.find(filter => filter.startsWith("DP")).split(">=")[1];
                     }
                     content = html`<file-quality-filter .filter="${this.preparedQuery.filter}" .depth="${depth}" .qual="${this.preparedQuery.qual}" 
@@ -419,7 +419,7 @@ export default class OpencgaVariantFilter extends LitElement {
                     if (subsection.types) {
                         config = {
                             types: subsection.types
-                        }
+                        };
                     }
                     content = html`
                         <variant-type-filter .type="${this.preparedQuery.type}"
@@ -498,19 +498,19 @@ export default class OpencgaVariantFilter extends LitElement {
         if (content !== "") {
             return html`
                 <div class="form-group">
-                    <div id="${this._prefix}${subsection.id}" class="browser-subsection">
-                        ${subsection.title
-                            ? html`<span>${this._getFilterField(subsection.title)}</span>`
-                            : null
+                    <div id="${this._prefix}${subsection.id}" class="browser-subsection" data-cy="${subsection.id}">
+                        ${subsection.title ?
+                            html`<span>${this._getFilterField(subsection.title)}</span>` :
+                            null
                         }
                         <div class="tooltip-div pull-right">
                             <a tooltip-title="Info" tooltip-text="${subsection.tooltip}"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
                         </div>
                     </div>
-                    <div id="${this._prefix}${subsection.id}" class="subsection-content">
-                        ${subsection.description 
-                            ? html`<div>${this._getFilterField(subsection.description)}</div>` 
-                            : null
+                    <div id="${this._prefix}${subsection.id}" class="subsection-content" data-cy="${subsection.id}">
+                        ${subsection.description ?
+                            html`<div>${this._getFilterField(subsection.description)}</div>` :
+                            null
                         }
                         ${content}
                      </div>
@@ -522,14 +522,14 @@ export default class OpencgaVariantFilter extends LitElement {
     render() {
         return html`
             <div>
-                ${this.config.searchButton 
-                    ? html`
+                ${this.config.searchButton ?
+                    html`
                         <div class="search-button-wrapper">
                             <button type="button" class="btn btn-primary ripple" @click="${this.onSearch}">
                                 <i class="fa fa-search" aria-hidden="true"></i> ${this.config.searchButtonText || "Search"}
                             </button>
-                        </div>` 
-                    : null
+                        </div>` :
+                    null
                 }
     
                 <div class="panel-group" id="${this._prefix}Accordion" role="tablist" aria-multiselectable="true">

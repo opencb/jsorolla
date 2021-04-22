@@ -68,34 +68,24 @@ export default class OpencgaSampleGrid extends LitElement {
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
     }
 
-    firstUpdated() {
-        this.table = $("#" + this.gridId);
-    }
-
     updated(changedProperties) {
         if (changedProperties.has("opencgaSession") ||
             changedProperties.has("query") ||
+            changedProperties.has("config") ||
             changedProperties.has("active")) {
             this.propertyObserver();
-        }
-
-        if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
         }
     }
 
     propertyObserver() {
         // With each property change we must updated config and create the columns again. No extra checks are needed.
-        // this._config = Object.assign(this.getDefaultConfig(), this.config);
-        // this._columns = this._initTableColumns();
-
+        this._config = {...this.getDefaultConfig(), ...this.config};
         // Config for the grid toolbar
         this.toolbarConfig = {
             resource: "SAMPLE",
             buttons: ["columns", "download"],
             columns: this._getDefaultColumns()
         };
-
         this.renderTable();
     }
 
@@ -395,6 +385,7 @@ export default class OpencgaSampleGrid extends LitElement {
         this.toolbarConfig = {...this.toolbarConfig, downloading: true};
         await this.requestUpdate();
         const params = {
+            study: this.opencgaSession.study.fqn,
             ...this.query,
             limit: 1000,
             skip: 0,

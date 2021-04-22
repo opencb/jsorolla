@@ -169,6 +169,7 @@ export default class VariantBrowserGrid extends LitElement {
                         skip: params.data.offset || 0,
                         count: !tableOptions.pageNumber || tableOptions.pageNumber === 1,
                         summary: !this.query.sample && !this.query.family,
+                        // includeStudy: "all",
                         ...this.query
                     };
                     this.opencgaSession.opencgaClient.variants().query(filters)
@@ -390,13 +391,12 @@ export default class VariantBrowserGrid extends LitElement {
     }
 
     cohortFormatter(value, row, index) {
-        // TODO where does meta comes from?
-        //console.error(this.meta)
-
         if (row && row.studies?.length > 0 && row.studies[0].stats) {
             const cohortStats = new Map();
             for (const study of row.studies) {
-                if (study.studyId === this.meta.study) {
+                // Now we support both study.is and study.fqn
+                let metaStudy = study.studyId.includes("@") ? this.meta.study : this.meta.study.split(":")[1];
+                if (study.studyId === metaStudy) {
                     for (const cohortStat of study.stats) {
                         let freq = Number(cohortStat.altAlleleFreq);
                         cohortStats.set(cohortStat.cohortId, freq > 0 ? freq.toPrecision(2) : 0);
@@ -453,7 +453,7 @@ export default class VariantBrowserGrid extends LitElement {
                     title: study.id,
                     field: study.id,
                     meta: {
-                        study: study.id,
+                        study: study.fqn,
                         cohorts: study.cohorts,
                         colors: this.populationFrequencies.style,
                         context: this
