@@ -15,12 +15,13 @@
  */
 
 import { LitElement, html } from "/web_modules/lit-element.js";
-import UtilsNew from "./../../utilsNew.js";
+import UtilsNew from "../../utilsNew.js";
 import "../commons/tool-header.js";
 import "./phenotype-form.js";
 import "../annotations/annotation-form.js";
 
-export default class SampleForm extends LitElement {
+
+export default class SampleFormUpdate extends LitElement {
 
     static UPDATE_MODE = "update";
     static CREATE_MODE = "create";
@@ -445,17 +446,27 @@ export default class SampleForm extends LitElement {
     }
 
     render() {
+
         return html`
-            <data-form  
-                .data=${this.sample}
-                .config="${this._config}"
-                @fieldChange="${e => this.onFieldChange(e)}"
-                @clear="${this.onClear}"
-                @submit="${this.onSubmit}">
-            </data-form>
-        `;
+            <div class="guard-page" >
+                <i class="fas fa-pencil-ruler fa-5x"></i>
+                <h3>Component under construction</h3>
+                <h3>(Coming Soon)</h3>
+            </div >`;
+
+
+
+        // return html`
+        //     <data-form  
+        //         .data=${this.sample}
+        //         .config="${this._config}"
+        //         @fieldChange="${e => this.onFieldChange(e)}"
+        //         @clear="${this.onClear}"
+        //         @submit="${this.onSubmit}">
+        //     </data-form>
+        // `;
     }
 
 }
 
-customElements.define("sample-form", SampleForm);
+customElements.define("sample-form-update", SampleFormUpdate);

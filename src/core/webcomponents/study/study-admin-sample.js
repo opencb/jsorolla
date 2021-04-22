@@ -15,8 +15,8 @@
  */
 
 import { html, LitElement } from "/web_modules/lit-element.js";
-import SampleForm from "../sample/sample-form.js"
 import DetailTabs from "../commons/view/detail-tabs.js";
+import SampleFormCreate from "../sample/sample-form-create.js";
 import UtilsNew from "./../../utilsNew.js";
 
 export default class StudyAdminSample extends LitElement {
@@ -62,7 +62,7 @@ export default class StudyAdminSample extends LitElement {
     update(changedProperties) {
         super.update(changedProperties);
     }
-    
+
     getDefaultConfig() {
         return {
             items: [
@@ -75,10 +75,11 @@ export default class StudyAdminSample extends LitElement {
                         return html`
                             <div class="row">
                                 <div class="col-md-6" style="margin: 20px 10px">
-                                    <sample-form
-                                            .opencgaSession="${opencgaSession}"
-                                            .mode="${SampleForm.UPDATE_MODE}">
-                                    </sample-form>
+                                    <div class="guard-page">
+                                        <i class="fas fa-pencil-ruler fa-5x"></i>
+                                        <h3>Component under construction</h3>
+                                        <h3>(Coming Soon)</h3>
+                                    </div>
                                 </div>
                             </div>`;
                     }
@@ -92,10 +93,9 @@ export default class StudyAdminSample extends LitElement {
                         return html`
                             <div class="row">
                                 <div class="col-md-6" style="margin: 20px 10px">
-                                    <sample-form
-                                            .opencgaSession="${opencgaSession}"
-                                            .mode="${SampleForm.CREATE_MODE}">
-                                    </sample-form>
+                                    <sample-form-create
+                                            .opencgaSession="${opencgaSession}">
+                                    </sample-form-create>
                                 </div>
                             </div>`;
                     }
