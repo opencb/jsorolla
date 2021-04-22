@@ -324,9 +324,9 @@ export default class StudyAdminUsers extends LitElement {
                     "success"
                 );
             })
-            .catch(e => {
-                console.error(e);
-                params.error(e);
+            .catch(err => {
+                console.error(err);
+                params.error(err);
             });
     }
 
