@@ -15,11 +15,11 @@
  */
 
 import { LitElement, html } from "/web_modules/lit-element.js";
-import UtilsNew from "./../../utilsNew.js";
+import UtilsNew from "../../utilsNew.js";
 import "../commons/tool-header.js";
 import "../commons/filters/variableset-id-autocomplete.js";
 
-export default class AnnotationForm extends LitElement {
+export default class AnnotationSetForm extends LitElement {
 
     static UPDATE_MODE = "update";
     static CREATE_MODE = "create";
@@ -53,6 +53,7 @@ export default class AnnotationForm extends LitElement {
     _init() {
         this._prefix = UtilsNew.randomString(8);
         this.annotationSets = []
+        this.showAnnotation = false; // showAnnotationForm
         this.showSubForm = false;
     }
 
@@ -106,19 +107,49 @@ export default class AnnotationForm extends LitElement {
                         {
                             name: "Variable Set Id",
                             field: "variableSetId",
-                            type: "custom",
+                            type: "select",
+                            allowedValues: ["TEST_1", "TEST_2", "TEST_3", "TEST_4"],
                             display: {
-                                render: (sample) => html`
-                                    <variableset-id-autocomplete 
-                                            .value="${sample?.variableSetId}"
-                                            .opencgaSession="${this.opencgaSession}" 
-                                            @filterChange="${e => this.onFieldChange({ detail: { param: "variableSetId", value: e.detail.value } })}">
-                                    </variableset-id-autocomplete>`
+                                placeholder: "Name ...",
                             }
                         },
+                        {
+                            field: "annotations",
+                            type: "custom",
+                            display: {
+                                visible: () => {
+                                    return this.showAnnotation
+                                },
+                                render: (sample) => html`
+                                    <p>... Annotation Form ...</p>
+                                    `
+                            }
+                        },
+                        // {
+                        //     name: "Variable Set Id",
+                        //     field: "variableSetId",
+                        //     type: "custom",
+                        //     display: {
+                        //         render: (sample) => html`
+                        //             <variableset-id-autocomplete 
+                        //                     .value="${sample?.variableSetId}"
+                        //                     .opencgaSession="${this.opencgaSession}" 
+                        //                     @filterChange="${e => this.onFieldChange({ detail: { param: "variableSetId", value: e.detail.value } })}">
+                        //             </variableset-id-autocomplete>`
+                        //     }
+                        // },
                     ]
                 }
             ]
+        }
+    }
+
+    onFieldChange(e){
+        console.log(e.detail.param, e.detail.value)
+        if(e.detail.param === "variableSetId"){
+            let self_dataForm = this.querySelector("data-form")
+            this.showAnnotation = true;
+            self_dataForm.requestUpdate()
         }
     }
 
@@ -172,6 +203,7 @@ export default class AnnotationForm extends LitElement {
     }
 
     render() {
+        console.log("Render Components")
         return html`
         <div class="row">
             <div class="col-md-2" style="padding: 10px 20px">
@@ -197,6 +229,7 @@ export default class AnnotationForm extends LitElement {
             <data-form  
                 .data=${this.sample}
                 .config="${this._config}"
+                @fieldChange="${e => this.onFieldChange(e)}"
                 @clear="${this.onClear}"
                 @submit="${this.onSubmit}">
             </data-form>
@@ -206,4 +239,4 @@ export default class AnnotationForm extends LitElement {
 
 }
 
-customElements.define("annotation-form", AnnotationForm);
+customElements.define("annotation-set-form", AnnotationSetForm);

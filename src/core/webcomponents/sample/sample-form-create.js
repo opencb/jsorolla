@@ -18,7 +18,7 @@ import { LitElement, html } from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
 import "../commons/tool-header.js";
 import "./phenotype-form.js";
-import "../annotations/annotation-form.js";
+import "../annotations/annotationSet-form.js";
 
 export default class SampleFormCreate extends LitElement {
 
@@ -288,11 +288,11 @@ export default class SampleFormCreate extends LitElement {
                                 width: 12,
                                 style: "padding-left: 0px",
                                 render: (sample) => html`
-                                        <annotation-form 
+                                        <annotation-set-form 
                                             .sample="${this.sample}"
                                             .opencgaSession="${this.opencgaSession}" 
                                             @fieldChange="${e => this.onFieldChange(e)}">
-                                        </annotation-form>
+                                        </annotation-set-form>
                                     `
                             }
                         }
@@ -377,11 +377,7 @@ export default class SampleFormCreate extends LitElement {
             case "description":
             case "individualId":
             case "somatic":
-                if (this._sample[e.detail.param] !== e.detail.value && e.detail.value !== null) {
                     this.sample[e.detail.param] = e.detail.value;
-                } else {
-                    this.sample[e.detail.param] = this._sample[e.detail.param].id;
-                }
                 break;
             case "status.name":
             case "status.description":

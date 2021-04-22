@@ -122,7 +122,7 @@ export default class PhenotypeForm extends LitElement {
         // I had to do it this way just because of the phenotype property.
         //the phenotype property has a fixed instance (even if you leave it empty or create a new instance), 
         //trying to add the element in the list of phenotypes inside sample will overwrite the first element of the array (line #130).
-        let parentForm = document.querySelector("sample-form")
+        let parentForm = document.querySelector("sample-form-create")
 
         if (!this.sample.phenotype) {
             this.sample.phenotype = []
