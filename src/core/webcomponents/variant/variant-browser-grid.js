@@ -174,7 +174,6 @@ export default class VariantBrowserGrid extends LitElement {
                     };
                     this.opencgaSession.opencgaClient.variants().query(filters)
                         .then(res => {
-                            debugger
                             params.success(res)
                         })
                         .catch(e => {
