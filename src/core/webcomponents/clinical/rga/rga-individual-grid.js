@@ -260,7 +260,7 @@ export default class RgaIndividualGrid extends LitElement {
 
     geneFormatter(value, row) {
         // return value.length ? (value.length > 20 ? `${value.length} genes` : value.map(gene => gene.name)) : "-";
-        const genes = value.join(", ");
+        const genes = value.map(gene => `${gene.name}`).join(", ");
         if (value && value.length > 20) {
             return `<a tooltip-title="Genes" tooltip-text='${genes}'> ${value.length} genes</a>`;
         } else {
