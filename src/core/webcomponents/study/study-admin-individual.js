@@ -16,8 +16,9 @@
 
 import { html, LitElement } from "/web_modules/lit-element.js";
 import UtilsNew from "./../../utilsNew.js";
-import IndividualForm from '../individual/individual-form.js'
+import IndividualCreate from '../individual/individual-create.js'
 import DetailTabs from "../commons/view/detail-tabs.js";
+import { construction } from "../commons/under-construction.js";
 
 export default class StudyAdminIndividual extends LitElement {
 
@@ -73,10 +74,7 @@ export default class StudyAdminIndividual extends LitElement {
                         return html`
                             <div class="row">
                                 <div class="col-md-6" style="margin: 20px 10px">
-                                    <individual-form
-                                            .opencgaSession="${opencgaSession}"
-                                            .mode="${IndividualForm.UPDATE_MODE}">
-                                    </individual-form>
+                                    ${construction}
                                 </div>
                             </div>`;
                     }
@@ -90,10 +88,9 @@ export default class StudyAdminIndividual extends LitElement {
                         return html`
                             <div class="row">
                                 <div class="col-md-6" style="margin: 20px 10px">
-                                    <individual-form
-                                            .opencgaSession="${opencgaSession}"
-                                            .mode="${IndividualForm.CREATE_MODE}">
-                                    </individual-form>
+                                    <individual-create
+                                            .opencgaSession="${opencgaSession}">
+                                    </individual-create>
                                 </div>
                             </div>`;
                     }

@@ -1,5 +1,5 @@
 /**
- * Copyright 2015-2019 OpenCB
+ * Copyright 2015-2021 OpenCB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,9 @@
 import { LitElement, html } from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
 import "../commons/tool-header.js";
+import BaseManager from "./base-manager.js";
 
-export default class PhenotypeManager extends LitElement {
+export default class PhenotypeManager extends BaseManager {
 
     // static VIEW_MODE = "view";
     static UPDATE_MODE = "update";
@@ -29,23 +30,10 @@ export default class PhenotypeManager extends LitElement {
         this._init();
     }
 
-    createRenderRoot() {
-        return this;
-    }
-
     static get properties() {
         return {
             phenotypes: {
                 type: Array
-            },
-            mode: {
-                type: String
-            },
-            opencgaSession: {
-                type: Object
-            },
-            config: {
-                type: Object
             }
         };
     }
@@ -54,20 +42,6 @@ export default class PhenotypeManager extends LitElement {
         this._prefix = UtilsNew.randomString(8);
         this.phenotypes = []
         this.showSubForm = false;
-    }
-
-    connectedCallback() {
-        super.connectedCallback();
-        this._config = { ...this.getDefaultConfig(), ...this.config };
-    }
-
-    dispatchSessionUpdateRequest() {
-        this.dispatchEvent(new CustomEvent("sessionUpdateRequest", {
-            detail: {
-            },
-            bubbles: true,
-            composed: true
-        }));
     }
 
     getDefaultConfig() {
@@ -110,17 +84,7 @@ export default class PhenotypeManager extends LitElement {
         }
     }
 
-    onRemoveItem(item, e) {
-        this.dispatchEvent(new CustomEvent("removeItem", {
-            detail: {
-                phenotype: item
-            },
-            bubbles: false,
-            composed: true
-        }));
-    }
-
-    onClearForm(e){
+    onClearForm(e) {
         console.log("OnClear Phenotype form ", e)
         this.onShowForm()
         e.stopPropagation()
@@ -150,7 +114,7 @@ export default class PhenotypeManager extends LitElement {
                     <span class="label label-primary" style="font-size: 14px; margin:5px; padding-right:0px; display:inline-block">${item.ageOfOnset}
                         <span class="badge" style="cursor:pointer" @click=${() => this.onRemoveItem(item, this)}>X</span>
                     </span>`
-                )}
+        )}
             </div>
         </div>
 

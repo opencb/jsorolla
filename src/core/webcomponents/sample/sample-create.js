@@ -1,5 +1,5 @@
 /**
- * Copyright 2015-2019 OpenCB
+ * Copyright 2015-2021 OpenCB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 import { LitElement, html } from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
 import "../commons/tool-header.js";
-import "./phenotype-manager.js";
+import "../phenotype/phenotype-manager.js";
 import "../annotations/annotationSet-form.js";
 
 export default class SampleCreate extends LitElement {
@@ -37,10 +37,10 @@ export default class SampleCreate extends LitElement {
             sample: {
                 type: Object
             },
-            opencgaSession: {
+            study: {
                 type: Object
             },
-            study: {
+            opencgaSession: {
                 type: Object
             },
             config: {
@@ -419,7 +419,7 @@ export default class SampleCreate extends LitElement {
     }
 
     onClear(e) {
-        console.log("OnClear sample form",e)
+        console.log("OnClear sample form", e)
     }
 
     onSubmit(e) {

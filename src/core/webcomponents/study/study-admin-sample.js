@@ -18,6 +18,7 @@ import { html, LitElement } from "/web_modules/lit-element.js";
 import DetailTabs from "../commons/view/detail-tabs.js";
 import SampleCreate from "../sample/sample-create.js";
 import UtilsNew from "./../../utilsNew.js";
+import { construction } from "../commons/under-construction.js";
 
 export default class StudyAdminSample extends LitElement {
 
@@ -75,11 +76,7 @@ export default class StudyAdminSample extends LitElement {
                         return html`
                             <div class="row">
                                 <div class="col-md-6" style="margin: 20px 10px">
-                                    <div class="guard-page">
-                                        <i class="fas fa-pencil-ruler fa-5x"></i>
-                                        <h3>Component under construction</h3>
-                                        <h3>(Coming Soon)</h3>
-                                    </div>
+                                    ${construction}
                                 </div>
                             </div>`;
                     }

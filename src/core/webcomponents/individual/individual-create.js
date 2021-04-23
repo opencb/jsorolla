@@ -1,5 +1,5 @@
 /**
- * Copyright 2015-2019 OpenCB
+ * Copyright 2015-2021 OpenCB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,9 @@
 import { LitElement, html } from "/web_modules/lit-element.js";
 import UtilsNew from "./../../utilsNew.js";
 import "../commons/tool-header.js";
+import "../phenotype/phenotype-manager.js";
 
-export default class IndividualForm extends LitElement {
+export default class IndividualCreate extends LitElement {
 
     static CREATE_MODE = "create";
     static UPDATE_MODE = "update";
@@ -40,9 +41,6 @@ export default class IndividualForm extends LitElement {
             study: {
                 type: Object
             },
-            mode: {
-                type: String
-            },
             opencgaSession: {
                 type: Object
             },
@@ -54,7 +52,10 @@ export default class IndividualForm extends LitElement {
 
     _init() {
         this._prefix = UtilsNew.randomString(8);
-        this.individual = {}
+        this.individual = {
+            phenotypes: []
+        }
+        this.phenotypes = {}
     }
 
     connectedCallback() {
@@ -150,19 +151,11 @@ export default class IndividualForm extends LitElement {
     }
 
     onSave(e) {
-        if (mode === SampleForm.CREATE_MODE) {
-            this.saveSample()
-        } else {
-            this.updateSample()
-        }
-    }
-
-    onHide() {
-        this.dispatchEvent(new CustomEvent("hide", {
-            detail: {},
-            bubbles: true,
-            composed: true
-        }));
+        // if (mode === SampleForm.CREATE_MODE) {
+        //     this.saveIndividual()
+        // } else {
+        //     this.updateIndividual()
+        // }
     }
 
     onClear() {
@@ -200,7 +193,6 @@ export default class IndividualForm extends LitElement {
                             type: "input-text",
                             display: {
                                 placeholder: "Add a short ID...",
-                                disabled: this.mode === IndividualForm.UPDATE_MODE,
                                 help: {
                                     text: "short individual id for..."
                                 },
@@ -331,7 +323,26 @@ export default class IndividualForm extends LitElement {
                             }
                         }
                     ]
-                }
+                },
+                {
+                    elements: [
+                        {
+                            field: "phenotype",
+                            type: "custom",
+                            display: {
+                                layout: "vertical",
+                                defaultLayout: "vertical",
+                                width: 12,
+                                style: "padding-left: 0px",
+                                render: () => html`
+                                        <phenotype-manager 
+                                            .phenotypes="${this.individual?.phenotypes}"
+                                            .opencgaSession="${this.opencgaSession}" >
+                                        </phenotype-manager>`
+                            }
+                        }
+                    ]
+                },
             ]
         }
     }
@@ -350,4 +361,4 @@ export default class IndividualForm extends LitElement {
 
 }
 
-customElements.define("individual-form", IndividualForm);
+customElements.define("individual-create", IndividualCreate);
