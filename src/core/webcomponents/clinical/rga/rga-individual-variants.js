@@ -17,6 +17,7 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../utilsNew.js";
 import "./../../commons/view/detail-tabs.js";
+import GridCommons from "../../commons/grid-commons.js";
 import VariantGridFormatter from "../../variant/variant-grid-formatter.js";
 
 
@@ -39,6 +40,9 @@ export default class RgaIndividualVariants extends LitElement {
             individual: {
                 type: Object
             },
+            individualId: {
+                type: Object
+            },
             config: {
                 type: Object
             }
@@ -50,8 +54,14 @@ export default class RgaIndividualVariants extends LitElement {
         this._config = this.getDefaultConfig();
         this.gridId = this._prefix + "KnockoutIndividualGrid";
         this.individual = null;
-
     }
+
+    connectedCallback() {
+        super.connectedCallback();
+        this._config = {...this.getDefaultConfig(), ...this.config};
+        this.gridCommons = new GridCommons(this.gridId, this, this._config);
+    }
+
 
     updated(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
@@ -59,6 +69,11 @@ export default class RgaIndividualVariants extends LitElement {
 
         if (changedProperties.has("individual")) {
             this.prepareData();
+            this.renderTableLocale();
+        }
+
+        if (changedProperties.has("individualId")) {
+            console.error("individualId", this.individualId)
             this.renderTable();
         }
 
@@ -67,6 +82,73 @@ export default class RgaIndividualVariants extends LitElement {
         }
     }
 
+    renderTable() {
+        this._query = {...this.query, study: this.opencgaSession.study.fqn, individualId: this.individualId}; // we want to support a query obj param both with or without study.
+        // Checks if the component is not visible or the query hasn't changed
+        if (!this.active || UtilsNew.objectCompare(this._query, this.prevQuery)) {
+            console.warn("query suppressed")
+            return;
+        }
+        this.prevQuery = {...this._query};
+
+        this.table = $("#" + this.gridId);
+        this.table.bootstrapTable("destroy");
+        this.table.bootstrapTable({
+            // url: opencgaHostUrl,
+            columns: this._initTableColumns(),
+            method: "get",
+            sidePagination: "server",
+            uniqueId: "id",
+            // Table properties
+            pagination: this._config.pagination,
+            pageSize: this._config.pageSize,
+            pageList: this._config.pageList,
+            paginationVAlign: "both",
+            formatShowingRows: this.gridCommons.formatShowingRows,
+            showExport: this._config.showExport,
+            detailView: this._config.detailView,
+            detailFormatter: this._config.detailFormatter,
+            formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+            ajax: async params => {
+                const _filters = {
+                    study: this.opencgaSession.study.fqn,
+                    limit: params.data.limit,
+                    skip: params.data.offset || 0,
+                    count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
+                    ...this._query
+                    // limit: 50
+                };
+                this.opencgaSession.opencgaClient.clinical().queryRgaIndividual(_filters)
+                    .then(res => {
+                        console.log("queryRgaIndividual", res);
+                        // this.restResponse = res;
+                        params.success(res);
+                    })
+                    .catch(e => {
+                        console.error(e);
+                        params.error(e);
+                    });
+            },
+            responseHandler: response => {
+                const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
+                return result.response;
+            },
+            onClickRow: (row, selectedElement, field) => {
+                console.log(row);
+                // console.log("variant facet", this.restResponse.getResult(1).buckets.find(gene => gene.value === row.value))
+                this.gridCommons.onClickRow(row.id, row, selectedElement);
+            },
+            onCheck: (row, $element) => this.gridCommons.onCheck(row.id, row),
+            onLoadSuccess: data => this.gridCommons.onLoadSuccess(data, 1),
+            onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse)
+        });
+
+    }
+
+    /**
+     * @deprecated
+     * useful in case rga-individual-grid uses /analysis/clinical/rga/individual/query
+     */
     prepareData() {
         /**
          * iterates over all the genes, all the transcripts, all the variants and builds a `uniqueVariants` map.
@@ -97,7 +179,11 @@ export default class RgaIndividualVariants extends LitElement {
 
     }
 
-    renderTable() {
+    /**
+     * @deprecated
+     * useful in case rga-individual-grid uses /analysis/clinical/rga/individual/query
+     */
+    renderTableLocale() {
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
@@ -190,6 +276,9 @@ export default class RgaIndividualVariants extends LitElement {
     getDefaultConfig() {
         return {
             title: "Individual",
+            pagination: true,
+            pageSize: 10,
+            pageList: [10, 25, 50],
             populationFrequencies: [
                 "GNOMAD_EXOMES:ALL",
                 "GNOMAD_GENOMES:ALL",

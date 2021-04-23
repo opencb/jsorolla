@@ -163,7 +163,7 @@ export default class RgaIndividualGrid extends LitElement {
             detailView: this._config.detailView,
             detailFormatter: this._config.detailFormatter,
             formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
-            ajax: params => {
+            ajax: async params => {
                 const _filters = {
                     study: this.opencgaSession.study.fqn,
                     // order: params.data.order,
@@ -175,8 +175,10 @@ export default class RgaIndividualGrid extends LitElement {
                     // individualId: "112000791",
                     ...this._query
                 };
-                this.opencgaSession.opencgaClient.clinical().queryRgaIndividual(_filters)
+
+                this.opencgaSession.opencgaClient.clinical().summaryRgaIndividual(_filters)
                     .then(rgaIndividualResponse => {
+                        console.log("queryInd", rgaIndividualResponse.getResults())
                         // fetching Case Id of all the individuals (paginated)
                         const individualIds = rgaIndividualResponse.getResults().map(individual => individual.id).filter(Boolean).join(",");
                         if (individualIds) {
@@ -198,9 +200,11 @@ export default class RgaIndividualGrid extends LitElement {
                                         map[clinicalAnalysis.proband.id].push(clinicalAnalysis);
                                     }
                                     for (const individual of rgaIndividualResponse.getResults()) {
-                                        individual.attributes = {
-                                            OPENCGA_CLINICAL_ANALYSIS: map[individual.id]
-                                        };
+                                        if (map[individual.id]) {
+                                            individual.attributes = {
+                                                OPENCGA_CLINICAL_ANALYSIS: map[individual.id]
+                                            };
+                                        }
                                     }
                                     params.success(rgaIndividualResponse);
                                 })
@@ -221,7 +225,7 @@ export default class RgaIndividualGrid extends LitElement {
             },
             responseHandler: response => {
                 const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
-                return this.mapResult(result.response);
+                return result.response;
             },
             onClickRow: (row, selectedElement, field) => {
                 console.log(row);
@@ -256,7 +260,7 @@ export default class RgaIndividualGrid extends LitElement {
 
     geneFormatter(value, row) {
         // return value.length ? (value.length > 20 ? `${value.length} genes` : value.map(gene => gene.name)) : "-";
-        const genes = value.map(gene => `${gene.name}`).join(", ");
+        const genes = value.join(", ");
         if (value && value.length > 20) {
             return `<a tooltip-title="Genes" tooltip-text='${genes}'> ${value.length} genes</a>`;
         } else {
@@ -342,7 +346,7 @@ export default class RgaIndividualGrid extends LitElement {
             ], [
                 {
                     title: "Total",
-                    field: "homozygous"
+                    field: "variantStats.numHomAlt"
                     /* formatter: (_, row) => {
                         return this.getKnockoutCount(row.genes, "HOM_ALT");
                     }*/
@@ -357,25 +361,24 @@ export default class RgaIndividualGrid extends LitElement {
                 },*/
                 {
                     title: "Definite",
-                    field: "ch.definite"
-                    /* formatter: (_, row) => {
-                        console.error("ROW", row);
-                        return row.fatherId && row.motherId ? this.getKnockoutCount(row.genes, "COMP_HET") : "-";
-                    }*/
+                    field: "variantStats.numCompHet",
+                    formatter: (value, row) => {
+                        return row.fatherId && row.motherId && value > 0 ? value : "-";
+                    }
                 },
                 {
                     title: "Probable",
-                    field: "ch.probable"
-                    /* formatter: (_, row) => {
-                        return (row.fatherId && !row.motherId) || (!row.fatherId && row.motherId) ? this.getKnockoutCount(row.genes, "COMP_HET") : "-";
-                    }*/
+                    field: "variantStats.numCompHet",
+                    formatter: (value, row) => {
+                        return ((row.fatherId && !row.motherId) || (!row.fatherId && row.motherId)) && value > 0 ? value : "-";
+                    }
                 },
                 {
                     title: "Possible",
-                    field: "ch.possible"
-                    /* formatter: (_, row) => {
-                        return !row.fatherId && !row.motherId ? this.getKnockoutCount(row.genes, "COMP_HET") : "-";
-                    }*/
+                    field: "variantStats.numCompHet",
+                    formatter: (value, row) => {
+                        return !row.fatherId && !row.motherId && value > 0 ? value : "-";
+                    }
                 }
             ]
         ];
@@ -486,7 +489,7 @@ export default class RgaIndividualGrid extends LitElement {
                     render: (individual, active, opencgaSession) => {
                         return html`
                             <h3>Variants in ${individual?.id}</h3>
-                            <rga-individual-variants .individual="${individual}" .opencgaSession="${opencgaSession}"></rga-individual-variants>
+                            <rga-individual-variants .individualId="${individual?.id}" .active=${active} .opencgaSession="${opencgaSession}"></rga-individual-variants>
                         `;
                     }
                 }, {
