@@ -57,9 +57,6 @@ export default class DetailTabs extends LitElement {
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("property")) {
-            this.propertyObserver();
-        }
     }
 
     _changeBottomTab(e) {

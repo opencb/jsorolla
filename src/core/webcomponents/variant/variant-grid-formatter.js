@@ -749,7 +749,7 @@ export default class VariantGridFormatter {
         for (const popFreq of popFreqsArray) {
             const arr = popFreq.split("::");
             const color = VariantGridFormatter._getPopulationFrequencyColor(arr[1], populationFrequenciesColor);
-            const freq = (arr[1] !== 0 && arr[1] !== "0") ? arr[1] : "0.00 (NA)";
+            const freq = (arr[1] !== 0 && arr[1] !== "0") ? arr[1] : "<span style='font-style: italic'>Not Observed</span>";
             tooltip += `<div>
                             <span><i class='fa fa-xs fa-square' style='color: ${color}' aria-hidden='true'></i>
                                 <label style='padding-left: 5px'>${arr[0]}:</label>
@@ -793,7 +793,7 @@ export default class VariantGridFormatter {
         for (const popFreq of popFreqsArray) {
             const arr = popFreq.split("::");
             const color = VariantGridFormatter._getPopulationFrequencyColor(arr[1], populationFrequenciesColor);
-            const freq = (arr[1] !== 0 && arr[1] !== "0") ? arr[1] : "0.00 (NA)";
+            const freq = (arr[1] !== 0 && arr[1] !== "0") ? arr[1] : "<span style='font-style: italic'>Not Observed</span>";
             tooltip += `<div>
                             <span><i class='fa fa-xs fa-square' style='color: ${color}' aria-hidden='true'></i>
                                 <label style='padding-left: 5px'>${arr[0]}:</label>

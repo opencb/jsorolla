@@ -41,7 +41,7 @@ export default class VariantConsequenceTypeView extends LitElement {
     }
 
     _init() {
-        this._prefix = "vctv" + UtilsNew.randomString(6);
+        this._prefix = UtilsNew.randomString(8);
 
         this._consequenceTypeColorMap = this._getConsequenceTypeColorMap();
     }

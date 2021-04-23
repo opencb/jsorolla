@@ -123,7 +123,7 @@ export default class OpencgaExport extends LitElement {
             return "OpencgaSession not available";
         }
 
-        let q = {...this.query, study: this.opencgaSession.study.fqn, sid: this.opencgaSession.token};
+        let q = {...this.query, study: this.opencgaSession.study.fqn, sid: this.opencgaSession.token, limit: 10};
         if (this.config.resource === "FILE") {
             q = {...q, type: this.config.resource};
         }
@@ -155,7 +155,7 @@ export default class OpencgaExport extends LitElement {
     }
 
     generateR() {
-        const q = {...this.query, study: this.opencgaSession.study.fqn};
+        const q = {...this.query, study: this.opencgaSession.study.fqn, limit: 10};
         const clientsName = {
             "VARIANT": "variantClient",
             "FILE": "fileClient",
@@ -169,12 +169,12 @@ export default class OpencgaExport extends LitElement {
         const str = `library(opencgaR)
 con <- initOpencgaR(host = "${this.opencgaSession.server.host}", version = "v2")
 con <- opencgaLogin(opencga = con, userid = "", passwd = "")
-${this.resourceMap[this.config.resource]} = ${clientsName[this.config.resource]}(OpencgaR = con, endpointName = "${this.method}", params = list(${Object.entries(q).map(([k, v]) => `${k}='${v}'`).join(", ")}, limit=10, include="id"))`;
+${this.resourceMap[this.config.resource]} = ${clientsName[this.config.resource]}(OpencgaR = con, endpointName = "${this.method}", params = list(${Object.entries(q).map(([k, v]) => `${k}='${v}'`).join(", ")}, include="id"))`;
         return this.lineSplitter(str);
     }
 
     generatePython() {
-        const q = {...this.query, study: this.opencgaSession.study.fqn};
+        const q = {...this.query, study: this.opencgaSession.study.fqn, limit: 10};
         const str = `
 from pyopencga.opencga_config import ClientConfiguration
 from pyopencga.opencga_client import OpencgaClient
@@ -187,6 +187,7 @@ print(${this.resourceMap[this.config.resource]}.get_responses())`;
     }
 
     generateJs() {
+        const q = {...this.query, study: this.opencgaSession.study.fqn, limit: 10};
         const str = `
 import {OpenCGAClient} from "./opencga-client.js";
 const client = new OpenCGAClient({
@@ -198,7 +199,7 @@ const client = new OpenCGAClient({
     try {
         await client.login(user, password)
         const session = await client.createSession();
-        const restResponse = await session.opencgaClient.${this.resourceMap[this.config.resource]}().search(${JSON.stringify({...this.query, study: this.opencgaSession.study.fqn})});
+        const restResponse = await session.opencgaClient.${this.resourceMap[this.config.resource]}().${this.method}(${JSON.stringify(q)});
         console.log(restResponse.getResults());
     } catch (e) {
         console.error(e)

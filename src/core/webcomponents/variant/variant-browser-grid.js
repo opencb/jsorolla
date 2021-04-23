@@ -168,6 +168,7 @@ export default class VariantBrowserGrid extends LitElement {
                         limit: params.data.limit || tableOptions.pageSize,
                         skip: params.data.offset || 0,
                         count: !tableOptions.pageNumber || tableOptions.pageNumber === 1,
+                        includeStudy: "all",
                         summary: !this.query.sample && !this.query.family,
                         ...this.query
                     };
@@ -390,15 +391,15 @@ export default class VariantBrowserGrid extends LitElement {
     }
 
     cohortFormatter(value, row, index) {
-        // TODO where does meta comes from?
-        //console.error(this.meta)
-
         if (row && row.studies?.length > 0 && row.studies[0].stats) {
             const cohortStats = new Map();
             for (const study of row.studies) {
-                if (study.studyId === this.meta.study) {
+                // Now we support both study.is and study.fqn
+                let metaStudy = study.studyId.includes("@") ? this.meta.study : this.meta.study.split(":")[1];
+                if (study.studyId === metaStudy) {
                     for (const cohortStat of study.stats) {
-                        cohortStats.set(cohortStat.cohortId, Number(cohortStat.altAlleleFreq).toFixed(4));
+                        let freq = Number(cohortStat.altAlleleFreq);
+                        cohortStats.set(cohortStat.cohortId, freq > 0 ? freq.toPrecision(2) : 0);
                     }
                     break;
                 }
@@ -415,7 +416,8 @@ export default class VariantBrowserGrid extends LitElement {
             for (const popFreqIdx in row.annotation.populationFrequencies) {
                 const popFreq = row.annotation.populationFrequencies[popFreqIdx];
                 if (this.meta.study === popFreq.study) { // && this.meta.populationMap[popFreq.population] === true
-                    popFreqMap.set(popFreq.population, Number(popFreq.altAlleleFreq).toFixed(4));
+                    let freq = Number(popFreq.altAlleleFreq);
+                    popFreqMap.set(popFreq.population, freq > 0 ? freq.toPrecision(2) : 0);
                 }
             }
             return VariantGridFormatter.createPopulationFrequenciesTable(this.meta.populations, popFreqMap, this.meta.context.populationFrequencies.style);
@@ -451,7 +453,7 @@ export default class VariantBrowserGrid extends LitElement {
                     title: study.id,
                     field: study.id,
                     meta: {
-                        study: study.id,
+                        study: study.fqn,
                         cohorts: study.cohorts,
                         colors: this.populationFrequencies.style,
                         context: this

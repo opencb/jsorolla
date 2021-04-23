@@ -222,11 +222,12 @@ export default class VariantInterpreterGrid extends LitElement {
                         includeSampleId: "true",
 
                         approximateCount: true,
-                        approximateCountSamplingSize: 200,
+                        approximateCountSamplingSize: 500,
 
                         // populationFrequencyAlt: "1kG_phase3:ALL<0.001",
 
                         ...this.query,
+
                         // sample: this.clinicalAnalysis.proband.samples[0].id + ":0/0,0/1,1/1",
                         // unknownGenotype: "0/0"
                     };
@@ -234,6 +235,8 @@ export default class VariantInterpreterGrid extends LitElement {
                     this.opencgaSession.opencgaClient.clinical().queryVariant(filters)
                         .then(res => {
                             this.isApproximateCount = res.responses[0].attributes?.approximateCount ?? false;
+                            // console.log(res.responses[0].results);
+                            // debugger
                             params.success(res);
                         })
                         .catch(e => {
@@ -481,7 +484,8 @@ export default class VariantInterpreterGrid extends LitElement {
                                 title: caller.format[i],
                                 field: {
                                     vcfColumn: "format",
-                                    sample: samples[0],
+                                    // sample: samples[0],
+                                    sample: this.clinicalAnalysis.proband.samples[0],
                                     key: caller.format[i]
                                 },
                                 rowspan: 1,
@@ -665,7 +669,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     align: "center"
                 },
                 {
-                    title: "Prediction",
+                    title: `${this.clinicalAnalysis.type !== "CANCER" ? `ACMG-based <br> Automatic Prediction` : "Prediction"}`,
                     field: "prediction",
                     rowspan: 1,
                     colspan: 1,
@@ -911,7 +915,7 @@ export default class VariantInterpreterGrid extends LitElement {
             alleleStringLengthMax: 10,
 
             genotype: {
-                type: "ALLELES"
+                type: "VAF"
             },
             header: {
                 horizontalAlign: "center",
@@ -948,7 +952,15 @@ export default class VariantInterpreterGrid extends LitElement {
                 {
                     id: "tnhaplotyper2",
                     info: ["DP", "ECNT", "TLOD", "P_GERMLINE"],
-                }
+                },
+                {
+                    id: "Pisces",
+                    format: ["SB", "NC", "AQ"],
+                },
+                // {
+                //     id: "CRAFT",
+                //     format: ["FC"],
+                // }
             ],
 
             evidences: {
@@ -969,10 +981,10 @@ export default class VariantInterpreterGrid extends LitElement {
     async onApplySettings(e) {
         try {
             this._config = {...this.getDefaultConfig(), ...this.opencgaSession.user.configs?.IVA?.interpreterGrid, ...this.__config};
-            const userConfig = await this.opencgaSession.opencgaClient.updateUserConfigs({
-                ...this.opencgaSession.user.configs.IVA,
-                interpreterGrid: this._config
-            });
+            // const userConfig = await this.opencgaSession.opencgaClient.updateUserConfigs({
+            //     ...this.opencgaSession.user.configs.IVA,
+            //     interpreterGrid: this._config
+            // });
             this.renderVariants();
         } catch (e) {
             UtilsNew.notifyError(e);

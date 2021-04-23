@@ -46,7 +46,7 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
     }
 
     _init() {
-        this._prefix = "sf-" + UtilsNew.randomString(6) + "_";
+        this._prefix = UtilsNew.randomString(8);
         this.variantAnnotation = {};
     }
 
