@@ -32,14 +32,17 @@ export default class VariantCohortStats extends LitElement {
 
     static get properties() {
         return {
-            opencgaSession: {
-                type: Object
-            },
             variantId: {
                 type: String,
             },
+            variant: {
+                type: Object,
+            },
             active: {
                 type: Boolean,
+            },
+            opencgaSession: {
+                type: Object
             },
             config: {
                 type: Object
@@ -48,26 +51,20 @@ export default class VariantCohortStats extends LitElement {
     }
 
     _init() {
-        this._prefix = "ovcs-" + UtilsNew.randomString(6);
+        this._prefix = UtilsNew.randomString(8);
         this.active = false;
     }
 
-    updated(changedProperties) {
-        if (changedProperties.has("opencgaSession") || changedProperties.has("variantId") || changedProperties.has("active")) {
-            this.fetchCohortStats();
+    update(changedProperties) {
+        if (changedProperties.has("variantId") || changedProperties.has("active")) {
+            this.variantIdObserver();
         }
+
+        super.update(changedProperties);
     }
 
-    fetchCohortStats() {
-        if (typeof this.variantId !== "undefined" && this.variantId.split(":").length > 2 && this.active) {
-            // const cohorts = {};
-            // for (const studyCohorts in this.config.cohorts[this.opencgaSession.project.id]) {
-            //     cohorts[studyCohorts] = new Set();
-            //     for (const cohort of this.config.cohorts[this.opencgaSession.project.id][studyCohorts]) {
-            //         cohorts[studyCohorts].add(cohort.id);
-            //     }
-            // }
-            // const _this = this;
+    variantIdObserver() {
+        if (this.variantId && this.variantId.split(":").length > 2 && this.active) {
             const params = {
                 id: this.variantId,
                 study: this.opencgaSession.study.fqn,
@@ -78,7 +75,7 @@ export default class VariantCohortStats extends LitElement {
             this.opencgaSession.opencgaClient.variants().query(params)
                 .then(response => {
                     if (response.responses[0].results[0]) {
-                        this.studies = response.responses[0].results[0].studies;
+                        this.variant = response.responses[0].results[0];
                         this.requestUpdate();
                     }
                 })
@@ -94,8 +91,9 @@ export default class VariantCohortStats extends LitElement {
             studyNames[study.id] = study.name;
             studyNames[study.fqn] = study.name;
         }
+
         return html`
-            ${this.studies && this.studies.length && this.studies.map(study => html`
+            ${this.variant?.studies?.length > 0 && this.variant.studies.map(study => html`
                 <h3> 
                     ${studyNames[study.studyId]}
                 </h3>

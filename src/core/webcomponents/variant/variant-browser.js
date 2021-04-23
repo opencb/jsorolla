@@ -531,7 +531,7 @@ export default class VariantBrowser extends LitElement {
                                 return html`
                                     <variant-cohort-stats
                                             .opencgaSession="${opencgaSession}"
-                                            .variantId="${variant.id}"
+                                            .variant="${variant}"
                                             .config="${this.cohortConfig}"
                                             .active="${active}">
                                     </variant-cohort-stats>`;
@@ -544,7 +544,7 @@ export default class VariantBrowser extends LitElement {
                                 return html`
                                     <opencga-variant-samples
                                             .opencgaSession="${opencgaSession}"
-                                            variantId="${variant.id}"
+                                            .variantId="${variant.id}"
                                             .active="${active}">
                                     </opencga-variant-samples>`;
                             }
@@ -742,11 +742,11 @@ export default class VariantBrowser extends LitElement {
                                 </variant-browser-grid>
 
                                 <!-- Bottom tabs with specific variant information -->
-                                <variant-browser-detail .opencgaSession="${this.opencgaSession}"
+                                <variant-browser-detail .variant="${this.variant}"
+                                                        .opencgaSession="${this.opencgaSession}"
                                                         .cellbaseClient="${this.cellbaseClient}"
-                                                        .variant="${this.variant}"
                                                         .config="${this._config.filter.detail}">
-                                    </variant-browser-detail>
+                                </variant-browser-detail>
                             </div>
 
                             <div id="facet-tab" class="content-tab">

@@ -168,12 +168,13 @@ export default class VariantBrowserGrid extends LitElement {
                         limit: params.data.limit || tableOptions.pageSize,
                         skip: params.data.offset || 0,
                         count: !tableOptions.pageNumber || tableOptions.pageNumber === 1,
+                        includeStudy: "all",
                         summary: !this.query.sample && !this.query.family,
-                        // includeStudy: "all",
                         ...this.query
                     };
                     this.opencgaSession.opencgaClient.variants().query(filters)
                         .then(res => {
+                            debugger
                             params.success(res)
                         })
                         .catch(e => {
