@@ -17,7 +17,7 @@
 import { LitElement, html } from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
 import "../commons/tool-header.js";
-import "./phenotype-form.js";
+import "./phenotype-manager.js";
 import "../annotations/annotationSet-form.js";
 
 export default class SampleCreate extends LitElement {
@@ -51,7 +51,9 @@ export default class SampleCreate extends LitElement {
 
     _init() {
         this._prefix = UtilsNew.randomString(8);
-        this.sample = {};
+        this.sample = {
+            phenotypes: []
+        };
         this.phenotype = {};
         this.annotationSets = {};
     }
@@ -61,13 +63,13 @@ export default class SampleCreate extends LitElement {
         this._config = { ...this.getDefaultConfig(), ...this.config };
     }
 
-    update(changedProperties) {
-        if (changedProperties.has("sample")) {
-            this.sampleObserver();
-        }
+    // update(changedProperties) {
+    //     if (changedProperties.has("sample")) {
+    //         this.sampleObserver();
+    //     }
 
-        super.update(changedProperties);
-    }
+    //     super.update(changedProperties);
+    // }
 
     sampleObserver() {
         // When updating wee need to keep a private copy of the original object
@@ -118,7 +120,7 @@ export default class SampleCreate extends LitElement {
                             type: "input-text",
                             required: true,
                             display: {
-                                placeholder: "Add a short ID...", 
+                                placeholder: "Add a short ID...",
                                 help: {
                                     text: "short Sample id for thehis as;lsal"
                                 },
@@ -269,14 +271,14 @@ export default class SampleCreate extends LitElement {
                                 defaultLayout: "vertical",
                                 width: 12,
                                 style: "padding-left: 0px",
-                                render: (sample) => html`
-                                        <phenotype-form 
-                                            .sample="${this.sample}"
-                                            .phenotype="${this.phenotype}"
+                                render: () => html`
+                                        <phenotype-manager 
+                                            .phenotypes="${this.sample?.phenotypes}"
                                             .opencgaSession="${this.opencgaSession}" 
-                                            @fieldChange="${e => this.onFieldChange(e)}">
-                                        </phenotype-form>
-                                    `
+                                            @fieldChange="${this.onPhenotypeChange}"
+                                            @removeItem="${this.onRemovePhenotype}"
+                                            @submit="${this.onAddPhenotype}">
+                                        </phenotype-manager>`
                             }
                         },
                         {
@@ -290,8 +292,7 @@ export default class SampleCreate extends LitElement {
                                 render: (sample) => html`
                                         <annotation-set-form 
                                             .sample="${this.sample}"
-                                            .opencgaSession="${this.opencgaSession}" 
-                                            @fieldChange="${e => this.onFieldChange(e)}">
+                                            .opencgaSession="${this.opencgaSession}" >
                                         </annotation-set-form>
                                     `
                             }
@@ -301,8 +302,6 @@ export default class SampleCreate extends LitElement {
             ]
         }
     }
-
-
 
     saveSample() {
         // this.opencgaSession.opencgaClient.projects().create(this.project)
@@ -344,40 +343,15 @@ export default class SampleCreate extends LitElement {
         //     });
     }
 
-
-
     onFieldChange(e) {
-        // let param = e.detail.param;
         let field = ""
         let prop = ""
-        // let value = e.detail.value;
-
-        // if (param.includes(".")) {
-        //     let cat = param.split(".")[0]
-        //     let prop = param.split(".")[1]
-
-        //     if (param.search("phenotype") >= 0) {
-        //         this.phenotype[prop] = value
-        //         return
-        //     }
-
-        //     if (!this.sample[cat]) {
-        //         this.sample[cat] = {};
-        //     }
-
-        //     this.sample[cat][prop] = value;
-        //     return
-        // }
-
-        // this.sample[param] = value
-        // console.log("test: ", this.sample, this.phenotype)
-
         switch (e.detail.param) {
             case "id":
             case "description":
             case "individualId":
             case "somatic":
-                    this.sample[e.detail.param] = e.detail.value;
+                this.sample[e.detail.param] = e.detail.value;
                 break;
             case "status.name":
             case "status.description":
@@ -397,13 +371,7 @@ export default class SampleCreate extends LitElement {
                 if (this._sample[field]) {
                     this.sample[field] = {}
                 }
-
                 this.sample[field][prop] = e.detail.value
-                break;
-            case "phenotype.ageOfOnset":
-            case "phenotype.status":
-                prop = e.detail.param.split(".")[1];
-                this.phenotype[prop] = e.detail.value;
                 break;
             case "annotationSet.id":
             case "annotationSet.name":
@@ -413,8 +381,45 @@ export default class SampleCreate extends LitElement {
         }
     }
 
-    onClear() {
-        console.log("OnClear sample form")
+    onPhenotypeChange(e) {
+        self = document.querySelector("sample-create")
+        console.log("onPhenotypeChange ", e.detail.param, e.detail.value, self)
+        let field = ""
+        switch (e.detail.param) {
+            case "phenotype.ageOfOnset":
+            case "phenotype.status":
+                field = e.detail.param.split(".")[1];
+                if (!self.phenotype[field]) {
+                    self.phenotype[field] = {}
+                }
+
+                self.phenotype[field] = e.detail.value;
+                break;
+        }
+    }
+
+    onRemovePhenotype(e) {
+        console.log("This is to remove a item ");
+        const pheno_manager = document.querySelector("phenotype-manager");
+        self = document.querySelector("sample-create");
+        self.sample = {
+            ...self.sample,
+            phenotypes: pheno_manager.phenotypes.filter(item => item !== e.detail.phenotype)
+        }
+        e.stopPropagation();
+    }
+
+    onAddPhenotype() {
+        console.log("Add Phenotype");
+        const pheno_manager = document.querySelector("phenotype-manager");
+        self = document.querySelector("sample-create");
+        self.sample.phenotypes.push(self.phenotype);
+        self.phenotype = {};
+        pheno_manager.onShowForm();
+    }
+
+    onClear(e) {
+        console.log("OnClear sample form",e)
     }
 
     onSubmit(e) {

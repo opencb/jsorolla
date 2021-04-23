@@ -18,7 +18,7 @@ import { LitElement, html } from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
 import "../commons/tool-header.js";
 
-export default class PhenotypeForm extends LitElement {
+export default class PhenotypeManager extends LitElement {
 
     // static VIEW_MODE = "view";
     static UPDATE_MODE = "update";
@@ -35,8 +35,8 @@ export default class PhenotypeForm extends LitElement {
 
     static get properties() {
         return {
-            sample: {
-                type: Object
+            phenotypes: {
+                type: Array
             },
             mode: {
                 type: String
@@ -52,10 +52,7 @@ export default class PhenotypeForm extends LitElement {
 
     _init() {
         this._prefix = UtilsNew.randomString(8);
-
-        // We initialise the sample in for CREATE
-        // this.sample = {}
-        // this.phenotype = {}
+        this.phenotypes = []
         this.showSubForm = false;
     }
 
@@ -80,7 +77,7 @@ export default class PhenotypeForm extends LitElement {
             buttons: {
                 show: true,
                 cancelText: "Cancel",
-                classes:"pull-right"
+                classes: "pull-right"
             },
             display: {
                 labelWidth: 3,
@@ -113,65 +110,20 @@ export default class PhenotypeForm extends LitElement {
         }
     }
 
-    onSubmit(e) {
-        // TODO: refactor parentNode (look another way to get values from subform instead this.parentNode)
-        // this inside this function is: data-form (subform)
-        // this.parentNode is: this class sample-form
-
-        // The properties of the sample-form can be accessed this way. 
-        // I had to do it this way just because of the phenotype property.
-        //the phenotype property has a fixed instance (even if you leave it empty or create a new instance), 
-        //trying to add the element in the list of phenotypes inside sample will overwrite the first element of the array (line #130).
-        let parentForm = document.querySelector("sample-create")
-
-        if (!this.sample.phenotype) {
-            this.sample.phenotype = []
-        }
-        
-        // this.sample.phenotype.push(this.phenotype) Override the first element of the array
-        // this.phenotype = {} or this.phenotype = new Object() it's not work
-        
-        this.sample.phenotype.push(parentForm.phenotype)
-        // maybe this work
-        // this.sample.phenotype = {... this.sample.phenotype,phenotype: this.phenotype}
-        parentForm.phenotype = {}
-
-        console.log("added Item and close", this.sample)
-        
-        document.querySelector(".subform-test select-field-filter").value = ""
-        document.querySelector(".subform-test text-field-filter").value = ""
-        this.onShowForm()
-
+    onRemoveItem(item, e) {
+        this.dispatchEvent(new CustomEvent("removeItem", {
+            detail: {
+                phenotype: item
+            },
+            bubbles: false,
+            composed: true
+        }));
     }
 
-    onClear(e) {
-        // self = this component (Phenotype-form)
-        let self = this
-        let parentForm = document.querySelector("sample-create")
-        console.log("Cancel Subform phenotype", self)
-        
-        // TODO: look how to binding property with data-form to avoid use querySelector
-        //to clear input text..
-        
-        self.querySelector("input").value = ""
-        self.querySelector(".subform-test text-field-filter").value = ""
-        
-        parentForm.phenotype = {}
-
-        // avoid to execute other components listen this function too
-        // sample-form has this function too.. 
-        //without e.stopPropagation both function are called
+    onClearForm(e){
+        console.log("OnClear Phenotype form ", e)
         this.onShowForm()
         e.stopPropagation()
-    }
-    
-    onRemoveItem(item,e){
-        console.log("Elemento: ", item)
-        
-        this.sample = {
-            ...this.sample,
-            phenotype: this.sample.phenotype.filter(element => element !== item)
-        };
     }
 
     onShowForm() {
@@ -194,7 +146,7 @@ export default class PhenotypeForm extends LitElement {
             <div class="clearfix"></div>
             <hr style="margin:0px"> 
             <div class="col-md-12" style="padding: 10px 20px">
-                ${this.sample?.phenotype?.map((item) => html`
+                ${this.phenotypes?.map((item) => html`
                     <span class="label label-primary" style="font-size: 14px; margin:5px; padding-right:0px; display:inline-block">${item.ageOfOnset}
                         <span class="badge" style="cursor:pointer" @click=${() => this.onRemoveItem(item, this)}>X</span>
                     </span>`
@@ -204,10 +156,9 @@ export default class PhenotypeForm extends LitElement {
 
         <div class="subform-test" style="${this.showSubForm ? "display:block" : "display:none"}">
             <data-form  
-                .data=${this.sample}
+                .data=${this.phenotypes}
                 .config="${this._config}"
-                @clear="${this.onClear}"
-                @submit="${this.onSubmit}">
+                @clear="${this.onClearForm}">
             </data-form>
         </div>
     `;
@@ -215,4 +166,4 @@ export default class PhenotypeForm extends LitElement {
 
 }
 
-customElements.define("phenotype-form", PhenotypeForm);
+customElements.define("phenotype-manager", PhenotypeManager);
