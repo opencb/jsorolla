@@ -14,11 +14,9 @@
  * limitations under the License.
  */
 
-import { LitElement, html } from "/web_modules/lit-element.js";
-import UtilsNew from "../../utilsNew.js";
 import "../commons/tool-header.js";
 
-export default class BaseManager extends LitElement {
+export const BaseManagerMixin = (superClass) => class extends superClass {
 
     static UPDATE_MODE = "update";
     static CREATE_MODE = "create";

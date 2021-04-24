@@ -16,10 +16,10 @@
 
 import { LitElement, html } from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
+import { BaseManagerMixin } from "./base-manager.js";
 import "../commons/tool-header.js";
-import BaseManager from "./base-manager.js";
 
-export default class PhenotypeManager extends BaseManager{
+export default class PhenotypeManager extends BaseManagerMixin(LitElement){
 
     // static VIEW_MODE = "view";
     static UPDATE_MODE = "update";
