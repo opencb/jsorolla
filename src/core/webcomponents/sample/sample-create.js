@@ -274,10 +274,9 @@ export default class SampleCreate extends LitElement {
                                 render: () => html`
                                         <phenotype-manager 
                                             .phenotypes="${this.sample?.phenotypes}"
-                                            .opencgaSession="${this.opencgaSession}" 
-                                            @fieldChange="${this.onPhenotypeChange}"
-                                            @removeItem="${this.onRemovePhenotype}"
-                                            @submit="${this.onAddPhenotype}">
+                                            .opencgaSession="${this.opencgaSession}"
+                                            @addItem="${e => this.onAddPhenotype(e)}"
+                                            @removeItem="${e => this.onRemovePhenotype(e)}">
                                         </phenotype-manager>`
                             }
                         },
@@ -392,7 +391,6 @@ export default class SampleCreate extends LitElement {
                 if (!self.phenotype[field]) {
                     self.phenotype[field] = {}
                 }
-
                 self.phenotype[field] = e.detail.value;
                 break;
         }
@@ -400,22 +398,16 @@ export default class SampleCreate extends LitElement {
 
     onRemovePhenotype(e) {
         console.log("This is to remove a item ");
-        const pheno_manager = document.querySelector("phenotype-manager");
-        self = document.querySelector("sample-create");
-        self.sample = {
-            ...self.sample,
-            phenotypes: pheno_manager.phenotypes.filter(item => item !== e.detail.phenotype)
+        this.sample = {
+            ...this.sample,
+            phenotypes: this.sample.phenotypes
+                .filter(item => item !== e.detail.phenotype)
         }
-        e.stopPropagation();
     }
 
-    onAddPhenotype() {
-        console.log("Add Phenotype");
-        const pheno_manager = document.querySelector("phenotype-manager");
-        self = document.querySelector("sample-create");
-        self.sample.phenotypes.push(self.phenotype);
-        self.phenotype = {};
-        pheno_manager.onShowForm();
+    onAddPhenotype(e) {
+        console.log("Item to add", e.detail.phenotype)
+        this.sample.phenotypes.push(e.detail.phenotype)
     }
 
     onClear(e) {

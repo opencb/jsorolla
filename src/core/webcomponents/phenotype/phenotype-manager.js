@@ -19,7 +19,7 @@ import UtilsNew from "../../utilsNew.js";
 import "../commons/tool-header.js";
 import BaseManager from "./base-manager.js";
 
-export default class PhenotypeManager extends BaseManager {
+export default class PhenotypeManager extends BaseManager{
 
     // static VIEW_MODE = "view";
     static UPDATE_MODE = "update";
@@ -41,6 +41,7 @@ export default class PhenotypeManager extends BaseManager {
     _init() {
         this._prefix = UtilsNew.randomString(8);
         this.phenotypes = []
+        this.phenotype = {}
         this.showSubForm = false;
     }
 
@@ -96,6 +97,33 @@ export default class PhenotypeManager extends BaseManager {
         this.requestUpdate();
     }
 
+    onAddPhenotype() {
+        this.dispatchEvent(new CustomEvent("addItem", {
+            detail: {
+                phenotype: this.phenotype
+            },
+            bubbles: true,
+            composed: true
+        }));
+        this.onShowForm()
+        this.phenotype = {}
+    }
+
+    onPhenotypeChange(e) {
+        console.log("onPhenotypeChange ", e.detail.param, e.detail.value)
+        let field = ""
+        switch (e.detail.param) {
+            case "phenotype.ageOfOnset":
+            case "phenotype.status":
+                field = e.detail.param.split(".")[1];
+                if (!this.phenotype[field]) {
+                    this.phenotype[field] = {}
+                }
+                this.phenotype[field] = e.detail.value;
+                break;
+        }
+    }
+
     render() {
         return html`
         <div class="row">
@@ -114,7 +142,7 @@ export default class PhenotypeManager extends BaseManager {
                     <span class="label label-primary" style="font-size: 14px; margin:5px; padding-right:0px; display:inline-block">${item.ageOfOnset}
                         <span class="badge" style="cursor:pointer" @click=${() => this.onRemoveItem(item, this)}>X</span>
                     </span>`
-        )}
+                )}
             </div>
         </div>
 
@@ -122,7 +150,9 @@ export default class PhenotypeManager extends BaseManager {
             <data-form  
                 .data=${this.phenotypes}
                 .config="${this._config}"
-                @clear="${this.onClearForm}">
+                @fieldChange="${this.onPhenotypeChange}"
+                @clear="${this.onClearForm}"
+                @submit="${this.onAddPhenotype}">
             </data-form>
         </div>
     `;
