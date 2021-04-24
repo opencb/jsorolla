@@ -307,7 +307,23 @@ class VariantInterpreterBrowserRd extends LitElement {
                             {
                                 id: "sample-genotype",
                                 title: "Sample Genotype",
-                                visible: () => this.clinicalAnalysis.type.toUpperCase() === "SINGLE"
+                                visible: () => this.clinicalAnalysis.type.toUpperCase() === "SINGLE",
+                                params: {
+                                    genotypes: [
+                                        {
+                                            id: "0/1", name: "HET"
+                                        },
+                                        {
+                                            id: "1/1", name: "HOM ALT"
+                                        },
+                                        {
+                                            separator: true
+                                        },
+                                        {
+                                            id: "1", name: "HEMI"
+                                        }
+                                    ]
+                                }
                             },
                             {
                                 id: "sample",

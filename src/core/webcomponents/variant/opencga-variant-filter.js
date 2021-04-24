@@ -364,7 +364,13 @@ export default class OpencgaVariantFilter extends LitElement {
                         </sample-filter>`;
                     break;
                 case "sample-genotype":
-                    content = html`<sample-genotype-filter .sample="${this.preparedQuery.sample}" @filterChange="${e => this.onFilterChange("sample", e.detail.value)}"></sample-genotype-filter>`;
+                    let sampleConfig = subsection.params?.genotypes ? {genotypes: subsection.params.genotypes} : {};
+                    content = html`
+                        <sample-genotype-filter 
+                                .sample="${this.preparedQuery.sample}"
+                                .config="${sampleConfig}"
+                                @filterChange="${e => this.onFilterChange("sample", e.detail.value)}">
+                        </sample-genotype-filter>`;
                     break;
                 case "variant-file":
                     let files = [];
