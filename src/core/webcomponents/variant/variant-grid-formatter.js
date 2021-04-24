@@ -675,57 +675,59 @@ export default class VariantGridFormatter {
         return "-";
     }
 
-    static cohortStatsInfoTooltipContent(populationFrequencies) {
-        return `One coloured square is shown for each cohort. Frequencies are coded with colours which classify values 
-                into 'very rare', 'rare', 'average', 'common' or 'missing', see 
-                <a href='http://www.dialogues-cns.com/wp-content/uploads/2015/03/DialoguesClinNeurosci-17-69-g001.jpg' target='_blank'>
-                    http://www.dialogues-cns.com/wp-content/uploads/2015/03/DialoguesClinNeurosci-17-69-g001.jpg
-                </a>. Please, leave the cursor over each square to visualize the actual frequency values.
-                <div style='padding: 10px 0px 0px 0px'><label>Legend: </label></div>
-                <div><span><i class='fa fa-square' style='color: ${populationFrequencies.style.veryRare}' aria-hidden='true'></i> Very rare:  freq < 0.001</span></div>
-                <div><span><i class='fa fa-square' style='color: ${populationFrequencies.style.rare}' aria-hidden='true'></i> Rare:  freq < 0.005</span></div>
-                <div><span><i class='fa fa-square' style='color: ${populationFrequencies.style.average}' aria-hidden='true'></i> Average:  freq < 0.05</span></div>
-                <div><span><i class='fa fa-square' style='color: ${populationFrequencies.style.common}' aria-hidden='true'></i> Common:  freq >= 0.05</span></div>
-                <div><span><i class='fa fa-square' style='color: black' aria-hidden='true'></i> Not observed</span></div>`;
-    }
+    // static cohortStatsInfoTooltipContent(populationFrequencies) {
+    //     return `One coloured square is shown for each cohort. Frequencies are coded with colours which classify values 
+    //             into 'very rare', 'rare', 'average', 'common' or 'missing', see 
+    //             <a href='http://www.dialogues-cns.com/wp-content/uploads/2015/03/DialoguesClinNeurosci-17-69-g001.jpg' target='_blank'>
+    //                 http://www.dialogues-cns.com/wp-content/uploads/2015/03/DialoguesClinNeurosci-17-69-g001.jpg
+    //             </a>. Please, leave the cursor over each square to visualize the actual frequency values.
+    //             <span style='font-weight: bold'>Note that that all frequencies are percentages.</span>
+    //             <div style='padding: 10px 0px 0px 0px'><label>Legend: </label></div>
+    //             <div><span><i class='fa fa-square' style='color: ${populationFrequencies.style.veryRare}' aria-hidden='true'></i> Very rare:  freq < 0.001</span></div>
+    //             <div><span><i class='fa fa-square' style='color: ${populationFrequencies.style.rare}' aria-hidden='true'></i> Rare:  freq < 0.005</span></div>
+    //             <div><span><i class='fa fa-square' style='color: ${populationFrequencies.style.average}' aria-hidden='true'></i> Average:  freq < 0.05</span></div>
+    //             <div><span><i class='fa fa-square' style='color: ${populationFrequencies.style.common}' aria-hidden='true'></i> Common:  freq >= 0.05</span></div>
+    //             <div><span><i class='fa fa-square' style='color: black' aria-hidden='true'></i> Not observed</span></div>`;
+    // }
 
     // TODO remove this from variant-interpreter-grid
-    addPopulationFrequenciesInfoTooltip(selector, populationFrequencies) {
-        $(selector).qtip({
-            content: {
-                title: "Population Frequencies",
-                text: function (event, api) {
-                    return `One coloured square is shown for each population. Frequencies are coded with colours which classify values 
-                            into 'very rare', 'rare', 'average', 'common' or 'missing', see 
-                            <a href="https://www.nature.com/scitable/topicpage/multifactorial-inheritance-and-genetic-disease-919" target="_blank">
-                                https://www.nature.com/scitable/topicpage/multifactorial-inheritance-and-genetic-disease-919
-                            </a>. Please, leave the cursor over each square to display the actual frequency value.
-                            <div style="padding: 10px 0px 0px 0px"><label>Legend: </label></div>
-                            <div><span><i class="fa fa-square" style="color: ${populationFrequencies.style.veryRare}" aria-hidden="true"></i> Very rare:  freq < 0.001</span></div>
-                            <div><span><i class="fa fa-square" style="color: ${populationFrequencies.style.rare}" aria-hidden="true"></i> Rare:  freq < 0.005</span></div>
-                            <div><span><i class="fa fa-square" style="color: ${populationFrequencies.style.average}" aria-hidden="true"></i> Average:  freq < 0.05</span></div>
-                            <div><span><i class="fa fa-square" style="color: ${populationFrequencies.style.common}" aria-hidden="true"></i> Common:  freq >= 0.05</span></div>
-                            <div><span><i class="fa fa-square" style="color: black" aria-hidden="true"></i> Not observed</span></div>`;
-                }
-            },
-            position: {target: "mouse", adjust: {x: 2, y: 2, mouse: false}},
-            style: {width: true, classes: "qtip-light qtip-rounded qtip-shadow qtip-custom-class"},
-            show: {delay: 200},
-            hide: {fixed: true, delay: 300}
-        });
-    }
+    // addPopulationFrequenciesInfoTooltip(selector, populationFrequencies) {
+    //     $(selector).qtip({
+    //         content: {
+    //             title: "Population Frequencies",
+    //             text: function (event, api) {
+    //                 return `One coloured square is shown for each population. Frequencies are coded with colours which classify values
+    //                         into 'very rare', 'rare', 'average', 'common' or 'missing', see
+    //                         <a href="https://www.nature.com/scitable/topicpage/multifactorial-inheritance-and-genetic-disease-919" target="_blank">
+    //                             https://www.nature.com/scitable/topicpage/multifactorial-inheritance-and-genetic-disease-919
+    //                         </a>. Please, leave the cursor over each square to display the actual frequency value.
+    //                         <div style="padding: 10px 0px 0px 0px"><label>Legend: </label></div>
+    //                         <div><span><i class="fa fa-square" style="color: ${populationFrequencies.style.veryRare}" aria-hidden="true"></i> Very rare:  freq < 0.001</span></div>
+    //                         <div><span><i class="fa fa-square" style="color: ${populationFrequencies.style.rare}" aria-hidden="true"></i> Rare:  freq < 0.005</span></div>
+    //                         <div><span><i class="fa fa-square" style="color: ${populationFrequencies.style.average}" aria-hidden="true"></i> Average:  freq < 0.05</span></div>
+    //                         <div><span><i class="fa fa-square" style="color: ${populationFrequencies.style.common}" aria-hidden="true"></i> Common:  freq >= 0.05</span></div>
+    //                         <div><span><i class="fa fa-square" style="color: black" aria-hidden="true"></i> Not observed</span></div>`;
+    //             }
+    //         },
+    //         position: {target: "mouse", adjust: {x: 2, y: 2, mouse: false}},
+    //         style: {width: true, classes: "qtip-light qtip-rounded qtip-shadow qtip-custom-class"},
+    //         show: {delay: 200},
+    //         hide: {fixed: true, delay: 300}
+    //     });
+    // }
 
     static populationFrequenciesInfoTooltipContent(populationFrequencies) {
         return `One coloured square is shown for each population. Frequencies are coded with colours which classify values 
                 into 'very rare', 'rare', 'average', 'common' or 'missing', see 
                 <a href='https://www.nature.com/scitable/topicpage/multifactorial-inheritance-and-genetic-disease-919' target='_blank'>
                     https://www.nature.com/scitable/topicpage/multifactorial-inheritance-and-genetic-disease-919
-                </a>. Please, leave the cursor over each square to display the actual frequency value.
+                </a>. Please, leave the cursor over each square to display the actual frequency values. <br>
+                <span style='font-weight: bold'>Note that that all frequencies are percentages.</span>
                 <div style='padding: 10px 0px 0px 0px'><label>Legend: </label></div>
-                <div><span><i class='fa fa-square' style='color: ${populationFrequencies.style.veryRare}' aria-hidden='true'></i> Very rare:  freq < 0.001</span></div>
-                <div><span><i class='fa fa-square' style='color: ${populationFrequencies.style.rare}' aria-hidden='true'></i> Rare:  freq < 0.005</span></div>
-                <div><span><i class='fa fa-square' style='color: ${populationFrequencies.style.average}' aria-hidden='true'></i> Average:  freq < 0.05</span></div>
-                <div><span><i class='fa fa-square' style='color: ${populationFrequencies.style.common}' aria-hidden='true'></i> Common:  freq >= 0.05</span></div>
+                <div><span><i class='fa fa-square' style='color: ${populationFrequencies.style.veryRare}' aria-hidden='true'></i> Very rare:  freq < 0.1 %</span></div>
+                <div><span><i class='fa fa-square' style='color: ${populationFrequencies.style.rare}' aria-hidden='true'></i> Rare:  freq < 0.5 %</span></div>
+                <div><span><i class='fa fa-square' style='color: ${populationFrequencies.style.average}' aria-hidden='true'></i> Average:  freq < 5 %</span></div>
+                <div><span><i class='fa fa-square' style='color: ${populationFrequencies.style.common}' aria-hidden='true'></i> Common:  freq >= 5 %</span></div>
                 <div><span><i class='fa fa-square' style='color: black' aria-hidden='true'></i> Not observed</span></div>`;
     }
 
@@ -749,7 +751,7 @@ export default class VariantGridFormatter {
         for (const popFreq of popFreqsArray) {
             const arr = popFreq.split("::");
             const color = VariantGridFormatter._getPopulationFrequencyColor(arr[1], populationFrequenciesColor);
-            const freq = (arr[1] !== 0 && arr[1] !== "0") ? arr[1] : "<span style='font-style: italic'>Not Observed</span>";
+            const freq = (arr[1] !== 0 && arr[1] !== "0") ? arr[1] + " %" : "<span style='font-style: italic'>Not Observed</span>";
             tooltip += `<div>
                             <span><i class='fa fa-xs fa-square' style='color: ${color}' aria-hidden='true'></i>
                                 <label style='padding-left: 5px'>${arr[0]}:</label>
@@ -793,7 +795,7 @@ export default class VariantGridFormatter {
         for (const popFreq of popFreqsArray) {
             const arr = popFreq.split("::");
             const color = VariantGridFormatter._getPopulationFrequencyColor(arr[1], populationFrequenciesColor);
-            const freq = (arr[1] !== 0 && arr[1] !== "0") ? arr[1] : "<span style='font-style: italic'>Not Observed</span>";
+            const freq = (arr[1] !== 0 && arr[1] !== "0") ? arr[1] + " %" : "<span style='font-style: italic'>Not Observed</span>";
             tooltip += `<div>
                             <span><i class='fa fa-xs fa-square' style='color: ${color}' aria-hidden='true'></i>
                                 <label style='padding-left: 5px'>${arr[0]}:</label>
@@ -822,11 +824,11 @@ export default class VariantGridFormatter {
         let color;
         if (freq === 0 || freq === "0") {
             color = populationFrequenciesColor.unobserved;
-        } else if (freq < 0.001) {
+        } else if (freq < 0.1) {
             color = populationFrequenciesColor.veryRare;
-        } else if (freq < 0.005) {
+        } else if (freq < 0.5) {
             color = populationFrequenciesColor.rare;
-        } else if (freq < 0.05) {
+        } else if (freq < 5) {
             color = populationFrequenciesColor.average;
         } else {
             color = populationFrequenciesColor.common;
