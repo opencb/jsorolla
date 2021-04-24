@@ -643,7 +643,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                                 return html`
                                     <variant-cohort-stats
                                             .opencgaSession="${opencgaSession}"
-                                            .variantId="${variant.id}"
+                                            .variant="${variant}"
                                             .active="${active}">
                                     </variant-cohort-stats>`;
                             }
