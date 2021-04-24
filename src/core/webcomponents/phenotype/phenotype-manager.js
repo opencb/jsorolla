@@ -21,10 +21,6 @@ import "../commons/tool-header.js";
 
 export default class PhenotypeManager extends BaseManagerMixin(LitElement){
 
-    // static VIEW_MODE = "view";
-    static UPDATE_MODE = "update";
-    static CREATE_MODE = "create";
-
     constructor() {
         super();
         this._init();
@@ -42,7 +38,6 @@ export default class PhenotypeManager extends BaseManagerMixin(LitElement){
         this._prefix = UtilsNew.randomString(8);
         this.phenotypes = []
         this.phenotype = {}
-        this.showSubForm = false;
     }
 
     getDefaultConfig() {
@@ -86,27 +81,22 @@ export default class PhenotypeManager extends BaseManagerMixin(LitElement){
     }
 
     onClearForm(e) {
-        console.log("OnClear Phenotype form ", e)
-        this.onShowForm()
+        console.log("OnClear Phenotype form ", this)
+        this.phenotype = {}
+        this.onShow()
         e.stopPropagation()
-    }
-
-    onShowForm() {
-        console.log("show: ", this.showSubForm)
-        this.showSubForm = !this.showSubForm;
-        this.requestUpdate();
     }
 
     onAddPhenotype() {
         this.dispatchEvent(new CustomEvent("addItem", {
             detail: {
-                phenotype: this.phenotype
+                value: this.phenotype
             },
             bubbles: true,
             composed: true
         }));
-        this.onShowForm()
         this.phenotype = {}
+        this.onShow()
     }
 
     onPhenotypeChange(e) {
@@ -131,7 +121,7 @@ export default class PhenotypeManager extends BaseManagerMixin(LitElement){
                 <h3>Phenotype</h3>
             </div>
             <div class="col-md-10" style="padding: 10px 20px">
-                <button type="button" class="btn btn-primary ripple pull-right" @click="${this.onShowForm}">
+                <button type="button" class="btn btn-primary ripple pull-right" @click="${this.onShow}">
                     Add Phenotype
                 </button>
             </div>
@@ -146,7 +136,7 @@ export default class PhenotypeManager extends BaseManagerMixin(LitElement){
             </div>
         </div>
 
-        <div class="subform-test" style="${this.showSubForm ? "display:block" : "display:none"}">
+        <div class="subform-test" style="${this.isShow ? "display:block" : "display:none"}">
             <data-form  
                 .data=${this.phenotypes}
                 .config="${this._config}"

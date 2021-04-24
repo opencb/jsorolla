@@ -380,38 +380,22 @@ export default class SampleCreate extends LitElement {
         }
     }
 
-    onPhenotypeChange(e) {
-        self = document.querySelector("sample-create")
-        console.log("onPhenotypeChange ", e.detail.param, e.detail.value, self)
-        let field = ""
-        switch (e.detail.param) {
-            case "phenotype.ageOfOnset":
-            case "phenotype.status":
-                field = e.detail.param.split(".")[1];
-                if (!self.phenotype[field]) {
-                    self.phenotype[field] = {}
-                }
-                self.phenotype[field] = e.detail.value;
-                break;
-        }
-    }
-
     onRemovePhenotype(e) {
         console.log("This is to remove a item ");
         this.sample = {
             ...this.sample,
             phenotypes: this.sample.phenotypes
-                .filter(item => item !== e.detail.phenotype)
+                .filter(item => item !== e.detail.value)
         }
     }
 
     onAddPhenotype(e) {
-        console.log("Item to add", e.detail.phenotype)
-        this.sample.phenotypes.push(e.detail.phenotype)
+        console.log("Item to add", e.detail.value)
+        this.sample.phenotypes.push(e.detail.value)
     }
 
     onClear(e) {
-        console.log("OnClear sample form", e)
+        console.log("OnClear sample form", this)
     }
 
     onSubmit(e) {
@@ -426,7 +410,7 @@ export default class SampleCreate extends LitElement {
                 .data=${this.sample}
                 .config="${this._config}"
                 @fieldChange="${e => this.onFieldChange(e)}"
-                @clear="${this.onClear}"
+                @clear="${e => this.onClear(e)}"
                 @submit="${this.onSubmit}">
             </data-form>
         `;

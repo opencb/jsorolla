@@ -21,6 +21,10 @@ export const BaseManagerMixin = (superClass) => class extends superClass {
     static UPDATE_MODE = "update";
     static CREATE_MODE = "create";
 
+    constructor(){
+        super();
+        this._initBaseManager()
+    }
     createRenderRoot() {
         return this;
     }
@@ -39,6 +43,10 @@ export const BaseManagerMixin = (superClass) => class extends superClass {
         };
     }
 
+    _initBaseManager(){
+        this.isShow = false
+    }
+
     connectedCallback() {
         super.connectedCallback();
         this._config = { ...this.getDefaultConfig(), ...this.config };
@@ -54,13 +62,21 @@ export const BaseManagerMixin = (superClass) => class extends superClass {
         }));
     }
 
-    onRemoveItem(item, e) {
+    onShow() {
+        console.log("show: ", this.isShow)
+        this.isShow = !this.isShow;
+        this.requestUpdate();
+    }
+
+    onRemoveItem(item) {
         this.dispatchEvent(new CustomEvent("removeItem", {
             detail: {
-                phenotype: item
+                value: item
             },
             bubbles: false,
             composed: true
         }));
     }
+
+
 }
