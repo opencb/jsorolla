@@ -75,10 +75,18 @@ export default class VariantGridFormatter {
         alt = alt.replaceAll("<", "&lt;").replaceAll(">", "&gt;");
 
         // Create links for tooltip
-        const ensemblLinkHtml = "http://www.ensembl.org/Homo_sapiens/Location/View?r=" + row.chromosome + ":" + row.start + "-" + row.end;
+        const variantRegion = row.chromosome + ":" + row.start + "-" + row.end;
         const tooltipText = `
+            <div class="dropdown-header" style="padding-left: 5px">External Links</div>
             <div style="padding: 5px">
-                <a target="_blank" href="${ensemblLinkHtml}">Ensembl</a>
+                <a target="_blank" href="${BioinfoUtils.getVariantLink(row.id, variantRegion, 'ensembl_genome_browser')}">
+                    Ensembl Genome Browser
+                </a>
+            </div>
+            <div style="padding: 5px">
+                <a target="_blank" href="${BioinfoUtils.getVariantLink(row.id, variantRegion, 'ucsc_genome_browser')}">
+                    UCSC Genome Browser
+                </a>
             </div>`;
 
         let snpHtml = VariantGridFormatter.snpFormatter(value, row, index, assembly);
@@ -132,12 +140,12 @@ export default class VariantGridFormatter {
         return snpId;
     }
 
-    static geneFormatter(value, row, index, query, opencgaSession) {
+    static geneFormatter(variant, index, query, opencgaSession) {
         // Keep a map of genes and the SO accessions and names
         let geneHasQueryCt = new Set();
         if (query?.ct) {
             let queryCtArray = query.ct.split(",");
-            for (const ct of row.annotation.consequenceTypes) {
+            for (const ct of variant.annotation.consequenceTypes) {
                 for (const so of ct.sequenceOntologyTerms) {
                     if (queryCtArray.includes(so.name)) {
                         geneHasQueryCt.add(ct.geneName);
@@ -147,12 +155,12 @@ export default class VariantGridFormatter {
             }
         }
 
-        if (row && row.annotation && row.annotation.consequenceTypes?.length > 0) {
+        if (variant && variant.annotation && variant.annotation.consequenceTypes?.length > 0) {
             const visited = {};
             const geneLinks = [];
             const geneWithCtLinks = [];
-            for (let i = 0; i < row.annotation.consequenceTypes.length; i++) {
-                const geneName = row.annotation.consequenceTypes[i].geneName;
+            for (let i = 0; i < variant.annotation.consequenceTypes.length; i++) {
+                const geneName = variant.annotation.consequenceTypes[i].geneName;
 
                 // We process Genes just one time
                 if (geneName && !visited[geneName]) {
@@ -161,17 +169,31 @@ export default class VariantGridFormatter {
                         geneViewMenuLink = `<div style='padding: 5px'><a style='cursor: pointer' href='#gene/${opencgaSession.project.id}/${opencgaSession.study.id}/${geneName}' data-cy='gene-view'>Gene View</a></div>`;
                     }
 
-                    const tooltipText = `${geneViewMenuLink}
-                                         <div class='dropdown-header' style='padding-left: 10px'>External Links</div>
-                                         <div style='padding: 5px'>
-                                              <a target='_blank' href='${BioinfoUtils.getEnsemblLink(geneName, 'gene', opencgaSession.project.organism.assembly)}'>Ensembl</a>
-                                         </div>
-                                         <div style='padding: 5px'>
-                                              <a target='_blank' href='${BioinfoUtils.getCosmicLink(geneName, opencgaSession.project.organism.assembly)}'>COSMIC</a>
-                                         </div>
-                                         <div style='padding: 5px'>
-                                              <a target='_blank' href='${BioinfoUtils.getUniprotLink(geneName)}'>UniProt</a>
-                                         </div>`;
+                    const tooltipText = `
+                        ${geneViewMenuLink}
+                        
+                        <div class='dropdown-header' style='padding-left: 5px;padding-top: 5px'>External Links</div>
+                        <div style='padding: 5px'>
+                             <a target='_blank' href='${BioinfoUtils.getEnsemblLink(geneName, 'gene', opencgaSession.project.organism.assembly)}'>Ensembl</a>
+                        </div>
+                        <div style='padding: 5px'>
+                             <a target='_blank' href='${BioinfoUtils.getGeneLink(geneName, 'lrg')}'>LRG</a>
+                        </div>
+                        <div style='padding: 5px'>
+                             <a target='_blank' href='${BioinfoUtils.getUniprotLink(geneName)}'>UniProt</a>
+                        </div>
+                       
+                        <div class='dropdown-header' style='padding-left: 5px;padding-top: 5px'>Clinical Resources</div>
+                        <div style='padding: 5px'>
+                             <a target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "decipher")}'>Decipher</a>
+                        </div>
+                        <div style='padding: 5px'>
+                             <a target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "cosmic", opencgaSession.project.organism.assembly)}'>COSMIC</a>
+                        </div>
+                        <div style='padding: 5px'>
+                             <a target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "omim")}'>OMIM</a>
+                        </div>
+                    `;
 
                     // If query.ct exists
                     if (query?.ct) {
@@ -993,12 +1015,6 @@ export default class VariantGridFormatter {
                         values: values
                     });
                 } else {    // COSMIC section
-                    // values.push(`<a href="${trait.url ?? BioinfoUtils.getCosmicVariantLink(trait.id)}" target="_blank">${trait.id}</a>`);
-                    // values.push(trait.somaticInformation.primaryHistology);
-                    // values.push(trait.somaticInformation.histologySubtype);
-                    // cosmic.push({
-                    //     values: values
-                    // });
                     // Prepare data to group by histologySubtype field
                     let key = trait.id + ":" + trait.somaticInformation.primaryHistology;
                     if (!cosmicIntermdiate.has(key)) {
@@ -1070,36 +1086,36 @@ export default class VariantGridFormatter {
     /*
      * Reported Variant formatters
      */
-    static toggleDetailClinicalEvidence(e) {
-        const id = e.target.dataset.id;
-        const elements = document.getElementsByClassName(this._prefix + id + "EvidenceFiltered");
-        for (const element of elements) {
-            if (element.style.display === "none") {
-                element.style.display = "";
-            } else {
-                element.style.display = "none";
-            }
-        }
-    }
+    // static toggleDetailClinicalEvidence(e) {
+    //     const id = e.target.dataset.id;
+    //     const elements = document.getElementsByClassName(this._prefix + id + "EvidenceFiltered");
+    //     for (const element of elements) {
+    //         if (element.style.display === "none") {
+    //             element.style.display = "";
+    //         } else {
+    //             element.style.display = "none";
+    //         }
+    //     }
+    // }
 
     // TODO Remove since it is DEPRECATED
-    addTooltip(selector, title, content, config) {
-        $(selector).qtip({
-            content: {
-                title: title,
-                text: function (event, api) {
-                    if (UtilsNew.isNotEmpty(content)) {
-                        return content;
-                    } else {
-                        return $(this).attr("data-tooltip-text");
-                    }
-                }
-            },
-            position: {target: "mouse", adjust: {x: 2, y: 2, mouse: false}},
-            style: {classes: "qtip-light qtip-rounded qtip-shadow qtip-custom-class"},
-            show: {delay: 200},
-            hide: {fixed: true, delay: 300}
-        });
-    }
+    // addTooltip(selector, title, content, config) {
+    //     $(selector).qtip({
+    //         content: {
+    //             title: title,
+    //             text: function (event, api) {
+    //                 if (UtilsNew.isNotEmpty(content)) {
+    //                     return content;
+    //                 } else {
+    //                     return $(this).attr("data-tooltip-text");
+    //                 }
+    //             }
+    //         },
+    //         position: {target: "mouse", adjust: {x: 2, y: 2, mouse: false}},
+    //         style: {classes: "qtip-light qtip-rounded qtip-shadow qtip-custom-class"},
+    //         show: {delay: 200},
+    //         hide: {fixed: true, delay: 300}
+    //     });
+    // }
 
 }

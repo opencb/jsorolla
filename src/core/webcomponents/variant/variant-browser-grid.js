@@ -512,7 +512,7 @@ export default class VariantBrowserGrid extends LitElement {
                     field: "gene",
                     rowspan: 2,
                     colspan: 1,
-                    formatter: (value, row, index) => VariantGridFormatter.geneFormatter(value, row, index, this.query, this.opencgaSession),
+                    formatter: (value, row, index) => VariantGridFormatter.geneFormatter(row, index, this.query, this.opencgaSession),
                     halign: "center"
                 },
                 {
