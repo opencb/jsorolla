@@ -19,7 +19,7 @@ import UtilsNew from "../../utilsNew.js";
 import { BaseManagerMixin } from "./base-manager.js";
 import "../commons/tool-header.js";
 
-export default class PhenotypeManager extends BaseManagerMixin(LitElement){
+export default class PhenotypeManager extends BaseManagerMixin(LitElement) {
 
     constructor() {
         super();
@@ -38,6 +38,7 @@ export default class PhenotypeManager extends BaseManagerMixin(LitElement){
         this._prefix = UtilsNew.randomString(8);
         this.phenotypes = []
         this.phenotype = {}
+
     }
 
     getDefaultConfig() {
@@ -87,16 +88,11 @@ export default class PhenotypeManager extends BaseManagerMixin(LitElement){
         e.stopPropagation()
     }
 
-    onAddPhenotype() {
-        this.dispatchEvent(new CustomEvent("addItem", {
-            detail: {
-                value: this.phenotype
-            },
-            bubbles: true,
-            composed: true
-        }));
+    onAddPhenotype(e, item) {
+        // super or this.onAddItem(item) //it's the same?
+        this.onAddItem(item)
         this.phenotype = {}
-        this.onShow()
+        this.onShow() // it's from BaseManager.
     }
 
     onPhenotypeChange(e) {
@@ -130,9 +126,9 @@ export default class PhenotypeManager extends BaseManagerMixin(LitElement){
             <div class="col-md-12" style="padding: 10px 20px">
                 ${this.phenotypes?.map((item) => html`
                     <span class="label label-primary" style="font-size: 14px; margin:5px; padding-right:0px; display:inline-block">${item.ageOfOnset}
-                        <span class="badge" style="cursor:pointer" @click=${() => this.onRemoveItem(item, this)}>X</span>
+                        <span class="badge" style="cursor:pointer" @click=${e => this.onRemoveItem(e, item)}>X</span>
                     </span>`
-                )}
+        )}
             </div>
         </div>
 
@@ -142,7 +138,7 @@ export default class PhenotypeManager extends BaseManagerMixin(LitElement){
                 .config="${this._config}"
                 @fieldChange="${this.onPhenotypeChange}"
                 @clear="${this.onClearForm}"
-                @submit="${this.onAddPhenotype}">
+                @submit="${e => this.onAddPhenotype(e, this.phenotype)}">
             </data-form>
         </div>
     `;

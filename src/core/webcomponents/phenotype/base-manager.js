@@ -68,12 +68,23 @@ export const BaseManagerMixin = (superClass) => class extends superClass {
         this.requestUpdate();
     }
 
-    onRemoveItem(item) {
+    onRemoveItem(e,item) {
         this.dispatchEvent(new CustomEvent("removeItem", {
             detail: {
                 value: item
             },
             bubbles: false,
+            composed: true
+        }));
+    }
+
+    onAddItem(item){
+        console.log("Add item from BaseManager", item)
+        this.dispatchEvent(new CustomEvent("addItem", {
+            detail: {
+                value: item
+            },
+            bubbles: true,
             composed: true
         }));
     }

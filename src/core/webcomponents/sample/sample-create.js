@@ -54,29 +54,12 @@ export default class SampleCreate extends LitElement {
         this.sample = {
             phenotypes: []
         };
-        this.phenotype = {};
         this.annotationSets = {};
     }
 
     connectedCallback() {
         super.connectedCallback();
         this._config = { ...this.getDefaultConfig(), ...this.config };
-    }
-
-    // update(changedProperties) {
-    //     if (changedProperties.has("sample")) {
-    //         this.sampleObserver();
-    //     }
-
-    //     super.update(changedProperties);
-    // }
-
-    sampleObserver() {
-        // When updating wee need to keep a private copy of the original object
-        // if (this.sample && this.mode === SampleFormCreate.UPDATE_MODE) {
-        //     this._sample = JSON.parse(JSON.stringify(this.sample));
-        //     this.requestUpdate();
-        // }
     }
 
     // TODO move to a generic Utils class
@@ -390,7 +373,6 @@ export default class SampleCreate extends LitElement {
     }
 
     onAddPhenotype(e) {
-        console.log("Item to add", e.detail.value)
         this.sample.phenotypes.push(e.detail.value)
     }
 
@@ -399,7 +381,6 @@ export default class SampleCreate extends LitElement {
     }
 
     onSubmit(e) {
-        console.log(this.sample, this.phenotype, this)
         // this.phenotype = {}
         // this.requestUpdate()
     }
