@@ -177,7 +177,7 @@ export default class VariantInterpreterGridConfig extends LitElement {
                             name: "Select Render Mode",
                             field: "genotype.type",
                             type: "select",
-                            allowedValues: ["ALLELES", "VCF_CALL", "CIRCLE", "VAF", "ALLELE_FREQUENCY"],
+                            allowedValues: ["ALLELES", "VCF_CALL", "ZYGOSITY", "VAF", "ALLELE_FREQUENCY", "CIRCLE"],
                             display: {
                                 width: "6"
                             }
