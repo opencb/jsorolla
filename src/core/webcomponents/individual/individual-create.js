@@ -18,6 +18,7 @@ import { LitElement, html } from "/web_modules/lit-element.js";
 import UtilsNew from "./../../utilsNew.js";
 import "../commons/tool-header.js";
 import "../phenotype/phenotype-manager.js";
+import "../individual/disorder-manager.js";
 
 export default class IndividualCreate extends LitElement {
 
@@ -53,9 +54,9 @@ export default class IndividualCreate extends LitElement {
     _init() {
         this._prefix = UtilsNew.randomString(8);
         this.individual = {
-            phenotypes: []
-        }
-        this.phenotypes = {}
+            phenotypes: [],
+            disorders:[]
+        };
     }
 
     connectedCallback() {
@@ -158,7 +159,8 @@ export default class IndividualCreate extends LitElement {
         // }
     }
 
-    onClear() {
+    onClear(e) {
+        console.log("onClear individual form")
     }
 
     getDefaultConfig() {
@@ -340,7 +342,22 @@ export default class IndividualCreate extends LitElement {
                                             .opencgaSession="${this.opencgaSession}" >
                                         </phenotype-manager>`
                             }
-                        }
+                        },
+                        {
+                            field: "disorder",
+                            type: "custom",
+                            display: {
+                                layout: "vertical",
+                                defaultLayout: "vertical",
+                                width: 12,
+                                style: "padding-left: 0px",
+                                render: () => html`
+                                        <disorder-manager 
+                                            .disorders="${this.individual?.disorders}"
+                                            .opencgaSession="${this.opencgaSession}" >
+                                        </disorder-manager>`
+                            }
+                        },
                     ]
                 },
             ]
@@ -348,13 +365,13 @@ export default class IndividualCreate extends LitElement {
     }
 
     render() {
-
         return html`
-            <data-form  .data=${this.individual}
-                        .config="${this._config}"
-                        @fieldChange="${e => this.onFieldChange(e)}"
-                        @clear="${this.onHide}"
-                        @submit="${this.onSave}">
+            <data-form  
+                .data=${this.individual}
+                .config="${this._config}"
+                @fieldChange="${e => this.onFieldChange(e)}"
+                @clear="${this.onHide}"
+                @submit="${this.onSave}">
             </data-form>
         `;
     }
