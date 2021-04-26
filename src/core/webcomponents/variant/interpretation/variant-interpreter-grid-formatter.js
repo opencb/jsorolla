@@ -75,12 +75,12 @@ export default class VariantInterpreterGridFormatter {
         }
 
         const clinicalSignificanceCodes = {
-            BENIGN: {code: 5, color: "blue"},
-            LIKELY_BENIGN: {code: 5, color: "blue"},
-            UNCERTAIN_SIGNIFICANCE: {code: 5, color: "darkorange"},
-            LIKELY_PATHOGENIC: {code: 5, color: "red"},
-            PATHOGENIC: {code: 5, color: "red"},
-            NOT_ASSESSED: {code: 5, color: "black"},
+            NOT_ASSESSED: {id: "NA", code: 0, color: "black"},
+            BENIGN: {id: "B", code: 1, color: "green"},
+            LIKELY_BENIGN: {id: "LB", code: 2, color: "darkbrown"},
+            UNCERTAIN_SIGNIFICANCE: {id: "US", code: 3, color: "darkorange"},
+            LIKELY_PATHOGENIC: {id: "LP", code: 4, color: "darkred"},
+            PATHOGENIC: {id: "P", code: 5, color: "red"},
         };
 
         let clinicalSignificanceCode = 0;
@@ -93,10 +93,14 @@ export default class VariantInterpreterGridFormatter {
                 modeOfInheritances.push(re.modeOfInheritance);
             }
 
-            if (clinicalSignificanceCodes[re.classification.clinicalSignificance] && clinicalSignificanceCodes[re.classification.clinicalSignificance].code > clinicalSignificanceCode) {
+            if (clinicalSignificanceCodes[re.classification.clinicalSignificance]?.code > clinicalSignificanceCode) {
                 clinicalSignificanceCode = clinicalSignificanceCodes[re.classification.clinicalSignificance].code;
-                let clinicalSignificance = re.classification.clinicalSignificance.replace("_", " ");
-                clinicalSignificanceHtml = `<span style="color: ${clinicalSignificanceCodes[re.classification.clinicalSignificance].color}">${clinicalSignificance}</span>`;
+                // let clinicalSignificance = re.classification.clinicalSignificance.replace("_", " ");
+                let clinicalSignificance = clinicalSignificanceCodes[re.classification.clinicalSignificance].id;
+                clinicalSignificanceHtml = `
+                    <div style="margin: 5px 0px; color: ${clinicalSignificanceCodes[re.classification.clinicalSignificance].color}">${clinicalSignificance}</div>
+                    <div class="help-block">${re.classification.acmg.join(', ')}</div>
+                `;
                 clinicalSignificanceTooltipText = `<div class='col-md-12 predictionTooltip-inner' style='padding: 0px'>
                                                         <form class='form-horizontal'>
                                                             <div class='form-group' style='margin: 0px 2px'>

@@ -328,10 +328,10 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
 
     caseFormatter(value, row) {
         if (row?.id) {
-            return `<p style="margin: 5px 0">
+            return `<p style="margin: 5px 0px">
                         <a title="Go to Case Interpreter" href="#interpreter/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}" data-cy="case-id">${row.id}</a>
                     </p>
-                    <p style="margin: 5px 0">
+                    <p style="margin: 5px 0px">
                         ${row.type}
                     </p>`;
         } else {
@@ -344,10 +344,10 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
         if (row.interpretation?.primaryFindings?.length > 0) {
             const reviewedVariants = row.interpretation.primaryFindings.filter(v => v.status === "REVIEWED");
             html = `<div>
-                        <span style="margin: 5px 0">${row.interpretation.primaryFindings.length} variants</span>
+                        <span style="margin: 5px 0px">${row.interpretation.primaryFindings.length} variants</span>
                     </div>
                     <div>
-                        <span class="help-block" style="margin: 5px 0">${reviewedVariants.length} reviewed</span>
+                        <span class="help-block" style="margin: 5px 0px">${reviewedVariants.length} reviewed</span>
                     </div>`;
         } else {
             html = "<span>0 variants</span>";
@@ -521,10 +521,10 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                 halign: this._config.header.horizontalAlign,
                 valign: "middle",
                 formatter: proband => `<div>
-                                            <span data-cy="proband-id" style="font-weight: bold; margin: 5px 0">${proband.id}</span>
+                                            <span data-cy="proband-id" style="font-weight: bold; margin: 5px 0px">${proband.id}</span>
                                         </div>
                                         <div>
-                                            <span class="help-block" style="margin: 5px 0">${proband.samples?.map(sample => sample.id)?.join("<br>") ?? "-"}</span>
+                                            <span class="help-block" style="margin: 5px 0px">${proband.samples?.map(sample => sample.id)?.join("<br>") ?? "-"}</span>
                                         </div>`,
                 visible: !this._config.columns.hidden.includes("probandId")
             },
@@ -545,10 +545,10 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                     if (row.family?.id && row.family?.members.length) {
                         return `
                             <div>
-                                <span data-cy="family-id"style="margin: 5px 0">${row.family.id}</span>
+                                <span data-cy="family-id"style="margin: 5px 0px">${row.family.id}</span>
                             </div>
                             <div>
-                                <span class="help-block" style="margin: 5px 0">${row.family.members.length} members</span>
+                                <span class="help-block" style="margin: 5px 0px">${row.family.members.length} members</span>
                             </div>`;
                     }
                 },

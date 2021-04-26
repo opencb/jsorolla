@@ -155,7 +155,7 @@ export default class VariantGridFormatter {
             }
         }
 
-        if (variant && variant.annotation && variant.annotation.consequenceTypes?.length > 0) {
+        if (variant?.annotation?.consequenceTypes?.length > 0) {
             const visited = {};
             const geneLinks = [];
             const geneWithCtLinks = [];
