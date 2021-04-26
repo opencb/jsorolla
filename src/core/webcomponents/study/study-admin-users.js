@@ -426,41 +426,30 @@ export default class StudyAdminUsers extends LitElement {
             success: [],
             error: []
         }
-        
-        // for (let groupId of this.removeGroupSet.keys()) {
-        //     this.opencgaSession.opencgaClient.studies().updateGroups(this.study.fqn, { id: groupId }, { action: "REMOVE" })
-        //     .then(res => {
-        //         this.removeUserSet = new Set();
-        //         this.requestUpdate();
 
-        //         // Option 1. CatalogUtils.notifyStudyUpdateRequest();
-        //         // Option 2. CatalogUtils.notify("studyUpdateRequest", this.study.fqn);
-        //         // Option 3. CatalogUtils.notify(STUDY_UPDATE_REQUEST, this.study.fqn), true, true;
-        //         this.notifyStudyUpdateRequest();
-        //     })
-        //     .catch(err => {
-        //         console.error(err);
-        //         params.error(err);
-        //     });
-        // }
         for (let groupId of this.removeGroupSet.keys()) {
             try {
                 const res = await this.opencgaSession.opencgaClient.studies().updateGroups(this.study.fqn, { id: groupId }, { action: "REMOVE" });
-                this.removeUserSet = new Set();
                 message.success.push(groupId);
             } catch (err) {
                 console.error(err);
                 message.error.push(groupId);
             }
         }
+        // Clear groups to be deleted
+        this.removeGroupSet = new Set();
+
         const messageAlert = `${!message.error.length ? 
-                `Group deleted correctly:${message.success.join()}` : 
-                `Group deleted correctly:${message.success.join()}, these groups could not deleted:${message.error.join()}`}`
+            `Group deleted correctly: ${message.success.join()}` 
+            : 
+            `Group deleted correctly: ${message.success.join()}, these groups could not deleted: ${message.error.join()}`}`
         this.showMessage("Message",messageAlert , "info");
-        this.requestUpdate();
+
         this.notifyStudyUpdateRequest();
+        this.requestUpdate();
     }
 
+    // TODO move to a Utils
     notifyStudyUpdateRequest() {
         this.dispatchEvent(new CustomEvent("studyUpdateRequest", {
             detail: {
@@ -471,10 +460,10 @@ export default class StudyAdminUsers extends LitElement {
         }));
     }
 
+    // TODO move to a Utils
     showMessage(title, message, status) {
         Swal.fire(title, message, status);
     }
-
 
     render() {
 
