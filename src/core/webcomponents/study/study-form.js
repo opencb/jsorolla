@@ -48,6 +48,7 @@ export default class StudyForm extends LitElement {
     _init() {
         this._prefix = UtilsNew.randomString(8);
         this.newStudy = {}
+        this.study = {}
     }
 
     connectedCallback() {
@@ -99,6 +100,7 @@ export default class StudyForm extends LitElement {
                 console.error(err);
                 params.error(err);
             });
+            $(`#newStudy`).modal("hide"); // TODO: refactor this function.
     }
 
     onHide() {
