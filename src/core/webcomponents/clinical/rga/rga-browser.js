@@ -87,7 +87,7 @@ export default class RgaBrowser extends LitElement {
             "CCNO", "CEP290", "CNGB3", "CUL7", "DNAAF1", "DOCK6", "EIF2B5", "ERCC6", "FLG", "HADA",
             "INPP5K", "MANIB1", "MERTK", "MUTYH", "NDUFAF5", "NDUFS7", "OTOG", "PAH", "PDZD7", "PHYH",
             "PKHD1", "PMM2", "RARS2", "SACS", "SGCA", "SIGMAR1", "SPG7", "TTN", "TYR", "USH2A", "WFS1"].join(","),
-            individualId: "113000032"
+            individualId: "118000206" // 118000208 is not a proband, 118000206 is a proband
             //knockoutType: "COMP_HET"
         };
     }
@@ -448,7 +448,7 @@ export default class RgaBrowser extends LitElement {
                                 </div>
 
                                 <div id="variant-tab" class="content-tab">
-                                    <rga-variant-grid .query=${this.executedQuery} .opencgaSession="${this.opencgaSession}" .active="${this.activeTab["variant-tab"]}"></rga-variant-grid>
+                                    <rga-variant-grid .query=${this.executedQuery} .opencgaSession="${this.opencgaSession}" .cellbaseClient=${this.cellbaseClient} .active="${this.activeTab["variant-tab"]}"></rga-variant-grid>
                                 </div>
                                 
                             </div>

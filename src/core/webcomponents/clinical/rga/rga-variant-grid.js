@@ -42,6 +42,9 @@ export default class RgaVariantGrid extends LitElement {
             opencgaSession: {
                 type: Object
             },
+            cellbaseClient: {
+                type: Object
+            },
             query: {
                 type: Object
             },
