@@ -243,11 +243,13 @@ export default class RgaGeneGrid extends LitElement {
             [
                 {
                     title: "Total",
-                    field: "individualStats.count"
+                    field: "individualStats.count",
+                    formatter: value => value > 0 ? value : "-"
                 },
                 {
                     title: "Homozygous",
-                    field: "individualStats.numHomAlt"
+                    field: "individualStats.numHomAlt",
+                    formatter: value => value > 0 ? value : "-"
 
                 },
                 /*{
@@ -261,28 +263,34 @@ export default class RgaGeneGrid extends LitElement {
                 },*/
                 {
                     title: "CH - Definite",
-                    field: "individualStats.bothParents.numCompHet"
+                    field: "individualStats.bothParents.numCompHet",
+                    formatter: value => value > 0 ? value : "-"
                 },
                 {
                     title: "CH - Probable",
-                    field: "individualStats.singleParent.numCompHet"
+                    field: "individualStats.singleParent.numCompHet",
+                    formatter: value => value > 0 ? value : "-"
                 },
                 {
                     title: "CH - Possible",
-                    field: "individualStats.noParents.numCompHet"
+                    field: "individualStats.noParents.numCompHet",
+                    formatter: value => value > 0 ? value : "-"
                 },
                 // Recessive Variants
                 {
                     title: "Total",
-                    field: "variantStats.count"
+                    field: "variantStats.count",
+                    formatter: value => value > 0 ? value : "-"
                 },
                 {
                     title: "Homozygous",
-                    field: "variantStats.numHomAlt"
+                    field: "variantStats.numHomAlt",
+                    formatter: value => value > 0 ? value : "-"
                 },
                 {
                     title: "CH",
-                    field: "variantStats.numCompHet"
+                    field: "variantStats.numCompHet",
+                    formatter: value => value > 0 ? value : "-"
                 }
             ]
         ];
