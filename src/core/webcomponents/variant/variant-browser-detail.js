@@ -38,16 +38,16 @@ export default class VariantBrowserDetail extends LitElement {
 
     static get properties() {
         return {
-            opencgaSession: {
-                type: Object
-            },
-            cellbaseClient: {
-                type: Object
-            },
             variantId: {
                 type: String
             },
             variant: {
+                type: Object
+            },
+            opencgaSession: {
+                type: Object
+            },
+            cellbaseClient: {
                 type: Object
             },
             config: {
@@ -76,6 +76,7 @@ export default class VariantBrowserDetail extends LitElement {
         if (changedProperties.has("variantId")) {
             this.variantIdObserver();
         }
+
         super.update(changedProperties);
     }
 
@@ -151,7 +152,7 @@ export default class VariantBrowserDetail extends LitElement {
                         return html`
                             <variant-cohort-stats
                                     .opencgaSession="${opencgaSession}"
-                                    .variantId="${variant.id}"
+                                    .variant="${variant}"
                                     .config="${this.cohortConfig}"
                                     .active="${active}">
                             </variant-cohort-stats>`;
@@ -164,7 +165,7 @@ export default class VariantBrowserDetail extends LitElement {
                         return html`
                             <opencga-variant-samples
                                     .opencgaSession="${opencgaSession}"
-                                    variantId="${variant.id}"
+                                    .variantId="${variant.id}"
                                     .active="${active}">
                             </opencga-variant-samples>`;
                     }
@@ -182,7 +183,7 @@ export default class VariantBrowserDetail extends LitElement {
                             </variant-beacon-network>`;
                     }
                 }
-                // TODO Think about Neeworks
+                // TODO Think about Networks
                 // {
                 //     id: "network",
                 //     title: "Reactome Pathways"
@@ -197,7 +198,8 @@ export default class VariantBrowserDetail extends LitElement {
         }
 
         if (!this.variant) {
-            return html`<h3>No Variant found</h3>`;
+            // return html`<!--<h3>No Variant found</h3>-->`;
+            return;
         }
 
         if (!this.variant.annotation) {

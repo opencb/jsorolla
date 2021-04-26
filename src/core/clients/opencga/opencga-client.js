@@ -293,10 +293,12 @@ export class OpenCGAClient {
                         session.opencgaClient = _this;
 
                         _this._notifySessionEvent("signingIn", "Updating User config");
-                        await this.updateUserConfigs({
+                        const userConfig = await this.updateUserConfigs({
                             ...session.user.configs.IVA,
                             lastAccess: new Date().getTime()
                         });
+                        session.user.configs.IVA = userConfig.responses[0].results[0];
+
 
 
                         session.projects = session.user.projects;
@@ -393,8 +395,6 @@ export class OpenCGAClient {
                                             }
                                         }
                                     }
-                                    
-                                    debugger
                                     resolve(session);
                                 } catch (e) {
                                     console.error("Error getting study permissions, cohorts or disease panels");
@@ -443,13 +443,21 @@ export class OpenCGAClient {
     }
 
     updateUserConfigs(data) {
-        return this.users().updateConfigs(this._config.userId, {
+        // TODO remove this nasty nested bug fix
+        if (data?.IVA) {
+            delete data.IVA;
+        }
+        const userIvaConfig = this.users().updateConfigs(this._config.userId, {
             id: "IVA",
             configuration: {
                 ...data
-                // "lastAccess": new Date().getTime()
             }
         });
+        // Update opencgaSession object
+        // if (opencgaSession?.user?.configs) {
+        //     opencgaSession.user.configs.IVA = userIvaConfig.responses[0].results[0];
+        // }
+        return userIvaConfig;
     }
 
 }

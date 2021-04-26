@@ -64,4 +64,43 @@ export default class BioinfoUtils {
         return "https://www.uniprot.org/uniprot/" + featureId;
     }
 
+    static getVariantLink(id, location, source, assembly) {
+        if (!source) {
+            return null;
+        }
+
+        // create +/- 5,000 bp region
+        const split = location.split(new RegExp("[:-]"));
+        const region = split[0] + ":" + Number(split[1]) - 5000 + "-" + Number(split[2]) + 5000;
+
+        switch (source.toUpperCase()) {
+            case "ENSEMBL_GENOME_BROWSER":
+                return `http://www.ensembl.org/Homo_sapiens/Location/View?r=${region}`;
+            case "UCSC_GENOME_BROWSER":
+                return `https://genome.ucsc.edu/cgi-bin/hgTracks?db=hg38&position=chr${region}`;
+
+        }
+    }
+
+    static getGeneLink(geneId, source, assembly) {
+        if (!geneId || !source) {
+            return null;
+        }
+
+        switch (source.toUpperCase()) {
+            case "LRG":
+                return `https://www.lrg-sequence.org/search/?query=${geneId}`;
+            case "DECIPHER":
+                return `https://www.deciphergenomics.org/gene/${geneId}`;
+            case "COSMIC":
+                if (assembly.toUpperCase() === "GRCH38") {
+                    return "https://cancer.sanger.ac.uk/cosmic/gene/analysis?ln=" + geneId;
+                } else {
+                    return "https://cancer.sanger.ac.uk/cosmic/gene/analysis?genome=37&ln=" + geneId;
+                }
+            case "OMIM":
+                return `https://omim.org/search?index=entry&sort=score+desc%2C+prefix_sort+desc&start=1&limit=10&search=${geneId}`;
+        }
+    }
+
 }

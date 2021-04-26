@@ -178,6 +178,9 @@ export default class OpencgaVariantSamples extends LitElement {
             const variantResponse = await this.opencgaSession.opencgaClient.variants().querySample(query);
             const result = variantResponse.getResult(0);
 
+            // Save response count attributes
+            this.responseAttributes = variantResponse.responses[0].attributes;
+
             // Get the total number of samples
             // TODO count only the genotypes filtered
             // _this.numSamples = result.studies[0].samples.length;
@@ -250,6 +253,9 @@ export default class OpencgaVariantSamples extends LitElement {
                     }
                     samples.push(...sampleChunk);
                 }
+
+                this.requestUpdate();
+
                 return samples;
             } else {
                 await Promise.reject("No samples found");
@@ -396,6 +402,21 @@ export default class OpencgaVariantSamples extends LitElement {
     render() {
         return html`
             <div style="padding: 20px">
+                <div style="margin: 10px">
+                    ${this.responseAttributes?.approximateCount === false 
+                        || (this.responseAttributes?.approximateCount && this.numSamples === this.responseAttributes.numTotalSamples)
+                            ? html`
+                                Number of samples found is <span style="font-weight: bold">${this.numSamples}</span>, you can view all samples for this variant.
+                                Notice that you might now have permission to view all samples for any variant.
+                            `
+                            : html`
+                                Number of samples found is <span style="font-weight: bold">${this.numSamples}</span>, and
+                                your user account has permission over <span style="font-weight: bold">${this.responseAttributes?.numTotalSamples} samples</span>.
+                                Notice that you might now have permission to view all samples for any variant.
+                            `
+                    }
+                </div>
+                
                 <opencb-grid-toolbar .config="${this.toolbarConfig}"
                                      @columnChange="${this.onColumnChange}"
                                      @download="${this.onDownload}"

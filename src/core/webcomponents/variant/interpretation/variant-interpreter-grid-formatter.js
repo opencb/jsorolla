@@ -75,12 +75,12 @@ export default class VariantInterpreterGridFormatter {
         }
 
         const clinicalSignificanceCodes = {
-            BENIGN: {code: 5, color: "blue"},
-            LIKELY_BENIGN: {code: 5, color: "blue"},
-            UNCERTAIN_SIGNIFICANCE: {code: 5, color: "darkorange"},
-            LIKELY_PATHOGENIC: {code: 5, color: "red"},
-            PATHOGENIC: {code: 5, color: "red"},
-            NOT_ASSESSED: {code: 5, color: "black"},
+            NOT_ASSESSED: {id: "NA", code: 0, color: "black"},
+            BENIGN: {id: "B", code: 1, color: "green"},
+            LIKELY_BENIGN: {id: "LB", code: 2, color: "darkbrown"},
+            UNCERTAIN_SIGNIFICANCE: {id: "US", code: 3, color: "darkorange"},
+            LIKELY_PATHOGENIC: {id: "LP", code: 4, color: "darkred"},
+            PATHOGENIC: {id: "P", code: 5, color: "red"},
         };
 
         let clinicalSignificanceCode = 0;
@@ -93,10 +93,14 @@ export default class VariantInterpreterGridFormatter {
                 modeOfInheritances.push(re.modeOfInheritance);
             }
 
-            if (clinicalSignificanceCodes[re.classification.clinicalSignificance] && clinicalSignificanceCodes[re.classification.clinicalSignificance].code > clinicalSignificanceCode) {
+            if (clinicalSignificanceCodes[re.classification.clinicalSignificance]?.code > clinicalSignificanceCode) {
                 clinicalSignificanceCode = clinicalSignificanceCodes[re.classification.clinicalSignificance].code;
-                let clinicalSignificance = re.classification.clinicalSignificance.replace("_", " ");
-                clinicalSignificanceHtml = `<span style="color: ${clinicalSignificanceCodes[re.classification.clinicalSignificance].color}">${clinicalSignificance}</span>`;
+                // let clinicalSignificance = re.classification.clinicalSignificance.replace("_", " ");
+                let clinicalSignificance = clinicalSignificanceCodes[re.classification.clinicalSignificance].id;
+                clinicalSignificanceHtml = `
+                    <div style="margin: 5px 0px; color: ${clinicalSignificanceCodes[re.classification.clinicalSignificance].color}">${clinicalSignificance}</div>
+                    <div class="help-block">${re.classification.acmg.join(', ')}</div>
+                `;
                 clinicalSignificanceTooltipText = `<div class='col-md-12 predictionTooltip-inner' style='padding: 0px'>
                                                         <form class='form-horizontal'>
                                                             <div class='form-group' style='margin: 0px 2px'>
@@ -500,7 +504,7 @@ export default class VariantInterpreterGridFormatter {
                     // }
                     checboxHtml = `<input type="checkbox" ${checked}>`;
                 }
-                 let editButtonLink = `
+                let editButtonLink = `
                         <button class="btn btn-link reviewButton" data-variant-id="${row.id}">
                             <i class="fa fa-edit icon-padding reviewButton" aria-hidden="true"></i>Edit
                         </button>`;
@@ -576,26 +580,32 @@ export default class VariantInterpreterGridFormatter {
                 let content;
                 switch (this.field.config.genotype.type.toUpperCase()) {
                     case "ALLELES":
-                        content = VariantInterpreterGridFormatter._alleleGenotypeRenderer(row, sampleEntry);
+                        content = VariantInterpreterGridFormatter.alleleGenotypeRenderer(row, sampleEntry, "alleles");
                         break;
-                    case "CIRCLE":
-                        content = VariantInterpreterGridFormatter._circleGenotypeRenderer(sampleEntry, file, 10);
+                    case "VCF_CALL":
+                        content = VariantInterpreterGridFormatter.alleleGenotypeRenderer(row, sampleEntry, "call");
+                        break;
+                    case "ZYGOSITY":
+                        content = VariantInterpreterGridFormatter.zygosityGenotypeRenderer(row, sampleEntry, this.field.clinicalAnalysis);
                         break;
                     case "VAF":
                         let vaf = VariantInterpreterGridFormatter._getVariantAlleleFraction(row, sampleEntry, file);
                         if (vaf && vaf.vaf >= 0 && vaf.depth >= 0) {
-                            content = VariantInterpreterGridFormatter._vafGenotypeRenderer(vaf.vaf, vaf.depth, file, {});
+                            content = VariantInterpreterGridFormatter.vafGenotypeRenderer(vaf.vaf, vaf.depth, file, {});
                         } else {    // Just in case we cannot render freqs, this should never happen.
-                            content = VariantInterpreterGridFormatter._alleleGenotypeRenderer(row, sampleEntry);
+                            content = VariantInterpreterGridFormatter.alleleGenotypeRenderer(row, sampleEntry);
                         }
                         break;
                     case "ALLELE_FREQUENCY":
                         let alleleFreqs = VariantInterpreterGridFormatter._getAlleleFrequencies(row, sampleEntry, file);
                         if (alleleFreqs && alleleFreqs.ref >= 0 && alleleFreqs.alt >= 0) {
-                            content = VariantInterpreterGridFormatter._alleleFrequencyGenotypeRenderer(alleleFreqs.ref, alleleFreqs.alt, file, {width: 80});
+                            content = VariantInterpreterGridFormatter.alleleFrequencyGenotypeRenderer(alleleFreqs.ref, alleleFreqs.alt, file, {width: 80});
                         } else {    // Just in case we cannot render freqs, this should never happen.
-                            content = VariantInterpreterGridFormatter._alleleGenotypeRenderer(row, sampleEntry);
+                            content = VariantInterpreterGridFormatter.alleleGenotypeRenderer(row, sampleEntry);
                         }
+                        break;
+                    case "CIRCLE":
+                        content = VariantInterpreterGridFormatter.circleGenotypeRenderer(sampleEntry, file, 10);
                         break;
                     default:
                         console.error("No valid genotype render option:", this.field.config.genotype.type.toUpperCase());
@@ -613,20 +623,11 @@ export default class VariantInterpreterGridFormatter {
         return resultHtml;
     }
 
-    static _circleGenotypeRenderer(sampleEntry, file, radius = 10) {
-        const {left, right} = VariantInterpreterGridFormatter._getLeftRightColors(sampleEntry.data[0], file.data.FILTER);
-        return `
-            <div class="circle-genotype-render">
-                <div class="circle" style="width: ${radius *2}px;height: ${radius *2}px;background: ${left}"></div>
-                <div class="circle" style="width: ${radius *2}px;height: ${radius *2}px;background: ${right}"></div>
-            </div>`;
-    }
-
-    static _vafGenotypeRenderer(vaf, depth, file, config) {
+    static vafGenotypeRenderer(vaf, depth, file, config) {
         return `<span>${vaf.toFixed(4)} / ${depth}</span>`;
     }
 
-    static _alleleFrequencyGenotypeRenderer(refFreq, altFreq, file, config) {
+    static alleleFrequencyGenotypeRenderer(refFreq, altFreq, file, config) {
         let widthPx = config?.width ? config.width : 80;
         let refWidth = Math.max(widthPx * refFreq, 1);
         let refColor = refFreq !== 0 ? "blue" : "black";
@@ -641,61 +642,136 @@ export default class VariantInterpreterGridFormatter {
                 </table>`;
     }
 
-    static _alleleGenotypeRenderer(variant, sampleEntry) {
+    static alleleGenotypeRenderer(variant, sampleEntry, mode) {
         let res = "-";
+        if (variant?.studies?.length > 0 && sampleEntry?.data.length > 0) {
+            const genotype = sampleEntry.data[0];
 
-        if (variant && variant.studies?.length > 0) {
-            if (sampleEntry?.data && sampleEntry.data.length > 0) {
-                const genotype = sampleEntry.data[0];
+            // Check special cases
+            if (genotype === "NA") {
+                return `<span style='color: darkorange'>${genotype}</span>`;
+            }
+            if (genotype === "./." || genotype === ".|.") {
+                return `<span style='color: darkorange'>${genotype}</span>`;
+            }
 
-                // Check special cases
-                if (genotype === "NA") {
-                    return `<span style='color: darkorange'>${genotype}</span>`;
-                }
-                if (genotype === "./." || genotype === ".|.") {
-                    return `<span style='color: darkorange'>${genotype}</span>`;
-                }
-
-                let allelesArray = genotype.split(new RegExp("[/|]"));
-                let alleles = [];
-                for (let allele of allelesArray) {
-                    switch (allele) {
-                        case ".":
-                            alleles.push(".");
-                            break;
-                        case "0":
+            let alleles = [];
+            let allelesArray = genotype.split(new RegExp("[/|]"));
+            for (let allele of allelesArray) {
+                switch (allele) {
+                    case ".":
+                        alleles.push(".");
+                        break;
+                    case "0":
+                        if (mode === "alleles") {
                             alleles.push(variant.reference ? variant.reference : "-");
-                            break;
-                        case "1":
+                        } else {
+                            alleles.push(allele);
+                        }
+                        break;
+                    case "1":
+                        if (mode === "alleles") {
                             alleles.push(variant.alternate ? variant.alternate : "-");
-                            break;
-                    }
+                        } else {
+                            alleles.push(allele);
+                        }
+                        break;
                 }
+            }
 
-                let allelesSeq = [];
-                for (let allele of alleles) {
-                    let alleleSeq = allele;
+            let allelesSeq = [];
+            for (let allele of alleles) {
+                let alleleSeq = allele;
+                if (mode === "alleles") {
                     // Check size
                     if (allele.length > 10) {
                         alleleSeq = allele.substring(0, 4) + "...";
                     }
-                    // Ww need to escape < and > symbols from <INS>, <DEL>, ...
+                    // Escape < and > symbols for <INS>, <DEL>, ...
                     alleleSeq = alleleSeq.replaceAll("<", "&lt;").replaceAll(">", "&gt;");
-                    allelesSeq.push(alleleSeq);
                 }
+                allelesSeq.push(alleleSeq);
+            }
 
-                let allelesHtml = [];
-                for (let i = 0; i < allelesSeq.length; i++) {
-                    let color = allelesArray[i] === "0" ? "black" : "darkorange";
-                    allelesHtml.push(`<span style="color: ${color}">${allelesSeq[i]}</span>`);
-                }
+            let allelesHtml = [];
+            for (let i = 0; i < allelesSeq.length; i++) {
+                let color = allelesArray[i] === "0" ? "black" : "darkorange";
+                allelesHtml.push(`<span style="color: ${color}">${allelesSeq[i]}</span>`);
+            }
 
-                res = `<span>${allelesHtml[0]} / ${allelesHtml[1]}</span>`;
+            let bar = genotype.includes("/") ? "/" : "|";
+            res = `<span>${allelesHtml[0]} ${bar} ${allelesHtml[1]}</span>`;
+        }
+        return res;
+    }
+
+    static zygosityGenotypeRenderer(variant, sampleEntry, ca) {
+        let res = "-";
+        if (variant?.studies?.length > 0 && sampleEntry?.data.length > 0) {
+            let sex;
+            if (ca.type === "FAMILY") {
+                // we need to find the sex of each member of the family
+                let individual = ca.family.members.find(m => m.samples[0].id === sampleEntry.sampleId);
+                sex = individual.sex;
+            } else {
+                sex = ca?.proband?.sex !== "UNKOWN" ? ca.proband.sex : "";
+            }
+
+            const genotype = sampleEntry.data[0];
+            switch (genotype) {
+                case "NA":
+                    res = `<span style='color: darkorange'>NA</span>`;
+                    break;
+                case "./.":
+                case ".|.":
+                    res = `<span style='color: darkorange'>MISSING</span>`;
+                    break
+                case "0/0":
+                case "0|0":
+                    res = `<span style='color: black'>HOM_REF</span>`;
+                    break;
+                case "0/1":
+                case "0|1":
+                case "1|0":
+                    if (variant.chromosome === "MT" || variant.chromosome === "Mt") {
+                        res = `<span style='color: red'>HEMI</span>`;
+                    } else {
+                        if (sex === "MALE" && (variant.chromosome === "X" || variant.chromosome === "Y")) {
+                            res = `<span style='color: red'>HEMI</span>`;
+                        } else {
+                            res = `<span style='color: darkorange'>HET</span>`;
+                        }
+                    }
+                    break;
+                case "1/1":
+                case "1|1":
+                    if (variant.chromosome === "MT" || variant.chromosome === "Mt") {
+                        res = `<span style='color: red'>HEMI</span>`;
+                    } else {
+                        if (sex === "MALE" && (variant.chromosome === "X" || variant.chromosome === "Y")) {
+                            res = `<span style='color: red'>HEMI</span>`;
+                        } else {
+                            res = `<span style='color: red'>HOM_ALT</span>`;
+                        }
+                    }
+                    break;
+                case "1":
+                    res = `<span style='color: red'>HEMI</span>`;
+                    break;
             }
         }
         return res;
     }
 
+    static circleGenotypeRenderer(sampleEntry, file, radius = 10) {
+        const {left, right} = VariantInterpreterGridFormatter._getLeftRightColors(sampleEntry.data[0], file.data.FILTER);
+        return `
+            <div class="circle-genotype-render">
+                <div class="circle" style="width: ${radius *2}px;height: ${radius *2}px;background: ${left}"></div>
+                <div class="circle" style="width: ${radius *2}px;height: ${radius *2}px;background: ${right}"></div>
+            </div>`;
+    }
+    
     static _getLeftRightColors(gt, filter) {
         let leftColor;
         let rightColor;
@@ -776,20 +852,6 @@ export default class VariantInterpreterGridFormatter {
             depth = values.PR + values.NR;
         }
 
-        // if (file?.fileId.includes("tnhaplotyper2")) {
-        //     // let index = variant.studies[0].sampleDataKeys.findIndex(key => key === "AF");
-        //     let index = variant.studies[0].sampleDataKeys.findIndex(key => key === "AD");
-        //     if (index >= 0) {
-        //         let AD = sampleEntry.data[index];
-        //         let ads = AD.split(",");
-        //         depth = 0;
-        //         for (let ad of ads) {
-        //             depth += Number.parseInt(ad);
-        //         }
-        //         vaf = Number.parseInt(ads[1]) / depth;
-        //     }
-        // }
-
         if (variant?.studies[0].sampleDataKeys.includes("AD")) {
             let index = variant.studies[0].sampleDataKeys.findIndex(key => key === "AD");
             if (index >= 0) {
@@ -811,7 +873,6 @@ export default class VariantInterpreterGridFormatter {
         let af, ad, dp;
         let afIndex, adIndex, dpIndex;
         let refFreq, altFreq;
-
 
         // Find and get the DP
         dpIndex = variant.studies[0].sampleDataKeys.findIndex(e => e === "DP");
@@ -936,7 +997,7 @@ export default class VariantInterpreterGridFormatter {
                                         : `<div class="form-group" style="margin: 2px 2px">
                                                 <label class="col-md-12">-</label>
                                            </div>`
-                                    }
+        }
                                 </form>
                              </div>`;
         return tooltipText;
