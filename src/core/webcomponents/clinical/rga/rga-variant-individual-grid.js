@@ -72,6 +72,10 @@ export default class RgaVariantIndividualGrid extends LitElement {
         }
     }
 
+    /**
+     *  generates tableDataMap, a map of all individuals (not paginated).
+     *  The map will be used merging Individuals and Clinical data.
+     */
     prepareData() {
         if (this.variant?.individuals?.length) {
             this.tableDataLn = this.variant.individuals.length;
@@ -139,6 +143,7 @@ export default class RgaVariantIndividualGrid extends LitElement {
 
     /**
      * Get clinical info only for the subset of individual defined by startVariant and endVariant indexes.
+     * NOTE we search for proband only and other members too
      */
     async getClinicalInfo(individualIds, startIndividual, endIndividual) {
         try {
@@ -148,11 +153,11 @@ export default class RgaVariantIndividualGrid extends LitElement {
                     {
                         individual: individualIds,
                         study: this.opencgaSession.study.fqn,
-                        include: "id,proband.id"
+                        include: "id,proband.id,family.members"
                     });
             } else {
                 console.error("params error");
-                return []
+                return [];
             }
         } catch (e) {
             console.error(e);
@@ -166,15 +171,20 @@ export default class RgaVariantIndividualGrid extends LitElement {
      */
     updateTableData(tableDataMap, clinicalData) {
         const _tableDataMap = tableDataMap;
-        clinicalData.forEach(clinicalAnalysis => {
-            if (_tableDataMap[clinicalAnalysis.proband.id]?.attributes?.OPENCGA_CLINICAL_ANALYSIS) {
-                _tableDataMap[clinicalAnalysis.proband.id].attributes.OPENCGA_CLINICAL_ANALYSIS.push(clinicalAnalysis);
-            } else {
-                _tableDataMap[clinicalAnalysis.proband.id].attributes = {
-                    OPENCGA_CLINICAL_ANALYSIS: [clinicalAnalysis]
-                };
+        for (const individualId in _tableDataMap) {
+            const individual = _tableDataMap[individualId];
+            for (const clinicalAnalysis of clinicalData) {
+                if (clinicalAnalysis.family.members.find(member => member.id === individualId)) {
+                    if (individual?.attributes?.OPENCGA_CLINICAL_ANALYSIS) {
+                        individual.attributes.OPENCGA_CLINICAL_ANALYSIS.push(clinicalAnalysis);
+                    } else {
+                        individual.attributes = {
+                            OPENCGA_CLINICAL_ANALYSIS: [clinicalAnalysis]
+                        };
+                    }
+                }
             }
-        });
+        }
         return Object.values(_tableDataMap);
     }
 
