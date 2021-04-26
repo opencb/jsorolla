@@ -73,7 +73,6 @@ export default class RgaIndividualVariants extends LitElement {
         }
 
         if (changedProperties.has("individualId")) {
-            console.error("individualId", this.individualId)
             this.renderTable();
         }
 
@@ -83,7 +82,12 @@ export default class RgaIndividualVariants extends LitElement {
     }
 
     renderTable() {
-        this._query = {...this.query, study: this.opencgaSession.study.fqn, individualId: this.individualId}; // we want to support a query obj param both with or without study.
+        this._query = {...this.query,
+            study: this.opencgaSession.study.fqn,
+            individualId: this.individualId,
+            includeIndividual: this.individualId,
+            include: "individuals.genes.transcripts.variants"
+        }; // we want to support a query obj param both with or without study.
         // Checks if the component is not visible or the query hasn't changed
         if (!this.active || UtilsNew.objectCompare(this._query, this.prevQuery)) {
             console.warn("query suppressed")
@@ -116,11 +120,9 @@ export default class RgaIndividualVariants extends LitElement {
                     skip: params.data.offset || 0,
                     count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
                     ...this._query
-                    // limit: 50
                 };
-                this.opencgaSession.opencgaClient.clinical().queryRgaIndividual(_filters)
+                this.opencgaSession.opencgaClient.clinical().queryRgaVariant(_filters)
                     .then(res => {
-                        console.log("queryRgaIndividual", res);
                         // this.restResponse = res;
                         params.success(res);
                     })
@@ -208,20 +210,6 @@ export default class RgaIndividualVariants extends LitElement {
         });
     }
 
-    clinicalPopulationFrequenciesFormatter(value, row) {
-        if (row) {
-            const popFreqMap = new Map();
-            if (row?.populationFrequencies?.length > 0) {
-                for (const popFreq of row.populationFrequencies) {
-                    popFreqMap.set(popFreq.study + ":" + popFreq.population, Number(popFreq.altAlleleFreq).toFixed(4));
-                }
-            }
-            return VariantGridFormatter.createPopulationFrequenciesTable(this._config.populationFrequencies, popFreqMap, populationFrequencies.style);
-        } else {
-            return "-";
-        }
-    }
-
     _initTableColumns() {
         return [
             {
@@ -236,9 +224,7 @@ export default class RgaIndividualVariants extends LitElement {
             {
                 title: "Alternate allele frequency",
                 field: "populationFrequencies",
-                formatter: (value, row) => {
-                    return this.clinicalPopulationFrequenciesFormatter(value, row);
-                }
+                formatter: (value, row) => this.clinicalPopulationFrequenciesFormatter(value, row)
             },
             {
                 title: "Type",
@@ -246,31 +232,74 @@ export default class RgaIndividualVariants extends LitElement {
             },
             {
                 title: "Consequence type",
-                field: "aggregatedSequenceOntologyTerms",
-                formatter: value => {
-                    if (value) {
-                        return Object.values(value).map(ct => `<span>${ct.name} (${ct.accession})</span>`).join(", ");
-                    }
-                }
+                field: "individuals",
+                formatter: (value, row) => this.consequenceTypeFormatter(value, row)
             },
             {
                 title: "Knockout Type",
-                field: "knockoutType"
+                field: "individuals",
+                formatter: (value, row) => this.uniqueFieldFormatter(value, row, "knockoutType")
             },
             {
                 title: "GT",
-                field: "genotype"
+                field: "genotype",
+                formatter: (value, row) => this.uniqueFieldFormatter(value, row, "genotype")
             },
             {
                 title: "Filter",
                 field: "filter",
-                formatter: filters => {
-                    if (filters) {
-                        return filters.split(/[,;]/).map(filter => `<span class="badge">${filter}</span>`).join("");
+                formatter: (value, row) => this.uniqueFieldFormatter(value, row, "filter")
+
+            }
+        ];
+    }
+
+    uniqueFieldFormatter(value, row, field) {
+        const uniqueValues = new Set();
+        for (const individual of row.individuals) {
+            for (const gene of individual.genes) {
+                for (const transcript of gene.transcripts) {
+                    for (const variant of transcript.variants) {
+                        if (row.id === variant.id) {
+                            uniqueValues.add(variant[field]);
+                        }
                     }
                 }
             }
-        ];
+        }
+        return uniqueValues.keys().length ? Array.from(uniqueValues.keys()).join(", ") : "-";
+    }
+
+    clinicalPopulationFrequenciesFormatter(value, row) {
+        if (row) {
+            const popFreqMap = new Map();
+            if (row?.populationFrequencies?.length > 0) {
+                for (const popFreq of row.populationFrequencies) {
+                    popFreqMap.set(popFreq.study + ":" + popFreq.population, Number(popFreq.altAlleleFreq).toFixed(4));
+                }
+            }
+            return VariantGridFormatter.createPopulationFrequenciesTable(this._config.populationFrequencies, popFreqMap, populationFrequencies.style);
+        }
+    }
+
+    consequenceTypeFormatter(value, row) {
+        const uniqueCT = {};
+        for (const individual of row.individuals) {
+            for (const gene of individual.genes) {
+                for (const transcript of gene.transcripts) {
+                    for (const variant of transcript.variants) {
+                        if (row.id === variant.id) {
+                            for (const ct of variant.sequenceOntologyTerms) {
+                                uniqueCT[ct.accession] = {
+                                    ...ct
+                                };
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return Object.values(uniqueCT).length ? Object.values(uniqueCT).map(ct => `<span>${ct.name} (${ct.accession})</span>`).join(", ") : "-";
     }
 
     getDefaultConfig() {
