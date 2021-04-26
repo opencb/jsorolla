@@ -420,26 +420,45 @@ export default class StudyAdminUsers extends LitElement {
         this.requestUpdate();
     }
 
-    onGroupRemove(e) {
-        let groupIds = [];
-        for (let groupId of this.removeGroupSet.keys()) {
-            groupIds.push(groupId)
+    async onGroupRemove(e) {
+        // The service only accepts string value, not an array.
+        let message = {
+            success: [],
+            error: []
         }
-        this.opencgaSession.opencgaClient.studies().updateGroups(this.study.fqn, { id: groupIds }, { action: "REMOVE" })
-            .then(res => {
-                this.removeUserSet = new Set();
-                this.requestUpdate();
+        
+        // for (let groupId of this.removeGroupSet.keys()) {
+        //     this.opencgaSession.opencgaClient.studies().updateGroups(this.study.fqn, { id: groupId }, { action: "REMOVE" })
+        //     .then(res => {
+        //         this.removeUserSet = new Set();
+        //         this.requestUpdate();
 
-                // Option 1. CatalogUtils.notifyStudyUpdateRequest();
-                // Option 2. CatalogUtils.notify("studyUpdateRequest", this.study.fqn);
-                // Option 3. CatalogUtils.notify(STUDY_UPDATE_REQUEST, this.study.fqn), true, true;
-                this.notifyStudyUpdateRequest();
-                this.showMessage("Group Delete","Group deleted correctly.","success")
-            })
-            .catch(err => {
+        //         // Option 1. CatalogUtils.notifyStudyUpdateRequest();
+        //         // Option 2. CatalogUtils.notify("studyUpdateRequest", this.study.fqn);
+        //         // Option 3. CatalogUtils.notify(STUDY_UPDATE_REQUEST, this.study.fqn), true, true;
+        //         this.notifyStudyUpdateRequest();
+        //     })
+        //     .catch(err => {
+        //         console.error(err);
+        //         params.error(err);
+        //     });
+        // }
+        for (let groupId of this.removeGroupSet.keys()) {
+            try {
+                const res = await this.opencgaSession.opencgaClient.studies().updateGroups(this.study.fqn, { id: groupId }, { action: "REMOVE" });
+                this.removeUserSet = new Set();
+                message.success.push(groupId);
+            } catch (err) {
                 console.error(err);
-                params.error(err);
-            });
+                message.error.push(groupId);
+            }
+        }
+        const messageAlert = `${!message.error.length ? 
+                `Group deleted correctly:${message.success.join()}` : 
+                `Group deleted correctly:${message.success.join()}, these groups could not deleted:${message.error.join()}`}`
+        this.showMessage("Message",messageAlert , "info");
+        this.requestUpdate();
+        this.notifyStudyUpdateRequest();
     }
 
     notifyStudyUpdateRequest() {
@@ -452,10 +471,10 @@ export default class StudyAdminUsers extends LitElement {
         }));
     }
 
-    showMessage(title,message,status){
-        Swal.fire(title,message,status);
+    showMessage(title, message, status) {
+        Swal.fire(title, message, status);
     }
-    
+
 
     render() {
 
