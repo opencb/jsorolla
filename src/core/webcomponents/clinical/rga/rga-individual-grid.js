@@ -178,19 +178,33 @@ export default class RgaIndividualGrid extends LitElement {
 
                 this.opencgaSession.opencgaClient.clinical().summaryRgaIndividual(_filters)
                     .then(rgaIndividualResponse => {
-                        console.log("queryInd", rgaIndividualResponse.getResults())
-                        // fetching Case Id of all the individuals (paginated)
+                        // fetching Case Id of the individuals (paginated)
                         const individualIds = rgaIndividualResponse.getResults().map(individual => individual.id).filter(Boolean).join(",");
                         if (individualIds) {
                             this.opencgaSession.opencgaClient.clinical().search(
                                 {
                                     individual: individualIds,
                                     study: this.opencgaSession.study.fqn,
-                                    include: "id,proband.id"
+                                    include: "id,proband.id,family.members"
                                 })
                                 .then(caseResponse => {
+                                    // NOTE we don't convert individuals nor clinical data in map first.
+                                    rgaIndividualResponse.getResults().forEach(individual => {
+                                        for (const clinicalAnalysis of caseResponse.getResults()) {
+                                            if (clinicalAnalysis.family.members.find(member => member.id === individual.id)) {
+                                                if (individual?.attributes?.OPENCGA_CLINICAL_ANALYSIS) {
+                                                    individual.attributes.OPENCGA_CLINICAL_ANALYSIS.push(clinicalAnalysis);
+                                                } else {
+                                                    individual.attributes = {
+                                                        OPENCGA_CLINICAL_ANALYSIS: [clinicalAnalysis]
+                                                    };
+                                                }
+                                            }
+                                        }
+                                    });
+
                                     // We store the Case ID in the individual attribute
-                                    // Note clinical search results are not sorted
+                                    /* // Note clinical search results are not sorted
                                     // FIXME at the moment we only search by proband
                                     const map = {};
                                     for (const clinicalAnalysis of caseResponse.getResults()) {
@@ -205,7 +219,7 @@ export default class RgaIndividualGrid extends LitElement {
                                                 OPENCGA_CLINICAL_ANALYSIS: map[individual.id]
                                             };
                                         }
-                                    }
+                                    }*/
                                     params.success(rgaIndividualResponse);
                                 })
                                 .catch(e => {
@@ -259,15 +273,19 @@ export default class RgaIndividualGrid extends LitElement {
     }
 
     geneFormatter(value, row) {
-        // return value.length ? (value.length > 20 ? `${value.length} genes` : value.map(gene => gene.name)) : "-";
-        const genes = value.map(gene => `${gene.name}`).join(", ");
-        if (value && value.length > 20) {
-            return `<a tooltip-title="Genes" tooltip-text='${genes}'> ${value.length} genes</a>`;
-        } else {
-            return genes;
+        if (value) {
+            const genes = value.join(", ");
+            if (value.length > 20) {
+                return `<a tooltip-title="Genes" tooltip-text='${genes}'> ${value.length} genes</a>`;
+            } else {
+                return genes;
+            }
         }
     }
 
+    /**
+     * @deprecated
+     */
     mapResult(results) {
         const rows = results.rows.map(ind => {
             const totalConfidence = this.getKnockoutGeneCount(ind.genes, "COMP_HET");
@@ -346,10 +364,10 @@ export default class RgaIndividualGrid extends LitElement {
             ], [
                 {
                     title: "Total",
-                    field: "variantStats.numHomAlt"
-                    /* formatter: (_, row) => {
-                        return this.getKnockoutCount(row.genes, "HOM_ALT");
-                    }*/
+                    field: "variantStats.numHomAlt",
+                    formatter: value => {
+                        return value > 0 ? value : "-";
+                    }
                 },
                 /*
                 {
