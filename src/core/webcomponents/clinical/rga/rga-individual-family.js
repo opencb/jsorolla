@@ -70,7 +70,8 @@ export default class RgaIndividualFamily extends LitElement {
         }
 
         if ((changedProperties.has("individual") || changedProperties.has("active")) && this.active) {
-            this.prepareData();
+            // this.prepareData();
+            // this.renderTableLocale();
             this.renderTable();
         }
 
@@ -79,6 +80,99 @@ export default class RgaIndividualFamily extends LitElement {
         }
     }
 
+    renderTable() {
+        this.sampleIds = [
+            this.individual.sampleId,
+            this.individual.fatherSampleId,
+            this.individual.motherSampleId
+        ];
+        // in case fatherSampleId is missing, the response studies[].samples[] of variants().query() would contains only 2 entries
+        this.motherSampleIndx = this.individual.fatherSampleId && this.individual.motherSampleId ? 2 : 1;
+
+        this._query = {
+            ...this.query,
+            study: this.opencgaSession.study.fqn,
+            individualId: this.individual.id,
+            includeIndividual: this.individual.id,
+            include: "individuals.genes.transcripts.variants"
+        }; // we want to support a query obj param both with or without study.
+        // Checks if the component is not visible or the query hasn't changed
+        if (!this.active || UtilsNew.objectCompare(this._query, this.prevQuery)) {
+            console.warn("query suppressed");
+            return;
+        }
+        this.prevQuery = {...this._query};
+
+        this.table = $("#" + this.gridId);
+        this.table.bootstrapTable("destroy");
+        this.table.bootstrapTable({
+            columns: this._initTableColumns(),
+            method: "get",
+            sidePagination: "server",
+            uniqueId: "id",
+            // Table properties
+            pagination: this._config.pagination,
+            pageSize: this._config.pageSize,
+            pageList: this._config.pageList,
+            paginationVAlign: "both",
+            formatShowingRows: this.gridCommons.formatShowingRows,
+            showExport: this._config.showExport,
+            detailView: this._config.detailView,
+            detailFormatter: this._config.detailFormatter,
+            formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+            ajax: async params => {
+                const _filters = {
+                    study: this.opencgaSession.study.fqn,
+                    limit: params.data.limit,
+                    skip: params.data.offset || 0,
+                    count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
+                    ...this._query
+                };
+                this.opencgaSession.opencgaClient.clinical().queryRgaVariant(_filters)
+                    .then(async rgaVariantResponse => {
+                        const variantIds = rgaVariantResponse.getResults().map(variant => variant.id);
+                        const variantResponse = await this.getVariantInfo(this.sampleIds, variantIds);
+                        // this.tableData = this.mergeData(rgaVariantResponse, variantResponse);
+
+                        const map = {};
+                        for (const variant of variantResponse.getResults()) {
+                            map[variant.id] = variant;
+                        }
+                        for (const variant of rgaVariantResponse.getResults()) {
+                            if (map[variant.id]) {
+                                variant.attributes = {
+                                    VARIANT: map[variant.id]
+                                };
+                            }
+                        }
+
+                        params.success(rgaVariantResponse);
+                    })
+                    .catch(e => {
+                        console.error(e);
+                        params.error(e);
+                    });
+            },
+            responseHandler: response => {
+                const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
+                return result.response;
+            },
+            onClickRow: (row, selectedElement, field) => {
+                console.log(row);
+                // console.log("variant facet", this.restResponse.getResult(1).buckets.find(gene => gene.value === row.value))
+                this.gridCommons.onClickRow(row.id, row, selectedElement);
+            },
+            onCheck: (row, $element) => this.gridCommons.onCheck(row.id, row),
+            onLoadSuccess: data => this.gridCommons.onLoadSuccess(data, 1),
+            onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse)
+        });
+
+    }
+
+    /**
+     * @deprecated
+     * useful in case rga-individual-grid uses /analysis/clinical/rga/individual/query
+     */
     async prepareData() {
         if (this.individual) {
             try {
@@ -122,14 +216,14 @@ export default class RgaIndividualFamily extends LitElement {
     /**
      * Queries variant WS only for the subset defined by startVariant and endVariant.
      */
-    async getVariantInfo(sampleIds, startVariant, endVariant) {
+    async getVariantInfo(sampleIds, variantIds) {
         // formatter: VariantInterpreterGridFormatter.sampleGenotypeFormatter,
         try {
-            const slicedVariant = this.variantIds.slice(startVariant, endVariant);
-            if (slicedVariant.length && sampleIds.length) {
+            // const slicedVariant = this.variantIds.slice(startVariant, endVariant);
+            if (sampleIds.length && variantIds.length) {
                 const params = {
                     study: this.opencgaSession.study.fqn,
-                    id: slicedVariant.join(","),
+                    id: variantIds.join(","),
                     includeSample: sampleIds.join(",")
                 };
                 return await this.opencgaSession.opencgaClient.variants().query(params);
@@ -143,7 +237,17 @@ export default class RgaIndividualFamily extends LitElement {
 
     }
 
+    mergeData(rgaVariantResponse, variantResponse) {
+        const resultMap = {};
+        rgaVariantResponse.getResults().forEach(variant => resultMap[variant.id] = variant);
+        variantResponse.getResults().forEach(variant => {
+            resultMap[variant.id].variantData = variant;
+        });
+        return Object.values(resultMap);
+    }
+
     /**
+     * @deprecated
      * update tableData with new variant data (it happens on pagination)
      */
     updateTableData(tableDataMap, variantData) {
@@ -154,7 +258,11 @@ export default class RgaIndividualFamily extends LitElement {
         return Object.values(_tableDataMap);
     }
 
-    renderTable() {
+    /**
+     * @deprecated
+     * useful in case rga-individual-grid uses /analysis/clinical/rga/individual/query
+     */
+    renderTableLocale() {
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
@@ -247,24 +355,24 @@ export default class RgaIndividualFamily extends LitElement {
                 // proband
                 {
                     title: "GT",
-                    field: "variantData",
+                    field: "attributes.VARIANT",
                     formatter: value => this.gtFormatter(value, 0)
                 },
                 {
                     title: "Filter",
-                    field: "variantData",
+                    field: "attributes.VARIANT",
                     formatter: value => this.filterFormatter(value, 0)
                 },
                 // father
                 {
                     title: "GT",
-                    field: "variantData",
+                    field: "attributes.VARIANT",
                     visible: !!this.sampleIds[1],
                     formatter: value => this.gtFormatter(value, 1)
                 },
                 {
                     title: "Filter",
-                    field: "variantData",
+                    field: "attributes.VARIANT",
                     visible: !!this.sampleIds[1],
                     formatter: value => this.filterFormatter(value, 1)
 
@@ -272,13 +380,13 @@ export default class RgaIndividualFamily extends LitElement {
                 // mother
                 {
                     title: "GT",
-                    field: "variantData",
+                    field: "attributes.VARIANT",
                     visible: !!this.sampleIds[2],
                     formatter: value => this.gtFormatter(value, this.motherSampleIndx)
                 },
                 {
                     title: "Filter",
-                    field: "variantData",
+                    field: "attributes.VARIANT",
                     visible: !!this.sampleIds[2],
                     formatter: value => this.filterFormatter(value, this.motherSampleIndx)
 
@@ -290,7 +398,10 @@ export default class RgaIndividualFamily extends LitElement {
     filterFormatter(value, sampleIndex) {
         const fileIndex = value?.studies?.[0]?.samples?.[sampleIndex]?.fileIndex;
         if (fileIndex !== undefined) {
-            return `<span class="badge">${value?.studies?.[0]?.files[fileIndex].data.FILTER}</span>`;
+            const terms = value?.studies?.[0]?.files[fileIndex].data.FILTER;
+            if (terms) {
+                return terms.split(";").map(term => `<span class="badge">${term}</span>`).join("");
+            }
         }
     }
 
@@ -305,7 +416,10 @@ export default class RgaIndividualFamily extends LitElement {
 
     getDefaultConfig() {
         return {
-            title: "Individual"
+            title: "Individual",
+            pagination: true,
+            pageSize: 10,
+            pageList: [10, 25, 50]
         };
     }
 
