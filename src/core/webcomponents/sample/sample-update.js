@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {html, LitElement} from "/web_modules/lit-element.js";
+import { html, LitElement } from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
 import "../phenotype/phenotype-manager.js";
 import "../annotations/annotationSet-form.js";
@@ -25,7 +25,6 @@ export default class SampleUpdate extends LitElement {
 
     constructor() {
         super();
-
         this._init();
     }
 
@@ -44,10 +43,6 @@ export default class SampleUpdate extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            // TODO Thisnk abut the need of this parameter
-            // study: {
-            //     type: Object
-            // },
             config: {
                 type: Object
             }
@@ -116,6 +111,88 @@ export default class SampleUpdate extends LitElement {
             bubbles: true,
             composed: true
         }));
+    }
+
+    onFieldChange(e) {
+        switch (e.detail.param) {
+            case "id":
+            case "description":
+            case "individualId":
+            case "somatic":
+                if (this._sample[e.detail.param] !== e.detail.value && e.detail.value !== null) {
+                    this.sample[e.detail.param] = e.detail.value;
+                    this.updateParams[e.detail.param] = e.detail.value;
+                } else {
+                    this.sample[e.detail.param] = this._sample[e.detail.param].id;
+                    delete this.updateParams[e.detail.param];
+                }
+                break;
+            case "status.name":
+            case "status.description":
+            case "processing.product":
+            case "processing.preparationMethod":
+            case "processing.extrationMethod":
+            case "processing.labSambpleId":
+            case "processing.quantity":
+            case "processing.date":
+            case "collection.tissue":
+            case "collection.organ":
+            case "collection.quantity":
+            case "collection.method":
+            case "collection.date":
+                const [field, prop] = e.detail.param.split(".");
+                if (this._sample[field][prop] !== e.detail.value && e.detail.value !== null) {
+                    this.sample[field][prop] = e.detail.value;
+                    this.updateParams[field] = {
+                        ...this.updateParams[field],
+                        [prop]: e.detail.value
+                    };
+                } else {
+                    // this.sample[field] = this._sample.id;
+                    delete this.updateParams[field][prop];
+                }
+                break;
+        }
+    }
+
+    onRemovePhenotype(e) {
+        console.log("This is to remove a item ");
+        this.sample = {
+            ...this.sample,
+            phenotypes: this.sample.phenotypes
+                .filter(item => item !== e.detail.value)
+        }
+    }
+
+    onAddPhenotype(e) {
+        debugger;
+        this.sample.phenotypes.push(e.detail.value)
+        this.updateParams.phenotypes = this.sample.phenotypes;
+        
+    }
+
+    onClear() {
+        console.log("OnClear sample form")
+    }
+
+    onSubmit() {
+        debugger;
+        this.opencgaSession.opencgaClient.samples().update(this.sample.id, this.updateParams, { study: this.opencgaSession.study.fqn })
+            .then(res => {
+                this._sample = JSON.parse(JSON.stringify(this.sample));
+                this.updateParams = {};
+
+                // this.dispatchSessionUpdateRequest();
+
+                Swal.fire(
+                    "Edit Sample",
+                    "Sample updated correctly.",
+                    "success"
+                );
+            })
+            .catch(err => {
+                console.error(err);
+            });
     }
 
     getDefaultConfig() {
@@ -317,14 +394,13 @@ export default class SampleUpdate extends LitElement {
                                 defaultLayout: "vertical",
                                 width: 12,
                                 style: "padding-left: 0px",
-                                render: (sample) => html`
-                                    <phenotype-form
-                                            .sample="${this.sample}"
-                                            .phenotype="${this.phenotype}"
+                                render: () => html`
+                                    <phenotype-manager 
+                                            .phenotypes="${this.sample?.phenotypes}"
                                             .opencgaSession="${this.opencgaSession}"
-                                            @fieldChange="${e => this.onFieldChange(e)}">
-                                    </phenotype-form>
-                                `
+                                            @addItem="${e => this.onAddPhenotype(e)}"
+                                            @removeItem="${e => this.onRemovePhenotype(e)}">
+                                        </phenotype-manager>`
                             }
                         },
                         {
@@ -349,87 +425,8 @@ export default class SampleUpdate extends LitElement {
             ]
         }
     }
-
-    onFieldChange(e) {
-        switch (e.detail.param) {
-            case "id":
-            case "description":
-            case "individualId":
-            case "somatic":
-                if (this._sample[e.detail.param] !== e.detail.value && e.detail.value !== null) {
-                    this.sample[e.detail.param] = e.detail.value;
-                    this.updateParams[e.detail.param] = e.detail.value;
-                } else {
-                    this.sample[e.detail.param] = this._sample[e.detail.param].id;
-                    delete this.updateParams[e.detail.param];
-                }
-                break;
-            case "status.name":
-            case "status.description":
-            case "processing.product":
-            case "processing.preparationMethod":
-            case "processing.extrationMethod":
-            case "processing.labSambpleId":
-            case "processing.quantity":
-            case "processing.date":
-            case "collection.tissue":
-            case "collection.organ":
-            case "collection.quantity":
-            case "collection.method":
-            case "collection.date":
-                const [field, prop] = e.detail.param.split(".");
-                if (this._sample[field]) {
-                    this.sample[field] = {};
-                }
-
-                this.sample[field][prop] = e.detail.value
-                break;
-            // case "phenotype.ageOfOnset":
-            // case "phenotype.status":
-            //     prop = e.detail.param.split(".")[1];
-            //     this.phenotype[prop] = e.detail.value;
-            //     break;
-            // case "annotationSet.id":
-            // case "annotationSet.name":
-            //     prop = e.detail.param.split(".")[1];
-            //     this.annotationSets[prop] = e.detail.value;
-            //     break;
-        }
-    }
-
-    onClear() {
-        console.log("OnClear sample form")
-    }
-
-    onSubmit() {
-        console.log(this.sample, this.updateParams, this.phenotype, this)
-        debugger
-        this.opencgaSession.opencgaClient.samples().update(this.sample.id, this.updateParams, {study: this.opencgaSession.study.fqn})
-            .then(res => {
-                this._sample = JSON.parse(JSON.stringify(this.sample));
-                this.updateParams = {};
-
-                // this.dispatchSessionUpdateRequest();
-
-                Swal.fire(
-                    "Edit Sample",
-                    "Sample updated correctly.",
-                    "success"
-                );
-            })
-            .catch(err => {
-                console.error(err);
-            });
-    }
-
+    
     render() {
-        // return html`
-        //     <div class="guard-page" >
-        //         <i class="fas fa-pencil-ruler fa-5x"></i>
-        //         <h3>Component under construction</h3>
-        //         <h3>(Coming Soon)</h3>
-        //     </div >`;
-
         return html`
             <data-form
                     .data=${this.sample}
