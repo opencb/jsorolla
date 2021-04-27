@@ -24,7 +24,6 @@ export default class SampleCreate extends LitElement {
 
     constructor() {
         super();
-
         this._init();
     }
 
@@ -34,12 +33,6 @@ export default class SampleCreate extends LitElement {
 
     static get properties() {
         return {
-            sample: {
-                type: Object
-            },
-            study: {
-                type: Object
-            },
             opencgaSession: {
                 type: Object
             },
@@ -52,7 +45,7 @@ export default class SampleCreate extends LitElement {
     _init() {
         this._prefix = UtilsNew.randomString(8);
         this.sample = {
-            phenotypes: []
+            phenotypes: [],
         };
         this.annotationSets = {};
     }
@@ -70,6 +63,117 @@ export default class SampleCreate extends LitElement {
             bubbles: true,
             composed: true
         }));
+    }
+
+    saveSample() {
+        // this.opencgaSession.opencgaClient.projects().create(this.project)
+        //     .then(res => {
+        //         this.sample = {};
+        //         this.requestUpdate();
+
+        //         this.dispatchSessionUpdateRequest();
+
+        //         Swal.fire(
+        //             "New Sample",
+        //             "New Sample created correctly.",
+        //             "success"
+        //         );
+        //     })
+        //     .catch(err => {
+        //         console.error(err);
+        //         params.error(err);
+        //     });
+    }
+
+    updateSample() {
+        // this.opencgaSession.opencgaClient.projects().update(this.Sample?.fqn,this.Sample)
+        //     .then(res => {
+        //         this.Sample = {};
+        //         this.requestUpdate();
+
+        //         this.dispatchSessionUpdateRequest();
+
+        //         Swal.fire(
+        //             "Edit Sample",
+        //             "Sample updated correctly.",
+        //             "success"
+        //         );
+        //     })
+        //     .catch(err => {
+        //         console.error(err);
+        //         params.error(err);
+        //     });
+    }
+
+    onFieldChange(e) {
+        const [field, prop] = e.detail.param.split(".")
+        debugger;
+        switch (e.detail.param) {
+            case "id":
+            case "description":
+            case "individualId":
+            case "somatic":
+                this.sample[e.detail.param] = e.detail.value;
+                break;
+            case "status.name":
+            case "status.description":
+            case "processing.product":
+            case "processing.preparationMethod":
+            case "processing.extrationMethod":
+            case "processing.labSambpleId":
+            case "processing.quantity":
+            case "processing.date":
+            case "collection.tissue":
+            case "collection.organ":
+            case "collection.quantity":
+            case "collection.method":
+            case "collection.date":
+                if (!this.sample[field]) {
+                    this.sample[field] = {}
+                }
+                this.sample[field][prop] = e.detail.value
+                break;
+            case "annotationSet.id":
+            case "annotationSet.name":
+                this.annotationSets[prop] = e.detail.value;
+                break;
+        }
+    }
+
+    onRemovePhenotype(e) {
+        console.log("This is to remove a item ");
+        this.sample = {
+            ...this.sample,
+            phenotypes: this.sample.phenotypes
+                .filter(item => item !== e.detail.value)
+        }
+        this.requestUpdate()
+    }
+
+    onAddPhenotype(e) {
+        this.sample.phenotypes.push(e.detail.value)
+        this.requestUpdate()
+    }
+
+    onClear(e) {
+        console.log("OnClear sample form", this)
+    }
+
+    onSubmit(e) {
+        this.opencgaSession.opencgaClient.samples().create(this.sample, { study: this.opencgaSession.study.fqn })
+            .then(res => {
+                this.sample = {}
+                // this.dispatchSessionUpdateRequest();
+
+                Swal.fire(
+                    "New Sample",
+                    "Sample save correctly.",
+                    "success"
+                );
+            })
+            .catch(err => {
+                console.error(err);
+            });
     }
 
     getDefaultConfig() {
@@ -138,21 +242,34 @@ export default class SampleCreate extends LitElement {
                         {
                             name: "Individual ID",
                             field: "individualId",
-                            type: "custom",
+                            type: "input-text",
                             display: {
-                                placeholder: "e.g. Homo sapiens, ...",
-                                render: (sample) => html`
-                                    <individual-id-autocomplete 
-                                            .value="${sample?.individualId}"
-                                            .opencgaSession="${this.opencgaSession}" 
-                                            @filterChange="${e => this.onFieldChange({ detail: { param: "individualId", value: e.detail.value } })}">
-                                    </individual-id-autocomplete>`
-                            }
+                                placeholder: "Add a short ID...",
+
+                                help: {
+                                    text: "short Sample id for thehis as;lsal"
+                                },
+                            },
                         },
+                        // {
+                        //     name: "Individual ID",
+                        //     field: "individualId",
+                        //     type: "custom",
+                        //     display: {
+                        //         placeholder: "e.g. Homo sapiens, ...",
+                        //         render: (sample) => html`
+                        //             <individual-id-autocomplete 
+                        //                     .value="${sample?.individualId}"
+                        //                     .opencgaSession="${this.opencgaSession}" 
+                        //                     @filterChange="${e => this.onFieldChange({ detail: { param: "individualId", value: e.detail.value } })}">
+                        //             </individual-id-autocomplete>`
+                        //     }
+                        // },
                         {
                             name: "Somatic",
                             field: "somatic",
-                            type: "checkbox"
+                            type: "checkbox",
+                            checked: false
                         },
                         {
                             name: "Status name",
@@ -283,106 +400,6 @@ export default class SampleCreate extends LitElement {
                 },
             ]
         }
-    }
-
-    saveSample() {
-        // this.opencgaSession.opencgaClient.projects().create(this.project)
-        //     .then(res => {
-        //         this.sample = {};
-        //         this.requestUpdate();
-
-        //         this.dispatchSessionUpdateRequest();
-
-        //         Swal.fire(
-        //             "New Sample",
-        //             "New Sample created correctly.",
-        //             "success"
-        //         );
-        //     })
-        //     .catch(err => {
-        //         console.error(err);
-        //         params.error(err);
-        //     });
-    }
-
-    updateSample() {
-        // this.opencgaSession.opencgaClient.projects().update(this.Sample?.fqn,this.Sample)
-        //     .then(res => {
-        //         this.Sample = {};
-        //         this.requestUpdate();
-
-        //         this.dispatchSessionUpdateRequest();
-
-        //         Swal.fire(
-        //             "Edit Sample",
-        //             "Sample updated correctly.",
-        //             "success"
-        //         );
-        //     })
-        //     .catch(err => {
-        //         console.error(err);
-        //         params.error(err);
-        //     });
-    }
-
-    onFieldChange(e) {
-        let field = ""
-        let prop = ""
-        switch (e.detail.param) {
-            case "id":
-            case "description":
-            case "individualId":
-            case "somatic":
-                this.sample[e.detail.param] = e.detail.value;
-                break;
-            case "status.name":
-            case "status.description":
-            case "processing.product":
-            case "processing.preparationMethod":
-            case "processing.extrationMethod":
-            case "processing.labSambpleId":
-            case "processing.quantity":
-            case "processing.date":
-            case "collection.tissue":
-            case "collection.organ":
-            case "collection.quantity":
-            case "collection.method":
-            case "collection.date":
-                field = e.detail.param.split(".")[0];
-                prop = e.detail.param.split(".")[1];
-                if (this._sample[field]) {
-                    this.sample[field] = {}
-                }
-                this.sample[field][prop] = e.detail.value
-                break;
-            case "annotationSet.id":
-            case "annotationSet.name":
-                prop = e.detail.param.split(".")[1];
-                this.annotationSets[prop] = e.detail.value;
-                break;
-        }
-    }
-
-    onRemovePhenotype(e) {
-        console.log("This is to remove a item ");
-        this.sample = {
-            ...this.sample,
-            phenotypes: this.sample.phenotypes
-                .filter(item => item !== e.detail.value)
-        }
-    }
-
-    onAddPhenotype(e) {
-        this.sample.phenotypes.push(e.detail.value)
-    }
-
-    onClear(e) {
-        console.log("OnClear sample form", this)
-    }
-
-    onSubmit(e) {
-        // this.phenotype = {}
-        // this.requestUpdate()
     }
 
     render() {
