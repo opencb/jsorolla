@@ -53,13 +53,6 @@ export default class RgaGeneGrid extends LitElement {
         this.gridId = this._prefix + "RgaGeneBrowserGrid";
         this.prevQuery = {};
         this._query = {};
-
-        this._genes = ["GRIK5", "ACTN3", "COMT", "TTN", "ABCA12", "ALMS1", "ALOX12B", "ATP8A2", "BLM",
-            "CCNO", "CEP290", "CNGB3", "CUL7", "DNAAF1", "DOCK6", "EIF2B5", "ERCC6", "FLG", "HADA",
-            "INPP5K", "MANIB1", "MERTK", "MUTYH", "NDUFAF5", "NDUFS7", "OTOG", "PAH", "PDZD7", "PHYH",
-            "PKHD1", "PMM2", "RARS2", "SACS", "SGCA", "SIGMAR1", "SPG7", "TTN", "TYR", "USH2A", "WFS1"];
-        //this._genes = ["INPP5K"];
-
     }
 
     connectedCallback() {
@@ -86,19 +79,19 @@ export default class RgaGeneGrid extends LitElement {
             columns: [
                 {
                     title: "Gene",
-                    field: "value"
+                    field: "name"
                 }, {
 
                     title: "Recessive Individuals",
-                    field: "ind_tot,ind_hom,ind_ch,ind_ch_def,ind_ch_prob,ind_ch_poss"
+                    field: "individualStats.count,individualStats.numHomAlt,individualStats.bothParents.numCompHet,individualStats.singleParent.numCompHet,individualStats.noParents.numCompHet"
                 }, {
 
                     title: "Recessive Variants",
-                    field: "var_tot,var_hom,var_ch"
+                    field: "variantStats.count,variantStats.numHomAlt,variantStats.numCompHet"
                 }
             ]
         };
-
+        this.requestUpdate();
         this.renderTable();
     }
 
@@ -113,15 +106,14 @@ export default class RgaGeneGrid extends LitElement {
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
-            // url: opencgaHostUrl,
             columns: this._columns,
             method: "get",
             sidePagination: "server",
             uniqueId: "id",
             // Table properties
-            pagination: this._config.pagination,
             pageSize: this._config.pageSize,
             pageList: this._config.pageList,
+            pagination: this._config.pagination,
             paginationVAlign: "both",
             formatShowingRows: this.gridCommons.formatShowingRows,
             showExport: this._config.showExport,
@@ -131,18 +123,14 @@ export default class RgaGeneGrid extends LitElement {
             ajax: async params => {
                 const _filters = {
                     study: this.opencgaSession.study.fqn,
-                    // order: params.data.order,
                     limit: params.data.limit,
                     skip: params.data.offset || 0,
                     count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
-                    // geneName: this._genes.join(","),
                     ...this._query
-                    // limit: 50
                 };
                 this.opencgaSession.opencgaClient.clinical().summaryRgaGene(_filters)
                     .then(res => {
                         console.log("res", res);
-                        // this.restResponse = res;
                         params.success(res);
                     })
                     .catch(e => {
@@ -163,7 +151,6 @@ export default class RgaGeneGrid extends LitElement {
             onLoadSuccess: data => this.gridCommons.onLoadSuccess(data, 1),
             onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse)
         });
-
     }
 
     /**
@@ -312,6 +299,7 @@ export default class RgaGeneGrid extends LitElement {
         return numParents?.count ?? "-";
     }
 
+    // TODO refactor
     async onDownload(e) {
         this.toolbarConfig = {...this.toolbarConfig, downloading: true};
         await this.requestUpdate();
@@ -379,13 +367,6 @@ export default class RgaGeneGrid extends LitElement {
             pageSize: 10,
             pageList: [10, 25, 50],
             showExport: false,
-            detailView: false,
-            detailFormatter: undefined, // function with the detail formatter
-            multiSelection: false,
-            header: {
-                horizontalAlign: "center",
-                verticalAlign: "bottom"
-            }
         };
     }
 
