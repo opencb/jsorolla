@@ -82,11 +82,10 @@ export default class RgaIndividualVariants extends LitElement {
     }
 
     renderTable() {
-        this._query = {...this.query,
-            study: this.opencgaSession.study.fqn,
+        this._query = {
+            ...this.query,
             individualId: this.individualId,
             includeIndividual: this.individualId,
-            include: "individuals.genes.transcripts.variants"
         }; // we want to support a query obj param both with or without study.
         // Checks if the component is not visible or the query hasn't changed
         if (!this.active || UtilsNew.objectCompare(this._query, this.prevQuery)) {
@@ -119,11 +118,11 @@ export default class RgaIndividualVariants extends LitElement {
                     limit: params.data.limit,
                     skip: params.data.offset || 0,
                     count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
+                    include: "individuals.genes.transcripts.variants,individuals.genes.name",
                     ...this._query
                 };
                 this.opencgaSession.opencgaClient.clinical().queryRgaVariant(_filters)
                     .then(res => {
-                        // this.restResponse = res;
                         params.success(res);
                     })
                     .catch(e => {
@@ -137,7 +136,6 @@ export default class RgaIndividualVariants extends LitElement {
             },
             onClickRow: (row, selectedElement, field) => {
                 console.log(row);
-                // console.log("variant facet", this.restResponse.getResult(1).buckets.find(gene => gene.value === row.value))
                 this.gridCommons.onClickRow(row.id, row, selectedElement);
             },
             onCheck: (row, $element) => this.gridCommons.onCheck(row.id, row),
@@ -213,13 +211,14 @@ export default class RgaIndividualVariants extends LitElement {
     _initTableColumns() {
         return [
             {
-                title: "id",
+                title: "Id",
                 field: "id",
                 formatter: (value, row, index) => row.chromosome ? VariantGridFormatter.variantFormatter(value, row, index, this.opencgaSession.project.organism.assembly) : value
             },
             {
                 title: "Gene",
-                field: "geneName"
+                field: "geneName",
+                formatter: (value, row) => this.geneFormatter(value, row)
             },
             {
                 title: "Alternate allele frequency",
@@ -254,6 +253,16 @@ export default class RgaIndividualVariants extends LitElement {
         ];
     }
 
+    geneFormatter(value, row) {
+        const uniqueValues = new Set();
+        for (const individual of row.individuals) {
+            for (const gene of individual.genes) {
+                uniqueValues.add(gene.name);
+            }
+        }
+        return uniqueValues.size ? Array.from(uniqueValues.keys()).join(", ") : "-";
+    }
+
     uniqueFieldFormatter(value, row, field) {
         const uniqueValues = new Set();
         for (const individual of row.individuals) {
@@ -267,7 +276,7 @@ export default class RgaIndividualVariants extends LitElement {
                 }
             }
         }
-        return uniqueValues.keys().length ? Array.from(uniqueValues.keys()).join(", ") : "-";
+        return uniqueValues.size ? Array.from(uniqueValues.keys()).join(", ") : "-";
     }
 
     clinicalPopulationFrequenciesFormatter(value, row) {
@@ -323,12 +332,10 @@ export default class RgaIndividualVariants extends LitElement {
                 gencodeBasic: true,
                 filterByBiotype: true,
                 filterByConsequenceType: true,
-
                 canonicalTranscript: false,
                 highQualityTranscripts: false,
                 proteinCodingTranscripts: false,
                 worstConsequenceTypes: true,
-
                 showNegativeConsequenceTypes: true
             }
         };
