@@ -76,11 +76,11 @@ export default class RgaBrowser extends LitElement {
         this.defaultQuery = {
             consequenceType: "transcript_ablation,splice_acceptor_variant,splice_donor_variant,stop_gained,frameshift_variant,stop_lost,start_lost,transcript_amplification,inframe_insertion,inframe_deletion",
             geneName: ["GRIK5", "ACTN3", "COMT", "TTN", "ABCA12", "ALMS1", "ALOX12B", "ATP8A2", "BLM",
-            "CCNO", "CEP290", "CNGB3", "CUL7", "DNAAF1", "DOCK6", "EIF2B5", "ERCC6", "FLG", "HADA",
-            "INPP5K", "MANIB1", "MERTK", "MUTYH", "NDUFAF5", "NDUFS7", "OTOG", "PAH", "PDZD7", "PHYH",
-            "PKHD1", "PMM2", "RARS2", "SACS", "SGCA", "SIGMAR1", "SPG7", "TTN", "TYR", "USH2A", "WFS1"].join(","),
-            individualId: "118000206" // 118000208 is not a proband, 118000206 is a proband
-            //knockoutType: "COMP_HET"
+                "CCNO", "CEP290", "CNGB3", "CUL7", "DNAAF1", "DOCK6", "EIF2B5", "ERCC6", "FLG", "HADA",
+                "INPP5K", "MANIB1", "MERTK", "MUTYH", "NDUFAF5", "NDUFS7", "OTOG", "PAH", "PDZD7", "PHYH",
+                "PKHD1", "PMM2", "RARS2", "SACS", "SGCA", "SIGMAR1", "SPG7", "TTN", "TYR", "USH2A", "WFS1"].join(","),
+            // individualId: "118000206" // 118000208 is not a proband, 118000206 is a proband
+            // knockoutType: "COMP_HET"
         };
     }
 
@@ -130,8 +130,8 @@ export default class RgaBrowser extends LitElement {
                 }
                 // onServerFilterChange() in opencga-active-filters drops a filterchange event when the Filter dropdown is used
                 this.dispatchEvent(new CustomEvent("queryChange", {
-                        detail: this.preparedQuery
-                    }
+                    detail: this.preparedQuery
+                }
                 ));
                 this.detail = {};
             } else {
@@ -267,8 +267,8 @@ export default class RgaBrowser extends LitElement {
                                 description: "Confidence selection",
                                 type: "checkbox",
                                 allowedValues: [{id: 0, name: "No parents"}, {id: 1, name: "One parent"}, {id: 2, name: "Two parents"}]
-                            },
-                            /*{
+                            }
+                            /* {
                                 id: "probandOnly",
                                 name: "Affected individuals (proband) only",
                                 type: "boolean",
@@ -281,7 +281,7 @@ export default class RgaBrowser extends LitElement {
                     {
                         title: "Variants",
                         fields: [
-                            /*{
+                            /* {
                                 id: "cohort",
                                 name: "Cohort",
                                 description: "Cohort selection"
