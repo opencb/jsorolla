@@ -53,6 +53,7 @@ export default class DisorderManager extends BaseManagerMixin(LitElement) {
                 labelWidth: 3,
                 labelAlign: "right",
                 defaultLayout: "horizontal",
+                defaultValue: "",
             },
             sections: [
                 {

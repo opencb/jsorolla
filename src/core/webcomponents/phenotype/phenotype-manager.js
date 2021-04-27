@@ -54,6 +54,7 @@ export default class PhenotypeManager extends BaseManagerMixin(LitElement) {
                 labelWidth: 3,
                 labelAlign: "right",
                 defaultLayout: "horizontal",
+                defaultValue: "",
             },
             sections: [
                 {
@@ -70,7 +71,7 @@ export default class PhenotypeManager extends BaseManagerMixin(LitElement) {
                             name: "Status",
                             field: "phenotype.status",
                             type: "select",
-                            allowedValues: ["OBSERVED", "NOT_OBSERVED", "UNKNOW"],
+                            allowedValues: ["OBSERVED", "NOT_OBSERVED", "UNKNOWN"],
                             display: {
                                 placeholder: "select a status...",
                             }
@@ -108,6 +109,8 @@ export default class PhenotypeManager extends BaseManagerMixin(LitElement) {
                 this.phenotype[field] = e.detail.value;
                 break;
         }
+        // To stop the bubbles when dispatched this method
+        e.stopPropagation()
     }
 
     render() {

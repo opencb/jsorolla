@@ -79,7 +79,7 @@ export default class StudyAdminSample extends LitElement {
                             <div class="row">
                                 <div class="col-md-6" style="margin: 20px 10px">
                                     <sample-update
-                                            .sampleId="${"AR2.10039966-01G"}"
+                                            .sampleId="${"AR2.10039966-01XYY"}"
                                             .opencgaSession="${opencgaSession}">
                                     </sample-update>
                                 </div>
