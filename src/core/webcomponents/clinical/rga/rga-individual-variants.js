@@ -247,7 +247,7 @@ export default class RgaIndividualVariants extends LitElement {
             {
                 title: "Filter",
                 field: "filter",
-                formatter: (value, row) => this.uniqueFieldFormatter(value, row, "filter")
+                formatter: (value, row) => this.filterFormatter(value, row)
 
             }
         ];
@@ -279,6 +279,24 @@ export default class RgaIndividualVariants extends LitElement {
             }
         }
         return uniqueValues.size ? Array.from(uniqueValues.keys()).join(", ") : "-";
+    }
+
+    filterFormatter(value, row) {
+        const uniqueValues = new Set();
+        for (const individual of row.individuals) {
+            for (const gene of individual.genes) {
+                for (const transcript of gene.transcripts) {
+                    for (const variant of transcript.variants) {
+                        if (row.id === variant.id) {
+                            if (variant.filter) {
+                                variant.filter.split(";").forEach(filter => uniqueValues.add(filter));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return uniqueValues.size ? Array.from(uniqueValues.keys()).map(term => `<span class="badge">${term}</span>`).join("") : "-";
     }
 
     clinicalPopulationFrequenciesFormatter(value, row) {
