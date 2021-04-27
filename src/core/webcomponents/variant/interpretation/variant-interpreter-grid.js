@@ -521,11 +521,11 @@ export default class VariantInterpreterGrid extends LitElement {
                     sortable: true
                 },
                 {
-                    title: "Genes",
-                    field: "genes",
+                    title: "Gene",
+                    field: "gene",
                     rowspan: 2,
                     colspan: 1,
-                    formatter: (value, row, index) => VariantGridFormatter.geneFormatter(value, row, index, this.query, this.opencgaSession),
+                    formatter: (value, row, index) => VariantGridFormatter.geneFormatter(row, index, this.query, this.opencgaSession),
                     halign: "center"
                 },
                 {
@@ -669,7 +669,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     align: "center"
                 },
                 {
-                    title: `${this.clinicalAnalysis.type !== "CANCER" ? `ACMG-based <br> Automatic Prediction` : "Prediction"}`,
+                    title: `${this.clinicalAnalysis.type !== "CANCER" ? `ACMG <br> Prediction` : "Prediction"}`,
                     field: "prediction",
                     rowspan: 1,
                     colspan: 1,

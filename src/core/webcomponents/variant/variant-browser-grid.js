@@ -398,8 +398,8 @@ export default class VariantBrowserGrid extends LitElement {
                 let metaStudy = study.studyId.includes("@") ? this.meta.study : this.meta.study.split(":")[1];
                 if (study.studyId === metaStudy) {
                     for (const cohortStat of study.stats) {
-                        let freq = Number(cohortStat.altAlleleFreq);
-                        cohortStats.set(cohortStat.cohortId, freq > 0 ? freq.toPrecision(2) : 0);
+                        let freq = Number(cohortStat.altAlleleFreq) * 100;
+                        cohortStats.set(cohortStat.cohortId, freq > 0 ? freq.toPrecision(4) : 0);
                     }
                     break;
                 }
@@ -416,8 +416,8 @@ export default class VariantBrowserGrid extends LitElement {
             for (const popFreqIdx in row.annotation.populationFrequencies) {
                 const popFreq = row.annotation.populationFrequencies[popFreqIdx];
                 if (this.meta.study === popFreq.study) { // && this.meta.populationMap[popFreq.population] === true
-                    let freq = Number(popFreq.altAlleleFreq);
-                    popFreqMap.set(popFreq.population, freq > 0 ? freq.toPrecision(2) : 0);
+                    let freq = Number(popFreq.altAlleleFreq) * 100;
+                    popFreqMap.set(popFreq.population, freq > 0 ? freq.toPrecision(4) : 0);
                 }
             }
             return VariantGridFormatter.createPopulationFrequenciesTable(this.meta.populations, popFreqMap, this.meta.context.populationFrequencies.style);
@@ -512,7 +512,7 @@ export default class VariantBrowserGrid extends LitElement {
                     field: "gene",
                     rowspan: 2,
                     colspan: 1,
-                    formatter: (value, row, index) => VariantGridFormatter.geneFormatter(value, row, index, this.query, this.opencgaSession),
+                    formatter: (value, row, index) => VariantGridFormatter.geneFormatter(row, index, this.query, this.opencgaSession),
                     halign: "center"
                 },
                 {
@@ -560,7 +560,7 @@ export default class VariantBrowserGrid extends LitElement {
                     visible: sampleColumns.length > 0 && sampleColumns[0].visible === undefined
                 },
                 {
-                    title: `Cohort Stats <a id="cohortStatsInfoIcon" tooltip-title="Cohort Stats" tooltip-text="${VariantGridFormatter.cohortStatsInfoTooltipContent(this.populationFrequencies)}"><i class="fa fa-info-circle" aria-hidden="true"></i></a>`,
+                    title: `Cohort Stats <a id="cohortStatsInfoIcon" tooltip-title="Cohort Stats" tooltip-text="${VariantGridFormatter.populationFrequenciesInfoTooltipContent(this.populationFrequencies)}"><i class="fa fa-info-circle" aria-hidden="true"></i></a>`,
                     field: "cohorts",
                     rowspan: 1,
                     colspan: cohortColumns.length,

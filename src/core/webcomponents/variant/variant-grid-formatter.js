@@ -75,10 +75,18 @@ export default class VariantGridFormatter {
         alt = alt.replaceAll("<", "&lt;").replaceAll(">", "&gt;");
 
         // Create links for tooltip
-        const ensemblLinkHtml = "http://www.ensembl.org/Homo_sapiens/Location/View?r=" + row.chromosome + ":" + row.start + "-" + row.end;
+        const variantRegion = row.chromosome + ":" + row.start + "-" + row.end;
         const tooltipText = `
+            <div class="dropdown-header" style="padding-left: 5px">External Links</div>
             <div style="padding: 5px">
-                <a target="_blank" href="${ensemblLinkHtml}">Ensembl</a>
+                <a target="_blank" href="${BioinfoUtils.getVariantLink(row.id, variantRegion, 'ensembl_genome_browser')}">
+                    Ensembl Genome Browser
+                </a>
+            </div>
+            <div style="padding: 5px">
+                <a target="_blank" href="${BioinfoUtils.getVariantLink(row.id, variantRegion, 'ucsc_genome_browser')}">
+                    UCSC Genome Browser
+                </a>
             </div>`;
 
         let snpHtml = VariantGridFormatter.snpFormatter(value, row, index, assembly);
@@ -132,12 +140,12 @@ export default class VariantGridFormatter {
         return snpId;
     }
 
-    static geneFormatter(value, row, index, query, opencgaSession) {
+    static geneFormatter(variant, index, query, opencgaSession) {
         // Keep a map of genes and the SO accessions and names
         let geneHasQueryCt = new Set();
         if (query?.ct) {
             let queryCtArray = query.ct.split(",");
-            for (const ct of row.annotation.consequenceTypes) {
+            for (const ct of variant.annotation.consequenceTypes) {
                 for (const so of ct.sequenceOntologyTerms) {
                     if (queryCtArray.includes(so.name)) {
                         geneHasQueryCt.add(ct.geneName);
@@ -147,12 +155,12 @@ export default class VariantGridFormatter {
             }
         }
 
-        if (row && row.annotation && row.annotation.consequenceTypes?.length > 0) {
+        if (variant?.annotation?.consequenceTypes?.length > 0) {
             const visited = {};
             const geneLinks = [];
             const geneWithCtLinks = [];
-            for (let i = 0; i < row.annotation.consequenceTypes.length; i++) {
-                const geneName = row.annotation.consequenceTypes[i].geneName;
+            for (let i = 0; i < variant.annotation.consequenceTypes.length; i++) {
+                const geneName = variant.annotation.consequenceTypes[i].geneName;
 
                 // We process Genes just one time
                 if (geneName && !visited[geneName]) {
@@ -161,17 +169,31 @@ export default class VariantGridFormatter {
                         geneViewMenuLink = `<div style='padding: 5px'><a style='cursor: pointer' href='#gene/${opencgaSession.project.id}/${opencgaSession.study.id}/${geneName}' data-cy='gene-view'>Gene View</a></div>`;
                     }
 
-                    const tooltipText = `${geneViewMenuLink}
-                                         <div class='dropdown-header' style='padding-left: 10px'>External Links</div>
-                                         <div style='padding: 5px'>
-                                              <a target='_blank' href='${BioinfoUtils.getEnsemblLink(geneName, 'gene', opencgaSession.project.organism.assembly)}'>Ensembl</a>
-                                         </div>
-                                         <div style='padding: 5px'>
-                                              <a target='_blank' href='${BioinfoUtils.getCosmicLink(geneName, opencgaSession.project.organism.assembly)}'>COSMIC</a>
-                                         </div>
-                                         <div style='padding: 5px'>
-                                              <a target='_blank' href='${BioinfoUtils.getUniprotLink(geneName)}'>UniProt</a>
-                                         </div>`;
+                    const tooltipText = `
+                        ${geneViewMenuLink}
+                        
+                        <div class='dropdown-header' style='padding-left: 5px;padding-top: 5px'>External Links</div>
+                        <div style='padding: 5px'>
+                             <a target='_blank' href='${BioinfoUtils.getEnsemblLink(geneName, 'gene', opencgaSession.project.organism.assembly)}'>Ensembl</a>
+                        </div>
+                        <div style='padding: 5px'>
+                             <a target='_blank' href='${BioinfoUtils.getGeneLink(geneName, 'lrg')}'>LRG</a>
+                        </div>
+                        <div style='padding: 5px'>
+                             <a target='_blank' href='${BioinfoUtils.getUniprotLink(geneName)}'>UniProt</a>
+                        </div>
+                       
+                        <div class='dropdown-header' style='padding-left: 5px;padding-top: 5px'>Clinical Resources</div>
+                        <div style='padding: 5px'>
+                             <a target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "decipher")}'>Decipher</a>
+                        </div>
+                        <div style='padding: 5px'>
+                             <a target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "cosmic", opencgaSession.project.organism.assembly)}'>COSMIC</a>
+                        </div>
+                        <div style='padding: 5px'>
+                             <a target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "omim")}'>OMIM</a>
+                        </div>
+                    `;
 
                     // If query.ct exists
                     if (query?.ct) {
@@ -675,57 +697,59 @@ export default class VariantGridFormatter {
         return "-";
     }
 
-    static cohortStatsInfoTooltipContent(populationFrequencies) {
-        return `One coloured square is shown for each cohort. Frequencies are coded with colours which classify values 
-                into 'very rare', 'rare', 'average', 'common' or 'missing', see 
-                <a href='http://www.dialogues-cns.com/wp-content/uploads/2015/03/DialoguesClinNeurosci-17-69-g001.jpg' target='_blank'>
-                    http://www.dialogues-cns.com/wp-content/uploads/2015/03/DialoguesClinNeurosci-17-69-g001.jpg
-                </a>. Please, leave the cursor over each square to visualize the actual frequency values.
-                <div style='padding: 10px 0px 0px 0px'><label>Legend: </label></div>
-                <div><span><i class='fa fa-square' style='color: ${populationFrequencies.style.veryRare}' aria-hidden='true'></i> Very rare:  freq < 0.001</span></div>
-                <div><span><i class='fa fa-square' style='color: ${populationFrequencies.style.rare}' aria-hidden='true'></i> Rare:  freq < 0.005</span></div>
-                <div><span><i class='fa fa-square' style='color: ${populationFrequencies.style.average}' aria-hidden='true'></i> Average:  freq < 0.05</span></div>
-                <div><span><i class='fa fa-square' style='color: ${populationFrequencies.style.common}' aria-hidden='true'></i> Common:  freq >= 0.05</span></div>
-                <div><span><i class='fa fa-square' style='color: black' aria-hidden='true'></i> Not observed</span></div>`;
-    }
+    // static cohortStatsInfoTooltipContent(populationFrequencies) {
+    //     return `One coloured square is shown for each cohort. Frequencies are coded with colours which classify values 
+    //             into 'very rare', 'rare', 'average', 'common' or 'missing', see 
+    //             <a href='http://www.dialogues-cns.com/wp-content/uploads/2015/03/DialoguesClinNeurosci-17-69-g001.jpg' target='_blank'>
+    //                 http://www.dialogues-cns.com/wp-content/uploads/2015/03/DialoguesClinNeurosci-17-69-g001.jpg
+    //             </a>. Please, leave the cursor over each square to visualize the actual frequency values.
+    //             <span style='font-weight: bold'>Note that that all frequencies are percentages.</span>
+    //             <div style='padding: 10px 0px 0px 0px'><label>Legend: </label></div>
+    //             <div><span><i class='fa fa-square' style='color: ${populationFrequencies.style.veryRare}' aria-hidden='true'></i> Very rare:  freq < 0.001</span></div>
+    //             <div><span><i class='fa fa-square' style='color: ${populationFrequencies.style.rare}' aria-hidden='true'></i> Rare:  freq < 0.005</span></div>
+    //             <div><span><i class='fa fa-square' style='color: ${populationFrequencies.style.average}' aria-hidden='true'></i> Average:  freq < 0.05</span></div>
+    //             <div><span><i class='fa fa-square' style='color: ${populationFrequencies.style.common}' aria-hidden='true'></i> Common:  freq >= 0.05</span></div>
+    //             <div><span><i class='fa fa-square' style='color: black' aria-hidden='true'></i> Not observed</span></div>`;
+    // }
 
     // TODO remove this from variant-interpreter-grid
-    addPopulationFrequenciesInfoTooltip(selector, populationFrequencies) {
-        $(selector).qtip({
-            content: {
-                title: "Population Frequencies",
-                text: function (event, api) {
-                    return `One coloured square is shown for each population. Frequencies are coded with colours which classify values 
-                            into 'very rare', 'rare', 'average', 'common' or 'missing', see 
-                            <a href="https://www.nature.com/scitable/topicpage/multifactorial-inheritance-and-genetic-disease-919" target="_blank">
-                                https://www.nature.com/scitable/topicpage/multifactorial-inheritance-and-genetic-disease-919
-                            </a>. Please, leave the cursor over each square to display the actual frequency value.
-                            <div style="padding: 10px 0px 0px 0px"><label>Legend: </label></div>
-                            <div><span><i class="fa fa-square" style="color: ${populationFrequencies.style.veryRare}" aria-hidden="true"></i> Very rare:  freq < 0.001</span></div>
-                            <div><span><i class="fa fa-square" style="color: ${populationFrequencies.style.rare}" aria-hidden="true"></i> Rare:  freq < 0.005</span></div>
-                            <div><span><i class="fa fa-square" style="color: ${populationFrequencies.style.average}" aria-hidden="true"></i> Average:  freq < 0.05</span></div>
-                            <div><span><i class="fa fa-square" style="color: ${populationFrequencies.style.common}" aria-hidden="true"></i> Common:  freq >= 0.05</span></div>
-                            <div><span><i class="fa fa-square" style="color: black" aria-hidden="true"></i> Not observed</span></div>`;
-                }
-            },
-            position: {target: "mouse", adjust: {x: 2, y: 2, mouse: false}},
-            style: {width: true, classes: "qtip-light qtip-rounded qtip-shadow qtip-custom-class"},
-            show: {delay: 200},
-            hide: {fixed: true, delay: 300}
-        });
-    }
+    // addPopulationFrequenciesInfoTooltip(selector, populationFrequencies) {
+    //     $(selector).qtip({
+    //         content: {
+    //             title: "Population Frequencies",
+    //             text: function (event, api) {
+    //                 return `One coloured square is shown for each population. Frequencies are coded with colours which classify values
+    //                         into 'very rare', 'rare', 'average', 'common' or 'missing', see
+    //                         <a href="https://www.nature.com/scitable/topicpage/multifactorial-inheritance-and-genetic-disease-919" target="_blank">
+    //                             https://www.nature.com/scitable/topicpage/multifactorial-inheritance-and-genetic-disease-919
+    //                         </a>. Please, leave the cursor over each square to display the actual frequency value.
+    //                         <div style="padding: 10px 0px 0px 0px"><label>Legend: </label></div>
+    //                         <div><span><i class="fa fa-square" style="color: ${populationFrequencies.style.veryRare}" aria-hidden="true"></i> Very rare:  freq < 0.001</span></div>
+    //                         <div><span><i class="fa fa-square" style="color: ${populationFrequencies.style.rare}" aria-hidden="true"></i> Rare:  freq < 0.005</span></div>
+    //                         <div><span><i class="fa fa-square" style="color: ${populationFrequencies.style.average}" aria-hidden="true"></i> Average:  freq < 0.05</span></div>
+    //                         <div><span><i class="fa fa-square" style="color: ${populationFrequencies.style.common}" aria-hidden="true"></i> Common:  freq >= 0.05</span></div>
+    //                         <div><span><i class="fa fa-square" style="color: black" aria-hidden="true"></i> Not observed</span></div>`;
+    //             }
+    //         },
+    //         position: {target: "mouse", adjust: {x: 2, y: 2, mouse: false}},
+    //         style: {width: true, classes: "qtip-light qtip-rounded qtip-shadow qtip-custom-class"},
+    //         show: {delay: 200},
+    //         hide: {fixed: true, delay: 300}
+    //     });
+    // }
 
     static populationFrequenciesInfoTooltipContent(populationFrequencies) {
         return `One coloured square is shown for each population. Frequencies are coded with colours which classify values 
                 into 'very rare', 'rare', 'average', 'common' or 'missing', see 
                 <a href='https://www.nature.com/scitable/topicpage/multifactorial-inheritance-and-genetic-disease-919' target='_blank'>
                     https://www.nature.com/scitable/topicpage/multifactorial-inheritance-and-genetic-disease-919
-                </a>. Please, leave the cursor over each square to display the actual frequency value.
+                </a>. Please, leave the cursor over each square to display the actual frequency values. <br>
+                <span style='font-weight: bold'>Note that that all frequencies are percentages.</span>
                 <div style='padding: 10px 0px 0px 0px'><label>Legend: </label></div>
-                <div><span><i class='fa fa-square' style='color: ${populationFrequencies.style.veryRare}' aria-hidden='true'></i> Very rare:  freq < 0.001</span></div>
-                <div><span><i class='fa fa-square' style='color: ${populationFrequencies.style.rare}' aria-hidden='true'></i> Rare:  freq < 0.005</span></div>
-                <div><span><i class='fa fa-square' style='color: ${populationFrequencies.style.average}' aria-hidden='true'></i> Average:  freq < 0.05</span></div>
-                <div><span><i class='fa fa-square' style='color: ${populationFrequencies.style.common}' aria-hidden='true'></i> Common:  freq >= 0.05</span></div>
+                <div><span><i class='fa fa-square' style='color: ${populationFrequencies.style.veryRare}' aria-hidden='true'></i> Very rare:  freq < 0.1 %</span></div>
+                <div><span><i class='fa fa-square' style='color: ${populationFrequencies.style.rare}' aria-hidden='true'></i> Rare:  freq < 0.5 %</span></div>
+                <div><span><i class='fa fa-square' style='color: ${populationFrequencies.style.average}' aria-hidden='true'></i> Average:  freq < 5 %</span></div>
+                <div><span><i class='fa fa-square' style='color: ${populationFrequencies.style.common}' aria-hidden='true'></i> Common:  freq >= 5 %</span></div>
                 <div><span><i class='fa fa-square' style='color: black' aria-hidden='true'></i> Not observed</span></div>`;
     }
 
@@ -749,7 +773,7 @@ export default class VariantGridFormatter {
         for (const popFreq of popFreqsArray) {
             const arr = popFreq.split("::");
             const color = VariantGridFormatter._getPopulationFrequencyColor(arr[1], populationFrequenciesColor);
-            const freq = (arr[1] !== 0 && arr[1] !== "0") ? arr[1] : "<span style='font-style: italic'>Not Observed</span>";
+            const freq = (arr[1] !== 0 && arr[1] !== "0") ? arr[1] + " %" : "<span style='font-style: italic'>Not Observed</span>";
             tooltip += `<div>
                             <span><i class='fa fa-xs fa-square' style='color: ${color}' aria-hidden='true'></i>
                                 <label style='padding-left: 5px'>${arr[0]}:</label>
@@ -793,7 +817,7 @@ export default class VariantGridFormatter {
         for (const popFreq of popFreqsArray) {
             const arr = popFreq.split("::");
             const color = VariantGridFormatter._getPopulationFrequencyColor(arr[1], populationFrequenciesColor);
-            const freq = (arr[1] !== 0 && arr[1] !== "0") ? arr[1] : "<span style='font-style: italic'>Not Observed</span>";
+            const freq = (arr[1] !== 0 && arr[1] !== "0") ? arr[1] + " %" : "<span style='font-style: italic'>Not Observed</span>";
             tooltip += `<div>
                             <span><i class='fa fa-xs fa-square' style='color: ${color}' aria-hidden='true'></i>
                                 <label style='padding-left: 5px'>${arr[0]}:</label>
@@ -822,11 +846,11 @@ export default class VariantGridFormatter {
         let color;
         if (freq === 0 || freq === "0") {
             color = populationFrequenciesColor.unobserved;
-        } else if (freq < 0.001) {
+        } else if (freq < 0.1) {
             color = populationFrequenciesColor.veryRare;
-        } else if (freq < 0.005) {
+        } else if (freq < 0.5) {
             color = populationFrequenciesColor.rare;
-        } else if (freq < 0.05) {
+        } else if (freq < 5) {
             color = populationFrequenciesColor.average;
         } else {
             color = populationFrequenciesColor.common;
@@ -991,12 +1015,6 @@ export default class VariantGridFormatter {
                         values: values
                     });
                 } else {    // COSMIC section
-                    // values.push(`<a href="${trait.url ?? BioinfoUtils.getCosmicVariantLink(trait.id)}" target="_blank">${trait.id}</a>`);
-                    // values.push(trait.somaticInformation.primaryHistology);
-                    // values.push(trait.somaticInformation.histologySubtype);
-                    // cosmic.push({
-                    //     values: values
-                    // });
                     // Prepare data to group by histologySubtype field
                     let key = trait.id + ":" + trait.somaticInformation.primaryHistology;
                     if (!cosmicIntermdiate.has(key)) {
@@ -1068,36 +1086,36 @@ export default class VariantGridFormatter {
     /*
      * Reported Variant formatters
      */
-    static toggleDetailClinicalEvidence(e) {
-        const id = e.target.dataset.id;
-        const elements = document.getElementsByClassName(this._prefix + id + "EvidenceFiltered");
-        for (const element of elements) {
-            if (element.style.display === "none") {
-                element.style.display = "";
-            } else {
-                element.style.display = "none";
-            }
-        }
-    }
+    // static toggleDetailClinicalEvidence(e) {
+    //     const id = e.target.dataset.id;
+    //     const elements = document.getElementsByClassName(this._prefix + id + "EvidenceFiltered");
+    //     for (const element of elements) {
+    //         if (element.style.display === "none") {
+    //             element.style.display = "";
+    //         } else {
+    //             element.style.display = "none";
+    //         }
+    //     }
+    // }
 
     // TODO Remove since it is DEPRECATED
-    addTooltip(selector, title, content, config) {
-        $(selector).qtip({
-            content: {
-                title: title,
-                text: function (event, api) {
-                    if (UtilsNew.isNotEmpty(content)) {
-                        return content;
-                    } else {
-                        return $(this).attr("data-tooltip-text");
-                    }
-                }
-            },
-            position: {target: "mouse", adjust: {x: 2, y: 2, mouse: false}},
-            style: {classes: "qtip-light qtip-rounded qtip-shadow qtip-custom-class"},
-            show: {delay: 200},
-            hide: {fixed: true, delay: 300}
-        });
-    }
+    // addTooltip(selector, title, content, config) {
+    //     $(selector).qtip({
+    //         content: {
+    //             title: title,
+    //             text: function (event, api) {
+    //                 if (UtilsNew.isNotEmpty(content)) {
+    //                     return content;
+    //                 } else {
+    //                     return $(this).attr("data-tooltip-text");
+    //                 }
+    //             }
+    //         },
+    //         position: {target: "mouse", adjust: {x: 2, y: 2, mouse: false}},
+    //         style: {classes: "qtip-light qtip-rounded qtip-shadow qtip-custom-class"},
+    //         show: {delay: 200},
+    //         hide: {fixed: true, delay: 300}
+    //     });
+    // }
 
 }
