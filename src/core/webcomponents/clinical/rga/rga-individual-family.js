@@ -94,7 +94,7 @@ export default class RgaIndividualFamily extends LitElement {
             study: this.opencgaSession.study.fqn,
             individualId: this.individual.id,
             includeIndividual: this.individual.id,
-            include: "individuals.genes.transcripts.variants"
+            include: "individuals.genes.transcripts.variants,individuals.genes.name"
         }; // we want to support a query obj param both with or without study.
         // Checks if the component is not visible or the query hasn't changed
         if (!this.active || UtilsNew.objectCompare(this._query, this.prevQuery)) {
@@ -132,8 +132,8 @@ export default class RgaIndividualFamily extends LitElement {
                     .then(async rgaVariantResponse => {
                         const variantIds = rgaVariantResponse.getResults().map(variant => variant.id);
                         const variantResponse = await this.getVariantInfo(this.sampleIds, variantIds);
-                        // this.tableData = this.mergeData(rgaVariantResponse, variantResponse);
 
+                        // merging RGA Variant data with Variant data
                         const map = {};
                         for (const variant of variantResponse.getResults()) {
                             map[variant.id] = variant;
@@ -219,7 +219,6 @@ export default class RgaIndividualFamily extends LitElement {
     async getVariantInfo(sampleIds, variantIds) {
         // formatter: VariantInterpreterGridFormatter.sampleGenotypeFormatter,
         try {
-            // const slicedVariant = this.variantIds.slice(startVariant, endVariant);
             if (sampleIds.length && variantIds.length) {
                 const params = {
                     study: this.opencgaSession.study.fqn,
@@ -306,15 +305,11 @@ export default class RgaIndividualFamily extends LitElement {
         });
     }
 
-    geneFormatter(value, row) {
-        return value.length ? (value.length > 20 ? `${value.length} genes` : value.map(gene => gene.name)) : "-";
-    }
-
     _initTableColumns() {
         return [
             [
                 {
-                    title: "id",
+                    title: "Id",
                     field: "id",
                     rowspan: 2,
                     formatter: (value, row, index) => row.chromosome ? VariantGridFormatter.variantFormatter(value, row, index, this.opencgaSession.project.organism.assembly) : value
@@ -322,16 +317,14 @@ export default class RgaIndividualFamily extends LitElement {
                 {
                     title: "Gene",
                     field: "geneName",
-                    rowspan: 2
-                    // formatter: this.geneFormatter
+                    rowspan: 2,
+                    formatter: this.geneFormatter
                 },
                 {
                     title: "Knockout Type",
                     field: "knockoutType",
-                    rowspan: 2
-                    /* formatter: row => {
-                        this.table.bootstrapTable("updateRow", {index: 1, row: {id: "123"}});
-                    }*/
+                    rowspan: 2,
+                    formatter: (value, row) => this.uniqueFieldFormatter(value, row, "knockoutType")
                 },
                 {
                     title: "Proband<br>" + this.sampleIds[0],
@@ -393,6 +386,32 @@ export default class RgaIndividualFamily extends LitElement {
                 }
             ]
         ];
+    }
+
+    geneFormatter(value, row) {
+        const uniqueValues = new Set();
+        for (const individual of row.individuals) {
+            for (const gene of individual.genes) {
+                uniqueValues.add(gene.name);
+            }
+        }
+        return uniqueValues.size ? Array.from(uniqueValues.keys()).join(", ") : "-";
+    }
+
+    uniqueFieldFormatter(value, row, field) {
+        const uniqueValues = new Set();
+        for (const individual of row.individuals) {
+            for (const gene of individual.genes) {
+                for (const transcript of gene.transcripts) {
+                    for (const variant of transcript.variants) {
+                        if (row.id === variant.id) {
+                            uniqueValues.add(variant[field]);
+                        }
+                    }
+                }
+            }
+        }
+        return uniqueValues.size ? Array.from(uniqueValues.keys()).join(", ") : "-";
     }
 
     filterFormatter(value, sampleIndex) {
