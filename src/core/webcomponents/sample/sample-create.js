@@ -65,46 +65,6 @@ export default class SampleCreate extends LitElement {
         }));
     }
 
-    saveSample() {
-        // this.opencgaSession.opencgaClient.projects().create(this.project)
-        //     .then(res => {
-        //         this.sample = {};
-        //         this.requestUpdate();
-
-        //         this.dispatchSessionUpdateRequest();
-
-        //         Swal.fire(
-        //             "New Sample",
-        //             "New Sample created correctly.",
-        //             "success"
-        //         );
-        //     })
-        //     .catch(err => {
-        //         console.error(err);
-        //         params.error(err);
-        //     });
-    }
-
-    updateSample() {
-        // this.opencgaSession.opencgaClient.projects().update(this.Sample?.fqn,this.Sample)
-        //     .then(res => {
-        //         this.Sample = {};
-        //         this.requestUpdate();
-
-        //         this.dispatchSessionUpdateRequest();
-
-        //         Swal.fire(
-        //             "Edit Sample",
-        //             "Sample updated correctly.",
-        //             "success"
-        //         );
-        //     })
-        //     .catch(err => {
-        //         console.error(err);
-        //         params.error(err);
-        //     });
-    }
-
     onFieldChange(e) {
         const [field, prop] = e.detail.param.split(".")
         debugger;
@@ -133,10 +93,6 @@ export default class SampleCreate extends LitElement {
                 }
                 this.sample[field][prop] = e.detail.value
                 break;
-            case "annotationSet.id":
-            case "annotationSet.name":
-                this.annotationSets[prop] = e.detail.value;
-                break;
         }
     }
 
@@ -162,7 +118,8 @@ export default class SampleCreate extends LitElement {
     onSubmit(e) {
         this.opencgaSession.opencgaClient.samples().create(this.sample, { study: this.opencgaSession.study.fqn })
             .then(res => {
-                this.sample = {}
+                this.sample = {};
+                this.requestUpdate();
                 // this.dispatchSessionUpdateRequest();
 
                 Swal.fire(
