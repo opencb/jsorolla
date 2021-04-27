@@ -267,7 +267,7 @@ export default class RgaVariantGrid extends LitElement {
             for (const gene of individual.genes) {
                 for (const transcript of gene.transcripts) {
                     for (const variant of transcript.variants) {
-                        if (row.id === variant.id) {
+                        if (row.id === variant.id && variant?.sequenceOntologyTerms?.length) {
                             for (const ct of variant.sequenceOntologyTerms) {
                                 uniqueCT[ct.accession] = {
                                     ...ct
@@ -360,7 +360,6 @@ export default class RgaVariantGrid extends LitElement {
                     limit: params.data.limit,
                     skip: params.data.offset || 0,
                     count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
-                    geneName: this._genes.join(","),
                     ...this._query
                 };
                 this.opencgaSession.opencgaClient.clinical().queryRgaVariant(_filters)
@@ -431,8 +430,8 @@ export default class RgaVariantGrid extends LitElement {
                                 this.alleleCountFormatter(null, _),
                                 this.consequenceTypeFormatter(null, _),
                                 _.clinicalSignificance ? _.clinicalSignificance?.join(", ") : "-",
-                                _?.phenotypes.length ? _.phenotypes.map(phenotype => phenotype.id).join(",") : "-",
-                                _?.disorders.length ? _.disorders.map(disorder => disorder.id).join(",") : "-"
+                                _?.phenotypes?.length ? _.phenotypes.map(phenotype => phenotype.id).join(",") : "-",
+                                _?.disorders?.length ? _.disorders.map(disorder => disorder.id).join(",") : "-"
                             ].join("\t"))];
                         UtilsNew.downloadData(dataString, "rga_individual_" + this.opencgaSession.study.id + ".txt", "text/plain");
                     } else {

@@ -78,11 +78,13 @@ export default class RgaVariantAllelePairs extends LitElement {
                             geneName: gene.name
                         };
                         // the following loop collects all the consequence types found for the variant
-                        for (const ct of variant.sequenceOntologyTerms) {
-                            if (uniqueVariants[variant.id].aggregatedSequenceOntologyTerms) {
-                                uniqueVariants[variant.id].aggregatedSequenceOntologyTerms[ct.accession] = ct;
-                            } else {
-                                uniqueVariants[variant.id].aggregatedSequenceOntologyTerms = {[ct.accession]: ct};
+                        if (variant?.sequenceOntologyTerms?.length) {
+                            for (const ct of variant.sequenceOntologyTerms) {
+                                if (uniqueVariants[variant.id].aggregatedSequenceOntologyTerms) {
+                                    uniqueVariants[variant.id].aggregatedSequenceOntologyTerms[ct.accession] = ct;
+                                } else {
+                                    uniqueVariants[variant.id].aggregatedSequenceOntologyTerms = {[ct.accession]: ct};
+                                }
                             }
                         }
                     }

@@ -405,7 +405,9 @@ export default class RgaIndividualFamily extends LitElement {
                 for (const transcript of gene.transcripts) {
                     for (const variant of transcript.variants) {
                         if (row.id === variant.id) {
-                            uniqueValues.add(variant[field]);
+                            if (variant[field]) {
+                                uniqueValues.add(variant[field]);
+                            }
                         }
                     }
                 }

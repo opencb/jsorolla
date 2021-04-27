@@ -270,7 +270,9 @@ export default class RgaIndividualVariants extends LitElement {
                 for (const transcript of gene.transcripts) {
                     for (const variant of transcript.variants) {
                         if (row.id === variant.id) {
-                            uniqueValues.add(variant[field]);
+                            if (variant[field]) {
+                                uniqueValues.add(variant[field]);
+                            }
                         }
                     }
                 }
@@ -297,7 +299,7 @@ export default class RgaIndividualVariants extends LitElement {
             for (const gene of individual.genes) {
                 for (const transcript of gene.transcripts) {
                     for (const variant of transcript.variants) {
-                        if (row.id === variant.id) {
+                        if (row.id === variant.id && variant?.sequenceOntologyTerms?.length) {
                             for (const ct of variant.sequenceOntologyTerms) {
                                 uniqueCT[ct.accession] = {
                                     ...ct
