@@ -57,15 +57,7 @@ export default class RgaIndividualGrid extends LitElement {
         this.rendered = false;
         this.prevQuery = {};
         this._query = {};
-
         this.queryGuard = false;
-
-        this._genes = ["GRIK5", "ACTN3", "COMT", "TTN", "ABCA12", "ALMS1", "ALOX12B", "ATP8A2", "BLM",
-            "CCNO", "CEP290", "CNGB3", "CUL7", "DNAAF1", "DOCK6", "EIF2B5", "ERCC6", "FLG", "HADA",
-            "INPP5K", "MANIB1", "MERTK", "MUTYH", "NDUFAF5", "NDUFS7", "OTOG", "PAH", "PDZD7", "PHYH",
-            "PKHD1", "PMM2", "RARS2", "SACS", "SGCA", "SIGMAR1", "SPG7", "TTN", "TYR", "USH2A", "WFS1"];
-        this._genes = ["INPP5K"];
-
     }
 
     connectedCallback() {
@@ -96,33 +88,21 @@ export default class RgaIndividualGrid extends LitElement {
         this.toolbarConfig = {
             columns: [
                 {
-                    title: "Gene",
-                    field: "genes"
+                    title: "Individual Id",
+                    field: "id"
                 },
                 {
                     title: "Sample",
                     field: "sampleId",
-                    rowspan: 2
+                },
+                {
+                    title: "Gene",
+                    field: "genes"
                 },
                 {
 
-                    title: "Compound Heterozygous: Total",
-                    field: "ch"
-                },
-                {
-
-                    title: "Compound Heterozygous: Definitely",
-                    field: "ch_2"
-                },
-                {
-
-                    title: "Compound Heterozygous: Probable",
-                    field: "ch_1"
-                },
-                {
-
-                    title: "Compound Heterozygous: Possible",
-                    field: "ch_0"
+                    title: "Compound Heterozygous",
+                    field: "ch_def,ch_prob,ch_poss"
                 },
                 {
                     title: "Phenotypes",
@@ -131,6 +111,10 @@ export default class RgaIndividualGrid extends LitElement {
                 {
                     title: "Disorders",
                     field: "disorders"
+                },
+                {
+                    title: "Case ID",
+                    field: "attributes.OPENCGA_CLINICAL_ANALYSIS"
                 }
             ]
         };
@@ -166,13 +150,10 @@ export default class RgaIndividualGrid extends LitElement {
             ajax: async params => {
                 const _filters = {
                     study: this.opencgaSession.study.fqn,
-                    // order: params.data.order,
                     limit: params.data.limit,
                     skip: params.data.offset || 0,
                     count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
                     include: "genes,sampleId,phenotypes,disorders,motherId,motherSampleId,fatherId,fatherSampleId",
-                    // geneName: this._genes.join(","),
-                    // individualId: "112000791",
                     ...this._query
                 };
 
@@ -338,7 +319,7 @@ export default class RgaIndividualGrid extends LitElement {
                 },
                 {
                     title: "Compound Heterozygous",
-                    field: "",
+                    field: "ch",
                     colspan: 3
                 },
                 {
@@ -379,23 +360,23 @@ export default class RgaIndividualGrid extends LitElement {
                 },*/
                 {
                     title: "Definite",
-                    field: "variantStats.numCompHet",
+                    field: "ch_def",
                     formatter: (value, row) => {
-                        return row.fatherId && row.motherId && value > 0 ? value : "-";
+                        return row.fatherId && row.motherId && row.variantStats.numCompHet > 0 ? row.variantStats.numCompHet : "-";
                     }
                 },
                 {
                     title: "Probable",
-                    field: "variantStats.numCompHet",
+                    field: "ch_prob",
                     formatter: (value, row) => {
-                        return ((row.fatherId && !row.motherId) || (!row.fatherId && row.motherId)) && value > 0 ? value : "-";
+                        return ((row.fatherId && !row.motherId) || (!row.fatherId && row.motherId)) && row.variantStats.numCompHet > 0 ? row.variantStats.numCompHet : "-";
                     }
                 },
                 {
                     title: "Possible",
-                    field: "variantStats.numCompHet",
+                    field: "ch_poss",
                     formatter: (value, row) => {
-                        return !row.fatherId && !row.motherId && value > 0 ? value : "-";
+                        return !row.fatherId && !row.motherId && row.variantStats.numCompHet > 0 ? row.variantStats.numCompHet : "-";
                     }
                 }
             ]
@@ -436,6 +417,7 @@ export default class RgaIndividualGrid extends LitElement {
         return total > 0 ? total : null;
     }
 
+    // TODO refactor
     async onDownload(e) {
         this.toolbarConfig = {...this.toolbarConfig, downloading: true};
         await this.requestUpdate();
@@ -515,6 +497,7 @@ export default class RgaIndividualGrid extends LitElement {
                     name: "Family",
                     render: (individual, active, opencgaSession) => {
                         return html`
+                            <h3>Putative recessive Variants in family</h3>
                             <rga-individual-family .individual="${individual}" .active=${active} .opencgaSession="${opencgaSession}"></rga-individual-family>`;
                         // return html`<opencga-family-view .individualId="${individual.id}" .opencgaSession="${opencgaSession}"></opencga-family-view>`;
                     }
@@ -529,9 +512,6 @@ export default class RgaIndividualGrid extends LitElement {
             pageSize: 10,
             pageList: [10, 25, 50],
             showExport: false,
-            detailView: false,
-            detailFormatter: undefined, // function with the detail formatter
-            multiSelection: false
         };
     }
 
