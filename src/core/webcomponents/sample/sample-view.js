@@ -20,7 +20,7 @@ import "../commons/view/data-form.js";
 import "../commons/annotation-sets-view.js";
 
 
-export default class OpencgaSampleView extends LitElement {
+export default class SampleView extends LitElement {
 
     constructor() {
         super();
@@ -34,13 +34,13 @@ export default class OpencgaSampleView extends LitElement {
 
     static get properties() {
         return {
-            opencgaSession: {
+            sample: {
                 type: Object
             },
             sampleId: {
                 type: String
             },
-            sample: {
+            opencgaSession: {
                 type: Object
             },
             config: {
@@ -50,7 +50,7 @@ export default class OpencgaSampleView extends LitElement {
     }
 
     _init() {
-        this._prefix = "osv" + UtilsNew.randomString(6);
+        // this._prefix = UtilsNew.randomString(8);
 
         this._config = this.getDefaultConfig();
     }
@@ -196,4 +196,4 @@ export default class OpencgaSampleView extends LitElement {
 
 }
 
-customElements.define("opencga-sample-view", OpencgaSampleView);
+customElements.define("sample-view", SampleView);

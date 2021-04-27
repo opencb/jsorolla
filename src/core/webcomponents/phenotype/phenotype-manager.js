@@ -36,8 +36,8 @@ export default class PhenotypeManager extends BaseManagerMixin(LitElement) {
 
     _init() {
         this._prefix = UtilsNew.randomString(8);
-        this.phenotypes = []
-        this.phenotype = {}
+        this.phenotypes = [];
+        this.phenotype = {};
 
     }
 

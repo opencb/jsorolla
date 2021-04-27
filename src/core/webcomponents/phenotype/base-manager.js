@@ -25,6 +25,7 @@ export const BaseManagerMixin = (superClass) => class extends superClass {
         super();
         this._initBaseManager()
     }
+
     createRenderRoot() {
         return this;
     }

@@ -188,7 +188,7 @@ export default class OpencgaSampleBrowser extends LitElement {
                             name: "Overview",
                             active: true,
                             render: (sample, active, opencgaSession) => {
-                                return html`<opencga-sample-view .sample="${sample}" .active="${active}" .opencgaSession="${opencgaSession}"></opencga-sample-view>`;
+                                return html`<sample-view .sample="${sample}" .active="${active}" .opencgaSession="${opencgaSession}"></sample-view>`;
                             }
                         },
                         {

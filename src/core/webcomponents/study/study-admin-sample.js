@@ -16,7 +16,9 @@
 
 import { html, LitElement } from "/web_modules/lit-element.js";
 import DetailTabs from "../commons/view/detail-tabs.js";
-import SampleCreate from "../sample/sample-create.js";
+import "../sample/sample-update.js";
+import "../sample/sample-create.js";
+// import "../phenotype/phenotype-manager.js";
 import UtilsNew from "./../../utilsNew.js";
 import { construction } from "../commons/under-construction.js";
 
@@ -76,7 +78,10 @@ export default class StudyAdminSample extends LitElement {
                         return html`
                             <div class="row">
                                 <div class="col-md-6" style="margin: 20px 10px">
-                                    ${construction}
+                                    <sample-update
+                                            .sampleId="${"AR2.10039966-01G"}"
+                                            .opencgaSession="${opencgaSession}">
+                                    </sample-update>
                                 </div>
                             </div>`;
                     }

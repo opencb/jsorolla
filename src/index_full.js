@@ -85,7 +85,7 @@ import "./core/webcomponents/opencga/catalog/cohorts/opencga-cohort-filter.js";
 import "./core/webcomponents/opencga/catalog/cohorts/opencga-cohort-facet.js";
 import "./core/webcomponents/opencga/catalog/cohorts/opencga-cohort-browser.js";
 import "./core/webcomponents/opencga/catalog/samples/opencga-sample-grid.js";
-import "./core/webcomponents/opencga/catalog/samples/opencga-sample-view.js";
+import "./core/webcomponents/opencga/catalog/samples/sample-view.js";
 import "./core/webcomponents/opencga/catalog/samples/opencga-sample-browser.js";
 import "./core/webcomponents/opencga/catalog/samples/opencga-sample-facet.js";
 import "./core/webcomponents/opencga/catalog/samples/opencga-sample-filter.js";
