@@ -361,26 +361,27 @@ export default class RgaIndividualGrid extends LitElement {
                 {
                     title: "Definite",
                     field: "ch_def",
-                    formatter: (value, row) => {
-                        return row.fatherId && row.motherId && row.variantStats.numCompHet > 0 ? row.variantStats.numCompHet : "-";
-                    }
+                    formatter: (value, row) => this.getChConfidenceFormatter(row, 2)
                 },
                 {
                     title: "Probable",
                     field: "ch_prob",
-                    formatter: (value, row) => {
-                        return ((row.fatherId && !row.motherId) || (!row.fatherId && row.motherId)) && row.variantStats.numCompHet > 0 ? row.variantStats.numCompHet : "-";
-                    }
+                    formatter: (value, row) => this.getChConfidenceFormatter(row, 1)
                 },
                 {
                     title: "Possible",
                     field: "ch_poss",
-                    formatter: (value, row) => {
-                        return !row.fatherId && !row.motherId && row.variantStats.numCompHet > 0 ? row.variantStats.numCompHet : "-";
-                    }
+                    formatter: (value, row) => this.getChConfidenceFormatter(row, 0)
                 }
             ]
         ];
+    }
+
+    /**
+     * Returns variantStats.numCompHet iff numParents matches the number of parent Ids defined
+     */
+    getChConfidenceFormatter(row, numParents) {
+        return (Number(!!row.fatherId) + Number(!!row.motherId)) === numParents && row.variantStats.numCompHet > 0 ? row.variantStats.numCompHet : "-";
     }
 
     /**
@@ -417,18 +418,17 @@ export default class RgaIndividualGrid extends LitElement {
         return total > 0 ? total : null;
     }
 
-    // TODO refactor
     async onDownload(e) {
         this.toolbarConfig = {...this.toolbarConfig, downloading: true};
         await this.requestUpdate();
         const params = {
             study: this.opencgaSession.study.fqn,
             count: false,
-            include: "genes,sampleId,phenotypes,disorders,motherId,fatherId",
+            include: "genes,sampleId,phenotypes,disorders,motherId,motherSampleId,fatherId,fatherSampleId",
             ...this._query,
             limit: 100
         };
-        this.opencgaSession.opencgaClient.clinical().queryRgaIndividual(params)
+        this.opencgaSession.opencgaClient.clinical().summaryRgaIndividual(params)
             .then(restResponse => {
                 const results = restResponse.getResults();
                 if (results) {
@@ -451,13 +451,12 @@ export default class RgaIndividualGrid extends LitElement {
                                 _.id,
                                 _.sampleId,
                                 this.geneFormatter(_.genes),
-                                _.homozygous,
-                                _.ch,
-                                _.ch_definite,
-                                _.ch_probable,
-                                _.ch_possible,
-                                CatalogGridFormatter.phenotypesFormatter(_.phenotypes),
-                                _.disorders.length ? _.disorders.map(CatalogGridFormatter.disorderFormatter) : "-"
+                                _.variantStats.numHomAlt,
+                                this.getChConfidenceFormatter(_, 2),
+                                this.getChConfidenceFormatter(_, 1),
+                                this.getChConfidenceFormatter(_, 0),
+                                _?.phenotypes.length ? _.phenotypes.map(phenotype => phenotype.id).join(",") : "-",
+                                _?.disorders.length ? _.disorders.map(disorder => disorder.id).join(",") : "-"
                             ].join("\t"))];
                         UtilsNew.downloadData(dataString, "rga_individual_" + this.opencgaSession.study.id + ".txt", "text/plain");
                     } else {

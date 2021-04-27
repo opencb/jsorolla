@@ -83,7 +83,7 @@ export default class RgaGeneGrid extends LitElement {
                 }, {
 
                     title: "Recessive Individuals",
-                    field: "individualStats.count,individualStats.numHomAlt,individualStats.bothParents.numCompHet,individualStats.singleParent.numCompHet,individualStats.noParents.numCompHet"
+                    field: "individualStats.count,individualStats.numHomAlt,individualStats.bothParents.numCompHet,individualStats.singleParent.numCompHet,individualStats.missingParents.numCompHet"
                 }, {
 
                     title: "Recessive Variants",
@@ -130,7 +130,6 @@ export default class RgaGeneGrid extends LitElement {
                 };
                 this.opencgaSession.opencgaClient.clinical().summaryRgaGene(_filters)
                     .then(res => {
-                        console.log("res", res);
                         params.success(res);
                     })
                     .catch(e => {
@@ -260,7 +259,7 @@ export default class RgaGeneGrid extends LitElement {
                 },
                 {
                     title: "CH - Possible",
-                    field: "individualStats.noParents.numCompHet",
+                    field: "individualStats.missingParents.numCompHet",
                     formatter: value => value > 0 ? value : "-"
                 },
                 // Recessive Variants
@@ -299,7 +298,6 @@ export default class RgaGeneGrid extends LitElement {
         return numParents?.count ?? "-";
     }
 
-    // TODO refactor
     async onDownload(e) {
         this.toolbarConfig = {...this.toolbarConfig, downloading: true};
         await this.requestUpdate();
@@ -307,44 +305,39 @@ export default class RgaGeneGrid extends LitElement {
             study: this.opencgaSession.study.fqn,
             limit: 100,
             count: false,
-            field: "geneName>>knockoutTypes>>numParents>>individualId;geneName>>knockoutTypes>>numParents>>variants",
             ...this._query
         };
-        this.opencgaSession.opencgaClient.clinical().aggregationStatsRga(params)
-            .then(response => {
-                const results = this.responseHandler(response);
-                console.error(results)
-                if (results) {
+        this.opencgaSession.opencgaClient.clinical().summaryRgaGene(params)
+            .then(r => {
+                const result = r.getResults();
+                if (result.length) {
                     if (e.detail.option.toLowerCase() === "tab") {
                         const dataString = [
                             [
                                 "Gene",
-                                "Individuals:Total",
-                                "Individuals:Total HOM",
-                                "Individuals:Total CH",
-                                "Individuals:CH Definite",
-                                "Individuals:CH Probable",
-                                "Individuals:CH Possible",
-                                "Variants:Total",
-                                "Variants:HOM",
-                                "Variants:CH"
+                                "Individuals_Total",
+                                "Individuals_Total_HOM",
+                                "Individuals_CH_Definite",
+                                "Individuals_CH_Probable",
+                                "Individuals_CH_Possible",
+                                "Variants_Total",
+                                "Variants_HOM",
+                                "Variants_CH"
                             ].join("\t"),
-                            ...results.rows.map(_ => [
+                            ...result.map(_ => [
                                 _.name,
-                                _.individualFacet.count,
-                                _.individualFacet.HOM_ALT?.count ?? "",
-                                _.individualFacet.COMP_HET?.count ?? "",
-                                this.getConfidenceCount(_, "2"),
-                                this.getConfidenceCount(_, "1"),
-                                this.getConfidenceCount(_, "0"),
-                                _.variantFacet.count,
-                                _.variantFacet.HOM_ALT?.count,
-                                _.variantFacet.COMP_HET?.count
-
+                                _.individualStats.count,
+                                _.individualStats.numHomAlt,
+                                _.individualStats.bothParents.numCompHet,
+                                _.individualStats.singleParent.numCompHet,
+                                _.individualStats.missingParents.numCompHet,
+                                _.variantStats.count,
+                                _.variantStats.numHomAlt,
+                                _.variantStats.numCompHet
                             ].join("\t"))];
-                        UtilsNew.downloadData(dataString, "rga_aggregated_" + this.opencgaSession.study.id + ".txt", "text/plain");
+                        UtilsNew.downloadData(dataString, "rga_gene_" + this.opencgaSession.study.id + ".txt", "text/plain");
                     } else {
-                        UtilsNew.downloadData(JSON.stringify(results, null, "\t"), "rga_aggregated_" + this.opencgaSession.study.id + ".json", "application/json");
+                        UtilsNew.downloadData(JSON.stringify(result, null, "\t"), "rga_gene_" + this.opencgaSession.study.id + ".json", "application/json");
                     }
                 } else {
                     console.error("Error in result format");
@@ -366,7 +359,7 @@ export default class RgaGeneGrid extends LitElement {
             pagination: true,
             pageSize: 10,
             pageList: [10, 25, 50],
-            showExport: false,
+            showExport: false
         };
     }
 

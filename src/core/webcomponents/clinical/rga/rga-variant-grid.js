@@ -149,14 +149,8 @@ export default class RgaVariantGrid extends LitElement {
             },
             {
                 title: "Gene",
-                field: "gene",
-                formatter: (_, row) => {
-                    // optional chaining because individuals will be empty in case the user doesn't have the permissions to see it
-                    // return row.individuals?.[0]?.genes?.[0]?.name;
-                    const genes = new Set();
-                    row.individuals.forEach(individual => individual.genes.forEach(gene => genes.add(gene.name)));
-                    return Array.from(genes.keys()).join(", ");
-                }
+                field: "individuals",
+                formatter: (value, row) => this.geneFormatter(value, row)
             },
             {
                 title: "dbSNP",
@@ -165,9 +159,7 @@ export default class RgaVariantGrid extends LitElement {
             {
                 title: "Alternate allele frequency",
                 field: "populationFrequencies",
-                formatter: (value, row) => {
-                    return this.clinicalPopulationFrequenciesFormatter(value, row);
-                }
+                formatter: (value, row) => this.clinicalPopulationFrequenciesFormatter(value, row)
             },
             {
                 title: "Variant type",
@@ -217,6 +209,12 @@ export default class RgaVariantGrid extends LitElement {
                     }
                 };
             })*/];
+    }
+
+    geneFormatter(value, row) {
+        const genes = new Set();
+        row.individuals.forEach(individual => individual.genes.forEach(gene => genes.add(gene.name)));
+        return Array.from(genes.keys()).join(", ");
     }
 
     alleleCountFormatter(value, row) {
@@ -280,7 +278,7 @@ export default class RgaVariantGrid extends LitElement {
                 }
             }
         }
-        return Object.values(uniqueCT).map(ct => `<span>${ct.name} (${ct.accession})</span>`).join(", ");
+        return Object.values(uniqueCT).map(ct => `${ct.name} (${ct.accession})`).join(", ");
     }
 
     onColumnChange(e) {
@@ -367,8 +365,6 @@ export default class RgaVariantGrid extends LitElement {
                 };
                 this.opencgaSession.opencgaClient.clinical().queryRgaVariant(_filters)
                     .then(rgaVariantResponse => {
-                        // console.log("rgaVariantResponse", rgaVariantResponse);
-                        // this.prepareData();
                         params.success(rgaVariantResponse);
                     })
                     .catch(e => {
@@ -400,8 +396,60 @@ export default class RgaVariantGrid extends LitElement {
         });
     }
 
-    onDownload(e) {
-
+    async onDownload(e) {
+        this.toolbarConfig = {...this.toolbarConfig, downloading: true};
+        await this.requestUpdate();
+        const params = {
+            study: this.opencgaSession.study.fqn,
+            count: false,
+            ...this._query,
+            limit: 100
+        };
+        this.opencgaSession.opencgaClient.clinical().queryRgaVariant(params)
+            .then(restResponse => {
+                const results = restResponse.getResults();
+                if (results) {
+                    console.log("res", results)
+                    // Check if user clicked in Tab or JSON format
+                    if (e.detail.option.toLowerCase() === "tab") {
+                        const dataString = [
+                            [
+                                "Variant",
+                                "Gene",
+                                "dbSNP",
+                                "Type",
+                                "Allele count",
+                                "Consequence type",
+                                "Clinical Significance",
+                                "Individuals"
+                            ].join("\t"),
+                            ...results.map(_ => [
+                                _.id,
+                                this.geneFormatter(null, _),
+                                _.dbSnp,
+                                _.type,
+                                this.alleleCountFormatter(null, _),
+                                this.consequenceTypeFormatter(null, _),
+                                _.clinicalSignificance ? _.clinicalSignificance?.join(", ") : "-",
+                                _?.phenotypes.length ? _.phenotypes.map(phenotype => phenotype.id).join(",") : "-",
+                                _?.disorders.length ? _.disorders.map(disorder => disorder.id).join(",") : "-"
+                            ].join("\t"))];
+                        UtilsNew.downloadData(dataString, "rga_individual_" + this.opencgaSession.study.id + ".txt", "text/plain");
+                    } else {
+                        UtilsNew.downloadData(JSON.stringify(results, null, "\t"), "rga_individual_" + this.opencgaSession.study.id + ".json", "application/json");
+                    }
+                } else {
+                    console.error("Error in result format");
+                }
+            })
+            .catch(response => {
+                console.log(response);
+                UtilsNew.notifyError(response);
+            })
+            .finally(() => {
+                this.toolbarConfig = {...this.toolbarConfig, downloading: false};
+                this.requestUpdate();
+            });
     }
 
     getDefaultConfig() {
