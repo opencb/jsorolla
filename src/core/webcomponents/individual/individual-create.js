@@ -22,9 +22,6 @@ import "../individual/disorder-manager.js";
 
 export default class IndividualCreate extends LitElement {
 
-    static CREATE_MODE = "create";
-    static UPDATE_MODE = "update";
-
     constructor() {
         super();
         this._init();
@@ -36,12 +33,6 @@ export default class IndividualCreate extends LitElement {
 
     static get properties() {
         return {
-            individual: {
-                type: Object
-            },
-            study: {
-                type: Object
-            },
             opencgaSession: {
                 type: Object
             },
@@ -55,7 +46,7 @@ export default class IndividualCreate extends LitElement {
         this._prefix = UtilsNew.randomString(8);
         this.individual = {
             phenotypes: [],
-            disorders:[]
+            disorders: []
         };
     }
 
@@ -65,7 +56,7 @@ export default class IndividualCreate extends LitElement {
     }
 
     onFieldChange(e) {
-        let param;
+        const [field, prop] = e.detail.param.split(".");
         switch (e.detail.param) {
             case "id":
             case "name":
@@ -76,91 +67,65 @@ export default class IndividualCreate extends LitElement {
             case "parentalConsanguinity":
             case "karyotypicSex":
             case "lifeStatus":
-                this.individual[e.detail.param] = e.detail.value;
+                this.individual[field] = e.detail.value;
                 break;
             case "location.address":
             case "location.postalCode":
             case "location.city":
             case "location.state":
             case "location.country":
-                let cat = e.detail.param.split(".")[0];
-                param = e.detail.param.split(".")[1];
-                if (!this.individual[cat]) {
-                    this.individual[cat] = {};
-                }
-                this.individual[cat][param] = e.detail.value;
-                break;
             case "population.name":
             case "population.subpopulation":
             case "population.description":
-                param = e.detail.param.split(".")[1];
-                if (!this.individual.population) {
-                    this.individual.population = {};
-                }
-                this.individual.population[param] = e.detail.value;
-                break;
             case "status.name":
             case "status.description":
-                param = e.detail.param.split(".")[1];
-                if (!this.individual.status) {
-                    this.individual.status = {};
-                }
-                this.individual.status[param] = e.detail.value;
-                break;
-
+                this.individual[field] = {
+                    ...this.individual[field],
+                    [prop]: e.detail.value
+                };
+            // if (!this.individual[field]) {
+            //     this.individual[field] = {};
+            // }
+            // this.individual[field][prop] = e.detail.value;
+            break;
         }
+        console.log("changeValue: ",this.individual)
     }
 
-    saveIndividual() {
-        // this.opencgaSession.opencgaClient.projects().create(this.project)
-        //     .then(res => {
-        //         this.sample = {};
-        //         this.requestUpdate();
-
-        //         this.dispatchSessionUpdateRequest();
-
-        //         Swal.fire(
-        //             "New Sample",
-        //             "New Sample created correctly.",
-        //             "success"
-        //         );
-        //     })
-        //     .catch(err => {
-        //         console.error(err);
-        //         params.error(err);
-        //     });
+    onRemovePhenotype(e) {
+        this.individual = {
+            ...this.individual,
+            phenotypes: this.individual.phenotypes
+                .filter(item => item !== e.detail.value)
+        }
+        this.requestUpdate()
     }
 
-    updateIndividual() {
-        // this.opencgaSession.opencgaClient.projects().update(this.Sample?.fqn,this.Sample)
-        //     .then(res => {
-        //         this.Sample = {};
-        //         this.requestUpdate();
-
-        //         this.dispatchSessionUpdateRequest();
-
-        //         Swal.fire(
-        //             "Edit Sample",
-        //             "Sample updated correctly.",
-        //             "success"
-        //         );
-        //     })
-        //     .catch(err => {
-        //         console.error(err);
-        //         params.error(err);
-        //     });
-    }
-
-    onSave(e) {
-        // if (mode === SampleForm.CREATE_MODE) {
-        //     this.saveIndividual()
-        // } else {
-        //     this.updateIndividual()
-        // }
+    onAddPhenotype(e) {
+        this.individual.phenotypes.push(e.detail.value)
+        this.requestUpdate()
     }
 
     onClear(e) {
         console.log("onClear individual form")
+    }
+
+    onSubmit() {
+        this.opencgaSession.opencgaClient.individuals().create(this.individual, { study: this.opencgaSession.study.fqn })
+            .then(res => {
+                this.individual = {};
+                this.requestUpdate();
+
+                // this.dispatchSessionUpdateRequest();
+                Swal.fire(
+                    "New Individual",
+                    "New Individual created correctly.",
+                    "success"
+                );
+            })
+            .catch(err => {
+                console.error(err);
+            });
     }
 
     getDefaultConfig() {
@@ -174,16 +139,11 @@ export default class IndividualCreate extends LitElement {
                 okText: "Save"
             },
             display: {
-
-                // mode: {
-                //     type: "modal",
-                //     title: "Review Variant",
-                //     buttonClass: "btn-link"
-                // },
                 labelWidth: 3,
                 with: "8",
                 labelAlign: "right",
                 defaultLayout: "horizontal",
+                defaultValue: "",
             },
             sections: [
                 {
@@ -247,6 +207,7 @@ export default class IndividualCreate extends LitElement {
                             name: "Parental Consanguinity",
                             field: "parentalConsanguinity",
                             type: "checkbox",
+                            checked: false,
                             display: {}
                         },
                         {
@@ -339,7 +300,9 @@ export default class IndividualCreate extends LitElement {
                                 render: () => html`
                                         <phenotype-manager 
                                             .phenotypes="${this.individual?.phenotypes}"
-                                            .opencgaSession="${this.opencgaSession}" >
+                                            .opencgaSession="${this.opencgaSession}"
+                                            @addItem="${e => this.onAddPhenotype(e)}"
+                                            @removeItem="${e => this.onRemovePhenotype(e)}">
                                         </phenotype-manager>`
                             }
                         },
@@ -370,8 +333,8 @@ export default class IndividualCreate extends LitElement {
                 .data=${this.individual}
                 .config="${this._config}"
                 @fieldChange="${e => this.onFieldChange(e)}"
-                @clear="${this.onHide}"
-                @submit="${this.onSave}">
+                @clear="${this.onClear}"
+                @submit="${this.onSubmit}">
             </data-form>
         `;
     }
