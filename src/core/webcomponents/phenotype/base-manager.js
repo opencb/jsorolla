@@ -85,7 +85,7 @@ export const BaseManagerMixin = (superClass) => class extends superClass {
             detail: {
                 value: item
             },
-            bubbles: true,
+            bubbles: false,
             composed: true
         }));
     }
