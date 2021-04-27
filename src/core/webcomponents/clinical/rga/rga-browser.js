@@ -52,12 +52,6 @@ export default class RgaBrowser extends LitElement {
             query: {
                 type: Object
             },
-            facetQuery: {
-                type: Object
-            },
-            selectedFacet: {
-                type: Object
-            },
             config: {
                 type: Object
             }
@@ -65,7 +59,7 @@ export default class RgaBrowser extends LitElement {
     }
 
     _init() {
-        this._prefix = "facet" + UtilsNew.randomString(6);
+        this._prefix = "rga" + UtilsNew.randomString(6);
         this.query = {};
         this.preparedQuery = {};
         this.executedQuery = {};
@@ -74,8 +68,6 @@ export default class RgaBrowser extends LitElement {
 
         this.activeFilterAlias = {
         };
-        this.selectedFacet = {};
-        this.selectedFacetFormatted = {};
         this.activeTab = {"gene-tab": true};
         this.detail = {};
         this.resource = "rga";
@@ -201,23 +193,6 @@ export default class RgaBrowser extends LitElement {
         this.preparedQuery = {...this.query};
     }
 
-    onFacetQueryChange(e) {
-        this.selectedFacetFormatted = e.detail.value;
-        this.requestUpdate();
-    }
-
-    onActiveFacetChange(e) {
-        this.selectedFacet = {...e.detail};
-        this.onRun(); // TODO the query should be repeated every action on active-filter (delete, clear, load from Saved filter)
-        this.requestUpdate();
-    }
-
-    onActiveFacetClear(e) {
-        this.selectedFacet = {};
-        this.onRun();
-        this.requestUpdate();
-    }
-
     getDefaultConfig() {
         // return BrowserConf.config;
         return {
@@ -306,14 +281,14 @@ export default class RgaBrowser extends LitElement {
                     {
                         title: "Variants",
                         fields: [
-                            {
+                            /*{
                                 id: "cohort",
                                 name: "Cohort",
                                 description: "Cohort selection"
-                            },
+                            },*/
                             {
                                 id: "populationFrequencyAlt",
-                                name: "",
+                                name: "Select Population Frequency",
                                 type: "POPULATION_FREQUENCY_FILTER",
                                 onlyPopFreqAll: true
                             },
@@ -428,12 +403,9 @@ export default class RgaBrowser extends LitElement {
                                                     .defaultStudy="${this.opencgaSession?.study?.fqn}"
                                                     .query="${this.preparedQuery}"
                                                     .refresh="${this.executedQuery}"
-                                                    .facetQuery="${this.selectedFacetFormatted}"
                                                     .alias="${this.activeFilterAlias}"
                                                     .config="${this._config.activeFilters}"
                                                     .filters="${this._config.filter.examples}"
-                                                    @activeFacetChange="${this.onActiveFacetChange}"
-                                                    @activeFacetClear="${this.onActiveFacetClear}"
                                                     @activeFilterChange="${this.onActiveFilterChange}"
                                                     @activeFilterClear="${this.onActiveFilterClear}">
                             </opencga-active-filters>
