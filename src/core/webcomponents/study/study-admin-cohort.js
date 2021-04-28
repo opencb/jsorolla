@@ -16,7 +16,8 @@
 
 import { html, LitElement } from "/web_modules/lit-element.js";
 import UtilsNew from "./../../utilsNew.js";
-import CohortForm from "../cohort/cohort-form.js"
+import CohortCreate from "../cohort/cohort-create.js"
+import CohortUpdate from "../cohort/cohort-update.js"
 import DetailTabs from "../commons/view/detail-tabs.js";
 
 export default class StudyAdminCohort extends LitElement {
@@ -72,10 +73,10 @@ export default class StudyAdminCohort extends LitElement {
                         return html`
                             <div class="row">
                                 <div class="col-md-6" style="margin: 20px 10px">
-                                    <cohort-form
-                                        .opencgaSession="${opencgaSession}"
-                                        .mode="${CohortForm.UPDATE_MODE}">
-                                    </cohort-form>
+                                    <cohort-update
+                                        .cohortId="${"cohortTest"}"
+                                        .opencgaSession="${opencgaSession}"></cohort-create>
+                                    </cohort-update>
                                 </div>
                             </div>`;
                     }
@@ -89,10 +90,9 @@ export default class StudyAdminCohort extends LitElement {
                         return html`
                             <div class="row">
                                 <div class="col-md-6" style="margin: 20px 10px">
-                                    <cohort-form
-                                        .opencgaSession="${opencgaSession}"
-                                        .mode="${CohortForm.CREATE_MODE}">
-                                    </cohort-form>
+                                    <cohort-create
+                                        .opencgaSession="${opencgaSession}">
+                                    </cohort-create>
                                 </div>
                             </div>`;
                     }

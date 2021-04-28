@@ -17,11 +17,9 @@
 import { LitElement, html } from "/web_modules/lit-element.js";
 import UtilsNew from "./../../utilsNew.js";
 import "../commons/tool-header.js";
+import FormUtils from "../../form-utils.js";
 
-export default class CohortForm extends LitElement {
-
-    static CREATE_MODE = "create";
-    static UPDATE_MODE = "update";
+export default class CohortUpdate extends LitElement {
 
     constructor() {
         super();
@@ -34,13 +32,10 @@ export default class CohortForm extends LitElement {
 
     static get properties() {
         return {
-            studyId: {
-                type: String
-            },
-            study: {
+            cohort: {
                 type: Object
             },
-            mode: {
+            cohortId: {
                 type: String
             },
             opencgaSession: {
@@ -53,22 +48,48 @@ export default class CohortForm extends LitElement {
     }
 
     _init() {
-        this._prefix = UtilsNew.randomString(8);
         this.cohort = {}
+        this.updateParams = {}
+
     }
 
     connectedCallback() {
         super.connectedCallback();
+        this.updateParams = {}
         this._config = { ...this.getDefaultConfig(), ...this.config };
     }
 
-    onFieldChange(e) {
-        switch (e.detail.param) {
-            case "id":
-            case "name":
-            case "description":
-                this.Cohort[e.detail.param] = e.detail.value;
-                break;
+    update(changedProperties) {
+        if (changedProperties.has("cohort")) {
+            this.cohortObserver();
+        }
+
+        if (changedProperties.has("cohortId")) {
+            this.cohortIdObserver();
+        }
+
+        super.update(changedProperties)
+    }
+
+    cohortObserver() {
+        // When updating wee need to keep a private copy of the original object
+        if (this.cohort) {
+            this._cohort = JSON.parse(JSON.stringify(this.cohort));
+        }
+    }
+
+    cohortIdObserver() {
+        if (this.opencgaSession && this.cohortId) {
+            const query = {
+                study: this.opencgaSession.study.fqn,
+            };
+            this.opencgaSession.opencgaClient.cohorts().info(this.cohortId, query)
+                .then(response => {
+                    this.cohort = response.responses[0].results[0];
+                })
+                .catch(reason => {
+                    console.error(reason);
+                });
         }
     }
 
@@ -81,6 +102,30 @@ export default class CohortForm extends LitElement {
         }));
     }
 
+    onFieldChange(e) {
+        switch (e.detail.param) {
+            case "id":
+            case "name":
+            case "description":
+            case "type":
+                if (this._cohort[e.detail.param] !== e.detail.value && e.detail.value !== null) {
+                    this.cohort[e.detail.param] = e.detail.value;
+                    this.updateParams[e.detail.param] = e.detail.value;
+                } else {
+                    delete this.updateParams[e.detail.param];
+                }
+                break;
+            case "status.name":
+            case "status.description":
+                FormUtils.updateObject(
+                    this.cohort,
+                    this._cohort,
+                    this.updateParams,
+                    e.detail.param,
+                    e.detail.value)
+                break;
+        }
+    }
 
     getDefaultConfig() {
         return {
@@ -90,17 +135,16 @@ export default class CohortForm extends LitElement {
             buttons: {
                 show: true,
                 cancelText: "Cancel",
-                okText: this.mode === CohortForm.CREATE_MODE ? "Save" : "Update"
+                okText: "Update"
             },
             display: {
-                // width: "8",
                 style: "margin: 10px",
                 labelWidth: 3,
                 labelAlign: "right",
                 defaultLayout: "horizontal",
                 defaultValue: "",
                 help: {
-                    mode: "block", // icon
+                    mode: "block", 
                 }
             },
             sections: [
@@ -113,7 +157,7 @@ export default class CohortForm extends LitElement {
                             required: true,
                             display: {
                                 placeholder: "Add a short ID...",
-                                disabled: this.mode === CohortForm.UPDATE_MODE,
+                                disabled: true,
                                 help: {
                                     text: "short Sample id for thehis as;lsal"
                                 },
@@ -124,26 +168,17 @@ export default class CohortForm extends LitElement {
                         },
                         {
                             name: "Cohort Type",
-                            field: "cohort",
+                            field: "type",
                             type: "select",
-                            allowedValues: ["CASE_CONTROL","CASE_SET","CONTROL_SET","PAIRED","PAIRED_TUMOR","AGGREGATE","TIME_SERIES","FAMILY","TRIO","COLLECTION"],
+                            allowedValues: ["CASE_CONTROL", "CASE_SET", "CONTROL_SET", "PAIRED", "PAIRED_TUMOR", "AGGREGATE", "TIME_SERIES", "FAMILY", "TRIO", "COLLECTION"],
                             display: {}
                         },
-                        // {
-                        //     name: "Creation Date",
-                        //     field: "creationDate",
-                        //     type: "input-text",
-                        //     display: {
-                        //         placeholder: "Sample name...",
-                        //         visible: this.mode === CohortForm.UPDATE_MODE,
-                        //         disabled: this.mode === CohortForm.UPDATE_MODE
-                        //     }
-                        // },
                         {
                             name: "Description",
                             field: "description",
                             type: "input-text",
                             display: {
+                                rows:3,
                                 placeholder: "e.g. Homo sapiens, ...",
                             }
                         },
@@ -161,7 +196,7 @@ export default class CohortForm extends LitElement {
                             type: "input-text",
                             display: {
                                 rows: 3,
-                                placeholder: "Sample description...",
+                                placeholder: "Cohort description...",
                             }
                         },
                         {
@@ -170,7 +205,7 @@ export default class CohortForm extends LitElement {
                             type: "input-text",
                             display: {
                                 rows: 3,
-                                placeholder: "Sample description...",
+                                placeholder: "Cohort description...",
                             }
                         },
                     ]
@@ -179,52 +214,23 @@ export default class CohortForm extends LitElement {
         }
     }
 
-    saveCohort() {
-        // this.opencgaSession.opencgaClient.projects().create(this.project)
-        //     .then(res => {
-        //         this.Cohort = {};
-        //         this.requestUpdate();
-
-        //         this.dispatchSessionUpdateRequest();
-
-        //         Swal.fire(
-        //             "New Sample",
-        //             "New Sample created correctly.",
-        //             "success"
-        //         );
-        //     })
-        //     .catch(err => {
-        //         console.error(err);
-        //         params.error(err);
-        //     });
-    }
-
-    updateCohort() {
-        // this.opencgaSession.opencgaClient.projects().update(this.Sample?.fqn,this.Sample)
-        //     .then(res => {
-        //         this.Sample = {};
-        //         this.requestUpdate();
-
-        //         this.dispatchSessionUpdateRequest();
-
-        //         Swal.fire(
-        //             "Edit Sample",
-        //             "Sample updated correctly.",
-        //             "success"
-        //         );
-        //     })
-        //     .catch(err => {
-        //         console.error(err);
-        //         params.error(err);
-        //     });
-    }
-
     onSubmit(e) {
-        if (mode === CohortForm.CREATE_MODE) {
-            this.saveCohort()
-        } else {
-            this.updateCohort()
-        }
+        this.opencgaSession.opencgaClient.cohorts().update(this.cohort.id, this.updateParams, { study: this.opencgaSession.study.fqn })
+            .then(res => {
+                this._cohort = JSON.parse(JSON.stringify(this.cohort));
+                this.updateParams = {};
+
+                // this.dispatchSessionUpdateRequest();
+
+                Swal.fire(
+                    "Edit Cohort",
+                    "Cohort updated correctly.",
+                    "success"
+                );
+            })
+            .catch(err => {
+                console.error(err);
+            });
     }
 
     onClear() {
@@ -233,15 +239,16 @@ export default class CohortForm extends LitElement {
 
     render() {
         return html`
-            <data-form  .data=${this.cohort}
-                        .config="${this._config}"
-                        @fieldChange="${e => this.onFieldChange(e)}"
-                        @clear=${this.onClear}
-                        @submit="${this.onSubmit}">
+            <data-form  
+                .data=${this.cohort}
+                .config="${this._config}"
+                @fieldChange="${e => this.onFieldChange(e)}"
+                @clear=${this.onClear}
+                @submit="${this.onSubmit}">
             </data-form>
         `;
     }
 
 }
 
-customElements.define("cohort-form", CohortForm);
+customElements.define("cohort-update", CohortUpdate);
