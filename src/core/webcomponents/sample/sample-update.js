@@ -85,8 +85,6 @@ export default class SampleUpdate extends LitElement {
         if (this.sample) {
             this._sample = JSON.parse(JSON.stringify(this.sample));
         }
-
-        delete this._sample.collection;
     }
 
     sampleIdObserver() {
