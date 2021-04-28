@@ -52,8 +52,8 @@ export default class AnnotationSetsView extends LitElement {
         return html`
             <div class="">
                 <div class="">
-                    <b>${variableSet.name}</b>    
-                    <span class="text-muted font-smaller"><i class="far fa-calendar-alt"></i> ${UtilsNew.dateFormatter(variableSet.creationDate)}</span>
+                    <b>${variableSet.name}</b>
+                        <!-- <span class="text-muted font-smaller"><i class="far fa-calendar-alt"></i>  ${UtilsNew.dateFormatter(variableSet.creationDate)} </span>-->
                 </div>
                 <div>
                     ${Object.entries(variableSet.annotations).map(([k, v]) => {

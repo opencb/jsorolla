@@ -174,14 +174,14 @@ export default class OpencgaSampleView extends LitElement {
                             name: "Description",
                             field: "description"
                         },
-                        {
+                        /*{
                             name: "Annotation sets",
                             field: "annotationSets",
                             type: "custom",
                             display: {
                                 render: field => html`<annotation-sets-view .annotationSets="${field}"></annotation-sets-view>`
                             }
-                        }
+                        }*/
                     ]
                 }
             ]
