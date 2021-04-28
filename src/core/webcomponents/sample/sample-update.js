@@ -1,5 +1,5 @@
 /**
- * Copyright 2015-2019 OpenCB
+ * Copyright 2015-2021 OpenCB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import UtilsNew from "../../utilsNew.js";
 import "../phenotype/phenotype-manager.js";
 import "../annotations/annotationSet-form.js";
 import "../commons/tool-header.js";
+import FormUtils from "../../form-utils.js";
 
 
 export default class SampleUpdate extends LitElement {
@@ -84,6 +85,8 @@ export default class SampleUpdate extends LitElement {
         if (this.sample) {
             this._sample = JSON.parse(JSON.stringify(this.sample));
         }
+
+        delete this._sample.collection;
     }
 
     sampleIdObserver() {
@@ -123,7 +126,7 @@ export default class SampleUpdate extends LitElement {
                     this.sample[e.detail.param] = e.detail.value;
                     this.updateParams[e.detail.param] = e.detail.value;
                 } else {
-                    this.sample[e.detail.param] = this._sample[e.detail.param].id;
+                    // this.sample[e.detail.param] = this._sample[e.detail.param];
                     delete this.updateParams[e.detail.param];
                 }
                 break;
@@ -140,17 +143,12 @@ export default class SampleUpdate extends LitElement {
             case "collection.quantity":
             case "collection.method":
             case "collection.date":
-                const [field, prop] = e.detail.param.split(".");
-                if (this._sample[field][prop] !== e.detail.value && e.detail.value !== null) {
-                    this.sample[field][prop] = e.detail.value;
-                    this.updateParams[field] = {
-                        ...this.updateParams[field],
-                        [prop]: e.detail.value
-                    };
-                } else {
-                    // this.sample[field] = this._sample.id;
-                    delete this.updateParams[field][prop];
-                }
+                FormUtils.updateObject(
+                    this.sample,
+                    this._sample,
+                    this.updateParams,
+                    e.detail.param,
+                    e.detail.value)
                 break;
         }
     }
@@ -168,7 +166,7 @@ export default class SampleUpdate extends LitElement {
         debugger;
         this.sample.phenotypes.push(e.detail.value)
         this.updateParams.phenotypes = this.sample.phenotypes;
-        
+
     }
 
     onClear() {
@@ -425,7 +423,7 @@ export default class SampleUpdate extends LitElement {
             ]
         }
     }
-    
+
     render() {
         return html`
             <data-form
