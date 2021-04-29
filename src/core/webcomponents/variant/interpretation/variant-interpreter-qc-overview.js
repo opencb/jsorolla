@@ -98,7 +98,9 @@ class VariantInterpreterQcOverview extends LitElement {
                         this.alignmentStats = [];
                         for (const file of response.responses[0].results) {
                             let annotSet = file.annotationSets.find(annotSet => annotSet.id === "opencga_alignment_stats");
-                            this.alignmentStats.push(annotSet.annotations);
+                            if (annotSet?.annotations) {
+                                this.alignmentStats.push(annotSet.annotations);
+                            }
                         }
                     })
                     .catch(response => {
