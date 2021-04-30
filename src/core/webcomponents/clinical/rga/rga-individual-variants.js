@@ -21,6 +21,9 @@ import GridCommons from "../../commons/grid-commons.js";
 import VariantGridFormatter from "../../variant/variant-grid-formatter.js";
 
 
+/**
+ * @deprecated
+ */
 export default class RgaIndividualVariants extends LitElement {
 
     constructor() {
