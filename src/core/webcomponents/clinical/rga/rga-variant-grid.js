@@ -78,7 +78,57 @@ export default class RgaVariantGrid extends LitElement {
         this.detailConfig = this.getDetailConfig();
         this.individual = null;
         this.toolbarConfig = {
-            columns: this._initTableColumns()
+            columns: [
+                {
+                    title: "Variant",
+                    field: "id"
+                },
+                {
+                    title: "Gene",
+                    field: "genes"
+                },
+                {
+                    title: "dbSNP",
+                    field: "dbSnp"
+                },
+                {
+                    title: "Alternate allele frequency",
+                    field: "populationFrequencies"
+                },
+                {
+                    title: "Variant type",
+                    field: "type"
+                },
+                {
+                    title: "Consequence type",
+                    field: "sequenceOntologyTerms"
+                },
+                {
+                    title: "Clinical Significance",
+                    field: "clinicalSignificances"
+                },
+                {
+                    title: "Total",
+                    field: "individualStats.count"
+                },
+                {
+                    title: "Homozygous",
+                    field: "individualStats.numHomAlt"
+
+                },
+                {
+                    title: "CH - Definite",
+                    field: "individualStats.bothParents.numCompHet"
+                },
+                {
+                    title: "CH - Probable",
+                    field: "individualStats.singleParent.numCompHet"
+                },
+                {
+                    title: "CH - Possible",
+                    field: "individualStats.missingParents.numCompHet"
+                }
+            ]
         };
     }
 
@@ -142,62 +192,107 @@ export default class RgaVariantGrid extends LitElement {
 
     _initTableColumns() {
         return [
-            {
-                title: "Variant",
-                field: "id",
-                formatter: (value, row, index) => VariantGridFormatter.variantFormatter(value, row, index, this.opencgaSession.project.organism.assembly)
-            },
-            {
-                title: "Gene",
-                field: "individuals",
-                formatter: (value, row) => this.geneFormatter(value, row)
-            },
-            {
-                title: "dbSNP",
-                field: "dbSnp"
-            },
-            {
-                title: "Alternate allele frequency",
-                field: "populationFrequencies",
-                formatter: (value, row) => this.clinicalPopulationFrequenciesFormatter(value, row)
-            },
-            {
-                title: "Variant type",
-                field: "type"
-            },
-            {
-                title: "Allele count",
-                field: "alleleCount",
-                formatter: this.alleleCountFormatter
-            },
-            {
-                title: "Consequence type",
-                field: "sequenceOntologyTerms",
-                formatter: this.consequenceTypeFormatter
-            },
-            {
-                title: "Clinical Significance",
-                field: "clinicalSignificance",
-                formatter: value => value?.join(", ")
-            },
-            {
-                title: "Individuals",
-                field: "numIndividuals",
-                formatter: (_, row) => {
-                    let hiddenIndividuals = 0;
-                    if (row.individuals.length !== row.numIndividuals) {
-                        hiddenIndividuals = row.numIndividuals - row.individuals.length;
-                    }
-                    return `${row.numIndividuals}
-                        ${hiddenIndividuals > 0 ? `<a tooltip-title="Individuals" tooltip-position-at="left bottom" tooltip-position-my="right top"
-                                                          tooltip-text="${hiddenIndividuals} individual${hiddenIndividuals > 1 ? "s are" : " is"} hidden due to your permission settings."><i
-                            class="text-warning fas fa-exclamation-circle align-middle"></i></a>` : ""}`;
+            [
+                {
+                    title: "Variant",
+                    field: "id",
+                    rowspan: 2,
+                    formatter: (value, row, index) => VariantGridFormatter.variantFormatter(value, row, index, this.opencgaSession.project.organism.assembly)
+                },
+                {
+                    title: "Gene",
+                    field: "genes",
+                    rowspan: 2
+                // formatter: (value, row) => this.geneFormatter(value, row)
+                },
+                {
+                    title: "dbSNP",
+                    field: "dbSnp",
+                    rowspan: 2
+                },
+                {
+                    title: "Alternate allele frequency",
+                    field: "populationFrequencies",
+                    rowspan: 2,
+                    formatter: (value, row) => this.clinicalPopulationFrequenciesFormatter(value, row)
+                },
+                {
+                    title: "Variant type",
+                    field: "type",
+                    rowspan: 2
+                },
+                // {
+                //     title: "Allele count",
+                //     field: "alleleCount",
+                //     formatter: this.alleleCountFormatter
+                // },
+                {
+                    title: "Consequence type",
+                    field: "sequenceOntologyTerms",
+                    rowspan: 2,
+                    formatter: value => {
+                        if (value) {
+                            return Object.values(value).map(ct => `<span>${ct.name} (${ct.accession})</span>`).join(", ");
+                        }
+                    }},
+                {
+                    title: "Clinical Significance",
+                    field: "clinicalSignificances",
+                    rowspan: 2,
+                    formatter: value => value?.join(", ")
+                },
+                {
+                    title: "Recessive Individuals",
+                    field: "",
+                    colspan: 5
                 }
-                // individual matrix
-                // field: "individuals",
-                // formatter: this.individualFormatter.bind(this)
+            ], [
 
-            }
+                {
+                    title: "Total",
+                    field: "individualStats.count",
+                    formatter: value => value > 0 ? value : "-"
+                },
+                {
+                    title: "Homozygous",
+                    field: "individualStats.numHomAlt",
+                    formatter: value => value > 0 ? value : "-"
+
+                },
+                {
+                    title: "CH - Definite",
+                    field: "individualStats.bothParents.numCompHet",
+                    formatter: value => value > 0 ? value : "-"
+                },
+                {
+                    title: "CH - Probable",
+                    field: "individualStats.singleParent.numCompHet",
+                    formatter: value => value > 0 ? value : "-"
+                },
+                {
+                    title: "CH - Possible",
+                    field: "individualStats.missingParents.numCompHet",
+                    formatter: value => value > 0 ? value : "-"
+                }
+
+                // {
+                //     title: "Individuals",
+                //     field: "numIndividuals",
+                //     formatter: (_, row) => {
+                //         let hiddenIndividuals = 0;
+                //         if (row.individuals.length !== row.numIndividuals) {
+                //             hiddenIndividuals = row.numIndividuals - row.individuals.length;
+                //         }
+                //         return `${row.numIndividuals}
+                //             ${hiddenIndividuals > 0 ? `<a tooltip-title="Individuals" tooltip-position-at="left bottom" tooltip-position-my="right top"
+                //                                               tooltip-text="${hiddenIndividuals} individual${hiddenIndividuals > 1 ? "s are" : " is"} hidden due to your permission settings."><i
+                //                 class="text-warning fas fa-exclamation-circle align-middle"></i></a>` : ""}`;
+                //     }
+                //     // individual matrix
+                //     // field: "individuals",
+                //     // formatter: this.individualFormatter.bind(this)
+                //
+                // }
             /* ...this.samples.map(sample => {
                 return {
                     title: `Sample ${sample.sampleId}`,
@@ -208,15 +303,22 @@ export default class RgaVariantGrid extends LitElement {
                         // return JSON.stringify(v)
                     }
                 };
-            })*/];
+            })*/]
+        ];
     }
 
+    /**
+     * @deprecated
+     */
     geneFormatter(value, row) {
         const genes = new Set();
         row.individuals.forEach(individual => individual.genes.forEach(gene => genes.add(gene.name)));
         return Array.from(genes.keys()).join(", ");
     }
 
+    /**
+     * @deprecated
+     */
     alleleCountFormatter(value, row) {
         const uniqueVariants = {};
         for (const individual of row.individuals) {
@@ -245,6 +347,9 @@ export default class RgaVariantGrid extends LitElement {
         }
     }
 
+    /**
+     * @deprecated
+     */
     dbSNPFormatter(value, row) {
         const dbSNPs = new Set();
         for (const individual of row.individuals) {
@@ -261,6 +366,9 @@ export default class RgaVariantGrid extends LitElement {
         return Object.keys(dbSNPs).map(dbSNP => `<span>${dbSNP})</span>`).join(", ");
     }
 
+    /**
+     * @deprecated
+     */
     consequenceTypeFormatter(value, row) {
         const uniqueCT = {};
         for (const individual of row.individuals) {
@@ -362,14 +470,26 @@ export default class RgaVariantGrid extends LitElement {
                     count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
                     ...this._query
                 };
-                this.opencgaSession.opencgaClient.clinical().queryRgaVariant(_filters)
+
+                this.opencgaSession.opencgaClient.clinical().summaryRgaVariant(_filters)
                     .then(rgaVariantResponse => {
+                        console.log("rgaVariant", rgaVariantResponse);
                         params.success(rgaVariantResponse);
                     })
                     .catch(e => {
                         console.error(e);
                         params.error(e);
                     });
+
+                // this.opencgaSession.opencgaClient.clinical().queryRgaVariant(_filters)
+                //     .then(rgaVariantResponse => {
+                //         console.log("rgaVariant", rgaVariantResponse)
+                //         params.success(rgaVariantResponse);
+                //     })
+                //     .catch(e => {
+                //         console.error(e);
+                //         params.error(e);
+                //     });
             },
             responseHandler: response => {
                 const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
@@ -395,6 +515,7 @@ export default class RgaVariantGrid extends LitElement {
         });
     }
 
+    // TODO refactor
     async onDownload(e) {
         this.toolbarConfig = {...this.toolbarConfig, downloading: true};
         await this.requestUpdate();
@@ -408,7 +529,7 @@ export default class RgaVariantGrid extends LitElement {
             .then(restResponse => {
                 const results = restResponse.getResults();
                 if (results) {
-                    console.log("res", results)
+                    console.log("res", results);
                     // Check if user clicked in Tab or JSON format
                     if (e.detail.option.toLowerCase() === "tab") {
                         const dataString = [
@@ -486,7 +607,7 @@ export default class RgaVariantGrid extends LitElement {
                     active: true,
                     render: (variant, active, opencgaSession) => {
                         return html`
-                            <rga-variant-individual-grid .variant="${variant}" .opencgaSession="${opencgaSession}"></rga-variant-individual-grid>
+                            <rga-variant-individual-grid .variantId="${variant?.id}" .opencgaSession="${opencgaSession}"></rga-variant-individual-grid>
                         `;
                     }
                 },
