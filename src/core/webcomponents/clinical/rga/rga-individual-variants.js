@@ -37,6 +37,9 @@ export default class RgaIndividualVariants extends LitElement {
             opencgaSession: {
                 type: Object
             },
+            query: {
+                type: Object
+            },
             individual: {
                 type: Object
             },
@@ -75,7 +78,7 @@ export default class RgaIndividualVariants extends LitElement {
             this.renderTableLocale();
         }
 
-        if ((changedProperties.has("individualId") || changedProperties.has("active")) && this.active) {
+        if ((changedProperties.has("query") || changedProperties.has("individualId") || changedProperties.has("active")) && this.active) {
             this.renderTable();
         }
 

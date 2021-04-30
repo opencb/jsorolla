@@ -20,6 +20,7 @@ import GridCommons from "../../commons/grid-commons.js";
 import CatalogGridFormatter from "../../commons/catalog-grid-formatter.js";
 import "./rga-individual-variants.js";
 import "./rga-individual-family.js";
+import "./../../commons/view/detail-tabs.js";
 
 
 export default class RgaIndividualGrid extends LitElement {
@@ -481,23 +482,26 @@ export default class RgaIndividualGrid extends LitElement {
             title: "Individual",
             showTitle: true,
             items: [
-                {
+                /*{
                     id: "individual-view",
                     name: "Variants",
                     active: true,
                     render: (individual, active, opencgaSession) => {
                         return html`
                             <h3>Variants in ${individual?.id}</h3>
-                            <rga-individual-variants .individualId="${individual?.id}" .active=${active} .opencgaSession="${opencgaSession}"></rga-individual-variants>
+                            json ${JSON.stringify(this.query)}
+                            <rga-individual-variants .query=${this.query} .individualId="${individual?.id}" .active=${active} .opencgaSession="${opencgaSession}"></rga-individual-variants>
                         `;
                     }
-                }, {
+                },*/
+                {
                     id: "family-view",
                     name: "Family",
+                    active: true,
                     render: (individual, active, opencgaSession) => {
                         return html`
                             <h3>Putative recessive Variants in family</h3>
-                            <rga-individual-family .individual="${individual}" .active=${active} .opencgaSession="${opencgaSession}"></rga-individual-family>`;
+                            <rga-individual-family .query=${this.query} .individual="${individual}" .active=${active} .opencgaSession="${opencgaSession}"></rga-individual-family>`;
                         // return html`<opencga-family-view .individualId="${individual.id}" .opencgaSession="${opencgaSession}"></opencga-family-view>`;
                     }
                 }

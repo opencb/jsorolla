@@ -38,6 +38,9 @@ export default class RgaIndividualFamily extends LitElement {
             opencgaSession: {
                 type: Object
             },
+            query: {
+                type: Object
+            },
             individual: {
                 type: Object
             },
@@ -321,6 +324,23 @@ export default class RgaIndividualFamily extends LitElement {
                     formatter: this.geneFormatter
                 },
                 {
+                    title: "Alternate allele frequency",
+                    field: "populationFrequencies",
+                    rowspan: 2,
+                    formatter: (value, row) => this.clinicalPopulationFrequenciesFormatter(value, row)
+                },
+                {
+                    title: "Type",
+                    field: "type",
+                    rowspan: 2,
+                },
+                {
+                    title: "Consequence type",
+                    field: "individuals",
+                    rowspan: 2,
+                    formatter: (value, row) => this.consequenceTypeFormatter(value, row)
+                },
+                {
                     title: "Knockout Type",
                     field: "knockoutType",
                     rowspan: 2,
@@ -388,6 +408,38 @@ export default class RgaIndividualFamily extends LitElement {
         ];
     }
 
+    clinicalPopulationFrequenciesFormatter(value, row) {
+        if (row) {
+            const popFreqMap = new Map();
+            if (row?.populationFrequencies?.length > 0) {
+                for (const popFreq of row.populationFrequencies) {
+                    popFreqMap.set(popFreq.study + ":" + popFreq.population, Number(popFreq.altAlleleFreq).toFixed(4));
+                }
+            }
+            return VariantGridFormatter.createPopulationFrequenciesTable(this._config.populationFrequencies, popFreqMap, populationFrequencies.style);
+        }
+    }
+
+    consequenceTypeFormatter(value, row) {
+        const uniqueCT = {};
+        for (const individual of row.individuals) {
+            for (const gene of individual.genes) {
+                for (const transcript of gene.transcripts) {
+                    for (const variant of transcript.variants) {
+                        if (row.id === variant.id && variant?.sequenceOntologyTerms?.length) {
+                            for (const ct of variant.sequenceOntologyTerms) {
+                                uniqueCT[ct.accession] = {
+                                    ...ct
+                                };
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return Object.values(uniqueCT).length ? Object.values(uniqueCT).map(ct => `<span>${ct.name} (${ct.accession})</span>`).join(", ") : "-";
+    }
+
     geneFormatter(value, row) {
         const uniqueValues = new Set();
         for (const individual of row.individuals) {
@@ -440,7 +492,18 @@ export default class RgaIndividualFamily extends LitElement {
             title: "Individual",
             pagination: true,
             pageSize: 10,
-            pageList: [10, 25, 50]
+            pageList: [10, 25, 50],
+            populationFrequencies: [
+                "GNOMAD_EXOMES:ALL",
+                "GNOMAD_GENOMES:ALL",
+                "ESP6500:ALL",
+                "GONL:ALL",
+                "EXAC:ALL",
+                "1kG_phase3:ALL",
+                "MGP:ALL",
+                "DISCOVER:ALL",
+                "UK10K:ALL"
+            ],
         };
     }
 
