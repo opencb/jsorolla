@@ -607,7 +607,7 @@ export default class RgaVariantGrid extends LitElement {
                     active: true,
                     render: (variant, active, opencgaSession) => {
                         return html`
-                            <rga-variant-individual-grid .variantId="${variant?.id}" .opencgaSession="${opencgaSession}"></rga-variant-individual-grid>
+                            <rga-variant-individual-grid .query=${this.query} .variantId="${variant?.id}" .opencgaSession="${opencgaSession}"></rga-variant-individual-grid>
                         `;
                     }
                 },

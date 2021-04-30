@@ -37,6 +37,9 @@ export default class RgaVariantIndividualGrid extends LitElement {
             opencgaSession: {
                 type: Object
             },
+            query: {
+                type: Object
+            },
             variantId: {
                 type: Object
             },
@@ -67,7 +70,7 @@ export default class RgaVariantIndividualGrid extends LitElement {
             // this.renderTableLocale();
         }
 
-        if (changedProperties.has("variantId")) {
+        if (changedProperties.has("variantId") || changedProperties.has("query")) {
             // this.prepareData();
             this.renderTable();
         }
@@ -121,7 +124,7 @@ export default class RgaVariantIndividualGrid extends LitElement {
                         count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
                         // include: "genes,sampleId,phenotypes,disorders,motherId,motherSampleId,fatherId,fatherSampleId",
                         variants: this.variantId,
-                        ...this._query
+                        ...this.query
                     };
 
                     this.opencgaSession.opencgaClient.clinical().queryRgaIndividual(_filters)
@@ -180,6 +183,9 @@ export default class RgaVariantIndividualGrid extends LitElement {
         });
     }
 
+    /**
+     * @deprecated
+     */
     renderTableLocale() {
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
@@ -275,7 +281,6 @@ export default class RgaVariantIndividualGrid extends LitElement {
         return Object.values(_tableDataMap);
     }
 
-    // TODO only the first transcript is taken into account
     _initTableColumns() {
         return [
             {
@@ -355,7 +360,6 @@ export default class RgaVariantIndividualGrid extends LitElement {
     render() {
         return html`
             <h3 class="break-word">Individual presenting ${this.variantId}</h3>
-
             ${this.hiddenIndividuals > 0 ? html`
                 <div class="alert alert-warning"><i class="fas fa-3x fa-exclamation-circle align-middle"></i>  ${this.hiddenIndividuals} individual${this.hiddenIndividuals > 1 ? "s are" : " is"} hidden due to your permission settings.</div>
             ` : null}
