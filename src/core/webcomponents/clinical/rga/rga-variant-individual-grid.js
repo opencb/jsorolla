@@ -37,7 +37,7 @@ export default class RgaVariantIndividualGrid extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            variant: {
+            variantId: {
                 type: Object
             },
             config: {
@@ -63,7 +63,12 @@ export default class RgaVariantIndividualGrid extends LitElement {
         }
 
         if (changedProperties.has("variant")) {
-            this.prepareData();
+            // this.prepareData();
+            // this.renderTableLocale();
+        }
+
+        if (changedProperties.has("variantId")) {
+            // this.prepareData();
             this.renderTable();
         }
 
@@ -95,6 +100,87 @@ export default class RgaVariantIndividualGrid extends LitElement {
     }
 
     renderTable() {
+        this.table = $("#" + this.gridId);
+        this.table.bootstrapTable("destroy");
+        this.table.bootstrapTable({
+            // data: this.variant.individuals,
+            columns: this._initTableColumns(),
+            sidePagination: "server",
+            uniqueId: "id",
+            pagination: true,
+            paginationVAlign: "both",
+            // formatShowingRows: this.gridCommons.formatShowingRows,
+            gridContext: this,
+            formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+            ajax: async params => {
+                try {
+                    const _filters = {
+                        study: this.opencgaSession.study.fqn,
+                        limit: params.data.limit,
+                        skip: params.data.offset || 0,
+                        count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
+                        // include: "genes,sampleId,phenotypes,disorders,motherId,motherSampleId,fatherId,fatherSampleId",
+                        variants: this.variantId,
+                        ...this._query
+                    };
+
+                    this.opencgaSession.opencgaClient.clinical().queryRgaIndividual(_filters)
+                        .then(rgaIndividualResponse => {
+                            const individualIds = rgaIndividualResponse.getResults().map(individual => individual.id).filter(Boolean).join(",");
+                            this.opencgaSession.opencgaClient.clinical().search(
+                                {
+                                    individual: individualIds,
+                                    study: this.opencgaSession.study.fqn,
+                                    include: "id,proband.id,family.members"
+                                })
+                                .then(caseResponse => {
+                                    // NOTE we don't convert individuals nor clinical data in map first.
+                                    rgaIndividualResponse.getResults().forEach(individual => {
+                                        for (const clinicalAnalysis of caseResponse.getResults()) {
+                                            if (clinicalAnalysis.family.members.find(member => member.id === individual.id)) {
+                                                if (individual?.attributes?.OPENCGA_CLINICAL_ANALYSIS) {
+                                                    individual.attributes.OPENCGA_CLINICAL_ANALYSIS.push(clinicalAnalysis);
+                                                } else {
+                                                    individual.attributes = {
+                                                        OPENCGA_CLINICAL_ANALYSIS: [clinicalAnalysis]
+                                                    };
+                                                }
+                                            }
+                                        }
+                                    });
+                                    params.success(rgaIndividualResponse);
+                                })
+                                .catch(e => {
+                                    console.error(e);
+                                    params.error(e);
+                                });
+                        })
+                        .catch(e => {
+                            console.error(e);
+                            params.error(e);
+                        });
+
+                } catch (e) {
+                    console.error(e);
+                }
+            },
+            responseHandler: response => {
+                const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
+                return result.response;
+            },
+            onClickRow: (row, selectedElement, field) => {
+            },
+            onLoadSuccess: data => {
+                // this is not triggered in case of static data
+            },
+            onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse),
+            onPostBody: data => {
+            }
+
+        });
+    }
+
+    renderTableLocale() {
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
@@ -168,6 +254,7 @@ export default class RgaVariantIndividualGrid extends LitElement {
 
     /**
      * Update tableDataMap (containing all the individuals) with the clinical info just fetched.
+     * @deprecated
      */
     updateTableData(tableDataMap, clinicalData) {
         const _tableDataMap = tableDataMap;
@@ -202,23 +289,23 @@ export default class RgaVariantIndividualGrid extends LitElement {
             {
                 title: "knockoutType",
                 field: "_",
-                formatter: (_, row) => row.genes[0].transcripts[0].variants.find(variant => variant.id === this.variant.id)?.knockoutType
+                formatter: (_, row) => this.uniqueFieldFormatter(_, row, "knockoutType")
             },
             {
                 title: "Type",
                 field: "_",
-                formatter: (_, row) => row.genes[0].transcripts[0].variants.find(variant => variant.id === this.variant.id)?.type
+                formatter: (_, row) => this.uniqueFieldFormatter(_, row, "type")
             },
             {
                 title: "GT",
                 field: "_",
-                formatter: (_, row) => row.genes[0].transcripts[0].variants.find(variant => variant.id === this.variant.id)?.genotype
+                formatter: (_, row) => this.uniqueFieldFormatter(_, row, "genotype")
             },
             {
                 title: "Filter",
                 field: "_",
                 formatter: (_, row) => {
-                    const filters = row.genes[0].transcripts[0].variants.find(variant => variant.id === this.variant.id)?.filter;
+                    const filters = row.genes[0].transcripts[0].variants.find(variant => variant.id === this.variantId)?.filter;
                     if (filters) {
                         return filters.split(/[,;]/).map(filter => `<span class="badge">${filter}</span>`).join("");
                     }
@@ -227,7 +314,7 @@ export default class RgaVariantIndividualGrid extends LitElement {
             {
                 title: "Qual",
                 field: "_",
-                formatter: (_, row) => row.genes[0].transcripts[0].variants.find(variant => variant.id === this.variant.id)?.qual
+                formatter: (_, row) => row.genes[0].transcripts[0].variants.find(variant => variant.id === this.variantId)?.qual
             },
             {
                 title: "Case ID",
@@ -236,6 +323,22 @@ export default class RgaVariantIndividualGrid extends LitElement {
                 formatter: (value, row) => CatalogGridFormatter.caseFormatter(value, row, row.id, this.opencgaSession)
             }
         ];
+    }
+
+    uniqueFieldFormatter(value, row, field) {
+        const uniqueValues = new Set();
+        for (const gene of row.genes) {
+            for (const transcript of gene.transcripts) {
+                for (const variant of transcript.variants) {
+                    if (this.variantId === variant.id) {
+                        if (variant[field]) {
+                            uniqueValues.add(variant[field]);
+                        }
+                    }
+                }
+            }
+        }
+        return uniqueValues.size ? Array.from(uniqueValues.keys()).join(", ") : "-";
     }
 
     getVariantInfo(row) {
@@ -251,7 +354,7 @@ export default class RgaVariantIndividualGrid extends LitElement {
 
     render() {
         return html`
-            <h3 class="break-word">Individual presenting ${this.variant?.id}</h3>
+            <h3 class="break-word">Individual presenting ${this.variantId}</h3>
 
             ${this.hiddenIndividuals > 0 ? html`
                 <div class="alert alert-warning"><i class="fas fa-3x fa-exclamation-circle align-middle"></i>  ${this.hiddenIndividuals} individual${this.hiddenIndividuals > 1 ? "s are" : " is"} hidden due to your permission settings.</div>
