@@ -43,6 +43,9 @@ export default class RgaIndividualVariants extends LitElement {
             individualId: {
                 type: Object
             },
+            active: {
+                type: Boolean
+            },
             config: {
                 type: Object
             }
@@ -72,7 +75,7 @@ export default class RgaIndividualVariants extends LitElement {
             this.renderTableLocale();
         }
 
-        if (changedProperties.has("individualId")) {
+        if ((changedProperties.has("individualId") || changedProperties.has("active")) && this.active) {
             this.renderTable();
         }
 
@@ -89,7 +92,7 @@ export default class RgaIndividualVariants extends LitElement {
         }; // we want to support a query obj param both with or without study.
         // Checks if the component is not visible or the query hasn't changed
         if (!this.active || UtilsNew.objectCompare(this._query, this.prevQuery)) {
-            console.warn("query suppressed")
+            // console.warn("query suppressed")
             return;
         }
         this.prevQuery = {...this._query};
