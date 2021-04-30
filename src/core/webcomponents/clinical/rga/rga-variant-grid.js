@@ -611,7 +611,7 @@ export default class RgaVariantGrid extends LitElement {
                         `;
                     }
                 },
-                {
+                /*{
                     id: "allele-view",
                     name: "Allele Pairs",
                     render: (variant, active, opencgaSession) => {
@@ -619,7 +619,7 @@ export default class RgaVariantGrid extends LitElement {
                             <rga-variant-allele-pairs .variant="${variant}" .opencgaSession="${opencgaSession}"></rga-variant-allele-pairs>
                         `;
                     }
-                },
+                },*/
                 {
                     id: "clinvar-view",
                     name: "Clinical",
