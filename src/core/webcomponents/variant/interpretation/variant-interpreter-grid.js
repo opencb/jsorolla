@@ -981,10 +981,11 @@ export default class VariantInterpreterGrid extends LitElement {
     async onApplySettings(e) {
         try {
             this._config = {...this.getDefaultConfig(), ...this.opencgaSession.user.configs?.IVA?.interpreterGrid, ...this.__config};
-            // const userConfig = await this.opencgaSession.opencgaClient.updateUserConfigs({
-            //     ...this.opencgaSession.user.configs.IVA,
-            //     interpreterGrid: this._config
-            // });
+            const userConfig = await this.opencgaSession.opencgaClient.updateUserConfigs({
+                ...this.opencgaSession.user.configs.IVA,
+                interpreterGrid: this._config
+            });
+            this.opencgaSession.user.configs.IVA = userConfig.responses[0].results[0];
             this.renderVariants();
         } catch (e) {
             UtilsNew.notifyError(e);

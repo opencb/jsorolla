@@ -91,7 +91,7 @@ class AlignmentStatsView extends LitElement {
                             ${// Read column name from configuration if exist, otherwise use sampleId from the stats object
                                 this._config?.columns?.length 
                                     ? this._config.columns.map( col => html`<th class="${col.classes}">${col.name}</th>`)
-                                    : this.alignmentStats.map( stat => {
+                                    : this.alignmentStats?.map( stat => {
                                             let splitFields = stat.fileId.split(":");
                                             return html`<th>${splitFields[splitFields.length - 1]}</th>`;
                                         })
@@ -104,7 +104,7 @@ class AlignmentStatsView extends LitElement {
                                 <td>
                                     <label>${variable.name}</label>
                                 </td>
-                                ${this.alignmentStats.map(stat => html`<td>${stat[variable.field] ?? "N/A"}</td>`) }
+                                ${this.alignmentStats?.map(stat => html`<td>${stat[variable.field] ?? "N/A"}</td>`) }
                             </tr>
                         `)}
                     </tbody>

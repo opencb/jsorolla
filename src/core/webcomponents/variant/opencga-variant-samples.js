@@ -407,12 +407,12 @@ export default class OpencgaVariantSamples extends LitElement {
                         || (this.responseAttributes?.approximateCount && this.numSamples === this.responseAttributes.numTotalSamples)
                             ? html`
                                 Number of samples found is <span style="font-weight: bold">${this.numSamples}</span>, you can view all samples for this variant.
-                                Notice that you might now have permission to view all samples for any variant.
+                                Note that you might not have permission to view all samples for any variant.
                             `
                             : html`
                                 Number of samples found is <span style="font-weight: bold">${this.numSamples}</span>, and
-                                your user account has permission over <span style="font-weight: bold">${this.responseAttributes?.numTotalSamples} samples</span>.
-                                Notice that you might now have permission to view all samples for any variant.
+                                your user account has permission to view <span style="font-weight: bold">${this.responseAttributes?.numTotalSamples} samples</span>.
+                                Note that you might not have permission to view all samples for any variant.
                             `
                     }
                 </div>
