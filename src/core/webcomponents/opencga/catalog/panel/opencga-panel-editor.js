@@ -269,7 +269,6 @@ export default class OpencgaPanelEditor extends LitElement {
         const _this = this;
         $("#" + this._prefix + "PanelMutationsGrid").bootstrapTable("destroy");
         $("#" + this._prefix + "PanelMutationsGrid").bootstrapTable({
-            // url: opencgaHostUrl,
             columns: _this._createDefaultColumnsMutations(),
             data: _this.mutationsPanelEditor
         });
