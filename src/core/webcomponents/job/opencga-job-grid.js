@@ -126,7 +126,6 @@ export default class OpencgaJobGrid extends LitElement {
 
             this.table.bootstrapTable("destroy");
             this.table.bootstrapTable({
-                // url: opencgaHostUrl,
                 columns: _this._columns,
                 method: "get",
                 sidePagination: "server",

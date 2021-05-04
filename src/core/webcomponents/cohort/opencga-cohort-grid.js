@@ -122,7 +122,6 @@ export default class OpencgaCohortGrid extends LitElement {
             const _this = this;
             this.table.bootstrapTable("destroy");
             this.table.bootstrapTable({
-                //url: opencgaHostUrl,
                 columns: _this._columns,
                 method: "get",
                 sidePagination: "server",
