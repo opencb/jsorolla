@@ -203,7 +203,7 @@ export default class RgaBrowser extends LitElement {
             views: [
                 {
                     id: "gene-tab",
-                    name: "Gene",
+                    name: "Genes",
                     icon: "fa fa-table",
                     active: true
                 },
@@ -214,7 +214,7 @@ export default class RgaBrowser extends LitElement {
                 },
                 {
                     id: "variant-tab",
-                    name: "Variant",
+                    name: "Variants",
                     icon: "fas fa-table"
                 }
             ],
