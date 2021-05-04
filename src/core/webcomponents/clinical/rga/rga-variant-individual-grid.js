@@ -40,7 +40,7 @@ export default class RgaVariantIndividualGrid extends LitElement {
             query: {
                 type: Object
             },
-            variantId: {
+            variant: {
                 type: Object
             },
             config: {
@@ -65,12 +65,7 @@ export default class RgaVariantIndividualGrid extends LitElement {
         if (changedProperties.has("opencgaSession")) {
         }
 
-        if (changedProperties.has("variant")) {
-            // this.prepareData();
-            // this.renderTableLocale();
-        }
-
-        if (changedProperties.has("variantId") || changedProperties.has("query")) {
+        if (changedProperties.has("variant") || changedProperties.has("query")) {
             // this.prepareData();
             this.renderTable();
         }
@@ -102,7 +97,9 @@ export default class RgaVariantIndividualGrid extends LitElement {
         this.requestUpdate();
     }
 
-    renderTable() {
+    async renderTable() {
+        this.hiddenIndividuals = 0;
+        await this.requestUpdate();
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
@@ -123,7 +120,7 @@ export default class RgaVariantIndividualGrid extends LitElement {
                         skip: params.data.offset || 0,
                         count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
                         // include: "genes,sampleId,phenotypes,disorders,motherId,motherSampleId,fatherId,fatherSampleId",
-                        variants: this.variantId,
+                        variants: this.variant.id,
                         ...this.query
                     };
 
@@ -169,6 +166,8 @@ export default class RgaVariantIndividualGrid extends LitElement {
             },
             responseHandler: response => {
                 const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
+                this.hiddenIndividuals = this.variant.individualStats.count - result.response.total;
+                this.requestUpdate()
                 return result.response;
             },
             onClickRow: (row, selectedElement, field) => {
@@ -310,7 +309,7 @@ export default class RgaVariantIndividualGrid extends LitElement {
                 title: "Filter",
                 field: "_",
                 formatter: (_, row) => {
-                    const filters = row.genes[0].transcripts[0].variants.find(variant => variant.id === this.variantId)?.filter;
+                    const filters = row.genes[0].transcripts[0].variants.find(variant => variant.id === this.variant.id)?.filter;
                     if (filters) {
                         return filters.split(/[,;]/).map(filter => `<span class="badge">${filter}</span>`).join("");
                     }
@@ -319,7 +318,7 @@ export default class RgaVariantIndividualGrid extends LitElement {
             {
                 title: "Qual",
                 field: "_",
-                formatter: (_, row) => row.genes[0].transcripts[0].variants.find(variant => variant.id === this.variantId)?.qual
+                formatter: (_, row) => row.genes[0].transcripts[0].variants.find(variant => variant.id === this.variant.id)?.qual
             },
             {
                 title: "Case ID",
@@ -335,7 +334,7 @@ export default class RgaVariantIndividualGrid extends LitElement {
         for (const gene of row.genes) {
             for (const transcript of gene.transcripts) {
                 for (const variant of transcript.variants) {
-                    if (this.variantId === variant.id) {
+                    if (this.variant.id === variant.id) {
                         if (variant[field]) {
                             uniqueValues.add(variant[field]);
                         }
@@ -359,7 +358,7 @@ export default class RgaVariantIndividualGrid extends LitElement {
 
     render() {
         return html`
-            <h3 class="break-word">Individual presenting ${this.variantId}</h3>
+            <h3 class="break-word">Individual presenting ${this.variant.id}</h3>
             ${this.hiddenIndividuals > 0 ? html`
                 <div class="alert alert-warning"><i class="fas fa-3x fa-exclamation-circle align-middle"></i>  ${this.hiddenIndividuals} individual${this.hiddenIndividuals > 1 ? "s are" : " is"} hidden due to your permission settings.</div>
             ` : null}
