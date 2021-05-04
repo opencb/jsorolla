@@ -26,6 +26,8 @@ import "../../commons/filters/consequence-type-select-filter.js";
 import "../../commons/filters/clinvar-accessions-filter.js";
 import "../../commons/filters/individual-id-autocomplete.js";
 import "../../commons/filters/population-frequency-filter.js";
+import "../../commons/filters/checkbox-field-filter.js";
+
 
 export default class RgaGeneFilter extends LitElement {
 

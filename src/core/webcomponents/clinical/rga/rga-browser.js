@@ -70,7 +70,7 @@ export default class RgaBrowser extends LitElement {
         };
         this.activeTab = {"gene-tab": true};
         this.detail = {};
-        this.resource = "rga";
+        this.resource = "RGA";
 
         // LoF as defaultQuery
         this.defaultQuery = {
