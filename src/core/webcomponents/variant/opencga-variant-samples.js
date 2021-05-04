@@ -236,28 +236,25 @@ export default class OpencgaVariantSamples extends LitElement {
                             individual: sampleChunk.map(sample => sample.individualId).join(","),
                             limit: batch,
                             study: this.opencgaSession.study.fqn,
-                            exclude: "proband.samples,interpretation,files"
+                            include: "id,proband.id,family.members"
                         });
-                    // We store the Case ID in the individual attribute
-                    // Note clinical search results are not sorted
-                    // FIXME at the moment we only search by proband
-                    const map = {};
-                    for (const clinicalAnalysis of caseResponse.responses[0].results) {
-                        if (!map[clinicalAnalysis.proband.id]) {
-                            map[clinicalAnalysis.proband.id] = [];
+                    sampleResponse.getResults().forEach(sample => {
+                        for (const clinicalAnalysis of caseResponse.getResults()) {
+                            if (clinicalAnalysis.family.members.find(member => member.id === sample.individualId)) {
+                                if (sample?.attributes?.OPENCGA_CLINICAL_ANALYSIS) {
+                                    sample.attributes.OPENCGA_CLINICAL_ANALYSIS.push(clinicalAnalysis);
+                                } else {
+                                    sample.attributes.OPENCGA_CLINICAL_ANALYSIS = [clinicalAnalysis];
+                                }
+                            }
                         }
-                        map[clinicalAnalysis.proband.id].push(clinicalAnalysis);
-                    }
-                    for (const sample of sampleResponse.responses[0].results) {
-                        sample.attributes.OPENCGA_CLINICAL_ANALYSIS = map[sample.individualId];
-                    }
+                    });
                     samples.push(...sampleChunk);
                 }
-
                 this.requestUpdate();
-
                 return samples;
             } else {
+                this.requestUpdate();
                 await Promise.reject("No samples found");
             }
         } catch (e) {
