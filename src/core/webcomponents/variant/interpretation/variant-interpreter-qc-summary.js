@@ -90,12 +90,26 @@ class VariantInterpreterQcSummary extends LitElement {
     clinicalAnalysisObserver() {
         if (this.opencgaSession && this.clinicalAnalysis) {
             let somaticSample = this.clinicalAnalysis.proband?.samples.find(s => s.somatic);
+            let germlineSample = this.clinicalAnalysis.proband?.samples.find(s => !s.somatic);
             if (somaticSample) {
-                let bamFile = somaticSample.fileIds.find(f => f.endsWith(".bam"));
-                this.opencgaSession.opencgaClient.files().info(bamFile, {study: this.opencgaSession.study.fqn})
+                let bamFile = [somaticSample.fileIds.find(f => f.endsWith(".bam"))];
+                if (germlineSample) {
+                    let germlineBamFile = germlineSample.fileIds.find(f => f.endsWith(".bam"));
+                    bamFile.push(germlineBamFile);
+                }
+
+                this.opencgaSession.opencgaClient.files().info(bamFile.join(","), {study: this.opencgaSession.study.fqn})
                     .then(response => {
                         let annotationSet = response.responses[0].results[0].annotationSets.find(annotSet => annotSet.variableSetId === "bamQcStats");
-                        this.clinicalAnalysis.annotations = annotationSet?.annotations;
+                        annotationSet.annotations.file = bamFile[0];
+                        if (germlineSample) {
+                            let germlineAnnotationSet = response.responses[0].results[1].annotationSets.find(annotSet => annotSet.variableSetId === "bamQcStats");
+                            germlineAnnotationSet.annotations.file = bamFile[1];
+                            this.clinicalAnalysis.annotations = [annotationSet?.annotations, germlineAnnotationSet?.annotations];
+                        } else {
+                            this.clinicalAnalysis.annotations = [annotationSet?.annotations];
+                        }
+                        // this.clinicalAnalysis.annotations = annotationSet?.annotations;
                         this._config = {...this.getDefaultConfig(), ...this.config};
                         this.requestUpdate();
                     })
@@ -166,23 +180,47 @@ class VariantInterpreterQcSummary extends LitElement {
                     elements: [
                         {
                             name: "SD insert size",
-                            field: "annotations.sdInsertSize",
-                            type: "basic"
-                        },
-                        {
-                            name: "Average insert size",
-                            field: "annotations.avgInsertSize",
-                            type: "basic"
-                        },
-                        {
-                            name: "Duplicate read rate",
-                            field: "annotations.duplicateReadRate",
-                            type: "basic"
-                        },
-                        {
-                            name: "Average sequence depth",
-                            field: "annotations.avgSequenceDepth",
-                            type: "basic"
+                            field: "annotations",
+                            type: "table",
+                            display: {
+                                columns: [
+                                    {
+                                        name: "BAM File",
+                                        type: "custom",
+                                        display: {
+                                            render: (data) => html`<div><span style="font-weight: bold">${data.file}</span></div>`
+                                        }
+                                    },
+                                    {
+                                        name: "SD insert size",
+                                        type: "custom",
+                                        display: {
+                                            render: (data) => html`<div>${data.sdInsertSize}</div>`
+                                        }
+                                    },
+                                    {
+                                        name: "Average insert size",
+                                        type: "custom",
+                                        display: {
+                                            render: (data) => html`<div>${data.avgInsertSize}</div>`
+                                        }
+                                    },
+                                    {
+                                        name: "Duplicate read rate",
+                                        type: "custom",
+                                        display: {
+                                            render: (data) => html`<div>${data.duplicateReadRate}</div>`
+                                        }
+                                    },
+                                    {
+                                        name: "Average sequence depth",
+                                        type: "custom",
+                                        display: {
+                                            render: (data) => html`<div>${data.avgSequenceDepth}</div>`
+                                        }
+                                    }
+                                ]
+                            }
                         },
                     ]
                 },
