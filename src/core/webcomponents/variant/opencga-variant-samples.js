@@ -169,6 +169,7 @@ export default class OpencgaVariantSamples extends LitElement {
 
             const variantResponse = await this.opencgaSession.opencgaClient.variants().querySample(query);
             const result = variantResponse.getResult(0);
+            this.numUserTotalSamples = 0;
 
             // Get the total number of samples
             // TODO count only the genotypes filtered
@@ -399,8 +400,7 @@ export default class OpencgaVariantSamples extends LitElement {
                 ${this.numSamples !== this.numUserTotalSamples ?
                     html`
                         <div class="alert alert-warning"><i class="fas fa-3x fa-exclamation-circle align-middle"></i>
-                            Number of samples found is <span style="font-weight: bold">${this.numSamples}</span>
-                            ${this.approximateCount === true ? html`(<i>please note this is an estimated number</i>)` : ""}, and
+                            Number of samples found is <span style="font-weight: bold">${this.numSamples}</span>${this.approximateCount === true ? html`(<i>pleasenote this is an estimated number</i>)` : ""}, and
                             your user account has permission to view <span style="font-weight: bold">${this.numUserTotalSamples} samples</span>.
                             Note that you might not have permission to view all samples for any variant.
                         </div>` :
