@@ -18,12 +18,8 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../utilsNew.js";
 import GridCommons from "../../commons/grid-commons.js";
 import CatalogGridFormatter from "../../commons/catalog-grid-formatter.js";
-import PolymerUtils from "../../PolymerUtils.js";
-import "./rga-gene-grid.js";
 
-/**
- * @deprecated
- */
+
 export default class RgaGeneView extends LitElement {
 
     constructor() {
@@ -40,6 +36,9 @@ export default class RgaGeneView extends LitElement {
             opencgaSession: {
                 type: Object
             },
+            query: {
+                type: Object
+            },
             active: {
                 type: Boolean
             },
@@ -51,201 +50,332 @@ export default class RgaGeneView extends LitElement {
 
     _init() {
         this._prefix = "rga-g-" + UtilsNew.randomString(6) + "_";
+        this.gridId = this._prefix + "RgaGeneBrowserGrid";
+        this.prevQuery = {};
+        this._query = {};
     }
 
     connectedCallback() {
         super.connectedCallback();
         this._config = {...this.getDefaultConfig(), ...this.config};
+        this.gridCommons = new GridCommons(this.gridId, this, this._config);
     }
 
     firstUpdated(_changedProperties) {
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("opencgaSession") ||
-            changedProperties.has("config") ||
-            changedProperties.has("active")) {
+        if ((changedProperties.has("opencgaSession") || changedProperties.has("query") || changedProperties.has("config") || changedProperties.has("active")) && this.active) {
             this.propertyObserver();
         }
     }
 
     propertyObserver() {
+        // With each property change we must updated config and create the columns again. No extra checks are needed.
+        this._config = Object.assign(this.getDefaultConfig(), this.config);
+        this._columns = this._initTableColumns();
+        // Config for the grid toolbar
+        this.toolbarConfig = {
+            columns: [
+                {
+                    title: "Gene",
+                    field: "name"
+                }, {
+
+                    title: "Recessive Individuals",
+                    field: "individualStats.count,individualStats.numHomAlt,individualStats.bothParents.numCompHet,individualStats.singleParent.numCompHet,individualStats.missingParents.numCompHet"
+                }, {
+
+                    title: "Recessive Variants",
+                    field: "variantStats.count,variantStats.numHomAlt,variantStats.numCompHet"
+                }
+            ]
+        };
+        this.requestUpdate();
+        this.renderTable();
+    }
+
+    renderTable() {
+        this._query = {...this.query, study: this.opencgaSession.study.fqn}; // we want to support a query obj param both with or without study.
+        // Checks if the component is not visible or the query hasn't changed
+        if (!this.active || UtilsNew.objectCompare(this._query, this.prevQuery)) {
+            return;
+        }
+        this.prevQuery = {...this._query};
+
+        this.table = $("#" + this.gridId);
+        this.table.bootstrapTable("destroy");
+        this.table.bootstrapTable({
+            columns: this._columns,
+            method: "get",
+            sidePagination: "server",
+            uniqueId: "id",
+            // Table properties
+            pageSize: this._config.pageSize,
+            pageList: this._config.pageList,
+            pagination: this._config.pagination,
+            paginationVAlign: "both",
+            formatShowingRows: this.gridCommons.formatShowingRows,
+            showExport: this._config.showExport,
+            detailView: this._config.detailView,
+            detailFormatter: this._config.detailFormatter,
+            formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+            ajax: async params => {
+                const _filters = {
+                    study: this.opencgaSession.study.fqn,
+                    limit: params.data.limit,
+                    skip: params.data.offset || 0,
+                    count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
+                    ...this._query
+                };
+                this.opencgaSession.opencgaClient.clinical().summaryRgaGene(_filters)
+                    .then(res => {
+                        params.success(res);
+                    })
+                    .catch(e => {
+                        console.error(e);
+                        params.error(e);
+                    });
+            },
+            responseHandler: response => {
+                const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
+                return result.response;
+            },
+            onClickRow: (row, selectedElement, field) => {
+                console.log(row);
+                // console.log("variant facet", this.restResponse.getResult(1).buckets.find(gene => gene.value === row.value))
+                this.gridCommons.onClickRow(row.id, row, selectedElement);
+            },
+            onCheck: (row, $element) => this.gridCommons.onCheck(row.id, row),
+            onLoadSuccess: data => this.gridCommons.onLoadSuccess(data, 1),
+            onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse)
+        });
+    }
+
+    /**
+     * @deprecated
+     */
+    responseHandler(response) {
+        const r = [];
+        if (response.getResults().length === 2) {
+            for (const individualFacetGene of response.getResult(0).buckets) {
+                // console.log("individualFacetGene", individualFacetGene)
+                // const individual_HOM_ALT = individualFacetGene.facetFields.find(facet => facet.name === "knockoutTypes").buckets.find(bucket => bucket.value === "HOM_ALT");
+                // const individual_COMP_HET = individualFacetGene.facetFields.find(facet => facet.name === "knockoutTypes").buckets.find(bucket => bucket.value === "COMP_HET");
+                // const variant_HOM_ALT = variantFacetGene.facetFields.find(facet => facet.name === "knockoutTypes").buckets.find(bucket => bucket.value === "HOM_ALT");
+                // const variant_COMP_HET = variantFacetGene.facetFields.find(facet => facet.name === "knockoutTypes").buckets.find(bucket => bucket.value === "COMP_HET");
+
+                const individualKnockoutTypes = individualFacetGene.facetFields.find(facet => facet.name === "knockoutTypes");
+                const variantFacetGene = response.getResult(0).buckets.find(gene => gene.name === individualFacetGene.name);
+                const variantKnockoutTypes = variantFacetGene.facetFields.find(facet => facet.name === "knockoutTypes");
+
+                const entry = {
+                    name: individualFacetGene.value,
+                    individualFacet: {
+                        HOM_ALT: individualKnockoutTypes.buckets.find(bucket => bucket.value === "HOM_ALT"),
+                        COMP_HET: individualKnockoutTypes.buckets.find(bucket => bucket.value === "COMP_HET"),
+                        count: individualKnockoutTypes.count
+                    },
+                    variantFacet: {
+                        HOM_ALT: variantKnockoutTypes.buckets.find(bucket => bucket.value === "HOM_ALT"),
+                        COMP_HET: variantKnockoutTypes.buckets.find(bucket => bucket.value === "COMP_HET"),
+                        count: variantKnockoutTypes.count
+                    }
+                };
+                r.push(entry);
+
+            }
+            return {
+                total: response.getResult(0)?.count ?? 0,
+                rows: r
+            };
+        } else {
+            // no results
+            return [];
+        }
+    }
+
+    onColumnChange(e) {
+        // console.log("onColumnChange", e);
+        this.gridCommons.onColumnChange(e);
+    }
+
+    sampleFormatter(value, row) {
+        if (UtilsNew.isNotUndefined(row.samples)) {
+            return row.samples.length;
+        } else {
+            return 0;
+        }
+    }
+
+    _initTableColumns() {
+        return [
+            [
+                {
+                    title: "Gene",
+                    field: "name",
+                    rowspan: 2,
+                    halign: "center"
+                },
+                {
+                    title: "Recessive Individuals",
+                    colspan: 5
+                },
+                {
+                    title: "Recessive Variants",
+                    colspan: 3
+                }
+            ],
+            [
+                {
+                    title: "Total",
+                    field: "individualStats.count",
+                    formatter: value => value > 0 ? value : "-"
+                },
+                {
+                    title: "Homozygous",
+                    field: "individualStats.numHomAlt",
+                    formatter: value => value > 0 ? value : "-"
+
+                },
+                /*{
+                    title: "CH Tot",
+                    field: "ind_ch",
+                    formatter: (_, row) => {
+                        /!* const knockoutTypes = row.facetFields.find(facetField => facetField.name === "knockoutTypes");
+                        return knockoutTypes.buckets.find(bucket => bucket.value === "COMP_HET")?.count ?? "-";*!/
+                        return row.individualFacet.COMP_HET?.count;
+                    }
+                },*/
+                {
+                    title: "CH - Definite",
+                    field: "individualStats.bothParents.numCompHet",
+                    formatter: value => value > 0 ? value : "-"
+                },
+                {
+                    title: "CH - Probable",
+                    field: "individualStats.singleParent.numCompHet",
+                    formatter: value => value > 0 ? value : "-"
+                },
+                {
+                    title: "CH - Possible",
+                    field: "individualStats.missingParents.numCompHet",
+                    formatter: value => value > 0 ? value : "-"
+                },
+                // Recessive Variants
+                {
+                    title: "Total",
+                    field: "variantStats.count",
+                    formatter: value => value > 0 ? value : "-"
+                },
+                {
+                    title: "Homozygous",
+                    field: "variantStats.numHomAlt",
+                    formatter: value => value > 0 ? value : "-"
+                },
+                {
+                    title: "CH",
+                    field: "variantStats.numCompHet",
+                    formatter: value => value > 0 ? value : "-"
+                }
+            ]
+        ];
+    }
+
+    getConfidenceCount(row, value) {
+        return row.individualFacet.COMP_HET?.facetFields?.find(facet => facet.name === "numParents").buckets.find(bucket => bucket.value === value)?.count;
+    }
+
+    /**
+     * @deprecated
+     */
+    _getConfidenceCount(facetFields, value) {
+        // TODO note this code implies 4 nested loops
+        const knockoutTypes = facetFields.find(facetField => facetField.name === "knockoutTypes");
+        const CHFacet = knockoutTypes?.buckets?.find(bucket => bucket.value === "COMP_HET");
+        const numParentFacet = CHFacet?.facetFields?.find(facetField => facetField.name === "numParents");
+        const numParents = numParentFacet?.buckets?.find(bucket => bucket.value === value);
+        return numParents?.count ?? "-";
     }
 
     async onDownload(e) {
-
+        this.toolbarConfig = {...this.toolbarConfig, downloading: true};
+        await this.requestUpdate();
+        const params = {
+            study: this.opencgaSession.study.fqn,
+            limit: 100,
+            count: false,
+            ...this._query
+        };
+        this.opencgaSession.opencgaClient.clinical().summaryRgaGene(params)
+            .then(r => {
+                const result = r.getResults();
+                if (result.length) {
+                    if (e.detail.option.toLowerCase() === "tab") {
+                        const dataString = [
+                            [
+                                "Gene",
+                                "Individuals_Total",
+                                "Individuals_Total_HOM",
+                                "Individuals_CH_Definite",
+                                "Individuals_CH_Probable",
+                                "Individuals_CH_Possible",
+                                "Variants_Total",
+                                "Variants_HOM",
+                                "Variants_CH"
+                            ].join("\t"),
+                            ...result.map(_ => [
+                                _.name,
+                                _.individualStats.count,
+                                _.individualStats.numHomAlt,
+                                _.individualStats.bothParents.numCompHet,
+                                _.individualStats.singleParent.numCompHet,
+                                _.individualStats.missingParents.numCompHet,
+                                _.variantStats.count,
+                                _.variantStats.numHomAlt,
+                                _.variantStats.numCompHet
+                            ].join("\t"))];
+                        UtilsNew.downloadData(dataString, "rga_gene_" + this.opencgaSession.study.id + ".txt", "text/plain");
+                    } else {
+                        UtilsNew.downloadData(JSON.stringify(result, null, "\t"), "rga_gene_" + this.opencgaSession.study.id + ".json", "application/json");
+                    }
+                } else {
+                    console.error("Error in result format");
+                }
+            })
+            .catch(response => {
+                console.log(response);
+                UtilsNew.notifyError(response);
+            })
+            .finally(() => {
+                this.toolbarConfig = {...this.toolbarConfig, downloading: false};
+                this.requestUpdate();
+            });
     }
 
-    onFilterChange(e) {
-        this.query = e.detail;
-    }
-
-    onQueryFilterChange(e) {
-        this.preparedQuery = e.detail.query;
-        this.requestUpdate();
-    }
-
-    onActiveFilterChange(e) {
-        this.preparedQuery = {study: this.opencgaSession.study.fqn, ...e.detail};
-        this.query = {study: this.opencgaSession.study.fqn, ...e.detail};
-    }
-
-    onActiveFilterClear() {
-        console.log("onActiveFilterClear");
-        this.query = {study: this.opencgaSession.study.fqn};
-        this.preparedQuery = {...this.query};
-    }
-
-    onFacetQueryChange(e) {
-        this.selectedFacetFormatted = e.detail.value;
-        this.requestUpdate();
-    }
-
-    onActiveFacetChange(e) {
-        this.selectedFacet = {...e.detail};
-        this.onRun(); // TODO the query should be repeated every action on active-filter (delete, clear, load from Saved filter)
-        this.requestUpdate();
-    }
-
-    onActiveFacetClear(e) {
-        this.selectedFacet = {};
-        this.onRun();
-        this.requestUpdate();
-    }
-
-    onClickRow(e) {
-        this.detail = e.detail.row;
-        this.requestUpdate();
-    }
 
     getDefaultConfig() {
-        // return BrowserConf.config;
         return {
-            title: "Recessive Gene Analysis Browser",
-            icon: "fas fa-dna",
-            active: false,
-            searchButtonText: "Search",
-            filter: {
-                title: "Filter",
-                activeFilters: {
-                    alias: {
-                        // Example:
-                        // "region": "Region",
-                        // "gene": "Gene",
-                        "ct": "Consequence Types",
-                    },
-                    complexFields: [],
-                    hiddenFields: []
-                },
-                sections: [ // sections and subsections, structure and order is respected
-                    {
-                        title: "Filters",
-                        collapsed: false,
-                        fields: [
-                            {
-                                id: "id",
-                                name: "Id",
-                                description: ""
-                            }
-                        ]
-                    }
-                ],
-                examples: [
-                    {
-                        id: "BRCA2 missense variants",
-                        active: false,
-                        query: {
-                            gene: "BRCA2",
-                            ct: "missense_variant"
-                        }
-                    }
-                ],
-                result: {
-                    grid: {}
-                },
-                detail: {
-                    title: "Selected Variant",
-                    views: [
-                        {
-                            id: "annotationSummary",
-                            title: "Summary",
-                            active: true
-                        }
-                    ]
-                }
-            },
-            aggregation: {
-                title: "Aggregation",
-                default: [],
-                sections: [
-                ]
-            }
+            pagination: true,
+            pageSize: 10,
+            pageList: [10, 25, 50],
+            showExport: false
         };
     }
 
     render() {
         return html`
-            <div class="row">
-                <div class="col-md-2">
-                    <div class="search-button-wrapper">
-                        <button type="button" class="btn btn-primary ripple" @click="${this.onRun}">
-                            <i class="fa fa-arrow-circle-right" aria-hidden="true"></i> ${this._config.searchButtonText || "Run"}
-                        </button>
-                    </div>
-                    <ul class="nav nav-tabs left-menu-tabs" role="tablist">
-                        <li role="presentation" class="active">
-                            <a href="#filters_tab" aria-controls="profile" role="tab" data-toggle="tab">Filters</a>
-                        </li>
-                        ${this._config.aggregation ? html`<li role="presentation"><a href="#facet_tab" aria-controls="home" role="tab" data-toggle="tab">Aggregation</a></li>` : null}
-                    </ul>
-                    
-                    <div class="tab-content">
-                        <div role="tabpanel" class="tab-pane active" id="filters_tab">
-                            <rga-gene-filter
-                                    .opencgaSession="${this.opencgaSession}"
-                                    .config="${this._config.filter}"
-                                    .query="${this.query}"
-                                    .searchButton="${false}"
-                                    @queryChange="${this.onQueryFilterChange}"
-                                    @querySearch="${this.onQueryFilterSearch}">
-                            </rga-gene-filter>                                                               
-                        </div>
-                        
-                        ${this._config.aggregation ? html`
-                            <div role="tabpanel" class="tab-pane" id="facet_tab" aria-expanded="true">
-                                <facet-filter2 .config="${this._config.aggregation}"
-                                              .selectedFacet="${this.selectedFacet}"
-                                              @facetQueryChange="${this.onFacetQueryChange}">
-                                </facet-filter2>
-                            </div>
-                        ` : null}
-                    </div>
-                </div>
+            <opencb-grid-toolbar
+                .config="${this.toolbarConfig}"
+                 @columnChange="${this.onColumnChange}"
+                 @download="${this.onDownload}">
+            </opencb-grid-toolbar>
 
-                <div class="col-md-10">
-                    <div>
-                        <opencga-active-filters .resource="${this.resource}"
-                                                .opencgaSession="${this.opencgaSession}"
-                                                .defaultStudy="${this.opencgaSession?.study?.fqn}"
-                                                .query="${this.preparedQuery}"
-                                                .refresh="${this.executedQuery}"
-                                                .facetQuery="${this.selectedFacetFormatted}"
-                                                .alias="${this.activeFilterAlias}"
-                                                .config="${this._config?.activeFilters}"
-                                                .filters="${this._config?.filter?.examples}"
-                                                @activeFacetChange="${this.onActiveFacetChange}"
-                                                @activeFacetClear="${this.onActiveFacetClear}"
-                                                @activeFilterChange="${this.onActiveFilterChange}"
-                                                @activeFilterClear="${this.onActiveFilterClear}">
-                        </opencga-active-filters>
-
-                        <div class="main-view">
-                            <rga-gene-grid .opencgaSession="${this.opencgaSession}" .active="${true}"></rga-gene-grid>
-                        </div>
-                        <div class="v-space"></div>
-                    </div>
-                </div>
+            <div id="${this._prefix}GridTableDiv">
+                <table id="${this._prefix}RgaGeneBrowserGrid"></table>
             </div>
+            
+
         `;
     }
 

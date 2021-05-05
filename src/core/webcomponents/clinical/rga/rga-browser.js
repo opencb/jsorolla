@@ -21,12 +21,9 @@ import "../../commons/filters/select-field-filter.js";
 import "../../loading-spinner.js";
 import "../../commons/tool-header.js";
 import "./rga-gene-view.js";
-// import "./rga-individual-view.js";
-// import "./rga-variant-view.js";
-import "./rga-gene-grid.js";
-import "./rga-gene-filter.js";
-import "./rga-individual-grid.js";
-import "./rga-variant-grid.js";
+import "./rga-filter.js";
+import "./rga-individual-view.js";
+import "./rga-variant-view.js";
 
 export default class RgaBrowser extends LitElement {
 
@@ -318,7 +315,7 @@ export default class RgaBrowser extends LitElement {
                         id: "BRCA2 missense variants",
                         active: false,
                         query: {
-                            gene: "BRCA2",
+                            geneName: "BRCA2",
                             ct: "missense_variant"
                         }
                     }
@@ -371,7 +368,7 @@ export default class RgaBrowser extends LitElement {
                         
                         <div class="tab-content">
                             <div role="tabpanel" class="tab-pane active" id="filters_tab">
-                                <rga-gene-filter
+                                <rga-filter
                                         .opencgaSession="${this.opencgaSession}"
                                         .cellbaseClient="${this.cellbaseClient}"
                                         .config="${this._config.filter}"
@@ -379,7 +376,7 @@ export default class RgaBrowser extends LitElement {
                                         .searchButton="${false}"
                                         @queryChange="${this.onQueryFilterChange}"
                                         @querySearch="${this.onQueryFilterSearch}">
-                                </rga-gene-filter>
+                                </rga-filter>
                             </div>
                             
                         </div>
@@ -412,15 +409,15 @@ export default class RgaBrowser extends LitElement {
 
                             <div class="main-view">
                                 <div id="gene-tab" class="content-tab active">
-                                    <rga-gene-grid .query=${this.executedQuery} .opencgaSession="${this.opencgaSession}" .active="${this.activeTab["gene-tab"]}"></rga-gene-grid>
+                                    <rga-gene-view .query=${this.executedQuery} .opencgaSession="${this.opencgaSession}" .active="${this.activeTab["gene-tab"]}"></rga-gene-view>
                                 </div>
 
                                 <div id="individual-tab" class="content-tab">
-                                    <rga-individual-grid .query=${this.executedQuery} .opencgaSession="${this.opencgaSession}" .active="${this.activeTab["individual-tab"]}"></rga-individual-grid>
+                                    <rga-individual-view .query=${this.executedQuery} .opencgaSession="${this.opencgaSession}" .active="${this.activeTab["individual-tab"]}"></rga-individual-view>
                                 </div>
 
                                 <div id="variant-tab" class="content-tab">
-                                    <rga-variant-grid .query=${this.executedQuery} .opencgaSession="${this.opencgaSession}" .cellbaseClient=${this.cellbaseClient} .active="${this.activeTab["variant-tab"]}"></rga-variant-grid>
+                                    <rga-variant-view .query=${this.executedQuery} .opencgaSession="${this.opencgaSession}" .cellbaseClient=${this.cellbaseClient} .active="${this.activeTab["variant-tab"]}"></rga-variant-view>
                                 </div>
                                 
                             </div>

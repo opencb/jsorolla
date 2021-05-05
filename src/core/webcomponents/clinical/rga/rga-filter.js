@@ -29,7 +29,7 @@ import "../../commons/filters/population-frequency-filter.js";
 import "../../commons/filters/checkbox-field-filter.js";
 
 
-export default class RgaGeneFilter extends LitElement {
+export default class RgaFilter extends LitElement {
 
     constructor() {
         super();
@@ -241,4 +241,4 @@ export default class RgaGeneFilter extends LitElement {
 
 }
 
-customElements.define("rga-gene-filter", RgaGeneFilter);
+customElements.define("rga-filter", RgaFilter);
