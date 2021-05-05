@@ -16,8 +16,6 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../utilsNew.js";
-import GridCommons from "../../commons/grid-commons.js";
-import CatalogGridFormatter from "../../commons/catalog-grid-formatter.js";
 import "../../commons/filters/text-field-filter.js";
 import "../../commons/filters/feature-filter.js";
 import "../../commons/filters/variant-type-filter.js";
@@ -27,6 +25,7 @@ import "../../commons/filters/clinvar-accessions-filter.js";
 import "../../commons/filters/individual-id-autocomplete.js";
 import "../../commons/filters/population-frequency-filter.js";
 import "../../commons/filters/checkbox-field-filter.js";
+import "../../commons/filters/region-filter.js";
 
 
 export default class RgaFilter extends LitElement {
@@ -74,7 +73,7 @@ export default class RgaFilter extends LitElement {
     }
 
     firstUpdated(_changedProperties) {
-        //super.firstUpdated(_changedProperties);
+        // super.firstUpdated(_changedProperties);
         UtilsNew.initTooltip(this);
     }
 
@@ -163,7 +162,7 @@ export default class RgaFilter extends LitElement {
     _createSubSection(subsection) {
         let content = "";
         switch (subsection.id) {
-            case "id":
+            case "variants":
                 content = html`<text-field-filter placeholder="${subsection.placeholder}" .value="${this.preparedQuery[subsection.id]}" .separator="${",;"}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></text-field-filter>`;
                 break;
             case "geneName":
@@ -200,6 +199,9 @@ export default class RgaFilter extends LitElement {
                         </div>
                     </div>
                 `;
+                break;
+            case "region":
+                content = html`<region-filter  .cellbaseClient="${this.cellbaseClient}" .region="${this.preparedQuery.region}" @filterChange="${e => this.onFilterChange("region", e.detail.value)}"></region-filter>`;
                 break;
             case "individualId":
                 content = this.rgaIndividualFilter(subsection);

@@ -284,9 +284,17 @@ export default class RgaBrowser extends LitElement {
                                 description: "Cohort selection"
                             },*/
                             {
+                                id: "variants",
+                                name: "Variant Id"
+                            },
+                            {
+                                id: "region",
+                                name: "Genomic Location",
+                                tooltip: tooltips.region
+                            },
+                            {
                                 id: "populationFrequencyAlt",
                                 name: "Select Population Frequency",
-                                type: "POPULATION_FREQUENCY_FILTER",
                                 onlyPopFreqAll: true
                             },
                             {
@@ -305,7 +313,6 @@ export default class RgaBrowser extends LitElement {
                             {
                                 id: "clinicalSignificance",
                                 name: "Clinical Significance",
-                                type: "CLINVAR_ACCESSION_FILTER"
                             }
                         ]
                     }
