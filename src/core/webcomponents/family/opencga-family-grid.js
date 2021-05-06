@@ -146,7 +146,6 @@ export default class OpencgaFamilyGrid extends LitElement {
                                     .then(caseResponse => {
                                         // We store the Case ID in the individual attribute
                                         // Note clinical search results are not sorted
-                                        // FIXME at the moment we only search by proband
                                         const map = {};
                                         for (const clinicalAnalysis of caseResponse.responses[0].results) {
                                             if (!map[clinicalAnalysis.family.id]) {
