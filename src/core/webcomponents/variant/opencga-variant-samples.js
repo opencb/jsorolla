@@ -230,7 +230,7 @@ export default class OpencgaVariantSamples extends LitElement {
                         });
                     sampleResponse.getResults().forEach(sample => {
                         for (const clinicalAnalysis of caseResponse.getResults()) {
-                            if (clinicalAnalysis.family.members.find(member => member.id === sample.individualId)) {
+                            if (clinicalAnalysis?.proband?.id === sample.individualId || clinicalAnalysis?.family?.members.find(member => member.id === sample.individualId)) {
                                 if (sample?.attributes?.OPENCGA_CLINICAL_ANALYSIS) {
                                     sample.attributes.OPENCGA_CLINICAL_ANALYSIS.push(clinicalAnalysis);
                                 } else {

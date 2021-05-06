@@ -141,21 +141,23 @@ export default class OpencgaFamilyGrid extends LitElement {
                                     {
                                         family: familyIds,
                                         study: this.opencgaSession.study.fqn,
-                                        exclude: "proband.samples,family.members,interpretation,files"
+                                        include: "id,proband.id,family.members,family.id"
                                     })
                                     .then(caseResponse => {
-                                        // We store the Case ID in the individual attribute
-                                        // Note clinical search results are not sorted
-                                        const map = {};
-                                        for (const clinicalAnalysis of caseResponse.responses[0].results) {
-                                            if (!map[clinicalAnalysis.family.id]) {
-                                                map[clinicalAnalysis.family.id] = [];
+                                        familyResponse.getResults().forEach(family => {
+                                            for (const clinicalAnalysis of caseResponse.getResults()) {
+                                                console.log("caseResponse.getResults()", caseResponse.getResults())
+                                                if (clinicalAnalysis?.family?.id === family.id) {
+                                                    if (family?.attributes?.OPENCGA_CLINICAL_ANALYSIS) {
+                                                        family.attributes.OPENCGA_CLINICAL_ANALYSIS.push(clinicalAnalysis);
+                                                    } else {
+                                                        family.attributes = {
+                                                            OPENCGA_CLINICAL_ANALYSIS: [clinicalAnalysis]
+                                                        };
+                                                    }
+                                                }
                                             }
-                                            map[clinicalAnalysis.family.id].push(clinicalAnalysis);
-                                        }
-                                        for (const family of familyResponse.responses[0].results) {
-                                            family.attributes.OPENCGA_CLINICAL_ANALYSIS = map[family.id];
-                                        }
+                                        });
                                         params.success(familyResponse);
                                     })
                                     .catch(e => {
