@@ -146,7 +146,6 @@ export default class OpencgaFamilyGrid extends LitElement {
                                     .then(caseResponse => {
                                         familyResponse.getResults().forEach(family => {
                                             for (const clinicalAnalysis of caseResponse.getResults()) {
-                                                console.log("caseResponse.getResults()", caseResponse.getResults())
                                                 if (clinicalAnalysis?.family?.id === family.id) {
                                                     if (family?.attributes?.OPENCGA_CLINICAL_ANALYSIS) {
                                                         family.attributes.OPENCGA_CLINICAL_ANALYSIS.push(clinicalAnalysis);
