@@ -17,6 +17,7 @@
 import { LitElement, html } from "/web_modules/lit-element.js";
 import UtilsNew from "./../../utilsNew.js";
 import "../commons/tool-header.js";
+import FormUtils from "../../form-utils.js";
 
 export default class CohortCreate extends LitElement {
 
@@ -85,11 +86,7 @@ export default class CohortCreate extends LitElement {
                 this.requestUpdate();
 
                 // this.dispatchSessionUpdateRequest();
-                Swal.fire(
-                    "New Cohort",
-                    "New Cohort created correctly.",
-                    "success"
-                );
+                FormUtils.showAlert("New Cohort","New Cohort created correctly", "success")
             })
             .catch(err => {
                 console.error(err);

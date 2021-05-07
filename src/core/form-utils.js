@@ -17,10 +17,10 @@
 export default class FormUtils {
 
 
-    static updateObject(original, _original, updateParams, params,value) {
+    static updateObject(original, _original, updateParams, params, value) {
         const [field, prop] = params.split(".");
         if (_original?.[field]?.[prop] !== value && value !== null) {
-            
+
             original[field] = {
                 ...original[field],
                 [prop]: value
@@ -33,6 +33,15 @@ export default class FormUtils {
         } else {
             delete updateParams[field][prop];
         }
+    }
+
+
+    static showAlert(title, message, type) {
+        Swal.fire(
+            title,
+            message,
+            type,
+        );
     }
 
 }
