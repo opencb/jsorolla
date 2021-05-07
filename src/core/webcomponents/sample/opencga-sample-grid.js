@@ -145,24 +145,24 @@ export default class OpencgaSampleGrid extends LitElement {
                             if (individualIds) {
                                 this.opencgaSession.opencgaClient.clinical().search(
                                     {
-                                        member: individualIds,
+                                        individual: individualIds,
                                         study: this.opencgaSession.study.fqn,
-                                        exclude: "proband.samples,family,interpretation,files"
+                                        include: "id,proband.id,family.members"
                                     })
                                     .then(caseResponse => {
-                                        // We store the Case ID in the individual attribute
-                                        // Note clinical search results are not sorted
-                                        // FIXME at the moment we only search by proband
-                                        const map = {};
-                                        for (const clinicalAnalysis of caseResponse.responses[0].results) {
-                                            if (!map[clinicalAnalysis.proband.id]) {
-                                                map[clinicalAnalysis.proband.id] = [];
+                                        sampleResponse.getResults().forEach(sample => {
+                                            for (const clinicalAnalysis of caseResponse.getResults()) {
+                                                if (clinicalAnalysis?.proband?.id === sample.individualId || clinicalAnalysis?.family?.members.find(member => member.id === sample.individualId)) {
+                                                    if (sample?.attributes?.OPENCGA_CLINICAL_ANALYSIS) {
+                                                        sample.attributes.OPENCGA_CLINICAL_ANALYSIS.push(clinicalAnalysis);
+                                                    } else {
+                                                        sample.attributes = {
+                                                            OPENCGA_CLINICAL_ANALYSIS: [clinicalAnalysis]
+                                                        };
+                                                    }
+                                                }
                                             }
-                                            map[clinicalAnalysis.proband.id].push(clinicalAnalysis);
-                                        }
-                                        for (const sample of sampleResponse.responses[0].results) {
-                                            sample.attributes.OPENCGA_CLINICAL_ANALYSIS = map[sample.individualId];
-                                        }
+                                        });
                                         params.success(sampleResponse);
                                     })
                                     .catch(e => {

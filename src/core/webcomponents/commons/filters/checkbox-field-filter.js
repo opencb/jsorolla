@@ -49,13 +49,6 @@ export default class CheckboxFieldFilter extends LitElement {
     }
 
     update(changedProperties) {
-        super.update(changedProperties);
-        /* if (changedProperties.has('firstName') || changedProperties.has('lastName') {
-            this.fullName = `${this.firstName} ${this.lastName}`.trim();
-        }*/
-    }
-
-    updated(changedProperties) {
         if (changedProperties.has("value")) {
             if (this.value) {
                 if (Array.isArray(this.value)) {
@@ -67,10 +60,8 @@ export default class CheckboxFieldFilter extends LitElement {
             } else {
                 this.state = {};
             }
-            this.requestUpdate();
         }
-        if (changedProperties.has("data")) {
-        }
+        super.update(changedProperties);
     }
 
     filterChange(e) {

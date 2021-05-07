@@ -90,16 +90,33 @@ class VariantInterpreterQcSummary extends LitElement {
     clinicalAnalysisObserver() {
         if (this.opencgaSession && this.clinicalAnalysis) {
             let somaticSample = this.clinicalAnalysis.proband?.samples.find(s => s.somatic);
-            let bamFile = somaticSample.fileIds.find(f => f.endsWith(".bam"));
-            this.opencgaSession.opencgaClient.files().info(bamFile, {study: this.opencgaSession.study.fqn})
-                .then(response => {
-                    let annotationSet = response.responses[0].results[0].annotationSets.find(annotSet => annotSet.variableSetId === "bamQcStats");
-                    this.annotations = annotationSet.annotations;
-                    this.requestUpdate();
-                })
-                .catch(response => {
-                    console.error("An error occurred fetching clinicalAnalysis: ", response);
-                });
+            let germlineSample = this.clinicalAnalysis.proband?.samples.find(s => !s.somatic);
+            if (somaticSample) {
+                let bamFile = [somaticSample.fileIds.find(f => f.endsWith(".bam"))];
+                if (germlineSample) {
+                    let germlineBamFile = germlineSample.fileIds.find(f => f.endsWith(".bam"));
+                    bamFile.push(germlineBamFile);
+                }
+
+                this.opencgaSession.opencgaClient.files().info(bamFile.join(","), {study: this.opencgaSession.study.fqn})
+                    .then(response => {
+                        let annotationSet = response.responses[0].results[0].annotationSets.find(annotSet => annotSet.variableSetId === "bamQcStats");
+                        annotationSet.annotations.file = bamFile[0];
+                        if (germlineSample) {
+                            let germlineAnnotationSet = response.responses[0].results[1].annotationSets.find(annotSet => annotSet.variableSetId === "bamQcStats");
+                            germlineAnnotationSet.annotations.file = bamFile[1];
+                            this.clinicalAnalysis.annotations = [annotationSet?.annotations, germlineAnnotationSet?.annotations];
+                        } else {
+                            this.clinicalAnalysis.annotations = [annotationSet?.annotations];
+                        }
+                        // this.clinicalAnalysis.annotations = annotationSet?.annotations;
+                        this._config = {...this.getDefaultConfig(), ...this.config};
+                        this.requestUpdate();
+                    })
+                    .catch(response => {
+                        console.error("An error occurred fetching clinicalAnalysis: ", response);
+                    });
+            }
         }
     }
 
@@ -120,24 +137,90 @@ class VariantInterpreterQcSummary extends LitElement {
                     collapsed: false,
                     elements: [
                         {
+                            name: "Case ID",
+                            field: "id"
+                        },
+                        {
+                            name: "Proband",
+                            field: "proband.id",
+                            type: "custom",
+                            display: {
+                                render: probandId => html`<strong>${probandId}</strong>`
+                            }
+                        },
+                        {
+                            name: "Disorder",
+                            field: "disorder",
+                            type: "custom",
+                            display: {
+                                render: disorder => {
+                                    if(disorder) {
+                                        let id;
+                                        if (disorder.id?.startsWith("OMIM:")) {
+                                            id = html`<a href="https://omim.org/entry/${disorder.id.split(":")[1]}" target="_blank">${disorder.id}</a>`;
+                                        }
+                                        return html`${disorder.name || "-"} (${id})`
+                                    } else return "-";
+
+                                }
+                            }
+                        },
+                        {
+                            name: "Analysis Type",
+                            field: "type"
+                        },
+                    ]
+                },
+                {
+                    title: "BAM QC Stats",
+                    collapsed: false,
+                    display: {
+                        visible: this.clinicalAnalysis?.annotations ?? false
+                    },
+                    elements: [
+                        {
                             name: "SD insert size",
-                            field: "sdInsertSize",
-                            type: "basic"
-                        },
-                        {
-                            name: "Average insert size",
-                            field: "avgInsertSize",
-                            type: "basic"
-                        },
-                        {
-                            name: "Duplicate read rate",
-                            field: "duplicateReadRate",
-                            type: "basic"
-                        },
-                        {
-                            name: "Average sequence depth",
-                            field: "avgSequenceDepth",
-                            type: "basic"
+                            field: "annotations",
+                            type: "table",
+                            display: {
+                                columns: [
+                                    {
+                                        name: "BAM File",
+                                        type: "custom",
+                                        display: {
+                                            render: (data) => html`<div><span style="font-weight: bold">${data.file}</span></div>`
+                                        }
+                                    },
+                                    {
+                                        name: "SD insert size",
+                                        type: "custom",
+                                        display: {
+                                            render: (data) => html`<div>${data.sdInsertSize}</div>`
+                                        }
+                                    },
+                                    {
+                                        name: "Average insert size",
+                                        type: "custom",
+                                        display: {
+                                            render: (data) => html`<div>${data.avgInsertSize}</div>`
+                                        }
+                                    },
+                                    {
+                                        name: "Duplicate read rate",
+                                        type: "custom",
+                                        display: {
+                                            render: (data) => html`<div>${data.duplicateReadRate}</div>`
+                                        }
+                                    },
+                                    {
+                                        name: "Average sequence depth",
+                                        type: "custom",
+                                        display: {
+                                            render: (data) => html`<div>${data.avgSequenceDepth}</div>`
+                                        }
+                                    }
+                                ]
+                            }
                         },
                     ]
                 },
@@ -165,7 +248,7 @@ class VariantInterpreterQcSummary extends LitElement {
         // Alignment stats are the same for FAMILY and CANCER analysis
         return html`
             <div class="container" style="margin: 20px 10px">
-                <data-form .data=${this.annotations} .config="${this._config}"></data-form>
+                <data-form .data=${this.clinicalAnalysis} .config="${this._config}"></data-form>
             </div>
         `;
     }

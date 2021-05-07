@@ -83,6 +83,7 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
 
         this.signatureQuery();
         this.statsQuery();
+        this.deletionsStats();
     }
 
     signatureQuery() {
@@ -111,12 +112,53 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
         });
     }
 
+    deletionsStats() {
+        let params = {
+            study: this.opencgaSession.study.fqn,
+            fields: "EXT_DEL_TYPE",
+            sample: this.sampleId,
+            // fileData: "AR2.10039966-01T_vs_AR2.10039966-01G.annot.pindel.vcf.gz:FILTER=PASS;QUAL>=250;REP<=9"
+            fileData: "AR2.10039966-01T_vs_AR2.10039966-01G.annot.pindel.vcf.gz:FILTER=PASS;QUAL>=250;REP<=9"
+            // ...this.query
+        };
+        this.opencgaSession.opencgaClient.variants().aggregationStatsSample(params)
+            .then(response => {
+                this.deletionAggregationStatsResults = response.responses[0].results;
+
+                // Remove "other"
+                // const otherIndex = this.deletionAggregationStatsResults[0].buckets.findIndex(item => item.value === "other");
+                // this.deletionAggregationStatsResults[0].count -= this.deletionAggregationStatsResults[0].buckets[otherIndex].count;
+                // this.deletionAggregationStatsResults[0].buckets.splice(otherIndex, 1);
+
+                this.deletionTypeStats = {};
+                for (const bucket of this.deletionAggregationStatsResults[0].buckets) {
+                    this.deletionTypeStats[bucket.value] = bucket.count;
+                }
+
+                this.dispatchEvent(new CustomEvent("changeDeletionAggregationStatsResults", {
+                    detail: {
+                        deletionAggregationStatsResults: this.deletionAggregationStatsResults,
+                    },
+                    bubbles: true,
+                    composed: true
+                }));
+            })
+            .catch( restResponse => {
+                this.stats = {
+                    errorState: "Error from Server " + restResponse.getEvents("ERROR").map(error => error.message).join(" \n ")
+                };
+            })
+            .finally( () => {
+                this.requestUpdate();
+            });
+    }
+
     statsQuery() {
         let params = {
             study: this.opencgaSession.study.fqn,
-            fields: "EXT_SVTYPE",
+            fields: "EXT_REARR",
             sample: this.sampleId,
-            // fileData: "AR2.10039966-01T_vs_AR2.10039966-01G.annot.brass.vcf.gz:BAS>0"
+            fileData: "AR2.10039966-01T_vs_AR2.10039966-01G.annot.brass.vcf.gz:BAS>=0"
             // ...this.query
         };
         this.opencgaSession.opencgaClient.variants().aggregationStatsSample(params)
@@ -124,13 +166,14 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
                 this.aggregationStatsResults = response.responses[0].results;
 
                 // Remove "other"
-                const otherIndex = this.aggregationStatsResults[0].buckets.findIndex(item => item.value === "other");
-                this.aggregationStatsResults[0].count -= this.aggregationStatsResults[0].buckets[otherIndex].count;
-                this.aggregationStatsResults[0].buckets.splice(otherIndex, 1);
+                // const otherIndex = this.aggregationStatsResults[0].buckets.findIndex(item => item.value === "other");
+                // this.aggregationStatsResults[0].count -= this.aggregationStatsResults[0].buckets[otherIndex].count;
+                // this.aggregationStatsResults[0].buckets.splice(otherIndex, 1);
 
+                this.aggregationStatsResults[0].count /= 2;
                 this.typeStats = {};
                 for (const bucket of this.aggregationStatsResults[0].buckets) {
-                    this.typeStats[bucket.value] = bucket.count;
+                    this.typeStats[bucket.value] = bucket.count / 2;
                 }
                 
                 this.dispatchEvent(new CustomEvent("changeAggregationStatsResults", {
@@ -150,6 +193,8 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
                 this.requestUpdate();
             });
     }
+
+
 
     getDefaultConfig() {
         return {
@@ -174,6 +219,19 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
                                             <!--<img width="480" src="https://cancer.sanger.ac.uk/signatures_v2/Signature-3.png">-->
                                 </div>
                                 <div style="padding-top: 20px">
+                                    <h2>Deletions</h2>
+                                    <div class="">
+                                        <h3>${this.deletionAggregationStatsResults?.[0].count} deletions and insertions</h3>
+                                        <simple-chart  .title="Type"
+                                                       .xAxisTitle="types"
+                                                       .type="${"bar"}"
+                                                       .data="${this.deletionTypeStats}"
+                                                       .config="${this.facetConfig}"
+                                                       ?active="${true}">
+                                        </simple-chart>
+                                    </div>
+                                </div>
+                                 <div style="padding-top: 20px">
                                     <h2>Rearrangements Stats</h2>
                                     <!--<img width="480" src="https://www.ensembl.org/img/vep_stats_2.png">-->
                                     <div class="">

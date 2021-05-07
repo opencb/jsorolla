@@ -113,7 +113,7 @@ export default class VariantBrowserGrid extends LitElement {
         // Config for the grid toolbar
         this.toolbarConfig = {
             resource: "VARIANT",
-            buttons: ["columns", "export"],
+            buttons: ["columns", "download"],
             columns: this._createDefaultColumns()
                 .flat()
                 .filter(f => f.title && !fieldToHide.includes(f.field) && (f.visible ?? true))
@@ -135,8 +135,7 @@ export default class VariantBrowserGrid extends LitElement {
     }
 
     renderRemoteVariants() {
-        // TODO quickfix. The check on query is required because the study is in the query object. A request without the study returns the error "Multiple projects found"
-        if (this.opencgaSession && this.opencgaSession.project && this.opencgaSession.study) {
+        if (this.opencgaSession?.study) {
             this._columns = this._createDefaultColumns();
 
             this.table = $("#" + this.gridId);

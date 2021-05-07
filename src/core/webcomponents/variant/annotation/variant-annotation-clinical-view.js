@@ -72,10 +72,10 @@ export default class VariantAnnotationClinicalView extends LitElement {
     }
 
     variantIdObserver() {
-        console.log("variantIdObserver", this.variantId, this.cellbaseClient);
+        // console.log("variantIdObserver", this.variantId, this.cellbaseClient);
         if (this.cellbaseClient) {
             if (this.variantId) {
-                this.cellbaseClient.get("genomic", "variant", "22:18905964:C:T", "annotation", {assembly: this.opencgaSession.project.organism.assembly}, {})
+                this.cellbaseClient.get("genomic", "variant", this.variantId, "annotation", {assembly: this.opencgaSession.project.organism.assembly}, {})
                     .then(restResponse => {
                         this.populationFrequencies = restResponse.getResult(0).populationFrequencies;
                         // this.variant = {id: this.variantId, annotation: response.responses[0].results[0]};
