@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { LitElement, html } from "/web_modules/lit-element.js";
+import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "./../../utilsNew.js";
 import "../commons/tool-header.js";
 import FormUtils from "../../form-utils.js";
@@ -47,7 +47,7 @@ export default class CohortCreate extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
-        this._config = { ...this.getDefaultConfig(), ...this.config };
+        this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
     onFieldChange(e) {
@@ -67,7 +67,7 @@ export default class CohortCreate extends LitElement {
                 };
                 break;
         }
-        console.log("changeValue: ",this.cohort)
+        console.log("changeValue: ", this.cohort);
     }
 
     dispatchSessionUpdateRequest() {
@@ -80,13 +80,13 @@ export default class CohortCreate extends LitElement {
     }
 
     onSubmit(e) {
-        this.opencgaSession.opencgaClient.cohorts().create(this.cohort, { study: this.opencgaSession.study.fqn })
+        this.opencgaSession.opencgaClient.cohorts().create(this.cohort, {study: this.opencgaSession.study.fqn})
             .then(res => {
-                this.cohort = {};
+                this.cohort = { };
                 this.requestUpdate();
 
                 // this.dispatchSessionUpdateRequest();
-                FormUtils.showAlert("New Cohort","New Cohort created correctly", "success")
+                FormUtils.showAlert("New Cohort", "New Cohort created correctly", "success");
             })
             .catch(err => {
                 console.error(err);
@@ -115,7 +115,7 @@ export default class CohortCreate extends LitElement {
                 defaultLayout: "horizontal",
                 defaultValue: "",
                 help: {
-                    mode: "block", // icon
+                    mode: "block" // icon
                 }
             },
             sections: [
@@ -134,7 +134,7 @@ export default class CohortCreate extends LitElement {
                                 validation: {
 
                                 }
-                            },
+                            }
                         },
                         {
                             name: "Cohort Type",
@@ -148,8 +148,8 @@ export default class CohortCreate extends LitElement {
                             field: "description",
                             type: "input-text",
                             display: {
-                                rows:3,
-                                placeholder: "e.g. Homo sapiens, ...",
+                                rows: 3,
+                                placeholder: "e.g. Homo sapiens, ..."
                             }
                         },
                         {
@@ -157,7 +157,7 @@ export default class CohortCreate extends LitElement {
                             field: "numSamples",
                             type: "input-text",
                             display: {
-                                placeholder: "e.g. GRCh38",
+                                placeholder: "e.g. GRCh38"
                             }
                         },
                         {
@@ -172,13 +172,13 @@ export default class CohortCreate extends LitElement {
                             type: "input-text",
                             display: {
                                 rows: 3,
-                                placeholder: "Cohort description...",
+                                placeholder: "Cohort description..."
                             }
-                        },
+                        }
                     ]
                 }
             ]
-        }
+        };
     }
 
     render() {

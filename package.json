@@ -5,6 +5,11 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/opencb/jsorolla.git"
+  },  
+  "lint-staged": {
+    "**/*.js": [ 
+      "eslint"
+    ]
   },
   "scripts": {
     "build-clean": "rm -rf build",
@@ -18,7 +23,7 @@
     "core": "mkdir -p dist/js/core && cd src/core && cat *.js cache/*.js webcomponents/*.js webcomponents/opencga/*.js webcomponents/opencga/commons/*.js webcomponents/opencga/variant/*.js clients/*.js data-source/*.js visualisation/*.js data-adapter/feature-adapter.js data-adapter/cellbase-adapter.js data-adapter/opencga-adapter.js data-adapter/feature-template-adapter.js widgets/*.js > ../../dist/js/core/core.js && cd ../.. && node_modules/uglify-es/bin/uglifyjs dist/js/core/core.js -o dist/js/core/core.min.js && npm run webcomponents",
     "genome-browser": "mkdir -p dist/js/genome-browser && cd src/genome-browser && cp -r webcomponent ../../dist/js/genome-browser && cat *.js renderers/renderer.js renderers/*-renderer.js tracks/feature-track.js tracks/gene-track.js tracks/alignment-track.js tracks/variant-track.js tracks/tracklist-panel.js > ../../dist/js/genome-browser/genome-browser.js && cd ../.. && node_modules/uglify-es/bin/uglifyjs dist/js/genome-browser/genome-browser.js -o dist/js/genome-browser/genome-browser.min.js",
     "dist": "npm run clean && mkdir -p dist/js && npm install && npm run core && npm run genome-browser && npm run styles",
-    "prepare": "pika-web",
+    "prepare": "husky install && pika-web",
     "test": "jest"
   },
   "license": "Apache-2.0",
@@ -63,8 +68,8 @@
     "@babel/plugin-proposal-class-properties": "^7.8.3",
     "@babel/plugin-proposal-export-default-from": "^7.8.3",
     "@babel/plugin-transform-runtime": "^7.9.6",
-    "@babel/preset-env": "^7.9.6",
     "@babel/polyfill": "^7.8.3",
+    "@babel/preset-env": "^7.9.6",
     "@babel/runtime": "^7.8.4",
     "@pika/web": "^0.6.1",
     "@purtuga/esm-webpack-plugin": "^1.2.1",
@@ -78,8 +83,10 @@
     "eslint-config-google": "^0.14.0",
     "eslint-plugin-import": "^2.18.2",
     "html-webpack-plugin": "^3.2.0",
+    "husky": "^6.0.0",
     "jest": "^25.1.0",
     "js-beautify": "~1.6.2",
+    "lint-staged": "^11.0.0",
     "regenerator-runtime": "^0.13.3",
     "uglify-es": "~3.1.9",
     "webpack": "^4.41.6",
