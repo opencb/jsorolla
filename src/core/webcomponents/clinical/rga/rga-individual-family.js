@@ -83,14 +83,50 @@ export default class RgaIndividualFamily extends LitElement {
         }
     }
 
-    renderTable() {
+    async getTrio(individual) {
+        /* const _filters = {
+            study: this.opencgaSession.study.fqn,
+            count: false,
+            members: individualId
+        };
+        const familyResponse = await this.opencgaSession.opencgaClient.families().search(_filters);
+        console.log("familyResponse", familyResponse.getResults());
+
+        TODO this doesnt work because the proband could be any child (even with no sample)
+        const trio = {};
+        for (const family of familyResponse.getResults()) {
+            for (const member of family.members) {
+                if (individualId === member.father.id || individualId === member.mother.id || individualId === member.id) {
+                    trio.proband = member;
+                    trio.father = family.members.find(m => m.id === member.father.id);
+                    trio.mother = family.members.find(m => m.id === member.mother.id);
+                }
+            }
+        }
+        return trio;*/
+
+        const trio = {};
+        const clinicalAnalysis = individual.attributes.OPENCGA_CLINICAL_ANALYSIS?.[0];
+        if (clinicalAnalysis) {
+            trio.proband = clinicalAnalysis.family.members.find(m => m.id === clinicalAnalysis.proband.id);
+            trio.father = clinicalAnalysis.family.members.find(m => m.id === trio.proband.father.id);
+            trio.mother = clinicalAnalysis.family.members.find(m => m.id === trio.proband.mother.id);
+        }
+        return trio;
+    }
+
+    async renderTable() {
+
+        this.trio = await this.getTrio(this.individual);
+
         this.sampleIds = [
-            this.individual.sampleId,
-            this.individual.fatherSampleId,
-            this.individual.motherSampleId
+            this.trio?.proband?.samples?.[0]?.id,
+            this.trio?.father?.samples?.[0]?.id,
+            this.trio?.mother?.samples?.[0]?.id
         ];
+
         // in case fatherSampleId is missing, the response studies[].samples[] of variants().query() would contains only 2 entries
-        this.motherSampleIndx = this.individual.fatherSampleId && this.individual.motherSampleId ? 2 : 1;
+        this.motherSampleIndx = this.sampleIds[1] && this.sampleIds[2] ? 2 : 1;
 
         this._query = {
             ...this.query,
@@ -148,7 +184,6 @@ export default class RgaIndividualFamily extends LitElement {
                                 };
                             }
                         }
-
                         params.success(rgaVariantResponse);
                     })
                     .catch(e => {
@@ -332,7 +367,7 @@ export default class RgaIndividualFamily extends LitElement {
                 {
                     title: "Type",
                     field: "type",
-                    rowspan: 2,
+                    rowspan: 2
                 },
                 {
                     title: "Consequence type",
@@ -347,18 +382,18 @@ export default class RgaIndividualFamily extends LitElement {
                     formatter: (value, row) => this.uniqueFieldFormatter(value, row, "knockoutType")
                 },
                 {
-                    title: "Proband<br>" + this.sampleIds[0],
+                    title: `Proband (${this.trio.proband.id})<br> ${this.sampleIds[0]}`,
                     field: "",
                     colspan: 2
                 },
                 {
-                    title: "Father<br>" + this.sampleIds[1],
+                    title: `Father (${this.trio.father.id})<br>${this.sampleIds[1]}`,
                     field: "id",
                     colspan: 2,
                     visible: !!this.sampleIds[1]
                 },
                 {
-                    title: "Mother<br>" + this.sampleIds[2],
+                    title: `Mother (${this.trio.mother.id})<br>${this.sampleIds[2]}`,
                     field: "",
                     colspan: 2,
                     visible: !!this.sampleIds[2]
@@ -503,7 +538,7 @@ export default class RgaIndividualFamily extends LitElement {
                 "MGP:ALL",
                 "DISCOVER:ALL",
                 "UK10K:ALL"
-            ],
+            ]
         };
     }
 
@@ -512,7 +547,6 @@ export default class RgaIndividualFamily extends LitElement {
             return html`<div class="alert alert-warning"><i class="fas fa-3x fa-info-circle align-middle"></i> WIP </div>`;
         }
         return html`
-            
             <div class="row">
                 <table id="${this.gridId}"></table>
             </div>
