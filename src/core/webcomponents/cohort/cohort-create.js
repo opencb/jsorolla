@@ -152,14 +152,14 @@ export default class CohortCreate extends LitElement {
                                 placeholder: "e.g. Homo sapiens, ..."
                             }
                         },
-                        {
-                            name: "Num. Samples",
-                            field: "numSamples",
-                            type: "input-text",
-                            display: {
-                                placeholder: "e.g. GRCh38"
-                            }
-                        },
+                        // {
+                        //     name: "Samples",
+                        //     field: "samples",
+                        //     type: "input-text",
+                        //     display: {
+                        //         placeholder: "e.g. GRCh38"
+                        //     }
+                        // },
                         {
                             name: "Status name",
                             field: "status.name",

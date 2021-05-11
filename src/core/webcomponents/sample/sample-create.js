@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-import { LitElement, html } from "/web_modules/lit-element.js";
+import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
 import "../commons/tool-header.js";
 import "../phenotype/phenotype-manager.js";
 import "../annotations/annotationSet-form.js";
+import FormUtils from "../../form-utils.js";
 
 export default class SampleCreate extends LitElement {
 
@@ -45,14 +46,14 @@ export default class SampleCreate extends LitElement {
     _init() {
         this._prefix = UtilsNew.randomString(8);
         this.sample = {
-            phenotypes: [],
+            phenotypes: []
         };
         this.annotationSets = {};
     }
 
     connectedCallback() {
         super.connectedCallback();
-        this._config = { ...this.getDefaultConfig(), ...this.config };
+        this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
     // TODO move to a generic Utils class
@@ -66,8 +67,8 @@ export default class SampleCreate extends LitElement {
     }
 
     onFieldChange(e) {
-        const [field, prop] = e.detail.param.split(".")
-        debugger;
+        console.log("test:", e.detail.param, e.detail.value, this);
+        const [field, prop] = e.detail.param.split(".");
         switch (e.detail.param) {
             case "id":
             case "description":
@@ -89,11 +90,12 @@ export default class SampleCreate extends LitElement {
             case "collection.method":
             case "collection.date":
                 if (!this.sample[field]) {
-                    this.sample[field] = {}
+                    this.sample[field] = {};
                 }
-                this.sample[field][prop] = e.detail.value
+                this.sample[field][prop] = e.detail.value;
                 break;
         }
+        this.requestUpdate();
     }
 
     onRemovePhenotype(e) {
@@ -102,31 +104,27 @@ export default class SampleCreate extends LitElement {
             ...this.sample,
             phenotypes: this.sample.phenotypes
                 .filter(item => item !== e.detail.value)
-        }
-        this.requestUpdate()
+        };
+        this.requestUpdate();
     }
 
     onAddPhenotype(e) {
-        this.sample.phenotypes.push(e.detail.value)
-        this.requestUpdate()
+        this.sample.phenotypes.push(e.detail.value);
+        this.requestUpdate();
     }
 
     onClear(e) {
-        console.log("OnClear sample form", this)
+        console.log("OnClear sample form", this);
     }
 
     onSubmit(e) {
-        this.opencgaSession.opencgaClient.samples().create(this.sample, { study: this.opencgaSession.study.fqn })
+        this.opencgaSession.opencgaClient.samples().create(this.sample, {study: this.opencgaSession.study.fqn})
             .then(res => {
                 this.sample = {};
                 this.requestUpdate();
                 // this.dispatchSessionUpdateRequest();
 
-                Swal.fire(
-                    "New Sample",
-                    "Sample save correctly.",
-                    "success"
-                );
+                FormUtils.showAlert("New Sample", "Sample save correctly", "success");
             })
             .catch(err => {
                 console.error(err);
@@ -151,7 +149,7 @@ export default class SampleCreate extends LitElement {
                 defaultLayout: "horizontal",
                 defaultValue: "",
                 help: {
-                    mode: "block", // icon
+                    mode: "block" // icon
                 }
             },
             sections: [
@@ -171,14 +169,14 @@ export default class SampleCreate extends LitElement {
                                 validation: {
 
                                 }
-                            },
+                            }
                         },
                         {
                             name: "Name",
                             field: "name",
                             type: "input-text",
                             display: {
-                                placeholder: "Name ...",
+                                placeholder: "Name ..."
                             }
                         },
                         {
@@ -187,41 +185,41 @@ export default class SampleCreate extends LitElement {
                             type: "input-text",
                             display: {
                                 rows: 3,
-                                placeholder: "Sample name...",
+                                placeholder: "Sample name..."
                                 // render: (sample) => html`
-                                //     <sample-id-autocomplete 
+                                //     <sample-id-autocomplete
                                 //             .value="${sample?.individualId}"
-                                //             .opencgaSession="${this.opencgaSession}" 
+                                //             .opencgaSession="${this.opencgaSession}"
                                 //             @filterChange="${e => this.onFieldChange({detail: {param: "individualId", value: e.detail.value}})}">
                                 //     </sample-id-autocomplete>`
                             }
                         },
-                        {
-                            name: "Individual ID",
-                            field: "individualId",
-                            type: "input-text",
-                            display: {
-                                placeholder: "Add a short ID...",
-
-                                help: {
-                                    text: "short Sample id for thehis as;lsal"
-                                },
-                            },
-                        },
                         // {
                         //     name: "Individual ID",
                         //     field: "individualId",
-                        //     type: "custom",
+                        //     type: "input-text",
                         //     display: {
-                        //         placeholder: "e.g. Homo sapiens, ...",
-                        //         render: (sample) => html`
-                        //             <individual-id-autocomplete 
-                        //                     .value="${sample?.individualId}"
-                        //                     .opencgaSession="${this.opencgaSession}" 
-                        //                     @filterChange="${e => this.onFieldChange({ detail: { param: "individualId", value: e.detail.value } })}">
-                        //             </individual-id-autocomplete>`
+                        //         placeholder: "Add a short ID...",
+
+                        //         help: {
+                        //             text: "short Sample id for thehis as;lsal"
+                        //         }
                         //     }
                         // },
+                        {
+                            name: "Individual ID",
+                            field: "individualId",
+                            type: "custom",
+                            display: {
+                                placeholder: "e.g. Homo sapiens, ...",
+                                render: sample => html`
+                                    <individual-id-autocomplete
+                                            .value="${this.sample?.individualId}"
+                                            .opencgaSession="${this.opencgaSession}"
+                                            @filterChange="${e => this.onFieldChange({detail: {param: "individualId", value: e.detail.value}})}">
+                                    </individual-id-autocomplete>`
+                            }
+                        },
                         {
                             name: "Somatic",
                             field: "somatic",
@@ -233,7 +231,7 @@ export default class SampleCreate extends LitElement {
                             field: "status.name",
                             type: "input-text",
                             display: {
-                                placeholder: "Sample description...",
+                                placeholder: "Sample description..."
                             }
                         },
                         {
@@ -242,9 +240,9 @@ export default class SampleCreate extends LitElement {
                             type: "input-text",
                             display: {
                                 rows: 3,
-                                placeholder: "Sample description...",
+                                placeholder: "Sample description..."
                             }
-                        },
+                        }
                     ]
                 },
                 {
@@ -280,7 +278,7 @@ export default class SampleCreate extends LitElement {
                             field: "processing.date",
                             type: "input-date",
                             display: {
-                                render: date => moment(date, "YYYYMMDDHHmmss").format("DD/MM/YYYY"),
+                                render: date => moment(date, "YYYYMMDDHHmmss").format("DD/MM/YYYY")
                             }
                         }
                     ]
@@ -291,7 +289,7 @@ export default class SampleCreate extends LitElement {
                         {
                             name: "Tissue",
                             field: "collection.tissue",
-                            type: "input-text",
+                            type: "input-text"
                         },
                         {
                             name: "Organ",
@@ -313,7 +311,7 @@ export default class SampleCreate extends LitElement {
                             field: "collection.date",
                             type: "input-date",
                             display: {
-                                render: date => moment(date, "YYYYMMDDHHmmss").format("DD/MM/YYYY"),
+                                render: date => moment(date, "YYYYMMDDHHmmss").format("DD/MM/YYYY")
                             }
                         }
                     ]
@@ -345,7 +343,7 @@ export default class SampleCreate extends LitElement {
                                 defaultLayout: "vertical",
                                 width: 12,
                                 style: "padding-left: 0px",
-                                render: (sample) => html`
+                                render: () => html`
                                         <annotation-set-form 
                                             .sample="${this.sample}"
                                             .opencgaSession="${this.opencgaSession}" >
@@ -354,9 +352,9 @@ export default class SampleCreate extends LitElement {
                             }
                         }
                     ]
-                },
+                }
             ]
-        }
+        };
     }
 
     render() {

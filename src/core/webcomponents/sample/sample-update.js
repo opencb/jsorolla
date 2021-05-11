@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { html, LitElement } from "/web_modules/lit-element.js";
+import {html, LitElement} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
 import "../phenotype/phenotype-manager.js";
 import "../annotations/annotationSet-form.js";
@@ -65,7 +65,7 @@ export default class SampleUpdate extends LitElement {
         super.connectedCallback();
 
         this.updateParams = {};
-        this._config = { ...this.getDefaultConfig(), ...this.config };
+        this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
     update(changedProperties) {
@@ -115,6 +115,7 @@ export default class SampleUpdate extends LitElement {
     }
 
     onFieldChange(e) {
+        console.log("Test:", e.detail.param, e.detail.value);
         switch (e.detail.param) {
             case "id":
             case "description":
@@ -146,7 +147,7 @@ export default class SampleUpdate extends LitElement {
                     this._sample,
                     this.updateParams,
                     e.detail.param,
-                    e.detail.value)
+                    e.detail.value);
                 break;
         }
     }
@@ -157,34 +158,27 @@ export default class SampleUpdate extends LitElement {
             ...this.sample,
             phenotypes: this.sample.phenotypes
                 .filter(item => item !== e.detail.value)
-        }
+        };
     }
 
     onAddPhenotype(e) {
-        debugger;
-        this.sample.phenotypes.push(e.detail.value)
+        this.sample.phenotypes.push(e.detail.value);
         this.updateParams.phenotypes = this.sample.phenotypes;
 
     }
 
     onClear() {
-        console.log("OnClear sample form")
+        console.log("OnClear sample form");
     }
 
     onSubmit() {
-        debugger;
-        this.opencgaSession.opencgaClient.samples().update(this.sample.id, this.updateParams, { study: this.opencgaSession.study.fqn })
+        this.opencgaSession.opencgaClient.samples().update(this.sample.id, this.updateParams, {study: this.opencgaSession.study.fqn})
             .then(res => {
                 this._sample = JSON.parse(JSON.stringify(this.sample));
                 this.updateParams = {};
 
                 // this.dispatchSessionUpdateRequest();
-
-                Swal.fire(
-                    "Edit Sample",
-                    "Sample updated correctly.",
-                    "success"
-                );
+                FormUtils.showAlert("Edit Sample", "Sample updated correctly", "success");
             })
             .catch(err => {
                 console.error(err);
@@ -209,7 +203,7 @@ export default class SampleUpdate extends LitElement {
                 defaultLayout: "horizontal",
                 defaultValue: "",
                 help: {
-                    mode: "block", // icon
+                    mode: "block" // icon
                 }
             },
             sections: [
@@ -225,8 +219,8 @@ export default class SampleUpdate extends LitElement {
                                 disabled: true,
                                 help: {
                                     text: "short Sample id for thehis as;lsal"
-                                },
-                            },
+                                }
+                            }
                         },
                         {
                             name: "Individual ID",
@@ -237,21 +231,7 @@ export default class SampleUpdate extends LitElement {
                                 disabled: true,
                                 help: {
                                     text: "short Sample id for thehis as;lsal"
-                                },
-                            },
-                        },
-                        {
-                            name: "Individual ID",
-                            field: "individualId",
-                            type: "custom",
-                            display: {
-                                placeholder: "e.g. Homo sapiens, ...",
-                                render: (sample) => html`
-                                    <individual-id-autocomplete
-                                            .value="${sample?.individualId}"
-                                            .opencgaSession="${this.opencgaSession}"
-                                            @filterChange="${e => this.onFieldChange({ detail: { param: "individualId", value: e.detail.value } })}">
-                                    </individual-id-autocomplete>`
+                                }
                             }
                         },
                         {
@@ -260,11 +240,11 @@ export default class SampleUpdate extends LitElement {
                             type: "input-text",
                             display: {
                                 rows: 3,
-                                placeholder: "Sample name...",
+                                placeholder: "Sample name..."
                                 // render: (sample) => html`
-                                //     <sample-id-autocomplete 
+                                //     <sample-id-autocomplete
                                 //             .value="${sample?.individualId}"
-                                //             .opencgaSession="${this.opencgaSession}" 
+                                //             .opencgaSession="${this.opencgaSession}"
                                 //             @filterChange="${e => this.onFieldChange({detail: {param: "individualId", value: e.detail.value}})}">
                                 //     </sample-id-autocomplete>`
                             }
@@ -279,7 +259,7 @@ export default class SampleUpdate extends LitElement {
                             field: "status.name",
                             type: "input-text",
                             display: {
-                                placeholder: "Sample description...",
+                                placeholder: "Sample description..."
                             }
                         },
                         {
@@ -288,7 +268,7 @@ export default class SampleUpdate extends LitElement {
                             type: "input-text",
                             display: {
                                 rows: 3,
-                                placeholder: "Sample description...",
+                                placeholder: "Sample description..."
                             }
                         },
                         {
@@ -306,7 +286,7 @@ export default class SampleUpdate extends LitElement {
                             display: {
                                 render: modificationDate => html`${UtilsNew.dateFormatter(modificationDate)}`
                             }
-                        },
+                        }
                     ]
                 },
                 {
@@ -342,7 +322,7 @@ export default class SampleUpdate extends LitElement {
                             field: "processing.date",
                             type: "input-date",
                             display: {
-                                render: date => moment(date, "YYYYMMDDHHmmss").format("DD/MM/YYYY"),
+                                render: date => moment(date, "YYYYMMDDHHmmss").format("DD/MM/YYYY")
                             }
                         }
                     ]
@@ -353,7 +333,7 @@ export default class SampleUpdate extends LitElement {
                         {
                             name: "Tissue",
                             field: "collection.tissue",
-                            type: "input-text",
+                            type: "input-text"
                         },
                         {
                             name: "Organ",
@@ -375,7 +355,7 @@ export default class SampleUpdate extends LitElement {
                             field: "collection.date",
                             type: "input-date",
                             display: {
-                                render: date => moment(date, "YYYYMMDDHHmmss").format("DD/MM/YYYY"),
+                                render: date => moment(date, "YYYYMMDDHHmmss").format("DD/MM/YYYY")
                             }
                         }
                     ]
@@ -392,11 +372,11 @@ export default class SampleUpdate extends LitElement {
                                 style: "padding-left: 0px",
                                 render: () => html`
                                     <phenotype-manager 
-                                            .phenotypes="${this.sample?.phenotypes}"
-                                            .opencgaSession="${this.opencgaSession}"
-                                            @addItem="${e => this.onAddPhenotype(e)}"
-                                            @removeItem="${e => this.onRemovePhenotype(e)}">
-                                        </phenotype-manager>`
+                                        .phenotypes="${this.sample?.phenotypes}"
+                                        .opencgaSession="${this.opencgaSession}"
+                                        @addItem="${e => this.onAddPhenotype(e)}"
+                                        @removeItem="${e => this.onRemovePhenotype(e)}">
+                                    </phenotype-manager>`
                             }
                         },
                         {
@@ -407,7 +387,7 @@ export default class SampleUpdate extends LitElement {
                                 defaultLayout: "vertical",
                                 width: 12,
                                 style: "padding-left: 0px",
-                                render: (sample) => html`
+                                render: () => html`
                                     <annotation-form
                                             .sample="${this.sample}"
                                             .opencgaSession="${this.opencgaSession}"
@@ -417,9 +397,9 @@ export default class SampleUpdate extends LitElement {
                             }
                         }
                     ]
-                },
+                }
             ]
-        }
+        };
     }
 
     render() {

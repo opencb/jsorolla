@@ -16,14 +16,14 @@
 
 import "../commons/tool-header.js";
 
-export const BaseManagerMixin = (superClass) => class extends superClass {
+export const BaseManagerMixin = superClass => class extends superClass {
 
     static UPDATE_MODE = "update";
     static CREATE_MODE = "create";
 
-    constructor(){
+    constructor() {
         super();
-        this._initBaseManager()
+        this._initBaseManager();
     }
 
     createRenderRoot() {
@@ -44,14 +44,14 @@ export const BaseManagerMixin = (superClass) => class extends superClass {
         };
     }
 
-    _initBaseManager(){
-        this.isShow = false
+    _initBaseManager() {
+        this.isShow = false;
     }
 
     connectedCallback() {
         super.connectedCallback();
-        this._config = { ...this.getDefaultConfig(), ...this.config };
-        console.log("Connected Callback baseManager")
+        this._config = {...this.getDefaultConfig(), ...this.config};
+        console.log("Connected Callback baseManager");
     }
 
     dispatchSessionUpdateRequest() {
@@ -64,12 +64,12 @@ export const BaseManagerMixin = (superClass) => class extends superClass {
     }
 
     onShow() {
-        console.log("show: ", this.isShow)
+        console.log("show: ", this.isShow);
         this.isShow = !this.isShow;
         this.requestUpdate();
     }
 
-    onRemoveItem(e,item) {
+    onRemoveItem(e, item) {
         this.dispatchEvent(new CustomEvent("removeItem", {
             detail: {
                 value: item
@@ -79,8 +79,8 @@ export const BaseManagerMixin = (superClass) => class extends superClass {
         }));
     }
 
-    onAddItem(item){
-        console.log("Add item from BaseManager", item)
+    onAddItem(item) {
+        console.log("Add item from BaseManager", item);
         this.dispatchEvent(new CustomEvent("addItem", {
             detail: {
                 value: item
@@ -90,5 +90,4 @@ export const BaseManagerMixin = (superClass) => class extends superClass {
         }));
     }
 
-
-}
+};

@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-import { LitElement, html } from "/web_modules/lit-element.js";
+import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "./../../utilsNew.js";
 import "../commons/tool-header.js";
 import "../phenotype/phenotype-manager.js";
 import "../individual/disorder-manager.js";
+import FormUtils from "../../form-utils.js";
 
 export default class IndividualCreate extends LitElement {
 
@@ -52,7 +53,7 @@ export default class IndividualCreate extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
-        this._config = { ...this.getDefaultConfig(), ...this.config };
+        this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
     onFieldChange(e) {
@@ -83,13 +84,12 @@ export default class IndividualCreate extends LitElement {
                     ...this.individual[field],
                     [prop]: e.detail.value
                 };
-            // if (!this.individual[field]) {
-            //     this.individual[field] = {};
-            // }
-            // this.individual[field][prop] = e.detail.value;
-            break;
+                // if (!this.individual[field]) {
+                //     this.individual[field] = {};
+                // }
+                // this.individual[field][prop] = e.detail.value;
+                break;
         }
-        console.log("changeValue: ",this.individual)
     }
 
     onRemovePhenotype(e) {
@@ -97,31 +97,27 @@ export default class IndividualCreate extends LitElement {
             ...this.individual,
             phenotypes: this.individual.phenotypes
                 .filter(item => item !== e.detail.value)
-        }
-        this.requestUpdate()
+        };
+        this.requestUpdate();
     }
 
     onAddPhenotype(e) {
-        this.individual.phenotypes.push(e.detail.value)
-        this.requestUpdate()
+        this.individual.phenotypes.push(e.detail.value);
+        this.requestUpdate();
     }
 
     onClear(e) {
-        console.log("onClear individual form")
+        console.log("onClear individual form");
     }
 
     onSubmit() {
-        this.opencgaSession.opencgaClient.individuals().create(this.individual, { study: this.opencgaSession.study.fqn })
+        this.opencgaSession.opencgaClient.individuals().create(this.individual, {study: this.opencgaSession.study.fqn})
             .then(res => {
                 this.individual = {};
                 this.requestUpdate();
 
                 // this.dispatchSessionUpdateRequest();
-                Swal.fire(
-                    "New Individual",
-                    "New Individual created correctly.",
-                    "success"
-                );
+                FormUtils.showAlert("New Individual", "New Individual created correctly.", "success");
             })
             .catch(err => {
                 console.error(err);
@@ -143,7 +139,7 @@ export default class IndividualCreate extends LitElement {
                 with: "8",
                 labelAlign: "right",
                 defaultLayout: "horizontal",
-                defaultValue: "",
+                defaultValue: ""
             },
             sections: [
                 {
@@ -157,7 +153,7 @@ export default class IndividualCreate extends LitElement {
                                 placeholder: "Add a short ID...",
                                 help: {
                                     text: "short individual id for..."
-                                },
+                                }
                             }
                         },
                         {
@@ -223,7 +219,7 @@ export default class IndividualCreate extends LitElement {
                             type: "select",
                             allowedValues: ["ALIVE", "ABORTED", "DECEASED", "UNBORN", "STILLBORN", "MISCARRIAGE", "UNKNOWN"],
                             display: {}
-                        },
+                        }
                     ]
                 },
                 {
@@ -282,7 +278,7 @@ export default class IndividualCreate extends LitElement {
                             type: "input-text",
                             display: {
                                 rows: 3,
-                                placeholder: "add a description...",
+                                placeholder: "add a description..."
                             }
                         }
                     ]
@@ -320,11 +316,11 @@ export default class IndividualCreate extends LitElement {
                                             .opencgaSession="${this.opencgaSession}" >
                                         </disorder-manager>`
                             }
-                        },
+                        }
                     ]
-                },
+                }
             ]
-        }
+        };
     }
 
     render() {

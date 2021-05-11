@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { LitElement, html } from "/web_modules/lit-element.js";
+import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "./../../utilsNew.js";
 import "../commons/tool-header.js";
 import FormUtils from "../../form-utils.js";
@@ -48,15 +48,14 @@ export default class CohortUpdate extends LitElement {
     }
 
     _init() {
-        this.cohort = {}
-        this.updateParams = {}
-
+        console.log("init variable");
+        this.cohort = {};
     }
 
     connectedCallback() {
         super.connectedCallback();
-        this.updateParams = {}
-        this._config = { ...this.getDefaultConfig(), ...this.config };
+        this.updateParams = {};
+        this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
     update(changedProperties) {
@@ -68,7 +67,7 @@ export default class CohortUpdate extends LitElement {
             this.cohortIdObserver();
         }
 
-        super.update(changedProperties)
+        super.update(changedProperties);
     }
 
     cohortObserver() {
@@ -81,7 +80,7 @@ export default class CohortUpdate extends LitElement {
     cohortIdObserver() {
         if (this.opencgaSession && this.cohortId) {
             const query = {
-                study: this.opencgaSession.study.fqn,
+                study: this.opencgaSession.study.fqn
             };
             this.opencgaSession.opencgaClient.cohorts().info(this.cohortId, query)
                 .then(response => {
@@ -122,7 +121,7 @@ export default class CohortUpdate extends LitElement {
                     this._cohort,
                     this.updateParams,
                     e.detail.param,
-                    e.detail.value)
+                    e.detail.value);
                 break;
         }
     }
@@ -144,7 +143,7 @@ export default class CohortUpdate extends LitElement {
                 defaultLayout: "horizontal",
                 defaultValue: "",
                 help: {
-                    mode: "block", 
+                    mode: "block"
                 }
             },
             sections: [
@@ -164,7 +163,7 @@ export default class CohortUpdate extends LitElement {
                                 validation: {
 
                                 }
-                            },
+                            }
                         },
                         {
                             name: "Cohort Type",
@@ -178,16 +177,8 @@ export default class CohortUpdate extends LitElement {
                             field: "description",
                             type: "input-text",
                             display: {
-                                rows:3,
-                                placeholder: "e.g. Homo sapiens, ...",
-                            }
-                        },
-                        {
-                            name: "Num. Samples",
-                            field: "numSamples",
-                            type: "input-text",
-                            display: {
-                                placeholder: "e.g. GRCh38",
+                                rows: 3,
+                                placeholder: "e.g. Homo sapiens, ..."
                             }
                         },
                         {
@@ -196,7 +187,7 @@ export default class CohortUpdate extends LitElement {
                             type: "input-text",
                             display: {
                                 rows: 3,
-                                placeholder: "Cohort description...",
+                                placeholder: "Cohort description..."
                             }
                         },
                         {
@@ -205,28 +196,23 @@ export default class CohortUpdate extends LitElement {
                             type: "input-text",
                             display: {
                                 rows: 3,
-                                placeholder: "Cohort description...",
+                                placeholder: "Cohort description..."
                             }
-                        },
+                        }
                     ]
                 }
             ]
-        }
+        };
     }
 
     onSubmit(e) {
-        this.opencgaSession.opencgaClient.cohorts().update(this.cohort.id, this.updateParams, { study: this.opencgaSession.study.fqn })
+        this.opencgaSession.opencgaClient.cohorts().update(this.cohort.id, this.updateParams, {study: this.opencgaSession.study.fqn})
             .then(res => {
                 this._cohort = JSON.parse(JSON.stringify(this.cohort));
                 this.updateParams = {};
 
                 // this.dispatchSessionUpdateRequest();
-
-                Swal.fire(
-                    "Edit Cohort",
-                    "Cohort updated correctly.",
-                    "success"
-                );
+                FormUtils.showAlert("Edit Cohort", "Cohort updated correctly.", "success");
             })
             .catch(err => {
                 console.error(err);

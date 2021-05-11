@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 
-import { LitElement, html } from "/web_modules/lit-element.js";
+
+import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
-import { BaseManagerMixin } from "./base-manager.js";
+import {BaseManagerMixin} from "./base-manager.js";
 import "../commons/tool-header.js";
 
+// eslint-disable-next-line new-cap
 export default class PhenotypeManager extends BaseManagerMixin(LitElement) {
 
     constructor() {
@@ -54,7 +56,7 @@ export default class PhenotypeManager extends BaseManagerMixin(LitElement) {
                 labelWidth: 3,
                 labelAlign: "right",
                 defaultLayout: "horizontal",
-                defaultValue: "",
+                defaultValue: ""
             },
             sections: [
                 {
@@ -64,7 +66,7 @@ export default class PhenotypeManager extends BaseManagerMixin(LitElement) {
                             field: "phenotype.ageOfOnset",
                             type: "input-text",
                             display: {
-                                placeholder: "Name ...",
+                                placeholder: "Name ..."
                             }
                         },
                         {
@@ -73,44 +75,44 @@ export default class PhenotypeManager extends BaseManagerMixin(LitElement) {
                             type: "select",
                             allowedValues: ["OBSERVED", "NOT_OBSERVED", "UNKNOWN"],
                             display: {
-                                placeholder: "select a status...",
+                                placeholder: "select a status..."
                             }
-                        },
+                        }
                     ]
                 }
             ]
-        }
+        };
     }
 
     onClearForm(e) {
-        console.log("OnClear Phenotype form ", this)
-        this.phenotype = {}
-        this.onShow()
-        e.stopPropagation()
+        console.log("OnClear Phenotype form ", this);
+        this.phenotype = {};
+        this.onShow();
+        e.stopPropagation();
     }
 
     onAddPhenotype(e, item) {
         // super or this.onAddItem(item) //it's the same?
-        this.onAddItem(item)
-        this.phenotype = {}
-        this.onShow() // it's from BaseManager.
+        this.onAddItem(item);
+        this.phenotype = {};
+        this.onShow(); // it's from BaseManager.
     }
 
     onPhenotypeChange(e) {
-        console.log("onPhenotypeChange ", e.detail.param, e.detail.value)
-        let field = ""
+        console.log("onPhenotypeChange ", e.detail.param, e.detail.value);
+        let field = "";
         switch (e.detail.param) {
             case "phenotype.ageOfOnset":
             case "phenotype.status":
                 field = e.detail.param.split(".")[1];
                 if (!this.phenotype[field]) {
-                    this.phenotype[field] = {}
+                    this.phenotype[field] = {};
                 }
                 this.phenotype[field] = e.detail.value;
                 break;
         }
         // To stop the bubbles when dispatched this method
-        e.stopPropagation()
+        e.stopPropagation();
     }
 
     render() {
@@ -127,7 +129,7 @@ export default class PhenotypeManager extends BaseManagerMixin(LitElement) {
             <div class="clearfix"></div>
             <hr style="margin:0px"> 
             <div class="col-md-12" style="padding: 10px 20px">
-                ${this.phenotypes?.map((item) => html`
+                ${this.phenotypes?.map(item => html`
                     <span class="label label-primary" style="font-size: 14px; margin:5px; padding-right:0px; display:inline-block">${item.ageOfOnset}
                         <span class="badge" style="cursor:pointer" @click=${e => this.onRemoveItem(e, item)}>X</span>
                     </span>`

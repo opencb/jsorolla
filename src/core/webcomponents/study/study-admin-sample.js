@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-import { html, LitElement } from "/web_modules/lit-element.js";
+import {html, LitElement} from "/web_modules/lit-element.js";
 import DetailTabs from "../commons/view/detail-tabs.js";
 import "../sample/sample-update.js";
 import "../sample/sample-create.js";
 // import "../phenotype/phenotype-manager.js";
 import UtilsNew from "./../../utilsNew.js";
-import { construction } from "../commons/under-construction.js";
+import {construction} from "../commons/under-construction.js";
 
 export default class StudyAdminSample extends LitElement {
 
@@ -59,7 +59,7 @@ export default class StudyAdminSample extends LitElement {
     connectedCallback() {
         super.connectedCallback();
 
-        this._config = { ...this.getDefaultConfig(), ...this.config };
+        this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
     update(changedProperties) {
@@ -79,7 +79,7 @@ export default class StudyAdminSample extends LitElement {
                             <div class="row">
                                 <div class="col-md-6" style="margin: 20px 10px">
                                     <sample-update
-                                            .sampleId="${"AR2.10039966-01XYY"}"
+                                            .sampleId="${"ISDBM322016"}"
                                             .opencgaSession="${opencgaSession}">
                                     </sample-update>
                                 </div>
@@ -122,6 +122,7 @@ export default class StudyAdminSample extends LitElement {
                 </detail-tabs>
             </div>`;
     }
+
 }
 
 customElements.define("study-admin-sample", StudyAdminSample);
