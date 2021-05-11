@@ -17,6 +17,7 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../utilsNew.js";
 import "./../../commons/view/detail-tabs.js";
+import GridCommons from "../../commons/grid-commons.js";
 import VariantGridFormatter from "../../variant/variant-grid-formatter.js";
 
 
@@ -52,6 +53,11 @@ export default class RgaVariantAllelePairs extends LitElement {
 
     }
 
+    connectedCallback() {
+        super.connectedCallback();
+        this.gridCommons = new GridCommons(this.gridId, this, this._config);
+    }
+
     updated(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
         }
@@ -67,8 +73,8 @@ export default class RgaVariantAllelePairs extends LitElement {
     }
 
     prepareData() {
-        // console.log("prepareData", this.variant);
-        const uniqueVariants = {};
+        console.log("prepareData", this.variant);
+        /*const uniqueVariants = {};
         for (const individual of this.variant.individuals) {
             for (const gene of individual.genes) {
                 for (const transcript of gene.transcripts) {
@@ -90,24 +96,82 @@ export default class RgaVariantAllelePairs extends LitElement {
                     }
                 }
             }
-        }
-        this.tableData = Object.values(uniqueVariants);
+        }*/
+        this.tableData = this.variant?.allelePairs;
+
+/*
+        const _filters = {
+            study: this.opencgaSession.study.fqn,
+            limit: params.data.limit,
+            skip: params.data.offset || 0,
+            count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
+            include: "individuals.genes.transcripts.variants,individuals.genes.name",
+            ...this._query
+        };
+        this.opencgaSession.opencgaClient.clinical().queryRgaVariant(_filters)
+            .then(res => {
+                params.success(res);
+            })
+            .catch(e => {
+                console.error(e);
+                params.error(e);
+            });
+
+        */
     }
 
     renderTable() {
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
-            data: this.tableData,
+            //data: this.tableData,
             columns: this._initTableColumns(),
             sidePagination: "local",
             uniqueId: "id",
-            pagination: true,
+            pageSize: this._config.pageSize,
+            pageList: this._config.pageList,
+            pagination: this._config.pagination,
             paginationVAlign: "both",
             // formatShowingRows: this.gridCommons.formatShowingRows,
             gridContext: this,
             formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
+            ajax: async params => {
+                const allelePairs = this.variant?.allelePairs;
+                try {
+                    if (allelePairs?.length) {
+                        const variantIds = allelePairs.map(variant => variant.id);
+                        const _filters = {
+                            study: this.opencgaSession.study.fqn,
+                            limit: 10,
+                            skip: params.data.offset || 0,
+                            count: false, //TODO temp to avoid nullpointerexpection
+                            //count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
+                            variants: variantIds.join(",")
+                        };
+                        const rgaVariantResponse = await this.opencgaSession.opencgaClient.clinical().summaryRgaVariant(_filters);
+                        // merging RGA Summary Variant data and RGA Variant data
+                        for (const v of rgaVariantResponse.getResults()) {
+                            const i = allelePairs.findIndex(variant => variant.id === v.id);
+                            allelePairs[i] = {...allelePairs[i], attributes: v};
+                        }
+                        params.success({
+                            total: allelePairs.length,
+                            rows: allelePairs
+                        });
+
+                    } else {
+                        params.success({
+                            total: allelePairs.length,
+                            rows: allelePairs
+                        });
+                    }
+                } catch (e) {
+                    console.error(e);
+                    params.error(e);
+                }
+            },
             onClickRow: (row, selectedElement, field) => {
+                console.log(row);
             },
             onLoadSuccess: data => {
                 // this is not triggered in case of static data
@@ -134,14 +198,14 @@ export default class RgaVariantAllelePairs extends LitElement {
             },
             {
                 title: "Alternate allele frequency",
-                field: "populationFrequencies",
+                field: "populationFrequencies.populationFrequencies",
                 formatter: (value, row) => {
                     return this.clinicalPopulationFrequenciesFormatter(value, row);
                 }
             },
             {
                 title: "Consequence Type",
-                field: "aggregatedSequenceOntologyTerms",
+                field: "attributes.sequenceOntologyTerms",
                 formatter: value => {
                     if (value) {
                         return Object.values(value).map(ct => `<span>${ct.name} (${ct.accession})</span>`).join(", ");
@@ -150,8 +214,8 @@ export default class RgaVariantAllelePairs extends LitElement {
             },
             {
                 title: "Clinical Significance",
-                field: "clinicalSignificance",
-                formatter: value => value?.join(", ")
+                field: "attributes.clinicalSignificances",
+                formatter: value => value?.join(", ") ?? "-"
             }
             /* {
                 // this value is not available
@@ -162,11 +226,11 @@ export default class RgaVariantAllelePairs extends LitElement {
     }
 
     clinicalPopulationFrequenciesFormatter(value, row) {
-        if (row) {
+        if (row.attributes) {
             const popFreqMap = new Map();
             // console.log("row.populationFrequencies", row.populationFrequencies);
-            if (row?.populationFrequencies?.length > 0) {
-                for (const popFreq of row.populationFrequencies) {
+            if (row?.attributes?.populationFrequencies?.length > 0) {
+                for (const popFreq of row.attributes.populationFrequencies) {
                     popFreqMap.set(popFreq.study + ":" + popFreq.population, Number(popFreq.altAlleleFreq).toFixed(4));
                 }
             }
@@ -176,9 +240,38 @@ export default class RgaVariantAllelePairs extends LitElement {
         }
     }
 
+    /**
+     * @deprecated
+     */
+    consequenceTypeFormatter(value, row) {
+        if (row?.attributes?.individuals) {
+            const uniqueCT = {};
+            for (const individual of row.attributes.individuals) {
+                for (const gene of individual.genes) {
+                    for (const transcript of gene.transcripts) {
+                        for (const variant of transcript.variants) {
+                            if (row.id === variant.id && variant?.sequenceOntologyTerms?.length) {
+                                for (const ct of variant.sequenceOntologyTerms) {
+                                    uniqueCT[ct.accession] = {
+                                        ...ct
+                                    };
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return Object.values(uniqueCT).map(ct => `${ct.name} (${ct.accession})`).join(", ");
+        }
+
+    }
+
     getDefaultConfig() {
         return {
             title: "Allele Pairs",
+            pagination: true,
+            pageSize: 10,
+            pageList: [10, 25, 50],
             populationFrequencies: [
                 "GNOMAD_EXOMES:ALL",
                 "GNOMAD_GENOMES:ALL",
