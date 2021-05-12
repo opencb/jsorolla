@@ -1,5 +1,11 @@
 {
-  "extends": ["eslint:recommended", "google", "plugin:cypress/recommended"],
+  "extends": [
+    "eslint:recommended",
+    "google",
+    "plugin:cypress/recommended",
+    "plugin:wc/recommended",
+    "plugin:lit/recommended"
+  ],
   "parser": "babel-eslint",
   "parserOptions": {
     "ecmaVersion": 6,
@@ -10,7 +16,8 @@
     "es6": true
   },
   "rules": {
-    "indent": ["error", 4, { "SwitchCase": 1, "ignoredNodes": ["TemplateLiteral *"] }],
+    "indent": ["error", "tab", { "SwitchCase": 1, "ignoredNodes": ["TemplateLiteral *"] }],
+    "no-tabs":"off",
     "max-len": ["error", 200],
     "no-console": ["error", { "allow": ["log", "warn", "error", "time", "timeEnd"] }],
     "no-param-reassign": ["warn", { "props": true }],
@@ -38,6 +45,7 @@
     "one-var":  ["error", { "initialized": "never", "uninitialized": "always" }]
   },
   "plugins": [
-    "cypress"
+    "cypress",
+    "lit"
   ]
 }
