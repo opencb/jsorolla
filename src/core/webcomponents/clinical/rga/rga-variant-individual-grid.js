@@ -78,6 +78,7 @@ export default class RgaVariantIndividualGrid extends LitElement {
     /**
      *  generates tableDataMap, a map of all individuals (not paginated).
      *  The map will be used merging Individuals and Clinical data.
+     *  @deprecated
      */
     prepareData() {
         if (this.variant?.individuals?.length) {
@@ -233,8 +234,8 @@ export default class RgaVariantIndividualGrid extends LitElement {
     }
 
     /**
-     * Get clinical info only for the subset of individual defined by startVariant and endVariant indexes.
-     * NOTE we search for proband only and other members too
+     * Get clinical info only for the subset of individual defined by startIndividual and endIndividual indexes.
+     * NOTE we search for proband and other members as well
      */
     async getClinicalInfo(individualIds, startIndividual, endIndividual) {
         try {
