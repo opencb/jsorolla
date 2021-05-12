@@ -74,7 +74,7 @@ export default class RgaVariantAllelePairs extends LitElement {
 
     prepareData() {
         console.log("prepareData", this.variant);
-        /*const uniqueVariants = {};
+        /* const uniqueVariants = {};
         for (const individual of this.variant.individuals) {
             for (const gene of individual.genes) {
                 for (const transcript of gene.transcripts) {
@@ -97,9 +97,25 @@ export default class RgaVariantAllelePairs extends LitElement {
                 }
             }
         }*/
-        this.tableData = this.variant?.allelePairs;
 
-/*
+        // this.tableData = this.variant?.allelePairs;
+
+        if (this.variant?.allelePairs) {
+            this.tableDataLn = this.variant.allelePairs.length;
+            this.variantIds = this.variant.allelePairs.map(individual => individual.id);
+            // this is needed as `allelePairs` list has no unique id (more than 1 variant with the same id and different knockoutType might be returned)
+            this.DATA = this.variant.allelePairs.map((variant, i) => {
+                return {_id: i + "__" + variant.id, ...variant};
+            });
+
+        } else {
+            this.tableDataLn = 0;
+            this.variantIds = [];
+            this.DATA = [];
+        }
+        this.requestUpdate();
+
+        /*
         const _filters = {
             study: this.opencgaSession.study.fqn,
             limit: params.data.limit,
@@ -124,10 +140,10 @@ export default class RgaVariantAllelePairs extends LitElement {
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
-            //data: this.tableData,
+            // data: this.tableData,
             columns: this._initTableColumns(),
-            sidePagination: "local",
-            uniqueId: "id",
+            sidePagination: "server",
+            uniqueId: "_id",
             pageSize: this._config.pageSize,
             pageList: this._config.pageList,
             pagination: this._config.pagination,
@@ -136,35 +152,22 @@ export default class RgaVariantAllelePairs extends LitElement {
             gridContext: this,
             formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
             ajax: async params => {
-                const allelePairs = this.variant?.allelePairs;
                 try {
-                    if (allelePairs?.length) {
-                        const variantIds = allelePairs.map(variant => variant.id);
-                        const _filters = {
-                            study: this.opencgaSession.study.fqn,
-                            limit: 10,
-                            skip: params.data.offset || 0,
-                            count: false, //TODO temp to avoid nullpointerexpection
-                            //count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
-                            variants: variantIds.join(",")
-                        };
-                        const rgaVariantResponse = await this.opencgaSession.opencgaClient.clinical().summaryRgaVariant(_filters);
-                        // merging RGA Summary Variant data and RGA Variant data
-                        for (const v of rgaVariantResponse.getResults()) {
-                            const i = allelePairs.findIndex(variant => variant.id === v.id);
-                            allelePairs[i] = {...allelePairs[i], attributes: v};
-                        }
-                        params.success({
-                            total: allelePairs.length,
-                            rows: allelePairs
-                        });
+                    const pageNumber = this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1;
+                    const pageSize = this.table.bootstrapTable("getOptions").pageSize;
+                    const startVariant = pageNumber * pageSize - pageSize;
+                    const endVariant = pageNumber * pageSize;
+                    if (this.tableDataLn > 0) {
+                        const variantResponse = await this.getVariantInfo(this.variantIds, startVariant, endVariant);
+                        this.tableData = this.updateTableData(this.DATA, variantResponse.getResults());
 
                     } else {
-                        params.success({
-                            total: allelePairs.length,
-                            rows: allelePairs
-                        });
+                        this.tableData = [];
                     }
+                    params.success({
+                        total: this.tableDataLn,
+                        rows: this.tableData.slice(startVariant, endVariant)
+                    });
                 } catch (e) {
                     console.error(e);
                     params.error(e);
@@ -180,6 +183,47 @@ export default class RgaVariantAllelePairs extends LitElement {
             onPostBody: data => UtilsNew.initTooltip(this)
         });
     }
+
+    /**
+     * Get variant info only for the subset of variant defined by startVariant and endVariant indexes.
+     */
+    async getVariantInfo(variantIds, startVariant, endVariant) {
+        try {
+            const slicedVariant = this.variantIds.slice(startVariant, endVariant);
+            const _filters = {
+                study: this.opencgaSession.study.fqn,
+                count: false,
+                variants: slicedVariant.join(",")
+            };
+            if (slicedVariant.length && variantIds.length) {
+                return this.opencgaSession.opencgaClient.clinical().summaryRgaVariant(_filters);
+            } else {
+                console.error("params error");
+                return [];
+            }
+        } catch (e) {
+            console.error(e);
+            UtilsNew.notifyError(e);
+        }
+
+    }
+
+    /**
+     * Update variantData (containing all the variants) with the variant info just fetched.
+     * Double loop is necessary as variantData can contain more than 1 variant with the same id
+     */
+    updateTableData(variantData, variantAttributeData) {
+        const _variantData = variantData;
+        for (const variantAttrs of variantAttributeData) {
+            for (const variant of variantData) {
+                if (variant.id === variantAttrs.id) {
+                    variant.attributes = variantAttrs;
+                }
+            }
+        }
+        return _variantData;
+    }
+
 
     _initTableColumns() {
         return [
