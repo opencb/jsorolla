@@ -120,7 +120,7 @@ export default class RgaIndividualFamily extends LitElement {
         this.trio = await this.getTrio(this.individual);
 
         this.sampleIds = [
-            this.trio?.proband?.samples?.[0]?.id,
+            this.trio?.proband?.samples?.[0]?.id ?? this.individual.id, //in case there is no clinical analysis available
             this.trio?.father?.samples?.[0]?.id,
             this.trio?.mother?.samples?.[0]?.id
         ];

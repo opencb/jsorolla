@@ -172,6 +172,7 @@ export default class RgaVariantIndividualGrid extends LitElement {
                 return result.response;
             },
             onClickRow: (row, selectedElement, field) => {
+                console.log(row);
             },
             onLoadSuccess: data => {
                 // this is not triggered in case of static data
