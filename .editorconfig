@@ -12,15 +12,14 @@ trim_trailing_whitespace = true
 insert_final_newline = true
 
 [*.js]
-indent_style = tab
+indent_style = space
 tab_width = 4
-
 
 [*.yml]
 indent_style = space
 indent_size = 2
 
-[{package.json}]
+[package.json]
 indent_style = space
 indent_size = 2
 
