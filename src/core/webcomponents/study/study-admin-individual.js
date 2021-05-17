@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-import { html, LitElement } from "/web_modules/lit-element.js";
+import {html, LitElement} from "/web_modules/lit-element.js";
 import UtilsNew from "./../../utilsNew.js";
-import IndividualCreate from '../individual/individual-create.js'
+import IndividualCreate from "../individual/individual-create.js";
 import DetailTabs from "../commons/view/detail-tabs.js";
-import { construction } from "../commons/under-construction.js";
+import {construction} from "../commons/under-construction.js";
 
 export default class StudyAdminIndividual extends LitElement {
 
@@ -54,7 +54,7 @@ export default class StudyAdminIndividual extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
-        this._config = { ...this.getDefaultConfig(), ...this.config };
+        this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
 
@@ -125,7 +125,7 @@ export default class StudyAdminIndividual extends LitElement {
                         <div class="modal-body">
                             <individual-form
                                 .opencgaSession="${this.opencgaSession}"
-                                @hide="${() => this.actionModal(modalId, 'hide')}">
+                                @hide="${() => this.actionModal(modalId, "hide")}">
                             </individual-form>
                         </div>
                     </div>
@@ -147,14 +147,15 @@ export default class StudyAdminIndividual extends LitElement {
             <!-- TODO: Move for a new component as modal form -->
             <!-- <div class="pull-right" style="margin: 10px 0px">
                 <div style="display:inline-block; margin: 0px 20px">
-                    <button class="btn-custom btn btn-primary" 
-                        @click="${() => this.actionModal('newIndividual', 'show')}">New Individual
+                    <button class="btn-custom btn btn-primary"
+                        @click="\${() => this.actionModal('newIndividual', "show")}">New Individual
                     </button>
                 </div>
             </div> -->
-            <!-- ${this.renderModal('newIndividual', 'individual')} -->
+            <!-- \${this.renderModal('newIndividual', 'individual')} -->
         `;
     }
+
 }
 
 customElements.define("study-admin-individual", StudyAdminIndividual);

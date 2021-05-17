@@ -42,7 +42,9 @@ export default class CohortCreate extends LitElement {
     }
 
     _init() {
-        this.cohort = {};
+        this.cohort = {
+            samples: []
+        };
     }
 
     connectedCallback() {
@@ -68,6 +70,25 @@ export default class CohortCreate extends LitElement {
                 break;
         }
         console.log("changeValue: ", this.cohort);
+    }
+
+    onAddSamples(e) {
+        const self = this;
+        console.log("Samples: ", e.detail.value);
+        console.log("Who?", this, self);
+        // this.cohort.samples.push(e.detail.value);
+        // this.requestUpdate();
+    }
+
+    onRemoveSample(e) {
+        console.log("This is to remove a item ");
+        this.cohort = {
+            ...this.cohort,
+            samples: this.cohort.samples.filter(
+                item => item !== e.detail.value
+            )
+        };
+        this.requestUpdate();
     }
 
     dispatchSessionUpdateRequest() {
@@ -152,14 +173,25 @@ export default class CohortCreate extends LitElement {
                                 placeholder: "e.g. Homo sapiens, ..."
                             }
                         },
-                        // {
-                        //     name: "Samples",
-                        //     field: "samples",
-                        //     type: "input-text",
-                        //     display: {
-                        //         placeholder: "e.g. GRCh38"
-                        //     }
-                        // },
+                        {
+                            name: "Samples",
+                            field: "samples",
+                            type: "custom",
+                            display: {
+                                render: () => html `
+                                    <div class="col-md-12" style="padding: 10px 20px">
+                                        ${this.cohort.samples?.map(item => html`
+                                            <span class="label label-primary" style="font-size: 14px; margin:5px; padding-right:0px; display:inline-block">${item.ageOfOnset}
+                                                <span class="badge" style="cursor:pointer" @click=${e => this.onRemoveItem(e, item)}>X</span>
+                                            </span>`
+                                        )}
+                                    </div>
+                                <sample-id-autocomplete
+                                    .opencgaSession=${this.opencgaSession}
+                                    @filterChange="${this.onAddSamples}">
+                                </sample-id-autocomplete>`
+                            }
+                        },
                         {
                             name: "Status name",
                             field: "status.name",
@@ -183,7 +215,7 @@ export default class CohortCreate extends LitElement {
 
     render() {
         return html`
-            <data-form  
+            <data-form
                 .data=${this.cohort}
                 .config="${this._config}"
                 @fieldChange="${e => this.onFieldChange(e)}"

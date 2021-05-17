@@ -21,7 +21,6 @@ import "../annotations/annotationSet-form.js";
 import "../commons/tool-header.js";
 import FormUtils from "../../form-utils.js";
 
-
 export default class SampleUpdate extends LitElement {
 
     constructor() {
@@ -371,7 +370,7 @@ export default class SampleUpdate extends LitElement {
                                 width: 12,
                                 style: "padding-left: 0px",
                                 render: () => html`
-                                    <phenotype-manager 
+                                    <phenotype-manager
                                         .phenotypes="${this.sample?.phenotypes}"
                                         .opencgaSession="${this.opencgaSession}"
                                         @addItem="${e => this.onAddPhenotype(e)}"
