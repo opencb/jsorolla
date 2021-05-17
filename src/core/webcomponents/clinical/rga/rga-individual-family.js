@@ -84,33 +84,16 @@ export default class RgaIndividualFamily extends LitElement {
     }
 
     async getTrio(individual) {
-        /* const _filters = {
-            study: this.opencgaSession.study.fqn,
-            count: false,
-            members: individualId
-        };
-        const familyResponse = await this.opencgaSession.opencgaClient.families().search(_filters);
-        console.log("familyResponse", familyResponse.getResults());
-
-        TODO this doesnt work because the proband could be any child (even with no sample)
         const trio = {};
-        for (const family of familyResponse.getResults()) {
-            for (const member of family.members) {
-                if (individualId === member.father.id || individualId === member.mother.id || individualId === member.id) {
-                    trio.proband = member;
-                    trio.father = family.members.find(m => m.id === member.father.id);
-                    trio.mother = family.members.find(m => m.id === member.mother.id);
-                }
+        if (individual?.attributes?.OPENCGA_CLINICAL_ANALYSIS) {
+            const clinicalAnalysis = individual.attributes.OPENCGA_CLINICAL_ANALYSIS?.[0];
+            if (clinicalAnalysis) {
+                trio.proband = clinicalAnalysis.family.members.find(m => m.id === clinicalAnalysis.proband.id);
+                trio.father = clinicalAnalysis.family.members.find(m => m.id === trio.proband.father.id);
+                trio.mother = clinicalAnalysis.family.members.find(m => m.id === trio.proband.mother.id);
             }
-        }
-        return trio;*/
-
-        const trio = {};
-        const clinicalAnalysis = individual.attributes.OPENCGA_CLINICAL_ANALYSIS?.[0];
-        if (clinicalAnalysis) {
-            trio.proband = clinicalAnalysis.family.members.find(m => m.id === clinicalAnalysis.proband.id);
-            trio.father = clinicalAnalysis.family.members.find(m => m.id === trio.proband.father.id);
-            trio.mother = clinicalAnalysis.family.members.find(m => m.id === trio.proband.mother.id);
+        } else {
+            trio.proband = this.individual;
         }
         return trio;
     }
@@ -120,13 +103,21 @@ export default class RgaIndividualFamily extends LitElement {
         this.trio = await this.getTrio(this.individual);
 
         this.sampleIds = [
-            this.trio?.proband?.samples?.[0]?.id ?? this.individual.id, //in case there is no clinical analysis available
+            this.trio?.proband?.samples?.[0]?.id ?? this.individual.sampleId, // in case there is no clinical analysis available
             this.trio?.father?.samples?.[0]?.id,
             this.trio?.mother?.samples?.[0]?.id
         ];
 
-        // in case fatherSampleId is missing, the response studies[].samples[] of variants().query() would contains only 2 entries
-        this.motherSampleIndx = this.sampleIds[1] && this.sampleIds[2] ? 2 : 1;
+        // in case father is missing, the response studies[].samples[] of variants().query() would contains only 2 entries
+        // this.sampleIds[1] is undefined
+
+        if (this.sampleIds[1] && this.sampleIds[2]) {
+            this.motherSampleIndx = 2;
+        } else if (!this.sampleIds[1] && this.sampleIds[2]) {
+            this.motherSampleIndx = 1;
+        } else {
+            this.motherSampleIndx = null;
+        }
 
         this._query = {
             ...this.query,
@@ -134,7 +125,7 @@ export default class RgaIndividualFamily extends LitElement {
             individualId: this.individual.id,
             includeIndividual: this.individual.id,
             include: "individuals.genes.transcripts.variants,individuals.genes.name"
-        }; // we want to support a query obj param both with or without study.
+        };
         // Checks if the component is not visible or the query hasn't changed
         if (!this.active || UtilsNew.objectCompare(this._query, this.prevQuery)) {
             // console.warn("query suppressed");
@@ -261,10 +252,11 @@ export default class RgaIndividualFamily extends LitElement {
                 const params = {
                     study: this.opencgaSession.study.fqn,
                     id: variantIds.join(","),
-                    includeSample: sampleIds.join(",")
+                    includeSample: sampleIds.filter(Boolean).join(",")
                 };
                 return await this.opencgaSession.opencgaClient.variants().query(params);
             } else {
+                console.log(sampleIds, variantIds);
                 console.error("params error");
             }
 
@@ -382,18 +374,18 @@ export default class RgaIndividualFamily extends LitElement {
                     formatter: (value, row) => this.uniqueFieldFormatter(value, row, "knockoutType")
                 },
                 {
-                    title: `Proband (${this.trio.proband.id})<br> ${this.sampleIds[0]}`,
+                    title: `Proband (${this.trio?.proband?.id})<br> ${this.sampleIds[0]}`,
                     field: "",
                     colspan: 2
                 },
                 {
-                    title: `Father (${this.trio.father.id})<br>${this.sampleIds[1]}`,
+                    title: `Father (${this.trio?.father?.id})<br>${this.sampleIds[1]}`,
                     field: "id",
                     colspan: 2,
                     visible: !!this.sampleIds[1]
                 },
                 {
-                    title: `Mother (${this.trio.mother.id})<br>${this.sampleIds[2]}`,
+                    title: `Mother (${this.trio?.mother?.id})<br>${this.sampleIds[2]}`,
                     field: "",
                     colspan: 2,
                     visible: !!this.sampleIds[2]
