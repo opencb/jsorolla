@@ -55,7 +55,6 @@ export default class RgaIndividualFamily extends LitElement {
 
     _init() {
         this._prefix = UtilsNew.randomString(8);
-        this._config = this.getDefaultConfig();
         this.gridId = this._prefix + "KnockoutIndividualFamGrid";
         this.tableDataMap = {};
         this.individual = null;
@@ -458,13 +457,9 @@ export default class RgaIndividualFamily extends LitElement {
                         if (row.id === variant.id && variant?.sequenceOntologyTerms?.length) {
                             for (const ct of variant.sequenceOntologyTerms) {
                                 if (~this._config.consequenceTypes.indexOf(ct.name)) {
-                                    uniqueCT[ct.name] = {
-                                        ...ct
-                                    };
+                                    uniqueCT[ct.name] = {...ct};
                                 } else {
-                                    filteredUniqueCT[ct.name] = {
-                                        ...ct
-                                    };
+                                    filteredUniqueCT[ct.name] = {...ct};
                                 }
                             }
                         }
@@ -474,18 +469,15 @@ export default class RgaIndividualFamily extends LitElement {
         }
         if (Object.values(uniqueCT).length) {
             return `
-                ${Object.values(uniqueCT).map(ct => `<span>${ct.name} (${ct.accession})</span>`).join(", ")}
-                ${Object.values(filteredUniqueCT).length ? `
-                    <br>
-                    <a tooltip-title="Terms Filtered" tooltip-text="${Object.values(filteredUniqueCT).map(ct => `<span>${ct.name} (${ct.accession})</span>`).join(", ")}">
-                        <span style="color: darkgray;font-style: italic">${Object.values(filteredUniqueCT).length} terms filtered</span>
-                    </a>`
+            ${Object.values(uniqueCT).map(ct => `<span>${ct.name} (${ct.accession})</span>`).join(", ")}
+            ${Object.values(filteredUniqueCT).length ? `
+                <br>
+                <a tooltip-title="Terms Filtered" tooltip-text="${Object.values(filteredUniqueCT).map(ct => `<span>${ct.name} (${ct.accession})</span>`).join(", ")}">
+                    <span style="color: darkgray;font-style: italic">${Object.values(filteredUniqueCT).length} terms filtered</span>
+                </a>`
                 : ""}
-            `;
-        } else {
-            return "-";
+        `;
         }
-
     }
 
     geneFormatter(value, row) {

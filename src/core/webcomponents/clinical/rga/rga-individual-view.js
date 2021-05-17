@@ -501,7 +501,7 @@ export default class RgaIndividualView extends LitElement {
                     render: (individual, active, opencgaSession) => {
                         return html`
                             <h3>Putative recessive Variants in family</h3>
-                            <rga-individual-family .query=${this.query} .individual="${individual}" .active=${active} .opencgaSession="${opencgaSession}"></rga-individual-family>`;
+                            <rga-individual-family .query=${this.query} .config=${this._config} .individual="${individual}" .active=${active} .opencgaSession="${opencgaSession}"></rga-individual-family>`;
                         // return html`<opencga-family-view .individualId="${individual.id}" .opencgaSession="${opencgaSession}"></opencga-family-view>`;
                     }
                 }
