@@ -65,7 +65,7 @@ export default class RgaIndividualFamily extends LitElement {
     connectedCallback() {
         super.connectedCallback();
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
-
+        this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
     async updated(changedProperties) {
@@ -161,21 +161,22 @@ export default class RgaIndividualFamily extends LitElement {
                 this.opencgaSession.opencgaClient.clinical().queryRgaVariant(_filters)
                     .then(async rgaVariantResponse => {
                         const variantIds = rgaVariantResponse.getResults().map(variant => variant.id);
-                        const variantResponse = await this.getVariantInfo(this.sampleIds, variantIds);
-
-                        // merging RGA Variant data with Variant data
-                        const map = {};
-                        for (const variant of variantResponse.getResults()) {
-                            map[variant.id] = variant;
-                        }
-                        for (const variant of rgaVariantResponse.getResults()) {
-                            if (map[variant.id]) {
-                                variant.attributes = {
-                                    VARIANT: map[variant.id]
-                                };
+                        if (variantIds.length) {
+                            const variantResponse = await this.getVariantInfo(this.sampleIds, variantIds);
+                            // merging RGA Variant data with Variant data
+                            const map = {};
+                            for (const variant of variantResponse.getResults()) {
+                                map[variant.id] = variant;
                             }
+                            for (const variant of rgaVariantResponse.getResults()) {
+                                if (map[variant.id]) {
+                                    variant.attributes = {
+                                        VARIANT: map[variant.id]
+                                    };
+                                }
+                            }
+                            params.success(rgaVariantResponse);
                         }
-                        params.success(rgaVariantResponse);
                     })
                     .catch(e => {
                         console.error(e);
@@ -449,22 +450,42 @@ export default class RgaIndividualFamily extends LitElement {
 
     consequenceTypeFormatter(value, row) {
         const uniqueCT = {};
+        const filteredUniqueCT = {};
         for (const individual of row.individuals) {
             for (const gene of individual.genes) {
                 for (const transcript of gene.transcripts) {
                     for (const variant of transcript.variants) {
                         if (row.id === variant.id && variant?.sequenceOntologyTerms?.length) {
                             for (const ct of variant.sequenceOntologyTerms) {
-                                uniqueCT[ct.accession] = {
-                                    ...ct
-                                };
+                                if (~this._config.consequenceTypes.indexOf(ct.name)) {
+                                    uniqueCT[ct.name] = {
+                                        ...ct
+                                    };
+                                } else {
+                                    filteredUniqueCT[ct.name] = {
+                                        ...ct
+                                    };
+                                }
                             }
                         }
                     }
                 }
             }
         }
-        return Object.values(uniqueCT).length ? Object.values(uniqueCT).map(ct => `<span>${ct.name} (${ct.accession})</span>`).join(", ") : "-";
+        if (Object.values(uniqueCT).length) {
+            return `
+                ${Object.values(uniqueCT).map(ct => `<span>${ct.name} (${ct.accession})</span>`).join(", ")}
+                ${Object.values(filteredUniqueCT).length ? `
+                    <br>
+                    <a tooltip-title="Terms Filtered" tooltip-text="${Object.values(filteredUniqueCT).map(ct => `<span>${ct.name} (${ct.accession})</span>`).join(", ")}">
+                        <span style="color: darkgray;font-style: italic">${Object.values(filteredUniqueCT).length} terms filtered</span>
+                    </a>`
+                : ""}
+            `;
+        } else {
+            return "-";
+        }
+
     }
 
     geneFormatter(value, row) {

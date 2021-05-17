@@ -198,6 +198,20 @@ export default class RgaBrowser extends LitElement {
             icon: "fas fa-dna",
             active: false,
             searchButtonText: "Search",
+            consequenceTypes: [
+                "frameshift_variant",
+                "incomplete_terminal_codon_variant",
+                "inframe_deletion",
+                "inframe_insertion",
+                "missense_variant",
+                "start_lost",
+                "stop_gained",
+                "stop_lost",
+                "splice_acceptor_variant",
+                "splice_donor_variant",
+                "feature_truncation",
+                "transcript_ablation"
+            ],
             views: [
                 {
                     id: "gene-tab",
@@ -422,11 +436,11 @@ export default class RgaBrowser extends LitElement {
                                 </div>
 
                                 <div id="individual-tab" class="content-tab">
-                                    <rga-individual-view .query=${this.executedQuery} .opencgaSession="${this.opencgaSession}" .active="${this.activeTab["individual-tab"]}"></rga-individual-view>
+                                    <rga-individual-view .query=${this.executedQuery} .config=${this._config} .opencgaSession="${this.opencgaSession}" .active="${this.activeTab["individual-tab"]}"></rga-individual-view>
                                 </div>
 
                                 <div id="variant-tab" class="content-tab">
-                                    <rga-variant-view .query=${this.executedQuery} .opencgaSession="${this.opencgaSession}" .cellbaseClient=${this.cellbaseClient} .active="${this.activeTab["variant-tab"]}"></rga-variant-view>
+                                    <rga-variant-view .query=${this.executedQuery} .config=${this._config} .opencgaSession="${this.opencgaSession}" .cellbaseClient=${this.cellbaseClient} .active="${this.activeTab["variant-tab"]}"></rga-variant-view>
                                 </div>
                                 
                             </div>

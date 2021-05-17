@@ -232,7 +232,7 @@ export default class RgaVariantView extends LitElement {
                     rowspan: 2,
                     formatter: value => {
                         if (value) {
-                            return Object.values(value).map(ct => `<span>${ct.name} (${ct.accession})</span>`).join(", ");
+                            return this.consequenceTypeFormatter(value);
                         }
                     }},
                 {
@@ -366,27 +366,22 @@ export default class RgaVariantView extends LitElement {
         return Object.keys(dbSNPs).map(dbSNP => `<span>${dbSNP})</span>`).join(", ");
     }
 
-    /**
-     * @deprecated
-     */
     consequenceTypeFormatter(value, row) {
-        const uniqueCT = {};
-        for (const individual of row.individuals) {
-            for (const gene of individual.genes) {
-                for (const transcript of gene.transcripts) {
-                    for (const variant of transcript.variants) {
-                        if (row.id === variant.id && variant?.sequenceOntologyTerms?.length) {
-                            for (const ct of variant.sequenceOntologyTerms) {
-                                uniqueCT[ct.accession] = {
-                                    ...ct
-                                };
-                            }
-                        }
-                    }
-                }
+        if (value) {
+            const CTs = value.filter(ct => ~this._config.consequenceTypes.indexOf(ct.name));
+            const filteredCTs = value.filter(ct => !~this._config.consequenceTypes.indexOf(ct.name));
+            if (CTs.length) {
+                return `
+                ${CTs.map(ct => `<span>${ct.name} (${ct.accession})</span>`).join(", ")}
+                ${filteredCTs.length ? `
+                    <br>
+                    <a tooltip-title="Terms Filtered" tooltip-text="${filteredCTs.map(ct => `<span>${ct.name} (${ct.accession})</span>`).join(", ")}">
+                        <span style="color: darkgray;font-style: italic">${filteredCTs.length} terms filtered</span>
+                    </a>
+                ` : ""}
+            `;
             }
         }
-        return Object.values(uniqueCT).map(ct => `${ct.name} (${ct.accession})`).join(", ");
     }
 
     onColumnChange(e) {
@@ -616,7 +611,7 @@ export default class RgaVariantView extends LitElement {
                     name: "Allele Pairs",
                     render: (variant, active, opencgaSession) => {
                         return html`
-                            <rga-variant-allele-pairs .variant="${variant}" .opencgaSession="${opencgaSession}"></rga-variant-allele-pairs>
+                            <rga-variant-allele-pairs .variant="${variant}" .config=${this._config} .opencgaSession="${opencgaSession}"></rga-variant-allele-pairs>
                         `;
                     }
                 },

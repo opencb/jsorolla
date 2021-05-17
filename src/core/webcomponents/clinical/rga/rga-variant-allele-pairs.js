@@ -56,6 +56,7 @@ export default class RgaVariantAllelePairs extends LitElement {
     connectedCallback() {
         super.connectedCallback();
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
+        this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
     updated(changedProperties) {
@@ -252,7 +253,7 @@ export default class RgaVariantAllelePairs extends LitElement {
                 field: "attributes.sequenceOntologyTerms",
                 formatter: value => {
                     if (value) {
-                        return Object.values(value).map(ct => `<span>${ct.name} (${ct.accession})</span>`).join(", ");
+                        return this.consequenceTypeFormatter(value);
                     }
                 }
             },
@@ -284,30 +285,22 @@ export default class RgaVariantAllelePairs extends LitElement {
         }
     }
 
-    /**
-     * @deprecated
-     */
     consequenceTypeFormatter(value, row) {
-        if (row?.attributes?.individuals) {
-            const uniqueCT = {};
-            for (const individual of row.attributes.individuals) {
-                for (const gene of individual.genes) {
-                    for (const transcript of gene.transcripts) {
-                        for (const variant of transcript.variants) {
-                            if (row.id === variant.id && variant?.sequenceOntologyTerms?.length) {
-                                for (const ct of variant.sequenceOntologyTerms) {
-                                    uniqueCT[ct.accession] = {
-                                        ...ct
-                                    };
-                                }
-                            }
-                        }
-                    }
-                }
+        if (value) {
+            const CTs = value.filter(ct => ~this._config.consequenceTypes.indexOf(ct.name));
+            const filteredCTs = value.filter(ct => !~this._config.consequenceTypes.indexOf(ct.name));
+            if (CTs.length) {
+                return `
+                ${CTs.map(ct => `<span>${ct.name} (${ct.accession})</span>`).join(", ")}
+                ${filteredCTs.length ? `
+                    <br>
+                    <a tooltip-title="Terms Filtered" tooltip-text="${filteredCTs.map(ct => `<span>${ct.name} (${ct.accession})</span>`).join(", ")}">
+                        <span style="color: darkgray;font-style: italic">${filteredCTs.length} terms filtered</span>
+                    </a>
+                ` : ""}
+            `;
             }
-            return Object.values(uniqueCT).map(ct => `${ct.name} (${ct.accession})`).join(", ");
         }
-
     }
 
     getDefaultConfig() {
