@@ -209,7 +209,7 @@ class VariantInterpreterLanding extends LitElement {
 
     getLastClinicalAnalysis() {
         // Fetch object from server since the server automatically adds some information
-        this.opencgaSession.opencgaClient.clinical().search({study: this.opencgaSession.study.fqn, limit: 10})
+        this.opencgaSession.opencgaClient.clinical().search({study: this.opencgaSession.study.fqn, limit: 10, include: "id"})
             .then(response => {
                 this.lastClinicalAnalysis = response.responses[0].results.map(value => value.id);
                 this.lastClinicalAnalysis = [...this.lastClinicalAnalysis];

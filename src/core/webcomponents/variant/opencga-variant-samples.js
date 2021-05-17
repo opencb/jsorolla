@@ -124,7 +124,6 @@ export default class OpencgaVariantSamples extends LitElement {
         if (!this.opencgaSession) {
             return;
         }
-
         this.table = $("#" + this.gridId);
         this.table.bootstrapTable("destroy");
         this.table.bootstrapTable({
@@ -153,17 +152,10 @@ export default class OpencgaVariantSamples extends LitElement {
                     params.error(e);
                 }
             },
-            responseHandler: response => {
-                // let tableOptions = $(this.table).bootstrapTable("getOptions");
-                // this.from = tableOptions.pageNumber * tableOptions.pageSize - tableOptions.pageSize + 1;
-                // this.to = Math.min(tableOptions.pageNumber * tableOptions.pageSize, this.numSamples);
-                // this.numTotalResultsText = this.numSamples;
-                // this.requestUpdate();
-                return {
-                    total: this.numSamples,
-                    rows: response
-                };
-            },
+            responseHandler: response => ({
+                total: response.total,
+                rows: response.rows
+            }),
             onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
             onLoadSuccess: data => {
                 this.gridCommons.onLoadSuccess(data, 2);
@@ -172,14 +164,12 @@ export default class OpencgaVariantSamples extends LitElement {
         });
     }
 
-    async fetchData(query, batch_size) {
+    async fetchData(query, batchSize) {
         try {
 
             const variantResponse = await this.opencgaSession.opencgaClient.variants().querySample(query);
             const result = variantResponse.getResult(0);
-
-            // Save response count attributes
-            this.responseAttributes = variantResponse.responses[0].attributes;
+            this.numUserTotalSamples = 0;
 
             // Get the total number of samples
             // TODO count only the genotypes filtered
@@ -189,7 +179,7 @@ export default class OpencgaVariantSamples extends LitElement {
             for (const stat of stats) {
                 if (stat.cohortId === "ALL") {
                     for (const gt of Object.keys(stat.genotypeCount)) {
-                        if (gt !== "0/0" && gt !== "./.") {
+                        if (gt !== "0/0" && gt !== "./." && gt !== "./1" && gt !== "./0") {
                             this.numSamples += stat.genotypeCount[gt];
                         }
                     }
@@ -217,7 +207,7 @@ export default class OpencgaVariantSamples extends LitElement {
                 }
 
 
-                const batch = batch_size ?? sampleIds.length;
+                const batch = batchSize ?? sampleIds.length;
                 for (let i = 0; i < sampleIds.length;) {
                     let sampleChunk = [];
                     const sampleIdChunk = sampleIds.slice(i, i + batch);
@@ -240,7 +230,7 @@ export default class OpencgaVariantSamples extends LitElement {
                         });
                     sampleResponse.getResults().forEach(sample => {
                         for (const clinicalAnalysis of caseResponse.getResults()) {
-                            if (clinicalAnalysis.family.members.find(member => member.id === sample.individualId)) {
+                            if (clinicalAnalysis?.proband?.id === sample.individualId || clinicalAnalysis?.family?.members.find(member => member.id === sample.individualId)) {
                                 if (sample?.attributes?.OPENCGA_CLINICAL_ANALYSIS) {
                                     sample.attributes.OPENCGA_CLINICAL_ANALYSIS.push(clinicalAnalysis);
                                 } else {
@@ -251,8 +241,14 @@ export default class OpencgaVariantSamples extends LitElement {
                     });
                     samples.push(...sampleChunk);
                 }
+                // Samples the user can see according to permissions
+                this.numUserTotalSamples = variantResponse.getResponse(0).attributes.numTotalSamples;
+                this.approximateCount = variantResponse.getResponse(0).attributes.approximateCount;
                 this.requestUpdate();
-                return samples;
+                return {
+                    total: this.numUserTotalSamples,
+                    rows: samples
+                };
             } else {
                 this.requestUpdate();
                 await Promise.reject("No samples found");
@@ -360,25 +356,27 @@ export default class OpencgaVariantSamples extends LitElement {
 
             const samples = await this.fetchData(query, BATCH_SIZE);
             const header = ["Sample ID", "Genotype", "Variant Data", "Individual ID", "Individual Sex", "Phenotypes", "Disorders", "Case ID"];
-            const rows = samples.map(sample => {
-                return [
-                    sample.id,
-                    sample?.attributes?.OPENCGA_VARIANT?.data[0] ?? "-",
-                    this.variantFormatter(sample?.attributes?.OPENCGA_VARIANT),
-                    sample.individualId,
-                    this.sexFormatter(sample?.attributes?.OPENCGA_INDIVIDUAL),
-                    sample?.attributes?.OPENCGA_INDIVIDUAL?.phenotypes?.map(p => p.id) ?? "-",
-                    sample?.attributes?.OPENCGA_INDIVIDUAL?.disorders?.map(d => d.id) ?? "-",
-                    sample?.attributes?.OPENCGA_CLINICAL_ANALYSIS?.id ?? "-"
-                ].join("\t");
-            });
-            if (e.detail.option.toLowerCase() === "tab") {
-                const dataString = [
-                    header.join("\t"),
-                    rows.join("\n")];
-                UtilsNew.downloadData(dataString, "variant_samples_" + this.opencgaSession.study.id + ".txt", "text/plain");
-            } else {
-                UtilsNew.downloadData(JSON.stringify(samples, null, "\t"), this.opencgaSession.study.id + ".json", "application/json");
+            if (samples?.rows?.length) {
+                const rows = samples.rows.map(sample => {
+                    return [
+                        sample.id,
+                        sample?.attributes?.OPENCGA_VARIANT?.data[0] ?? "-",
+                        this.variantFormatter(sample?.attributes?.OPENCGA_VARIANT),
+                        sample.individualId,
+                        this.sexFormatter(sample?.attributes?.OPENCGA_INDIVIDUAL),
+                        sample?.attributes?.OPENCGA_INDIVIDUAL?.phenotypes?.map(p => p.id) ?? "-",
+                        sample?.attributes?.OPENCGA_INDIVIDUAL?.disorders?.map(d => d.id) ?? "-",
+                        sample?.attributes?.OPENCGA_CLINICAL_ANALYSIS?.id ?? "-"
+                    ].join("\t");
+                });
+                if (e.detail.option.toLowerCase() === "tab") {
+                    const dataString = [
+                        header.join("\t"),
+                        rows.join("\n")];
+                    UtilsNew.downloadData(dataString, "variant_samples_" + this.opencgaSession.study.id + ".txt", "text/plain");
+                } else {
+                    UtilsNew.downloadData(JSON.stringify(samples, null, "\t"), this.opencgaSession.study.id + ".json", "application/json");
+                }
             }
         } catch (e) {
             UtilsNew.notifyError(e);
@@ -398,33 +396,26 @@ export default class OpencgaVariantSamples extends LitElement {
 
     render() {
         return html`
-            <div style="padding: 20px">
-                <div style="margin: 10px">
-                    ${this.responseAttributes?.approximateCount === false 
-                        || (this.responseAttributes?.approximateCount && this.numSamples === this.responseAttributes.numTotalSamples)
-                            ? html`
-                                Number of samples found is <span style="font-weight: bold">${this.numSamples}</span>, you can view all samples for this variant.
-                                Note that you might not have permission to view all samples for any variant.
-                            `
-                            : html`
-                                Number of samples found is <span style="font-weight: bold">${this.numSamples}</span>, and
-                                your user account has permission to view <span style="font-weight: bold">${this.responseAttributes?.numTotalSamples} samples</span>.
-                                Note that you might not have permission to view all samples for any variant.
-                            `
-                    }
-                </div>
-                
+            <div>
+                ${this.numSamples !== this.numUserTotalSamples ?
+                    html`
+                        <div class="alert alert-warning"><i class="fas fa-3x fa-exclamation-circle align-middle"></i>
+                            Number of samples found is <span style="font-weight: bold">${this.numSamples}</span>${this.approximateCount === true ? html` (<i>please note this is an estimated number</i>)` : ""}, and
+                            your user account has permission to view <span style="font-weight: bold">${this.numUserTotalSamples} samples</span>.
+                            Note that you might not have permission to view all samples for any variant.
+                        </div>` :
+                    null
+                }
                 <opencb-grid-toolbar .config="${this.toolbarConfig}"
                                      @columnChange="${this.onColumnChange}"
                                      @download="${this.onDownload}"
                                      @sharelink="${this.onShare}">
                 </opencb-grid-toolbar>
-                
                 <div>
                     <table id="${this._prefix}SampleTable"></table>
                 </div>
             </div>
-        `;
+            `;
     }
 
 }

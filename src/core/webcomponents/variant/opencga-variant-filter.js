@@ -353,6 +353,8 @@ export default class OpencgaVariantFilter extends LitElement {
                                                  .cohortStatsAlt="${this.preparedQuery.cohortStatsAlt}" 
                                                  @filterChange="${e => this.onFilterChange("cohortStatsAlt", e.detail.value)}">
                             </cohort-stats-filter>`;
+                    } else {
+                        content = "No cohort stats available.";
                     }
                     break;
                 case "sample":
@@ -364,7 +366,7 @@ export default class OpencgaVariantFilter extends LitElement {
                         </sample-filter>`;
                     break;
                 case "sample-genotype":
-                    let sampleConfig = subsection.params?.genotypes ? {genotypes: subsection.params.genotypes} : {};
+                    const sampleConfig = subsection.params?.genotypes ? {genotypes: subsection.params.genotypes} : {};
                     content = html`
                         <sample-genotype-filter 
                                 .sample="${this.preparedQuery.sample}"

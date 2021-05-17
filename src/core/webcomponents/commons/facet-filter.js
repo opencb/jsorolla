@@ -45,8 +45,8 @@ export default class FacetFilter extends LitElement {
         this.fns = {avg: "Average", min: "Minimum", max: "Maxiumum", unique: "Uniques values", hll: "Distributed cardinality estimate", percentile: "Percentile estimate", sumsq: "Sum of squares of fields or function"};
         this.selectFns = Object.entries({range: "Range", ...this.fns}).map(([k, v]) => ({id: k, name: v}));
 
-        // copy of selectedFacet, to avoid unnecessary refresh
-        this._selectedFacet = {};
+        // copy of selectedFacet in JSON string, to avoid unnecessary refresh
+        this._JsonSelectedFacet = null;
     }
 
     update(changedProperties) {
@@ -57,7 +57,6 @@ export default class FacetFilter extends LitElement {
     }
 
     selectedFacetObserver() {
-
         /**
          * Helper for formatting the list of facets to show in opencga-active-filters
          */
@@ -77,10 +76,10 @@ export default class FacetFilter extends LitElement {
         };
 
         // Fires `facetQueryChange` event iff this.electedFacet has actually changed
-        if (!UtilsNew.objectCompare(this.selectedFacet, this._selectedFacet)) {
-            this._selectedFacet = {...this.selectedFacet};
+        if (!this._JsonSelectedFacet || !UtilsNew.objectCompare(this.selectedFacet, JSON.parse(this._JsonSelectedFacet))) {
+            this._JsonSelectedFacet = JSON.stringify(this.selectedFacet); // this.selectedFacet is a complex object, {...this.selectedFacet} won't work
 
-            console.log("selectedFacetObserver", this.selectedFacet);
+            // console.log("selectedFacetObserver", this.selectedFacet);
             if (Object.keys(this.selectedFacet).length) {
                 // Object property spreading cannot be used here as it creates an Object with numeric indexes in Chrome 78...
                 this.selectedFacetFormatted = Object.assign({}, ...Object.keys(this.selectedFacet).map(k => ({
@@ -100,6 +99,8 @@ export default class FacetFilter extends LitElement {
             UtilsNew.initTooltip(this);
             this.dispatchEvent(event);
             // this.requestUpdate();
+        } else {
+            // console.log("same facet")
         }
     }
 
@@ -184,7 +185,6 @@ export default class FacetFilter extends LitElement {
     }
 
     onFacetValueChange(e) {
-        // console.log("onFacetValueChange",e);
         const id = e.target.dataset.id;
         // this.selectedFacet = {...this.selectedFacet, [id]: (e.target.value.trim() ? e.target.value : "")};
         this.selectedFacet[id].value = e.target.value.trim() ? `[${e.target.value}]` : "";

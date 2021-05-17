@@ -88,16 +88,19 @@ class VariantInterpreterQcOverview extends LitElement {
 
     clinicalAnalysisObserver() {
         if (this.opencgaSession && this.clinicalAnalysis?.proband?.samples) {
-            let bamFileIds = [];
+            const bamFileIds = [];
             for (const sample of this.clinicalAnalysis.proband.samples) {
-                bamFileIds.push(sample.fileIds.find(fileId => fileId.endsWith(".bam")));
+                const bamFile = sample.fileIds.find(fileId => fileId.endsWith(".bam"));
+                if (bamFile) {
+                    bamFileIds.push(bamFile);
+                }
             }
-            if (bamFileIds) {
+            if (bamFileIds.length) {
                 this.opencgaSession.opencgaClient.files().info(bamFileIds.join(","), {study: this.opencgaSession.study.fqn})
                     .then(response => {
                         this.alignmentStats = [];
                         for (const file of response.responses[0].results) {
-                            let annotSet = file.annotationSets.find(annotSet => annotSet.id === "opencga_alignment_stats");
+                            const annotSet = file.annotationSets.find(annotSet => annotSet.id === "opencga_alignment_stats");
                             if (annotSet?.annotations) {
                                 this.alignmentStats.push(annotSet.annotations);
                             }
@@ -105,7 +108,7 @@ class VariantInterpreterQcOverview extends LitElement {
                     })
                     .catch(response => {
                         console.error("An error occurred fetching clinicalAnalysis: ", response);
-                    })
+                    });
             }
         }
     }
@@ -138,7 +141,7 @@ class VariantInterpreterQcOverview extends LitElement {
                                 id: "Summary",
                                 title: "Summary"
                             },
-                            /*{
+                            /* {
                                 id: "VariantStats",
                                 title: "Variant Stats"
                             },*/
@@ -158,8 +161,8 @@ class VariantInterpreterQcOverview extends LitElement {
                                 id: "AlignmentStats",
                                 title: "Samtools Flagstats",
                                 disabled: application.appConfig !== "opencb"
-                            },
-                            /*{
+                            }
+                            /* {
                                 id: "GeneCoverageStats",
                                 title: "Gene Coverage Stats",
                                 disabled: application.appConfig !== "opencb"
@@ -217,8 +220,8 @@ class VariantInterpreterQcOverview extends LitElement {
         $(`.interpreter-side-nav > button[data-id=${tabId}]`, this).addClass("active");
         $(".interpreter-content-tab > div[role=tabpanel]", this).hide();
         $("#" + this._prefix + tabId, this).show();
-        //for (const tab in this.activeTab) this.activeTab[tab] = false;
-        //this.activeTab[tabId] = true;
+        // for (const tab in this.activeTab) this.activeTab[tab] = false;
+        // this.activeTab[tabId] = true;
         this.requestUpdate();
     }
 
