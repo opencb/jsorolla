@@ -441,7 +441,6 @@ export default class RgaIndividualView extends LitElement {
                                 "Sample",
                                 "Gene",
                                 "Total HOM",
-                                "Total CH",
                                 "CH Definite",
                                 "CH Probable",
                                 "CH Possible",
@@ -451,7 +450,7 @@ export default class RgaIndividualView extends LitElement {
                             ...results.map(_ => [
                                 _.id,
                                 _.sampleId,
-                                this.geneFormatter(_.genes),
+                                _.genes.join(", "),
                                 _.variantStats.numHomAlt,
                                 this.getChConfidenceFormatter(_, 2),
                                 this.getChConfidenceFormatter(_, 1),
