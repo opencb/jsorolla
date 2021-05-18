@@ -436,8 +436,8 @@ export default class RgaVariantView extends LitElement {
 
     renderTable() {
         this._query = {...this.query, study: this.opencgaSession.study.fqn}; // we want to support a query obj param both with or without study.
-        // Checks if the component is not visible or the query hasn't changed
-        if (!this.active || UtilsNew.objectCompare(this._query, this.prevQuery)) {
+        // Checks if the component is not visible or the query hasn't changed (NOT the latter anymore)
+        if (!this.active /*|| UtilsNew.objectCompare(this._query, this.prevQuery)*/) {
             return;
         }
         this.prevQuery = {...this._query};
@@ -454,7 +454,7 @@ export default class RgaVariantView extends LitElement {
             pageList: this._config.pageList,
             pagination: this._config.pagination,
             paginationVAlign: "both",
-            // formatShowingRows: this.gridCommons.formatShowingRows,
+            formatShowingRows: this.gridCommons.formatShowingRows,
             gridContext: this,
             formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
             ajax: params => {
@@ -511,7 +511,6 @@ export default class RgaVariantView extends LitElement {
         });
     }
 
-    // TODO refactor
     async onDownload(e) {
         this.toolbarConfig = {...this.toolbarConfig, downloading: true};
         await this.requestUpdate();
@@ -521,7 +520,7 @@ export default class RgaVariantView extends LitElement {
             ...this._query,
             limit: 100
         };
-        this.opencgaSession.opencgaClient.clinical().queryRgaVariant(params)
+        this.opencgaSession.opencgaClient.clinical().summaryRgaVariant(params)
             .then(restResponse => {
                 const results = restResponse.getResults();
                 if (results) {
@@ -537,22 +536,27 @@ export default class RgaVariantView extends LitElement {
                                 "Allele count",
                                 "Consequence type",
                                 "Clinical Significance",
-                                "Individuals"
+                                "Individuals - HOM",
+                                "Individuals - CH Definite",
+                                "Individuals - CH Probable",
+                                "Individuals - CH Possible"
                             ].join("\t"),
                             ...results.map(_ => [
                                 _.id,
-                                this.geneFormatter(null, _),
+                                _.genes ? _.genes.join(",") : "",
                                 _.dbSnp,
                                 _.type,
-                                this.alleleCountFormatter(null, _),
-                                this.consequenceTypeFormatter(null, _),
-                                _.clinicalSignificance ? _.clinicalSignificance?.join(", ") : "-",
-                                _?.phenotypes?.length ? _.phenotypes.map(phenotype => phenotype.id).join(",") : "-",
-                                _?.disorders?.length ? _.disorders.map(disorder => disorder.id).join(",") : "-"
+                                _.alleleCount ? _.alleleCount.length : "",
+                                _.sequenceOntologyTerms?.length ? _.sequenceOntologyTerms.map(ct => `${ct.name} (${ct.accession})`) : "",
+                                _.clinicalSignificance ? _.clinicalSignificance?.join(",") : "-",
+                                _.individualStats?.numHomAlt,
+                                _.individualStats?.bothParents?.numCompHet,
+                                _.individualStats?.singleParent?.numCompHet,
+                                _.individualStats?.missingParents?.numCompHet
                             ].join("\t"))];
-                        UtilsNew.downloadData(dataString, "rga_individual_" + this.opencgaSession.study.id + ".txt", "text/plain");
+                        UtilsNew.downloadData(dataString, "rga_variants_" + this.opencgaSession.study.id + ".txt", "text/plain");
                     } else {
-                        UtilsNew.downloadData(JSON.stringify(results, null, "\t"), "rga_individual_" + this.opencgaSession.study.id + ".json", "application/json");
+                        UtilsNew.downloadData(JSON.stringify(results, null, "\t"), "rga_variants_" + this.opencgaSession.study.id + ".json", "application/json");
                     }
                 } else {
                     console.error("Error in result format");

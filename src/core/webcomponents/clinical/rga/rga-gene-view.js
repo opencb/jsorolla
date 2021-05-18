@@ -96,9 +96,9 @@ export default class RgaGeneView extends LitElement {
     }
 
     renderTable() {
-        this._query = {...this.query, study: this.opencgaSession.study.fqn}; // we want to support a query obj param both with or without study.
-        // Checks if the component is not visible or the query hasn't changed
-        if (!this.active || UtilsNew.objectCompare(this._query, this.prevQuery)) {
+        this._query = {...this.query, study: this.opencgaSession.study.fqn};
+        // Checks if the component is not visible or the query hasn't changed (NOT the latter anymore)
+        if (!this.active /* || UtilsNew.objectCompare(this._query, this.prevQuery)*/) {
             return;
         }
         this.prevQuery = {...this._query};
@@ -238,7 +238,7 @@ export default class RgaGeneView extends LitElement {
                     formatter: value => value > 0 ? value : "-"
 
                 },
-                /*{
+                /* {
                     title: "CH Tot",
                     field: "ind_ch",
                     formatter: (_, row) => {

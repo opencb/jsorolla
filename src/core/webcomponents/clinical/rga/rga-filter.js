@@ -125,9 +125,7 @@ export default class RgaFilter extends LitElement {
         this.dispatchEvent(new CustomEvent("querySearch", {
             detail: {
                 query: query
-            },
-            bubbles: true,
-            composed: true
+            }
         }));
     }
 

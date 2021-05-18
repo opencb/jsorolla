@@ -110,7 +110,7 @@ export default class RgaVariantIndividualGrid extends LitElement {
             uniqueId: "id",
             pagination: true,
             paginationVAlign: "both",
-            // formatShowingRows: this.gridCommons.formatShowingRows,
+            formatShowingRows: this.gridCommons.formatShowingRows,
             gridContext: this,
             formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
             ajax: async params => {

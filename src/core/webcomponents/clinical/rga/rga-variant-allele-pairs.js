@@ -74,7 +74,7 @@ export default class RgaVariantAllelePairs extends LitElement {
     }
 
     prepareData() {
-        console.log("prepareData", this.variant);
+        // console.log("prepareData", this.variant);
         /* const uniqueVariants = {};
         for (const individual of this.variant.individuals) {
             for (const gene of individual.genes) {

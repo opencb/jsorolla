@@ -117,7 +117,7 @@ export default class RgaBrowser extends LitElement {
     queryObserver() {
         if (this?.opencgaSession?.study?.fqn) {
             // NOTE UtilsNew.objectCompare avoid repeating remote requests.
-            if (!UtilsNew.objectCompare(this.query, this._query)) {
+            if (this.forceQuery || !UtilsNew.objectCompare(this.query, this._query)) {
                 this._query = this.query;
                 if (this.query) {
                     this.preparedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
@@ -135,6 +135,7 @@ export default class RgaBrowser extends LitElement {
             } else {
                 // console.error("same queries")
             }
+            this.forceQuery = false;
             this.requestUpdate();
         }
     }
@@ -153,6 +154,8 @@ export default class RgaBrowser extends LitElement {
         // NOTE notifySearch() triggers this chain: notifySearch -> onQueryFilterSearch() on iva-app.js -> this.queries updated -> queryObserver() here in rga-browser
         // queryObserver() here stops the repetition of the remote request by checking if it has changed
         this.query = {...this.preparedQuery};
+        // forceQuery is meant to force a new search on click on Search, even if the query hasn't changed
+        this.forceQuery = true;
         // updates this.queries in iva-app
         this.notifySearch(this.preparedQuery);
     }
@@ -397,8 +400,7 @@ export default class RgaBrowser extends LitElement {
                                         .config="${this._config.filter}"
                                         .query="${this.query}"
                                         .searchButton="${false}"
-                                        @queryChange="${this.onQueryFilterChange}"
-                                        @querySearch="${this.onQueryFilterSearch}">
+                                        @queryChange="${this.onQueryFilterChange}">
                                 </rga-filter>
                             </div>
                             
