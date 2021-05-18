@@ -221,11 +221,12 @@ export default class RgaVariantView extends LitElement {
                     field: "type",
                     rowspan: 2
                 },
-                // {
-                //     title: "Allele count",
-                //     field: "alleleCount",
-                //     formatter: this.alleleCountFormatter
-                // },
+                {
+                    title: "Allele count",
+                    field: "allelePairs",
+                    rowspan: 2,
+                    formatter: value => value ? value.length : "-"
+                },
                 {
                     title: "Consequence type",
                     field: "sequenceOntologyTerms",
