@@ -204,6 +204,8 @@ export default class OpencgaBrowser extends LitElement {
         this.notifySearch(this.preparedQuery);
 
         this.facetQueryBuilder();
+        // this.requestUpdate();
+
         /* if (Object.keys(this.selectedFacet).length) {
             this.facetQuery = {
                 ...this.preparedQuery,
