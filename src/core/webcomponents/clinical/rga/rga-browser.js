@@ -306,11 +306,11 @@ export default class RgaBrowser extends LitElement {
                                 name: "Variant Id",
                                 placeholder: "13:32906644:-:T,13:32912753:AC:-"
                             },
-                            {
+                            /*{
                                 id: "region",
                                 name: "Genomic Location",
                                 tooltip: tooltips.region
-                            },
+                            },*/
                             {
                                 id: "populationFrequencyAlt",
                                 name: "Select Population Frequency",
