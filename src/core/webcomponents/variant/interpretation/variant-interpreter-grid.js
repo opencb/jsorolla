@@ -233,7 +233,9 @@ export default class VariantInterpreterGrid extends LitElement {
                             if (member && member.id === this.clinicalAnalysis.proband.id) {
                                 sortedSampleIds.unshift(member.samples[0].id);
                             } else {
-                                sortedSampleIds.push(member.samples[0].id);
+                                if (member.samples?.[0]?.id) {
+                                    sortedSampleIds.push(member.samples[0].id);
+                                }
                             }
                         }
                         this.query.includeSample = sortedSampleIds.join(",");
