@@ -524,7 +524,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                                             <span data-cy="proband-id" style="font-weight: bold; margin: 5px 0px">${proband.id}</span>
                                         </div>
                                         <div>
-                                            <span class="help-block" style="margin: 5px 0px">${proband.samples?.map(sample => sample.id)?.join("<br>") ?? "-"}</span>
+                                            <span class="help-block" style="margin: 5px 0px">${proband.samples?.map(sample => `<p data-cy="proband-sample-id">${sample.id}</p>`)?.join("") ?? "-"}</span>
                                         </div>`,
                 visible: !this._config.columns.hidden.includes("probandId")
             },
