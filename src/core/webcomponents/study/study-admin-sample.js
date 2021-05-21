@@ -16,6 +16,7 @@
 
 import {html, LitElement} from "/web_modules/lit-element.js";
 import DetailTabs from "../commons/view/detail-tabs.js";
+import "../sample/sample-view.js";
 import "../sample/sample-update.js";
 import "../sample/sample-create.js";
 // import "../phenotype/phenotype-manager.js";
@@ -54,6 +55,8 @@ export default class StudyAdminSample extends LitElement {
 
     _init() {
         this._prefix = UtilsNew.randomString(8);
+
+        this.mode = "view";
     }
 
     connectedCallback() {
@@ -71,17 +74,29 @@ export default class StudyAdminSample extends LitElement {
             items: [
                 {
                     id: "view-sample",
-                    name: "View Sample",
+                    name: "Sample Info",
                     // icon: "fas fa-notes-medical",
                     active: true,
                     render: (study, active, opencgaSession) => {
                         return html`
                             <div class="row">
                                 <div class="col-md-6" style="margin: 20px 10px">
-                                    <sample-update
+                                    <div style="float: right">
+                                        <span><i class="fa fa-edit"></i></span>
+                                    </div>
+
+                                    ${this.mode === "update" ? html`
+                                        <sample-update
                                             .sampleId="${"ISDBM322016"}"
                                             .opencgaSession="${opencgaSession}">
-                                    </sample-update>
+                                        </sample-update>
+                                    ` : html`
+                                        <sample-view
+                                            .sampleId="${"ISDBM322016"}"
+                                            .opencgaSession="${opencgaSession}">
+                                        </sample-view>
+                                    `}
+
                                 </div>
                             </div>`;
                     }
@@ -113,7 +128,7 @@ export default class StudyAdminSample extends LitElement {
                     <i class="fa fa-info" aria-hidden="true"></i>
                 </div>
             -->
-            
+
             <div style="margin: 25px 40px">
                 <detail-tabs
                         .config="${this._config}"

@@ -40,6 +40,9 @@ export default class SampleView extends LitElement {
             sampleId: {
                 type: String
             },
+            // search: {
+            //     type: Boolean
+            // },
             opencgaSession: {
                 type: Object
             },
@@ -97,7 +100,7 @@ export default class SampleView extends LitElement {
                 //     width: 1024
                 // },
                 buttons: {
-                    show: false,
+                    show: false
                     // cancelText: "Clearrr",
                     // okText: "Okk",
                 },
@@ -140,7 +143,7 @@ export default class SampleView extends LitElement {
                         },
                         {
                             name: "Version",
-                            field: "version",
+                            field: "version"
                         },
                         // {
                         //     name: "Release",
@@ -173,15 +176,17 @@ export default class SampleView extends LitElement {
                         {
                             name: "Description",
                             field: "description"
-                        },
-                        /*{
-                            name: "Annotation sets",
-                            field: "annotationSets",
-                            type: "custom",
-                            display: {
-                                render: field => html`<annotation-sets-view .annotationSets="${field}"></annotation-sets-view>`
+                        }
+                        /*
+                            {
+                                name: "Annotation sets",
+                                field: "annotationSets",
+                                type: "custom",
+                                display: {
+                                    render: field => html`<annotation-sets-view .annotationSets="${field}"></annotation-sets-view>`
+                                }
                             }
-                        }*/
+                        */
                     ]
                 }
             ]
