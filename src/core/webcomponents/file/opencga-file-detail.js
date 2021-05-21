@@ -69,7 +69,7 @@ export default class OpencgaFileDetail extends LitElement {
 
     fileIdObserver() {
         if (this.opencgaSession) {
-            if(this.fileId) {
+            if (this.fileId) {
                 this.opencgaSession.opencgaClient.files().info(this.fileId, {study: this.opencgaSession.study.fqn})
                     .then(restResponse => {
                         this.file = restResponse.getResult(0);
@@ -109,10 +109,10 @@ export default class OpencgaFileDetail extends LitElement {
     }
 
     render() {
-        return this.opencgaSession && this.file
-            ? html`
-                <detail-tabs .data="${this.file}" .config="${this._config}" .opencgaSession="${this.opencgaSession}"></detail-tabs>`
-            : null;
+        return this.opencgaSession && this.file ?
+            html`
+                <detail-tabs .data="${this.file}" .config="${this._config}" .opencgaSession="${this.opencgaSession}"></detail-tabs>` :
+            null;
     }
 
 }

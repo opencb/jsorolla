@@ -130,8 +130,8 @@ export default class OpencgaFileGrid extends LitElement {
                         type: "FILE",
                         limit: params.data.limit,
                         skip: params.data.offset || 0,
-                        count: !$(this.table).bootstrapTable("getOptions").pageNumber || $(this.table).bootstrapTable("getOptions").pageNumber === 1,
-                        include: "name,path,uuid,samples,status,format,bioformat,size,creationDate,modificationDate,internal",
+                        count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
+                        include: "id,name,path,uuid,samples,status,format,bioformat,size,creationDate,modificationDate,internal",
                         ...this.query
                     };
                     this.opencgaSession.opencgaClient.files().search(filters)

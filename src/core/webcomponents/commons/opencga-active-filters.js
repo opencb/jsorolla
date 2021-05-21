@@ -77,7 +77,7 @@ export default class OpencgaActiveFilters extends LitElement {
         this.query = {};
         this.lockedFieldsMap = {};
         this.facetQuery = {};
-        this._facetQuery = {};
+        this._JsonFacetQuery = null;
     }
 
     connectedCallback() {
@@ -230,17 +230,23 @@ export default class OpencgaActiveFilters extends LitElement {
     }
 
     facetQueryObserver() {
-        // console.log("facetQueryObserver", this.facetQuery)
+
+        // TODO in progress https://github.com/opencb/jsorolla/issues/150
+        // console.log("facetQueryObserver")
+        // console.log("this.facetQuery", JSON.stringify(this.facetQuery))
+        // console.log("this._JsonSelectedFacet", this._JsonSelectedFacet)
         if (Object.keys(this.facetQuery).length) {
-            // console.log("compare:", UtilsNew.objectCompare(this.facetQuery, this._facetQuery))
-            if (!UtilsNew.objectCompare(this.facetQuery, this._facetQuery)) {
+            if (!this._JsonSelectedFacet || !UtilsNew.objectCompare(this.facetQuery, JSON.parse(this._JsonSelectedFacet))) {
+                this._JsonSelectedFacet = JSON.stringify(this.facetQuery); // this.selectedFacet is a complex object, {...this.selectedFacet} won't work
                 this.querySelector("#" + this._prefix + "Warning").style.display = "block";
-                this._facetQuery = this.facetQuery;
+                // console.log("showing warn")
+
             } else {
                 this.querySelector("#" + this._prefix + "Warning").style.display = "none";
+                // console.log("hiding warn")
             }
         } else {
-            this._facetQuery = {};
+            this._JsonSelectedFacet = null;
         }
     }
 
@@ -573,6 +579,8 @@ export default class OpencgaActiveFilters extends LitElement {
     }
 
     onQueryFacetDelete(e) {
+        console.log("hiding warn")
+
         this.querySelector("#" + this._prefix + "Warning").style.display = "none";
 
         console.log("onQueryFacetDelete", e.target.dataset.filterName);
