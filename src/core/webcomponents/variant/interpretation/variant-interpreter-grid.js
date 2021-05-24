@@ -199,13 +199,17 @@ export default class VariantInterpreterGrid extends LitElement {
                 variantGrid: this,
 
                 ajax: params => {
+                    // Make a deep clone object to manipulate the query sent to OpenCGA
+                    const internalQuery = JSON.parse(JSON.stringify(this.query));
+
                     // We need to make sure that the proband is the first sample when analysing Families
                     if (this.clinicalAnalysis.type.toUpperCase() === "FAMILY" && this.query?.sample) {
                         // Note:
                         // - sample=A;B;C
                         // - sample=A:0/1,1/1;B:1/1;C:1/1
                         // There is also another param called: 'includeSample'
-                        const samples = this.query.sample.split(";");
+
+                        const samples = internalQuery.sample.split(";");
                         const sortedSamples = [];
                         for (const sample of samples) {
                             const sampleFields = sample.split(":");
@@ -226,7 +230,7 @@ export default class VariantInterpreterGrid extends LitElement {
                                 }
                             }
                         }
-                        this.query.sample = newQuerySample.join(";");
+                        internalQuery.sample = newQuerySample.join(";");
 
                         const sortedSampleIds = [];
                         for (const member of this.clinicalAnalysis.family.members) {
@@ -238,7 +242,7 @@ export default class VariantInterpreterGrid extends LitElement {
                                 }
                             }
                         }
-                        this.query.includeSample = sortedSampleIds.join(",");
+                        internalQuery.includeSample = sortedSampleIds.join(",");
                     }
 
                     const tableOptions = $(this.table).bootstrapTable("getOptions");
@@ -254,7 +258,7 @@ export default class VariantInterpreterGrid extends LitElement {
 
                         // populationFrequencyAlt: "1kG_phase3:ALL<0.001",
 
-                        ...this.query
+                        ...internalQuery
 
                         // sample: this.clinicalAnalysis.proband.samples[0].id + ":0/0,0/1,1/1",
                         // unknownGenotype: "0/0"
