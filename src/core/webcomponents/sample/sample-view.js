@@ -64,17 +64,25 @@ export default class SampleView extends LitElement {
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
-    updated(changedProperties) {
+    update(changedProperties) {
         if (changedProperties.has("sampleId")) {
             this.sampleIdObserver();
         }
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
+            console.log("Updated config");
         }
+        super.update();
+    }
+
+    onFieldChange(e) {
+        this.sampleId = e.detail.value;
+        console.log("Calling this function", this.sampleId);
     }
 
     sampleIdObserver() {
         if (this.opencgaSession && this.sampleId) {
+            console.log("Getting SampleId ", this.sampleId);
             const query = {
                 study: this.opencgaSession.study.fqn,
                 includeIndividual: true
@@ -82,6 +90,7 @@ export default class SampleView extends LitElement {
             this.opencgaSession.opencgaClient.samples().info(this.sampleId, query)
                 .then(response => {
                     this.sample = response.responses[0].results[0];
+                    console.log("Sample: ", this.sample);
                     this.requestUpdate();
                 })
                 .catch(reason => {
@@ -116,13 +125,11 @@ export default class SampleView extends LitElement {
                                     <sample-id-autocomplete
                                         .value="${this.sampleId}"
                                         .opencgaSession="${this.opencgaSession}"
-                                        @filterChange="${e =>
-                                            this.onFieldChange({
-                                            detail: {
-                                                param: "sampleId",
-                                                value: e.detail.value
-                                            }
-                                        })}">
+                                        .config=${{
+                                            addButton: false,
+                                            multiple: false
+                                        }}
+                                        @filterChange="${e => this.onFieldChange(e)}">
                                     </sample-id-autocomplete>`
                             }
                         }

@@ -55,19 +55,28 @@ export default class StudyAdminSample extends LitElement {
 
     _init() {
         this._prefix = UtilsNew.randomString(8);
-
-        this.mode = "view";
+        // I can't use this.mode because override the existing mode inside detailsTabs component
+        this.editSample = false;
+        console.log("Prueba de este componente");
     }
 
     connectedCallback() {
         super.connectedCallback();
-
         this._config = {...this.getDefaultConfig(), ...this.config};
+        console.log("Updating component...");
     }
 
     update(changedProperties) {
         super.update(changedProperties);
     }
+
+    editForm(e) {
+        this.editSample = !this.editSample;
+        console.log("Editar form", this.editSample, this);
+        this._config = {...this.getDefaultConfig(), ...this.config};
+        this.requestUpdate();
+    }
+
 
     getDefaultConfig() {
         return {
@@ -82,17 +91,16 @@ export default class StudyAdminSample extends LitElement {
                             <div class="row">
                                 <div class="col-md-6" style="margin: 20px 10px">
                                     <div style="float: right">
-                                        <span><i class="fa fa-edit"></i></span>
+                                        <span><i class="fa fa-edit" @click="${e => this.editForm(e)}" ></i></span>
                                     </div>
-
-                                    ${this.mode === "update" ? html`
+                                    ${this.editSample? html`
                                         <sample-update
-                                            .sampleId="${"AR2.10039966-01G"}"
+                                            .sampleId="${"AR2.10039966-01TT"}"
                                             .opencgaSession="${opencgaSession}">
                                         </sample-update>
                                     ` : html`
                                         <sample-view
-                                            .sampleId="${"AR2.10039966-01G"}"
+                                            .sampleId="${"AR2.10039966-01TT"}"
                                             .opencgaSession="${opencgaSession}">
                                         </sample-view>`}
                                 </div>
