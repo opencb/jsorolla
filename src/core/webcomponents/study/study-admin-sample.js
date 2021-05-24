@@ -87,16 +87,14 @@ export default class StudyAdminSample extends LitElement {
 
                                     ${this.mode === "update" ? html`
                                         <sample-update
-                                            .sampleId="${"ISDBM322016"}"
+                                            .sampleId="${"AR2.10039966-01G"}"
                                             .opencgaSession="${opencgaSession}">
                                         </sample-update>
                                     ` : html`
                                         <sample-view
-                                            .sampleId="${"ISDBM322016"}"
+                                            .sampleId="${"AR2.10039966-01G"}"
                                             .opencgaSession="${opencgaSession}">
-                                        </sample-view>
-                                    `}
-
+                                        </sample-view>`}
                                 </div>
                             </div>`;
                     }
@@ -123,12 +121,6 @@ export default class StudyAdminSample extends LitElement {
 
     render() {
         return html`
-            <!--
-                <div class="pull-right" style="margin: 0px 10px">
-                    <i class="fa fa-info" aria-hidden="true"></i>
-                </div>
-            -->
-
             <div style="margin: 25px 40px">
                 <detail-tabs
                         .config="${this._config}"

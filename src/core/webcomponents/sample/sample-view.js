@@ -95,14 +95,8 @@ export default class SampleView extends LitElement {
             title: "Summary",
             icon: "",
             display: {
-                // mode: {
-                //     type: "modal",
-                //     width: 1024
-                // },
                 buttons: {
                     show: false
-                    // cancelText: "Clearrr",
-                    // okText: "Okk",
                 },
                 collapsable: true,
                 showTitle: false,
@@ -110,6 +104,30 @@ export default class SampleView extends LitElement {
                 defaultValue: "-"
             },
             sections: [
+                {
+                    title: "Search",
+                    elements: [
+                        {
+                            name: "Sample ID",
+                            field: "sampleId",
+                            type: "custom",
+                            display: {
+                                render: () => html `
+                                    <sample-id-autocomplete
+                                        .value="${this.sampleId}"
+                                        .opencgaSession="${this.opencgaSession}"
+                                        @filterChange="${e =>
+                                            this.onFieldChange({
+                                            detail: {
+                                                param: "sampleId",
+                                                value: e.detail.value
+                                            }
+                                        })}">
+                                    </sample-id-autocomplete>`
+                            }
+                        }
+                    ]
+                },
                 {
                     title: "General",
                     collapsed: false,
@@ -145,10 +163,6 @@ export default class SampleView extends LitElement {
                             name: "Version",
                             field: "version"
                         },
-                        // {
-                        //     name: "Release",
-                        //     field: "release"
-                        // },
                         {
                             name: "Status",
                             field: "internal.status",
@@ -194,6 +208,12 @@ export default class SampleView extends LitElement {
     }
 
     render() {
+        if (!this.sample) {
+            return html`
+                <h2>This sample not exist: ${this.sampleId} </h2>
+            `;
+        }
+
         return html`
             <data-form .data=${this.sample} .config="${this._config}"></data-form>
         `;
