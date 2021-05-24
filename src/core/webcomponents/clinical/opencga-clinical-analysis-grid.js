@@ -545,7 +545,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                     if (row.family?.id && row.family?.members.length) {
                         return `
                             <div>
-                                <span data-cy="family-id"style="margin: 5px 0px">${row.family.id}</span>
+                                <span data-cy="family-id" style="margin: 5px 0px">${row.family.id}</span>
                             </div>
                             <div>
                                 <span class="help-block" style="margin: 5px 0px">${row.family.members.length} members</span>

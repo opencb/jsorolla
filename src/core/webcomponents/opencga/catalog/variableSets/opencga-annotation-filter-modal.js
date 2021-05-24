@@ -442,7 +442,7 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
                             <ul class="nav nav-tabs" role="tablist">
                                 ${this.variableSets.map((variableSet, i) => html`
                                     <li role="presentation" class="${classMap({"active": i === 0})}">
-                                        <a href="#${variableSet.id}_tab" aria-controls="profile" role="tab" data-toggle="tab">${variableSet.name}</a>
+                                        <a href="#${variableSet.id}_tab" aria-controls="profile" role="tab" data-toggle="tab" data-cy="variable-set-tab">${variableSet.name}</a>
                                     </li>
                                 `)}
                             </ul>
