@@ -92,11 +92,26 @@ export default class SampleView extends LitElement {
                     this.sample = response.responses[0].results[0];
                     console.log("Sample: ", this.sample);
                     this.requestUpdate();
+                    this.dispatchSampleId();
                 })
                 .catch(reason => {
                     console.error(reason);
                 });
+        } else {
+            console.log("Sample empty");
+            this.sample = {};
+            this.requestUpdate();
         }
+    }
+
+    dispatchSampleId() {
+        this.dispatchEvent(new CustomEvent("updateSampleId", {
+            detail: {
+                value: this.sampleId
+            },
+            bubbles: true,
+            composed: true
+        }));
     }
 
     getDefaultConfig() {
@@ -175,7 +190,7 @@ export default class SampleView extends LitElement {
                             field: "internal.status",
                             type: "custom",
                             display: {
-                                render: field => html`${field.name} (${UtilsNew.dateFormatter(field.date)})`
+                                render: field => html`${field?.name} (${UtilsNew.dateFormatter(field?.date)})`
                             }
                         },
                         {
@@ -215,7 +230,7 @@ export default class SampleView extends LitElement {
     }
 
     render() {
-        if (!this.sample) {
+        if (this.sample == "") {
             return html`
                 <h2>This sample not exist: ${this.sampleId} </h2>
             `;

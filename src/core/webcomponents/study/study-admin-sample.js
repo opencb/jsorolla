@@ -57,6 +57,7 @@ export default class StudyAdminSample extends LitElement {
         this._prefix = UtilsNew.randomString(8);
         // I can't use this.mode because override the existing mode inside detailsTabs component
         this.editSample = false;
+        this.sampleId = "";
         console.log("Prueba de este componente");
     }
 
@@ -77,6 +78,11 @@ export default class StudyAdminSample extends LitElement {
         this.requestUpdate();
     }
 
+    changeSampleId(e) {
+        console.log("Value", e.detail.value);
+        this.sampleId = e.detail.value;
+    }
+
 
     getDefaultConfig() {
         return {
@@ -95,12 +101,12 @@ export default class StudyAdminSample extends LitElement {
                                     </div>
                                     ${this.editSample? html`
                                         <sample-update
-                                            .sampleId="${"AR2.10039966-01TT"}"
+                                            .sampleId="${this.sampleId}"
                                             .opencgaSession="${opencgaSession}">
                                         </sample-update>
                                     ` : html`
                                         <sample-view
-                                            .sampleId="${"AR2.10039966-01TT"}"
+                                            .sampleId="${this.sampleId}"
                                             .opencgaSession="${opencgaSession}">
                                         </sample-view>`}
                                 </div>
@@ -133,7 +139,8 @@ export default class StudyAdminSample extends LitElement {
                 <detail-tabs
                         .config="${this._config}"
                         .mode="${DetailTabs.PILLS_MODE}"
-                        .opencgaSession="${this.opencgaSession}">
+                        .opencgaSession="${this.opencgaSession}"
+                        @updateSampleId="${e => this.changeSampleId(e)}">
                 </detail-tabs>
             </div>`;
     }
