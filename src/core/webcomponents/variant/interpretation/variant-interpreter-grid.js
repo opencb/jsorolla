@@ -975,7 +975,7 @@ export default class VariantInterpreterGrid extends LitElement {
             callers: [
                 {
                     id: "caveman",
-                    info: ["CLPM", "ASMD"]
+                    info: ["CLPM", "ASMD", "EXT_CNV", "EXT_TCN", "EXT_MCN"]
                 },
                 {
                     id: "pindel",

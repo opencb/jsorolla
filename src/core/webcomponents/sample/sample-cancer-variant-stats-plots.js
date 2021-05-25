@@ -55,10 +55,10 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
             config: {
                 type: Object
             }
-        }
+        };
     }
 
-    _init(){
+    _init() {
         this._prefix = UtilsNew.randomString(8);
 
         this.preparedQuery = {};
@@ -94,28 +94,28 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
             sample: this.sampleId,
             ...this.query,
             ...this.queries?.["SNV"]
-        }).then( restResult => {
+        }).then(restResult => {
             this.signature = restResult.getResult(0).signature;
             this.dispatchEvent(new CustomEvent("changeSignature", {
                 detail: {
-                    signature: this.signature,
+                    signature: this.signature
                 },
                 bubbles: true,
                 composed: true
             }));
-        }).catch( restResponse => {
+        }).catch(restResponse => {
             this.signature = {
                 errorState: "Error from Server " + restResponse.getEvents("ERROR").map(error => error.message).join(" \n ")
             };
-        }).finally( () => {
+        }).finally(() => {
             this.requestUpdate();
         });
     }
 
     deletionsStats() {
-        let params = {
+        const params = {
             study: this.opencgaSession.study.fqn,
-            fields: "EXT_DEL_TYPE",
+            fields: "EXT_INS_DEL_TYPE",
             sample: this.sampleId,
             // fileData: "AR2.10039966-01T_vs_AR2.10039966-01G.annot.pindel.vcf.gz:FILTER=PASS;QUAL>=250;REP<=9"
             fileData: "AR2.10039966-01T_vs_AR2.10039966-01G.annot.pindel.vcf.gz:FILTER=PASS;QUAL>=250;REP<=9"
@@ -137,7 +137,7 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
 
                 this.dispatchEvent(new CustomEvent("changeDeletionAggregationStatsResults", {
                     detail: {
-                        deletionAggregationStatsResults: this.deletionAggregationStatsResults,
+                        deletionAggregationStatsResults: this.deletionAggregationStatsResults
                     },
                     bubbles: true,
                     composed: true
