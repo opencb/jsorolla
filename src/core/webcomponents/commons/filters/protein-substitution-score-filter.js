@@ -67,7 +67,7 @@ export default class ProteinSubstitutionScoreFilter extends LitElement {
         if (changedProperties.has("protein_substitution")) {
             this.state = this.defaultState();
             if (this.protein_substitution) {
-                this.logicalOperator = this.protein_substitution.split(",") > this.protein_substitution.split(",") ? "," : ";";
+                this.logicalOperator = this.protein_substitution.split(",") > this.protein_substitution.split(";") ? "," : ";";
                 const pss = this.protein_substitution.split(this.logicalOperator);
                 this.logicalSwitchDisabled = pss.length <= 1;
                 if (pss.length > 0) {
