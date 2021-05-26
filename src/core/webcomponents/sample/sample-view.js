@@ -55,6 +55,7 @@ export default class SampleView extends LitElement {
     _init() {
         // this._prefix = UtilsNew.randomString(8);
 
+        this.sample = {};
         this._config = this.getDefaultConfig();
     }
 
@@ -75,14 +76,8 @@ export default class SampleView extends LitElement {
         super.update();
     }
 
-    onFieldChange(e) {
-        this.sampleId = e.detail.value;
-        console.log("Calling this function", this.sampleId);
-    }
-
     sampleIdObserver() {
-        if (this.opencgaSession && this.sampleId) {
-            console.log("Getting SampleId ", this.sampleId);
+        if (this.sampleId && this.opencgaSession) {
             const query = {
                 study: this.opencgaSession.study.fqn,
                 includeIndividual: true
@@ -90,18 +85,20 @@ export default class SampleView extends LitElement {
             this.opencgaSession.opencgaClient.samples().info(this.sampleId, query)
                 .then(response => {
                     this.sample = response.responses[0].results[0];
-                    console.log("Sample: ", this.sample);
+                    console.log("Sample View: ", this.sample);
+                    this._config = {...this.getDefaultConfig(), ...this.config};
                     this.requestUpdate();
                     this.dispatchSampleId();
                 })
                 .catch(reason => {
                     console.error(reason);
                 });
-        } else {
-            console.log("Sample empty");
-            this.sample = {};
-            this.requestUpdate();
         }
+    }
+
+    onFieldChange(e) {
+        this.sampleId = e.detail.value;
+        console.log("Calling this function", this.sampleId);
     }
 
     dispatchSampleId() {
@@ -130,6 +127,9 @@ export default class SampleView extends LitElement {
             sections: [
                 {
                     title: "Search",
+                    display: {
+                        visible: sample => !sample?.id
+                    },
                     elements: [
                         {
                             name: "Sample ID",
@@ -138,7 +138,7 @@ export default class SampleView extends LitElement {
                             display: {
                                 render: () => html `
                                     <sample-id-autocomplete
-                                        .value="${this.sampleId}"
+                                        .value="${this.sample?.id}"
                                         .opencgaSession="${this.opencgaSession}"
                                         .config=${{
                                             addButton: false,
@@ -153,11 +153,15 @@ export default class SampleView extends LitElement {
                 {
                     title: "General",
                     collapsed: false,
+                    display: {
+                        visible: sample => sample?.id
+                    },
                     elements: [
                         {
                             name: "Sample ID",
                             type: "custom",
                             display: {
+                                visible: this.sample?.id,
                                 render: data => html`<span style="font-weight: bold">${data.id}</span> (UUID: ${data.uuid})`
                             }
                         },
@@ -230,11 +234,11 @@ export default class SampleView extends LitElement {
     }
 
     render() {
-        if (this.sample == "") {
-            return html`
-                <h2>This sample not exist: ${this.sampleId} </h2>
-            `;
-        }
+        // if (!this.sample?.id) {
+        //     return html`
+        //         <h2>This sample not exist: ${this.sample.id} </h2>
+        //     `;
+        // }
 
         return html`
             <data-form .data=${this.sample} .config="${this._config}"></data-form>

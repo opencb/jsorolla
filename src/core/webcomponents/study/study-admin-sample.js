@@ -83,7 +83,6 @@ export default class StudyAdminSample extends LitElement {
         this.sampleId = e.detail.value;
     }
 
-
     getDefaultConfig() {
         return {
             items: [
@@ -102,12 +101,14 @@ export default class StudyAdminSample extends LitElement {
                                     ${this.editSample? html`
                                         <sample-update
                                             .sampleId="${this.sampleId}"
-                                            .opencgaSession="${opencgaSession}">
+                                            .opencgaSession="${opencgaSession}"
+                                            @updateSampleId="${e => this.changeSampleId(e)}">
                                         </sample-update>
                                     ` : html`
                                         <sample-view
                                             .sampleId="${this.sampleId}"
-                                            .opencgaSession="${opencgaSession}">
+                                            .opencgaSession="${opencgaSession}"
+                                            @updateSampleId="${e => this.changeSampleId(e)}">
                                         </sample-view>`}
                                 </div>
                             </div>`;
@@ -139,8 +140,7 @@ export default class StudyAdminSample extends LitElement {
                 <detail-tabs
                         .config="${this._config}"
                         .mode="${DetailTabs.PILLS_MODE}"
-                        .opencgaSession="${this.opencgaSession}"
-                        @updateSampleId="${e => this.changeSampleId(e)}">
+                        .opencgaSession="${this.opencgaSession}">
                 </detail-tabs>
             </div>`;
     }
