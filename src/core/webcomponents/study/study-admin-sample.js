@@ -55,19 +55,34 @@ export default class StudyAdminSample extends LitElement {
 
     _init() {
         this._prefix = UtilsNew.randomString(8);
-
-        this.mode = "view";
+        // I can't use this.mode because override the existing mode inside detailsTabs component
+        this.editSample = false;
+        this.sampleId = "";
+        console.log("Prueba de este componente");
     }
 
     connectedCallback() {
         super.connectedCallback();
-
         this._config = {...this.getDefaultConfig(), ...this.config};
+        console.log("Updating component...");
     }
 
     update(changedProperties) {
         super.update(changedProperties);
     }
+
+    editForm(e) {
+        this.editSample = !this.editSample;
+        console.log("Editar form", this.editSample, this);
+        this._config = {...this.getDefaultConfig(), ...this.config};
+        this.requestUpdate();
+    }
+
+    changeSampleId(e) {
+        console.log("Value", e.detail.value);
+        this.sampleId = e.detail.value;
+    }
+
 
     getDefaultConfig() {
         return {
@@ -82,21 +97,18 @@ export default class StudyAdminSample extends LitElement {
                             <div class="row">
                                 <div class="col-md-6" style="margin: 20px 10px">
                                     <div style="float: right">
-                                        <span><i class="fa fa-edit"></i></span>
+                                        <span><i class="fa fa-edit" @click="${e => this.editForm(e)}" ></i></span>
                                     </div>
-
-                                    ${this.mode === "update" ? html`
+                                    ${this.editSample? html`
                                         <sample-update
-                                            .sampleId="${"ISDBM322016"}"
+                                            .sampleId="${this.sampleId}"
                                             .opencgaSession="${opencgaSession}">
                                         </sample-update>
                                     ` : html`
                                         <sample-view
-                                            .sampleId="${"ISDBM322016"}"
+                                            .sampleId="${this.sampleId}"
                                             .opencgaSession="${opencgaSession}">
-                                        </sample-view>
-                                    `}
-
+                                        </sample-view>`}
                                 </div>
                             </div>`;
                     }
@@ -123,17 +135,12 @@ export default class StudyAdminSample extends LitElement {
 
     render() {
         return html`
-            <!--
-                <div class="pull-right" style="margin: 0px 10px">
-                    <i class="fa fa-info" aria-hidden="true"></i>
-                </div>
-            -->
-
             <div style="margin: 25px 40px">
                 <detail-tabs
                         .config="${this._config}"
                         .mode="${DetailTabs.PILLS_MODE}"
-                        .opencgaSession="${this.opencgaSession}">
+                        .opencgaSession="${this.opencgaSession}"
+                        @updateSampleId="${e => this.changeSampleId(e)}">
                 </detail-tabs>
             </div>`;
     }

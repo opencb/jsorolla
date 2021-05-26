@@ -64,17 +64,25 @@ export default class SampleView extends LitElement {
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
-    updated(changedProperties) {
+    update(changedProperties) {
         if (changedProperties.has("sampleId")) {
             this.sampleIdObserver();
         }
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
+            console.log("Updated config");
         }
+        super.update();
+    }
+
+    onFieldChange(e) {
+        this.sampleId = e.detail.value;
+        console.log("Calling this function", this.sampleId);
     }
 
     sampleIdObserver() {
         if (this.opencgaSession && this.sampleId) {
+            console.log("Getting SampleId ", this.sampleId);
             const query = {
                 study: this.opencgaSession.study.fqn,
                 includeIndividual: true
@@ -82,12 +90,28 @@ export default class SampleView extends LitElement {
             this.opencgaSession.opencgaClient.samples().info(this.sampleId, query)
                 .then(response => {
                     this.sample = response.responses[0].results[0];
+                    console.log("Sample: ", this.sample);
                     this.requestUpdate();
+                    this.dispatchSampleId();
                 })
                 .catch(reason => {
                     console.error(reason);
                 });
+        } else {
+            console.log("Sample empty");
+            this.sample = {};
+            this.requestUpdate();
         }
+    }
+
+    dispatchSampleId() {
+        this.dispatchEvent(new CustomEvent("updateSampleId", {
+            detail: {
+                value: this.sampleId
+            },
+            bubbles: true,
+            composed: true
+        }));
     }
 
     getDefaultConfig() {
@@ -95,14 +119,8 @@ export default class SampleView extends LitElement {
             title: "Summary",
             icon: "",
             display: {
-                // mode: {
-                //     type: "modal",
-                //     width: 1024
-                // },
                 buttons: {
                     show: false
-                    // cancelText: "Clearrr",
-                    // okText: "Okk",
                 },
                 collapsable: true,
                 showTitle: false,
@@ -110,6 +128,28 @@ export default class SampleView extends LitElement {
                 defaultValue: "-"
             },
             sections: [
+                {
+                    title: "Search",
+                    elements: [
+                        {
+                            name: "Sample ID",
+                            field: "sampleId",
+                            type: "custom",
+                            display: {
+                                render: () => html `
+                                    <sample-id-autocomplete
+                                        .value="${this.sampleId}"
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .config=${{
+                                            addButton: false,
+                                            multiple: false
+                                        }}
+                                        @filterChange="${e => this.onFieldChange(e)}">
+                                    </sample-id-autocomplete>`
+                            }
+                        }
+                    ]
+                },
                 {
                     title: "General",
                     collapsed: false,
@@ -145,16 +185,12 @@ export default class SampleView extends LitElement {
                             name: "Version",
                             field: "version"
                         },
-                        // {
-                        //     name: "Release",
-                        //     field: "release"
-                        // },
                         {
                             name: "Status",
                             field: "internal.status",
                             type: "custom",
                             display: {
-                                render: field => html`${field.name} (${UtilsNew.dateFormatter(field.date)})`
+                                render: field => html`${field?.name} (${UtilsNew.dateFormatter(field?.date)})`
                             }
                         },
                         {
@@ -194,6 +230,12 @@ export default class SampleView extends LitElement {
     }
 
     render() {
+        if (this.sample == "") {
+            return html`
+                <h2>This sample not exist: ${this.sampleId} </h2>
+            `;
+        }
+
         return html`
             <data-form .data=${this.sample} .config="${this._config}"></data-form>
         `;

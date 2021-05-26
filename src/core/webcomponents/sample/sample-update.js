@@ -96,6 +96,7 @@ export default class SampleUpdate extends LitElement {
                 .then(response => {
                     // No need to call to this.sampleObserver()
                     this.sample = response.responses[0].results[0];
+                    this.requestUpdate();
                 })
                 .catch(reason => {
                     console.error(reason);
