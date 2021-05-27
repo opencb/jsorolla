@@ -19,16 +19,10 @@ import DetailTabs from "../commons/view/detail-tabs.js";
 import "../sample/sample-view.js";
 import "../sample/sample-update.js";
 import "../sample/sample-create.js";
-// import "../phenotype/phenotype-manager.js";
-import UtilsNew from "./../../utilsNew.js";
-import {construction} from "../commons/under-construction.js";
-
 export default class StudyAdminSample extends LitElement {
 
     constructor() {
         super();
-
-        // Set status and init private properties
         this._init();
     }
 
@@ -63,7 +57,6 @@ export default class StudyAdminSample extends LitElement {
     connectedCallback() {
         super.connectedCallback();
         this._config = {...this.getDefaultConfig(), ...this.config};
-        console.log("Updating component...");
     }
 
     update(changedProperties) {
@@ -72,24 +65,18 @@ export default class StudyAdminSample extends LitElement {
 
     editForm(e) {
         this.editSample = !this.editSample;
-        console.log("Editar form", this.editSample, this);
         this._config = {...this.getDefaultConfig(), ...this.config};
         this.requestUpdate();
     }
 
     clearForm(e) {
-        // this.sample = {};
-        // this.sampleId = "";
-        // this._config = {...this.getDefaultConfig(), ...this.config};
-        // this.requestUpdate("");
-
+        this.editSample = false;
         this.fetchSampleId("");
     }
 
     changeSampleId(e) {
         // console.log("Value", e.detail.value);
         // this.sampleId = e.detail.value;
-
         this.fetchSampleId(e.detail.value);
     }
 
@@ -136,7 +123,6 @@ export default class StudyAdminSample extends LitElement {
                 {
                     id: "view-sample",
                     name: "Sample Info",
-                    // icon: "fas fa-notes-medical",
                     active: true,
                     render: (study, active, opencgaSession) => {
                         return html`

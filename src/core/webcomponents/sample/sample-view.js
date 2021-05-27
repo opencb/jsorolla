@@ -55,7 +55,6 @@ export default class SampleView extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
-
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
@@ -87,7 +86,6 @@ export default class SampleView extends LitElement {
                 .finally(() => {
                     this._config = {...this.getDefaultConfig(), ...this.config};
                     this.requestUpdate();
-
                     this.notify(error);
                 });
         }
