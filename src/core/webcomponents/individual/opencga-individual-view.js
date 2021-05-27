@@ -23,7 +23,6 @@ export default class OpencgaIndividualView extends LitElement {
 
     constructor() {
         super();
-
         this._init();
     }
 
@@ -33,13 +32,13 @@ export default class OpencgaIndividualView extends LitElement {
 
     static get properties() {
         return {
-            opencgaSession: {
+            individual: {
                 type: Object
             },
             individualId: {
                 type: String
             },
-            individual: {
+            opencgaSession: {
                 type: Object
             },
             config: {
@@ -49,35 +48,61 @@ export default class OpencgaIndividualView extends LitElement {
     }
 
     _init() {
-        this._config = this.getDefaultConfig();
+        this.individual = {};
     }
 
     connectedCallback() {
         super.connectedCallback();
-
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
-    updated(changedProperties) {
+    update(changedProperties) {
         if (changedProperties.has("individualId")) {
             this.individualIdObserver();
         }
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
         }
+        super.update();
     }
 
     individualIdObserver() {
-        if (this.opencgaSession && this.individualId) {
+        if (this.individualId && this.opencgaSession) {
+            let error;
             this.opencgaSession.opencgaClient.individuals().info(this.individualId, {study: this.opencgaSession.study.fqn})
-                .then( response => {
+                .then(response => {
                     this.individual = response.responses[0].results[0];
                     this.requestUpdate();
                 })
-                .catch(function(reason) {
+                .catch(function (reason) {
+                    this.individual = {};
                     console.error(reason);
+                })
+                .finally(() => {
+                    this._config = {...this.getDefaultConfig(), ...this.config};
+                    this.requestUpdate();
+                    this.notify(error);
                 });
         }
+    }
+
+    onFilterChange(e) {
+        this.individualId = e.detail.value;
+    }
+
+    notify(error) {
+        this.dispatchEvent(new CustomEvent("individualSearch", {
+            detail: {
+                value: this.individual,
+                status: {
+                    // true if error is defined and not empty
+                    error: !!error,
+                    message: error
+                }
+            },
+            bubbles: true,
+            composed: true
+        }));
     }
 
     getDefaultConfig() {
@@ -93,8 +118,36 @@ export default class OpencgaIndividualView extends LitElement {
             },
             sections: [
                 {
+                    title: "Search",
+                    display: {
+                        visible: individual => !individual?.id
+                    },
+                    elements: [
+                        {
+                            name: "Individual ID",
+                            field: "individualId",
+                            type: "custom",
+                            display: {
+                                render: () => html `
+                                    <sample-id-autocomplete
+                                        .value="${this.sample?.id}"
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .config=${{
+                                            addButton: false,
+                                            multiple: false
+                                        }}
+                                        @filterChange="${e => this.onFilterChange(e)}">
+                                    </sample-id-autocomplete>`
+                            }
+                        }
+                    ]
+                },
+                {
                     title: "General",
                     collapsed: false,
+                    display: {
+                        visible: individual => individual?.id
+                    },
                     elements: [
                         {
                             name: "Sample ID",
@@ -148,7 +201,7 @@ export default class OpencgaIndividualView extends LitElement {
                                     if (disorder.id.startsWith("OMIM:")) {
                                         id = html`<a href="https://omim.org/entry/${disorder.id.split(":")[1]}" target="_blank">${disorder.id}</a>`;
                                     }
-                                    return html`${disorder.name} (${id})`
+                                    return html`${disorder.name} (${id})`;
                                 },
                                 defaultValue: "N/A"
                             }
@@ -164,7 +217,7 @@ export default class OpencgaIndividualView extends LitElement {
                                     if (phenotype.id.startsWith("HP:")) {
                                         id = html`<a href="https://hpo.jax.org/app/browse/term/${phenotype.id}" target="_blank">${phenotype.id}</a>`;
                                     }
-                                    return html`${phenotype.name} (${id})`
+                                    return html`${phenotype.name} (${id})`;
                                 },
                                 defaultValue: "N/A"
                             }
@@ -209,6 +262,9 @@ export default class OpencgaIndividualView extends LitElement {
                 },
                 {
                     title: "Samples",
+                    display: {
+                        visible: individual => individual?.id
+                    },
                     elements: [
                         {
                             name: "List of samples",
@@ -242,6 +298,12 @@ export default class OpencgaIndividualView extends LitElement {
     }
 
     render() {
+        if (!this.individual?.id && this.individualId) {
+            return html`
+                <h2>Loading info... </h2>
+            `;
+        }
+
         return html`
             <data-form .data=${this.individual} .config="${this._config}"></data-form>
         `;

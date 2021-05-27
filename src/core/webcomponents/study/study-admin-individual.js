@@ -49,7 +49,9 @@ export default class StudyAdminIndividual extends LitElement {
     }
 
     _init() {
-        this._prefix = UtilsNew.randomString(8);
+        this.editIndividual = false;
+        this.individualId = "";
+        this.individual = {};
     }
 
     connectedCallback() {
@@ -57,9 +59,59 @@ export default class StudyAdminIndividual extends LitElement {
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
-
     update(changedProperties) {
         super.update(changedProperties);
+    }
+
+    editForm(e) {
+        this.editIndividual = !this.editIndividual;
+        this._config = {...this.getDefaultConfig(), ...this.config};
+        this.requestUpdate();
+    }
+
+    clearForm(e) {
+        this.editForm = false;
+        this.fetchIndividualId("");
+    }
+
+    changeIndividualId(e) {
+        this.fetchIndividualId(e.detail.value);
+    }
+
+    fetchIndividualId(individualId) {
+        if (this.opencgaSession) {
+            if (individualId) {
+                const query = {
+                    study: this.opencgaSession.study.fqn
+                };
+                this.opencgaSession.opencgaClient.samples().info(individualId, query)
+                    .then(response => {
+                        this.individual = response.responses[0].results[0];
+                    })
+                    .catch(reason => {
+                        this.individual = {};
+                        console.error(reason);
+                    })
+                    .finally(() => {
+                        this._config = {...this.getDefaultConfig(), ...this.config};
+                        this.requestUpdate();
+                    });
+            } else {
+                this.individual = {};
+                this._config = {...this.getDefaultConfig(), ...this.config};
+                this.requestUpdate();
+            }
+        }
+    }
+
+    onIndividualSearch(e) {
+        if (e.detail.status.error) {
+            // inform
+        } else {
+            this.individual = e.detail.value;
+            this._config = {...this.getDefaultConfig(), ...this.config};
+            this.requestUpdate();
+        }
     }
 
     getDefaultConfig() {
@@ -67,14 +119,31 @@ export default class StudyAdminIndividual extends LitElement {
             items: [
                 {
                     id: "view-individual",
-                    name: "View Individual",
-                    // icon: "fas fa-notes-medical",
+                    name: "Individual Info",
                     active: true,
                     render: (study, active, opencgaSession) => {
                         return html`
                             <div class="row">
                                 <div class="col-md-6" style="margin: 20px 10px">
-                                    ${construction}
+                                    <div style="float: right">
+                                        <span style="padding-right:5px">
+                                            <i class="fas fa-times fa-lg" @click="${e => this.clearForm(e)}" ></i>
+                                        </span>
+                                        <span style="padding-left:5px">
+                                            <i class="fa fa-edit fa-lg" @click="${e => this.editForm(e)}"></i>
+                                        </span>
+                                    </div>
+                                    ${this.editIndividual? html`
+                                        <individual-update
+                                            .individual="${this.individualId}"
+                                            .opencgaSession="${opencgaSession}">
+                                        </individual-update>
+                                    ` : html`
+                                        <opencga-individual-view
+                                            .individual="${this.individual}"
+                                            .opencgaSession="${opencgaSession}"
+                                            @individualSearch="${e => this.onIndividualSearch(e)}">
+                                        </opencga-individual-view>`}
                                 </div>
                             </div>`;
                     }
@@ -98,6 +167,7 @@ export default class StudyAdminIndividual extends LitElement {
             ]
         };
     }
+
     //  TODO: Move for a new component as modal form
     actionModal(modalId, action, individual = {}, mode = "CREATE") {
         // action: show or hide
