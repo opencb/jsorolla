@@ -54,7 +54,6 @@ export default class StudyAdminSample extends LitElement {
     }
 
     _init() {
-        this._prefix = UtilsNew.randomString(8);
         // I can't use this.mode because override the existing mode inside detailsTabs component
         this.editSample = false;
         this.sampleId = "";
@@ -79,15 +78,56 @@ export default class StudyAdminSample extends LitElement {
     }
 
     clearForm(e) {
-        this.sample = {};
-        this.sampleId = "";
-        this._config = {...this.getDefaultConfig(), ...this.config};
-        this.requestUpdate();
+        // this.sample = {};
+        // this.sampleId = "";
+        // this._config = {...this.getDefaultConfig(), ...this.config};
+        // this.requestUpdate("");
+
+        this.fetchSampleId("");
     }
 
     changeSampleId(e) {
-        console.log("Value", e.detail.value);
-        this.sampleId = e.detail.value;
+        // console.log("Value", e.detail.value);
+        // this.sampleId = e.detail.value;
+
+        this.fetchSampleId(e.detail.value);
+    }
+
+    fetchSampleId(sampleId) {
+        if (this.opencgaSession) {
+            if (sampleId) {
+                const query = {
+                    study: this.opencgaSession.study.fqn,
+                    includeIndividual: true
+                };
+                this.opencgaSession.opencgaClient.samples().info(sampleId, query)
+                    .then(response => {
+                        this.sample = response.responses[0].results[0];
+                    })
+                    .catch(reason => {
+                        this.sample = {};
+                        console.error(reason);
+                    })
+                    .finally(() => {
+                        this._config = {...this.getDefaultConfig(), ...this.config};
+                        this.requestUpdate();
+                    });
+            } else {
+                this.sample = {};
+                this._config = {...this.getDefaultConfig(), ...this.config};
+                this.requestUpdate();
+            }
+        }
+    }
+
+    onSampleSearch(e) {
+        if (e.detail.status.error) {
+            // inform
+        } else {
+            this.sample = e.detail.value;
+            this._config = {...this.getDefaultConfig(), ...this.config};
+            this.requestUpdate();
+        }
     }
 
     getDefaultConfig() {
@@ -117,16 +157,15 @@ export default class StudyAdminSample extends LitElement {
                                     </div>
                                     ${this.editSample? html`
                                         <sample-update
-                                            .sampleId="${this.sampleId}"
+                                            .sample="${this.sample}"
                                             .opencgaSession="${opencgaSession}"
                                             @updateSampleId="${e => this.changeSampleId(e)}">
                                         </sample-update>
                                     ` : html`
                                         <sample-view
-                                            .sampleId="${this.sampleId}"
                                             .sample="${this.sample}"
                                             .opencgaSession="${opencgaSession}"
-                                            @updateSampleId="${e => this.changeSampleId(e)}">
+                                            @sampleSearch="${e => this.onSampleSearch(e)}">
                                         </sample-view>`}
                                 </div>
                             </div>`;
@@ -154,7 +193,6 @@ export default class StudyAdminSample extends LitElement {
 
     render() {
         return html`
-
             <div style="margin: 25px 40px">
                 <detail-tabs
                         .config="${this._config}"

@@ -40,9 +40,6 @@ export default class SampleView extends LitElement {
             sampleId: {
                 type: String
             },
-            // search: {
-            //     type: Boolean
-            // },
             opencgaSession: {
                 type: Object
             },
@@ -53,12 +50,12 @@ export default class SampleView extends LitElement {
     }
 
     _init() {
-        this._prefix = UtilsNew.randomString(8);
         this.sample = {};
     }
 
     connectedCallback() {
         super.connectedCallback();
+
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
@@ -78,34 +75,44 @@ export default class SampleView extends LitElement {
                 study: this.opencgaSession.study.fqn,
                 includeIndividual: true
             };
+            let error;
             this.opencgaSession.opencgaClient.samples().info(this.sampleId, query)
                 .then(response => {
                     this.sample = response.responses[0].results[0];
-                    console.log("Sample View: ", this.sample);
-                    this._config = {...this.getDefaultConfig(), ...this.config};
-                    this.dispatchSampleId();
                 })
                 .catch(reason => {
-                    console.error(reason);
+                    this.sample = {};
+                    error = reason;
+                })
+                .finally(() => {
+                    this._config = {...this.getDefaultConfig(), ...this.config};
+                    this.requestUpdate();
+
+                    this.notify(error);
                 });
         }
     }
 
-    onFieldChange(e) {
+    onFilterChange(e) {
         this.sampleId = e.detail.value;
     }
 
-    dispatchSampleId() {
-        this.dispatchEvent(new CustomEvent("updateSampleId", {
+    notify(error) {
+        this.dispatchEvent(new CustomEvent("sampleSearch", {
             detail: {
-                value: this.sampleId
+                value: this.sample,
+                query: {
+                    includeIndividual: true
+                },
+                status: {
+                    // true if error is defined and not empty
+                    error: !!error,
+                    message: error
+                }
             },
             bubbles: true,
             composed: true
         }));
-
-        this.requestUpdate();
-        console.log("execute");
     }
 
     getDefaultConfig() {
@@ -141,7 +148,7 @@ export default class SampleView extends LitElement {
                                             addButton: false,
                                             multiple: false
                                         }}
-                                        @filterChange="${e => this.onFieldChange(e)}">
+                                        @filterChange="${e => this.onFilterChange(e)}">
                                     </sample-id-autocomplete>`
                             }
                         }
