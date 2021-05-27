@@ -27,7 +27,7 @@
     "no-use-before-define": ["error", { "classes": false }],
     "padded-blocks": ["error", { "classes": "always" }],
     "quotes": ["warn", "double"],
-    "comma-dangle": ["error", "never"],
+    "comma-dangle": ["error", "only-multiline"],
     "arrow-parens": ["error","as-needed"],
     "no-invalid-this": 0,
     "babel/no-invalid-this": 0,

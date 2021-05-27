@@ -53,15 +53,12 @@ export default class SampleView extends LitElement {
     }
 
     _init() {
-        // this._prefix = UtilsNew.randomString(8);
-
+        this._prefix = UtilsNew.randomString(8);
         this.sample = {};
-        this._config = this.getDefaultConfig();
     }
 
     connectedCallback() {
         super.connectedCallback();
-
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
@@ -71,7 +68,6 @@ export default class SampleView extends LitElement {
         }
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
-            console.log("Updated config");
         }
         super.update();
     }
@@ -87,7 +83,6 @@ export default class SampleView extends LitElement {
                     this.sample = response.responses[0].results[0];
                     console.log("Sample View: ", this.sample);
                     this._config = {...this.getDefaultConfig(), ...this.config};
-                    this.requestUpdate();
                     this.dispatchSampleId();
                 })
                 .catch(reason => {
@@ -98,7 +93,6 @@ export default class SampleView extends LitElement {
 
     onFieldChange(e) {
         this.sampleId = e.detail.value;
-        console.log("Calling this function", this.sampleId);
     }
 
     dispatchSampleId() {
@@ -109,6 +103,9 @@ export default class SampleView extends LitElement {
             bubbles: true,
             composed: true
         }));
+
+        this.requestUpdate();
+        console.log("execute");
     }
 
     getDefaultConfig() {
@@ -161,7 +158,7 @@ export default class SampleView extends LitElement {
                             name: "Sample ID",
                             type: "custom",
                             display: {
-                                visible: this.sample?.id,
+                                visible: sample => sample?.id,
                                 render: data => html`<span style="font-weight: bold">${data.id}</span> (UUID: ${data.uuid})`
                             }
                         },
@@ -234,11 +231,11 @@ export default class SampleView extends LitElement {
     }
 
     render() {
-        // if (!this.sample?.id) {
-        //     return html`
-        //         <h2>This sample not exist: ${this.sample.id} </h2>
-        //     `;
-        // }
+        if (!this.sample?.id && this.sampleId) {
+            return html`
+                <h2>Loading info... </h2>
+            `;
+        }
 
         return html`
             <data-form .data=${this.sample} .config="${this._config}"></data-form>

@@ -58,7 +58,7 @@ export default class StudyAdminSample extends LitElement {
         // I can't use this.mode because override the existing mode inside detailsTabs component
         this.editSample = false;
         this.sampleId = "";
-        console.log("Prueba de este componente");
+        this.sample = {};
     }
 
     connectedCallback() {
@@ -78,6 +78,13 @@ export default class StudyAdminSample extends LitElement {
         this.requestUpdate();
     }
 
+    clearForm(e) {
+        this.sample = {};
+        this.sampleId = "";
+        this._config = {...this.getDefaultConfig(), ...this.config};
+        this.requestUpdate();
+    }
+
     changeSampleId(e) {
         console.log("Value", e.detail.value);
         this.sampleId = e.detail.value;
@@ -93,10 +100,20 @@ export default class StudyAdminSample extends LitElement {
                     active: true,
                     render: (study, active, opencgaSession) => {
                         return html`
+                        <style>
+                            .fa-lg:hover {
+                                color: red;
+                            }
+                        </style>
                             <div class="row">
                                 <div class="col-md-6" style="margin: 20px 10px">
                                     <div style="float: right">
-                                        <span><i class="fa fa-edit" @click="${e => this.editForm(e)}" ></i></span>
+                                        <span style="padding-right:5px">
+                                            <i class="fas fa-times fa-lg" @click="${e => this.clearForm(e)}" ></i>
+                                        </span>
+                                        <span style="padding-left:5px">
+                                            <i class="fa fa-edit fa-lg" @click="${e => this.editForm(e)}"></i>
+                                        </span>
                                     </div>
                                     ${this.editSample? html`
                                         <sample-update
@@ -107,6 +124,7 @@ export default class StudyAdminSample extends LitElement {
                                     ` : html`
                                         <sample-view
                                             .sampleId="${this.sampleId}"
+                                            .sample="${this.sample}"
                                             .opencgaSession="${opencgaSession}"
                                             @updateSampleId="${e => this.changeSampleId(e)}">
                                         </sample-view>`}
@@ -136,6 +154,7 @@ export default class StudyAdminSample extends LitElement {
 
     render() {
         return html`
+
             <div style="margin: 25px 40px">
                 <detail-tabs
                         .config="${this._config}"
