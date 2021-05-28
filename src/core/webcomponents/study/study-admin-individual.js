@@ -84,7 +84,7 @@ export default class StudyAdminIndividual extends LitElement {
                 const query = {
                     study: this.opencgaSession.study.fqn
                 };
-                this.opencgaSession.opencgaClient.samples().info(individualId, query)
+                this.opencgaSession.opencgaClient.individuals().info(individualId, query)
                     .then(response => {
                         this.individual = response.responses[0].results[0];
                     })
