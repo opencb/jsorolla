@@ -1,5 +1,5 @@
 /**
- * Copyright 2015-2019 OpenCB
+ * Copyright 2015-2021 OpenCB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,10 @@
  */
 
 import {html, LitElement} from "/web_modules/lit-element.js";
-import UtilsNew from "./../../utilsNew.js";
-import IndividualCreate from "../individual/individual-create.js";
 import DetailTabs from "../commons/view/detail-tabs.js";
-import {construction} from "../commons/under-construction.js";
+import "../individual/individual-update.js";
+import "../individual/individual-create.js";
+import "../individual/opencga-individual-view.js";
 
 export default class StudyAdminIndividual extends LitElement {
 
@@ -70,7 +70,7 @@ export default class StudyAdminIndividual extends LitElement {
     }
 
     clearForm(e) {
-        this.editForm = false;
+        this.editIndividual = false;
         this.fetchIndividualId("");
     }
 
@@ -135,7 +135,7 @@ export default class StudyAdminIndividual extends LitElement {
                                     </div>
                                     ${this.editIndividual? html`
                                         <individual-update
-                                            .individual="${this.individualId}"
+                                            .individual="${this.individual}"
                                             .opencgaSession="${opencgaSession}">
                                         </individual-update>
                                     ` : html`
@@ -151,8 +151,6 @@ export default class StudyAdminIndividual extends LitElement {
                 {
                     id: "create-individual",
                     name: "Create Individual",
-                    // icon: "fas fa-dna",
-                    // active: false,
                     render: (study, active, opencgaSession) => {
                         return html`
                             <div class="row">

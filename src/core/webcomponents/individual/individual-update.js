@@ -1,5 +1,5 @@
 /**
- * Copyright 2015-2019 OpenCB
+ * Copyright 2015-2021 OpenCB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,12 @@
  * limitations under the License.
  */
 
-import { LitElement, html } from "/web_modules/lit-element.js";
+import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "./../../utilsNew.js";
 import "../commons/tool-header.js";
+import FormUtils from "../../form-utils.js";
 
-export default class IndividualForm extends LitElement {
-
-    static CREATE_MODE = "create";
-    static UPDATE_MODE = "update";
+export default class IndividualUpdate extends LitElement {
 
     constructor() {
         super();
@@ -37,10 +35,7 @@ export default class IndividualForm extends LitElement {
             individual: {
                 type: Object
             },
-            study: {
-                type: Object
-            },
-            mode: {
+            individualId: {
                 type: String
             },
             opencgaSession: {
@@ -53,17 +48,50 @@ export default class IndividualForm extends LitElement {
     }
 
     _init() {
-        this._prefix = UtilsNew.randomString(8);
-        this.individual = {}
+        this.individual = {};
+        this.updateParams = {};
     }
 
     connectedCallback() {
         super.connectedCallback();
-        this._config = { ...this.getDefaultConfig(), ...this.config };
+        this.updateParams = {};
+        this._config = {...this.getDefaultConfig(), ...this.config};
+    }
+
+    update(changedProperties) {
+        if (changedProperties.has("individual")) {
+            this.individualObserver();
+        }
+        if (changedProperties.has("individualId")) {
+            this.individualIdObserver();
+        }
+        super.update(changedProperties);
+    }
+
+    individualObserver() {
+        console.log("Individual: ", this.individual);
+        if (this.individual) {
+            this._individual = JSON.parse(JSON.stringify(this.individual));
+        }
+    }
+
+    individualIdObserver() {
+        if (this.opencgaSession && this.individualId) {
+            const query = {
+                study: this.opencgaSession.study.fqn,
+            };
+            this.opencgaSession.opencgaClient.individuals().info(this.individualId, query)
+                .then(response => {
+                    this.individual = response.responses[0].results[0];
+                    this.requestUpdate();
+                })
+                .catch(reason => {
+                    console.error(reason);
+                });
+        }
     }
 
     onFieldChange(e) {
-        let param;
         switch (e.detail.param) {
             case "id":
             case "name":
@@ -74,98 +102,55 @@ export default class IndividualForm extends LitElement {
             case "parentalConsanguinity":
             case "karyotypicSex":
             case "lifeStatus":
-                this.individual[e.detail.param] = e.detail.value;
+                if (this._individual[e.detail.param] !== e.detail.value &&
+                    e.detail.value !== null) {
+                    this.individual[e.detail.param] = e.detail.value;
+                    this.updateParams[e.detail.param] = e.detail.value;
+                } else {
+                    delete this.updateParams[e.detail.param];
+                }
                 break;
             case "location.address":
             case "location.postalCode":
             case "location.city":
             case "location.state":
             case "location.country":
-                let cat = e.detail.param.split(".")[0];
-                param = e.detail.param.split(".")[1];
-                if (!this.individual[cat]) {
-                    this.individual[cat] = {};
-                }
-                this.individual[cat][param] = e.detail.value;
-                break;
             case "population.name":
             case "population.subpopulation":
             case "population.description":
-                param = e.detail.param.split(".")[1];
-                if (!this.individual.population) {
-                    this.individual.population = {};
-                }
-                this.individual.population[param] = e.detail.value;
-                break;
             case "status.name":
             case "status.description":
-                param = e.detail.param.split(".")[1];
-                if (!this.individual.status) {
-                    this.individual.status = {};
-                }
-                this.individual.status[param] = e.detail.value;
+                FormUtils.updateObject(
+                    this.individual,
+                    this._individual,
+                    this.updateParams,
+                    e.detail.param,
+                    e.detail.value);
                 break;
-
         }
-    }
-
-    saveIndividual() {
-        // this.opencgaSession.opencgaClient.projects().create(this.project)
-        //     .then(res => {
-        //         this.sample = {};
-        //         this.requestUpdate();
-
-        //         this.dispatchSessionUpdateRequest();
-
-        //         Swal.fire(
-        //             "New Sample",
-        //             "New Sample created correctly.",
-        //             "success"
-        //         );
-        //     })
-        //     .catch(err => {
-        //         console.error(err);
-        //         params.error(err);
-        //     });
-    }
-
-    updateIndividual() {
-        // this.opencgaSession.opencgaClient.projects().update(this.Sample?.fqn,this.Sample)
-        //     .then(res => {
-        //         this.Sample = {};
-        //         this.requestUpdate();
-
-        //         this.dispatchSessionUpdateRequest();
-
-        //         Swal.fire(
-        //             "Edit Sample",
-        //             "Sample updated correctly.",
-        //             "success"
-        //         );
-        //     })
-        //     .catch(err => {
-        //         console.error(err);
-        //         params.error(err);
-        //     });
-    }
-
-    onSave(e) {
-        if (mode === SampleForm.CREATE_MODE) {
-            this.saveSample()
-        } else {
-            this.updateSample()
-        }
-    }
-
-    onHide() {
-        this.dispatchEvent(new CustomEvent("hide", {
-            detail: {},
-            bubbles: true,
-            composed: true
-        }));
     }
 
     onClear() {
+        console.log("OnClear individual update");
+    }
+
+    onSubmit() {
+        this.opencgaSession.opencgaClient
+            .individuals().update(
+                this.individual.id,
+                this.updateParams,
+                {study: this.opencgaSession.study.fqn}
+            )
+            .then(res => {
+                this._individual = JSON.parse(JSON.stringify(this.individual));
+                this.updateParams = {};
+
+                // this.dispatchSessionUpdateRequest();
+                FormUtils.showAlert("Edit Individual", "Individual updated correctly", "success");
+            })
+            .catch(err => {
+                console.error(err);
+            });
     }
 
     getDefaultConfig() {
@@ -179,12 +164,6 @@ export default class IndividualForm extends LitElement {
                 okText: "Save"
             },
             display: {
-
-                // mode: {
-                //     type: "modal",
-                //     title: "Review Variant",
-                //     buttonClass: "btn-link"
-                // },
                 labelWidth: 3,
                 with: "8",
                 labelAlign: "right",
@@ -200,7 +179,7 @@ export default class IndividualForm extends LitElement {
                             type: "input-text",
                             display: {
                                 placeholder: "Add a short ID...",
-                                disabled: this.mode === IndividualForm.UPDATE_MODE,
+                                disabled: true,
                                 help: {
                                     text: "short individual id for..."
                                 },
@@ -333,17 +312,17 @@ export default class IndividualForm extends LitElement {
                     ]
                 }
             ]
-        }
+        };
     }
 
     render() {
-
         return html`
-            <data-form  .data=${this.individual}
-                        .config="${this._config}"
-                        @fieldChange="${e => this.onFieldChange(e)}"
-                        @clear="${this.onHide}"
-                        @submit="${this.onSave}">
+            <data-form
+                .data=${this.individual}
+                .config="${this._config}"
+                @fieldChange="${e => this.onFieldChange(e)}"
+                @clear="${this.onClear}"
+                @submit="${this.onSubmit}">
             </data-form>
         `;
     }

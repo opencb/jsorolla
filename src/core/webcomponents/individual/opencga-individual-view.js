@@ -129,7 +129,7 @@ export default class OpencgaIndividualView extends LitElement {
                             type: "custom",
                             display: {
                                 render: () => html `
-                                    <sample-id-autocomplete
+                                    <individual-id-autocomplete
                                         .value="${this.sample?.id}"
                                         .opencgaSession="${this.opencgaSession}"
                                         .config=${{
@@ -137,7 +137,7 @@ export default class OpencgaIndividualView extends LitElement {
                                             multiple: false
                                         }}
                                         @filterChange="${e => this.onFilterChange(e)}">
-                                    </sample-id-autocomplete>`
+                                    </individual-id-autocomplete>`
                             }
                         }
                     ]
