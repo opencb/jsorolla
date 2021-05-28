@@ -240,7 +240,7 @@ export default class RgaVariantView extends LitElement {
                     title: "Clinical Significance",
                     field: "clinicalSignificances",
                     rowspan: 2,
-                    formatter: value => value?.join(", ")
+                    formatter: value => value.length ? value.join(", ") : "-"
                 },
                 {
                     title: "Recessive Individuals",

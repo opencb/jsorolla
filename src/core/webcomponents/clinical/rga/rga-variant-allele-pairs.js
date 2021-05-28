@@ -260,7 +260,7 @@ export default class RgaVariantAllelePairs extends LitElement {
             {
                 title: "Clinical Significance",
                 field: "attributes.clinicalSignificances",
-                formatter: value => value?.join(", ") ?? "-"
+                formatter: value => value.length ? value.join(", ") : "-"
             }
             /* {
                 // this value is not available
