@@ -54,20 +54,27 @@ export class CellBaseClient {
     }
 
     check() {
-        const globalEvent = new CustomEvent("signingInError", {
-            detail: {
-                value: "Cellbase host not available."
-            }
-        });
+        const globalEvent = (type, value) => {
+            globalThis.dispatchEvent(
+                new CustomEvent(type, {
+                    detail: {
+                        value: value
+                    }
+                }));
+        };
         this.getMeta("about")
             .then(response => {
                 if (response?.response?.[0]?.result[0]["Program: "] !== "CellBase (OpenCB)") {
-                    globalThis.dispatchEvent(globalEvent);
+                    globalEvent("signingInError", "Cellbase host not available.");
+                    globalEvent("cellBaseInitialised", "NOT AVAILABLE");
+                } else {
+                    globalEvent("cellBaseInitialised", "v" + response.response[0].result[0]["Version: "]);
                 }
             })
             .catch(e => {
                 console.error(e);
-                globalThis.dispatchEvent(globalEvent);
+                globalEvent("signingInError", "Cellbase host not available.");
+                globalEvent("cellBaseInitialised", "NOT AVAILABLE");
             });
     }
 
