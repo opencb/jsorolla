@@ -33,16 +33,16 @@ export default class OpencgaFamilyView extends LitElement {
 
     static get properties() {
         return {
-            opencgaSession: {
+            family: {
                 type: Object
             },
             familyId: {
                 type: String
             },
-            family: {
+            individualId: {
                 type: Object
             },
-            individualId: {
+            opencgaSession: {
                 type: Object
             },
             config: {
@@ -52,22 +52,22 @@ export default class OpencgaFamilyView extends LitElement {
     }
 
     _init() {
+        this.family = {};
         this._config = this.getDefaultConfig();
     }
 
     connectedCallback() {
         super.connectedCallback();
-        // this.family = {};
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
-    updated(changedProperties) {
+    update(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
             // this.individualIdObserver();
         }
 
         if (changedProperties.has("family")) {
-            //console.log("family", this.family) // TODO will be empty if you decomment row #60. Investigate on this
+            // console.log("family", this.family) // TODO will be empty if you decomment row #60. Investigate on this
         }
 
         if (changedProperties.has("familyId")) {
@@ -80,6 +80,8 @@ export default class OpencgaFamilyView extends LitElement {
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
         }
+
+        super.update(changedProperties);
     }
 
     familyIdObserver() {
@@ -116,6 +118,10 @@ export default class OpencgaFamilyView extends LitElement {
         }
     }
 
+    onFilterChange(e) {
+        this.familyId = e.detail.value;
+    }
+
     getDefaultConfig() {
         return {
             title: "Summary",
@@ -128,8 +134,36 @@ export default class OpencgaFamilyView extends LitElement {
             },
             sections: [
                 {
+                    title: "Search",
+                    display: {
+                        visible: family => !family?.id
+                    },
+                    elements: [
+                        {
+                            name: "Family ID",
+                            field: "familyId",
+                            type: "custom",
+                            display: {
+                                render: () => html `
+                                    <family-id-autocomplete
+                                        .value="${this.family?.id}"
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .config=${{
+                                            addButton: false,
+                                            multiple: false
+                                        }}
+                                        @filterChange="${e => this.onFilterChange(e)}">
+                                    </family-id-autocomplete>`
+                            }
+                        }
+                    ]
+                },
+                {
                     title: "General",
                     collapsed: false,
+                    display: {
+                        visible: family => family?.id
+                    },
                     elements: [
                         {
                             name: "Family ID",
@@ -194,6 +228,9 @@ export default class OpencgaFamilyView extends LitElement {
                 },
                 {
                     title: "Family Members",
+                    display: {
+                        visible: family => family?.id
+                    },
                     elements: [
                         {
                             name: "List of Members:",

@@ -14,18 +14,14 @@
  * limitations under the License.
  */
 
-import { html, LitElement } from "/web_modules/lit-element.js";
-import UtilsNew from "./../../utilsNew.js";
-import FamilyForm from "./../family/family-form.js"
+import {html, LitElement} from "/web_modules/lit-element.js";
 import DetailTabs from "../commons/view/detail-tabs.js";
-
-
+import UtilsNew from "./../../utilsNew.js";
+import FamilyForm from "./../family/family-form.js";
 export default class StudyAdminFamily extends LitElement {
 
     constructor() {
         super();
-
-        // Set status and init private properties
         this._init();
     }
 
@@ -51,16 +47,69 @@ export default class StudyAdminFamily extends LitElement {
     }
 
     _init() {
-        this._prefix = UtilsNew.randomString(8);
+        this.editFamily = false;
+        this.familyId = "";
+        this.family = {};
     }
 
     connectedCallback() {
         super.connectedCallback();
-        this._config = { ...this.getDefaultConfig(), ...this.config };
+        this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
     update(changedProperties) {
         super.update(changedProperties);
+    }
+
+    editForm(e) {
+        this.editFamily = false;
+        this._config = {...this.getDefaultConfig(), ...this.config};
+        this.requestUpdate();
+    }
+
+    clearForm(e) {
+        this.editFamily = false;
+        this.fetchFamilyId("");
+    }
+
+    changeFamilyId(e) {
+        this.fetchFamilyId(e.detail.value);
+    }
+
+    fetchFamilyId(familyId) {
+        if (this.opencgaSession) {
+            if (familyId) {
+                const query = {
+                    study: this.opencgaSession.study.fqn
+                };
+                this.opencgaSession.opencgaClient.families().info(familyId, query)
+                    .then(response => {
+                        this.family = response.responses[0].results[0];
+                    })
+                    .catch(reason => {
+                        this.family = {};
+                        console.error(reason);
+                    })
+                    .finally(() => {
+                        this._config = {...this.getDefaultConfig(), ...this.config};
+                        this.requestUpdate();
+                    });
+            } else {
+                this.family = {};
+                this._config = {...this.getDefaultConfig(), ...this.config};
+                this.requestUpdate();
+            }
+        }
+    }
+
+    onFamilySearch(e) {
+        if (e.detail.status.error) {
+            // inform
+        } else {
+            this.family = e.detail.value;
+            this._config = {...this.getDefaultConfig(), ...this.config};
+            this.requestUpdate();
+        }
     }
 
     getDefaultConfig() {
@@ -74,12 +123,26 @@ export default class StudyAdminFamily extends LitElement {
                         return html `
                             <div class="row">
                                 <div class="col-md-6" style="margin: 20px 10px">
-                                    <family-form
-                                            .opencgaSession="${opencgaSession}"
-                                            .mode="${FamilyForm.UPDATE_MODE}">
-                                    </family-form>
+                                    <div style="float: right">
+                                        <span style="padding-right:5px">
+                                            <i class="fas fa-times fa-lg" @click="${e => this.clearForm(e)}" ></i>
+                                        </span>
+                                        <span style="padding-left:5px">
+                                            <i class="fa fa-edit fa-lg" @click="${e => this.editForm(e)}"></i>
+                                        </span>
+                                    </div>
+                                    ${this.editFamily? html`
+                                        <individual-update
+                                            .individual="${this.individual}"
+                                            .opencgaSession="${opencgaSession}">
+                                        </individual-update>
+                                    ` : html`
+                                        <opencga-family-view
+                                            .family="${this.family}"
+                                            .opencgaSession="${opencgaSession}">
+                                        </opencga-family-view>`}
                                 </div>
-                            </div>;`
+                            </div>`;
                     }
                 },
                 {
@@ -90,8 +153,8 @@ export default class StudyAdminFamily extends LitElement {
                             <div class="row">
                                 <div class="col-md-6" style="margin: 20px 10px">
                                     <family-form
-                                            .opencgaSession="${opencgaSession}"
-                                            .mode="${FamilyForm.CREATE_MODE}">
+                                        .opencgaSession="${opencgaSession}"
+                                        .mode="${FamilyForm.CREATE_MODE}">
                                     </family-form>
                                 </div>
                             </div>`;
@@ -112,6 +175,7 @@ export default class StudyAdminFamily extends LitElement {
             </div>
         `;
     }
+
 }
 
 customElements.define("study-admin-family", StudyAdminFamily);
