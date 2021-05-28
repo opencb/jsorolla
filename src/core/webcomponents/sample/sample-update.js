@@ -50,9 +50,6 @@ export default class SampleUpdate extends LitElement {
     }
 
     _init() {
-        // this._prefix = UtilsNew.randomString(8);
-
-        // We initialise the sample in for CREATE
         this.sample = {};
         this.updateParams = {};
 
