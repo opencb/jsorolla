@@ -232,7 +232,7 @@ export default class OpencgaSampleBrowser extends LitElement {
                 }
             },
             aggregation: {
-                default: ["creationYear>>creationMonth", "status", "phenotypes", "somatic"],
+                default: ["creationYear>>creationMonth", "status", "somatic"],
                 result: {
                     numColumns: 2
                 },

@@ -39,6 +39,7 @@ export class OpenCGAClient {
     constructor(config) {
         // this._config = config;
         this.setConfig(config);
+        this.check();
     }
 
     getDefaultConfig() {
@@ -59,8 +60,26 @@ export class OpenCGAClient {
         };
     }
 
-    // TODO check OpeCGA URL and other variables.
-    check() {
+    async check() {
+        const globalEvent = (type, value) => {
+            globalThis.dispatchEvent(
+                new CustomEvent(type, {
+                    detail: value
+                }));
+        };
+        try {
+            const about = await this.meta().about();
+            if (about.getResult(0)) {
+                globalEvent("hostInit", {host: "opencga", value: about.getResult(0)["Version"]});
+            } else {
+                globalEvent("signingInError", {value: "Opencga host not available."});
+                globalEvent("hostInit", {host: "opencga", value: "NOT AVAILABLE"});
+            }
+        } catch (e) {
+            console.error(e);
+            globalEvent("signingInError", {value: "Opencga host not available."});
+            globalEvent("hostInit", {host: "opencga", value: "NOT AVAILABLE"});
+        }
     }
 
     /*
@@ -282,23 +301,25 @@ export class OpenCGAClient {
                 _this.users().info(_this._config.userId)
                     .then(async response => {
                         const session = {};
-                        session.user = response.getResult(0);
-                        session.token = _this._config.token;
-                        session.date = new Date().toISOString();
-                        session.server = {
-                            host: _this._config.host,
-                            version: _this._config.version,
-                            serverVersion: _this._config.serverVersion
-                        };
-                        session.opencgaClient = _this;
-
-                        _this._notifySessionEvent("signingIn", "Updating User config");
-                        const userConfig = await this.updateUserConfigs({
-                            ...session.user.configs.IVA,
-                            lastAccess: new Date().getTime()
-                        });
-                        session.user.configs.IVA = userConfig.responses[0].results[0];
-
+                        try {
+                            session.user = response.getResult(0);
+                            session.token = _this._config.token;
+                            session.date = new Date().toISOString();
+                            session.server = {
+                                host: _this._config.host,
+                                version: _this._config.version,
+                                serverVersion: _this._config.serverVersion,
+                            };
+                            session.opencgaClient = _this;
+                            _this._notifySessionEvent("signingIn", "Updating User config");
+                            const userConfig = await this.updateUserConfigs({
+                                ...session.user.configs.IVA,
+                                lastAccess: new Date().getTime()
+                            });
+                            session.user.configs.IVA = userConfig.getResult(0);
+                        } catch (e) {
+                            console.error(e);
+                        }
 
                         // Fetch authorised Projects and Studies
                         _this._notifySessionEvent("signingIn", "Fetching Projects and Studies");

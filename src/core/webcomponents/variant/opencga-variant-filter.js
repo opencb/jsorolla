@@ -34,6 +34,7 @@ import "../commons/filters/hpo-accessions-filter.js";
 import "../commons/filters/population-frequency-filter.js";
 import "../commons/filters/protein-substitution-score-filter.js";
 import "../commons/filters/sample-filter.js";
+import "./family-genotype-modal.js";
 import "../commons/filters/study-filter.js";
 import "../commons/filters/variant-file-filter.js";
 import "../commons/filters/variant-caller-info-filter.js";
@@ -183,7 +184,7 @@ export default class OpencgaVariantFilter extends LitElement {
      * @param value the new value of the property
      */
     onFilterChange(key, value) {
-        /* Some filters may return more than parameter, in this case key and value are objects with all the keys and filters
+        /* Some filters may return more than one parameter, in this case key and value are objects with all the keys and filters
              - key: an object mapping filter name with the one returned
              - value: and object with the filter
             Example: REST accepts filter and qual while filter returns FILTER and QUALITY
@@ -205,7 +206,7 @@ export default class OpencgaVariantFilter extends LitElement {
             if (value && value !== "") {
                 this.preparedQuery = {...this.preparedQuery, ...{[key]: value}};
             } else {
-                // console.log("deleting", key, "from preparedQuery");
+                // deleting `key` from this.preparedQuery
                 delete this.preparedQuery[key];
                 this.preparedQuery = {...this.preparedQuery};
             }
@@ -359,11 +360,12 @@ export default class OpencgaVariantFilter extends LitElement {
                     break;
                 case "sample":
                     content = html`
-                        <sample-filter .opencgaSession="${this.opencgaSession}" 
-                                       .clinicalAnalysis="${subsection.clinicalAnalysis}" 
-                                       .query="${this.preparedQuery}" 
-                                       @sampleFilterChange="${e => this.onSampleFilterChange(e.detail.value)}">
-                        </sample-filter>`;
+                        <family-genotype-modal .opencgaSession="${this.opencgaSession}"
+                                       .clinicalAnalysis="${subsection.clinicalAnalysis}"
+                                       .genotype="${this.preparedQuery.sample}"
+                                       @filterChange="${e => this.onFilterChange({sample: "sample"}, e.detail.value)}">
+                        </family-genotype-modal>
+                    `;
                     break;
                 case "sample-genotype":
                     const sampleConfig = subsection.params?.genotypes ? {genotypes: subsection.params.genotypes} : {};
@@ -539,7 +541,6 @@ export default class OpencgaVariantFilter extends LitElement {
                         </div>` :
                     null
                 }
-    
                 <div class="panel-group" id="${this._prefix}Accordion" role="tablist" aria-multiselectable="true">
                     <div id="FilterMenu">
                         ${this.renderFilterMenu()}

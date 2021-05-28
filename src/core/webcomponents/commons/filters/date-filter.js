@@ -54,8 +54,7 @@ export default class DateFilter extends LitElement {
         this.years = UtilsNew.range(new Date().getFullYear() - 5, new Date().getFullYear() + 1); // years select
         this.months = moment.monthsShort().map((m, i) => ({id: `${i + 1}`.padStart(2, 0), name: m})); // months select (moment.months() for long names)
 
-
-        this.reset();
+        this.initState();
 
         this.date = "";
 
@@ -114,12 +113,12 @@ export default class DateFilter extends LitElement {
             this.requestUpdate();
 
         } else {
-            this.reset();
+            this.initState();
             this.requestUpdate();
         }
     }
 
-    reset() {
+    initState() {
         this.activeTab = "all";
         this.selectedRecentDays = this._config.recentDays; // default value of Recent select
         this.selectedDate = {
@@ -142,6 +141,12 @@ export default class DateFilter extends LitElement {
             this.activeTab = e.target.value;
         }
 
+        this.date = null;
+
+        if (this.activeTab === "all") {
+            // this.date = null;
+        }
+
         if (this.activeTab === "recent") {
             if (e.target?.dataset?.type === "recent") {
                 this.selectedRecentDays = e.target.value;
@@ -154,16 +159,21 @@ export default class DateFilter extends LitElement {
                 const field = e.target.dataset.field;
                 this.selectedDate[field] = e.detail.value;
             }
-            this.date = `${this.selectedDate.year}${this.selectedDate.month ?? ""}${this.selectedDate.day ?? ""}`;
+            if (this.selectedDate.year) {
+                this.date = `${this.selectedDate.year}${this.selectedDate.month ?? ""}${this.selectedDate.day ?? ""}`;
+            }
         }
 
         if (this.activeTab === "range") {
             if (e.target?.dataset?.type === "range") {
                 const {endpoint, field} = e.target.dataset;
-                this.selectedPeriod[endpoint][field] = e.detail.value;
+                this.selectedPeriod[endpoint][field] = e.detail.value ?? "";
             }
-            this.date = `${this.selectedPeriod.start.year}${this.selectedPeriod.start.month ? `${this.selectedPeriod.start.month}${this.selectedPeriod.start.day ?? ""}` : ""}-` +
-                        `${this.selectedPeriod.end.year}${this.selectedPeriod.end.month ? `${this.selectedPeriod.end.month}${this.selectedPeriod.end.day ?? ""}` : ""}`;
+            if (this.selectedPeriod.start.year) {
+                this.date = `${this.selectedPeriod.start.year}${this.selectedPeriod.start.month ? `${this.selectedPeriod.start.month}${this.selectedPeriod.start.day ?? ""}` : ""}-` +
+                    `${this.selectedPeriod.end.year}${this.selectedPeriod.end.month ? `${this.selectedPeriod.end.month}${this.selectedPeriod.end.day ?? ""}` : ""}`;
+            }
+
         }
         this.requestUpdate();
         const event = new CustomEvent("filterChange", {
@@ -232,7 +242,7 @@ export default class DateFilter extends LitElement {
             
                 <div class="container-fluid">
                     ${this.activeTab === "recent" ? html`
-                        <div>
+                        <div data-cy="date-recent">
                             <form class="form-inline row date-field-wrapper text-center">
                                 <div class="form-group">
                                     <span>Last </span>
@@ -244,7 +254,7 @@ export default class DateFilter extends LitElement {
                     ` : null}
                     
                     ${this.activeTab === "date" ? html`
-                        <div>
+                        <div data-cy="date-single">
                             <form class="row date-field-wrapper">
                                 <div class="col-md-4">
                                     <select-field-filter data-type="date" data-field="year" .data="${this.years}" .value=${this.selectedDate.year} @filterChange="${e => this.onFilterChange(e)}"></select-field-filter>
@@ -261,7 +271,7 @@ export default class DateFilter extends LitElement {
     
                     
                     ${this.activeTab === "range" ? html`
-                        <div>
+                        <div data-cy="date-range">
                             <div class="range-box">
                                 <label class="${this._prefix}-text">Begin period</label>
                                 <form class="row date-field-wrapper">
