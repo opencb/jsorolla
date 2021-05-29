@@ -1,5 +1,5 @@
 /**
- * Copyright 2015-2019 OpenCB
+ * Copyright 2015-2021 OpenCB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,13 @@
  * limitations under the License.
  */
 
-import { LitElement, html } from "/web_modules/lit-element.js";
+import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "./../../utilsNew.js";
 import "../commons/tool-header.js";
+import FormUtils from "../../form-utils.js";
 
-export default class FamilyForm extends LitElement {
+export default class FamilyCreate extends LitElement {
 
-    static CREATE_MODE = "create";
-    static UPDATE_MODE = "update";
-    
     constructor() {
         super();
         this._init();
@@ -34,15 +32,6 @@ export default class FamilyForm extends LitElement {
 
     static get properties() {
         return {
-            family: {
-                type: Object
-            },
-            study: {
-                type: Object
-            },
-            mode: {
-                type: String
-            },
             opencgaSession: {
                 type: Object
             },
@@ -53,26 +42,12 @@ export default class FamilyForm extends LitElement {
     }
 
     _init() {
-        this._prefix = UtilsNew.randomString(8);
-
-        // We initialise the family in for CREATE
-        this.famiy = {}
+        this.famiy = {};
     }
 
     connectedCallback() {
         super.connectedCallback();
-
-        this._config = { ...this.getDefaultConfig(), ...this.config };
-    }
-
-    onFieldChange(e) {
-        switch (e.detail.param) {
-            case "id":
-            case "name":
-            case "description":
-                this.family[e.detail.param] = e.detail.value;
-                break;
-        }
+        this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
     dispatchSessionUpdateRequest() {
@@ -84,6 +59,43 @@ export default class FamilyForm extends LitElement {
         }));
     }
 
+
+    // TODO: Complete the attr to create a family.
+    onFieldChange(e) {
+        switch (e.detail.param) {
+            case "id":
+            case "name":
+            case "description":
+                this.family[e.detail.param] = e.detail.value;
+                break;
+        }
+    }
+
+
+    onClear(e) {
+        console.log("OnClear family form", this);
+    }
+
+    onSubmit(e) {
+        console.log("Testing");
+        this.opencgaSession.opencgaClient
+            .families()
+            .create(this.famiy, {study: this.opencgaSession.study.fqn})
+            .then(res => {
+                this.famiy = {};
+                this.requestUpdate();
+                // this.dispatchSessionUpdateRequest();
+                FormUtils.showAlert(
+                    "New Family",
+                    "Family save correctly",
+                    "success"
+                );
+            })
+            .catch(err => {
+                console.error(err);
+            });
+    }
+
     getDefaultConfig() {
         return {
             title: "Edit",
@@ -92,17 +104,16 @@ export default class FamilyForm extends LitElement {
             buttons: {
                 show: true,
                 cancelText: "Cancel",
-                okText: this.mode === FamilyForm.CREATE_MODE ? "Save" : "Update"
+                okText: "Save"
             },
             display: {
-                // width: "8",
                 style: "margin: 10px",
                 labelWidth: 3,
                 labelAlign: "right",
                 defaultLayout: "horizontal",
                 defaultValue: "",
                 help: {
-                    mode: "block", // icon
+                    mode: "block",
                 }
             },
             sections: [
@@ -115,13 +126,10 @@ export default class FamilyForm extends LitElement {
                             required: true,
                             display: {
                                 placeholder: "Add a short ID...",
-                                disabled: this.mode === FamilyForm.UPDATE_MODE,
                                 help: {
-                                    text: "short Sample id for thehis as;lsal"
+                                    text: "short family id "
                                 },
-                                validation: {
-
-                                }
+                                validation: {}
                             },
                         },
                         {
@@ -145,7 +153,7 @@ export default class FamilyForm extends LitElement {
                             name: "Expected Size",
                             field: "expectedSize",
                             type: "input-text"
-                            
+
                         },
                         {
                             name: "Status name",
@@ -168,7 +176,7 @@ export default class FamilyForm extends LitElement {
                     ]
                 }
             ]
-        }
+        };
     }
 
 
@@ -211,30 +219,19 @@ export default class FamilyForm extends LitElement {
         //         params.error(err);
         //     });
     }
-    
-    onSubmit(e) {
-        if (mode === FamilyForm.CREATE_MODE) {
-            this.saveFamily()
-        } else {
-            this.updateFamily()
-        }
-    }
-
-    onClear() {
-
-    }
 
     render() {
         return html`
-            <data-form  .data=${this.family}
-                        .config="${this._config}"
-                        @fieldChange="${e => this.onFieldChange(e)}"
-                        @clear="${this.onClear}"
-                        @submit="${this.onSubmit}">
+            <data-form
+                .data=${this.family}
+                .config="${this._config}"
+                @fieldChange="${e => this.onFieldChange(e)}"
+                @clear="${this.onClear}"
+                @submit="${this.onSubmit}">
             </data-form>
         `;
     }
 
 }
 
-customElements.define("family-form", FamilyForm);
+customElements.define("family-create", FamilyCreate);

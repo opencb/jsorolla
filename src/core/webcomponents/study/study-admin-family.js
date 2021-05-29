@@ -17,7 +17,7 @@
 import {html, LitElement} from "/web_modules/lit-element.js";
 import DetailTabs from "../commons/view/detail-tabs.js";
 import UtilsNew from "./../../utilsNew.js";
-import FamilyForm from "./../family/family-form.js";
+import FamilyForm from "./../family/family-create.js";
 export default class StudyAdminFamily extends LitElement {
 
     constructor() {
@@ -62,7 +62,7 @@ export default class StudyAdminFamily extends LitElement {
     }
 
     editForm(e) {
-        this.editFamily = false;
+        this.editFamily = !this.editFamily;
         this._config = {...this.getDefaultConfig(), ...this.config};
         this.requestUpdate();
     }
@@ -132,10 +132,10 @@ export default class StudyAdminFamily extends LitElement {
                                         </span>
                                     </div>
                                     ${this.editFamily? html`
-                                        <individual-update
-                                            .individual="${this.individual}"
+                                        <opencga-family-editor
+                                            .id="${"corpas"}"
                                             .opencgaSession="${opencgaSession}">
-                                        </individual-update>
+                                        </opencga-family-editor>
                                     ` : html`
                                         <opencga-family-view
                                             .family="${this.family}"
@@ -152,10 +152,9 @@ export default class StudyAdminFamily extends LitElement {
                         return html `
                             <div class="row">
                                 <div class="col-md-6" style="margin: 20px 10px">
-                                    <family-form
-                                        .opencgaSession="${opencgaSession}"
-                                        .mode="${FamilyForm.CREATE_MODE}">
-                                    </family-form>
+                                    <family-create
+                                        .opencgaSession="${opencgaSession}">
+                                    </family-create>
                                 </div>
                             </div>`;
                     }
