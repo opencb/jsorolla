@@ -56,7 +56,7 @@ export default class ConservationFilter extends LitElement {
         if (changedProperties.has("conservation")) {
             this.state = {};
             if (this.conservation) {
-                this.logicalOperator = this.conservation.split(",") > this.conservation.split(",") ? "," : ";";
+                this.logicalOperator = this.conservation.split(",") > this.conservation.split(";") ? "," : ";";
                 const con = this.conservation.split(this.logicalOperator);
                 this.logicalSwitchDisabled = con.length <= 1;
                 con.forEach(c => {

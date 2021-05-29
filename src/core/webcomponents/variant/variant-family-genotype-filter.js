@@ -22,6 +22,9 @@ import "../commons/view/pedigree-view.js";
 import "../commons/filters/select-field-filter.js";
 
 
+/**
+ * @deprecated
+ */
 export default class VariantFamilyGenotypeFilter extends LitElement {
 
     constructor() {

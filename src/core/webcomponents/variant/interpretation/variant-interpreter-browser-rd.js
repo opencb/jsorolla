@@ -77,6 +77,9 @@ class VariantInterpreterBrowserRd extends LitElement {
         this.savedVariants = [];
         this.notSavedVariantIds = 0;
         this.removedVariantIds = 0;
+
+        this.defaultGenotypes = ["0/0", "0/1", "1/1"];
+
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
@@ -133,17 +136,17 @@ class VariantInterpreterBrowserRd extends LitElement {
                     this._sampleId = this.clinicalAnalysis.proband.samples[0].id;
                     break;
                 case "FAMILY":
-                    let sampleIds = [this.clinicalAnalysis.proband.samples[0].id];
-                    for (let member of this.clinicalAnalysis.family.members) {
+                    const sampleIds = [this.clinicalAnalysis.proband.samples[0].id + ":" + ["0/1", "1/1"].join(",")];
+                    for (const member of this.clinicalAnalysis.family.members) {
                         // Proband is already in the array in the first position
                         if (member.id !== this.clinicalAnalysis.proband.id && member.samples?.length > 0) {
-                            sampleIds.push(member.samples[0].id);
+                            sampleIds.push(member.samples[0].id + ":" + this.defaultGenotypes.join(","));
                         }
                     }
                     this._sampleId = sampleIds.join(";");
                     break;
                 case "CANCER":
-                    let _sample = this.clinicalAnalysis.proband.samples.find(sample => !sample.somatic);
+                    const _sample = this.clinicalAnalysis.proband.samples.find(sample => !sample.somatic);
                     if (_sample) {
                         this._sampleId = _sample.id;
                     }
@@ -153,10 +156,10 @@ class VariantInterpreterBrowserRd extends LitElement {
         }
 
         // Check if QC filters exist and add them to active filter
-        let sampleQc = ClinicalAnalysisUtils.getProbandSampleQc(this.clinicalAnalysis);
+        const sampleQc = ClinicalAnalysisUtils.getProbandSampleQc(this.clinicalAnalysis);
         let _activeFilterFilters = [];
         if (sampleQc?.metrics?.length > 0) {
-            let variantStats = sampleQc.variantMetrics?.variantStats;
+            const variantStats = sampleQc.variantMetrics?.variantStats;
             if (variantStats && variantStats.length > 0) {
                 _activeFilterFilters = variantStats.map(variantStat => ({id: variantStat.id, query: variantStat.query}));
             }
@@ -213,7 +216,7 @@ class VariantInterpreterBrowserRd extends LitElement {
     }
 
     onFilterVariants(e) {
-        let variantIds = e.detail.variants.map(v => v.id);
+        const variantIds = e.detail.variants.map(v => v.id);
         this.preparedQuery = {...this.preparedQuery, id: variantIds.join(",")};
         this.executedQuery = {...this.executedQuery, id: variantIds.join(",")};
         this.requestUpdate();
@@ -232,8 +235,8 @@ class VariantInterpreterBrowserRd extends LitElement {
     }
 
     onSaveVariants(e) {
-        let comment = e.detail.comment;
-        let saveCallback = () => {
+        const comment = e.detail.comment;
+        const saveCallback = () => {
             this.dispatchEvent(new CustomEvent("clinicalAnalysisUpdate", {
                 detail: {
                     clinicalAnalysis: this.clinicalAnalysis
@@ -293,7 +296,7 @@ class VariantInterpreterBrowserRd extends LitElement {
                         // Example:
                         // "region": "Region",
                         // "gene": "Gene",
-                        "ct": "Consequence Types",
+                        "ct": "Consequence Types"
                     },
                     complexFields: ["sample", "fileData"],
                     hiddenFields: [],
@@ -342,7 +345,7 @@ class VariantInterpreterBrowserRd extends LitElement {
                                 id: "cohort",
                                 title: "Cohort Alternate Stats",
                                 onlyCohortAll: true,
-                                tooltip: tooltips.cohort,
+                                tooltip: tooltips.cohort
                                 // cohorts: this.cohorts
                             }
                         ]
@@ -393,7 +396,7 @@ class VariantInterpreterBrowserRd extends LitElement {
                                 id: "clinvar",
                                 title: "ClinVar Accession",
                                 tooltip: tooltips.clinvar
-                            },
+                            }
                         ]
                     },
                     {
@@ -426,7 +429,7 @@ class VariantInterpreterBrowserRd extends LitElement {
                                             populations: [
                                                 {
                                                     id: "ALL", title: "All populations [ALL]"
-                                                },
+                                                }
                                             ]
                                         },
                                         {
@@ -435,7 +438,7 @@ class VariantInterpreterBrowserRd extends LitElement {
                                             populations: [
                                                 {
                                                     id: "ALL", title: "gnomAD [ALL]"
-                                                },
+                                                }
                                             ]
                                         }
                                     ]
@@ -461,7 +464,7 @@ class VariantInterpreterBrowserRd extends LitElement {
                                 id: "hpo",
                                 title: "HPO Accessions",
                                 tooltip: tooltips.hpo
-                            },
+                            }
                         ]
                     },
                     {
@@ -490,7 +493,7 @@ class VariantInterpreterBrowserRd extends LitElement {
                                 tooltip: tooltips.conservation
                             }
                         ]
-                    },
+                    }
                 ],
                 examples: [
                     {
@@ -535,7 +538,7 @@ class VariantInterpreterBrowserRd extends LitElement {
                         quality: {
                             qual: 30,
                             dp: 20
-                        },
+                        }
                         // populationFrequencies: ["1kG_phase3:ALL", "GNOMAD_GENOMES:ALL", "GNOMAD_EXOMES:ALL", "UK10K:ALL", "GONL:ALL", "ESP6500:ALL", "EXAC:ALL"]
                     }
                 },
@@ -547,7 +550,7 @@ class VariantInterpreterBrowserRd extends LitElement {
                             id: "annotationSummary",
                             name: "Summary",
                             active: true,
-                            render: (variant) => {
+                            render: variant => {
                                 return html`
                                     <cellbase-variant-annotation-summary
                                             .variantAnnotation="${variant.annotation}"
@@ -581,7 +584,7 @@ class VariantInterpreterBrowserRd extends LitElement {
                         {
                             id: "annotationClinical",
                             name: "Clinical",
-                            render: (variant) => {
+                            render: variant => {
                                 return html`
                                     <variant-annotation-clinical-view
                                             .traitAssociation="${variant.annotation.traitAssociation}"
@@ -622,7 +625,7 @@ class VariantInterpreterBrowserRd extends LitElement {
                                             .opencgaSession="${opencgaSession}"
                                             .variantId="${variant.id}"
                                             .active="${active}">
-                                    </opencga-variant-samples>`
+                                    </opencga-variant-samples>`;
                             }
                         },
                         {
@@ -717,15 +720,15 @@ class VariantInterpreterBrowserRd extends LitElement {
 
                 <div class="col-md-10">
                     <div>
-                        ${OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS")
-                                ? html`
+                        ${OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS") ?
+                                html`
                                     <variant-interpreter-browser-toolbar    .clinicalAnalysis="${this.clinicalAnalysis}"
                                                                             .state="${this.clinicalAnalysisManager.state}"
                                                                             @filterVariants="${this.onFilterVariants}"
                                                                             @resetVariants="${this.onResetVariants}"
                                                                             @saveInterpretation="${this.onSaveVariants}">
-                                    </variant-interpreter-browser-toolbar>`
-                                : null
+                                    </variant-interpreter-browser-toolbar>` :
+                                null
                         }
                     </div>
 
@@ -772,6 +775,7 @@ class VariantInterpreterBrowserRd extends LitElement {
             </div> <!-- Close row -->
         `;
     }
+
 }
 
 customElements.define("variant-interpreter-browser-rd", VariantInterpreterBrowserRd);
