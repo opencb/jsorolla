@@ -45,6 +45,7 @@ export default class CohortCreate extends LitElement {
         this.cohort = {
             samples: []
         };
+        this.sampleId = "";
     }
 
     connectedCallback() {
@@ -73,11 +74,12 @@ export default class CohortCreate extends LitElement {
     }
 
     onAddSamples(e) {
-        const self = this;
         console.log("Samples: ", e.detail.value);
-        console.log("Who?", this, self);
-        // this.cohort.samples.push(e.detail.value);
-        // this.requestUpdate();
+        this.sampleId = e.detail.value;
+        console.log("Sample value: ", this.sampleId);
+        this.cohort.samples.push(e.detail.value);
+        this._config = {...this.getDefaultConfig(), ...this.config};
+        this.requestUpdate();
     }
 
     onRemoveSample(e) {
@@ -181,14 +183,15 @@ export default class CohortCreate extends LitElement {
                                 render: () => html `
                                     <div class="col-md-12" style="padding: 10px 20px">
                                         ${this.cohort.samples?.map(item => html`
-                                            <span class="label label-primary" style="font-size: 14px; margin:5px; padding-right:0px; display:inline-block">${item.ageOfOnset}
+                                            <span class="label label-primary" style="font-size: 14px; margin:5px; padding-right:0px; display:inline-block">${item}
                                                 <span class="badge" style="cursor:pointer" @click=${e => this.onRemoveItem(e, item)}>X</span>
                                             </span>`
                                         )}
                                     </div>
                                 <sample-id-autocomplete
+                                    .value=${this.sampleId}
                                     .opencgaSession=${this.opencgaSession}
-                                    @filterChange="${this.onAddSamples}">
+                                    @filterChange="${e => this.onAddSamples(e)}">
                                 </sample-id-autocomplete>`
                             }
                         },

@@ -32,13 +32,13 @@ export default class OpencgaCohortView extends LitElement {
 
     static get properties() {
         return {
-            opencgaSession: {
+            cohort: {
                 type: Object
             },
             cohortId: {
                 type: String
             },
-            cohort: {
+            opencgaSession: {
                 type: Object
             },
             config: {
@@ -48,8 +48,7 @@ export default class OpencgaCohortView extends LitElement {
     }
 
     _init() {
-        // this.prefix = "osv" + UtilsNew.randomString(6);
-        this._config = this.getDefaultConfig();
+        this.cohort = {};
     }
 
     connectedCallback() {
@@ -57,11 +56,7 @@ export default class OpencgaCohortView extends LitElement {
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
-
-    firstUpdated(_changedProperties) {
-    }
-
-    updated(changedProperties) {
+    update(changedProperties) {
         if (changedProperties.has("cohortId")) {
             this.cohortIdObserver();
         }
@@ -71,13 +66,14 @@ export default class OpencgaCohortView extends LitElement {
         if (changedProperties.has("config")) {
             this.configObserver();
         }
+        super.update(changedProperties);
     }
 
     configObserver() {
     }
 
     // TODO recheck
-    cohortIdObserver() {
+    cohortIdObserverOld() {
         console.warn("cohortIdObserver");
         if (this.file !== undefined && this.file !== "") {
             const params = {
@@ -86,7 +82,7 @@ export default class OpencgaCohortView extends LitElement {
             };
             const _this = this;
             this.opencgaSession.opencgaClient.cohort().info(this.file, params)
-                .then(function(response) {
+                .then(function (response) {
                     if (response.response[0].id === undefined) {
                         response.response[0].id = response.response[0].name;
                     }
@@ -94,16 +90,58 @@ export default class OpencgaCohortView extends LitElement {
                     console.log("_this.cohort", _this.cohort);
                     _this.requestUpdate();
                 })
-                .catch(function(reason) {
+                .catch(function (reason) {
                     console.error(reason);
                 });
         }
+    }
 
+    cohortIdObserver() {
+        if (this.cohortId && this.opencgaSession) {
+            const params = {
+                study: this.opencgaSession.study.fqn,
+                includeIndividual: true
+            };
+            let error;
+            this.opencgaSession.opencgaClient.cohorts().info(this.file, params)
+                .then(res => {
+                    this.cohort = res.responses[0].results[0];
+                })
+                .catch(reason => {
+                    this.cohort = {};
+                    error = reason;
+                })
+                .finally(() => {
+                    this._config = {...this.getDefaultConfig(), ...this._config};
+                    this.requestUpdate();
+                    this.notify(error);
+                });
+        }
     }
 
     cohortObserver() {
         console.log("cohortObserver");
 
+    }
+
+    onFilterChange(e) {
+        this.cohortId = e.detail.value;
+        this.file = e.detail.value;
+    }
+
+    notify(error) {
+        this.dispatchEvent(new CustomEvent("cohortSearch", {
+            detail: {
+                value: this.cohort,
+                status: {
+                    // true if error is defined and not empty
+                    error: !!error,
+                    message: error
+                }
+            },
+            bubbles: true,
+            composed: true
+        }));
     }
 
     getDefaultConfig() {
@@ -119,8 +157,36 @@ export default class OpencgaCohortView extends LitElement {
             },
             sections: [
                 {
+                    title: "Search",
+                    display: {
+                        visible: cohort => !cohort?.id
+                    },
+                    elements: [
+                        {
+                            name: "Cohort ID",
+                            field: "cohortId",
+                            type: "custom",
+                            display: {
+                                render: () => html `
+                                    <cohort-id-autocomplete
+                                        .value="${this.cohort?.id}"
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .config=${{
+                                            addButton: false,
+                                            multiple: false
+                                        }}
+                                        @filterChange="${e => this.onFilterChange(e)}">
+                                    </cohort-id-autocomplete>`
+                            }
+                        }
+                    ]
+                },
+                {
                     title: "General",
                     collapsed: false,
+                    display: {
+                        visible: cohort => cohort?.id
+                    },
                     elements: [
                         // available types: basic (optional/default), complex, list (horizontal and vertical), table, plot, custom
                         {
@@ -144,8 +210,17 @@ export default class OpencgaCohortView extends LitElement {
     }
 
     render() {
+        if (!this.cohort?.id && this.cohortId) {
+            return html`
+                <h2>Loading info... </h2>
+            `;
+        }
+
         return html`
-            <data-form .data=${this.cohort} .config="${this.getDefaultConfig()}"></data-form>
+            <data-form
+                .data=${this.cohort}
+                .config="${this._config}">
+            </data-form>
         `;
     }
 

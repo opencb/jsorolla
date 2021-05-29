@@ -1,5 +1,5 @@
 /**
- * Copyright 2015-2019 OpenCB
+ * Copyright 2015-2021 OpenCB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-import { html, LitElement } from "/web_modules/lit-element.js";
-import UtilsNew from "./../../utilsNew.js";
-import CohortCreate from "../cohort/cohort-create.js"
-import CohortUpdate from "../cohort/cohort-update.js"
+import {html, LitElement} from "/web_modules/lit-element.js";
 import DetailTabs from "../commons/view/detail-tabs.js";
+import "../cohort/opencga-cohort-view.js";
+import "../cohort/cohort-create.js";
+import "../cohort/cohort-update.js";
+import "./../../utilsNew.js";
 
 export default class StudyAdminCohort extends LitElement {
 
@@ -49,17 +50,72 @@ export default class StudyAdminCohort extends LitElement {
     }
 
     _init() {
-        this._prefix = UtilsNew.randomString(8);
+        this.editCohort = false;
+        this.cohortId = "";
+        this.cohort = {};
     }
 
     connectedCallback() {
         super.connectedCallback();
-        this._config = { ...this.getDefaultConfig(), ...this.config };
+        this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
     update(changedProperties) {
         super.update(changedProperties);
     }
+
+    editForm(e) {
+        this.editCohort = !this.editCohort;
+        this._config = {...this.getDefaultConfig(), ...this.config};
+        this.requestUpdate();
+    }
+
+    clearForm(e) {
+        this.editCohort = false;
+        this.fetchCohortId("");
+    }
+
+    changeCohortId(e) {
+        this.fetchCohortId(e.detail.value);
+    }
+
+    fetchCohortId(cohortId) {
+        if (this.opencgaSession) {
+            if (cohortId) {
+                const query = {
+                    study: this.opencgaSession.study.fqn
+                };
+                this.opencgaSession.opencgaClient.cohorts().info(cohortId, query)
+                    .then(response => {
+                        this.cohort = response.responses[0].results[0];
+                        console.log("Cohort id: ", this.cohort);
+                    })
+                    .catch(reason => {
+                        this.cohort = {};
+                        console.error(reason);
+                    })
+                    .finally(() => {
+                        this._config = {...this.getDefaultConfig(), ...this.config};
+                        this.requestUpdate();
+                    });
+            } else {
+                this.cohort = {};
+                this._config = {...this.getDefaultConfig(), ...this.config};
+                this.requestUpdate();
+            }
+        }
+    }
+
+    onCohortSearch(e) {
+        if (e.detail.status.error) {
+            // inform
+        } else {
+            this.cohort = e.detail.value;
+            this._config = {...this.getDefaultConfig(), ...this.config};
+            this.requestUpdate();
+        }
+    }
+
 
     getDefaultConfig() {
         return {
@@ -67,16 +123,31 @@ export default class StudyAdminCohort extends LitElement {
                 {
                     id: "view-cohort",
                     name: "View Cohort",
-                    // icon: "fas fa-notes-medical",
                     active: true,
                     render: (study, active, opencgaSession) => {
                         return html`
                             <div class="row">
                                 <div class="col-md-6" style="margin: 20px 10px">
-                                    <cohort-update
-                                        .cohortId="${"cohortTest"}"
-                                        .opencgaSession="${opencgaSession}"></cohort-create>
-                                    </cohort-update>
+                                    <div style="float: right">
+                                        <span style="padding-right:5px">
+                                            <i class="fas fa-times fa-lg" @click="${e => this.clearForm(e)}" ></i>
+                                        </span>
+                                        <span style="padding-left:5px">
+                                            <i class="fa fa-edit fa-lg" @click="${e => this.editForm(e)}"></i>
+                                        </span>
+                                    </div>
+                                    ${this.editCohort? html`
+                                        <cohort-update
+                                            .cohort="${this.cohort}"
+                                            .opencgaSession="${opencgaSession}"
+                                            @updateCohortId="${e => this.changeCohortId(e)}">
+                                        </cohort-update>
+                                    ` : html`
+                                        <opencga-cohort-view
+                                            .cohort="${this.cohort}"
+                                            .opencgaSession="${opencgaSession}"
+                                            @cohortSearch="${e => this.onCohortSearch(e)}">
+                                        </opencga-cohort-view>`}
                                 </div>
                             </div>`;
                     }
@@ -84,8 +155,6 @@ export default class StudyAdminCohort extends LitElement {
                 {
                     id: "create-cohort",
                     name: "Create Cohort",
-                    // icon: "fas fa-dna",
-                    // active: false,
                     render: (study, active, opencgaSession) => {
                         return html`
                             <div class="row">
@@ -111,6 +180,7 @@ export default class StudyAdminCohort extends LitElement {
                 </detail-tabs>
             </div>`;
     }
+
 }
 
 customElements.define("study-admin-cohort", StudyAdminCohort);
