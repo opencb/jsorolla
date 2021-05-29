@@ -195,15 +195,15 @@ export default class IndividualUpdate extends LitElement {
                         },
                         {
                             name: "Father id",
-                            field: "father",
+                            field: "father.id",
+                            defaultValue: "-",
                             type: "input-text",
-                            display: {
-                                placeholder: "individual name..."
-                            }
+                            display: {}
                         },
                         {
                             name: "Mother id",
-                            field: "mother",
+                            field: "mother.id",
+                            defaultValue: "-",
                             type: "input-text",
                             display: {
                                 placeholder: "individual name..."
