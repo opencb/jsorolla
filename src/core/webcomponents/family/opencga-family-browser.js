@@ -102,7 +102,7 @@ export default class OpencgaFamilyBrowser extends LitElement {
                     id: "facet-tab",
                     name: "Aggregation stats",
                     icon: "fas fa-chart-bar"
-                },/*
+                }, /*
                 {
                     id: "comparator-tab",
                     name: "Comparator"
@@ -184,7 +184,7 @@ export default class OpencgaFamilyBrowser extends LitElement {
                             active: true,
                             // visible:
                             render: (family, active, opencgaSession) => {
-                                return html`<opencga-family-view .opencgaSession="${opencgaSession}" .family="${family}"></opencga-family-view>`;
+                                return html`<family-view .opencgaSession="${opencgaSession}" .family="${family}"></family-view>`;
                             }
                         },
                         {
@@ -238,7 +238,13 @@ export default class OpencgaFamilyBrowser extends LitElement {
                                 id: "creationDay",
                                 name: "Creation Day",
                                 type: "category",
-                                allowedValues: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31"],
+                                allowedValues: [
+                                    "1", "2", "3", "4", "5",
+                                    "6", "7", "8", "9", "10",
+                                    "11", "12", "13", "14", "15",
+                                    "16", "17", "18", "19", "20",
+                                    "21", "22", "23", "24", "25",
+                                    "26", "27", "28", "29", "30", "31"],
                                 description: "Creation day"
                             },
                             {
@@ -317,14 +323,15 @@ export default class OpencgaFamilyBrowser extends LitElement {
     }
 
     render() {
-        return this.opencgaSession && this._config
-            ? html`
-                <opencga-browser  resource="FAMILY"
-                                  .opencgaSession="${this.opencgaSession}"
-                                  .query="${this.query}"
-                                  .config="${this._config}">
-                </opencga-browser>`
-            : null;
+        return this.opencgaSession && this._config ?
+            html`
+                <opencga-browser
+                    resource="FAMILY"
+                    .opencgaSession="${this.opencgaSession}"
+                    .query="${this.query}"
+                    .config="${this._config}">
+                </opencga-browser>` :
+            null;
     }
 
 }

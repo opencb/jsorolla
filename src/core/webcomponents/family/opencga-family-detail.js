@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
-import "./opencga-family-view.js";
+import "./family-view.js";
 import "./../commons/view/detail-tabs.js";
 
 export default class OpencgaFamilyDetail extends LitElement {
@@ -95,7 +95,7 @@ export default class OpencgaFamilyDetail extends LitElement {
                     name: "Overview",
                     active: true,
                     render: (family, active, opencgaSession) => {
-                        return html`<opencga-family-view .opencgaSession="${opencgaSession}" .family="${family}"></opencga-family-view>`;
+                        return html`<family-view .opencgaSession="${opencgaSession}" .family="${family}"></family-view>`;
                     }
                 }
             ]
@@ -103,10 +103,10 @@ export default class OpencgaFamilyDetail extends LitElement {
     }
 
     render() {
-        return this.opencgaSession && this.family
-            ? html`
-                <detail-tabs .data="${this.family}" .config="${this._config}" .opencgaSession="${this.opencgaSession}"></detail-tabs>`
-            : null;
+        return this.opencgaSession && this.family ?
+            html`
+                <detail-tabs .data="${this.family}" .config="${this._config}" .opencgaSession="${this.opencgaSession}"></detail-tabs>` :
+            null;
     }
 
 }

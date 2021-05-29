@@ -19,7 +19,7 @@ import UtilsNew from "../../utilsNew.js";
 import "../commons/view/data-form.js";
 import "../commons/view/pedigree-view.js";
 
-export default class OpencgaFamilyView extends LitElement {
+export default class FamilyView extends LitElement {
 
     constructor() {
         super();
@@ -299,4 +299,4 @@ export default class OpencgaFamilyView extends LitElement {
 
 }
 
-customElements.define("opencga-family-view", OpencgaFamilyView);
+customElements.define("family-view", FamilyView);

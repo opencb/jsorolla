@@ -137,10 +137,10 @@ export default class StudyAdminFamily extends LitElement {
                                             .opencgaSession="${opencgaSession}">
                                         </opencga-family-editor>
                                     ` : html`
-                                        <opencga-family-view
+                                        <family-view
                                             .family="${this.family}"
                                             .opencgaSession="${opencgaSession}">
-                                        </opencga-family-view>`}
+                                        </family-view>`}
                                 </div>
                             </div>`;
                     }

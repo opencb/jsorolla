@@ -23,7 +23,7 @@ import knockoutData from "../test/knockout.20201029141213.SChLEA.js";
 import "./knockout-individual-variants.js";
 import "./knockout-variant-allele-pairs.js";
 import "./knockout-variant-individual.js";
-import "../../../family/opencga-family-view.js";
+import "../../../family/family-view.js";
 import "../../annotation/cellbase-population-frequency-grid.js";
 import "../../annotation/variant-annotation-clinical-view.js";
 
@@ -98,7 +98,7 @@ export default class KnockoutVariantView extends LitElement {
         }
 
         // TODO in this case update doesn't work
-        //super.update(changedProperties);
+        // super.update(changedProperties);
 
     }
 
@@ -323,16 +323,20 @@ export default class KnockoutVariantView extends LitElement {
                 <!--<div class="row">
                     <div class="col-md-2 pull-right">
                         <div style="padding: 20px 0">
-                            <select-field-filter .liveSearch=${true} multiple .data="${this.samples?.map(sample => sample.sampleId)}" .value="${this.activeSamples}" @filterChange="${e => this.onColumnChange(e)}"></select-field-filter>
+                            <select-field-filter
+                                .liveSearch=\${true} multiple
+                                .data="\${this.samples?.map(sample => sample.sampleId)}"
+                                .value="\${this.activeSamples}" @filterChange="\${e => this.onColumnChange(e)}">
+                            </select-field-filter>
                         </div>
                     </div>
                 </div> -->
-                
+
                 <opencb-grid-toolbar .config="${this.toolbarConfig}"
-                                 @columnChange="${this.onColumnChange}"
-                                 @download="${this.onDownload}">
+                                @columnChange="${this.onColumnChange}"
+                                @download="${this.onDownload}">
                 </opencb-grid-toolbar>
-            
+
                 <div class="row">
                     <table id="${this.gridId}"></table>
                 </div>

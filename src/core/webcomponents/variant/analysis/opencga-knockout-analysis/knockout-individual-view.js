@@ -21,7 +21,7 @@ import AnalysisRegistry from "../analysis-registry.js";
 import GridCommons from "../../../commons/grid-commons.js";
 import knockoutDataIndividuals from "../test/knockout.20201103172343.kFIvpr.individuals.js";
 import "./knockout-individual-variants.js";
-import "../../../family/opencga-family-view.js";
+import "../../../family/family-view.js";
 
 export default class KnockoutIndividualView extends LitElement {
 
@@ -112,7 +112,7 @@ export default class KnockoutIndividualView extends LitElement {
             ajax: params => {
                 this.opencgaSession.opencgaClient.variants().queryKnockoutIndividual({job: this.jobId, study: this.opencgaSession.study.fqn})
                     .then(restResponse => {
-                        console.log("restResponse", restResponse)
+                        console.log("restResponse", restResponse);
                         this.tableData = restResponse.getResults();
                         params.success(this.tableData);
                     }).catch(e => {
@@ -259,7 +259,7 @@ export default class KnockoutIndividualView extends LitElement {
                     id: "family-view",
                     name: "Family",
                     render: (individual, active, opencgaSession) => {
-                        return html`<opencga-family-view .individualId="${individual.id}" .opencgaSession="${opencgaSession}"></opencga-family-view>`;
+                        return html`<family-view .individualId="${individual.id}" .opencgaSession="${opencgaSession}"></family-view>`;
                     }
                 }
             ]
@@ -269,8 +269,8 @@ export default class KnockoutIndividualView extends LitElement {
     render() {
         return html`
             <opencb-grid-toolbar .config="${this.toolbarConfig}"
-                                 @columnChange="${this.onColumnChange}"
-                                 @download="${this.onDownload}">
+                                @columnChange="${this.onColumnChange}"
+                                @download="${this.onDownload}">
             </opencb-grid-toolbar>
             <div class="row">
                 <table id="${this.gridId}"></table>
