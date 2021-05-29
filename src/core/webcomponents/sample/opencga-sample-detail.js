@@ -113,7 +113,7 @@ export default class OpencgaSampleDetail extends LitElement {
                     id: "individual-view",
                     name: "Individual",
                     render: (sample, active, opencgaSession) => {
-                        return html`<opencga-individual-view .individualId="${sample?.individualId}" .opencgaSession="${opencgaSession}"></opencga-individual-view>`;
+                        return html`<individual-view .individualId="${sample?.individualId}" .opencgaSession="${opencgaSession}"></individual-view>`;
                     }
                 },
                 {
@@ -133,6 +133,7 @@ export default class OpencgaSampleDetail extends LitElement {
                 <detail-tabs .data="${this.sample}" .config="${this._config}" .opencgaSession="${this.opencgaSession}"></detail-tabs>
                 ` : null;
     }
+
 }
 
 customElements.define("opencga-sample-detail", OpencgaSampleDetail);

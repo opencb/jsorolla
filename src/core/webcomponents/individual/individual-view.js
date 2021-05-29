@@ -18,8 +18,7 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
 import "../commons/view/data-form.js";
 
-
-export default class OpencgaIndividualView extends LitElement {
+export default class IndividualView extends LitElement {
 
     constructor() {
         super();
@@ -311,4 +310,4 @@ export default class OpencgaIndividualView extends LitElement {
 
 }
 
-customElements.define("opencga-individual-view", OpencgaIndividualView);
+customElements.define("individual-view", IndividualView);

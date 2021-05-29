@@ -18,7 +18,7 @@ import {html, LitElement} from "/web_modules/lit-element.js";
 import DetailTabs from "../commons/view/detail-tabs.js";
 import "../individual/individual-update.js";
 import "../individual/individual-create.js";
-import "../individual/opencga-individual-view.js";
+import "../individual/individual-view.js";
 
 export default class StudyAdminIndividual extends LitElement {
 
@@ -139,11 +139,11 @@ export default class StudyAdminIndividual extends LitElement {
                                             .opencgaSession="${opencgaSession}">
                                         </individual-update>
                                     ` : html`
-                                        <opencga-individual-view
+                                        <individual-view
                                             .individual="${this.individual}"
                                             .opencgaSession="${opencgaSession}"
                                             @individualSearch="${e => this.onIndividualSearch(e)}">
-                                        </opencga-individual-view>`}
+                                        </individual-view>`}
                                 </div>
                             </div>`;
                     }

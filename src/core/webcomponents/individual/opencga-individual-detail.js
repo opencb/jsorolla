@@ -16,7 +16,7 @@
 
 import {html, LitElement} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
-import "./opencga-individual-view.js";
+import "./individual-view.js";
 import "./../commons/view/detail-tabs.js";
 
 export default class OpencgaIndividualDetail extends LitElement {
@@ -93,7 +93,7 @@ export default class OpencgaIndividualDetail extends LitElement {
                     name: "Overview",
                     active: true,
                     render: (individual, active, opencgaSession) => {
-                        return html`<opencga-individual-view .individual="${individual}" .opencgaSession="${opencgaSession}"></opencga-individual-view>`;
+                        return html`<individual-view .individual="${individual}" .opencgaSession="${opencgaSession}"></individual-view>`;
                     }
                 },
                 {
@@ -105,7 +105,7 @@ export default class OpencgaIndividualDetail extends LitElement {
                             columns: {
                                 hidden: ["actions"]
                             }
-                        }
+                        };
                         return html`
                             <p class="alert"> <i class="fas fa-info-circle align-middle"></i> Clinical Analysis in which the individual is the proband.</p>
                             <opencga-clinical-analysis-grid .config=${config} .query="${{"family.members": individual.id}}" .opencgaSession="${opencgaSession}"></opencga-clinical-analysis-grid>`;
@@ -139,9 +139,10 @@ export default class OpencgaIndividualDetail extends LitElement {
 
     render() {
         return this.opencgaSession && this.individual ?
-            html`<detail-tabs .data="${this.individual}" .config="${this._config}" .opencgaSession="${this.opencgaSession}"></detail-tabs>`
-            : null
+            html`<detail-tabs .data="${this.individual}" .config="${this._config}" .opencgaSession="${this.opencgaSession}"></detail-tabs>` :
+            null;
     }
+
 }
 
 customElements.define("opencga-individual-detail", OpencgaIndividualDetail);
