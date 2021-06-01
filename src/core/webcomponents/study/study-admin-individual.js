@@ -127,10 +127,10 @@ export default class StudyAdminIndividual extends LitElement {
                                 <div class="col-md-6" style="margin: 20px 10px">
                                     <div style="float: right">
                                         <span style="padding-right:5px">
-                                            <i class="fas fa-times fa-lg" @click="${e => this.clearForm(e)}" ></i>
+                                            <i class="fas fa-times icon-hover" @click="${e => this.clearForm(e)}" ></i>
                                         </span>
                                         <span style="padding-left:5px">
-                                            <i class="fa fa-edit fa-lg" @click="${e => this.editForm(e)}"></i>
+                                            <i class="fa fa-edit icon-hover" @click="${e => this.editForm(e)}"></i>
                                         </span>
                                     </div>
                                     ${this.editIndividual? html`
