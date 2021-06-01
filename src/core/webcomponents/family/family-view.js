@@ -87,16 +87,26 @@ export default class FamilyView extends LitElement {
     familyIdObserver() {
         this.noResults = false;
         if (this.opencgaSession && this.familyId) {
-            this.opencgaSession.opencgaClient.families().info(this.familyId, {study: this.opencgaSession.study.fqn})
+            const query = {
+                study: this.opencgaSession.study.fqn,
+            };
+            let error;
+            this.opencgaSession.opencgaClient.families().info(this.familyId, query)
                 .then(response => {
                     this.family = response.getResult(0);
                     if (!this.family) {
                         this.noResults = true;
                     }
-                    this.requestUpdate();
+                    // this.requestUpdate();
                 })
                 .catch(function (reason) {
+                    this.family = {};
                     console.error(reason);
+                    error = reason;
+                }).finally(() =>{
+                    this._config = this._config = {...this.getDefaultConfig(), ...this.config};
+                    this.requestUpdate();
+                    this.notify(error);
                 });
         }
     }
@@ -120,6 +130,21 @@ export default class FamilyView extends LitElement {
 
     onFilterChange(e) {
         this.familyId = e.detail.value;
+    }
+
+    notify(error) {
+        this.dispatchEvent(new CustomEvent("familySearch", {
+            detail: {
+                value: this.family,
+                status: {
+                    // true if error is defined and not empty
+                    error: !!error,
+                    message: error
+                }
+            },
+            bubbles: true,
+            composed: true
+        }));
     }
 
     getDefaultConfig() {
@@ -291,9 +316,13 @@ export default class FamilyView extends LitElement {
 
     render() {
         return this.family ? html`
-            <data-form .data=${this.family} .config="${this._config}"></data-form>
+            <data-form
+                .data=${this.family}
+                .config="${this._config}">
+            </data-form>
         ` : this.noResults ? html`
-                <div class="alert alert-info"><i class="fas fa-3x fa-info-circle align-middle"></i> No family found.</div>
+                <div class="alert alert-info">
+                    <i class="fas fa-3x fa-info-circle align-middle"></i> No family found.</div>
             ` : null;
     }
 
