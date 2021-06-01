@@ -210,7 +210,7 @@ export default class RgaVariantAllelePairs extends LitElement {
     }
 
     /**
-     * Update variantData (containing all the variants) with the variant info just fetched.
+     * Update variantData (containing all the variants from variant/summary in Variant View) with variant info just fetched (a list of paginated variants, still from variant/summary).
      * Double loop is necessary as variantData can contain more than 1 variant with the same id
      */
     updateTableData(variantData, variantAttributeData) {
@@ -260,7 +260,7 @@ export default class RgaVariantAllelePairs extends LitElement {
             {
                 title: "Clinical Significance",
                 field: "attributes.clinicalSignificances",
-                formatter: value => value.length ? value.join(", ") : "-"
+                formatter: value => value?.length ? value.join(", ") : "-"
             }
             /* {
                 // this value is not available
@@ -306,9 +306,6 @@ export default class RgaVariantAllelePairs extends LitElement {
     getDefaultConfig() {
         return {
             title: "Allele Pairs",
-            pagination: true,
-            pageSize: 10,
-            pageList: [10, 25, 50],
             populationFrequencies: [
                 "GNOMAD_EXOMES:ALL",
                 "GNOMAD_GENOMES:ALL",

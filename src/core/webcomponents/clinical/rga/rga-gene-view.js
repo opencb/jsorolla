@@ -129,8 +129,24 @@ export default class RgaGeneView extends LitElement {
                     ...this._query
                 };
                 this.opencgaSession.opencgaClient.clinical().summaryRgaGene(_filters)
-                    .then(res => {
-                        params.success(res);
+                    .then(async rgaGeneResponse => {
+                        // params.success(rgaGeneResponse);
+                        // TODO move this in formatter (or in onLoadSuccess()) and make it async on table render
+                        // disabled at the moment
+
+                        /*this.geneIds = rgaGeneResponse.getResults().map(gene => gene.id);
+                        const individualStatsResponse = await this.getIndividualInfo(this.geneIds);
+                        console.log("individualStatsResponse", individualStatsResponse);
+                        // merging RGA Variant data with Variant data
+                        for (const gene of rgaGeneResponse.getResults()) {
+                            console.log("gene", gene);
+                            if (individualStatsResponse[gene.id]) {
+                                gene.attributes = {
+                                    INDIVIDUAL: individualStatsResponse[gene.id]
+                                };
+                            }
+                        }*/
+                        params.success(rgaGeneResponse);
                     })
                     .catch(e => {
                         console.error(e);
@@ -147,7 +163,9 @@ export default class RgaGeneView extends LitElement {
                 this.gridCommons.onClickRow(row.id, row, selectedElement);
             },
             onCheck: (row, $element) => this.gridCommons.onCheck(row.id, row),
-            onLoadSuccess: data => this.gridCommons.onLoadSuccess(data, 1),
+            onLoadSuccess: data => {
+                this.gridCommons.onLoadSuccess(data, 1)
+            },
             onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse)
         });
     }
@@ -230,7 +248,16 @@ export default class RgaGeneView extends LitElement {
                 {
                     title: "Total",
                     field: "individualStats.count",
-                    formatter: value => value > 0 ? value : "-"
+                    formatter: value => value > 0 ? value : "-",
+                    /*formatter: (value, row) => {
+                        console.log("row", row);
+                        if (value > 0) {
+                            return value - row.attributes.INDIVIDUAL !== 0 ? value + " - " + row.attributes.INDIVIDUAL : value;
+                        } else {
+                            return "-";
+                        }
+                    }
+                    */
                 },
                 {
                     title: "Homozygous",
@@ -282,8 +309,57 @@ export default class RgaGeneView extends LitElement {
         ];
     }
 
+    async updateTotalIndividual(id, field) {
+        console.log("id", id)
+        this.table.bootstrapTable("updateCellByUniqueId", {id: id, field: 'name', value: "loading"});
+        const totalIndividualMap = await this.getIndividualInfo(id);
+        this.table.bootstrapTable("updateCellByUniqueId", {
+            id: id,
+            field: 'name',
+            value: totalIndividualMap[id]
+        });
+    }
+
     getConfidenceCount(row, value) {
         return row.individualFacet.COMP_HET?.facetFields?.find(facet => facet.name === "numParents").buckets.find(bucket => bucket.value === value)?.count;
+    }
+
+    /**
+     * Get Individual stats of a set of genes (the genes are not spliced as they comes from a paginated request already).
+     * TODO NOTE this won't work as the `numMatches` > 10k is approximated
+     * @param geneIds {Array} all genes
+     * @returns {Promise}
+     */
+    async getIndividualInfo(geneIds) {
+        try {
+            const geneMap = {};
+            if (geneIds.length) {
+                try {
+                    for (const geneId of geneIds) {
+                        console.log("geneId", geneId);
+                        const _filters = {
+                            study: this.opencgaSession.study.fqn,
+                            count: true,
+                            geneId: geneId,
+                            include: "id",
+                            exclude: "disorders,genes,phenotypes"
+                        };
+                        const res = await this.opencgaSession.opencgaClient.clinical().queryRgaIndividual(_filters);
+                        geneMap[geneId] = res.getResponse().numMatches;
+                    }
+                    return geneMap;
+                } catch (e) {
+                    console.error(e);
+                }
+            } else {
+                console.error("params error");
+                return {};
+            }
+        } catch (e) {
+            console.error(e);
+            UtilsNew.notifyError(e);
+        }
+
     }
 
     /**
