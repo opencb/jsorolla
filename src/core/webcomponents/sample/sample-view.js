@@ -15,6 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
+import LitUtils from "../commons/utils/lit-utls.js";
 import UtilsNew from "../../utilsNew.js";
 import "../commons/view/data-form.js";
 import "../commons/annotation-sets-view.js";
@@ -87,7 +88,8 @@ export default class SampleView extends LitElement {
                 .finally(() => {
                     this._config = {...this.getDefaultConfig(), ...this.config};
                     this.requestUpdate();
-                    this.notify(error);
+                    // this.notify(error);
+                    LitUtils.dispatchEvent("sampleSearch", this.sample, error, {query: {includeIndividual: true}});
                 });
         }
     }
@@ -97,23 +99,23 @@ export default class SampleView extends LitElement {
         this.sampleId = e.detail.value;
     }
 
-    notify(error) {
-        this.dispatchEvent(new CustomEvent("sampleSearch", {
-            detail: {
-                value: this.sample,
-                query: {
-                    includeIndividual: true
-                },
-                status: {
-                    // true if error is defined and not empty
-                    error: !!error,
-                    message: error
-                }
-            },
-            bubbles: true,
-            composed: true
-        }));
-    }
+    // notify(error) {
+    //     this.dispatchEvent(new CustomEvent("sampleSearch", {
+    //         detail: {
+    //             value: this.sample,
+    //             query: {
+    //                 includeIndividual: true
+    //             },
+    //             status: {
+    //                 // true if error is defined and not empty
+    //                 error: !!error,
+    //                 message: error
+    //             }
+    //         },
+    //         bubbles: true,
+    //         composed: true
+    //     }));
+    // }
 
     getDefaultConfig() {
         return {
