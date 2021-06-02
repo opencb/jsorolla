@@ -67,14 +67,17 @@ export default class IndividualView extends LitElement {
 
     individualIdObserver() {
         if (this.individualId && this.opencgaSession) {
+            const query = {
+                study: this.opencgaSession.study.fqn,
+            };
             let error;
-            this.opencgaSession.opencgaClient.individuals().info(this.individualId, {study: this.opencgaSession.study.fqn})
+            this.opencgaSession.opencgaClient.individuals().info(this.individualId, query)
                 .then(response => {
                     this.individual = response.responses[0].results[0];
-                    this.requestUpdate();
                 })
                 .catch(function (reason) {
                     this.individual = {};
+                    error = reason;
                     console.error(reason);
                 })
                 .finally(() => {
@@ -299,7 +302,7 @@ export default class IndividualView extends LitElement {
     render() {
         if (!this.individual?.id && this.individualId) {
             return html`
-                <h2>Loading info... </h2>
+                <h2>Individual not found</h2>
             `;
         }
 

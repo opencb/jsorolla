@@ -60,56 +60,23 @@ export default class OpencgaCohortView extends LitElement {
         if (changedProperties.has("cohortId")) {
             this.cohortIdObserver();
         }
-        if (changedProperties.has("cohort")) {
-            this.cohortObserver();
-        }
         if (changedProperties.has("config")) {
             this.configObserver();
         }
         super.update(changedProperties);
     }
 
-    configObserver() {
-    }
-
-    // TODO recheck
-    cohortIdObserverOld() {
-        console.warn("cohortIdObserver");
-        if (this.file !== undefined && this.file !== "") {
-            const params = {
-                study: this.opencgaSession.study.fqn,
-                includeIndividual: true
-            };
-            const _this = this;
-            this.opencgaSession.opencgaClient.cohort().info(this.file, params)
-                .then(function (response) {
-                    if (response.response[0].id === undefined) {
-                        response.response[0].id = response.response[0].name;
-                    }
-                    _this.cohort = response.response[0].result[0];
-                    console.log("_this.cohort", _this.cohort);
-                    _this.requestUpdate();
-                })
-                .catch(function (reason) {
-                    console.error(reason);
-                });
-        }
-    }
-
     cohortIdObserver() {
         if (this.cohortId && this.opencgaSession) {
-            const params = {
-                study: this.opencgaSession.study.fqn,
-                includeIndividual: true
-            };
             let error;
-            this.opencgaSession.opencgaClient.cohorts().info(this.file, params)
+            this.opencgaSession.opencgaClient.cohorts().info(this.cohortId, {study: this.opencgaSession.study.fqn})
                 .then(res => {
                     this.cohort = res.responses[0].results[0];
                 })
                 .catch(reason => {
                     this.cohort = {};
                     error = reason;
+                    console.error(reason);
                 })
                 .finally(() => {
                     this._config = {...this.getDefaultConfig(), ...this._config};
@@ -119,14 +86,8 @@ export default class OpencgaCohortView extends LitElement {
         }
     }
 
-    cohortObserver() {
-        console.log("cohortObserver");
-
-    }
-
     onFilterChange(e) {
         this.cohortId = e.detail.value;
-        this.file = e.detail.value;
     }
 
     notify(error) {

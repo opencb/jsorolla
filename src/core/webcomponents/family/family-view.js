@@ -53,7 +53,6 @@ export default class FamilyView extends LitElement {
 
     _init() {
         this.family = {};
-        this._config = this.getDefaultConfig();
     }
 
     connectedCallback() {
@@ -62,31 +61,20 @@ export default class FamilyView extends LitElement {
     }
 
     update(changedProperties) {
-        if (changedProperties.has("opencgaSession")) {
-            // this.individualIdObserver();
-        }
-
-        if (changedProperties.has("family")) {
-            // console.log("family", this.family) // TODO will be empty if you decomment row #60. Investigate on this
-        }
-
         if (changedProperties.has("familyId")) {
             this.familyIdObserver();
         }
-
         if (changedProperties.has("individualId")) {
             this.individualIdObserver();
         }
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
         }
-
         super.update(changedProperties);
     }
 
     familyIdObserver() {
-        this.noResults = false;
-        if (this.opencgaSession && this.familyId) {
+        if (this.familyId && this.opencgaSession) {
             const query = {
                 study: this.opencgaSession.study.fqn,
             };
@@ -94,16 +82,13 @@ export default class FamilyView extends LitElement {
             this.opencgaSession.opencgaClient.families().info(this.familyId, query)
                 .then(response => {
                     this.family = response.getResult(0);
-                    if (!this.family) {
-                        this.noResults = true;
-                    }
-                    // this.requestUpdate();
                 })
                 .catch(function (reason) {
                     this.family = {};
-                    console.error(reason);
                     error = reason;
-                }).finally(() =>{
+                    console.error(reason);
+                })
+                .finally(() => {
                     this._config = this._config = {...this.getDefaultConfig(), ...this.config};
                     this.requestUpdate();
                     this.notify(error);
@@ -112,18 +97,26 @@ export default class FamilyView extends LitElement {
     }
 
     individualIdObserver() {
-        this.noResults = false;
-        if (this.opencgaSession && this.individualId) {
-            this.opencgaSession.opencgaClient.families().search({members: this.individualId, study: this.opencgaSession.study.fqn})
+        if (this.individualId && this.opencgaSession) {
+            const query = {
+                members: this.individualId,
+                study: this.opencgaSession.study.fqn
+            };
+            let error;
+            this.opencgaSession.opencgaClient.families().search(query)
                 .then(response => {
-                    this.family = response.getResult(0); // TODO FIXME it takes into account just the first family
-                    if (!this.family) {
-                        this.noResults = true;
-                    }
-                    this.requestUpdate();
+                    // Only takes the first family
+                    this.family = response.getResult(0);
                 })
                 .catch(function (reason) {
+                    this.family = {};
+                    error = reason;
                     console.error(reason);
+                })
+                .finally(() => {
+                    this._config = this._config = {...this.getDefaultConfig(), ...this.config};
+                    this.requestUpdate();
+                    this.notify(error);
                 });
         }
     }
@@ -315,15 +308,19 @@ export default class FamilyView extends LitElement {
     }
 
     render() {
-        return this.family ? html`
+        if (!this.family?.id && this.familyId) {
+            return html`
+                <div class="alert alert-info">
+                    <i class="fas fa-3x fa-info-circle align-middle"></i> No family found.
+                </div>
+            `;
+        }
+
+        return html`
             <data-form
                 .data=${this.family}
                 .config="${this._config}">
-            </data-form>
-        ` : this.noResults ? html`
-                <div class="alert alert-info">
-                    <i class="fas fa-3x fa-info-circle align-middle"></i> No family found.</div>
-            ` : null;
+            </data-form>`;
     }
 
 }

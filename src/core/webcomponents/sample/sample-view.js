@@ -82,6 +82,7 @@ export default class SampleView extends LitElement {
                 .catch(reason => {
                     this.sample = {};
                     error = reason;
+                    console.error(reason);
                 })
                 .finally(() => {
                     this._config = {...this.getDefaultConfig(), ...this.config};
@@ -92,6 +93,7 @@ export default class SampleView extends LitElement {
     }
 
     onFilterChange(e) {
+        // This must call sampleIdObserver function
         this.sampleId = e.detail.value;
     }
 
@@ -238,7 +240,7 @@ export default class SampleView extends LitElement {
     render() {
         if (!this.sample?.id && this.sampleId) {
             return html`
-                <h2>Loading info... </h2>
+                <h2>Sample not found</h2>
             `;
         }
 
