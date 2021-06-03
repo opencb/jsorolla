@@ -35,6 +35,15 @@ export default class FormUtils {
         }
     }
 
+    static createObject(object, params, value) {
+        const [field, prop] = params.split(".");
+
+        object[field] = {
+            ...object[field],
+            [prop]: value
+        };
+    }
+
 
     static showAlert(title, message, type) {
         Swal.fire(
