@@ -69,8 +69,7 @@ export default class FamilyGenotypeModal extends LitElement {
     onFilterChange(e) {
         this._genotype = e.detail.value;
         this.errorState = e.detail.errorState;
-
-        console.log("onFilterChange", this._genotype)
+        console.log("onFilterChange", this._genotype);
         this.requestUpdate();
     }
 

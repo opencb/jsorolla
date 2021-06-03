@@ -132,18 +132,19 @@ export default class FamilyGenotypeFilter extends LitElement {
 
         this.tableData = [];
         // We read Individuals from Clinical Analysis
-        let individuals = [];
+        const individuals = [];
+        // first add the proband
+        if (this.clinicalAnalysis?.proband?.samples?.length) {
+            individuals.push(this.clinicalAnalysis.proband);
+            this.showModeOfInheritance = false;
+        } else {
+            console.error("No proband sample available.");
+        }
+        // add the other members of the family
         if (this.clinicalAnalysis?.family?.members?.length) {
             // We must use only the Individuals with samples
-            individuals = this.clinicalAnalysis.family.members.filter(member => member.samples && member.samples.length > 0);
+            individuals.push(...this.clinicalAnalysis.family.members.filter(member => member.samples && member.samples.length > 0 && member.id !== this.clinicalAnalysis.proband.id));
             this.showModeOfInheritance = true;
-        } else {
-            if (this.clinicalAnalysis?.proband?.samples?.length) {
-                individuals = [this.clinicalAnalysis.proband];
-                this.showModeOfInheritance = false;
-            } else {
-                console.error("No sample available.");
-            }
         }
 
         // Prepare Table Data
@@ -157,7 +158,7 @@ export default class FamilyGenotypeFilter extends LitElement {
                     affected: individual?.disorders?.some(disorder => disorder.id === this.clinicalAnalysis?.disorder?.id),
                     sex: individual.sex,
                     karyotypicSex: individual.karyotypicSex,
-                    role: this.clinicalAnalysis?.family?.roles[this.clinicalAnalysis.proband.id][individual.id] ?? (individual.id === this.clinicalAnalysis.proband.id ? "PROBAND" : "ROLE NOT AVAILABLE")
+                    role: this.clinicalAnalysis?.family?.roles[this.clinicalAnalysis.proband.id][individual.id] ?? (individual.id === this.clinicalAnalysis.proband.id ? "PROBAND" : "ERROR: Role not available")
                 };
                 this.tableData.push(row);
             });
@@ -200,7 +201,9 @@ export default class FamilyGenotypeFilter extends LitElement {
         if (this.state) {
             for (const id in this.state) {
                 const sample = this.state[id];
-                _sample.push(id + (sample.genotypes.length ? ":" + sample.genotypes.join(",") : ""));
+                if (sample.genotypes.length) {
+                    _sample.push(id + ":" + sample.genotypes.join(","));
+                }
                 /* if (sample.dp) {
                     _sampleData.push(id + ":DP>=" + sample.dp);
                 }*/
@@ -246,7 +249,7 @@ export default class FamilyGenotypeFilter extends LitElement {
                         }
                     }
                 }
-                this.errorState = countGenoypes <= 0;
+                this.errorState = countGenoypes <= 0 ? "The selected Mode of Inheritance is not compatible with the family pedigree" : false;
                 // keeps the last legal state
                 if (!this.errorState) {
                     this.state = {..._state};
@@ -273,8 +276,11 @@ export default class FamilyGenotypeFilter extends LitElement {
         } else {
             this.state[sampleId].genotypes.splice(this.state[sampleId].genotypes.indexOf(gt), 1);
         }
+        // make sure the proband has at least 1 GT checked
+        const probandSampleId = this.clinicalAnalysis.proband.samples[0].id;
+        this.errorState = !this.state[probandSampleId].genotypes.length ? "At least one genotype have to be selected for the proband." : false;
         this.state = {...this.state};
-        // await this.requestUpdate();
+        await this.requestUpdate();
         this.notifySampleFilterChange();
     }
 
@@ -506,7 +512,7 @@ export default class FamilyGenotypeFilter extends LitElement {
                 ${this.showModeOfInheritance && this.errorState ? html`
                     <div class="col-md-12" style="padding: 10px 20px">
                         <div class="alert alert-danger" role="alert" id="${this._prefix}Warning">
-                            <i class="fas fa-3x fa fa-exclamation-triangle align-middle"></i> The selected Mode of Inheritance is not compatible with the family pedigree.
+                            <i class="fas fa-3x fa fa-exclamation-triangle align-middle"></i> ${this.errorState}
                         </div>
                     </div>
                 ` : null}
