@@ -51,7 +51,7 @@ export const BaseManagerMixin = superClass => class extends superClass {
     connectedCallback() {
         super.connectedCallback();
         this._config = {...this.getDefaultConfig(), ...this.config};
-        console.log("Connected Callback baseManager");
+        console.log("Connected Callback baseManager", this);
     }
 
     dispatchSessionUpdateRequest() {

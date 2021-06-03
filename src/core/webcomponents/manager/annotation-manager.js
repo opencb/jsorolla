@@ -23,7 +23,6 @@ import FormUtils from "../../form-utils.js";
 // eslint-disable-next-line new-cap
 export default class AnnotationManager extends BaseManagerMixin(LitElement) {
 
-    // This component work for annotations and attribute (Map<string,object>).. should be rename the component
     constructor() {
         super();
         this._init();
@@ -33,6 +32,9 @@ export default class AnnotationManager extends BaseManagerMixin(LitElement) {
         return {
             annotations: {
                 type: Array
+            },
+            variables: {
+                type: Array
             }
         };
     }
@@ -40,19 +42,28 @@ export default class AnnotationManager extends BaseManagerMixin(LitElement) {
     _init() {
         this.annotation = {};
         this.annotations = [];
+        this.annotationsElements = [];
     }
 
-    firstUpdated() {
-        // Calling once this service
-        this.variableSetObserver();
+    update(changedProperties) {
+        if (changedProperties.has("variables")) {
+            this.variablesObserver();
+        }
+        super.update(changedProperties);
     }
 
+    variablesObserver() {
+        this.annotationsElements = this.variables.map(item => {
+            return {
+                name: item.id,
+                field: item.name,
+                type: "input-text",
+            };
+        });
 
-    async variableSetObserver() {
-        const resp = await this.opencgaSession.opencgaClient.studies().variableSets(this.opencgaSession.study.fqn);
-        const variableSets = resp.responses[0].results;
-        this.variableSetIds = variableSets.map(item => item.id);
+        console.log("Annotations Elements ", this.annotationsElements);
         this._config = {...this.getDefaultConfig(), ...this.config};
+        console.log(this._config);
     }
 
     getDefaultConfig() {
@@ -71,51 +82,35 @@ export default class AnnotationManager extends BaseManagerMixin(LitElement) {
             },
             sections: [
                 {
-                    elements: [
-                        {
-                            name: "Id",
-                            field: "annotationSet.id",
-                            type: "input-text",
-                            display: {
-                                placeholder: "Id ...",
-                            }
-                        },
-                        {
-                            name: "Name",
-                            field: "annotationSet.name",
-                            type: "input-text",
-                            display: {
-                                placeholder: "Name ...",
-                            }
-                        },
-                        {
-                            name: "Variable Set Id",
-                            field: "annotationSet.variableSetId",
-                            type: "select",
-                            allowedValues: this.variableSetIds,
-                            display: {
-                                placeholder: "Name ...",
-                            }
+                    elements: [{
+                        name: "Id",
+                        field: "annotation.id",
+                        type: "input-text",
+                        display: {
+                            placeholder: "Id ...",
                         }
-                    ]
+                    },
+                    {
+                        name: "Name",
+                        field: "annotation.name",
+                        type: "input-text",
+                        display: {
+                            placeholder: "Name ...",
+                        }
+                    }]
                 }
             ]
         };
     }
 
-    onFieldChangeAnnotationSet(e) {
-        console.log("onFieldChangeAnnotationSets ", e.detail.param, e.detail.value);
-        switch (e.detail.param) {
-            case "annotationSet.id":
-            case "annotationSet.name":
-            case "annotationSet.variableSetId":
-                FormUtils.createObject(
-                    this.annotationSet,
-                    e.detail.param,
-                    e.detail.value
-                );
-                break;
-        }
+    onFieldChangeAnnotation(e) {
+        console.log("onFieldChangeAnnotation ", e.detail.param, e.detail.value);
+        // switch (e.detail.param) {
+        //     case "annotationSet.id":
+        //     case "annotationSet.name":
+        //     case "annotationSet.variableSetId":
+        //         break;
+        // }
         // To stop the bubbles when dispatched this method
         e.stopPropagation();
     }
@@ -126,9 +121,9 @@ export default class AnnotationManager extends BaseManagerMixin(LitElement) {
         e.stopPropagation();
     }
 
-    onAddAnnotationSet(e, item) {
+    onAddAnnotation(e, item) {
         this.onAddItem(item);
-        console.log("Add new Annotation Set");
+        console.log("Add new Annotation");
         this.onShow();
     }
 
@@ -136,7 +131,7 @@ export default class AnnotationManager extends BaseManagerMixin(LitElement) {
         return html`
         <div class="row">
             <div class="col-md-2" style="padding: 10px 20px">
-                <h3>Annotation Sets</h3>
+                <h4>Annotation</h4>
             </div>
             <div class="col-md-10" style="padding: 10px 20px">
                 <button type="button" class="btn btn-primary ripple pull-right" @click="${this.onShow}">
@@ -146,7 +141,7 @@ export default class AnnotationManager extends BaseManagerMixin(LitElement) {
             <div class="clearfix"></div>
             <hr style="margin:0px">
             <div class="col-md-12" style="padding: 10px 20px">
-                ${this.annotationSets?.map(item => html`
+                ${this.annotations?.map(item => html`
                     <span class="label label-primary" style="font-size: 14px; margin:5px; padding-right:0px; display:inline-block">${item.name}
                         <span class="badge" style="cursor:pointer" @click=${e => this.onRemoveItem(e, item)}>X</span>
                     </span>`
@@ -156,11 +151,11 @@ export default class AnnotationManager extends BaseManagerMixin(LitElement) {
 
         <div class="subform-test" style="${this.isShow ? "display:block" : "display:none"}">
             <data-form
-                .data=${this.annotationSets}
+                .data=${this.annotations}
                 .config="${this._config}"
-                @fieldChange="${e => this.onFieldChangeAnnotationSet(e)}"
+                @fieldChange="${e => this.onFieldChangeAnnotation(e)}"
                 @clear="${this.onClearForm}"
-                @submit="${e => this.onAddAnnotationSet(e, this.annotationSet)}">
+                @submit="${e => this.onAddAnnotation(e, this.annotation)}">
             </data-form>
         </div>
     `;

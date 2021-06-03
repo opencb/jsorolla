@@ -18,6 +18,7 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import {BaseManagerMixin} from "./base-manager.js";
 import "../commons/tool-header.js";
 import "../commons/filters/variableset-id-autocomplete.js";
+import "../manager/annotation-manager.js";
 import FormUtils from "../../form-utils.js";
 
 // eslint-disable-next-line new-cap
@@ -30,15 +31,18 @@ export default class AnnotationSetManager extends BaseManagerMixin(LitElement) {
 
     static get properties() {
         return {
-            annotationSet: {
+            annotationSets: {
                 type: Array
             }
         };
     }
 
     _init() {
-        this.annotationSet = {};
         this.annotationSets = [];
+        this.annotationSet = {
+            annotations: []
+        };
+        this.variableSetIds = [];
     }
 
     firstUpdated() {
@@ -49,8 +53,8 @@ export default class AnnotationSetManager extends BaseManagerMixin(LitElement) {
 
     async variableSetObserver() {
         const resp = await this.opencgaSession.opencgaClient.studies().variableSets(this.opencgaSession.study.fqn);
-        const variableSets = resp.responses[0].results;
-        this.variableSetIds = variableSets.map(item => item.id);
+        this.variableSets = await resp.responses[0].results;
+        this.variableSetIds = this.variableSets.map(item => item.id);
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
@@ -95,6 +99,24 @@ export default class AnnotationSetManager extends BaseManagerMixin(LitElement) {
                             display: {
                                 placeholder: "Name ...",
                             }
+                        },
+                        {
+                            field: "annotations",
+                            type: "custom",
+                            display: {
+                                layout: "vertical",
+                                defaultLayout: "vertical",
+                                width: 12,
+                                style: "padding-left: 0px",
+                                render: () => this.variables?
+                                    html`
+                                    <annotation-manager
+                                        .annotations="${this.annotationSets?.annotations}"
+                                        .variables="${this.variables}"
+                                        .opencgaSession="${this.opencgaSession}">
+                                    </annotation-manager>`:
+                                    html ``
+                            }
                         }
                     ]
                 }
@@ -108,6 +130,9 @@ export default class AnnotationSetManager extends BaseManagerMixin(LitElement) {
             case "annotationSet.id":
             case "annotationSet.name":
             case "annotationSet.variableSetId":
+                if (e.detail.param === "annotationSet.variableSetId") {
+                    this.getVariablesById(e.detail.value);
+                }
                 FormUtils.createObject(
                     this.annotationSet,
                     e.detail.param,
@@ -117,6 +142,14 @@ export default class AnnotationSetManager extends BaseManagerMixin(LitElement) {
         }
         // To stop the bubbles when dispatched this method
         e.stopPropagation();
+    }
+
+    getVariablesById(variableId) {
+        this.variables = this.variableSets.find(item => item.id === variableId)
+            .variables.sort((a, b) => a.rank > b.rank? 1 : -1);
+        console.log("Change AnnotationSetId");
+        this._config = {...this.getDefaultConfig(), ...this.config};
+        this.requestUpdate();
     }
 
     onClearForm(e) {
@@ -139,7 +172,7 @@ export default class AnnotationSetManager extends BaseManagerMixin(LitElement) {
             </div>
             <div class="col-md-10" style="padding: 10px 20px">
                 <button type="button" class="btn btn-primary ripple pull-right" @click="${this.onShow}">
-                    Add Annotation
+                    Add Annotation Sets
                 </button>
             </div>
             <div class="clearfix"></div>
