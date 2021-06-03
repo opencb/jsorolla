@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
-//import Circos from "./test/circos.js";
+// import Circos from "./test/circos.js";
 import "../variant/opencga-variant-filter.js";
 import "../commons/opencga-active-filters.js";
 import "../commons/visualisation/circos-view.js";
@@ -55,14 +55,14 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
             config: {
                 type: Object
             }
-        }
+        };
     }
 
-    _init(){
+    _init() {
         this._prefix = UtilsNew.randomString(8);
 
         this.preparedQuery = {};
-        //this.base64 = "data:image/png;base64, " + Circos.base64;
+        // this.base64 = "data:image/png;base64, " + Circos.base64;
     }
 
     connectedCallback() {
@@ -87,33 +87,34 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
     }
 
     signatureQuery() {
-        console.log(this.queries)
+        console.log(this.queries);
         this.opencgaSession.opencgaClient.variants().queryMutationalSignature({
             study: this.opencgaSession.study.fqn,
             fitting: false,
             sample: this.sampleId,
             ...this.query,
             ...this.queries?.["SNV"]
-        }).then( restResult => {
+        }).then(restResult => {
             this.signature = restResult.getResult(0).signature;
             this.dispatchEvent(new CustomEvent("changeSignature", {
                 detail: {
-                    signature: this.signature,
+                    signature: this.signature
                 },
                 bubbles: true,
                 composed: true
             }));
-        }).catch( restResponse => {
+        }).catch(restResponse => {
             this.signature = {
                 errorState: "Error from Server " + restResponse.getEvents("ERROR").map(error => error.message).join(" \n ")
             };
-        }).finally( () => {
+            UtilsNew.notifyError(restResponse);
+        }).finally(() => {
             this.requestUpdate();
         });
     }
 
     deletionsStats() {
-        let params = {
+        const params = {
             study: this.opencgaSession.study.fqn,
             fields: "EXT_DEL_TYPE",
             sample: this.sampleId,
@@ -137,24 +138,25 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
 
                 this.dispatchEvent(new CustomEvent("changeDeletionAggregationStatsResults", {
                     detail: {
-                        deletionAggregationStatsResults: this.deletionAggregationStatsResults,
+                        deletionAggregationStatsResults: this.deletionAggregationStatsResults
                     },
                     bubbles: true,
                     composed: true
                 }));
             })
-            .catch( restResponse => {
+            .catch(restResponse => {
                 this.stats = {
                     errorState: "Error from Server " + restResponse.getEvents("ERROR").map(error => error.message).join(" \n ")
                 };
+                UtilsNew.notifyError(restResponse);
             })
-            .finally( () => {
+            .finally(() => {
                 this.requestUpdate();
             });
     }
 
     statsQuery() {
-        let params = {
+        const params = {
             study: this.opencgaSession.study.fqn,
             fields: "EXT_REARR",
             sample: this.sampleId,
@@ -175,30 +177,29 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
                 for (const bucket of this.aggregationStatsResults[0].buckets) {
                     this.typeStats[bucket.value] = bucket.count / 2;
                 }
-                
+
                 this.dispatchEvent(new CustomEvent("changeAggregationStatsResults", {
                     detail: {
-                        aggregationStatsResults: this.aggregationStatsResults,
+                        aggregationStatsResults: this.aggregationStatsResults
                     },
                     bubbles: true,
                     composed: true
                 }));
             })
-            .catch( restResponse => {
+            .catch(restResponse => {
                 this.stats = {
                     errorState: "Error from Server " + restResponse.getEvents("ERROR").map(error => error.message).join(" \n ")
                 };
             })
-            .finally( () => {
+            .finally(() => {
                 this.requestUpdate();
             });
     }
 
 
-
     getDefaultConfig() {
         return {
-        }
+        };
     }
 
     render() {
@@ -252,6 +253,7 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
             </div>
         `;
     }
+
 }
 
 customElements.define("sample-cancer-variant-stats-plots", SampleCancerVariantStatsPlots);
