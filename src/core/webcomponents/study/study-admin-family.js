@@ -16,8 +16,12 @@
 
 import {html, LitElement} from "/web_modules/lit-element.js";
 import DetailTabs from "../commons/view/detail-tabs.js";
+import "./../family/family-create.js";
+import "./../family/family-update.js";
+import "./../family/family-view.js";
 import UtilsNew from "./../../utilsNew.js";
 import FamilyForm from "./../family/family-create.js";
+
 export default class StudyAdminFamily extends LitElement {
 
     constructor() {
@@ -132,14 +136,15 @@ export default class StudyAdminFamily extends LitElement {
                                         </span>
                                     </div>
                                     ${this.editFamily? html`
-                                        <opencga-family-editor
-                                            .id="${"corpas"}"
+                                        <family-update
+                                            .family="${this.family}"
                                             .opencgaSession="${opencgaSession}">
-                                        </opencga-family-editor>
+                                        </family-update>
                                     ` : html`
                                         <family-view
                                             .family="${this.family}"
-                                            .opencgaSession="${opencgaSession}">
+                                            .opencgaSession="${opencgaSession}"
+                                            @familySearch="${e => this.onFamilySearch(e)}">
                                         </family-view>`}
                                 </div>
                             </div>`;
