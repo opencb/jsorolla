@@ -45,6 +45,9 @@ export default class SampleFilesView extends LitElement {
             title: {
                 type: String
             },
+            mode: {
+                type: String
+            },
             config: {
                 type: Object
             }
@@ -81,28 +84,45 @@ export default class SampleFilesView extends LitElement {
         if (this.opencgaSession && sampleId) {
             const query = {
                 study: this.opencgaSession.study.fqn,
-                sampleIds: sampleId,
+                sampleIds: sampleId
                 // format: "IMAGE"
+            };
+
+            if (this.mode === "sample-qc") {
+                this.opencgaSession.opencgaClient.files().search(query)
+                    .then(response => {
+                        this.files = response.responses[0].results;
+                        this.requestUpdate();
+                    })
+                    .catch(reason => {
+                        console.error(reason);
+                    });
+            } else {
+                this.opencgaSession.opencgaClient.files().search(
+                    {
+                        study: this.opencgaSession.study.fqn,
+                        tags: "plot_bamstats"
+                    })
+                    .then(response => {
+                        this.files2 = response.responses[0].results;
+                        this.requestUpdate();
+                    })
+                    .catch(reason => {
+                        console.error(reason);
+                    });
             }
-            this.opencgaSession.opencgaClient.files().search(query)
-                .then(response => {
-                    this.files = response.responses[0].results;
-                    this.requestUpdate();
-                })
-                .catch(reason => {
-                    console.error(reason);
-                });
         }
     }
 
     getDefaultConfig() {
         return {
+            // TO BE REMOVED!
             imageOrder: ["sunrise.png", "rawprofile.png", "ASCATprofile.png", "ASPCF.png", "germline.png", "tumour.png"]
         };
     }
 
     render() {
-        let images = this.files.filter(file => file.format === "IMAGE");
+        const images = this.files.filter(file => file.format === "IMAGE");
 
         // Sort images using config order
         if (images?.length > 0 && this._config?.imageOrder) {
@@ -119,6 +139,16 @@ export default class SampleFilesView extends LitElement {
         return html`
             ${this.title ? html`<h3>${this.title} <span class="badge">${images.length > 0 ? images.length : ""}</span></h3>` : ""}
             ${images && images.map(file => html`
+                <div class="col-md-12" style="padding: 15px 5px">
+                    <h4>${file.name} ${file.software?.name ? html` - <span style="font-style: italic">${file.software.name.toUpperCase()}</span>` : ""}</h4>
+                    <div style="padding: 5px 20px">
+                        <opencga-file-preview .opencgaSession=${this.opencgaSession} .file=${file} .active="${true}"></opencga-file-preview>
+                    </div>
+                </div>
+            `)}
+
+            ${this.files2 ? html`<div style="padding-top: 20px"><h3>BAM Plots <span class="badge">${this.files2.length > 0 ? this.files2.length : ""}</span></h3></div>` : ""}
+            ${this.files2 && this.files2.map(file => html`
                 <div class="col-md-12" style="padding: 15px 5px">
                     <h4>${file.name} ${file.software?.name ? html` - <span style="font-style: italic">${file.software.name.toUpperCase()}</span>` : ""}</h4>
                     <div style="padding: 5px 20px">
