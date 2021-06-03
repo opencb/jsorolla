@@ -1,5 +1,5 @@
 /**
- * Copyright 2015-2019 OpenCB
+ * Copyright 2015-2021 OpenCB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
+
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
+import {BaseManagerMixin} from "./base-manager.js";
 import "../commons/tool-header.js";
-import {BaseManagerMixin} from "../manager/base-manager.js";
 
 // eslint-disable-next-line new-cap
-export default class DisorderManager extends BaseManagerMixin(LitElement) {
+export default class PhenotypeManager extends BaseManagerMixin(LitElement) {
 
     constructor() {
         super();
@@ -29,16 +30,16 @@ export default class DisorderManager extends BaseManagerMixin(LitElement) {
 
     static get properties() {
         return {
-            disorders: {
+            phenotypes: {
                 type: Array
-            },
+            }
         };
     }
 
     _init() {
         this._prefix = UtilsNew.randomString(8);
-        this.disorders = [];
-        this.disorder = {};
+        this.phenotypes = [];
+        this.phenotype = {};
     }
 
     getDefaultConfig() {
@@ -54,28 +55,52 @@ export default class DisorderManager extends BaseManagerMixin(LitElement) {
                 labelWidth: 3,
                 labelAlign: "right",
                 defaultLayout: "horizontal",
-                defaultValue: "",
+                defaultValue: ""
             },
             sections: [
                 {
                     elements: [
                         {
-                            name: "Description",
-                            field: "disorder.description",
+                            name: "Id",
+                            field: "phenotype.id",
                             type: "input-text",
                             display: {
-                                placeholder: "Name ...",
+                                placeholder: "Name ..."
                             }
                         },
                         {
-                            name: "Evidences",
-                            field: "disorder.evidences",
-                            type: "select",
-                            allowedValues: ["OBSERVED", "NOT_OBSERVED", "UNKNOW"],
+                            name: "Name",
+                            field: "phenotype.name",
+                            type: "input-text",
                             display: {
-                                placeholder: "select a status...",
+                                placeholder: "Name ..."
                             }
                         },
+                        {
+                            name: "Source",
+                            field: "phenotype.source",
+                            type: "input-text",
+                            display: {
+                                placeholder: "Name ..."
+                            }
+                        },
+                        {
+                            name: "Age of on set",
+                            field: "phenotype.ageOfOnset",
+                            type: "input-text",
+                            display: {
+                                placeholder: "Name ..."
+                            }
+                        },
+                        {
+                            name: "Status",
+                            field: "phenotype.status",
+                            type: "select",
+                            allowedValues: ["OBSERVED", "NOT_OBSERVED", "UNKNOWN"],
+                            display: {
+                                placeholder: "select a status..."
+                            }
+                        }
                     ]
                 }
             ]
@@ -83,66 +108,73 @@ export default class DisorderManager extends BaseManagerMixin(LitElement) {
     }
 
     onClearForm(e) {
-        console.log("OnClear disorders form ", e);
-        this.disorder = {};
+        console.log("OnClear Phenotype form ", this);
+        this.phenotype = {};
         this.onShow();
         e.stopPropagation();
     }
 
-    onAddDisorder(e, item) {
+    onAddPhenotype(e, item) {
+        // super or this.onAddItem(item) //it's the same?
         this.onAddItem(item);
-        this.disorder = {};
+        this.phenotype = {};
         this.onShow(); // it's from BaseManager.
     }
 
-    onDisorderChange(e) {
-        console.log("onDisorderChange ", e.detail.param, e.detail.value);
+    onPhenotypeChange(e) {
+        console.log("onPhenotypeChange ", e.detail.param, e.detail.value);
         let field = "";
         switch (e.detail.param) {
-            case "disorder.description":
-            case "disorder.status":
+            case "phenotype.id":
+            case "phenotype.name":
+            case "phenotype.ageOfOnset":
+            case "phenotype.source":
+            case "phenotype.status":
                 field = e.detail.param.split(".")[1];
-                if (!this.disorder[field]) {
-                    this.disorder[field] = {};
+                if (!this.phenotype[field]) {
+                    this.phenotype[field] = {};
                 }
-                this.disorder[field] = e.detail.value;
+                this.phenotype[field] = e.detail.value;
                 break;
         }
+        // To stop the bubbles when dispatched this method
+        e.stopPropagation();
     }
 
     render() {
         return html`
         <div class="row">
             <div class="col-md-2" style="padding: 10px 20px">
-                <h3>Disorder</h3>
+                <h3>Phenotype</h3>
             </div>
             <div class="col-md-10" style="padding: 10px 20px">
                 <button type="button" class="btn btn-primary ripple pull-right" @click="${this.onShow}">
-                    Add Disorder
+                    Add Phenotype
                 </button>
             </div>
             <div class="clearfix"></div>
             <hr style="margin:0px">
             <div class="col-md-12" style="padding: 10px 20px">
-                ${this.disorders?.map(item => html`
-                    <span class="label label-primary" style="font-size: 14px; margin:5px; padding-right:0px; display:inline-block">${item.description}
+                ${this.phenotypes?.map(item => html`
+                    <span class="label label-primary" style="font-size: 14px; margin:5px; padding-right:0px; display:inline-block">${item.name}
                         <span class="badge" style="cursor:pointer" @click=${e => this.onRemoveItem(e, item)}>X</span>
                     </span>`
-                )}
+        )}
             </div>
         </div>
 
         <div class="subform-test" style="${this.isShow ? "display:block" : "display:none"}">
             <data-form
-                .data=${this.disorders}
+                .data=${this.phenotypes}
                 .config="${this._config}"
-                @fieldChange="${this.onDisorderChange}"
+                @fieldChange="${e => this.onPhenotypeChange(e)}"
                 @clear="${this.onClearForm}"
-                @submit="${e => this.onAddDisorder(e, this.disorder)}">
+                @submit="${e => this.onAddPhenotype(e, this.phenotype)}">
             </data-form>
-        </div>`;
+        </div>
+    `;
     }
 
 }
 
-customElements.define("disorder-manager", DisorderManager);
+customElements.define("phenotype-manager", PhenotypeManager);

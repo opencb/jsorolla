@@ -16,7 +16,7 @@
 
 import {html, LitElement} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
-import "../phenotype/phenotype-manager.js";
+import "../manager/phenotype-manager.js";
 import "../annotations/annotationSet-form.js";
 import "../commons/tool-header.js";
 import FormUtils from "../../form-utils.js";
@@ -142,6 +142,7 @@ export default class FamilyUpdate extends LitElement {
             });
     }
 
+    // https://github.com/opencb/opencga/blob/develop/opencga-core/src/main/java/org/opencb/opencga/core/models/sample/SampleUpdateParams.java
     getDefaultConfig() {
         return {
             title: "Edit",

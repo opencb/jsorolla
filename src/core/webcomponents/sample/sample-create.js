@@ -17,9 +17,8 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
 import "../commons/tool-header.js";
-import "../phenotype/phenotype-manager.js";
-import "../annotations/annotationSet-form.js";
-import FormUtils from "../../form-utils.js";
+import "../manager/phenotype-manager.js";
+import "../manager/annotation-set-manager.js";
 
 export default class SampleCreate extends LitElement {
 
@@ -46,7 +45,8 @@ export default class SampleCreate extends LitElement {
     _init() {
         this._prefix = UtilsNew.randomString(8);
         this.sample = {
-            phenotypes: []
+            phenotypes: [],
+            annotationSets: []
         };
         this.annotationSets = {};
     }
@@ -110,8 +110,24 @@ export default class SampleCreate extends LitElement {
         this.requestUpdate();
     }
 
+    onRemoveAnnotationSets(e) {
+        console.log("This is to remove a item ");
+        this.sample = {
+            ...this.sample,
+            annotationSets: this.sample.annotationSets.filter(
+                item => item !== e.detail.value
+            )
+        };
+        this.requestUpdate();
+    }
+
     onAddPhenotype(e) {
         this.sample.phenotypes.push(e.detail.value);
+        this.requestUpdate();
+    }
+
+    onAddAnnotationSet(e) {
+        this.sample.annotationSets.push(e.detail.value);
         this.requestUpdate();
     }
 
@@ -362,10 +378,12 @@ export default class SampleCreate extends LitElement {
                                 width: 12,
                                 style: "padding-left: 0px",
                                 render: () => html`
-                                    <annotation-set-form
-                                        .sample="${this.sample}"
-                                        .opencgaSession="${this.opencgaSession}">
-                                    </annotation-set-form>
+                                    <annotation-set-manager
+                                        .annotationSet="${this.sample?.annotationSets}"
+                                        .opencgaSession="${this.opencgaSession}"
+                                        @addItem="${e => this.onAddAnnotationSet(e)}"
+                                        @removeItem="${e => this.onRemoveAnnotationSets(e)}">
+                                    </annotation-set-manager>
                                 `
                             }
                         }

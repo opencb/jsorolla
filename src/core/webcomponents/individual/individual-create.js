@@ -17,7 +17,7 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "./../../utilsNew.js";
 import "../commons/tool-header.js";
-import "../phenotype/phenotype-manager.js";
+import "../manager/phenotype-manager.js";
 import "../individual/disorder-manager.js";
 import FormUtils from "../../form-utils.js";
 
@@ -294,7 +294,7 @@ export default class IndividualCreate extends LitElement {
                                 width: 12,
                                 style: "padding-left: 0px",
                                 render: () => html`
-                                        <phenotype-manager 
+                                        <phenotype-manager
                                             .phenotypes="${this.individual?.phenotypes}"
                                             .opencgaSession="${this.opencgaSession}"
                                             @addItem="${e => this.onAddPhenotype(e)}"
@@ -311,7 +311,7 @@ export default class IndividualCreate extends LitElement {
                                 width: 12,
                                 style: "padding-left: 0px",
                                 render: () => html`
-                                        <disorder-manager 
+                                        <disorder-manager
                                             .disorders="${this.individual?.disorders}"
                                             .opencgaSession="${this.opencgaSession}" >
                                         </disorder-manager>`
@@ -325,7 +325,7 @@ export default class IndividualCreate extends LitElement {
 
     render() {
         return html`
-            <data-form  
+            <data-form
                 .data=${this.individual}
                 .config="${this._config}"
                 @fieldChange="${e => this.onFieldChange(e)}"
