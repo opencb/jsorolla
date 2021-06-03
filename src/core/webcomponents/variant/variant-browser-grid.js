@@ -321,7 +321,7 @@ export default class VariantBrowserGrid extends LitElement {
             for (let i = 0; i < row.annotation.consequenceTypes.length; i++) {
                 if (row.annotation.consequenceTypes[i]?.proteinVariantAnnotation?.substitutionScores) {
                     for (let j = 0; j < row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores.length; j++) {
-                        let substitutionScore = row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j];
+                        const substitutionScore = row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j];
                         if (substitutionScore.source === "sift" && substitutionScore.score < min) {
                             min = substitutionScore.score;
                             description = substitutionScore.description;
@@ -332,7 +332,7 @@ export default class VariantBrowserGrid extends LitElement {
         }
 
         if (min < 10) {
-            return `<span style="color: ${this.consequenceTypeColors.pssColor.get(description)}" title=${min}>${description}</span>`;
+            return `<span style="color: ${this.consequenceTypeColors.pssColor.get("sift")[description]}" title=${min}>${description}</span>`;
         }
         return "-";
     }
@@ -344,7 +344,7 @@ export default class VariantBrowserGrid extends LitElement {
             for (let i = 0; i < row.annotation.consequenceTypes.length; i++) {
                 if (row.annotation.consequenceTypes[i]?.proteinVariantAnnotation?.substitutionScores) {
                     for (let j = 0; j < row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores.length; j++) {
-                        let substitutionScore = row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j];
+                        const substitutionScore = row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j];
                         if (substitutionScore.source === "polyphen" && substitutionScore.score >= max) {
                             max = substitutionScore.score;
                             description = substitutionScore.description;
@@ -355,7 +355,28 @@ export default class VariantBrowserGrid extends LitElement {
         }
 
         if (max > 0) {
-            return `<span style="color: ${this.consequenceTypeColors.pssColor.get(description)}" title=${max}>${description}</span>`;
+            return `<span style="color: ${this.consequenceTypeColors.pssColor.get("polyphen")[description]}" title=${max}>${description}</span>`;
+        }
+        return "-";
+    }
+
+    revelProteinScoreFormatter(value, row, index) {
+        let max = 0;
+        if (row && row.annotation?.consequenceTypes?.length > 0) {
+            for (let i = 0; i < row.annotation.consequenceTypes.length; i++) {
+                if (row.annotation.consequenceTypes[i]?.proteinVariantAnnotation?.substitutionScores) {
+                    for (let j = 0; j < row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores.length; j++) {
+                        const substitutionScore = row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j];
+                        if (substitutionScore.source === "revel" && substitutionScore.score >= max) {
+                            max = substitutionScore.score;
+                        }
+                    }
+                }
+            }
+        }
+
+        if (max > 0) {
+            return `<span style="color: ${max > 0.5 ? this.consequenceTypeColors.pssColor.get("polyphen")["likely_pathogenic"] : "black"}" title=${max}>${max}</span>`;
         }
         return "-";
     }
@@ -378,12 +399,13 @@ export default class VariantBrowserGrid extends LitElement {
     }
 
     conservationFormatter(value, row, index) {
-        if (row && row.annotation?.conservation?.length > 0) {
-            for (let conservation of row.annotation.conservation) {
+        if (row?.annotation?.conservation?.length > 0) {
+            for (const conservation of row.annotation.conservation) {
                 if (conservation.source === this.field) {
                     return Number(conservation.score).toFixed(3);
                 }
             }
+            return "-";
         } else {
             return "-";
         }
@@ -539,7 +561,7 @@ export default class VariantBrowserGrid extends LitElement {
                         <i class="fa fa-info-circle" aria-hidden="true"></i></a>`,
                     field: "deleteriousness",
                     rowspan: 1,
-                    colspan: 3,
+                    colspan: 4,
                     align: "center"
                 },
                 {
@@ -547,7 +569,6 @@ export default class VariantBrowserGrid extends LitElement {
                     field: "conservation",
                     rowspan: 1,
                     colspan: 3,
-                    // colspan: this.opencgaSession.project.organism.assembly.toUpperCase() === "GRCH37" ? 3 : 2,
                     align: "center"
                 },
                 {
@@ -608,6 +629,14 @@ export default class VariantBrowserGrid extends LitElement {
                     halign: "center"
                 },
                 {
+                    title: "Revel",
+                    field: "revel",
+                    colspan: 1,
+                    rowspan: 1,
+                    formatter: this.revelProteinScoreFormatter.bind(this),
+                    halign: "center"
+                },
+                {
                     title: "CADD",
                     field: "cadd",
                     colspan: 1,
@@ -641,8 +670,8 @@ export default class VariantBrowserGrid extends LitElement {
                     rowspan: 1,
                     formatter: this.conservationFormatter,
                     align: "right",
-                    halign: "center",
-                    visible: this.opencgaSession.project.organism.assembly.toUpperCase() === "GRCH37"
+                    halign: "center"
+                    // visible: this.opencgaSession.project.organism.assembly.toUpperCase() === "GRCH37"
                 },
                 ...sampleColumns,
                 ...cohortColumns,

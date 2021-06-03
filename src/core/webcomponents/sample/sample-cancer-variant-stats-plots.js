@@ -116,7 +116,7 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
     deletionsStats() {
         const params = {
             study: this.opencgaSession.study.fqn,
-            fields: "EXT_DEL_TYPE",
+            fields: "EXT_INS_DEL_TYPE",
             sample: this.sampleId,
             // fileData: "AR2.10039966-01T_vs_AR2.10039966-01G.annot.pindel.vcf.gz:FILTER=PASS;QUAL>=250;REP<=9"
             fileData: "AR2.10039966-01T_vs_AR2.10039966-01G.annot.pindel.vcf.gz:FILTER=PASS;QUAL>=250;REP<=9"
@@ -195,7 +195,6 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
                 this.requestUpdate();
             });
     }
-
 
     getDefaultConfig() {
         return {
