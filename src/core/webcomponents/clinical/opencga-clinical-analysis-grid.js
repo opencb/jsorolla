@@ -331,7 +331,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
             return `<p style="margin: 5px 0px">
                         <a title="Go to Case Interpreter" href="#interpreter/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}" data-cy="case-id">${row.id}</a>
                     </p>
-                    <p style="margin: 5px 0px">
+                    <p style="margin: 5px 0px" data-cy="case-type">
                         ${row.type}
                     </p>`;
         } else {
