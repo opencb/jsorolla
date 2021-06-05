@@ -584,7 +584,7 @@ export default class VariantGridFormatter {
 
             for (let i = 0; i < row.annotation.consequenceTypes.length; i++) {
                 const ct = row.annotation.consequenceTypes[i];
-debugger
+
                 // Keep backward compatibility with old ensemblGeneId and ensemblTranscriptId
                 const source = ct.source || "ensembl";
                 const geneId = ct.geneId || ct.ensemblGeneId;
@@ -610,8 +610,8 @@ debugger
                             ${transcriptId ?
                                 `<div>
                                     <a href="${ensemblTranscriptIdLink}" target="_blank">${transcriptId}</a>
-                                 </div>
-                                 <div style="margin: 5px 0px">${row.annotation.hgvs
+                                </div>
+                                <div class="help-block" style="margin: 5px 0px">${row.annotation.hgvs
                                     .filter(hgvs => hgvs.startsWith(transcriptId))
                                     .map(hgvs => {
                                         if (hgvs.includes("(")) {
@@ -620,10 +620,13 @@ debugger
                                         } else {
                                             return hgvs;
                                         }
-                                    })}</div>` : ""
+                                    })}
+                                </div>` : ""
                             }
                             ${ct?.proteinVariantAnnotation?.proteinId ?
-                                `<div style="margin: 5px 0px">${row.annotation.hgvs.find(hgvs => hgvs.startsWith(ct.proteinVariantAnnotation.proteinId))}</div>` : ""
+                                `<div class="help-block" style="margin: 5px 0px">
+                                    ${row.annotation.hgvs.find(hgvs => hgvs.startsWith(ct.proteinVariantAnnotation.proteinId))}
+                                </div>` : ""
                             }
                         </span>
                     </div>`;
