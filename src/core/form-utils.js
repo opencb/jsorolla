@@ -35,15 +35,21 @@ export default class FormUtils {
         }
     }
 
-    static createObject(object, params, value) {
+    static createObject(object, params, value, includeField=false) {
         const [field, prop] = params.split(".");
-
-        object[field] = {
-            ...object[field],
-            [prop]: value
-        };
+        if (includeField) {
+            object[field] = {
+                ...object[field],
+                [prop]: value
+            };
+        } else {
+            object = {
+                ...object,
+                [prop]: value
+            };
+            console.log("Object:", object);
+        }
     }
-
 
     static showAlert(title, message, type) {
         Swal.fire(

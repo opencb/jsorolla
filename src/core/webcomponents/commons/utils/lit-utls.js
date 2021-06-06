@@ -14,11 +14,29 @@
  * limitations under the License.
  */
 
-import {LitElement} from "/web_modules/lit-element.js";
+export default class LitUtils {
 
-export default class LitUtils extends LitElement {
-
-    dispatchEvent(id, value, error = null, other = null, options = {bubbles: true, composed: true}) {
+    /* Problem:
+    *
+    * The function name must not be the same. (maximun stack call size exceeded)
+    * Without static Javascript not recongnize this as a function
+    * Not matter if this class extend LitElement not recongnize "dispatchEvent".
+    * Solution:
+    *
+    * We need to pass "this" from component as "self" to work
+    * If we pass "this" is not necessary to the class extends LitElement.
+    *
+    * Other solution it convert this class as class mixin.
+    *
+    * Pros:
+    * it's not necessary to pass "this";
+    * it recongnize all LitElements functions.
+    *
+    * Cons:
+    * Should be extend from the class mixin and pass LitElement as parameter
+    * Ex: export default class NameComponent extends ClassMixin(LitElement) {....}
+    */
+    static dispatchEventCustom(self, id, value, error = null, other = null, options = {bubbles: true, composed: true}) {
         const event = {
             detail: {
                 value: value,
@@ -33,8 +51,7 @@ export default class LitUtils extends LitElement {
                 message: error
             };
         }
-
-        this.dispatchEvent(new CustomEvent(id, event));
+        self.dispatchEvent(new CustomEvent(id, event));
     }
 
 }

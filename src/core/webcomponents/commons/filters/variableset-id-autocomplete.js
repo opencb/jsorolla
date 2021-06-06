@@ -70,7 +70,7 @@ export default class VariableSetIdAutocomplete extends LitElement {
                     include: "id",
                     id: "~^" + query.toUpperCase()
                 };
-                this.opencgaSession.opencgaClient.studies().variableSets(this.opencgaSession.study.fqn,filters).then(restResponse => {
+                this.opencgaSession.opencgaClient.studies().variableSets(this.opencgaSession.study.fqn, filters).then(restResponse => {
                     const results = restResponse.getResults();
                     process(results.map(this._config.fields));
                 });
@@ -80,7 +80,11 @@ export default class VariableSetIdAutocomplete extends LitElement {
 
     render() {
         return html`
-            <select-field-filter-autocomplete .opencgaSession="${this.opencgaSession}" .config=${this._config} .value="${this.value}" @filterChange="${e => this.onFilterChange("id", e.detail.value)}"></select-field-filter-autocomplete>
+            <select-field-filter-autocomplete
+                .opencgaSession="${this.opencgaSession}"
+                .config=${this._config} .value="${this.value}"
+                @filterChange="${e => this.onFilterChange("id", e.detail.value)}">
+            </select-field-filter-autocomplete>
         `;
     }
 
