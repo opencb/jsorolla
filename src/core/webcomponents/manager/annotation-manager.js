@@ -18,6 +18,7 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import {BaseManagerMixin} from "./base-manager.js";
 import "../commons/tool-header.js";
 import "../commons/filters/variableset-id-autocomplete.js";
+import LitUtils from "../commons/utils/lit-utls.js";
 import FormUtils from "../../form-utils.js";
 
 // eslint-disable-next-line new-cap
@@ -31,29 +32,30 @@ export default class AnnotationManager extends BaseManagerMixin(LitElement) {
     static get properties() {
         return {
             annotations: {
-                type: Array
+                type: Object
             },
-            variables: {
-                type: Array
+            variableSet: {
+                type: Object
             }
         };
     }
 
     _init() {
         this.annotation = {};
-        this.annotations = [];
         this.annotationsElements = [];
     }
 
     update(changedProperties) {
-        if (changedProperties.has("variables")) {
+        if (changedProperties.has("variableSet")) {
             this.variablesObserver();
         }
         super.update(changedProperties);
     }
 
     variablesObserver() {
-        this.annotationsElements = this.variables.map(item => {
+        const variableSorted = this.variableSet?.variables.sort((a, b) => a.rank > b.rank? 1 : -1);
+        console.log("variables: ", variableSorted);
+        this.annotationsElements = variableSorted.map(item => {
             return {
                 name: item.id,
                 field: item.name,
@@ -70,11 +72,6 @@ export default class AnnotationManager extends BaseManagerMixin(LitElement) {
         return {
             title: "Edit",
             icon: "fas fa-edit",
-            buttons: {
-                show: true,
-                cancelText: "Cancel",
-                classes: "pull-right"
-            },
             display: {
                 labelWidth: 3,
                 labelAlign: "right",
@@ -82,49 +79,19 @@ export default class AnnotationManager extends BaseManagerMixin(LitElement) {
             },
             sections: [
                 {
-                    elements: [{
-                        name: "Id",
-                        field: "annotation.id",
-                        type: "input-text",
-                        display: {
-                            placeholder: "Id ...",
-                        }
-                    },
-                    {
-                        name: "Name",
-                        field: "annotation.name",
-                        type: "input-text",
-                        display: {
-                            placeholder: "Name ...",
-                        }
-                    }]
+                    elements: this.annotationsElements
                 }
             ]
         };
     }
 
     onFieldChangeAnnotation(e) {
-        console.log("onFieldChangeAnnotation ", e.detail.param, e.detail.value);
-        // switch (e.detail.param) {
-        //     case "annotationSet.id":
-        //     case "annotationSet.name":
-        //     case "annotationSet.variableSetId":
-        //         break;
-        // }
-        // To stop the bubbles when dispatched this method
+        this.annotation = {
+            ...this.annotation,
+            [e.detail.param]: e.detail.value
+        };
+        LitUtils.dispatchEventCustom(this, "annotationFieldChange", this.annotation);
         e.stopPropagation();
-    }
-
-    onClearForm(e) {
-        console.log("Clear form");
-        this.onShow();
-        e.stopPropagation();
-    }
-
-    onAddAnnotation(e, item) {
-        this.onAddItem(item);
-        console.log("Add new Annotation");
-        this.onShow();
     }
 
     render() {
@@ -133,29 +100,14 @@ export default class AnnotationManager extends BaseManagerMixin(LitElement) {
             <div class="col-md-2" style="padding: 10px 20px">
                 <h4>Annotation</h4>
             </div>
-            <div class="col-md-10" style="padding: 10px 20px">
-                <button type="button" class="btn btn-primary ripple pull-right" @click="${this.onShow}">
-                    Add Annotation
-                </button>
-            </div>
             <div class="clearfix"></div>
             <hr style="margin:0px">
-            <div class="col-md-12" style="padding: 10px 20px">
-                ${this.annotations?.map(item => html`
-                    <span class="label label-primary" style="font-size: 14px; margin:5px; padding-right:0px; display:inline-block">${item.name}
-                        <span class="badge" style="cursor:pointer" @click=${e => this.onRemoveItem(e, item)}>X</span>
-                    </span>`
-                )}
-            </div>
         </div>
-
-        <div class="subform-test" style="${this.isShow ? "display:block" : "display:none"}">
+        <div class="subform-test">
             <data-form
-                .data=${this.annotations}
+                .data=${this.annotation}
                 .config="${this._config}"
-                @fieldChange="${e => this.onFieldChangeAnnotation(e)}"
-                @clear="${this.onClearForm}"
-                @submit="${e => this.onAddAnnotation(e, this.annotation)}">
+                @fieldChange="${e => this.onFieldChangeAnnotation(e)}">
             </data-form>
         </div>
     `;

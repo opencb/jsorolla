@@ -48,7 +48,7 @@ export default class SampleCreate extends LitElement {
             phenotypes: [],
             annotationSets: []
         };
-        this.annotationSets = {};
+        this.annotationSet = {};
     }
 
     connectedCallback() {
@@ -122,12 +122,14 @@ export default class SampleCreate extends LitElement {
     }
 
     onAddPhenotype(e) {
+        console.log("Execute addPhenotype from Sample-create");
         this.sample.phenotypes.push(e.detail.value);
         this.requestUpdate();
     }
 
     onAddAnnotationSet(e) {
         this.sample.annotationSets.push(e.detail.value);
+        console.log("Sample created", this.sample);
         this.requestUpdate();
     }
 
@@ -379,7 +381,7 @@ export default class SampleCreate extends LitElement {
                                 style: "padding-left: 0px",
                                 render: () => html`
                                     <annotation-set-manager
-                                        .annotationSet="${this.sample?.annotationSets}"
+                                        .annotationSets="${this.sample?.annotationSets}"
                                         .opencgaSession="${this.opencgaSession}"
                                         @addItem="${e => this.onAddAnnotationSet(e)}"
                                         @removeItem="${e => this.onRemoveAnnotationSets(e)}">
