@@ -89,7 +89,7 @@ export default class SampleView extends LitElement {
                     this._config = {...this.getDefaultConfig(), ...this.config};
                     this.requestUpdate();
                     // this.notify(error);
-                    LitUtils.dispatchEvent("sampleSearch", this.sample, error, {query: {includeIndividual: true}});
+                    LitUtils.dispatchEventCustom(this, "sampleSearch", this.sample, error, {query: {includeIndividual: true}});
                 });
         }
     }
@@ -99,23 +99,23 @@ export default class SampleView extends LitElement {
         this.sampleId = e.detail.value;
     }
 
-    // notify(error) {
-    //     this.dispatchEvent(new CustomEvent("sampleSearch", {
-    //         detail: {
-    //             value: this.sample,
-    //             query: {
-    //                 includeIndividual: true
-    //             },
-    //             status: {
-    //                 // true if error is defined and not empty
-    //                 error: !!error,
-    //                 message: error
-    //             }
-    //         },
-    //         bubbles: true,
-    //         composed: true
-    //     }));
-    // }
+    notify(error) {
+        this.dispatchEvent(new CustomEvent("sampleSearch", {
+            detail: {
+                value: this.sample,
+                query: {
+                    includeIndividual: true
+                },
+                status: {
+                    // true if error is defined and not empty
+                    error: !!error,
+                    message: error
+                }
+            },
+            bubbles: true,
+            composed: true
+        }));
+    }
 
     getDefaultConfig() {
         return {
