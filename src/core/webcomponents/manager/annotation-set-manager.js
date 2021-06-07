@@ -39,11 +39,9 @@ export default class AnnotationSetManager extends BaseManagerMixin(LitElement) {
 
     _init() {
         this.annotationSets = [];
-
         this.annotationSet = {
             annotations: {}
         };
-
         this.variableSetIds = [];
         this.annotations = {};
     }
@@ -54,7 +52,7 @@ export default class AnnotationSetManager extends BaseManagerMixin(LitElement) {
     }
 
     update(changedProperties) {
-        if (this.annotationSets.length && changedProperties.has("annotationSets")) {
+        if (this.annotationSets.length > 0) {
             this.annotationSetsObserver();
         }
         super.update(changedProperties);
@@ -136,7 +134,6 @@ export default class AnnotationSetManager extends BaseManagerMixin(LitElement) {
                                 render: () => this.variableSet?
                                     html`
                                     <annotation-manager
-                                        .annotations="${this.annotationSet?.annotations}"
                                         .variableSet="${this.variableSet}"
                                         .opencgaSession="${this.opencgaSession}"
                                         @annotationFieldChange="${e => this.onAddAnnotation(e)}">
@@ -176,8 +173,8 @@ export default class AnnotationSetManager extends BaseManagerMixin(LitElement) {
     }
 
     onAddAnnotation(e) {
-        console.log("onAddAnnotation: ", this.annotationSet);
         this.annotations = {...e.detail.value};
+        console.log("onAddAnnotation: ", this.annotations);
     }
 
     onAddAnnotationSet(e) {
@@ -189,12 +186,10 @@ export default class AnnotationSetManager extends BaseManagerMixin(LitElement) {
     }
 
     onEditAnnotationSet(item) {
-        // TODO: Selected the item
+        console.log(item);
         this.annotationSet = item;
-
-        // TODO: Pass Annotation to manager
-        this._config = {...this.getDefaultConfig(), ...this.config};
-        this.requestUpdate();
+        this.isShow = true;
+        this.getVariablesById(item.variableSetId);
     }
 
     onClearForm(e) {
