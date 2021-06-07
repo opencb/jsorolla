@@ -261,7 +261,7 @@ export default class VariantInterpreterGridFormatter {
             //     selectColumnHtml = "<th rowspan=\"2\">Select</th>";
             // }
 
-            const showArrayIndexes = VariantGridFormatter._consequenceTypeDetailFormatterFilter(row.annotation.consequenceTypes, config);
+            const showArrayIndexes = VariantGridFormatter._consequenceTypeDetailFormatterFilter(row.annotation.consequenceTypes, config).indexes;
             let message = "";
             if (config) {
                 // Create two different divs to 'show all' or 'apply filter' title
@@ -397,10 +397,7 @@ export default class VariantInterpreterGridFormatter {
                 const soArray = [];
                 if (re.genomicFeature.consequenceTypes && re.genomicFeature.consequenceTypes.length > 0) {
                     for (const so of re.genomicFeature.consequenceTypes) {
-                        let color = variantGrid.consequenceTypeColors?.consequenceTypeToColor[so.name] || "black";
-                        // if (variantGrid.consequenceTypeColors?.consequenceTypeToColor && variantGrid.consequenceTypeColors?.consequenceTypeToColor[so.name]) {
-                        //     color = variantGrid.consequenceTypeColors?.consequenceTypeToColor[so.name];
-                        // }
+                        const color = consequenceTypes.style[consequenceTypes.impact[so.name]] || "black";
                         soArray.push(`<div style="color: ${color}; margin-bottom: 5px">
                                         <span style="padding-right: 5px">${so.name}</span> 
                                         <a title="Go to Sequence Ontology ${so.accession} term" 

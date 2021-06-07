@@ -582,7 +582,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     field: "consequenceType",
                     rowspan: 2,
                     colspan: 1,
-                    formatter: (value, row, index) => VariantGridFormatter.consequenceTypeFormatter(value, row, index, this._config.consequenceType, this.consequenceTypeColors),
+                    formatter: (value, row, index) => VariantGridFormatter.consequenceTypeFormatter(value, row, index, this._config, this.consequenceTypeColors),
                     halign: "center"
                 },
                 {

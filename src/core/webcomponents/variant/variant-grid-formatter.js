@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-import {html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../utilsNew.js";
 import BioinfoUtils from "../../bioinfo-utils.js";
 
 
 export default class VariantGridFormatter {
 
+    // DEPRECATED: use new consequenceTypes.impact instead
     static assignColors(consequenceTypes, proteinSubstitutionScores) {
         let result = {};
         if (consequenceTypes) {
@@ -166,7 +165,9 @@ export default class VariantGridFormatter {
                 if (geneName && !visited[geneName]) {
                     let geneViewMenuLink = "";
                     if (opencgaSession.project && opencgaSession.study) {
-                        geneViewMenuLink = `<div style='padding: 5px'><a style='cursor: pointer' href='#gene/${opencgaSession.project.id}/${opencgaSession.study.id}/${geneName}' data-cy='gene-view'>Gene View</a></div>`;
+                        geneViewMenuLink = `<div style='padding: 5px'>
+                                                <a style='cursor: pointer' href='#gene/${opencgaSession.project.id}/${opencgaSession.study.id}/${geneName}' data-cy='gene-view'>Gene View</a>
+                                            </div>`;
                     }
 
                     const tooltipText = `
@@ -286,124 +287,37 @@ export default class VariantGridFormatter {
 
     static consequenceTypeFormatter(value, row, index, gridCtSettings, consequenceTypeColors) {
         if (row?.annotation && row.annotation.consequenceTypes?.length > 0) {
-            // Apply transcript filters
-            const selectedTranscripts = new Set();
-            let selectedConsequenceTypes = [];
-            const notSelectedConsequenceTypes = [];
-            if (gridCtSettings?.canonicalTranscript || gridCtSettings?.highQualityTranscripts ||
-                    gridCtSettings?.proteinCodingTranscripts || gridCtSettings.worstConsequenceTypes) {
-
-                let canonicalFound = false;
-                const impactToTranscripts = {
-                    high: [],
-                    moderate: [],
-                    low: [],
-                    modifier: []
-                };
-
-                for (const ct of row.annotation.consequenceTypes) {
-                    let consequenceTypeSelected = false;
-                    // TODO Remove canonicalFound boolean once 'canonical' is added to flags
-                    if (gridCtSettings.canonicalTranscript && !canonicalFound) {
-                        if (ct.biotype === "protein_coding" && ct.transcriptAnnotationFlags?.includes("basic")) {
-                            canonicalFound = true;
-                            consequenceTypeSelected = true;
-                        }
-                    }
-
-                    if (gridCtSettings.highQualityTranscripts) {
-                        if (ct.transcriptAnnotationFlags?.includes("basic") || ct.transcriptAnnotationFlags?.includes("TSL:1")) {
-                            consequenceTypeSelected = true;
-                        }
-                    }
-
-                    if (gridCtSettings.proteinCodingTranscripts && ct.biotype === "protein_coding") {
-                        consequenceTypeSelected = true;
-                    }
-
-                    if (gridCtSettings.worstConsequenceTypes) {
-                        for (const so of ct.sequenceOntologyTerms) {
-                            const impact = consequenceTypeColors.consequenceTypeToImpact[so.name];
-                            if (impactToTranscripts[impact]) {
-                                impactToTranscripts[impact].push(ct);
-                            }
-                        }
-                    }
-
-                    if (consequenceTypeSelected) {
-                        selectedConsequenceTypes.push(ct);
-                        selectedTranscripts.add(ct.ensemblTranscriptId);
-                    } else {
-                        notSelectedConsequenceTypes.push(ct);
-                    }
-                }
-
-                // Add transcripts with worst consequence types: high and moderate.
-                // If any high and moderate is added then we stop
-                for (const impact of ["high", "moderate", "low", "modifier"]) { // , "low", "modifier"
-                    if (impactToTranscripts[impact].length > 0) {
-                        for (const ct of impactToTranscripts[impact]) {
-                            // Add ct with worst consequence type if they have not been added yet
-                            if (!selectedTranscripts.has(ct.ensemblTranscriptId) && ct.ensemblTranscriptId) {
-                                selectedConsequenceTypes.push(ct);
-                                selectedTranscripts.add(ct.ensemblTranscriptId);
-                            }
-                        }
-                    }
-                    // If we have printed any hugh or moderate then we stop
-                    if (impact === "moderate" && (impactToTranscripts["high"].length > 0 || impactToTranscripts["moderate"].length > 0)) {
-                        break;
-                    }
-                }
-            } else {
-                // If not transcript is filtered or selected we get use consequence types
-                selectedConsequenceTypes = row.annotation.consequenceTypes;
-            }
+            const {selectedConsequenceTypes, notSelectedConsequenceTypes, indexes} =
+                VariantGridFormatter._consequenceTypeDetailFormatterFilter(row.annotation.consequenceTypes, gridCtSettings);
 
             const positiveConsequenceTypes = [];
             const negativeConsequenceTypes = [];
             const soVisited = new Set();
             for (const ct of selectedConsequenceTypes) {
                 for (const so of ct.sequenceOntologyTerms) {
-                    let soName = so.name;
-
-                    // FIXME This is a temporal fix for some wrong CTs. This must be removed ASAP.
-                    if (soName === "2KB_downstream_gene_variant") {
-                        soName = "2KB_downstream_variant";
-                    }
-                    if (soName === "2KB_upstream_gene_variant") {
-                        soName = "2KB_upstream_variant";
-                    }
-
-                    if (!soVisited.has(soName)) {
-                        if (consequenceTypeColors.consequenceTypeToColor && consequenceTypeColors.consequenceTypeToColor[soName]) {
-                            positiveConsequenceTypes.push(`<span style="color: ${consequenceTypeColors.consequenceTypeToColor[soName]}">${soName}</span>`);
-                        } else {
-                            positiveConsequenceTypes.push(`<span>${soName}</span>`);
-                        }
-                        soVisited.add(soName);
+                    if (!soVisited.has(so?.name)) {
+                        positiveConsequenceTypes.push(`<span style="color: ${consequenceTypes.style[consequenceTypes.impact[so.name]] || "black"}">${so.name}</span>`);
+                        soVisited.add(so.name);
                     }
                 }
             }
 
             // Print negative SO, if not printed as positive
             let negativeConsequenceTypesText = "";
-            if (gridCtSettings.showNegativeConsequenceTypes) {
+            if (gridCtSettings.consequenceType.showNegativeConsequenceTypes) {
                 for (const ct of notSelectedConsequenceTypes) {
                     for (const so of ct.sequenceOntologyTerms) {
-                        const soName = so.name;
-                        if (!soVisited.has(soName)) {
-                            // negativeConsequenceTypes.push(`<span style="color: darkgray;font-style: italic">${soName}</span>`);
-                            negativeConsequenceTypes.push(`<div style="color: ${consequenceTypeColors.consequenceTypeToColor[soName]}; margin: 5px">${soName}</div>`);
-                            soVisited.add(soName);
+                        if (!soVisited.has(so.name)) {
+                            negativeConsequenceTypes.push(`<div style="color: ${consequenceTypes.style[consequenceTypes.impact[so.name]] || "black"}; margin: 5px">${so.name}</div>`);
+                            soVisited.add(so.name);
                         }
                     }
                 }
+
                 if (negativeConsequenceTypes.length > 0) {
-                    negativeConsequenceTypesText = `
-                        <a tooltip-title="Terms Filtered" tooltip-text='${negativeConsequenceTypes.join("")}'>
-                            <span style="color: darkgray;font-style: italic">${negativeConsequenceTypes.length} terms filtered</span>
-                        </a>`;
+                    negativeConsequenceTypesText = `<a tooltip-title="Terms Filtered" tooltip-text='${negativeConsequenceTypes.join("")}'>
+                                                        <span style="color: darkgray;font-style: italic">${negativeConsequenceTypes.length} terms filtered</span>
+                                                    </a>`;
                 }
             }
 
@@ -480,6 +394,8 @@ export default class VariantGridFormatter {
     }
 
     static _consequenceTypeDetailFormatterFilter(cts, filter) {
+        const selectedConsequenceTypes = [];
+        const notSelectedConsequenceTypes = [];
         const showArrayIndexes = [];
         for (let i = 0; i < cts.length; i++) {
             const ct = cts[i];
@@ -515,9 +431,16 @@ export default class VariantGridFormatter {
             }
             if (result) {
                 showArrayIndexes.push(i);
+                selectedConsequenceTypes.push(ct);
+            } else {
+                notSelectedConsequenceTypes.push(ct);
             }
         }
-        return showArrayIndexes;
+        return {
+            selectedConsequenceTypes: selectedConsequenceTypes,
+            notSelectedConsequenceTypes: notSelectedConsequenceTypes,
+            indexes: showArrayIndexes
+        };
     }
 
     static toggleDetailConsequenceType(e) {
@@ -551,7 +474,7 @@ export default class VariantGridFormatter {
                 return 0;
             });
 
-            const showArrayIndexes = VariantGridFormatter._consequenceTypeDetailFormatterFilter(row.annotation.consequenceTypes, filter);
+            const showArrayIndexes = VariantGridFormatter._consequenceTypeDetailFormatterFilter(row.annotation.consequenceTypes, filter).indexes;
             let message = "";
             if (filter) {
                 // Create two different divs to 'show all' or 'apply filter' title
@@ -644,7 +567,7 @@ export default class VariantGridFormatter {
 
                 const soArray = [];
                 for (const so of ct.sequenceOntologyTerms) {
-                    const color = variantGrid.consequenceTypeColors?.consequenceTypeToColor[so.name] || "black";
+                    const color = consequenceTypes.style[consequenceTypes.impact[so.name]] || "black";
                     soArray.push(`<div style="color: ${color}; margin-bottom: 5px">
                                     <span style="padding-right: 5px">${so.name}</span> 
                                     <a title="Go to Sequence Ontology ${so.accession} term" 

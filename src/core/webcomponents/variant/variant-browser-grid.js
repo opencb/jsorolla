@@ -549,7 +549,7 @@ export default class VariantBrowserGrid extends LitElement {
                     field: "consequenceType",
                     rowspan: 2,
                     colspan: 1,
-                    formatter:(value, row, index) => VariantGridFormatter.consequenceTypeFormatter(value, row, index, this._config.consequenceType, this.consequenceTypeColors),
+                    formatter: (value, row, index) => VariantGridFormatter.consequenceTypeFormatter(value, row, index, this._config, this.consequenceTypeColors),
                     halign: "center"
                 },
                 {
@@ -565,6 +565,7 @@ export default class VariantBrowserGrid extends LitElement {
                     align: "center"
                 },
                 {
+                    // eslint-disable-next-line max-len
                     title: `Conservation  <a tooltip-title='Conservation' tooltip-text="Positive PhyloP scores measure conservation which is slower evolution than expected, at sites that are predicted to be conserved. Negative PhyloP scores measure acceleration, which is faster evolution than expected, at sites that are predicted to be fast-evolving. Absolute values of phyloP scores represent -log p-values under a null hypothesis of neutral evolution. The phastCons scores represent probabilities of negative selection and range between 0 and 1. Positive GERP scores represent a substitution deficit and thus indicate that a site may be under evolutionary constraint. Negative scores indicate that a site is probably evolving neutrally. Some authors suggest that a score threshold of 2 provides high sensitivity while still strongly enriching for truly constrained sites"><i class="fa fa-info-circle" aria-hidden="true"></i></a>`,
                     field: "conservation",
                     rowspan: 1,
@@ -760,7 +761,9 @@ export default class VariantBrowserGrid extends LitElement {
                 ccdsTranscript: false,
                 ensemblTslTranscript: false,
                 proteinCodingTranscript: false,
-                highImpactConsequenceTypeTranscript: false
+                highImpactConsequenceTypeTranscript: false,
+
+                showNegativeConsequenceTypes: true
             }
         };
     }
