@@ -93,6 +93,8 @@ export default class FamilyGenotypeFilter extends LitElement {
 
         this.modes = ["COMPOUND_HETEROZYGOUS", "DE_NOVO", "MENDELIAN_ERROR"];
         this.state = {};
+        // keeps track of the samples with no GT selected
+        this.noGtSamples = [];
         // this.depthAll = true;
         this.errorState = false;
     }
@@ -276,10 +278,22 @@ export default class FamilyGenotypeFilter extends LitElement {
         } else {
             this.state[sampleId].genotypes.splice(this.state[sampleId].genotypes.indexOf(gt), 1);
         }
-        // make sure the proband has at least 1 GT checked
         const probandSampleId = this.clinicalAnalysis.proband.samples[0].id;
+        // updated noGtSamples array according to the selected GTs
+        if (probandSampleId !== sampleId) {
+            if (!this.state[sampleId].genotypes.length) {
+                this.noGtSamples.push(sampleId);
+            } else {
+                if (this.noGtSamples.includes(sampleId)) {
+                    this.noGtSamples.splice(this.noGtSamples.indexOf(sampleId), 1);
+                }
+            }
+        }
+
+        // make sure the proband has at least 1 GT checked
         this.errorState = !this.state[probandSampleId].genotypes.length ? "At least one genotype have to be selected for the proband." : false;
         this.state = {...this.state};
+        this.noGtSamples = [...this.noGtSamples];
         await this.requestUpdate();
         this.notifySampleFilterChange();
     }
@@ -509,9 +523,16 @@ export default class FamilyGenotypeFilter extends LitElement {
                     </div>
                 </div>
 
+                ${this.noGtSamples.length ? html`
+                    <div class="col-md-12" style="padding: 10px 20px">
+                        <div class="alert alert-info" role="alert">
+                            <i class="fas fa-3x fa fa-info-circle align-middle"></i> All genotypes for sample${this.noGtSamples.length > 1 ? "s" : ""} ${this.noGtSamples.join(", ")} will be included.
+                        </div>
+                    </div>
+                ` : null}
                 ${this.showModeOfInheritance && this.errorState ? html`
                     <div class="col-md-12" style="padding: 10px 20px">
-                        <div class="alert alert-danger" role="alert" id="${this._prefix}Warning">
+                        <div class="alert alert-danger" role="alert">
                             <i class="fas fa-3x fa fa-exclamation-triangle align-middle"></i> ${this.errorState}
                         </div>
                     </div>
