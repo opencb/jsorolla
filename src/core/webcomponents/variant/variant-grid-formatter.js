@@ -687,10 +687,16 @@ export default class VariantGridFormatter {
         for (const popFreq of popFreqsArray) {
             const arr = popFreq.split("::");
             const color = VariantGridFormatter._getPopulationFrequencyColor(arr[1], populationFrequenciesColor);
-            const freq = (arr[1] !== 0 && arr[1] !== "0") ? arr[1] + " %" : "<span style='font-style: italic'>Not Observed</span>";
+            // const freq = (arr[1] !== 0 && arr[1] !== "0") ? arr[1] + " %" : "<span style='font-style: italic'>Not Observed</span>";
+            let freq;
+            if (arr[1] !== 0 && arr[1] !== "0") {
+                freq = `${arr[1]} (${(Number(arr[1]) * 100).toPrecision(4)} %)`;
+            } else {
+                freq = "<span style='font-style: italic'>Not Observed</span>";
+            }
             tooltip += `<div>
                             <span><i class='fa fa-xs fa-square' style='color: ${color}' aria-hidden='true'></i>
-                                <label style='padding-left: 5px'>${arr[0]}:</label>
+                                <label style='padding-left: 5px; width: 40px'>${arr[0]}:</label>
                             </span>
                             <span style='font-weight: bold'>${freq}</span>
                         </div>`;
@@ -725,10 +731,17 @@ export default class VariantGridFormatter {
         for (const popFreq of popFreqsArray) {
             const arr = popFreq.split("::");
             const color = VariantGridFormatter._getPopulationFrequencyColor(arr[1], populationFrequenciesColor);
-            const freq = (arr[1] !== 0 && arr[1] !== "0") ? arr[1] + " %" : "<span style='font-style: italic'>Not Observed</span>";
+            // const freq = (arr[1] !== 0 && arr[1] !== "0") ? arr[1] + " %" : "<span style='font-style: italic'>Not Observed</span>";
+            let freq;
+            if (arr[1] !== 0 && arr[1] !== "0") {
+                freq = `${arr[1]} (${(Number(arr[1]) * 100).toPrecision(4)} %)`;
+            } else {
+                freq = "<span style='font-style: italic'>Not Observed</span>";
+            }
             tooltip += `<div>
-                            <span><i class='fa fa-xs fa-square' style='color: ${color}' aria-hidden='true'></i>
-                                <label style='padding-left: 5px'>${arr[0]}:</label>
+                            <span>
+                                <i class='fa fa-xs fa-square' style='color: ${color}' aria-hidden='true'></i>
+                                <label style='padding-left: 5px; width: 40px'>${arr[0]}:</label>
                             </span>
                             <span style='font-weight: bold'>${freq}</span>
                         </div>`;
@@ -756,11 +769,11 @@ export default class VariantGridFormatter {
         let color;
         if (freq === 0 || freq === "0") {
             color = populationFrequenciesColor.unobserved;
-        } else if (freq < 0.1) {
+        } else if (freq < 0.001) {
             color = populationFrequenciesColor.veryRare;
-        } else if (freq < 0.5) {
+        } else if (freq < 0.005) {
             color = populationFrequenciesColor.rare;
-        } else if (freq < 5) {
+        } else if (freq < 0.05) {
             color = populationFrequenciesColor.average;
         } else {
             color = populationFrequenciesColor.common;
