@@ -504,6 +504,13 @@ class VariantInterpreterBrowserRd extends LitElement {
                         }
                     },
                     {
+                        id: "LoF and missense",
+                        active: false,
+                        query: {
+                            ct: "lof,missense_variant"
+                        }
+                    },
+                    {
                         id: "Full Example",
                         query: {
                             "xref": "BRCA1,TP53",

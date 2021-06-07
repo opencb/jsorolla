@@ -418,50 +418,6 @@ export default class VariantGridFormatter {
         return "-";
     }
 
-    static _consequenceTypeDetailFormatterFilter(cts, query, filter) {
-        const showArrayIndexes = [];
-        for (let i = 0; i < cts.length; i++) {
-            const ct = cts[i];
-            let result = true;
-            if (filter) {
-                if (filter.consequenceType.gencodeBasic) {
-                    result = result && ct.transcriptAnnotationFlags && ct.transcriptAnnotationFlags.includes("basic");
-                }
-                // if (result && filter.consequenceType.filterByBiotype) {
-                //     if (query && query.biotype) {
-                //         result = result && query.biotype.split(",").includes(ct.biotype);
-                //     }
-                // }
-                // if (result && filter.consequenceType.filterByConsequenceType) {
-                //     if (query && query.ct) {
-                //         let cts = query.ct.split(",");
-                //         let isSoPresent = false;
-                //         for (let term of ct.sequenceOntologyTerms) {
-                //             isSoPresent = isSoPresent || cts.includes(term.name);
-                //         }
-                //         result = result && isSoPresent;
-                //     }
-                // }
-            }
-            if (result) {
-                showArrayIndexes.push(i);
-            }
-        }
-        return showArrayIndexes;
-    }
-
-    static toggleDetailConsequenceType(e) {
-        const id = e.target.dataset.id;
-        const elements = document.getElementsByClassName(this._prefix + id + "Filtered");
-        for (const element of elements) {
-            if (element.style.display === "none") {
-                element.style.display = "";
-            } else {
-                element.style.display = "none";
-            }
-        }
-    }
-
     /* Usage:
         columns: [
             {
@@ -523,6 +479,59 @@ export default class VariantGridFormatter {
         return html;
     }
 
+    static _consequenceTypeDetailFormatterFilter(cts, filter) {
+        const showArrayIndexes = [];
+        for (let i = 0; i < cts.length; i++) {
+            const ct = cts[i];
+            // TODO Remove in IVA 2.2
+            // To keep compatability with CellBase 4
+            const transcriptFlags = ct.transcriptFlags ?? ct.transcriptAnnotationFlags;
+            let result = false;
+            if (filter) {
+                if (filter.consequenceType.maneTranscript && transcriptFlags?.includes("MANE")) {
+                    result = result || ct.transcriptAnnotationFlags?.includes("MANE");
+                }
+                if (filter.consequenceType.gencodeBasicTranscript) {
+                    result = result || transcriptFlags?.includes("basic");
+                }
+                if (filter.consequenceType.ensemblCanonicalTranscript) {
+                    result = result || transcriptFlags?.includes("canonical");
+                }
+                if (filter.consequenceType.ensemblTslTranscript) {
+                    result = result || transcriptFlags?.includes("TSL:1");
+                }
+                if (filter.consequenceType.ccdsTranscript) {
+                    result = result || transcriptFlags?.includes("CCDS");
+                }
+                if (filter.consequenceType.proteinCodingTranscript && ct.biotype === "protein_coding") {
+                    result = result || ct.biotype === "protein_coding";
+                }
+                if (filter.consequenceType.highImpactConsequenceTypeTranscript) {
+                    for (const so of ct.sequenceOntologyTerms) {
+                        const impact = consequenceTypes?.impact[so.name]?.toUpperCase();
+                        result = result || impact === "HIGH" || impact === "MODERATE";
+                    }
+                }
+            }
+            if (result) {
+                showArrayIndexes.push(i);
+            }
+        }
+        return showArrayIndexes;
+    }
+
+    static toggleDetailConsequenceType(e) {
+        const id = e.target.dataset.id;
+        const elements = document.getElementsByClassName(this._prefix + id + "Filtered");
+        for (const element of elements) {
+            if (element.style.display === "none") {
+                element.style.display = "";
+            } else {
+                element.style.display = "none";
+            }
+        }
+    }
+
     static consequenceTypeDetailFormatter(value, row, variantGrid, query, filter, assembly) {
         if (row?.annotation?.consequenceTypes && row.annotation.consequenceTypes.length > 0) {
             // Sort and group CTs by Gene name
@@ -542,18 +551,20 @@ export default class VariantGridFormatter {
                 return 0;
             });
 
-            const showArrayIndexes = VariantGridFormatter._consequenceTypeDetailFormatterFilter(row.annotation.consequenceTypes, query, filter);
+            const showArrayIndexes = VariantGridFormatter._consequenceTypeDetailFormatterFilter(row.annotation.consequenceTypes, filter);
             let message = "";
             if (filter) {
                 // Create two different divs to 'show all' or 'apply filter' title
-                message = `<div class="${variantGrid._prefix}${row.id}Filtered">Showing <span style="font-weight: bold; color: red">${showArrayIndexes.length}</span> of 
+                message = `<div class="${variantGrid._prefix}${row.id}Filtered">
+                                Showing <span style="font-weight: bold; color: red">${showArrayIndexes.length}</span> of 
                                 <span style="font-weight: bold; color: red">${row.annotation.consequenceTypes.length}</span> consequence types, 
                                 <a id="${variantGrid._prefix}${row.id}ShowCt" data-id="${row.id}" style="cursor: pointer">show all...</a>
                             </div>
-                            <div class="${variantGrid._prefix}${row.id}Filtered" style="display: none">Showing <span style="font-weight: bold; color: red">${row.annotation.consequenceTypes.length}</span> of 
+                            <div class="${variantGrid._prefix}${row.id}Filtered" style="display: none">
+                                Showing <span style="font-weight: bold; color: red">${row.annotation.consequenceTypes.length}</span> of 
                                 <span style="font-weight: bold; color: red">${row.annotation.consequenceTypes.length}</span> consequence types, 
                                 <a id="${variantGrid._prefix}${row.id}HideCt" data-id="${row.id}" style="cursor: pointer">apply filters...</a>
-                           </div>
+                            </div>
                             `;
             }
 
@@ -723,47 +734,6 @@ export default class VariantGridFormatter {
         return "-";
     }
 
-    // static cohortStatsInfoTooltipContent(populationFrequencies) {
-    //     return `One coloured square is shown for each cohort. Frequencies are coded with colours which classify values
-    //             into 'very rare', 'rare', 'average', 'common' or 'missing', see
-    //             <a href='http://www.dialogues-cns.com/wp-content/uploads/2015/03/DialoguesClinNeurosci-17-69-g001.jpg' target='_blank'>
-    //                 http://www.dialogues-cns.com/wp-content/uploads/2015/03/DialoguesClinNeurosci-17-69-g001.jpg
-    //             </a>. Please, leave the cursor over each square to visualize the actual frequency values.
-    //             <span style='font-weight: bold'>Note that that all frequencies are percentages.</span>
-    //             <div style='padding: 10px 0px 0px 0px'><label>Legend: </label></div>
-    //             <div><span><i class='fa fa-square' style='color: ${populationFrequencies.style.veryRare}' aria-hidden='true'></i> Very rare:  freq < 0.001</span></div>
-    //             <div><span><i class='fa fa-square' style='color: ${populationFrequencies.style.rare}' aria-hidden='true'></i> Rare:  freq < 0.005</span></div>
-    //             <div><span><i class='fa fa-square' style='color: ${populationFrequencies.style.average}' aria-hidden='true'></i> Average:  freq < 0.05</span></div>
-    //             <div><span><i class='fa fa-square' style='color: ${populationFrequencies.style.common}' aria-hidden='true'></i> Common:  freq >= 0.05</span></div>
-    //             <div><span><i class='fa fa-square' style='color: black' aria-hidden='true'></i> Not observed</span></div>`;
-    // }
-
-    // TODO remove this from variant-interpreter-grid
-    // addPopulationFrequenciesInfoTooltip(selector, populationFrequencies) {
-    //     $(selector).qtip({
-    //         content: {
-    //             title: "Population Frequencies",
-    //             text: function (event, api) {
-    //                 return `One coloured square is shown for each population. Frequencies are coded with colours which classify values
-    //                         into 'very rare', 'rare', 'average', 'common' or 'missing', see
-    //                         <a href="https://www.nature.com/scitable/topicpage/multifactorial-inheritance-and-genetic-disease-919" target="_blank">
-    //                             https://www.nature.com/scitable/topicpage/multifactorial-inheritance-and-genetic-disease-919
-    //                         </a>. Please, leave the cursor over each square to display the actual frequency value.
-    //                         <div style="padding: 10px 0px 0px 0px"><label>Legend: </label></div>
-    //                         <div><span><i class="fa fa-square" style="color: ${populationFrequencies.style.veryRare}" aria-hidden="true"></i> Very rare:  freq < 0.001</span></div>
-    //                         <div><span><i class="fa fa-square" style="color: ${populationFrequencies.style.rare}" aria-hidden="true"></i> Rare:  freq < 0.005</span></div>
-    //                         <div><span><i class="fa fa-square" style="color: ${populationFrequencies.style.average}" aria-hidden="true"></i> Average:  freq < 0.05</span></div>
-    //                         <div><span><i class="fa fa-square" style="color: ${populationFrequencies.style.common}" aria-hidden="true"></i> Common:  freq >= 0.05</span></div>
-    //                         <div><span><i class="fa fa-square" style="color: black" aria-hidden="true"></i> Not observed</span></div>`;
-    //             }
-    //         },
-    //         position: {target: "mouse", adjust: {x: 2, y: 2, mouse: false}},
-    //         style: {width: true, classes: "qtip-light qtip-rounded qtip-shadow qtip-custom-class"},
-    //         show: {delay: 200},
-    //         hide: {fixed: true, delay: 300}
-    //     });
-    // }
-
     static populationFrequenciesInfoTooltipContent(populationFrequencies) {
         return `One coloured square is shown for each population. Frequencies are coded with colours which classify values 
                 into 'very rare', 'rare', 'average', 'common' or 'missing', see 
@@ -779,20 +749,15 @@ export default class VariantGridFormatter {
                 <div><span><i class='fa fa-square' style='color: black' aria-hidden='true'></i> Not observed</span></div>`;
     }
 
-    /**
-     * Creates the colored table with one row and as many columns as populations.
-     * @param cohorts
-     * @param populationFrequenciesColor
-     */
+    // Creates the colored table with one row and as many columns as populations.
     static createCohortStatsTable(cohorts, cohortStats, populationFrequenciesColor) {
         // This is used by the tooltip function below to display all population frequencies
-        let popFreqsTooltip;
         const popFreqsArray = [];
         for (const cohort of cohorts) {
             const freq = (cohortStats.get(cohort.id) !== undefined) ? cohortStats.get(cohort.id) : 0;
             popFreqsArray.push(cohort.id + "::" + freq);
         }
-        popFreqsTooltip = popFreqsArray.join(",");
+        const popFreqsTooltip = popFreqsArray.join(",");
 
         // TODO block copied in createPopulationFrequenciesTable
         let tooltip = "";
@@ -823,21 +788,15 @@ export default class VariantGridFormatter {
         return htmlPopFreqTable;
     }
 
-    /**
-     * Creates the colored table with one row and as many columns as populations.
-     * @param populations
-     * @param populationFrequenciesMap
-     * @param populationFrequenciesColor
-     */
+    // Creates the colored table with one row and as many columns as populations.
     static createPopulationFrequenciesTable(populations, populationFrequenciesMap, populationFrequenciesColor) {
         // This is used by the tooltip function below to display all population frequencies
-        let popFreqsTooltip;
         const popFreqsArray = [];
         for (const population of populations) {
             const freq = (populationFrequenciesMap.get(population) !== undefined) ? populationFrequenciesMap.get(population) : 0;
             popFreqsArray.push(population + "::" + freq);
         }
-        popFreqsTooltip = popFreqsArray.join(",");
+        const popFreqsTooltip = popFreqsArray.join(",");
 
         let tooltip = "";
         for (const popFreq of popFreqsArray) {
@@ -854,7 +813,9 @@ export default class VariantGridFormatter {
 
         // Create the table (with the tooltip info)
         const tableSize = populations.length * 15;
-        let htmlPopFreqTable = `<a tooltip-title="Population Frequencies" tooltip-text="${tooltip}"><table style="width:${tableSize}px" class="populationFrequenciesTable" data-pop-freq="${popFreqsTooltip}"><tr>`;
+        let htmlPopFreqTable = `<a tooltip-title="Population Frequencies" tooltip-text="${tooltip}">
+                                <table style="width:${tableSize}px" class="populationFrequenciesTable" data-pop-freq="${popFreqsTooltip}">
+                                    <tr>`;
         for (const population of populations) {
             // This array contains "study:population"
             let color = "black";
@@ -1112,17 +1073,17 @@ export default class VariantGridFormatter {
     /*
      * Reported Variant formatters
      */
-    // static toggleDetailClinicalEvidence(e) {
-    //     const id = e.target.dataset.id;
-    //     const elements = document.getElementsByClassName(this._prefix + id + "EvidenceFiltered");
-    //     for (const element of elements) {
-    //         if (element.style.display === "none") {
-    //             element.style.display = "";
-    //         } else {
-    //             element.style.display = "none";
-    //         }
-    //     }
-    // }
+    static toggleDetailClinicalEvidence(e) {
+        const id = e.target.dataset.id;
+        const elements = document.getElementsByClassName(this._prefix + id + "EvidenceFiltered");
+        for (const element of elements) {
+            if (element.style.display === "none") {
+                element.style.display = "";
+            } else {
+                element.style.display = "none";
+            }
+        }
+    }
 
     // TODO Remove since it is DEPRECATED
     // addTooltip(selector, title, content, config) {

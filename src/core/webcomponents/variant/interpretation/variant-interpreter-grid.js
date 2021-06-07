@@ -78,6 +78,7 @@ export default class VariantInterpreterGrid extends LitElement {
         this.review = false;
 
         // Set colors
+        // consequenceTypesImpact;
         this.consequenceTypeColors = VariantGridFormatter.assignColors(consequenceTypes, proteinSubstitutionScore);
     }
 
@@ -267,13 +268,10 @@ export default class VariantInterpreterGrid extends LitElement {
                     this.opencgaSession.opencgaClient.clinical().queryVariant(filters)
                         .then(res => {
                             this.isApproximateCount = res.responses[0].attributes?.approximateCount ?? false;
-                            // console.log(res.responses[0].results);
-                            // debugger
                             params.success(res);
                         })
                         .catch(e => {
                             console.error(e);
-                            console.trace();
                             params.error(e);
                         });
                 },
@@ -282,6 +280,17 @@ export default class VariantInterpreterGrid extends LitElement {
                     return result.response;
                 },
                 onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
+                onDblClickRow: (row, element, field) => {
+                    // We detail view is active we expand the row automatically.
+                    // FIXME: Note that we use a CSS class way of knowing if the row is expand or collapse, this is not ideal but works.
+                    if (this._config.detailView) {
+                        if (element[0].innerHTML.includes("icon-plus")) {
+                            $("#" + this.gridId).bootstrapTable("expandRow", element[0].dataset.index);
+                        } else {
+                            $("#" + this.gridId).bootstrapTable("collapseRow", element[0].dataset.index);
+                        }
+                    }
+                },
                 onLoadSuccess: data => {
                     // We keep the table rows as global variable, needed to fetch the variant object when checked
                     this._rows = data.rows;
@@ -961,14 +970,13 @@ export default class VariantInterpreterGrid extends LitElement {
             populationFrequencies: ["1kG_phase3:ALL", "GNOMAD_GENOMES:ALL", "GNOMAD_EXOMES:ALL", "UK10K:ALL", "GONL:ALL", "ESP6500:ALL", "EXAC:ALL"],
 
             consequenceType: {
-                gencodeBasic: true,
-                filterByBiotype: true,
-                filterByConsequenceType: true,
-
-                canonicalTranscript: true,
-                highQualityTranscripts: true,
-                proteinCodingTranscripts: false,
-                worstConsequenceTypes: true,
+                maneTranscript: true,
+                gencodeBasicTranscript: false,
+                ensemblCanonicalTranscript: true,
+                ccdsTranscript: false,
+                ensemblTslTranscript: false,
+                proteinCodingTranscript: false,
+                highImpactConsequenceTypeTranscript: false,
 
                 showNegativeConsequenceTypes: true
             },
@@ -1013,6 +1021,17 @@ export default class VariantInterpreterGrid extends LitElement {
     async onApplySettings(e) {
         try {
             this._config = {...this.getDefaultConfig(), ...this.opencgaSession.user.configs?.IVA?.interpreterGrid, ...this.__config};
+
+            // TODO Delete old config values. Remove this in IVA 2.2
+            delete this._config.consequenceType.canonicalTranscript;
+            delete this._config.consequenceType.gencodeBasic;
+            delete this._config.consequenceType.highQualityTranscripts;
+            delete this._config.consequenceType.proteinCodingTranscripts;
+            delete this._config.consequenceType.worstConsequenceTypes;
+            delete this._config.consequenceType.filterByBiotype;
+            delete this._config.consequenceType.filterByConsequenceType;
+            delete this._config.consequenceType.highImpactConsequenceTypeTranscripts;
+
             const userConfig = await this.opencgaSession.opencgaClient.updateUserConfigs({
                 ...this.opencgaSession.user.configs.IVA,
                 interpreterGrid: this._config

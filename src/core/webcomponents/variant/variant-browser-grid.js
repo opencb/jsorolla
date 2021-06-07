@@ -376,7 +376,7 @@ export default class VariantBrowserGrid extends LitElement {
         }
 
         if (max > 0) {
-            return `<span style="color: ${max > 0.5 ? this.consequenceTypeColors.pssColor.get("polyphen")["likely_pathogenic"] : "black"}" title=${max}>${max}</span>`;
+            return `<span style="color: ${max > 0.5 ? "darkorange" : "black"}" title=${max}>${max}</span>`;
         }
         return "-";
     }
@@ -754,16 +754,13 @@ export default class VariantBrowserGrid extends LitElement {
                 verticalAlign: "bottom"
             },
             consequenceType: {
-                gencodeBasic: true,
-                filterByBiotype: true,
-                filterByConsequenceType: true,
-
-                canonicalTranscript: false,
-                highQualityTranscripts: false,
-                proteinCodingTranscripts: false,
-                worstConsequenceTypes: true,
-
-                showNegativeConsequenceTypes: true
+                maneTranscript: true,
+                gencodeBasicTranscript: false,
+                ensemblCanonicalTranscript: true,
+                ccdsTranscript: false,
+                ensemblTslTranscript: false,
+                proteinCodingTranscript: false,
+                highImpactConsequenceTypeTranscript: false
             }
         };
     }
