@@ -53,12 +53,41 @@ export default class AnnotationSetManager extends BaseManagerMixin(LitElement) {
         this.variableSetObserver();
     }
 
+    update(changedProperties) {
+        if (this.annotationSets.length && changedProperties.has("annotationSets")) {
+            this.annotationSetsObserver();
+        }
+        super.update(changedProperties);
+    }
+
     async variableSetObserver() {
-        const resp = await this.opencgaSession.opencgaClient.studies().variableSets(this.opencgaSession.study.fqn);
-        this.variableSets = await resp.responses[0].results;
-        this.variableSetIds = this.variableSets.map(item => item.id);
+        try {
+            const resp = await this.opencgaSession.opencgaClient.studies().variableSets(this.opencgaSession.study.fqn);
+            this.variableSets = await resp.responses[0].results;
+            this._variableSetIds = this.variableSets.map(item => item.id);
+            const annotationSetIdsSelected = this.annotationSets.map(item => item.variableSetId);
+            this.variableSetIds = this._variableSetIds.filter(variableSetId => !annotationSetIdsSelected.includes(variableSetId));
+        } catch (error) {
+            // TODO: Add Message to notify user;
+            console.log(error);
+        } finally {
+            this._config = {...this.getDefaultConfig(), ...this.config};
+            console.log("VariableSetId:...", this.variableSets);
+        }
+    }
+
+    annotationSetsObserver() {
+        const annotationSetIdsSelected = this.annotationSets.map(item => item.variableSetId);
+        this.variableSetIds = this._variableSetIds.filter(variableSetId => !annotationSetIdsSelected.includes(variableSetId));
         this._config = {...this.getDefaultConfig(), ...this.config};
-        console.log(this.variableSets);
+    }
+
+    getVariablesById(variableId) {
+        this.variableSet = this.variableSets.find(item => item.id === variableId);
+        //     .variables.sort((a, b) => a.rank > b.rank? 1 : -1);
+        console.log("Change AnnotationSetId ", this.variableSet);
+        this._config = {...this.getDefaultConfig(), ...this.config};
+        this.requestUpdate();
     }
 
     getDefaultConfig() {
@@ -74,6 +103,7 @@ export default class AnnotationSetManager extends BaseManagerMixin(LitElement) {
                 labelWidth: 3,
                 labelAlign: "right",
                 defaultLayout: "horizontal",
+                defaultValue: ""
             },
             sections: [
                 {
@@ -129,7 +159,7 @@ export default class AnnotationSetManager extends BaseManagerMixin(LitElement) {
                 if (e.detail.param === "annotationSet.variableSetId") {
                     this.getVariablesById(e.detail.value);
                 }
-                // This function should be baseManager.
+                // This function should be baseManager or return the value.
                 // FormUtils.createObject(
                 //     this.annotationSet,
                 //     e.detail.param,
@@ -150,10 +180,19 @@ export default class AnnotationSetManager extends BaseManagerMixin(LitElement) {
         this.annotations = {...e.detail.value};
     }
 
-    getVariablesById(variableId) {
-        this.variableSet = this.variableSets.find(item => item.id === variableId);
-        //     .variables.sort((a, b) => a.rank > b.rank? 1 : -1);
-        console.log("Change AnnotationSetId ", this.variableSet);
+    onAddAnnotationSet(e) {
+        this.annotationSet.annotations = this.annotations;
+        this.variableSetIds = this.variableSets.map(item => item.id).filter(variableSetId => variableSetId !== this.annotationSet.variableSetId);
+        this._config = {...this.getDefaultConfig(), ...this.config};
+        this.onAddItem(this.annotationSet);
+        this.onShow();
+    }
+
+    onEditAnnotationSet(item) {
+        // TODO: Selected the item
+        this.annotationSet = item;
+
+        // TODO: Pass Annotation to manager
         this._config = {...this.getDefaultConfig(), ...this.config};
         this.requestUpdate();
     }
@@ -164,13 +203,6 @@ export default class AnnotationSetManager extends BaseManagerMixin(LitElement) {
         e.stopPropagation();
     }
 
-
-    onAddAnnotationSet(e) {
-        this.annotationSet.annotations = this.annotations;
-        console.log("AnnotationSet: ", this.annotationSet);
-        this.onAddItem(this.annotationSet);
-        this.onShow();
-    }
 
     render() {
         return html`
@@ -187,7 +219,8 @@ export default class AnnotationSetManager extends BaseManagerMixin(LitElement) {
             <hr style="margin:0px">
             <div class="col-md-12" style="padding: 10px 20px">
                 ${this.annotationSets?.map(item => html`
-                    <span class="label label-primary" style="font-size: 14px; margin:5px; padding-right:0px; display:inline-block">${item.variableSetId}
+                    <span class="label label-primary" style="font-size: 14px; margin:5px; padding-right:0px; display:inline-block">
+                        <span style="cursor:pointer" @click=${e => this.onEditAnnotationSet(item)}>${item.variableSetId}</span>
                         <span class="badge" style="cursor:pointer" @click=${e => this.onRemoveItem(e, item)}>X</span>
                     </span>`
                 )}

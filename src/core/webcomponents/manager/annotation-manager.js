@@ -49,6 +49,10 @@ export default class AnnotationManager extends BaseManagerMixin(LitElement) {
         if (changedProperties.has("variableSet")) {
             this.variablesObserver();
         }
+
+        if (changedProperties.has("annotations")) {
+            console.log("Annotations -> ", this.annotations);
+        }
         super.update(changedProperties);
     }
 
@@ -60,6 +64,9 @@ export default class AnnotationManager extends BaseManagerMixin(LitElement) {
                 name: item.id,
                 field: item.name,
                 type: "input-text",
+                display: {
+                    placeholder: item.description,
+                }
             };
         });
 
@@ -76,6 +83,7 @@ export default class AnnotationManager extends BaseManagerMixin(LitElement) {
                 labelWidth: 3,
                 labelAlign: "right",
                 defaultLayout: "horizontal",
+                defaultValue: ""
             },
             sections: [
                 {
