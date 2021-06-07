@@ -401,12 +401,12 @@ export default class VariantInterpreterGrid extends LitElement {
         let result = "<div class='row' style='padding-bottom: 20px'>";
         let detailHtml = "";
         if (row && row.annotation) {
-            if (this.variantGrid.clinicalAnalysis.type.toUpperCase() !== "CANCER") {
-                detailHtml = "<div style='padding: 10px 0px 5px 25px'><h4>Variant Allele Frequency</h4></div>";
-                detailHtml += "<div style='padding: 5px 40px'>";
-                detailHtml += VariantInterpreterGridFormatter.variantAlleleFrequencyDetailFormatter(value, row, this.variantGrid);
-                detailHtml += "</div>";
-            }
+            // if (this.variantGrid.clinicalAnalysis.type.toUpperCase() !== "CANCER") {
+            //     detailHtml = "<div style='padding: 10px 0px 5px 25px'><h4>Variant Allele Frequency</h4></div>";
+            //     detailHtml += "<div style='padding: 5px 40px'>";
+            //     detailHtml += VariantInterpreterGridFormatter.variantAlleleFrequencyDetailFormatter(value, row, this.variantGrid);
+            //     detailHtml += "</div>";
+            // }
 
             detailHtml += "<div style='padding: 10px 0px 5px 25px'><h4>Molecular Consequence</h4></div>";
             detailHtml += "<div style='padding: 5px 40px'>";
@@ -971,7 +971,7 @@ export default class VariantInterpreterGrid extends LitElement {
 
             consequenceType: {
                 maneTranscript: true,
-                gencodeBasicTranscript: false,
+                gencodeBasicTranscript: true,
                 ensemblCanonicalTranscript: true,
                 ccdsTranscript: false,
                 ensemblTslTranscript: false,

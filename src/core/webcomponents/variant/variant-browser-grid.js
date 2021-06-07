@@ -756,7 +756,7 @@ export default class VariantBrowserGrid extends LitElement {
             },
             consequenceType: {
                 maneTranscript: true,
-                gencodeBasicTranscript: false,
+                gencodeBasicTranscript: true,
                 ensemblCanonicalTranscript: true,
                 ccdsTranscript: false,
                 ensemblTslTranscript: false,
