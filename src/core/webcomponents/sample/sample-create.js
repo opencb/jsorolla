@@ -128,7 +128,16 @@ export default class SampleCreate extends LitElement {
     }
 
     onAddAnnotationSet(e) {
-        this.sample.annotationSets.push(e.detail.value);
+        const annotationSet = e.detail.value;
+        if (this.sample.annotationSets.length > 0) {
+            this.sample = {
+                ...this.sample,
+                annotationSets: this.sample.annotationSets.filter(
+                    item => item.variableSetId !== annotationSet.variableSetId
+                )
+            };
+        }
+        this.sample.annotationSets.push(annotationSet);
         console.log("Sample created", this.sample);
         this.requestUpdate();
     }
