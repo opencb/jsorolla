@@ -1,4 +1,4 @@
- /**
+/**
  * Copyright 2015-2019 OpenCB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -129,7 +129,7 @@ export default class VariantBrowserGrid extends LitElement {
         if (this.variants && this.variants.length > 0) {
             this.renderFromLocal();
         } else {
-            this.renderRemoteVariants()
+            this.renderRemoteVariants();
         }
         this.requestUpdate();
     }
@@ -161,8 +161,8 @@ export default class VariantBrowserGrid extends LitElement {
                 variantGrid: this,
                 ajax: params => {
                     // TODO We must decide i this component support a porperty:  mode = {opencga | cellbase}
-                    let tableOptions = $(this.table).bootstrapTable("getOptions");
-                    let filters = {
+                    const tableOptions = $(this.table).bootstrapTable("getOptions");
+                    const filters = {
                         study: this.opencgaSession.study.fqn,
                         limit: params.data.limit || tableOptions.pageSize,
                         skip: params.data.offset || 0,
@@ -173,7 +173,7 @@ export default class VariantBrowserGrid extends LitElement {
                     };
                     this.opencgaSession.opencgaClient.variants().query(filters)
                         .then(res => {
-                            params.success(res)
+                            params.success(res);
                         })
                         .catch(e => {
                             console.error(e);
@@ -210,7 +210,7 @@ export default class VariantBrowserGrid extends LitElement {
                     this.gridCommons.onCheck(row.id, row, {rows: Array.from(this.checkedVariants.values()), timestamp: this._timestamp});
                 },
                 onCheckAll: rows => {
-                    for (let row of rows) {
+                    for (const row of rows) {
                         this.checkedVariants.set(row.id, row);
                     }
                     this._timestamp = new Date().getTime();
@@ -222,7 +222,7 @@ export default class VariantBrowserGrid extends LitElement {
                     this.gridCommons.onUncheck(row.id, row, {rows: Array.from(this.checkedVariants.values()), timestamp: this._timestamp});
                 },
                 onUncheckAll: rows => {
-                    for (let row of rows) {
+                    for (const row of rows) {
                         this.checkedVariants.delete(row.id);
                     }
                     this._timestamp = new Date().getTime();
@@ -249,7 +249,7 @@ export default class VariantBrowserGrid extends LitElement {
 
                     UtilsNew.initTooltip(this);
                 },
-                onPostBody: (data) => {
+                onPostBody: data => {
                 }
             });
         }
@@ -288,7 +288,7 @@ export default class VariantBrowserGrid extends LitElement {
 
                 UtilsNew.initTooltip(this);
             },
-            onPostBody: (data) => {
+            onPostBody: data => {
                 // We call onLoadSuccess to select first row, this is only needed when rendering from local
                 this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 2);
             }
@@ -376,14 +376,14 @@ export default class VariantBrowserGrid extends LitElement {
         }
 
         if (max > 0) {
-            return `<span style="color: ${max > 0.5 ? this.consequenceTypeColors.pssColor.get("polyphen")["likely_pathogenic"] : "black"}" title=${max}>${max}</span>`;
+            return `<span style="color: ${max > 0.5 ? "darkorange" : "black"}" title=${max}>${max}</span>`;
         }
         return "-";
     }
 
     caddScaledFormatter(value, row, index) {
         if (row && row.type !== "INDEL" && row.annotation?.functionalScore?.length > 0) {
-            for (let functionalScore of row.annotation.functionalScore) {
+            for (const functionalScore of row.annotation.functionalScore) {
                 if (functionalScore.source === "cadd_scaled") {
                     const value = Number(functionalScore.score).toFixed(2);
                     if (value < 15) {
@@ -416,10 +416,10 @@ export default class VariantBrowserGrid extends LitElement {
             const cohortStats = new Map();
             for (const study of row.studies) {
                 // Now we support both study.is and study.fqn
-                let metaStudy = study.studyId.includes("@") ? this.meta.study : this.meta.study.split(":")[1];
+                const metaStudy = study.studyId.includes("@") ? this.meta.study : this.meta.study.split(":")[1];
                 if (study.studyId === metaStudy) {
                     for (const cohortStat of study.stats) {
-                        let freq = Number(cohortStat.altAlleleFreq) * 100;
+                        const freq = Number(cohortStat.altAlleleFreq);
                         cohortStats.set(cohortStat.cohortId, freq > 0 ? freq.toPrecision(4) : 0);
                     }
                     break;
@@ -437,7 +437,7 @@ export default class VariantBrowserGrid extends LitElement {
             for (const popFreqIdx in row.annotation.populationFrequencies) {
                 const popFreq = row.annotation.populationFrequencies[popFreqIdx];
                 if (this.meta.study === popFreq.study) { // && this.meta.populationMap[popFreq.population] === true
-                    let freq = Number(popFreq.altAlleleFreq) * 100;
+                    const freq = Number(popFreq.altAlleleFreq);
                     popFreqMap.set(popFreq.population, freq > 0 ? freq.toPrecision(4) : 0);
                 }
             }
@@ -549,7 +549,7 @@ export default class VariantBrowserGrid extends LitElement {
                     field: "consequenceType",
                     rowspan: 2,
                     colspan: 1,
-                    formatter:(value, row, index) => VariantGridFormatter.consequenceTypeFormatter(value, row, index, this._config.consequenceType, this.consequenceTypeColors),
+                    formatter: (value, row, index) => VariantGridFormatter.consequenceTypeFormatter(value, row, index, this._config, this.consequenceTypeColors),
                     halign: "center"
                 },
                 {
@@ -565,7 +565,8 @@ export default class VariantBrowserGrid extends LitElement {
                     align: "center"
                 },
                 {
-                    title: `Conservation  <a tooltip-title='Conservation' tooltip-text="Positive PhyloP scores measure conservation which is slower evolution than expected, at sites that are predicted to be conserved. Negative PhyloP scores measure acceleration, which is faster evolution than expected, at sites that are predicted to be fast-evolving. Absolute values of phyloP scores represent -log p-values under a null hypothesis of neutral evolution. The phastCons scores represent probabilities of negative selection and range between 0 and 1. Positive GERP scores represent a substitution deficit and thus indicate that a site may be under evolutionary constraint. Negative scores indicate that a site is probably evolving neutrally. Some authors suggest that a score threshold of 2 provides high sensitivity while still strongly enriching for truly constrained sites"><i class="fa fa-info-circle" aria-hidden="true"></i></a>`,
+                    // eslint-disable-next-line max-len
+                    title: "Conservation  <a tooltip-title='Conservation' tooltip-text=\"Positive PhyloP scores measure conservation which is slower evolution than expected, at sites that are predicted to be conserved. Negative PhyloP scores measure acceleration, which is faster evolution than expected, at sites that are predicted to be fast-evolving. Absolute values of phyloP scores represent -log p-values under a null hypothesis of neutral evolution. The phastCons scores represent probabilities of negative selection and range between 0 and 1. Positive GERP scores represent a substitution deficit and thus indicate that a site may be under evolutionary constraint. Negative scores indicate that a site is probably evolving neutrally. Some authors suggest that a score threshold of 2 provides high sensitivity while still strongly enriching for truly constrained sites\"><i class=\"fa fa-info-circle\" aria-hidden=\"true\"></i></a>",
                     field: "conservation",
                     rowspan: 1,
                     colspan: 3,
@@ -708,7 +709,7 @@ export default class VariantBrowserGrid extends LitElement {
     async onDownload(e) {
         this.toolbarConfig = {...this.toolbarConfig, downloading: true};
         await this.requestUpdate();
-        let params = {
+        const params = {
             study: this.opencgaSession.study.fqn,
             limit: 1000,
             summary: !this.query.sample && !this.query.family,
@@ -754,14 +755,13 @@ export default class VariantBrowserGrid extends LitElement {
                 verticalAlign: "bottom"
             },
             consequenceType: {
-                gencodeBasic: true,
-                filterByBiotype: true,
-                filterByConsequenceType: true,
-
-                canonicalTranscript: false,
-                highQualityTranscripts: false,
-                proteinCodingTranscripts: false,
-                worstConsequenceTypes: true,
+                maneTranscript: true,
+                gencodeBasicTranscript: true,
+                ensemblCanonicalTranscript: true,
+                ccdsTranscript: false,
+                ensemblTslTranscript: false,
+                proteinCodingTranscript: false,
+                highImpactConsequenceTypeTranscript: false,
 
                 showNegativeConsequenceTypes: true
             }
@@ -787,6 +787,7 @@ export default class VariantBrowserGrid extends LitElement {
             </div>
         `;
     }
+
 }
 
 customElements.define("variant-browser-grid", VariantBrowserGrid);

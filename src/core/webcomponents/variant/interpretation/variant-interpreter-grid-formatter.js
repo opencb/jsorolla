@@ -125,6 +125,7 @@ export default class VariantInterpreterGridFormatter {
     /*
     * File attributes formatters
     */
+    // DEPRECATED
     static variantAlleleFrequencyDetailFormatter(value, row, variantGrid) {
         let fileAttrHtml = "";
         if (row && row.studies?.length > 0) {
@@ -237,7 +238,6 @@ export default class VariantInterpreterGridFormatter {
     }
 
     static reportedEventDetailFormatter(value, row, variantGrid, query, review, config) {
-        debugger
         if (row && row.evidences.length > 0) {
             // Sort by Tier level
             row.evidences.sort(function (a, b) {
@@ -261,7 +261,7 @@ export default class VariantInterpreterGridFormatter {
             //     selectColumnHtml = "<th rowspan=\"2\">Select</th>";
             // }
 
-            const showArrayIndexes = VariantGridFormatter._consequenceTypeDetailFormatterFilter(row.annotation.consequenceTypes, query, config);
+            const showArrayIndexes = VariantGridFormatter._consequenceTypeDetailFormatterFilter(row.annotation.consequenceTypes, config).indexes;
             let message = "";
             if (config) {
                 // Create two different divs to 'show all' or 'apply filter' title
@@ -372,7 +372,7 @@ export default class VariantInterpreterGridFormatter {
                 if (UtilsNew.isNotEmpty(re.genomicFeature.transcriptId)) {
                     let biotype = "-";
                     if (row.annotation && row.annotation.consequenceTypes) {
-                        let ct = row.annotation.consequenceTypes.find(ct => ct.ensemblTranscriptId === re.genomicFeature.transcriptId);
+                        const ct = row.annotation.consequenceTypes.find(ct => ct.ensemblTranscriptId === re.genomicFeature.transcriptId);
                         biotype = ct?.biotype ?? "-";
                     }
 
@@ -397,10 +397,7 @@ export default class VariantInterpreterGridFormatter {
                 const soArray = [];
                 if (re.genomicFeature.consequenceTypes && re.genomicFeature.consequenceTypes.length > 0) {
                     for (const so of re.genomicFeature.consequenceTypes) {
-                        let color = variantGrid.consequenceTypeColors?.consequenceTypeToColor[so.name] || "black";
-                        // if (variantGrid.consequenceTypeColors?.consequenceTypeToColor && variantGrid.consequenceTypeColors?.consequenceTypeToColor[so.name]) {
-                        //     color = variantGrid.consequenceTypeColors?.consequenceTypeToColor[so.name];
-                        // }
+                        const color = consequenceTypes.style[consequenceTypes.impact[so.name]] || "black";
                         soArray.push(`<div style="color: ${color}; margin-bottom: 5px">
                                         <span style="padding-right: 5px">${so.name}</span> 
                                         <a title="Go to Sequence Ontology ${so.accession} term" 
