@@ -395,4 +395,46 @@ export default class UtilsNew {
         }).join("&");
     }
 
+    /**
+     * Hydrates `external` array with `internal` data.
+     *
+     * @param internal
+     * @param external
+     * @return {Array} hydrated array
+     */
+    static mergeConfigArray(internal, external) {
+        // console.log("internal, external", internal, external)
+        if (external) {
+            return external.map(entry => {
+                const obj = internal.find(e => entry.id === e.id);
+                if (!obj) {
+                    console.error(`Config Merge failed. ${entry.id} not found in internal config`);
+                } else {
+                    return {...entry, ...obj};
+                }
+            });
+        }
+        console.warn("external config not available");
+        return internal;
+    }
+
+    /**
+     * It merges external filter list with internal one.
+     *
+     * @param internal
+     * @param external
+     * @return {Array} hydrated array
+     */
+    static mergeFilters(internal, external) {
+        // console.log("internal, external", internal, external)
+        if (external) {
+            const sections = external.sections.map(section => {
+                const internalSection = internal.sections.find(s => s.id === section.id);
+                const fields = UtilsNew.mergeConfigArray(internalSection.fields, section.fields);
+                return {...internalSection, fields: fields};
+            });
+            return {...internal, ...external, sections: sections};
+        }
+    }
+
 }

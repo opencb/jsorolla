@@ -65,7 +65,8 @@ export default class OpencgaClinicalReviewCases extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this.mergeSetting();
+
     }
 
     updated(changedProperties) {
@@ -89,7 +90,8 @@ export default class OpencgaClinicalReviewCases extends LitElement {
     }
 
     propertyObserver() {
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this.mergeSetting();
+
         if (UtilsNew.isNotUndefinedOrNull(this.query)) {
             this._query = {...this.query};
         }
@@ -315,6 +317,11 @@ export default class OpencgaClinicalReviewCases extends LitElement {
         }
     }
 
+    mergeSetting() {
+        this._config = {...this.getDefaultConfig(), ...this.config};
+        this._config.filter = UtilsNew.mergeFilters(this._config.filter, OpencgaClinicalReviewCasesSettings.filter);
+    }
+
     // TODO better adapt config to the a dynamic view
     getDefaultConfig() {
         return {
@@ -323,6 +330,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
             filter: {
                 sections: [
                     {
+                        id: "main",
                         title: "",
                         fields: [
                             {
@@ -476,7 +484,6 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                             ` : null}
                                         </ul>
                                     </div>
-        
                                     ${~this._config.filter.sections[0].fields.findIndex(field => field.id === "case") ? html`
                                         <!-- Case ID -->
                                         <div class="btn-group" data-cy="form-case">
