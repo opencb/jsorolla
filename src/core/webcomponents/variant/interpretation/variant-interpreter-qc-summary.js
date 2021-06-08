@@ -89,27 +89,39 @@ class VariantInterpreterQcSummary extends LitElement {
 
     clinicalAnalysisObserver() {
         if (this.opencgaSession && this.clinicalAnalysis) {
-            let somaticSample = this.clinicalAnalysis.proband?.samples.find(s => s.somatic);
-            let germlineSample = this.clinicalAnalysis.proband?.samples.find(s => !s.somatic);
+            const somaticSample = this.clinicalAnalysis.proband?.samples.find(s => s.somatic);
+            const germlineSample = this.clinicalAnalysis.proband?.samples.find(s => !s.somatic);
             if (somaticSample) {
-                let bamFile = [somaticSample.fileIds.find(f => f.endsWith(".bam"))];
+                const bamFile = [somaticSample.fileIds.find(f => f.endsWith(".bam"))];
                 if (germlineSample) {
-                    let germlineBamFile = germlineSample.fileIds.find(f => f.endsWith(".bam"));
+                    const germlineBamFile = germlineSample.fileIds.find(f => f.endsWith(".bam"));
                     bamFile.push(germlineBamFile);
                 }
 
                 this.opencgaSession.opencgaClient.files().info(bamFile.join(","), {study: this.opencgaSession.study.fqn})
                     .then(response => {
-                        let annotationSet = response.responses[0].results[0].annotationSets.find(annotSet => annotSet.variableSetId === "bamQcStats");
+                        const annotationSet = response.responses[0].results[0].annotationSets.find(annotSet => annotSet.variableSetId === "bamQcStats");
                         annotationSet.annotations.file = bamFile[0];
                         if (germlineSample) {
-                            let germlineAnnotationSet = response.responses[0].results[1].annotationSets.find(annotSet => annotSet.variableSetId === "bamQcStats");
+                            const germlineAnnotationSet = response.responses[0].results[1].annotationSets.find(annotSet => annotSet.variableSetId === "bamQcStats");
                             germlineAnnotationSet.annotations.file = bamFile[1];
                             this.clinicalAnalysis.annotations = [annotationSet?.annotations, germlineAnnotationSet?.annotations];
                         } else {
                             this.clinicalAnalysis.annotations = [annotationSet?.annotations];
                         }
                         // this.clinicalAnalysis.annotations = annotationSet?.annotations;
+                        this._config = {...this.getDefaultConfig(), ...this.config};
+                        this.requestUpdate();
+                    })
+                    .catch(response => {
+                        console.error("An error occurred fetching clinicalAnalysis: ", response);
+                    });
+
+                const vcfFiles = [somaticSample.fileIds.find(f => f.endsWith(".vcf.gz"))];
+                this.opencgaSession.opencgaClient.files().info(vcfFiles.join(","), {study: this.opencgaSession.study.fqn})
+                    .then(response => {
+                        this.clinicalAnalysis.ascat = [response.responses[0].results[0].attributes];
+                        this.clinicalAnalysis.ascat[0].file = vcfFiles[0];
                         this._config = {...this.getDefaultConfig(), ...this.config};
                         this.requestUpdate();
                     })
@@ -154,12 +166,12 @@ class VariantInterpreterQcSummary extends LitElement {
                             type: "custom",
                             display: {
                                 render: disorder => {
-                                    if(disorder) {
+                                    if (disorder) {
                                         let id;
                                         if (disorder.id?.startsWith("OMIM:")) {
                                             id = html`<a href="https://omim.org/entry/${disorder.id.split(":")[1]}" target="_blank">${disorder.id}</a>`;
                                         }
-                                        return html`${disorder.name || "-"} (${id})`
+                                        return html`${disorder.name || "-"} (${id})`;
                                     } else return "-";
 
                                 }
@@ -168,7 +180,7 @@ class VariantInterpreterQcSummary extends LitElement {
                         {
                             name: "Analysis Type",
                             field: "type"
-                        },
+                        }
                     ]
                 },
                 {
@@ -179,7 +191,7 @@ class VariantInterpreterQcSummary extends LitElement {
                     },
                     elements: [
                         {
-                            name: "SD insert size",
+                            name: "BAM Stats",
                             field: "annotations",
                             type: "table",
                             display: {
@@ -188,44 +200,74 @@ class VariantInterpreterQcSummary extends LitElement {
                                         name: "BAM File",
                                         type: "custom",
                                         display: {
-                                            render: (data) => html`<div><span style="font-weight: bold">${data.file}</span></div>`
+                                            render: data => html`<div><span style="font-weight: bold">${data.file}</span></div>`
                                         }
                                     },
                                     {
                                         name: "SD insert size",
                                         type: "custom",
                                         display: {
-                                            render: (data) => html`<div>${data.sdInsertSize}</div>`
+                                            render: data => html`<div>${data.sdInsertSize}</div>`
                                         }
                                     },
                                     {
                                         name: "Average insert size",
                                         type: "custom",
                                         display: {
-                                            render: (data) => html`<div>${data.avgInsertSize}</div>`
+                                            render: data => html`<div>${data.avgInsertSize}</div>`
                                         }
                                     },
                                     {
                                         name: "Duplicate read rate",
                                         type: "custom",
                                         display: {
-                                            render: (data) => html`<div>${data.duplicateReadRate}</div>`
+                                            render: data => html`<div>${data.duplicateReadRate}</div>`
                                         }
                                     },
                                     {
                                         name: "Average sequence depth",
                                         type: "custom",
                                         display: {
-                                            render: (data) => html`<div>${data.avgSequenceDepth}</div>`
+                                            render: data => html`<div>${data.avgSequenceDepth}</div>`
                                         }
                                     }
                                 ]
                             }
                         },
+                        {
+                            name: "ASCAT Stats",
+                            field: "ascat",
+                            type: "table",
+                            display: {
+                                columns: [
+                                    {
+                                        name: "ASCAT File",
+                                        type: "custom",
+                                        display: {
+                                            render: data => html`<div><span style="font-weight: bold">${data.file}</span></div>`
+                                        }
+                                    },
+                                    {
+                                        name: "ASCAT Aberrant Fraction",
+                                        type: "custom",
+                                        display: {
+                                            render: data => html`<div>${data.ascatAberrantCellFraction}</div>`
+                                        }
+                                    },
+                                    {
+                                        name: "ASCAT Ploidy",
+                                        type: "custom",
+                                        display: {
+                                            render: data => html`<div>${data.ascatPloidy}</div>`
+                                        }
+                                    }
+                                ]
+                            }
+                        }
                     ]
-                },
+                }
             ]
-        }
+        };
     }
 
     render() {

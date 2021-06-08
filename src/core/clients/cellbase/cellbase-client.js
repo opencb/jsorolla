@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import UtilsNew from "../../utilsNew.js";
 import {RestClient} from "../rest-client.js";
 
 
@@ -53,21 +54,26 @@ export class CellBaseClient {
         };
     }
 
-    check() {
-        const globalEvent = new CustomEvent("signingInError", {
-            detail: {
-                value: "Cellbase host not available."
-            }
-        });
+    async check() {
+        const globalEvent = (type, value) => {
+            globalThis.dispatchEvent(
+                new CustomEvent(type, {
+                    detail: value
+                }));
+        };
         this.getMeta("about")
             .then(response => {
                 if (response?.response?.[0]?.result[0]["Program: "] !== "CellBase (OpenCB)") {
-                    globalThis.dispatchEvent(globalEvent);
+                    globalEvent("signingInError", {value: "Cellbase host not available."});
+                    globalEvent("hostInit", {host: "cellbase", value: "NOT AVAILABLE"});
+                } else {
+                    globalEvent("hostInit", {host: "cellbase", value: "v" + response.response[0].result[0]["Version: "]});
                 }
             })
             .catch(e => {
                 console.error(e);
-                globalThis.dispatchEvent(globalEvent);
+                globalEvent("signingInError", {value: "Cellbase host not available."});
+                globalEvent("hostInit", {host: "cellbase", value: "NOT AVAILABLE"});
             });
     }
 

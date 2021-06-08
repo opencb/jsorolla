@@ -186,6 +186,10 @@ class VariantInterpreterQcOverview extends LitElement {
                                 title: "QC Plot Files"
                             },
                             {
+                                id: "SamtoolsPlots",
+                                title: "Samtools Plots"
+                            },
+                            {
                                 id: "Alignment",
                                 title: "Samtools Stats",
                                 disabled: application.appConfig !== "opencb"
@@ -260,7 +264,15 @@ class VariantInterpreterQcOverview extends LitElement {
                          
                         <div id="${this._prefix}VariantStats" role="tabpanel" class="tab-pane content-tab">
                             <h3>QC Plot Files</h3>
-                            <sample-files-view .sampleId="${this.clinicalAnalysis.proband.samples[0].id}" 
+                            <sample-files-view .sampleId="${this.clinicalAnalysis.proband.samples?.[1]?.id}" 
+                                               .mode="${"sample-qc"}"
+                                               .opencgaSession="${this.opencgaSession}">
+                            </sample-files-view>
+                        </div>
+
+                        <div id="${this._prefix}SamtoolsPlots" role="tabpanel" class="tab-pane content-tab">
+                            <h3>Samtools Plots</h3>
+                            <sample-files-view .sampleId="${this.clinicalAnalysis.proband.samples?.[1]?.id}"
                                                .opencgaSession="${this.opencgaSession}">
                             </sample-files-view>
                         </div>

@@ -96,7 +96,7 @@ class VariantInterpreter extends LitElement {
             this.requestUpdate();
 
             // To delete
-            // this.clinicalAnalysisId = "test3";
+            // this.clinicalAnalysisId = "NA12877";
             // this.clinicalAnalysisId = "CA-2";
             // this.clinicalAnalysisId = "TN2_PINDEL";
             // this.clinicalAnalysisId = "C-MA6250";
@@ -135,17 +135,17 @@ class VariantInterpreter extends LitElement {
 
     _changeView(tabId) {
         // console.log("changing to ", tabId)
-        /* $(`.clinical-portal-step`, this).removeClass("active");
+        /* $(`.variant-interpreter-step`, this).removeClass("active");
         $(`.clinical-portal-content`, this).hide(); // hides all content divs
         for (const tab in this.activeTab) this.activeTab[tab] = false;
 
-        $(`.clinical-portal-step[data-view=${tabId}]`, this).addClass("active");
+        $(`.variant-interpreter-step[data-view=${tabId}]`, this).addClass("active");
         $("#" + this._prefix + tabId, this).show();
         this.activeTab[tabId] = true;
         this.requestUpdate();*/
 
 
-        $(".clinical-portal-step", this).removeClass("active");
+        $(".variant-interpreter-step", this).removeClass("active");
         // $(".clinical-portal-content", this).removeClass("active");
         for (const tab in this.activeTab) this.activeTab[tab] = false;
         $(`button.content-pills[data-id=${tabId}]`, this).addClass("active");
@@ -269,10 +269,10 @@ class VariantInterpreter extends LitElement {
                             </div>
                             <div>
                                 <!-- Controls aligned to the LEFT -->
-                                <div class="row hi-icon-wrap wizard hi-icon-animation">
+                                <div class="row hi-icon-wrap wizard hi-icon-animation variant-interpreter-wizard">
                                 ${this._config.tools && this._config.tools.map(item => html`
                                     ${!item.hidden ? html`
-                                        <a class="icon-wrapper clinical-portal-step ${!this.clinicalAnalysis && item.id !== "select" || item.disabled ? "disabled" : ""}" href="javascript: void 0" data-view="${item.id}" @click="${this.onClickSection}">
+                                        <a class="icon-wrapper variant-interpreter-step ${!this.clinicalAnalysis && item.id !== "select" || item.disabled ? "disabled" : ""} ${this.activeTab[item.id] ? "active" : ""}" href="javascript: void 0" data-view="${item.id}" @click="${this.onClickSection}">
                                             <div class="hi-icon ${item.icon}"></div>
                                             <p>${item.title}</p>
                                             <span class="smaller"></span>

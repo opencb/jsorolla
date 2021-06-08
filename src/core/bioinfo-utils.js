@@ -16,6 +16,24 @@
 
 export default class BioinfoUtils {
 
+    static sortConsequenceTypes(consequenceTypes) {
+        consequenceTypes.sort((a, b) => {
+            if (a.geneName === "" && b.geneName !== "") {
+                return 1;
+            }
+            if (a.geneName !== "" && b.geneName === "") {
+                return -1;
+            }
+            if (a.geneName < b.geneName) {
+                return -1;
+            }
+            if (a.geneName > b.geneName) {
+                return 1;
+            }
+            return 0;
+        });
+    }
+
     static getGeneNameLink(geneName) {
         return "https://www.genenames.org/tools/search/#!/all?query=" + geneName;
     }
@@ -88,6 +106,12 @@ export default class BioinfoUtils {
         }
 
         switch (source.toUpperCase()) {
+            case "ENSEMBL":
+                if (assembly.toUpperCase() === "GRCH38") {
+                    return `https://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=${geneId}`;
+                } else {
+                    return `https://grch37.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=${geneId}`;
+                }
             case "LRG":
                 return `https://www.lrg-sequence.org/search/?query=${geneId}`;
             case "DECIPHER":
@@ -100,6 +124,25 @@ export default class BioinfoUtils {
                 }
             case "OMIM":
                 return `https://omim.org/search?index=entry&sort=score+desc%2C+prefix_sort+desc&start=1&limit=10&search=${geneId}`;
+            case "REFSEQ":
+                return `https://www.ncbi.nlm.nih.gov/gene/${geneId}`;
+        }
+    }
+
+    static getTranscriptLink(geneId, source, assembly) {
+        if (!geneId || !source) {
+            return null;
+        }
+
+        switch (source.toUpperCase()) {
+            case "ENSEMBL":
+                if (assembly.toUpperCase() === "GRCH38") {
+                    return `https://www.ensembl.org/Homo_sapiens/Transcript/Summary?db=core;t=${geneId}`;
+                } else {
+                    return `https://grch37.ensembl.org/Homo_sapiens/Transcript/Summary?db=core;t=${geneId}`;
+                }
+            case "REFSEQ":
+                return `https://www.ncbi.nlm.nih.gov/gene/?term=${geneId}`;
         }
     }
 

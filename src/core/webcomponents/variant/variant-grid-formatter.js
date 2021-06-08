@@ -14,21 +14,20 @@
  * limitations under the License.
  */
 
-import {html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../utilsNew.js";
 import BioinfoUtils from "../../bioinfo-utils.js";
 
 
 export default class VariantGridFormatter {
 
+    // DEPRECATED: use new consequenceTypes.impact instead
     static assignColors(consequenceTypes, proteinSubstitutionScores) {
         let result = {};
         if (consequenceTypes) {
             const consequenceTypeToColor = {};
             const consequenceTypeToImpact = {};
-            for (let category of consequenceTypes.categories) {
+            for (const category of consequenceTypes.categories) {
                 if (category.terms) {
-                    for (let term of category.terms) {
+                    for (const term of category.terms) {
                         consequenceTypeToColor[term.name] = consequenceTypes.style[term.impact];
                         consequenceTypeToImpact[term.name] = term.impact;
                     }
@@ -67,7 +66,7 @@ export default class VariantGridFormatter {
         let alt = row.alternate ? row.alternate : "-";
 
         // Check size
-        let maxAlleleLength = config?.alleleStringLengthMax ? config.alleleStringLengthMax : 10;
+        const maxAlleleLength = config?.alleleStringLengthMax ? config.alleleStringLengthMax : 10;
         ref = (ref.length > maxAlleleLength) ? ref.substring(0, 4) + "..." + ref.substring(ref.length - 4) : ref;
         alt = (alt.length > maxAlleleLength) ? alt.substring(0, 4) + "..." + alt.substring(alt.length - 4) : alt;
 
@@ -79,17 +78,17 @@ export default class VariantGridFormatter {
         const tooltipText = `
             <div class="dropdown-header" style="padding-left: 5px">External Links</div>
             <div style="padding: 5px">
-                <a target="_blank" href="${BioinfoUtils.getVariantLink(row.id, variantRegion, 'ensembl_genome_browser')}">
+                <a target="_blank" href="${BioinfoUtils.getVariantLink(row.id, variantRegion, "ensembl_genome_browser")}">
                     Ensembl Genome Browser
                 </a>
             </div>
             <div style="padding: 5px">
-                <a target="_blank" href="${BioinfoUtils.getVariantLink(row.id, variantRegion, 'ucsc_genome_browser')}">
+                <a target="_blank" href="${BioinfoUtils.getVariantLink(row.id, variantRegion, "ucsc_genome_browser")}">
                     UCSC Genome Browser
                 </a>
             </div>`;
 
-        let snpHtml = VariantGridFormatter.snpFormatter(value, row, index, assembly);
+        const snpHtml = VariantGridFormatter.snpFormatter(value, row, index, assembly);
 
         return `
             <div style="margin: 5px 0px">
@@ -142,9 +141,9 @@ export default class VariantGridFormatter {
 
     static geneFormatter(variant, index, query, opencgaSession) {
         // Keep a map of genes and the SO accessions and names
-        let geneHasQueryCt = new Set();
+        const geneHasQueryCt = new Set();
         if (query?.ct) {
-            let queryCtArray = query.ct.split(",");
+            const queryCtArray = query.ct.split(",");
             for (const ct of variant.annotation.consequenceTypes) {
                 for (const so of ct.sequenceOntologyTerms) {
                     if (queryCtArray.includes(so.name)) {
@@ -166,7 +165,9 @@ export default class VariantGridFormatter {
                 if (geneName && !visited[geneName]) {
                     let geneViewMenuLink = "";
                     if (opencgaSession.project && opencgaSession.study) {
-                        geneViewMenuLink = `<div style='padding: 5px'><a style='cursor: pointer' href='#gene/${opencgaSession.project.id}/${opencgaSession.study.id}/${geneName}' data-cy='gene-view'>Gene View</a></div>`;
+                        geneViewMenuLink = `<div style='padding: 5px'>
+                                                <a style='cursor: pointer' href='#gene/${opencgaSession.project.id}/${opencgaSession.study.id}/${geneName}' data-cy='gene-view'>Gene View</a>
+                                            </div>`;
                     }
 
                     const tooltipText = `
@@ -174,10 +175,10 @@ export default class VariantGridFormatter {
                         
                         <div class='dropdown-header' style='padding-left: 5px;padding-top: 5px'>External Links</div>
                         <div style='padding: 5px'>
-                             <a target='_blank' href='${BioinfoUtils.getEnsemblLink(geneName, 'gene', opencgaSession.project.organism.assembly)}'>Ensembl</a>
+                             <a target='_blank' href='${BioinfoUtils.getEnsemblLink(geneName, "gene", opencgaSession.project.organism.assembly)}'>Ensembl</a>
                         </div>
                         <div style='padding: 5px'>
-                             <a target='_blank' href='${BioinfoUtils.getGeneLink(geneName, 'lrg')}'>LRG</a>
+                             <a target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "lrg")}'>LRG</a>
                         </div>
                         <div style='padding: 5px'>
                              <a target='_blank' href='${BioinfoUtils.getUniprotLink(geneName)}'>UniProt</a>
@@ -255,11 +256,11 @@ export default class VariantGridFormatter {
             let type = row.type;
             let color = "";
             switch (row.type) {
-                case "SNP":     // Deprecated
+                case "SNP": // Deprecated
                     type = "SNV";
                     break;
                 case "INDEL":
-                case "CNV":     // Deprecated
+                case "CNV": // Deprecated
                 case "COPY_NUMBER":
                 case "COPY_NUMBER_GAIN":
                 case "COPY_NUMBER_LOSS":
@@ -286,124 +287,37 @@ export default class VariantGridFormatter {
 
     static consequenceTypeFormatter(value, row, index, gridCtSettings, consequenceTypeColors) {
         if (row?.annotation && row.annotation.consequenceTypes?.length > 0) {
-            // Apply transcript filters
-            const selectedTranscripts = new Set();
-            let selectedConsequenceTypes = [];
-            let notSelectedConsequenceTypes = [];
-            if (gridCtSettings?.canonicalTranscript || gridCtSettings?.highQualityTranscripts
-                    || gridCtSettings?.proteinCodingTranscripts || gridCtSettings.worstConsequenceTypes) {
-
-                let canonicalFound = false;
-                const impactToTranscripts = {
-                    high: [],
-                    moderate: [],
-                    low: [],
-                    modifier: []
-                };
-
-                for (const ct of row.annotation.consequenceTypes) {
-                    let consequenceTypeSelected = false;
-                    // TODO Remove canonicalFound boolean once 'canonical' is added to flags
-                    if (gridCtSettings.canonicalTranscript && !canonicalFound) {
-                        if (ct.biotype === "protein_coding" && ct.transcriptAnnotationFlags?.includes("basic")) {
-                            canonicalFound = true;
-                            consequenceTypeSelected = true;
-                        }
-                    }
-
-                    if (gridCtSettings.highQualityTranscripts) {
-                        if (ct.transcriptAnnotationFlags?.includes("basic") || ct.transcriptAnnotationFlags?.includes("TSL:1")) {
-                            consequenceTypeSelected = true;
-                        }
-                    }
-
-                    if (gridCtSettings.proteinCodingTranscripts && ct.biotype === "protein_coding") {
-                        consequenceTypeSelected = true;
-                    }
-
-                    if (gridCtSettings.worstConsequenceTypes) {
-                        for (let so of ct.sequenceOntologyTerms) {
-                            const impact = consequenceTypeColors.consequenceTypeToImpact[so.name];
-                            if (impactToTranscripts[impact]) {
-                                impactToTranscripts[impact].push(ct);
-                            }
-                        }
-                    }
-
-                    if (consequenceTypeSelected) {
-                        selectedConsequenceTypes.push(ct);
-                        selectedTranscripts.add(ct.ensemblTranscriptId);
-                    } else {
-                        notSelectedConsequenceTypes.push(ct);
-                    }
-                }
-
-                // Add transcripts with worst consequence types: high and moderate.
-                // If any high and moderate is added then we stop
-                for (let impact of ["high", "moderate", "low", "modifier"]) {  // , "low", "modifier"
-                    if (impactToTranscripts[impact].length > 0) {
-                        for (let ct of impactToTranscripts[impact]) {
-                            // Add ct with worst consequence type if they have not been added yet
-                            if (!selectedTranscripts.has(ct.ensemblTranscriptId) && ct.ensemblTranscriptId) {
-                                selectedConsequenceTypes.push(ct);
-                                selectedTranscripts.add(ct.ensemblTranscriptId);
-                            }
-                        }
-                    }
-                    // If we have printed any hugh or moderate then we stop
-                    if (impact === "moderate" && (impactToTranscripts["high"].length > 0 || impactToTranscripts["moderate"].length > 0)) {
-                        break;
-                    }
-                }
-            } else {
-                // If not transcript is filtered or selected we get use consequence types
-                selectedConsequenceTypes = row.annotation.consequenceTypes;
-            }
+            const {selectedConsequenceTypes, notSelectedConsequenceTypes, indexes} =
+                VariantGridFormatter._consequenceTypeDetailFormatterFilter(row.annotation.consequenceTypes, gridCtSettings);
 
             const positiveConsequenceTypes = [];
             const negativeConsequenceTypes = [];
             const soVisited = new Set();
-            for (let ct of selectedConsequenceTypes) {
-                for (let so of ct.sequenceOntologyTerms) {
-                    let soName = so.name;
-
-                    // FIXME This is a temporal fix for some wrong CTs. This must be removed ASAP.
-                    if (soName === "2KB_downstream_gene_variant") {
-                        soName = "2KB_downstream_variant";
-                    }
-                    if (soName === "2KB_upstream_gene_variant") {
-                        soName = "2KB_upstream_variant";
-                    }
-
-                    if (!soVisited.has(soName)) {
-                        if (consequenceTypeColors.consequenceTypeToColor && consequenceTypeColors.consequenceTypeToColor[soName]) {
-                            positiveConsequenceTypes.push(`<span style="color: ${consequenceTypeColors.consequenceTypeToColor[soName]}">${soName}</span>`);
-                        } else {
-                            positiveConsequenceTypes.push(`<span>${soName}</span>`);
-                        }
-                        soVisited.add(soName);
+            for (const ct of selectedConsequenceTypes) {
+                for (const so of ct.sequenceOntologyTerms) {
+                    if (!soVisited.has(so?.name)) {
+                        positiveConsequenceTypes.push(`<span style="color: ${consequenceTypes.style[consequenceTypes.impact[so.name]] || "black"}">${so.name}</span>`);
+                        soVisited.add(so.name);
                     }
                 }
             }
 
             // Print negative SO, if not printed as positive
             let negativeConsequenceTypesText = "";
-            if (gridCtSettings.showNegativeConsequenceTypes) {
-                for (let ct of notSelectedConsequenceTypes) {
-                    for (let so of ct.sequenceOntologyTerms) {
-                        let soName = so.name;
-                        if (!soVisited.has(soName)) {
-                            // negativeConsequenceTypes.push(`<span style="color: darkgray;font-style: italic">${soName}</span>`);
-                            negativeConsequenceTypes.push(`<div style="color: ${consequenceTypeColors.consequenceTypeToColor[soName]}; margin: 5px">${soName}</div>`);
-                            soVisited.add(soName);
+            if (gridCtSettings.consequenceType.showNegativeConsequenceTypes) {
+                for (const ct of notSelectedConsequenceTypes) {
+                    for (const so of ct.sequenceOntologyTerms) {
+                        if (!soVisited.has(so.name)) {
+                            negativeConsequenceTypes.push(`<div style="color: ${consequenceTypes.style[consequenceTypes.impact[so.name]] || "black"}; margin: 5px">${so.name}</div>`);
+                            soVisited.add(so.name);
                         }
                     }
                 }
+
                 if (negativeConsequenceTypes.length > 0) {
-                    negativeConsequenceTypesText = `
-                        <a tooltip-title="Terms Filtered" tooltip-text='${negativeConsequenceTypes.join("")}'>
-                            <span style="color: darkgray;font-style: italic">${negativeConsequenceTypes.length} terms filtered</span>
-                        </a>`;
+                    negativeConsequenceTypesText = `<a tooltip-title="Terms Filtered" tooltip-text='${negativeConsequenceTypes.join("")}'>
+                                                        <span style="color: darkgray;font-style: italic">${negativeConsequenceTypes.length} terms filtered</span>
+                                                    </a>`;
                 }
             }
 
@@ -416,50 +330,6 @@ export default class VariantGridFormatter {
                 </div>`;
         }
         return "-";
-    }
-
-    static _consequenceTypeDetailFormatterFilter(cts, query, filter) {
-        const showArrayIndexes = [];
-        for (let i = 0; i < cts.length; i++) {
-            const ct = cts[i];
-            let result = true;
-            if (filter) {
-                if (filter.consequenceType.gencodeBasic) {
-                    result = result && ct.transcriptAnnotationFlags && ct.transcriptAnnotationFlags.includes("basic");
-                }
-                // if (result && filter.consequenceType.filterByBiotype) {
-                //     if (query && query.biotype) {
-                //         result = result && query.biotype.split(",").includes(ct.biotype);
-                //     }
-                // }
-                // if (result && filter.consequenceType.filterByConsequenceType) {
-                //     if (query && query.ct) {
-                //         let cts = query.ct.split(",");
-                //         let isSoPresent = false;
-                //         for (let term of ct.sequenceOntologyTerms) {
-                //             isSoPresent = isSoPresent || cts.includes(term.name);
-                //         }
-                //         result = result && isSoPresent;
-                //     }
-                // }
-            }
-            if (result) {
-                showArrayIndexes.push(i);
-            }
-        }
-        return showArrayIndexes;
-    }
-
-    static toggleDetailConsequenceType(e) {
-        const id = e.target.dataset.id;
-        const elements = document.getElementsByClassName(this._prefix + id + "Filtered");
-        for (const element of elements) {
-            if (element.style.display === "none") {
-                element.style.display = "";
-            } else {
-                element.style.display = "none";
-            }
-        }
     }
 
     /* Usage:
@@ -484,14 +354,14 @@ export default class VariantGridFormatter {
         }
 
         let tr = "";
-        let nestedColumnIndex = columns.findIndex(col => col.columns?.length > 0);
+        const nestedColumnIndex = columns.findIndex(col => col.columns?.length > 0);
         if (nestedColumnIndex > -1) {
             let thTop = "";
             let thBottom = "";
-            for (let column of columns) {
+            for (const column of columns) {
                 if (column.columns?.length > 0) {
                     thTop += `<th rowspan="1" colspan="${column.columns.length}" class="${column.classes ?? ""}" style="text-align: center; ${column.style ?? ""}">${column.title}</th>`;
-                    for (let bottomColumn of column.columns) {
+                    for (const bottomColumn of column.columns) {
                         thBottom += `<th rowspan="1">${bottomColumn.title}</th>`;
                     }
                 } else {
@@ -501,7 +371,7 @@ export default class VariantGridFormatter {
             tr += `<tr>${thTop}</tr>`;
             tr += `<tr>${thBottom}</tr>`;
         } else {
-            let th = columns.map(column => `<th>${column.title}</th>`).join("");
+            const th = columns.map(column => `<th>${column.title}</th>`).join("");
             tr = `<tr>${th}</tr>`;
         }
 
@@ -511,49 +381,102 @@ export default class VariantGridFormatter {
                         </thead>
                         <tbody>`;
         // Render rows
-        for (let row of rows) {
+        for (const row of rows) {
             let td = "";
-            for (let value of row.values) {
+            for (const value of row.values) {
                 td += `<td>${value}</td>`;
             }
             html += `<tr class="${row.classes ?? ""}" style="${row.style ?? ""}">${td}</tr>`;
         }
-        html += `</tbody></table>`;
+        html += "</tbody></table>";
 
         return html;
+    }
+
+    static _consequenceTypeDetailFormatterFilter(cts, filter) {
+        const selectedConsequenceTypes = [];
+        const notSelectedConsequenceTypes = [];
+        const showArrayIndexes = [];
+        for (let i = 0; i < cts.length; i++) {
+            const ct = cts[i];
+            // TODO Remove in IVA 2.2
+            // To keep compatability with CellBase 4
+            const transcriptFlags = ct.transcriptFlags ?? ct.transcriptAnnotationFlags;
+            let result = false;
+            if (filter) {
+                if (filter.consequenceType.maneTranscript && transcriptFlags?.includes("MANE")) {
+                    result = result || ct.transcriptAnnotationFlags?.includes("MANE");
+                }
+                if (filter.consequenceType.ensemblCanonicalTranscript) {
+                    result = result || transcriptFlags?.includes("canonical");
+                }
+                if (filter.consequenceType.refseqTranscript) {
+                    result = result || ct?.source?.toUpperCase() === "REFSEQ";
+                }
+                if (filter.consequenceType.gencodeBasicTranscript) {
+                    result = result || transcriptFlags?.includes("basic");
+                }
+                if (filter.consequenceType.ensemblTslTranscript) {
+                    result = result || transcriptFlags?.includes("TSL:1");
+                }
+                if (filter.consequenceType.ccdsTranscript) {
+                    result = result || transcriptFlags?.includes("CCDS");
+                }
+                if (filter.consequenceType.proteinCodingTranscript && ct.biotype === "protein_coding") {
+                    result = result || ct.biotype === "protein_coding";
+                }
+                if (filter.consequenceType.highImpactConsequenceTypeTranscript) {
+                    for (const so of ct.sequenceOntologyTerms) {
+                        const impact = consequenceTypes?.impact[so.name]?.toUpperCase();
+                        result = result || impact === "HIGH" || impact === "MODERATE";
+                    }
+                }
+            }
+            if (result) {
+                showArrayIndexes.push(i);
+                selectedConsequenceTypes.push(ct);
+            } else {
+                notSelectedConsequenceTypes.push(ct);
+            }
+        }
+        return {
+            selectedConsequenceTypes: selectedConsequenceTypes,
+            notSelectedConsequenceTypes: notSelectedConsequenceTypes,
+            indexes: showArrayIndexes
+        };
+    }
+
+    static toggleDetailConsequenceType(e) {
+        const id = e.target.dataset.id;
+        const elements = document.getElementsByClassName(this._prefix + id + "Filtered");
+        for (const element of elements) {
+            if (element.style.display === "none") {
+                element.style.display = "";
+            } else {
+                element.style.display = "none";
+            }
+        }
     }
 
     static consequenceTypeDetailFormatter(value, row, variantGrid, query, filter, assembly) {
         if (row?.annotation?.consequenceTypes && row.annotation.consequenceTypes.length > 0) {
             // Sort and group CTs by Gene name
-            row.annotation.consequenceTypes.sort(function (a, b) {
-                if (a.geneName === "" && b.geneName !== "") {
-                    return 1;
-                }
-                if (a.geneName !== "" && b.geneName === "") {
-                    return -1;
-                }
-                if (a.geneName < b.geneName) {
-                    return -1;
-                }
-                if (a.geneName > b.geneName) {
-                    return 1;
-                }
-                return 0;
-            });
+            BioinfoUtils.sortConsequenceTypes(row.annotation.consequenceTypes);
 
-            const showArrayIndexes = VariantGridFormatter._consequenceTypeDetailFormatterFilter(row.annotation.consequenceTypes, query, filter);
+            const showArrayIndexes = VariantGridFormatter._consequenceTypeDetailFormatterFilter(row.annotation.consequenceTypes, filter).indexes;
             let message = "";
             if (filter) {
                 // Create two different divs to 'show all' or 'apply filter' title
-                message = `<div class="${variantGrid._prefix}${row.id}Filtered">Showing <span style="font-weight: bold; color: red">${showArrayIndexes.length}</span> of 
+                message = `<div class="${variantGrid._prefix}${row.id}Filtered">
+                                Showing <span style="font-weight: bold; color: red">${showArrayIndexes.length}</span> of 
                                 <span style="font-weight: bold; color: red">${row.annotation.consequenceTypes.length}</span> consequence types, 
                                 <a id="${variantGrid._prefix}${row.id}ShowCt" data-id="${row.id}" style="cursor: pointer">show all...</a>
                             </div>
-                            <div class="${variantGrid._prefix}${row.id}Filtered" style="display: none">Showing <span style="font-weight: bold; color: red">${row.annotation.consequenceTypes.length}</span> of 
+                            <div class="${variantGrid._prefix}${row.id}Filtered" style="display: none">
+                                Showing <span style="font-weight: bold; color: red">${row.annotation.consequenceTypes.length}</span> of 
                                 <span style="font-weight: bold; color: red">${row.annotation.consequenceTypes.length}</span> consequence types, 
                                 <a id="${variantGrid._prefix}${row.id}HideCt" data-id="${row.id}" style="cursor: pointer">apply filters...</a>
-                           </div>
+                            </div>
                             `;
             }
 
@@ -567,13 +490,13 @@ export default class VariantGridFormatter {
                                       <th rowspan="2">Transcript</th>
                                       <th rowspan="2">Consequence Type</th>
                                       <th rowspan="2">Transcript Flags</th>
-                                      <th rowspan="1" colspan="3" style="text-align: center; padding-top: 5px">Transcript Variant Annotation</th>
+                                      <th rowspan="1" colspan="3" style="text-align: center; padding-top: 5px; padding-right: 2px">Transcript Variant Annotation</th>
                                       <th rowspan="1" colspan="4" style="text-align: center; padding-top: 5px">Protein Variant Annotation</th>
                                   </tr>
                                   <tr style="margin: 5px">
                                       <th rowspan="1" style="padding-top: 5px">cDNA / CDS</th>
                                       <th rowspan="1">Codon</th>
-                                      <th rowspan="1">Exon (%)</th>
+                                      <th rowspan="1" style="padding-right: 20px">Exon (%)</th>
                                       <th rowspan="1">UniProt Acc</th>
                                       <th rowspan="1">Position</th>
                                       <th rowspan="1">Ref/Alt</th>
@@ -585,43 +508,69 @@ export default class VariantGridFormatter {
             for (let i = 0; i < row.annotation.consequenceTypes.length; i++) {
                 const ct = row.annotation.consequenceTypes[i];
 
+                // Keep backward compatibility with old ensemblGeneId and ensemblTranscriptId
+                const source = ct.source || "ensembl";
+                const geneId = ct.geneId || ct.ensemblGeneId;
+                const transcriptId = ct.transcriptId || ct.ensemblTranscriptId;
+                const geneIdLink = `${BioinfoUtils.getGeneLink(geneId, source, assembly)}`;
+                const ensemblTranscriptIdLink = `${BioinfoUtils.getTranscriptLink(transcriptId, source, assembly)}`;
+
                 // Prepare data info for columns
                 const geneName = ct.geneName ? `<a href="${BioinfoUtils.getGeneNameLink(ct.geneName)}" target="_blank">${ct.geneName}</a>` : "-";
-                const ensemblGeneId = ct.ensemblGeneId ? `<a href="${BioinfoUtils.getEnsemblLink(ct.ensemblGeneId, "gene", assembly)}" target="_blank">${ct.ensemblGeneId}</a>` : "-";
-                let geneHtml = `
+
+                const geneIdLinkHtml = geneId ? `<a href="${geneIdLink}" target="_blank">${geneId}</a>` : "";
+                const geneHtml = `
                     <div>${geneName}</div>
-                    <div style="margin: 5px 0px">${ensemblGeneId}</div>
+                    <div style="margin: 5px 0px">${geneIdLinkHtml}</div>
                 `;
 
-                // const transcriptId = ct.ensemblTranscriptId ? `<a href="${BioinfoUtils.getEnsemblLink(ct.ensemblTranscriptId, "transcript", assembly)}" target="_blank">${ct.ensemblTranscriptId}</a>` : "-";
-                const transcriptId = `
+                const transcriptIdHtml = `
                     <div>
                         <span>${ct.biotype ? ct.biotype : "-"}</span>
                     </div>
                     <div style="margin: 5px 0px">
                         <span>
-                            ${ct.ensemblTranscriptId 
-                                ? `<a href="${BioinfoUtils.getEnsemblLink(ct.ensemblTranscriptId, "transcript", assembly)}" target="_blank">${ct.ensemblTranscriptId}</a>` 
-                                : "-"
+                            ${transcriptId ?
+                                `<div>
+                                    <a href="${ensemblTranscriptIdLink}" target="_blank">${transcriptId}</a>
+                                </div>
+                                <div class="help-block" style="margin: 5px 0px">${row.annotation.hgvs
+                                    .filter(hgvs => hgvs.startsWith(transcriptId))
+                                    .map(hgvs => {
+                                        if (hgvs.includes("(")) {
+                                            const split = hgvs.split(new RegExp("[()]"));
+                                            return split[0] + split[2];
+                                        } else {
+                                            return hgvs;
+                                        }
+                                    })}
+                                </div>` : ""
+                            }
+                            ${ct?.proteinVariantAnnotation?.proteinId ?
+                                `<div class="help-block" style="margin: 5px 0px">
+                                    ${row.annotation.hgvs.find(hgvs => hgvs.startsWith(ct.proteinVariantAnnotation.proteinId))}
+                                </div>` : ""
                             }
                         </span>
                     </div>`;
 
                 const soArray = [];
                 for (const so of ct.sequenceOntologyTerms) {
-                    let color = variantGrid.consequenceTypeColors?.consequenceTypeToColor[so.name] || "black";
+                    const color = consequenceTypes.style[consequenceTypes.impact[so.name]] || "black";
                     soArray.push(`<div style="color: ${color}; margin-bottom: 5px">
                                     <span style="padding-right: 5px">${so.name}</span> 
                                     <a title="Go to Sequence Ontology ${so.accession} term" 
-                                            href="http://www.sequenceontology.org/browser/current_svn/term/${so.accession}" target="_blank">
+                                            href="https://www.sequenceontology.org/browser/current_svn/term/${so.accession}" target="_blank">
                                         <i class="fas fa-external-link-alt"></i>
                                     </a>
                                   </div>`);
                 }
 
-                let transcriptAnnotationFlags = ["-"];
-                if (ct.ensemblTranscriptId && ct.transcriptAnnotationFlags && ct.transcriptAnnotationFlags.length > 0) {
-                    transcriptAnnotationFlags = ct.transcriptAnnotationFlags.map(flag => `<div style="margin-bottom: 5px">${flag}</div>`);
+                let transcriptFlags = ["-"];
+                if (transcriptId && (ct.transcriptFlags?.length > 0 || ct.transcriptAnnotationFlags?.length > 0)) {
+                    transcriptFlags = ct.transcriptFlags ?
+                        ct.transcriptFlags.map(flag => `<div style="margin-bottom: 5px">${flag}</div>`) :
+                        ct.transcriptAnnotationFlags.map(flag => `<div style="margin-bottom: 5px">${flag}</div>`);
                 }
 
                 let exons = ["-"];
@@ -633,9 +582,9 @@ export default class VariantGridFormatter {
                         ${exon?.percentage ? `
                             <div>
                                 <span class="help-block" style="margin: 2px 0px">${exon?.percentage.toFixed(2) ?? "-"}%</span>
-                            </div>`
-                        : ""}
-                    `)
+                            </div>` :
+                        ""}
+                    `);
                 }
 
                 const pva = ct.proteinVariantAnnotation ? ct.proteinVariantAnnotation : {};
@@ -648,16 +597,16 @@ export default class VariantGridFormatter {
                         ${pva.uniprotVariantId ? `
                             <div>
                                 <span class="help-block" style="margin: 0px">${pva.uniprotVariantId}</span>
-                            </div>` 
-                        : ""}
+                            </div>` :
+                        ""}
                     `;
                 }
 
-                let domains = `<a class="ct-protein-domain-tooltip" tooltip-title='Info' tooltip-text='No protein domains found' tooltip-position-at="left bottom" tooltip-position-my="right top"><i class='fa fa-times' style='color: gray'></i></a>`;
+                let domains = "<a class=\"ct-protein-domain-tooltip\" tooltip-title='Info' tooltip-text='No protein domains found' tooltip-position-at=\"left bottom\" tooltip-position-my=\"right top\"><i class='fa fa-times' style='color: gray'></i></a>";
                 if (pva.features) {
                     let tooltipText = "";
-                    let visited = new Set();
-                    for (let feature of pva.features) {
+                    const visited = new Set();
+                    for (const feature of pva.features) {
                         if (feature.id && !visited.has(feature.id)) {
                             visited.add(feature.id);
                             tooltipText += `
@@ -677,9 +626,9 @@ export default class VariantGridFormatter {
                 const displayStyle = showArrayIndexes.includes(i) ? "" : "display: none";
                 ctHtml += `<tr class="detail-view-row ${hideClass}" style="${displayStyle}">
                                 <td>${geneHtml}</td>
-                                <td>${transcriptId}</td>
+                                <td>${transcriptIdHtml}</td>
                                 <td>${soArray.join("")}</td>
-                                <td>${transcriptAnnotationFlags.join("")}</td>
+                                <td>${transcriptFlags.join("")}</td>
                                 
                                 <td>${ct.cdnaPosition || "-"} / ${ct.cdsPosition || "-"}</td>
                                 <td>${ct.codon || "-"}</td>
@@ -697,47 +646,6 @@ export default class VariantGridFormatter {
         return "-";
     }
 
-    // static cohortStatsInfoTooltipContent(populationFrequencies) {
-    //     return `One coloured square is shown for each cohort. Frequencies are coded with colours which classify values 
-    //             into 'very rare', 'rare', 'average', 'common' or 'missing', see 
-    //             <a href='http://www.dialogues-cns.com/wp-content/uploads/2015/03/DialoguesClinNeurosci-17-69-g001.jpg' target='_blank'>
-    //                 http://www.dialogues-cns.com/wp-content/uploads/2015/03/DialoguesClinNeurosci-17-69-g001.jpg
-    //             </a>. Please, leave the cursor over each square to visualize the actual frequency values.
-    //             <span style='font-weight: bold'>Note that that all frequencies are percentages.</span>
-    //             <div style='padding: 10px 0px 0px 0px'><label>Legend: </label></div>
-    //             <div><span><i class='fa fa-square' style='color: ${populationFrequencies.style.veryRare}' aria-hidden='true'></i> Very rare:  freq < 0.001</span></div>
-    //             <div><span><i class='fa fa-square' style='color: ${populationFrequencies.style.rare}' aria-hidden='true'></i> Rare:  freq < 0.005</span></div>
-    //             <div><span><i class='fa fa-square' style='color: ${populationFrequencies.style.average}' aria-hidden='true'></i> Average:  freq < 0.05</span></div>
-    //             <div><span><i class='fa fa-square' style='color: ${populationFrequencies.style.common}' aria-hidden='true'></i> Common:  freq >= 0.05</span></div>
-    //             <div><span><i class='fa fa-square' style='color: black' aria-hidden='true'></i> Not observed</span></div>`;
-    // }
-
-    // TODO remove this from variant-interpreter-grid
-    // addPopulationFrequenciesInfoTooltip(selector, populationFrequencies) {
-    //     $(selector).qtip({
-    //         content: {
-    //             title: "Population Frequencies",
-    //             text: function (event, api) {
-    //                 return `One coloured square is shown for each population. Frequencies are coded with colours which classify values
-    //                         into 'very rare', 'rare', 'average', 'common' or 'missing', see
-    //                         <a href="https://www.nature.com/scitable/topicpage/multifactorial-inheritance-and-genetic-disease-919" target="_blank">
-    //                             https://www.nature.com/scitable/topicpage/multifactorial-inheritance-and-genetic-disease-919
-    //                         </a>. Please, leave the cursor over each square to display the actual frequency value.
-    //                         <div style="padding: 10px 0px 0px 0px"><label>Legend: </label></div>
-    //                         <div><span><i class="fa fa-square" style="color: ${populationFrequencies.style.veryRare}" aria-hidden="true"></i> Very rare:  freq < 0.001</span></div>
-    //                         <div><span><i class="fa fa-square" style="color: ${populationFrequencies.style.rare}" aria-hidden="true"></i> Rare:  freq < 0.005</span></div>
-    //                         <div><span><i class="fa fa-square" style="color: ${populationFrequencies.style.average}" aria-hidden="true"></i> Average:  freq < 0.05</span></div>
-    //                         <div><span><i class="fa fa-square" style="color: ${populationFrequencies.style.common}" aria-hidden="true"></i> Common:  freq >= 0.05</span></div>
-    //                         <div><span><i class="fa fa-square" style="color: black" aria-hidden="true"></i> Not observed</span></div>`;
-    //             }
-    //         },
-    //         position: {target: "mouse", adjust: {x: 2, y: 2, mouse: false}},
-    //         style: {width: true, classes: "qtip-light qtip-rounded qtip-shadow qtip-custom-class"},
-    //         show: {delay: 200},
-    //         hide: {fixed: true, delay: 300}
-    //     });
-    // }
-
     static populationFrequenciesInfoTooltipContent(populationFrequencies) {
         return `One coloured square is shown for each population. Frequencies are coded with colours which classify values 
                 into 'very rare', 'rare', 'average', 'common' or 'missing', see 
@@ -753,30 +661,31 @@ export default class VariantGridFormatter {
                 <div><span><i class='fa fa-square' style='color: black' aria-hidden='true'></i> Not observed</span></div>`;
     }
 
-    /**
-     * Creates the colored table with one row and as many columns as populations.
-     * @param cohorts
-     * @param populationFrequenciesColor
-     */
+    // Creates the colored table with one row and as many columns as populations.
     static createCohortStatsTable(cohorts, cohortStats, populationFrequenciesColor) {
         // This is used by the tooltip function below to display all population frequencies
-        let popFreqsTooltip;
         const popFreqsArray = [];
         for (const cohort of cohorts) {
             const freq = (cohortStats.get(cohort.id) !== undefined) ? cohortStats.get(cohort.id) : 0;
             popFreqsArray.push(cohort.id + "::" + freq);
         }
-        popFreqsTooltip = popFreqsArray.join(",");
+        const popFreqsTooltip = popFreqsArray.join(",");
 
         // TODO block copied in createPopulationFrequenciesTable
         let tooltip = "";
         for (const popFreq of popFreqsArray) {
             const arr = popFreq.split("::");
             const color = VariantGridFormatter._getPopulationFrequencyColor(arr[1], populationFrequenciesColor);
-            const freq = (arr[1] !== 0 && arr[1] !== "0") ? arr[1] + " %" : "<span style='font-style: italic'>Not Observed</span>";
+            // const freq = (arr[1] !== 0 && arr[1] !== "0") ? arr[1] + " %" : "<span style='font-style: italic'>Not Observed</span>";
+            let freq;
+            if (arr[1] !== 0 && arr[1] !== "0") {
+                freq = `${arr[1]} (${(Number(arr[1]) * 100).toPrecision(4)} %)`;
+            } else {
+                freq = "<span style='font-style: italic'>Not Observed</span>";
+            }
             tooltip += `<div>
                             <span><i class='fa fa-xs fa-square' style='color: ${color}' aria-hidden='true'></i>
-                                <label style='padding-left: 5px'>${arr[0]}:</label>
+                                <label style='padding-left: 5px; width: 40px'>${arr[0]}:</label>
                             </span>
                             <span style='font-weight: bold'>${freq}</span>
                         </div>`;
@@ -797,30 +706,31 @@ export default class VariantGridFormatter {
         return htmlPopFreqTable;
     }
 
-    /**
-     * Creates the colored table with one row and as many columns as populations.
-     * @param populations
-     * @param populationFrequenciesMap
-     * @param populationFrequenciesColor
-     */
+    // Creates the colored table with one row and as many columns as populations.
     static createPopulationFrequenciesTable(populations, populationFrequenciesMap, populationFrequenciesColor) {
         // This is used by the tooltip function below to display all population frequencies
-        let popFreqsTooltip;
         const popFreqsArray = [];
         for (const population of populations) {
             const freq = (populationFrequenciesMap.get(population) !== undefined) ? populationFrequenciesMap.get(population) : 0;
             popFreqsArray.push(population + "::" + freq);
         }
-        popFreqsTooltip = popFreqsArray.join(",");
+        const popFreqsTooltip = popFreqsArray.join(",");
 
         let tooltip = "";
         for (const popFreq of popFreqsArray) {
             const arr = popFreq.split("::");
             const color = VariantGridFormatter._getPopulationFrequencyColor(arr[1], populationFrequenciesColor);
-            const freq = (arr[1] !== 0 && arr[1] !== "0") ? arr[1] + " %" : "<span style='font-style: italic'>Not Observed</span>";
+            // const freq = (arr[1] !== 0 && arr[1] !== "0") ? arr[1] + " %" : "<span style='font-style: italic'>Not Observed</span>";
+            let freq;
+            if (arr[1] !== 0 && arr[1] !== "0") {
+                freq = `${arr[1]} (${(Number(arr[1]) * 100).toPrecision(4)} %)`;
+            } else {
+                freq = "<span style='font-style: italic'>Not Observed</span>";
+            }
             tooltip += `<div>
-                            <span><i class='fa fa-xs fa-square' style='color: ${color}' aria-hidden='true'></i>
-                                <label style='padding-left: 5px'>${arr[0]}:</label>
+                            <span>
+                                <i class='fa fa-xs fa-square' style='color: ${color}' aria-hidden='true'></i>
+                                <label style='padding-left: 5px; width: 40px'>${arr[0]}:</label>
                             </span>
                             <span style='font-weight: bold'>${freq}</span>
                         </div>`;
@@ -828,7 +738,9 @@ export default class VariantGridFormatter {
 
         // Create the table (with the tooltip info)
         const tableSize = populations.length * 15;
-        let htmlPopFreqTable = `<a tooltip-title="Population Frequencies" tooltip-text="${tooltip}"><table style="width:${tableSize}px" class="populationFrequenciesTable" data-pop-freq="${popFreqsTooltip}"><tr>`;
+        let htmlPopFreqTable = `<a tooltip-title="Population Frequencies" tooltip-text="${tooltip}">
+                                <table style="width:${tableSize}px" class="populationFrequenciesTable" data-pop-freq="${popFreqsTooltip}">
+                                    <tr>`;
         for (const population of populations) {
             // This array contains "study:population"
             let color = "black";
@@ -846,11 +758,11 @@ export default class VariantGridFormatter {
         let color;
         if (freq === 0 || freq === "0") {
             color = populationFrequenciesColor.unobserved;
-        } else if (freq < 0.1) {
+        } else if (freq < 0.001) {
             color = populationFrequenciesColor.veryRare;
-        } else if (freq < 0.5) {
+        } else if (freq < 0.005) {
             color = populationFrequenciesColor.rare;
-        } else if (freq < 5) {
+        } else if (freq < 0.05) {
             color = populationFrequenciesColor.average;
         } else {
             color = populationFrequenciesColor.common;
@@ -872,8 +784,8 @@ export default class VariantGridFormatter {
                 let tooltipText = "";
                 const clinicalSignificanceVisited = new Set();
                 for (const trait of traits) {
-                    let clinicalSignificance;
-                    let drugResponseClassification;
+                    let clinicalSignificance,
+                        drugResponseClassification;
                     if (trait?.variantClassification?.clinicalSignificance) {
                         clinicalSignificance = trait.variantClassification.clinicalSignificance;
                     } else {
@@ -963,7 +875,7 @@ export default class VariantGridFormatter {
                 if (this.field === "cosmic") {
                     // Prepare the tooltip links
                     let tooltipText = "";
-                    let cosmicMap = new Map();
+                    const cosmicMap = new Map();
                     traits.forEach(trait => {
                         if (trait?.somaticInformation?.primaryHistology) {
                             if (!cosmicMap.has(trait.id)) {
@@ -1001,12 +913,12 @@ export default class VariantGridFormatter {
     }
 
     static clinicalTableDetail(value, row, index) {
-        let clinvar = [];
-        let cosmicIntermdiate = new Map();
-        let cosmic = [];
+        const clinvar = [];
+        const cosmicIntermdiate = new Map();
+        const cosmic = [];
         if (row.annotation.traitAssociation && row.annotation.traitAssociation.length > 0) {
-            for (let trait of row.annotation.traitAssociation) {
-                let values = [];
+            for (const trait of row.annotation.traitAssociation) {
+                const values = [];
                 if (trait.source.name.toUpperCase() === "CLINVAR") {
                     values.push(`<a href="${trait.url ?? BioinfoUtils.getClinvarVariationLink(trait.id)}" target="_blank">${trait.id}</a>`);
                     values.push(trait.variantClassification?.clinicalSignificance);
@@ -1014,9 +926,9 @@ export default class VariantGridFormatter {
                     clinvar.push({
                         values: values
                     });
-                } else {    // COSMIC section
+                } else { // COSMIC section
                     // Prepare data to group by histologySubtype field
-                    let key = trait.id + ":" + trait.somaticInformation.primaryHistology;
+                    const key = trait.id + ":" + trait.somaticInformation.primaryHistology;
                     if (!cosmicIntermdiate.has(key)) {
                         cosmicIntermdiate.set(key, {
                             id: trait.id,
@@ -1037,14 +949,14 @@ export default class VariantGridFormatter {
             }
 
             // Sort bu key and prepare column data
-            for (let [key, c] of new Map([...cosmicIntermdiate.entries()].sort())) {
-                let values = [];
+            for (const [key, c] of new Map([...cosmicIntermdiate.entries()].sort())) {
+                const values = [];
                 values.push(`<a href="${c.url ?? BioinfoUtils.getCosmicVariantLink(c.id)}" target="_blank">${c.id}</a>`);
                 values.push(c.primaryHistology);
                 values.push(c.histologySubtypes
                     .map(value => {
                         if (cosmicIntermdiate.get(key).histologySubtypesCounter.get(value) > 1) {
-                            return value + " (x" + cosmicIntermdiate.get(key).histologySubtypesCounter.get(value) + ")"
+                            return value + " (x" + cosmicIntermdiate.get(key).histologySubtypesCounter.get(value) + ")";
                         } else {
                             return value;
                         }
@@ -1057,25 +969,25 @@ export default class VariantGridFormatter {
         }
 
         // Clinvar
-        let clinvarColumns = [
+        const clinvarColumns = [
             {title: "id"},
             {title: "Clinical Significance"},
-            {title: "Traits"},
+            {title: "Traits"}
         ];
-        let clinvarTable = VariantGridFormatter.renderTable("", clinvarColumns, clinvar, {defaultMessage: "No ClinVar data found"});
-        let clinvarTraits = `<div>
+        const clinvarTable = VariantGridFormatter.renderTable("", clinvarColumns, clinvar, {defaultMessage: "No ClinVar data found"});
+        const clinvarTraits = `<div>
                                 <label>ClinVar</label>
                                 <div>${clinvarTable}</div>
                              </div>`;
 
         // Cosmic
-        let cosmicColumns = [
+        const cosmicColumns = [
             {title: "id"},
             {title: "Primary Histology"},
-            {title: "Histology Subtype"},
+            {title: "Histology Subtype"}
         ];
-        let cosmicTable = VariantGridFormatter.renderTable("", cosmicColumns, cosmic, {defaultMessage: "No Cosmic data found"});
-        let cosmicTraits = `<div style="margin-top: 15px">
+        const cosmicTable = VariantGridFormatter.renderTable("", cosmicColumns, cosmic, {defaultMessage: "No Cosmic data found"});
+        const cosmicTraits = `<div style="margin-top: 15px">
                                 <label>Cosmic</label>
                                 <div>${cosmicTable}</div>
                             </div>`;
@@ -1086,17 +998,17 @@ export default class VariantGridFormatter {
     /*
      * Reported Variant formatters
      */
-    // static toggleDetailClinicalEvidence(e) {
-    //     const id = e.target.dataset.id;
-    //     const elements = document.getElementsByClassName(this._prefix + id + "EvidenceFiltered");
-    //     for (const element of elements) {
-    //         if (element.style.display === "none") {
-    //             element.style.display = "";
-    //         } else {
-    //             element.style.display = "none";
-    //         }
-    //     }
-    // }
+    static toggleDetailClinicalEvidence(e) {
+        const id = e.target.dataset.id;
+        const elements = document.getElementsByClassName(this._prefix + id + "EvidenceFiltered");
+        for (const element of elements) {
+            if (element.style.display === "none") {
+                element.style.display = "";
+            } else {
+                element.style.display = "none";
+            }
+        }
+    }
 
     // TODO Remove since it is DEPRECATED
     // addTooltip(selector, title, content, config) {

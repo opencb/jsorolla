@@ -15,7 +15,6 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../../utilsNew.js";
 import "../../commons/view/data-form.js";
 
 
@@ -23,8 +22,6 @@ export default class VariantInterpreterGridConfig extends LitElement {
 
     constructor() {
         super();
-
-        this._init();
     }
 
     createRenderRoot() {
@@ -39,44 +36,32 @@ export default class VariantInterpreterGridConfig extends LitElement {
         };
     }
 
-    _init() {
-        this._prefix = UtilsNew.randomString(8);
-    }
-
     connectedCallback() {
         super.connectedCallback();
     }
 
-    firstUpdated(_changedProperties) {
-
-    }
-
-    updated(changedProperties) {
-        if (changedProperties.has("config")) {
-            // this._config = {...this.config};
-            // this.requestUpdate();
-        }
+    update(changedProperties) {
+        super.update(changedProperties);
     }
 
     onFieldChange(e) {
-        // console.log(e)
-        // debugger
-
         switch (e.detail.param) {
-            case "consequenceType.canonicalTranscript":
-            case "consequenceType.highQualityTranscripts":
-            case "consequenceType.proteinCodingTranscripts":
-            case "consequenceType.worstConsequenceTypes":
+            case "consequenceType.maneTranscript":
+            case "consequenceType.ensemblCanonicalTranscript":
+            case "consequenceType.refseqTranscript":
+            case "consequenceType.gencodeBasicTranscript":
+            case "consequenceType.ccdsTranscript":
+            case "consequenceType.ensemblTslTranscript":
+            case "consequenceType.proteinCodingTranscript":
+            case "consequenceType.highImpactConsequenceTypeTranscript":
             case "consequenceType.showNegativeConsequenceTypes":
-                let field = e.detail.param.split(".")[1];
+                const field = e.detail.param.split(".")[1];
                 this.config.consequenceType[field] = e.detail.value;
                 break;
             case "genotype.type":
                 this.config.genotype.type = e.detail.value;
                 break;
         }
-        // this.config = {...this.config};
-        // this.requestUpdate();
 
         this.dispatchEvent(new CustomEvent("configChange", {
             detail: {
@@ -99,76 +84,85 @@ export default class VariantInterpreterGridConfig extends LitElement {
                 infoIcon: "",
                 labelAlign: "left",
                 labelWidth: "4",
-                defaultLayout: "vertical",
+                defaultLayout: "vertical"
             },
             sections: [
                 {
                     id: "ct",
-                    title: "Consequence Type",
-                    text: "You can filter which transcripts and consequence types are displayed in the variant grid",
+                    title: "Transcript Filter",
+                    text: "Select which transcripts and consequence types are displayed in the variant grid",
                     display: {
-                        titleStyle: "margin: 0px 5px",
+                        titleHeader: "h4",
+                        titleStyle: "margin: 5px 5px",
                         textClass: "help-block",
                         textStyle: "margin: 0px 10px"
                     },
                     elements: [
                         {
-                            name: "Select Transcripts",
-                            type: "title",
-                            display: {
-                                labelStyle: "margin: 0px",
-                            }
-                        },
-                        {
-                            field: "consequenceType.canonicalTranscript",
+                            field: "consequenceType.maneTranscript",
                             type: "checkbox",
-                            text: "Add canonical transcript",
+                            text: "Include MANE Select and Plus Clinical transcripts",
                             display: {
                             }
                         },
                         {
-                            field: "consequenceType.highQualityTranscripts",
+                            field: "consequenceType.ensemblCanonicalTranscript",
                             type: "checkbox",
-                            text: "Add high-quality transcripts",
+                            text: "Include Ensembl Canonical transcripts",
                             display: {
                             }
                         },
                         {
-                            field: "consequenceType.proteinCodingTranscripts",
+                            field: "consequenceType.refseqTranscript",
                             type: "checkbox",
-                            text: "Add protein coding transcripts",
+                            text: "Include RefSeq transcripts",
                             display: {
                             }
                         },
                         {
-                            field: "consequenceType.worstConsequenceTypes",
+                            field: "consequenceType.gencodeBasicTranscript",
                             type: "checkbox",
-                            text: "Add transcripts with high impact consequence types",
+                            text: "Include GENCODE Basic transcripts",
                             display: {
                             }
                         },
                         {
-                            name: "Consequence Options",
-                            type: "title",
-                            display: {
-                                labelStyle: "margin: 10px 0px 0px 0px",
-                            }
-                        },
-                        {
-                            field: "consequenceType.showNegativeConsequenceTypes",
+                            field: "consequenceType.ccdsTranscript",
                             type: "checkbox",
-                            text: "Show filtered consequence types",
+                            text: "Include CCDS transcripts",
                             display: {
                             }
                         },
+                        {
+                            field: "consequenceType.ensemblTslTranscript",
+                            type: "checkbox",
+                            text: "Include Ensembl TSL:1 transcripts",
+                            display: {
+                            }
+                        },
+                        {
+                            field: "consequenceType.proteinCodingTranscript",
+                            type: "checkbox",
+                            text: "Include protein coding transcripts",
+                            display: {
+                            }
+                        },
+                        {
+                            field: "consequenceType.highImpactConsequenceTypeTranscript",
+                            type: "checkbox",
+                            text: "Include transcripts with high impact consequence types",
+                            display: {
+                            }
+                        }
                     ]
                 },
                 {
-                    id: "ct",
+                    id: "gt",
                     title: "Sample Genotype",
-                    text: "You can filter which transcripts and consequence types are displayed in the variant grid",
+                    text: "Select how genotypes are displayed",
                     display: {
-                        titleStyle: "margin: 20px 5px 0px 5px",
+                        titleHeader: "h4",
+                        titleStyle: "margin: 25px 5px 5px 5px",
                         textClass: "help-block",
                         textStyle: "margin: 0px 10px"
                     },
@@ -181,10 +175,10 @@ export default class VariantInterpreterGridConfig extends LitElement {
                             display: {
                                 width: "6"
                             }
-                        },
+                        }
                     ]
-                },
-            ],
+                }
+            ]
         };
     }
 
