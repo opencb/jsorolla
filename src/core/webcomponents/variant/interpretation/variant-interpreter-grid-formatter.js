@@ -239,28 +239,9 @@ export default class VariantInterpreterGridFormatter {
 
     static reportedEventDetailFormatter(value, row, variantGrid, query, review, config) {
         if (row && row.evidences.length > 0) {
-            // Sort by Tier level
-            row.evidences.sort(function (a, b) {
-                if (a.tier === null || b.tier !== null) {
-                    return 1;
-                }
-                if (a.tier !== null || b.tier === null) {
-                    return -1;
-                }
-                if (a.tier < b.tier) {
-                    return -1;
-                }
-                if (a.tier > b.tier) {
-                    return 1;
-                }
-                return 0;
-            });
-
-            // let selectColumnHtml = "";
-            // if (variantGrid._config.showSelectCheckbox) {
-            //     selectColumnHtml = "<th rowspan=\"2\">Select</th>";
-            // }
-
+            // Sort and group CTs by Gene name
+            BioinfoUtils.sortConsequenceTypes(row.annotation.consequenceTypes);
+            debugger
             const showArrayIndexes = VariantGridFormatter._consequenceTypeDetailFormatterFilter(row.annotation.consequenceTypes, config).indexes;
             let message = "";
             if (config) {
@@ -287,7 +268,7 @@ export default class VariantInterpreterGridFormatter {
                                         <th rowspan="2">Gene</th>
                                         <th rowspan="2">Transcript</th>
                                         <th rowspan="2">Consequence Type</th>
-                                        <th rowspan="2">Gencode</th>
+                                        <th rowspan="2">Transcript Flags</th>
                                         <th rowspan="2">Panel</th>
                                         <th rowspan="2">Mode of Inheritance</th>
                                         <th rowspan="2">Actionable</th>
@@ -324,12 +305,8 @@ export default class VariantInterpreterGridFormatter {
             }
 
             // FIXME Maybe this should happen in the server?
-            // let biotypeSet = new Set();
             let consequenceTypeSet = new Set();
             if (UtilsNew.isNotUndefinedOrNull(variantGrid.query)) {
-                // if (UtilsNew.isNotUndefinedOrNull(variantGrid.query.biotype)) {
-                //     biotypeSet = new Set(variantGrid.query.biotype.split(","));
-                // }
                 if (UtilsNew.isNotUndefinedOrNull(variantGrid.query.ct)) {
                     consequenceTypeSet = new Set(variantGrid.query.ct.split(","));
                 }
@@ -354,7 +331,8 @@ export default class VariantInterpreterGridFormatter {
 
                 // Prepare data info for columns
                 let gene = "-";
-                if (re.genomicFeature.id) {
+                debugger
+                if (re.genomicFeature.geneName) {
                     gene = `<div>
                                 <a href="${BioinfoUtils.getGeneNameLink(re.genomicFeature.geneName)}" target="_blank">
                                     ${re.genomicFeature.geneName}
