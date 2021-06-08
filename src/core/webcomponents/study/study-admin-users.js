@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-import { LitElement, html } from "/web_modules/lit-element.js";
+import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
 import GridCommons from "../commons/grid-commons.js";
-import OpencgaCatalogUtils from "../../clients/opencga/opencga-catalog-utils.js"
+import OpencgaCatalogUtils from "../../clients/opencga/opencga-catalog-utils.js";
 import "../commons/filters/text-field-filter.js";
+
 
 export default class StudyAdminUsers extends LitElement {
 
@@ -60,7 +61,7 @@ export default class StudyAdminUsers extends LitElement {
     connectedCallback() {
         super.connectedCallback();
 
-        this._config = { ...this.getDefaultConfig(), ...this.config };
+        this._config = {...this.getDefaultConfig(), ...this.config};
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
     }
 
@@ -73,14 +74,7 @@ export default class StudyAdminUsers extends LitElement {
 
     update(changedProperties) {
         if (changedProperties.has("studyId")) {
-            for (const project of this.opencgaSession.projects) {
-                for (const study of project.studies) {
-                    if (study.id === this.studyId || study.fqn === this.studyId) {
-                        this.study = { ...study };
-                        break;
-                    }
-                }
-            }
+            this.studyIdObserver();
         }
 
         if (changedProperties.has("study") || changedProperties.has("opencgaSession")) {
@@ -88,6 +82,17 @@ export default class StudyAdminUsers extends LitElement {
         }
 
         super.update(changedProperties);
+    }
+
+    studyIdObserver() {
+        for (const project of this.opencgaSession.projects) {
+            for (const study of project.studies) {
+                if (study.id === this.studyId || study.fqn === this.studyId) {
+                    this.study = {...study};
+                    break;
+                }
+            }
+        }
     }
 
     studyObserver() {
@@ -105,7 +110,7 @@ export default class StudyAdminUsers extends LitElement {
                     } else {
                         for (const group of response.responses[0].results) {
                             this.groupsMap.set(group.id, group.userIds.map(u => {
-                                return { id: u, name: u }
+                                return {id: u, name: u};
                             }));
                         }
                     }
@@ -115,7 +120,7 @@ export default class StudyAdminUsers extends LitElement {
 
                     this.renderUserGrid();
                     this.requestUpdate();
-                    console.log(this.groupsMap)
+                    console.log(this.groupsMap);
                 })
                 .catch(response => {
                     console.error("An error occurred fetching clinicalAnalysis: ", response);
@@ -144,14 +149,14 @@ export default class StudyAdminUsers extends LitElement {
             onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
             onPostBody: data => {
                 // We call onLoadSuccess to select first row
-                this.gridCommons.onLoadSuccess({ rows: data, total: data.length }, 1);
+                this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 1);
             }
         });
     }
 
     groupFormatter(value, row) {
         // const isOwner = this.field.owner === this.field.loggedUser;
-        const isOwner = OpencgaCatalogUtils.checkUserAccountView(this.field.owner,this.field.loggedUser)
+        const isOwner = OpencgaCatalogUtils.checkUserAccountView(this.field.owner, this.field.loggedUser);
         const checked = this.field.groupsMap?.get(this.field.groupId).findIndex(e => e.id === row.id) !== -1;
         if (this.field.groupId === "@admins") {
             return `<input type="checkbox" ${checked ? "checked" : ""} ${!isOwner ? "disabled" : ""}>`;
@@ -160,12 +165,32 @@ export default class StudyAdminUsers extends LitElement {
         }
     }
 
-    onCheck(e, value, row, group, context) {
-        console.log("Row selected:", e.currentTarget.checked);
+    async onCheck(e, value, row, group, context) {
+        console.log("Row selected:", e.currentTarget.checked, group, row.id);
+        const isChecked = e.currentTarget.checked;
+        const messageAlert = isChecked? `Added user to the group ${group} correctly`:`Removed user to the group ${group} correctly `;
+        // row.id == User Id
+        const data = {
+            users: [row.id]
+        };
+
+        const params = {
+            action: isChecked ? "ADD" : "REMOVE"
+        };
+
+        try {
+            const resp = await this.opencgaSession.opencgaClient.studies().updateUsers(this.study.fqn, group, data, params);
+            const results = resp.responses[0].results;
+            this.showMessage("Message", messageAlert, "success");
+            this.notifyStudyUpdateRequest();
+            this.requestUpdate();
+        } catch (err) {
+            console.error("Message error: ", err);
+        }
     }
 
     _getDefaultColumns() {
-        let groupColumns = [];
+        const groupColumns = [];
         if (this.groupsMap) {
             // Remove @members and make sure @admins is the last group
             const groups = [...this.groupsMap.keys()].filter(g => g !== "@members" && g !== "@admins");
@@ -197,7 +222,7 @@ export default class StudyAdminUsers extends LitElement {
                     title: "User Name",
                     field: "name",
                     formatter: (value, row) => {
-                        return value === this.owner ? `<span style="font-weight: bold">${value} (owner)</span>` : value
+                        return value === this.owner ? `<span style="font-weight: bold">${value} (owner)</span>` : value;
                     },
                     rowspan: 2,
                     colspan: 1,
@@ -219,7 +244,7 @@ export default class StudyAdminUsers extends LitElement {
                     title: "Created on",
                     field: "account.creationDate",
                     formatter: (value, row) => {
-                        return value ? UtilsNew.dateFormatter(value) : "NA"
+                        return value ? UtilsNew.dateFormatter(value) : "NA";
                     },
                     rowspan: 2,
                     colspan: 1,
@@ -301,11 +326,11 @@ export default class StudyAdminUsers extends LitElement {
 
     onUserAdd(e) {
         if (this.groupsMap.get("@members").includes(this.addUserId)) {
-            console.log("User already exists in the study")
+            console.log("User already exists in the study");
             return;
         }
 
-        this.opencgaSession.opencgaClient.studies().updateUsers(this.study.fqn, "@members", { users: [this.addUserId] }, { action: "ADD" })
+        this.opencgaSession.opencgaClient.studies().updateUsers(this.study.fqn, "@members", {users: [this.addUserId]}, {action: "ADD"})
             .then(res => {
                 this.addUserId = "";
                 this.requestUpdate();
@@ -337,18 +362,18 @@ export default class StudyAdminUsers extends LitElement {
             if (!this.removeUserSet) {
                 this.removeUserSet = new Set();
             }
-            this.removeUserSet.add(e.currentTarget.value)
+            this.removeUserSet.add(e.currentTarget.value);
         }
         this.requestUpdate();
     }
 
     onUserRemove(e) {
-        let userIds = [];
-        for (let userId of this.removeUserSet.keys()) {
+        const userIds = [];
+        for (const userId of this.removeUserSet.keys()) {
             userIds.push(userId);
         }
 
-        this.opencgaSession.opencgaClient.studies().updateUsers(this.study.fqn, "@members", { users: userIds }, { action: "REMOVE" })
+        this.opencgaSession.opencgaClient.studies().updateUsers(this.study.fqn, "@members", {users: userIds}, {action: "REMOVE"})
             .then(res => {
                 this.removeUserSet = new Set();
                 this.requestUpdate();
@@ -383,7 +408,7 @@ export default class StudyAdminUsers extends LitElement {
     }
 
     onGroupAdd(e) {
-        this.opencgaSession.opencgaClient.studies().updateGroups(this.study.fqn, { id: this.addGroupId }, { action: "ADD" })
+        this.opencgaSession.opencgaClient.studies().updateGroups(this.study.fqn, {id: this.addGroupId}, {action: "ADD"})
             .then(res => {
                 this.addGroupId = "";
                 this.requestUpdate();
@@ -415,21 +440,21 @@ export default class StudyAdminUsers extends LitElement {
             if (!this.removeGroupSet) {
                 this.removeGroupSet = new Set();
             }
-            this.removeGroupSet.add(e.currentTarget.value)
+            this.removeGroupSet.add(e.currentTarget.value);
         }
         this.requestUpdate();
     }
 
     async onGroupRemove(e) {
         // The service only accepts string value, not an array.
-        let message = {
+        const message = {
             success: [],
             error: []
-        }
+        };
 
-        for (let groupId of this.removeGroupSet.keys()) {
+        for (const groupId of this.removeGroupSet.keys()) {
             try {
-                const res = await this.opencgaSession.opencgaClient.studies().updateGroups(this.study.fqn, { id: groupId }, { action: "REMOVE" });
+                const res = await this.opencgaSession.opencgaClient.studies().updateGroups(this.study.fqn, {id: groupId}, {action: "REMOVE"});
                 message.success.push(groupId);
             } catch (err) {
                 console.error(err);
@@ -439,11 +464,10 @@ export default class StudyAdminUsers extends LitElement {
         // Clear groups to be deleted
         this.removeGroupSet = new Set();
 
-        const messageAlert = `${!message.error.length ? 
-            `Group deleted correctly: ${message.success.join()}` 
-            : 
-            `Group deleted correctly: ${message.success.join()}, these groups could not deleted: ${message.error.join()}`}`
-        this.showMessage("Message",messageAlert , "info");
+        const messageAlert = `${!message.error.length ?
+            `Group deleted correctly: ${message.success.join()}` :
+            `Group deleted correctly: ${message.success.join()}, these groups could not deleted: ${message.error.join()}`}`;
+        this.showMessage("Message", messageAlert, "info");
 
         this.notifyStudyUpdateRequest();
         this.requestUpdate();
@@ -467,12 +491,12 @@ export default class StudyAdminUsers extends LitElement {
 
     render() {
 
-        if(!OpencgaCatalogUtils.isAdmin(this.opencgaSession.study,this.opencgaSession.user.id)){
+        if (!OpencgaCatalogUtils.isAdmin(this.opencgaSession.study, this.opencgaSession.user.id)) {
             return html`
             <div class="guard-page">
                 <i class="fas fa-lock fa-5x"></i>
                 <h3>No permission to view this page</h3>
-            </div>`
+            </div>`;
         }
 
         return html`
@@ -546,7 +570,7 @@ export default class StudyAdminUsers extends LitElement {
                                 </div>
                                 <div style="margin: 10px 5px">
                                     ${this.groupsMap?.get("@members")
-                                            ?.filter(user => !this.study.fqn.startsWith(user.id + "@"))    // we cannot remove the owner
+                                            ?.filter(user => !this.study.fqn.startsWith(user.id + "@")) // we cannot remove the owner
                                             ?.map(user => html`
                                                 <div>
                                                     <span style="margin: 0px 5px">
@@ -617,7 +641,7 @@ export default class StudyAdminUsers extends LitElement {
                                 </div>
                                 <div style="margin: 10px 5px">
                                     ${[...this.groupsMap?.keys()]
-                                            .filter(group => group !== "@members" && group !== "@admins")    // we cannot remove the @member
+                                            .filter(group => group !== "@members" && group !== "@admins") // we cannot remove the @member
                                             .map(group => html`
                                                 <div>
                                                     <span style="margin: 0px 5px">
@@ -650,6 +674,7 @@ export default class StudyAdminUsers extends LitElement {
             </div>
         `;
     }
+
 }
 
 customElements.define("study-admin-users", StudyAdminUsers);
