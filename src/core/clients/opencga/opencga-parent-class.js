@@ -6,10 +6,23 @@ export default class OpenCGAParentClass {
     constructor(config) {
         this._config = config;
         // this.token = null;
+        this.requests = {};
     }
 
     _get(category1, ids1, category2, ids2, action, params, options) {
         // we store the options from the parameter or from the default values in config
+
+        // first attempt of solving https://github.com/opencb/jsorolla/issues/153
+        /*const k = `${new Error().stack.split("\n    at ")[3]}${category1}${ids1}${category2}${ids2}${action}${params?.study}`;
+        // cannot use `params` in key as we want to cancel queries from the same origin (ajax function) but different params.
+        if (this.requests[k]) {
+            // abort here if possible. Pass AbortController object in RestClient.call?
+            console.error("prev request running");
+        } else {
+            this.requests[k] = true;
+            console.log("first request")
+        }*/
+
         const host = this._config.host;
         const version = this._config.version;
         const rpc = this._config.mode;
