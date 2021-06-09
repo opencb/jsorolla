@@ -149,7 +149,7 @@ export default class OpenCGAParentClass {
     }
 
     _getUserId() {
-        this._config.userId;
+        return this._config.userId;
     }
 
     _getSessionId() {
