@@ -15,6 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
+import "../manager/variable-manager.js";
 
 export default class VariableSetCreate extends LitElement {
 
@@ -131,7 +132,7 @@ export default class VariableSetCreate extends LitElement {
                             type: "input-text",
                             display: {
                                 rows: 3,
-                                placeholder: "VariableSet description..."
+                                placeholder: "variable description..."
                             }
                         },
                         {
@@ -145,29 +146,37 @@ export default class VariableSetCreate extends LitElement {
                         }
                     ]
                 },
-                // {
-                //     elements: [
-                //         {
-                //             field: "variables",
-                //             type: "custom",
-                //             display: {
-                //                 layout: "vertical",
-                //                 defaultLayout: "vertical",
-                //                 width: 12,
-                //                 style: "padding-left: 0px",
-                //                 render: () => html`
-                //                     <phenotype-manager
-                //                         .phenotypes="${this.variableSet?.variables}"
-                //                         .opencgaSession="${this.opencgaSession}"
-                //                         @addItem="${e => this.onAddPhenotype(e)}"
-                //                         @removeItem="${e => this.onRemovePhenotype(e)}">
-                //                     </phenotype-manager>`
-                //             }
-                //         },
-                //     ]
-                // }
+                {
+                    elements: [
+                        {
+                            field: "variables",
+                            type: "custom",
+                            display: {
+                                layout: "vertical",
+                                defaultLayout: "vertical",
+                                width: 12,
+                                style: "padding-left: 0px",
+                                render: () => html`
+                                    <variable-manager
+                                        .variables="${this.variableSet?.variables}"
+                                        .opencgaSession="${this.opencgaSession}"
+                                        @addItem="${e => this.onAddVariable(e)}"
+                                        @removeItem="${e => this.onRemoveVariable(e)}">
+                                    </variable-manager>`
+                            }
+                        },
+                    ]
+                }
             ]
         };
+    }
+
+    onAddVariable(e) {
+        console.log("onAddVariable");
+    }
+
+    onRemoveVariable(e) {
+        console.log("onRemoveVariable");
     }
 
     onClear(e) {
