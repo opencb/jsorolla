@@ -18,8 +18,7 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import {BaseManagerMixin} from "./base-manager.js";
 import "../commons/tool-header.js";
 import "../commons/filters/variableset-id-autocomplete.js";
-import LitUtils from "../commons/utils/lit-utls.js";
-import FormUtils from "../../form-utils.js";
+import LitUtils from "../commons/utils/lit-utils.js";
 
 // eslint-disable-next-line new-cap
 export default class AnnotationManager extends BaseManagerMixin(LitElement) {
@@ -31,9 +30,6 @@ export default class AnnotationManager extends BaseManagerMixin(LitElement) {
 
     static get properties() {
         return {
-            annotations: {
-                type: Object
-            },
             variableSet: {
                 type: Object
             }
@@ -49,16 +45,11 @@ export default class AnnotationManager extends BaseManagerMixin(LitElement) {
         if (changedProperties.has("variableSet")) {
             this.variablesObserver();
         }
-
-        if (changedProperties.has("annotations")) {
-            console.log("Annotations -> ", this.annotations);
-        }
         super.update(changedProperties);
     }
 
     variablesObserver() {
         const variableSorted = this.variableSet?.variables.sort((a, b) => a.rank > b.rank? 1 : -1);
-        console.log("variables: ", variableSorted);
         this.annotationsElements = variableSorted.map(item => {
             return {
                 name: item.id,
@@ -69,10 +60,7 @@ export default class AnnotationManager extends BaseManagerMixin(LitElement) {
                 }
             };
         });
-
-        console.log("Annotations Elements ", this.annotationsElements);
         this._config = {...this.getDefaultConfig(), ...this.config};
-        console.log(this._config);
     }
 
     getDefaultConfig() {
@@ -94,6 +82,7 @@ export default class AnnotationManager extends BaseManagerMixin(LitElement) {
     }
 
     onFieldChangeAnnotation(e) {
+        console.log("onFieldChangeannotation..", this);
         this.annotation = {
             ...this.annotation,
             [e.detail.param]: e.detail.value

@@ -54,4 +54,14 @@ export default class LitUtils {
         self.dispatchEvent(new CustomEvent(id, event));
     }
 
+    // static dispatchSessionUpdateRequest() {
+    //     this.dispatchEvent(
+    //         new CustomEvent("sessionUpdateRequest", {
+    //             detail: {},
+    //             bubbles: true,
+    //             composed: true
+    //         })
+    //     );
+    // }
+
 }

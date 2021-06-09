@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import LitUtils from "../commons/utils/lit-utls.js";
+import LitUtils from "../commons/utils/lit-utils.js";
 import UtilsNew from "../../utilsNew.js";
 import "../commons/view/data-form.js";
 import "../commons/annotation-sets-view.js";

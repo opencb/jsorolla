@@ -1,5 +1,5 @@
 /**
- * Copyright 2015-2019 OpenCB
+ * Copyright 2015-2021 OpenCB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-import { html, LitElement } from "/web_modules/lit-element.js";
+import {html, LitElement} from "/web_modules/lit-element.js";
 import UtilsNew from "./../../utilsNew.js";
 import GridCommons from "../commons/grid-commons.js";
-import OpencgaCatalogUtils from "../../clients/opencga/opencga-catalog-utils.js"
+import OpencgaCatalogUtils from "../../clients/opencga/opencga-catalog-utils.js";
 import "../permission/permission-browser-grid.js";
+import "../variable/variable-set-create.js";
 
 
 export default class StudyAdminVariable extends LitElement {
@@ -34,13 +35,13 @@ export default class StudyAdminVariable extends LitElement {
 
     static get properties() {
         return {
-            opencgaSession: {
-                type: Object
-            },
             studyId: {
                 type: String
             },
             study: {
+                type: Object
+            },
+            opencgaSession: {
                 type: Object
             },
             config: {
@@ -55,13 +56,11 @@ export default class StudyAdminVariable extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
+        this._config = {...this.getDefaultConfig(), ...this.config};
 
-        this._config = { ...this.getDefaultConfig(), ...this.config };
-    
     }
 
     update(changedProperties) {
-
         super.update(changedProperties);
     }
 
@@ -87,16 +86,18 @@ export default class StudyAdminVariable extends LitElement {
                     }
                 },
                 {
-                    id: "create-variabel",
+                    id: "create-variable",
                     name: "Create Variable",
                     icon: "fas fa-clipboard-list",
                     active: false,
-                    render: () => {
+                    render: (study, active, opencgaSession) => {
                         return html`
-                            <div class="guard-page">
-                                <i class="fas fa-pencil-ruler fa-5x"></i>
-                                <h3>Component under construction</h3>
-                                <h3>(Coming Soon)</h3>
+                            <div class="row">
+                                <div class="col-md-6" style="margin: 20px 10px">
+                                    <variable-set-create
+                                            .opencgaSession="${opencgaSession}">
+                                    </variable-set-create>
+                                </div>
                             </div>`;
                     }
                 }
@@ -111,7 +112,7 @@ export default class StudyAdminVariable extends LitElement {
             <div class="guard-page">
                 <i class="fas fa-lock fa-5x"></i>
                 <h3>No permission to view this page</h3>
-            </div>`
+            </div>`;
         }
 
         return html`
@@ -125,6 +126,7 @@ export default class StudyAdminVariable extends LitElement {
             </div>
             `;
     }
+
 }
 
 customElements.define("study-admin-variable", StudyAdminVariable);
