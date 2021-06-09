@@ -428,10 +428,13 @@ export default class UtilsNew {
     static mergeFilters(internal, external) {
         // console.log("internal, external", internal, external)
         if (external) {
+            // flattening the whole list of fields
+            const allFields = internal.sections.flatMap(section => section);
             const sections = external.sections.map(section => {
-                const internalSection = internal.sections.find(s => s.id === section.id);
-                const fields = UtilsNew.mergeConfigArray(internalSection.fields, section.fields);
-                return {...internalSection, fields: fields};
+                //const internalSection = internal.sections.find(s => s.id === section.id);
+                // hydrates all the fields of each external section from the pool of fields.
+                const fields = UtilsNew.mergeConfigArray(allFields, section.fields);
+                return {...external, fields: fields};
             });
             return {...internal, ...external, sections: sections};
         }
