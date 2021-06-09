@@ -16,6 +16,24 @@
 
 export default class BioinfoUtils {
 
+    static sortConsequenceTypes(consequenceTypes) {
+        consequenceTypes.sort((a, b) => {
+            if (a.geneName === "" && b.geneName !== "") {
+                return 1;
+            }
+            if (a.geneName !== "" && b.geneName === "") {
+                return -1;
+            }
+            if (a.geneName < b.geneName) {
+                return -1;
+            }
+            if (a.geneName > b.geneName) {
+                return 1;
+            }
+            return 0;
+        });
+    }
+
     static getGeneNameLink(geneName) {
         return "https://www.genenames.org/tools/search/#!/all?query=" + geneName;
     }

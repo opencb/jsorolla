@@ -47,8 +47,9 @@ export default class VariantInterpreterGridConfig extends LitElement {
     onFieldChange(e) {
         switch (e.detail.param) {
             case "consequenceType.maneTranscript":
-            case "consequenceType.gencodeBasicTranscript":
             case "consequenceType.ensemblCanonicalTranscript":
+            case "consequenceType.refseqTranscript":
+            case "consequenceType.gencodeBasicTranscript":
             case "consequenceType.ccdsTranscript":
             case "consequenceType.ensemblTslTranscript":
             case "consequenceType.proteinCodingTranscript":
@@ -105,16 +106,23 @@ export default class VariantInterpreterGridConfig extends LitElement {
                             }
                         },
                         {
-                            field: "consequenceType.gencodeBasicTranscript",
+                            field: "consequenceType.ensemblCanonicalTranscript",
                             type: "checkbox",
-                            text: "Include GENCODE Basic transcripts",
+                            text: "Include Ensembl Canonical transcripts",
                             display: {
                             }
                         },
                         {
-                            field: "consequenceType.ensemblCanonicalTranscript",
+                            field: "consequenceType.refseqTranscript",
                             type: "checkbox",
-                            text: "Include Ensembl Canonical transcript",
+                            text: "Include RefSeq transcripts",
+                            display: {
+                            }
+                        },
+                        {
+                            field: "consequenceType.gencodeBasicTranscript",
+                            type: "checkbox",
+                            text: "Include GENCODE Basic transcripts",
                             display: {
                             }
                         },

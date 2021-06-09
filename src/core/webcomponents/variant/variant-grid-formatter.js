@@ -407,11 +407,14 @@ export default class VariantGridFormatter {
                 if (filter.consequenceType.maneTranscript && transcriptFlags?.includes("MANE")) {
                     result = result || ct.transcriptAnnotationFlags?.includes("MANE");
                 }
-                if (filter.consequenceType.gencodeBasicTranscript) {
-                    result = result || transcriptFlags?.includes("basic");
-                }
                 if (filter.consequenceType.ensemblCanonicalTranscript) {
                     result = result || transcriptFlags?.includes("canonical");
+                }
+                if (filter.consequenceType.refseqTranscript) {
+                    result = result || ct?.source?.toUpperCase() === "REFSEQ";
+                }
+                if (filter.consequenceType.gencodeBasicTranscript) {
+                    result = result || transcriptFlags?.includes("basic");
                 }
                 if (filter.consequenceType.ensemblTslTranscript) {
                     result = result || transcriptFlags?.includes("TSL:1");
@@ -458,21 +461,7 @@ export default class VariantGridFormatter {
     static consequenceTypeDetailFormatter(value, row, variantGrid, query, filter, assembly) {
         if (row?.annotation?.consequenceTypes && row.annotation.consequenceTypes.length > 0) {
             // Sort and group CTs by Gene name
-            row.annotation.consequenceTypes.sort(function (a, b) {
-                if (a.geneName === "" && b.geneName !== "") {
-                    return 1;
-                }
-                if (a.geneName !== "" && b.geneName === "") {
-                    return -1;
-                }
-                if (a.geneName < b.geneName) {
-                    return -1;
-                }
-                if (a.geneName > b.geneName) {
-                    return 1;
-                }
-                return 0;
-            });
+            BioinfoUtils.sortConsequenceTypes(row.annotation.consequenceTypes);
 
             const showArrayIndexes = VariantGridFormatter._consequenceTypeDetailFormatterFilter(row.annotation.consequenceTypes, filter).indexes;
             let message = "";
