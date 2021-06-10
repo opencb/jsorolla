@@ -16,23 +16,25 @@
 
 export default class BioinfoUtils {
 
-    static sortConsequenceTypes(consequenceTypes) {
+    static sort(consequenceTypes, field) {
         consequenceTypes.sort((a, b) => {
-            if (a.geneName === "" && b.geneName !== "") {
+            if (field(a) === "" && field(b) !== "") {
                 return 1;
             }
-            if (a.geneName !== "" && b.geneName === "") {
+            if (field(a) !== "" && field(b) === "") {
                 return -1;
             }
-            if (a.geneName < b.geneName) {
+            if (field(a) < field(b)) {
                 return -1;
             }
-            if (a.geneName > b.geneName) {
+            if (field(a) > field(b)) {
                 return 1;
             }
             return 0;
         });
     }
+
+
 
     static getGeneNameLink(geneName) {
         return "https://www.genenames.org/tools/search/#!/all?query=" + geneName;
@@ -49,11 +51,11 @@ export default class BioinfoUtils {
                 }
                 break;
             case "TRANSCRIPT":
-                    if (assembly.toUpperCase() === "GRCH38") {
-                        ensemblLink = "https://www.ensembl.org/Homo_sapiens/Transcript/Summary?db=core;t=" + featureId;
-                    } else {
-                        ensemblLink = "http://grch37.ensembl.org/Homo_sapiens/Transcript/Summary?db=core;t=" + featureId;
-                    }
+                if (assembly.toUpperCase() === "GRCH38") {
+                    ensemblLink = "https://www.ensembl.org/Homo_sapiens/Transcript/Summary?db=core;t=" + featureId;
+                } else {
+                    ensemblLink = "http://grch37.ensembl.org/Homo_sapiens/Transcript/Summary?db=core;t=" + featureId;
+                }
                 break;
             default:
                 break;
@@ -100,12 +102,17 @@ export default class BioinfoUtils {
         }
     }
 
-    static getGeneLink(geneId, source, assembly) {
-        if (!geneId || !source) {
+    static getGeneLink(geneId, source, assembly = "GRCh38") {
+        if (!geneId) {
             return null;
         }
 
-        switch (source.toUpperCase()) {
+        let s = source;
+        if (!s) {
+            s = geneId.startsWith("ENSG") ? "ENSEMBL" : "REFSEQ";
+        }
+
+        switch (s.toUpperCase()) {
             case "ENSEMBL":
                 if (assembly.toUpperCase() === "GRCH38") {
                     return `https://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=${geneId}`;
@@ -129,20 +136,43 @@ export default class BioinfoUtils {
         }
     }
 
-    static getTranscriptLink(geneId, source, assembly) {
-        if (!geneId || !source) {
+    static getTranscriptLink(transcriptId, source, assembly = "GRCh38") {
+        if (!transcriptId) {
             return null;
         }
 
-        switch (source.toUpperCase()) {
+        let s = source;
+        if (!s) {
+            s = transcriptId.startsWith("ENST") ? "ENSEMBL" : "REFSEQ";
+        }
+
+        switch (s.toUpperCase()) {
             case "ENSEMBL":
                 if (assembly.toUpperCase() === "GRCH38") {
-                    return `https://www.ensembl.org/Homo_sapiens/Transcript/Summary?db=core;t=${geneId}`;
+                    return `https://www.ensembl.org/Homo_sapiens/Transcript/Summary?db=core;t=${transcriptId}`;
                 } else {
-                    return `https://grch37.ensembl.org/Homo_sapiens/Transcript/Summary?db=core;t=${geneId}`;
+                    return `https://grch37.ensembl.org/Homo_sapiens/Transcript/Summary?db=core;t=${transcriptId}`;
                 }
             case "REFSEQ":
-                return `https://www.ncbi.nlm.nih.gov/gene/?term=${geneId}`;
+                return `https://www.ncbi.nlm.nih.gov/gene/?term=${transcriptId}`;
+        }
+    }
+
+    static getProteinLink(proteinId, source) {
+        if (!proteinId) {
+            return null;
+        }
+
+        let s = source;
+        if (!s) {
+            s = proteinId.startsWith("ENSP") ? "ENSEMBL" : "REFSEQ";
+        }
+
+        switch (s.toUpperCase()) {
+            case "ENSEMBL":
+                return `http://www.ensembl.org/Homo_sapiens/Transcript/Summary?db=core;p=${proteinId}`;
+            case "REFSEQ":
+                return `https://www.ncbi.nlm.nih.gov/gene/?term=${proteinId}`;
         }
     }
 
