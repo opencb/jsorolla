@@ -70,7 +70,7 @@ export class OpenCGAClient {
         try {
             const about = await this.meta().about();
             if (about.getResult(0)) {
-                globalEvent("hostInit", {host: "opencga", value: about.getResult(0)["Version"]});
+                globalEvent("hostInit", {host: "opencga", value: "v" + about.getResult(0)["Version"]});
             } else {
                 globalEvent("signingInError", {value: "Opencga host not available."});
                 globalEvent("hostInit", {host: "opencga", value: "NOT AVAILABLE"});
