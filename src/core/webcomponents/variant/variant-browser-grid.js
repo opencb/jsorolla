@@ -159,7 +159,7 @@ export default class VariantBrowserGrid extends LitElement {
                 formatLoadingMessage: () => "<loading-spinner></loading-spinner>",
                 // this makes the variant-browser-grid properties available in the bootstrap-table detail formatter
                 variantGrid: this,
-                ajax: params => {
+                ajax: async params => {
                     // TODO We must decide i this component support a porperty:  mode = {opencga | cellbase}
                     const tableOptions = $(this.table).bootstrapTable("getOptions");
                     const filters = {
@@ -171,6 +171,12 @@ export default class VariantBrowserGrid extends LitElement {
                         summary: !this.query.sample && !this.query.family,
                         ...this.query
                     };
+                    if (!this.stop) {
+                        this.stop = 1;
+                        console.error("sleeping 7000")
+                        await UtilsNew.sleep(7000)
+                    }
+
                     this.opencgaSession.opencgaClient.variants().query(filters)
                         .then(res => {
                             params.success(res);
@@ -178,7 +184,9 @@ export default class VariantBrowserGrid extends LitElement {
                         .catch(e => {
                             console.error(e);
                             params.error(e);
-                        });
+                        }).finally(() => {
+                            this.requestDone = true;
+                    });
                 },
                 responseHandler: response => {
                     const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));

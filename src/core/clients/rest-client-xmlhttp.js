@@ -2,16 +2,20 @@ import {RestResponse} from "./rest-response.js";
 
 export class RestClientXmlhttp {
 
+    constructor() {
+        this.requests = {};
+    }
+
     static callXmlhttp(url, options) {
-        let method = options.method || "GET";
-        let async = options.async;
+        const method = options.method || "GET";
+        const async = options.async;
 
         let dataResponse = null;
         console.time("AJAX call to CellBase");
-        let request = new XMLHttpRequest();
-        request.onload = function(event) {
+        const request = new XMLHttpRequest();
+        request.onload = function (event) {
             console.log(`CellBaseClient: call to URL succeed: '${url}'`);
-            let contentType = this.getResponseHeader("Content-Type");
+            const contentType = this.getResponseHeader("Content-Type");
             if (contentType === "application/json") {
                 dataResponse = JSON.parse(this.response);
 
@@ -31,7 +35,7 @@ export class RestClientXmlhttp {
             }
         };
 
-        request.onerror = function(event) {
+        request.onerror = function (event) {
             // console.log(event)
             console.error(`CellBaseClient: an error occurred when calling to '${url}'`);
             if (typeof options.error === "function") {
@@ -39,7 +43,7 @@ export class RestClientXmlhttp {
             }
         };
 
-        request.ontimeout = function(event) {
+        request.ontimeout = function (event) {
             console.error(`CellBaseClient: a timeout occurred when calling to '${url}'`);
             if (typeof options.error === "function") {
                 options.error(this);
@@ -55,7 +59,7 @@ export class RestClientXmlhttp {
         return dataResponse;
     }
 
-    static call(url, options) {
+    call(url, options, key) {
         const eventFire = new CustomEvent("request", {
             detail: {
                 value: url
@@ -78,13 +82,23 @@ export class RestClientXmlhttp {
         let dataResponse = null;
         console.time(`REST call to ${url}`);
 
-        // Creating the promise
-        return new Promise(function(resolve, reject) {
-            let request = new XMLHttpRequest();
+        console.error("key", key);
+        if (this.requests[key]) {
+            // abort here if possible. Pass AbortController object in RestClient.call?
+            console.error("prev request running");
+            this.requests[key] = false;
 
-            request.onload = function(event) {
+        } else {
+            this.requests[key] = true;
+            console.log("first request")
+        }
+
+        // Creating the promise
+        return new Promise((resolve, reject) => {
+            const request = new XMLHttpRequest();
+            request.onload = function (event) {
                 if (request.status === 200) {
-                    let contentType = this.getResponseHeader("Content-Type") ?? ""; // empty string is useful in case contentType is undefined (empty response)
+                    const contentType = this.getResponseHeader("Content-Type") ?? ""; // empty string is useful in case contentType is undefined (empty response)
                     // indexOf() is used because sometimes the contentType is 'application/json;charset=utf-8'
                     if (contentType.indexOf("application/json")!== -1) {
                         dataResponse = JSON.parse(this.response);
@@ -94,13 +108,14 @@ export class RestClientXmlhttp {
                         }
 
                         // If the call is OK then we execute the success function from the user
-                        if (typeof options !== "undefined" && typeof options.success === "function"
-                                && typeof options.cacheFn === "undefined") {
+                        if (typeof options !== "undefined" && typeof options.success === "function" &&
+                                typeof options.cacheFn === "undefined") {
                             options.success(dataResponse);
                         }
                         console.timeEnd(`REST call to ${url}`);
                         globalThis.dispatchEvent(eventDone);
-                        resolve( new RestResponse(dataResponse));
+
+                        resolve(new RestResponse(dataResponse));
                     } else if (contentType.startsWith("text/plain")) {
                         globalThis.dispatchEvent(eventDone);
                         resolve(this.response);
@@ -108,7 +123,7 @@ export class RestClientXmlhttp {
                     } else if (contentType.startsWith("application/octet-stream")) {
                         globalThis.dispatchEvent(eventDone);
                         resolve(this.response);
-                    }  else {
+                    } else {
                         console.error(`Response is not JSON: ${this.response}`);
                     }
                 } else {
@@ -123,7 +138,7 @@ export class RestClientXmlhttp {
                 }
             };
 
-            request.onerror = function(event) {
+            request.onerror = function (event) {
                 console.error(`CellBaseClient: an error occurred when calling to '${url}'`);
                 if (typeof options.error === "function") {
                     options.error(this);
@@ -131,14 +146,14 @@ export class RestClientXmlhttp {
                 reject(Error(`CellBaseClient: an error occurred when calling to '${url}'`));
             };
 
-            request.ontimeout = function(event) {
+            request.ontimeout = function (event) {
                 console.error(`CellBaseClient: a timeout occurred when calling to '${url}'`);
                 if (typeof options.error === "function") {
                     options.error(this);
                 }
             };
 
-            //console.log("CALL [method, url, options]", method, url, options)
+            // console.log("CALL [method, url, options]", method, url, options)
             request.open(method, url, async);
             if (typeof options !== "undefined" && options.hasOwnProperty("token")) {
                 request.setRequestHeader("Authorization", `Bearer ${options["token"]}`);
@@ -146,16 +161,16 @@ export class RestClientXmlhttp {
             // request.timeout = options.timeout || 0;
             if (method === "POST" && options !== undefined && options.hasOwnProperty("data")) {
                 if (options.hasOwnProperty("post-method") && options["post-method"] === "form") {
-                    let myForm = new FormData();
-                    let keys = Object.keys(options.data);
+                    const myForm = new FormData();
+                    const keys = Object.keys(options.data);
 
-                    for (let i in keys) {
+                    for (const i in keys) {
                         myForm.append(keys[i], options.data[keys[i]]);
                     }
 
                     request.send(myForm);
                 } else {
-                    //request.setRequestHeader("Access-Control-Allow-Origin", "*");
+                    // request.setRequestHeader("Access-Control-Allow-Origin", "*");
                     // // request.setRequestHeader("Access-Control-Allow-Credentials", "true");
                     // request.setRequestHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
                     request.setRequestHeader("Content-type", "application/json");
@@ -167,6 +182,12 @@ export class RestClientXmlhttp {
                 request.send();
             } else {
                 request.send();
+
+                //console.log("STATE", this.requests[key])
+                if (!this.requests[key]) {
+                    request.abort();
+                    console.error("request aborted")
+                }
             }
         });
     }
