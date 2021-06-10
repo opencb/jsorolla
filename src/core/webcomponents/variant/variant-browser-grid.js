@@ -173,8 +173,8 @@ export default class VariantBrowserGrid extends LitElement {
                     };
                     if (!this.stop) {
                         this.stop = 1;
-                        console.error("sleeping 7000")
-                        await UtilsNew.sleep(7000)
+                        console.error("sleeping 10000")
+                        await UtilsNew.sleep(10000)
                     }
 
                     this.opencgaSession.opencgaClient.variants().query(filters)

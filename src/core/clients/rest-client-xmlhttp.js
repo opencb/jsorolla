@@ -81,21 +81,28 @@ export class RestClientXmlhttp {
 
         let dataResponse = null;
         console.time(`REST call to ${url}`);
-
-        console.error("key", key);
-        if (this.requests[key]) {
-            // abort here if possible. Pass AbortController object in RestClient.call?
-            console.error("prev request running");
-            this.requests[key] = false;
-
-        } else {
-            this.requests[key] = true;
-            console.log("first request")
-        }
-
         // Creating the promise
         return new Promise((resolve, reject) => {
+
             const request = new XMLHttpRequest();
+            if (url.includes("analysis/variant")) {
+
+                console.error("url", url)
+                if (this.requests[key]) {
+                // abort here if possible. Pass AbortController object in RestClient.call?
+                //console.error("prev request running");
+
+                // pending prev request
+                this.requests[key] = {...this.requests[key], pending: true};
+
+                } else {
+                // pending false as there is no prev request
+                this.requests[key] = {pending: false, request, url};
+                //console.log("first request")
+                }
+
+                console.log("FULL LIST", this.requests)
+            }
             request.onload = function (event) {
                 if (request.status === 200) {
                     const contentType = this.getResponseHeader("Content-Type") ?? ""; // empty string is useful in case contentType is undefined (empty response)
@@ -183,10 +190,19 @@ export class RestClientXmlhttp {
             } else {
                 request.send();
 
-                //console.log("STATE", this.requests[key])
-                if (!this.requests[key]) {
-                    request.abort();
-                    console.error("request aborted")
+                if (this.requests?.[key]?.url.includes("analysis/variant")) {
+                    console.log("FULL LIST", this.requests)
+                    console.error("this.requests[key]",this.requests[key])
+
+                    if (this.requests[key].pending === true) {
+
+                        console.error("aborting", this.requests[key].url)
+                        this.requests[key].request.abort();
+                        // delete this.requests[key]
+                        //console.error("request must be aborted", this.requests[key])
+                    } else {
+
+                    }
                 }
             }
         });
