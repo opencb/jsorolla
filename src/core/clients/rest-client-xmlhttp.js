@@ -160,7 +160,6 @@ export class RestClientXmlhttp {
                 }
             };
 
-            // console.log("CALL [method, url, options]", method, url, options)
             request.open(method, url, async);
             if (typeof options !== "undefined" && options.hasOwnProperty("token")) {
                 request.setRequestHeader("Authorization", `Bearer ${options["token"]}`);
@@ -191,10 +190,10 @@ export class RestClientXmlhttp {
                 request.send();
 
                 if (this.requests?.[key]?.url.includes("analysis/variant")) {
-                    console.log("FULL LIST", this.requests)
-                    console.error("this.requests[key]",this.requests[key])
+                    // console.log("FULL LIST", this.requests)
+                    console.error("this.requests[key] readyState",this.requests[key].request.readyState)
 
-                    if (this.requests[key].pending === true) {
+                    if (this.requests[key] && this.requests[key].request.readyState !== 4) {
 
                         console.error("aborting", this.requests[key].url)
                         this.requests[key].request.abort();
