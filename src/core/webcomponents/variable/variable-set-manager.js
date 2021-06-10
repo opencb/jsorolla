@@ -15,9 +15,11 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
+import {BaseManagerMixin} from "../manager/base-manager.js";
 import "../manager/variable-manager.js";
 
-export default class VariableSetCreate extends LitElement {
+// eslint-disable-next-line new-cap
+export default class VariableSetManager extends BaseManagerMixin(LitElement) {
 
     constructor() {
         super();
@@ -30,11 +32,8 @@ export default class VariableSetCreate extends LitElement {
 
     static get properties() {
         return {
-            opencgaSession: {
-                type: Object
-            },
-            config: {
-                type: Object
+            variableSets: {
+                type: Array
             }
         };
     }
@@ -43,12 +42,6 @@ export default class VariableSetCreate extends LitElement {
         this.variableSet = {
             variables: []
         };
-        this.variable = {};
-    }
-
-    connectedCallback() {
-        super.connectedCallback();
-        this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
     onFieldChangeVariableSet(e) {
@@ -91,7 +84,7 @@ export default class VariableSetCreate extends LitElement {
             },
             sections: [
                 {
-                    title: "VariableSet General Information",
+                    title: "VariableSet for Variable Information",
                     elements: [
                         {
                             name: "Id",
@@ -186,25 +179,53 @@ export default class VariableSetCreate extends LitElement {
         // this.requestUpdate();
     }
 
+    onAddVariableSetChild(e) {
+        console.log("onVariableSetChild");
+        this.onAddItem(this.variableSet);
+        this.variableSet = {variables: []};
+        this.onShow();
+        // this.variableSet.variables.push(e.detail.value);
+        console.log("result variableSet: ", this.variableSet);
+    }
+
     onClear(e) {
         console.log("Clear Form");
     }
 
-    onSubmit(e) {
-        console.log("Submit Form: ", this.variableSet);
-    }
-
     render() {
-        return html `
-        <data-form
-            .data=${this.variableSet}
-            .config="${this._config}"
-            @fieldChange="${e => this.onFieldChangeVariableSet(e)}"
-            @clear="${e => this.onClear(e)}"
-            @submit="${e => this.onSubmit(e)}">
-        </data-form>`;
+        return html`
+            <div class="row">
+                <div class="col-md-2" style="padding: 10px 20px">
+                    <h3>VariableSet</h3>
+                </div>
+                <div class="col-md-10" style="padding: 10px 20px">
+                    <button type="button" class="btn btn-primary ripple pull-right" @click="${this.onShow}">
+                        Add VariableSet
+                    </button>
+                </div>
+                <div class="clearfix"></div>
+                <hr style="margin:0px">
+                <div class="col-md-12" style="padding: 10px 20px">
+                    ${this.variableSets?.map(item => html`
+                        <span class="label label-primary" style="font-size: 14px; margin:5px; padding-right:0px; display:inline-block">${item.name}
+                            <span class="badge" style="cursor:pointer" @click=${e => this.onRemoveItem(e, item)}>X</span>
+                        </span>`
+                    )}
+                </div>
+            </div>
+            ${this.isShow ? html `
+            <div class="subform-test">
+                <data-form
+                    .data=${this.variableSet}
+                    .config="${this._config}"
+                    @fieldChange="${e => this.onFieldChangeVariable(e)}"
+                    @clear="${this.onClearForm}"
+                    @submit="${e => this.onAddVariableSetChild(e)}">
+                </data-form>
+            </div>`:
+            html ``
+            }`;
     }
 
 }
-
-customElements.define("variable-set-create", VariableSetCreate);
+customElements.define("variable-set-manager", VariableSetManager);

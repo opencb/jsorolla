@@ -18,6 +18,7 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import {BaseManagerMixin} from "./base-manager.js";
 import "../commons/tool-header.js";
 import "../commons/filters/variableset-id-autocomplete.js";
+import "../variable/variable-set-manager.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 
 // eslint-disable-next-line new-cap
@@ -37,7 +38,9 @@ export default class VariableManager extends BaseManagerMixin(LitElement) {
     }
 
     _init() {
-        this.variable = {};
+        this.variable = {
+            variableSet: []
+        };
     }
 
     update(changedProperties) {
@@ -51,9 +54,19 @@ export default class VariableManager extends BaseManagerMixin(LitElement) {
         console.log("variable Observer");
     }
 
+    onFieldChangeVariable(e) {
+        console.log("onFieldChangeVariable", this);
+        const [field, prop] = e.detail.param.split(".");
+        this.variable = {
+            ...this.variable,
+            [prop]: e.detail.value
+        };
+        // LitUtils.dispatchEventCustom(this, "onFieldChangeVariable", this.variable);
+        e.stopPropagation();
+    }
+
     getDefaultConfig() {
         const variableType = ["BOOLEAN", "CATEGORICAL", "INTEGER", "DOUBLE", "STRING", "OBJECT", "MAP_BOOLEAN", "MAP_INTEGER", "MAP_DOUBLE", "MAP_STRING"];
-
 
         return {
             title: "Edit",
@@ -141,19 +154,57 @@ export default class VariableManager extends BaseManagerMixin(LitElement) {
                             }
                         }
                     ]
+                },
+                {
+                    elements: [
+                        {
+                            field: "variables",
+                            type: "custom",
+                            display: {
+                                layout: "vertical",
+                                defaultLayout: "vertical",
+                                width: 12,
+                                style: "padding-left: 0px",
+                                render: () => html`
+                                    <variable-set-manager
+                                        .variableSets="${this.variable?.variableSet}"
+                                        .opencgaSession="${this.opencgaSession}"
+                                        @addItem="${e => this.onAddVariableSetChild(e)}"
+                                        @removeItem="${e => this.onRemoveVariableSetChild(e)}">
+                                    </variable-set-manager>`
+                            }
+                        },
+                    ]
                 }
             ]
         };
     }
 
-    onFieldChangeVariable(e) {
-        console.log("onFieldChangeVariable", this);
+    onAddVariableSetChild(e) {
+        console.log("onVariableSetChild");
+        this.variable.variableSet.push(e.detail.value);
+        console.log("result variableSet: ", this.variable);
+    }
+
+    onRemoveVariableSetChild(e) {
+        console.log("onRemoveVariableSetChild");
         this.variable = {
             ...this.variable,
-            [e.detail.param]: e.detail.value
+            variableSet: this.variable.variableSet.filter(item => item !== e.detai.value)
         };
-        LitUtils.dispatchEventCustom(this, "onFieldChangeVariable", this.variable);
+    }
+
+    onClearForm(e) {
+        console.log("onClearForm");
+        this.variable = {};
+        this.onShow();
         e.stopPropagation();
+    }
+
+    onAddVariable(e) {
+        this.onAddItem(this.variable);
+        this.variable = {};
+        this.onShow();
     }
 
     render() {
@@ -177,16 +228,18 @@ export default class VariableManager extends BaseManagerMixin(LitElement) {
                 )}
             </div>
         </div>
-
-        <div class="subform-test" style="${this.isShow ? "display:block" : "display:none"}">
-            <data-form
-                .data=${this.variable}
-                .config="${this._config}"
-                @fieldChange="${e => this.onFieldChangeVariable(e)}"
-                @clear="${this.onClearForm}">
-            </data-form>
-        </div>
-    `;
+        ${this.isShow ? html `
+            <div class="subform-test">
+                <data-form
+                    .data=${this.variable}
+                    .config="${this._config}"
+                    @fieldChange="${e => this.onFieldChangeVariable(e)}"
+                    @clear="${this.onClearForm}"
+                    @submit="${e => this.onAddVariable(e)}">
+                </data-form>
+            </div>`:
+            html ``
+        }`;
     }
 
 }
