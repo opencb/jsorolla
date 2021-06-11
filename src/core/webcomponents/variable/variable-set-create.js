@@ -59,12 +59,19 @@ export default class VariableSetCreate extends LitElement {
             case "unique":
             case "confidential":
             case "description":
+                if (e.detail.param === "entities") {
+                    this.renderFieldEntity(e.detail.value);
+                }
                 this.variableSet = {
                     ...this.variableSet,
                     [field]: e.detail.value
                 };
                 break;
         }
+    }
+
+    renderFieldEntity(entity) {
+        console.log("", entity);
     }
 
     getDefaultConfig() {
@@ -158,6 +165,7 @@ export default class VariableSetCreate extends LitElement {
                                 style: "padding-left: 0px",
                                 render: () => html`
                                     <variable-manager
+                                        .parent="${true}"
                                         .variables="${this.variableSet?.variables}"
                                         .opencgaSession="${this.opencgaSession}"
                                         @addItem="${e => this.onAddVariable(e)}"

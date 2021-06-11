@@ -31,6 +31,9 @@ export default class VariableManager extends BaseManagerMixin(LitElement) {
 
     static get properties() {
         return {
+            parent: {
+                type: Boolean
+            },
             variables: {
                 type: Array
             }
@@ -39,7 +42,7 @@ export default class VariableManager extends BaseManagerMixin(LitElement) {
 
     _init() {
         this.variable = {
-            variableSet: []
+            variables: []
         };
     }
 
@@ -166,12 +169,13 @@ export default class VariableManager extends BaseManagerMixin(LitElement) {
                                 width: 12,
                                 style: "padding-left: 0px",
                                 render: () => html`
-                                    <variable-set-manager
-                                        .variableSets="${this.variable?.variableSet}"
+                                    <variable-manager
+                                        .parent="${false}"
+                                        .variableSets="${this.variable?.variables}"
                                         .opencgaSession="${this.opencgaSession}"
-                                        @addItem="${e => this.onAddVariableSetChild(e)}"
-                                        @removeItem="${e => this.onRemoveVariableSetChild(e)}">
-                                    </variable-set-manager>`
+                                        @addItem="${e => this.onAddVariablesChild(e)}"
+                                        @removeItem="${e => this.onRemoveVariablesChild(e)}">
+                                    </variable-manager>`
                             }
                         },
                     ]
@@ -180,17 +184,17 @@ export default class VariableManager extends BaseManagerMixin(LitElement) {
         };
     }
 
-    onAddVariableSetChild(e) {
-        console.log("onVariableSetChild");
-        this.variable.variableSet.push(e.detail.value);
+    onAddVariablesChild(e) {
+        console.log("onVariablesChild");
+        this.variable.variables.push(e.detail.value);
         console.log("result variableSet: ", this.variable);
     }
 
-    onRemoveVariableSetChild(e) {
-        console.log("onRemoveVariableSetChild");
+    onRemoveVariablesChild(e) {
+        console.log("onRemoveVariablesChild");
         this.variable = {
             ...this.variable,
-            variableSet: this.variable.variableSet.filter(item => item !== e.detai.value)
+            variables: this.variable.variables.filter(item => item !== e.detai.value)
         };
     }
 
@@ -235,7 +239,7 @@ export default class VariableManager extends BaseManagerMixin(LitElement) {
                     .config="${this._config}"
                     @fieldChange="${e => this.onFieldChangeVariable(e)}"
                     @clear="${this.onClearForm}"
-                    @submit="${e => this.onAddVariable(e)}">
+                    @submit="${this.parent? e => this.onAddVariable(e) : e => this.onAddVariablesChild(e)}">
                 </data-form>
             </div>`:
             html ``
