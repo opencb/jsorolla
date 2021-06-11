@@ -77,7 +77,8 @@ export default class VariableManager extends BaseManagerMixin(LitElement) {
             buttons: {
                 show: true,
                 cancelText: "Cancel",
-                classes: "pull-right"
+                classes: "pull-right",
+                okText: parent? "Save":"Add"
             },
             display: {
                 labelWidth: 3,
@@ -172,9 +173,7 @@ export default class VariableManager extends BaseManagerMixin(LitElement) {
                                     <variable-manager
                                         .parent="${false}"
                                         .variableSets="${this.variable?.variables}"
-                                        .opencgaSession="${this.opencgaSession}"
-                                        @addItem="${e => this.onAddVariablesChild(e)}"
-                                        @removeItem="${e => this.onRemoveVariablesChild(e)}">
+                                        .opencgaSession="${this.opencgaSession}">
                                     </variable-manager>`
                             }
                         },
@@ -188,6 +187,7 @@ export default class VariableManager extends BaseManagerMixin(LitElement) {
         console.log("onVariablesChild");
         this.variable.variables.push(e.detail.value);
         console.log("result variableSet: ", this.variable);
+        e.stopPropagation();
     }
 
     onRemoveVariablesChild(e) {
