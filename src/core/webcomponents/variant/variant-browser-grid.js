@@ -162,23 +162,27 @@ export default class VariantBrowserGrid extends LitElement {
                 ajax: async params => {
                     // TODO We must decide i this component support a porperty:  mode = {opencga | cellbase}
                     const tableOptions = $(this.table).bootstrapTable("getOptions");
+                    let limit;
+                    // cannot use UtilsNew.sleep as the map of requests in rest-client.js relies on the raw XHR responses
+                    // so we slow down the query by limiting it at 100 results
+                    if (!this.stop) {
+                        limit = 1000
+                    } else {
+                        limit = 10
+                    }
                     const filters = {
                         study: this.opencgaSession.study.fqn,
-                        limit: params.data.limit || tableOptions.pageSize,
+                        limit: limit,
                         skip: params.data.offset || 0,
                         count: !tableOptions.pageNumber || tableOptions.pageNumber === 1,
                         includeStudy: "all",
                         summary: !this.query.sample && !this.query.family,
                         ...this.query
                     };
-                    if (!this.stop) {
-                        this.stop = 1;
-                        console.error("sleeping 10000")
-                        await UtilsNew.sleep(10000)
-                    }
+
 
                     this.opencgaSession.opencgaClient.variants().query(filters)
-                        .then(res => {
+                        .then(async res => {
                             params.success(res);
                         })
                         .catch(e => {

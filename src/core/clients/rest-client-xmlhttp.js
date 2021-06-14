@@ -2,6 +2,7 @@ import {RestResponse} from "./rest-response.js";
 
 export class RestClientXmlhttp {
 
+    // TODO singleton to avoid an instance for each Opencga entity?
     constructor() {
         this.requests = {};
     }
@@ -84,31 +85,31 @@ export class RestClientXmlhttp {
         // Creating the promise
         return new Promise((resolve, reject) => {
 
+            // let key = `${new Error().stack.split("\n    at ").slice(0,6).join("|")}`;
             const request = new XMLHttpRequest();
-            if (url.includes("analysis/variant")) {
 
-                console.error("url", url)
-                if (this.requests[key]) {
-                // abort here if possible. Pass AbortController object in RestClient.call?
-                //console.error("prev request running");
-
+            // console.error("url", url);
+            if (this.requests[key]) {
                 // pending prev request
                 this.requests[key] = {...this.requests[key], pending: true};
 
-                } else {
+            } else {
                 // pending false as there is no prev request
-                this.requests[key] = {pending: false, request, url};
-                //console.log("first request")
-                }
-
-                console.log("FULL LIST", this.requests)
+                this.requests[key] = {pending: false, request, url, key};
             }
-            request.onload = function (event) {
+            request.onload = event => {
+                // console.log("on load EVENT", event);
+                // console.log("on load URL", url);
+
+                // request is fulfilled
+                delete this.requests[key];
+
                 if (request.status === 200) {
-                    const contentType = this.getResponseHeader("Content-Type") ?? ""; // empty string is useful in case contentType is undefined (empty response)
+
+                    const contentType = request.getResponseHeader("Content-Type") ?? ""; // empty string is useful in case contentType is undefined (empty response)
                     // indexOf() is used because sometimes the contentType is 'application/json;charset=utf-8'
                     if (contentType.indexOf("application/json")!== -1) {
-                        dataResponse = JSON.parse(this.response);
+                        dataResponse = JSON.parse(request.response);
 
                         if (typeof options !== "undefined" && typeof options.cacheFn === "function") {
                             options.cacheFn(dataResponse);
@@ -125,18 +126,18 @@ export class RestClientXmlhttp {
                         resolve(new RestResponse(dataResponse));
                     } else if (contentType.startsWith("text/plain")) {
                         globalThis.dispatchEvent(eventDone);
-                        resolve(this.response);
+                        resolve(request.response);
 
                     } else if (contentType.startsWith("application/octet-stream")) {
                         globalThis.dispatchEvent(eventDone);
-                        resolve(this.response);
+                        resolve(request.response);
                     } else {
-                        console.error(`Response is not JSON: ${this.response}`);
+                        console.error(`Response is not JSON: ${request.response}`);
                     }
                 } else {
                     console.error(`REST call to URL failed: '${url}'`);
                     globalThis.dispatchEvent(eventDone);
-                    if (this.getResponseHeader("Content-Type").indexOf("application/json") > -1) {
+                    if (request.getResponseHeader("Content-Type").indexOf("application/json") > -1) {
                         reject(new RestResponse(JSON.parse(request.response)));
                     } else {
                         reject(request.response);
@@ -188,22 +189,20 @@ export class RestClientXmlhttp {
                 request.send();
             } else {
                 request.send();
+                if (this.requests[key]) {
+                    // console.log("FULL LIST", Object.entries(this.requests))
+                    // console.log("this.requests[key]", this.requests[key]);
 
-                if (this.requests?.[key]?.url.includes("analysis/variant")) {
-                    // console.log("FULL LIST", this.requests)
-                    console.error("this.requests[key] readyState",this.requests[key].request.readyState)
-
-                    if (this.requests[key] && this.requests[key].request.readyState !== 4) {
-
-                        console.error("aborting", this.requests[key].url)
+                    if (this.requests[key].pending) {
+                        console.error("aborting", this.requests[key].url);
                         this.requests[key].request.abort();
-                        // delete this.requests[key]
-                        //console.error("request must be aborted", this.requests[key])
+                        delete this.requests[key];
                     } else {
-
+                        // console.log("not aborting", url);
                     }
                 }
             }
+
         });
     }
 
