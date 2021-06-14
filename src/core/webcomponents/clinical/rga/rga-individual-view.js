@@ -94,7 +94,7 @@ export default class RgaIndividualView extends LitElement {
                 },
                 {
                     title: "Sample",
-                    field: "sampleId",
+                    field: "sampleId"
                 },
                 {
                     title: "Gene",
@@ -126,7 +126,7 @@ export default class RgaIndividualView extends LitElement {
     renderTable() {
         this._query = {...this.query, study: this.opencgaSession.study.fqn}; // we want to support a query obj param both with or without study.
         // Checks if the component is not visible or the query hasn't changed (NOT the latter anymore)
-        if (!this.active /*|| UtilsNew.objectCompare(this._query, this.prevQuery)*/) {
+        if (!this.active /* || UtilsNew.objectCompare(this._query, this.prevQuery)*/) {
             return;
         }
         this.prevQuery = {...this._query};
@@ -143,7 +143,7 @@ export default class RgaIndividualView extends LitElement {
             pageList: this._config.pageList,
             pagination: this._config.pagination,
             paginationVAlign: "both",
-            formatShowingRows: this.gridCommons.formatShowingRows,
+            formatShowingRows: (pageFrom, pageTo, totalRows) => this.formatShowingRows(pageFrom, pageTo, totalRows),
             showExport: this._config.showExport,
             detailView: this._config.detailView,
             detailFormatter: this._config.detailFormatter,
@@ -160,6 +160,9 @@ export default class RgaIndividualView extends LitElement {
 
                 this.opencgaSession.opencgaClient.clinical().summaryRgaIndividual(_filters)
                     .then(rgaIndividualResponse => {
+                        this.isApproximateCount = rgaIndividualResponse.getResultEvents("WARNING")?.find(event => event?.message?.includes("numMatches value is approximated considering the individuals"));
+                        this.hiddenIndividuals = rgaIndividualResponse.getResponse()?.attributes.totalIndividuals - rgaIndividualResponse.getResponse().numMatches;
+
                         // fetching Case Id of the individuals (paginated)
                         const individualIds = rgaIndividualResponse.getResults().map(individual => individual.id).filter(Boolean).join(",");
                         if (individualIds) {
@@ -240,6 +243,24 @@ export default class RgaIndividualView extends LitElement {
                 this.requestUpdate();
             }
         });
+    }
+
+    formatShowingRows(pageFrom, pageTo, totalRows) {
+        const pagedFromFormatted = Number(pageFrom).toLocaleString();
+        const pagedToFormatted = Number(pageTo).toLocaleString();
+        const total = this.isApproximateCount ? "~" + (Math.round(totalRows / 100) * 100) : Number(totalRows).toLocaleString();
+        let res = `Showing <b>${pagedFromFormatted}</b> to <b>${pagedToFormatted}</b> of <b>${total}</b> records `;
+        let tooltip = "";
+        if (this.isApproximateCount) {
+            tooltip += "The total count is approximate. ";
+        }
+        if (this.hiddenIndividuals) {
+            tooltip += (this.isApproximateCount ? "<br>" : "") + `${this.hiddenIndividuals} individual${this.hiddenIndividuals > 1 ? "s are" : " is"} hidden due to your permission settings.`;
+        }
+        if (tooltip) {
+            res += ` <a tooltip-title="Warning" tooltip-text='${tooltip}'> <i class="fas fa-exclamation-circle text-muted"></i></a>`;
+        }
+        return res;
     }
 
     onColumnChange(e) {
@@ -481,7 +502,7 @@ export default class RgaIndividualView extends LitElement {
             title: "Individual",
             showTitle: true,
             items: [
-                /*{
+                /* {
                     id: "individual-view",
                     name: "Variants",
                     active: true,
@@ -513,7 +534,7 @@ export default class RgaIndividualView extends LitElement {
             pagination: true,
             pageSize: 10,
             pageList: [10, 25, 50],
-            showExport: false,
+            showExport: false
         };
     }
 
