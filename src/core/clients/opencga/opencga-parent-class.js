@@ -13,15 +13,8 @@ export default class OpenCGAParentClass {
         // we store the options from the parameter or from the default values in config
 
         // first attempt of solving https://github.com/opencb/jsorolla/issues/153
-        const k = `${new Error().stack.split("\n    at ").slice(0,6).join("|")}${params?.study}`;
         // cannot use `params` in key as we want to cancel queries from the same origin (ajax function) but different params.
-        /*if (this.requests[k]) {
-            // abort here if possible. Pass AbortController object in RestClient.call?
-            console.error("prev request running");
-        } else {
-            this.requests[k] = true;
-            console.log("first request")
-        }*/
+        const k = this.generateKey(params);
 
         const host = this._config.host;
         const version = this._config.version;
@@ -74,6 +67,7 @@ export default class OpenCGAParentClass {
         const host = this._config.host;
         const version = this._config.version;
         const rpc = this._config.mode;
+        const k = this.generateKey(params);
         const _options = {...options, method: "POST"};
         if (this._config.token) {
             _options.sid = this._config.token;
@@ -86,9 +80,7 @@ export default class OpenCGAParentClass {
         if (action === "upload") {
             _options["post-method"] = "form";
         }
-        // console.log(`OpenCGA client calling to ${url}`);
-        // if the URL query fails we try with next host
-        return this.restClient.call(url, _options);
+        return this.restClient.call(url, _options, k);
 
     }
 
@@ -97,6 +89,7 @@ export default class OpenCGAParentClass {
         const host = this._config.host;
         const version = this._config.version;
         const _options = {method: "DELETE"};
+        const k = this.generateKey(params);
         if (this._config.token) {
             // _options.sid = this._config.token;
             _options.token = this._config.token;
@@ -108,7 +101,7 @@ export default class OpenCGAParentClass {
         // _options.data = _params.body;
         // _options.body = _params.body;
 
-        return this.restClient.call(url, _options);
+        return this.restClient.call(url, _options, k);
     }
 
     _createRestUrl(host, version, category1, ids1, category2, ids2, action) {
@@ -176,6 +169,10 @@ export default class OpenCGAParentClass {
 
     getToken() {
         return this._config.token;
+    }
+
+    generateKey(params) {
+        return `${new Error().stack.split("\n    at ").slice(0, 5).join("|")}${params?.study}`;
     }
 
 }
