@@ -2,11 +2,17 @@ import {RestResponse} from "./rest-response.js";
 
 export class RestClientXmlhttp {
 
-    // TODO singleton to avoid an instance for each Opencga entity?
     constructor() {
-        this.requests = {};
+        if (!RestClientXmlhttp.instance) {
+            RestClientXmlhttp.instance = this;
+            this.requests = {};
+        }
+        return RestClientXmlhttp.instance;
     }
 
+    /**
+     * @deprecated
+     */
     static callXmlhttp(url, options) {
         const method = options.method || "GET";
         const async = options.async;
@@ -189,17 +195,18 @@ export class RestClientXmlhttp {
                 request.send();
             } else {
                 request.send();
-                if (this.requests[key]) {
-                    // console.log("FULL LIST", Object.entries(this.requests))
-                    // console.log("this.requests[key]", this.requests[key]);
 
-                    if (this.requests[key].pending) {
-                        console.error("aborting", this.requests[key].url);
-                        this.requests[key].request.abort();
-                        delete this.requests[key];
-                    } else {
-                        // console.log("not aborting", url);
-                    }
+            }
+            if (this.requests[key]) {
+                console.log("FULL LIST", Object.entries(this.requests))
+                // console.log("this.requests[key]", this.requests[key]);
+
+                if (this.requests[key].pending) {
+                    console.error("aborting", this.requests[key].url);
+                    this.requests[key].request.abort();
+                    delete this.requests[key];
+                } else {
+                    // not aborting
                 }
             }
 
