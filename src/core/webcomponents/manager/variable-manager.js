@@ -175,12 +175,9 @@ export default class VariableManager extends BaseManagerMixin(LitElement) {
                             }
                         },
                         {
-                            name: "Category",
-                            field: "variable.category",
-                            type: "input-text",
-                            display: {
-                                placeholder: "Name ..."
-                            }
+                            name: "Required",
+                            field: "variable.required",
+                            type: "checkbox",
                         },
                         {
                             name: "Type",
@@ -192,26 +189,52 @@ export default class VariableManager extends BaseManagerMixin(LitElement) {
                             }
                         },
                         {
-                            name: "required",
-                            field: "variable.required",
-                            type: "checkbox",
+                            name: "Allowed Values",
+                            // field: "variable.allowedValues",
+                            type: "input-text",
+                            display: {
+                                visible: data => this.variable?.type === "CATEGORICAL"
+                            }
                         },
                         {
-                            name: "multiValue",
+                            name: "Allowed Keys",
+                            // field: "variable.allowedKeys",
+                            type: "input-text",
+                            display: {
+                                visible: data => this.variable?.type === "MAP_INTEGER"
+                            }
+                        },
+                        {
+                            name: "Default Value",
+                            field: "variable.defaultValue",
+                            type: "input-text",
+                            display: {
+                            }
+                        },
+                        {
+                            name: "Multi Value",
                             field: "variable.multivalue",
                             type: "checkbox",
                         },
                         {
-                            name: "Rank",
-                            field: "variable.rank",
+                            name: "Depends On",
+                            field: "variable.dependsOn",
                             type: "input-text",
                             display: {
                                 placeholder: "select a variable type..."
                             }
                         },
                         {
-                            name: "depends on",
-                            field: "variable.dependsOn",
+                            name: "Category",
+                            field: "variable.category",
+                            type: "input-text",
+                            display: {
+                                placeholder: "Name ..."
+                            }
+                        },
+                        {
+                            name: "Rank",
+                            field: "variable.rank",
                             type: "input-text",
                             display: {
                                 placeholder: "select a variable type..."
