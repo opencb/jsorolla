@@ -71,7 +71,7 @@ export default class VariableSetCreate extends LitElement {
     }
 
     renderFieldEntity(entity) {
-        console.log("", entity);
+        console.log("Render exclusive form by entity", entity);
     }
 
     getDefaultConfig() {
@@ -86,14 +86,13 @@ export default class VariableSetCreate extends LitElement {
                 okText: "Save"
             },
             display: {
-                // width: "8",
                 style: "margin: 10px",
                 labelWidth: 3,
                 labelAlign: "right",
                 defaultLayout: "horizontal",
                 defaultValue: "",
                 help: {
-                    mode: "block" // icon
+                    mode: "block"
                 }
             },
             sections: [
@@ -166,8 +165,8 @@ export default class VariableSetCreate extends LitElement {
                                 render: () => html`
                                     <variable-manager
                                         .parent="${true}"
-                                        .variables="${this.variableSet?.variables}"
                                         .opencgaSession="${this.opencgaSession}"
+                                        .variables="${this.variableSet?.variables}"
                                         @addItem="${e => this.onAddVariable(e)}"
                                         @removeItem="${e => this.onRemoveVariable(e)}">
                                     </variable-manager>`
@@ -180,9 +179,12 @@ export default class VariableSetCreate extends LitElement {
     }
 
     onAddVariable(e) {
-        console.log("onAddVariable");
+        const variable = e.detail.value;
+        console.log("onAddVariable: ", e.detail.value);
         this.variableSet.variables.push(e.detail.value);
-        console.log("result variableSet: ", this.variableSet);
+        console.log("onAddVariable Result: ", this.variableSet);
+        this._config = {...this.getDefaultConfig(), ...this.config};
+        this.requestUpdate();
     }
 
     onRemoveVariable(e) {

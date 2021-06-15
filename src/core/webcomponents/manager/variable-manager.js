@@ -19,6 +19,7 @@ import {BaseManagerMixin} from "./base-manager.js";
 import "../commons/tool-header.js";
 import "../commons/filters/variableset-id-autocomplete.js";
 import "../variable/variable-set-manager.js";
+import "../variable/variable-type-value.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 
 // eslint-disable-next-line new-cap
@@ -58,19 +59,87 @@ export default class VariableManager extends BaseManagerMixin(LitElement) {
     }
 
     onFieldChangeVariable(e) {
-        console.log("onFieldChangeVariable", this);
         const [field, prop] = e.detail.param.split(".");
+        const value = e.detail.value;
         this.variable = {
             ...this.variable,
             [prop]: e.detail.value
         };
-        // LitUtils.dispatchEventCustom(this, "onFieldChangeVariable", this.variable);
-        e.stopPropagation();
+        if (prop == "type") {
+            this.typeObserver(value);
+            e.stopPropagation();
+        }
+    }
+
+    typeObserver(value) {
+        let customElement = {};
+        let sections = [];
+        switch (value) {
+            case "OBJECT":
+                customElement = {
+                    elements: [
+                        {
+                            field: "variables",
+                            type: "custom",
+                            display: {
+                                layout: "vertical",
+                                defaultLayout: "vertical",
+                                width: 12,
+                                style: "padding-left: 0px",
+                                render: () => html`
+                                    <variable-manager
+                                        .parent="${false}"
+                                        .variables="${this.variable?.variables}"
+                                        .opencgaSession="${this.opencgaSession}"
+                                        @addItem="${e => this.onAddVariableChild(e)}">
+                                    </variable-manager>`
+                            }
+                        },
+                    ]
+                };
+                sections = [...this.getDefaultConfig().sections, {...customElement}];
+                this._config = {...this.getDefaultConfig(), ...this.config, sections: sections};
+                this.requestUpdate();
+                break;
+            case "CATEGORICAL":
+            case "MAP_STRING":
+                customElement = {
+                    elements: [
+                        {
+                            field: "categorical",
+                            type: "custom",
+                            display: {
+                                layout: "vertical",
+                                defaultLayout: "vertical",
+                                width: 12,
+                                style: "padding-left: 0px",
+                                render: () => html`
+                                <variable-type-values
+                                        .type="${this.variable.type}"
+                                        @addItem="${e => this.onAddValues(e)}">
+                                </variable-type-values>
+                                `
+                            }
+                        },
+                    ]
+                };
+                sections = [...this.getDefaultConfig().sections, {...customElement}];
+                this._config = {...this.getDefaultConfig(), ...this.config, sections: sections};
+                this.requestUpdate();
+                break;
+            case "MAP_BOOLEAN":
+            case "MAP_INTEGER":
+            case "MAP_DOUBLE":
+                break;
+            default:
+                this._config = {...this.getDefaultConfig(), ...this.config};
+                this.requestUpdate();
+                break;
+        }
     }
 
     getDefaultConfig() {
         const variableType = ["BOOLEAN", "CATEGORICAL", "INTEGER", "DOUBLE", "STRING", "OBJECT", "MAP_BOOLEAN", "MAP_INTEGER", "MAP_DOUBLE", "MAP_STRING"];
-
         return {
             title: "Edit",
             icon: "fas fa-edit",
@@ -78,7 +147,7 @@ export default class VariableManager extends BaseManagerMixin(LitElement) {
                 show: true,
                 cancelText: "Cancel",
                 classes: "pull-right",
-                okText: parent? "Save":"Add"
+                okText: this.parent ? "Save":"Add"
             },
             display: {
                 labelWidth: 3,
@@ -158,35 +227,35 @@ export default class VariableManager extends BaseManagerMixin(LitElement) {
                             }
                         }
                     ]
-                },
-                {
-                    elements: [
-                        {
-                            field: "variables",
-                            type: "custom",
-                            display: {
-                                layout: "vertical",
-                                defaultLayout: "vertical",
-                                width: 12,
-                                style: "padding-left: 0px",
-                                render: () => html`
-                                    <variable-manager
-                                        .parent="${false}"
-                                        .variableSets="${this.variable?.variables}"
-                                        .opencgaSession="${this.opencgaSession}">
-                                    </variable-manager>`
-                            }
-                        },
-                    ]
                 }
             ]
         };
     }
 
-    onAddVariablesChild(e) {
-        console.log("onVariablesChild");
-        this.variable.variables.push(e.detail.value);
-        console.log("result variableSet: ", this.variable);
+    onAddVariableChild(e) {
+        const variable = e.detail.value;
+        this.variable.variables.push(variable);
+        console.log("onAddVariable Result: ", this.variable);
+        e.stopPropagation();
+    }
+
+    onAddValues(e) {
+        console.log("onAddValue Allowed...: ", e.detail.value);
+        if (this.variable.type === "CATEGORICAL") {
+            const allowedValues = e.detail.value;
+            this.variable.allowedValues = allowedValues;
+        } else {
+            const allowedKeys = e.detail.value;
+            this.variable.allowedKeys = allowedKeys;
+        }
+        e.stopPropagation();
+    }
+
+    onSendVariable(e) {
+        // Send the variable to the upper component
+        console.log("onSendVariable Variable: ", this.variable);
+        this.onAddItem(this.variable);
+        this.onShow();
         e.stopPropagation();
     }
 
@@ -205,28 +274,22 @@ export default class VariableManager extends BaseManagerMixin(LitElement) {
         e.stopPropagation();
     }
 
-    onAddVariable(e) {
-        this.onAddItem(this.variable);
-        this.variable = {};
-        this.onShow();
-    }
-
     render() {
         return html`
         <div class="row">
             <div class="col-md-2" style="padding: 10px 20px">
                 <h3>Variable</h3>
             </div>
+            <div class="clearfix"></div>
+            <hr style="margin:0px">
             <div class="col-md-10" style="padding: 10px 20px">
-                <button type="button" class="btn btn-primary ripple pull-right" @click="${this.onShow}">
+                <button type="button" class="btn btn-primary ripple" @click="${this.onShow}">
                     Add Variable
                 </button>
             </div>
-            <div class="clearfix"></div>
-            <hr style="margin:0px">
             <div class="col-md-12" style="padding: 10px 20px">
                 ${this.variables?.map(item => html`
-                    <span class="label label-primary" style="font-size: 14px; margin:5px; padding-right:0px; display:inline-block">${item.name}
+                    <span class="label label-primary" style="font-size: 14px; margin:5px; padding-right:0px; display:inline-block">${item.name}:${item.type}
                         <span class="badge" style="cursor:pointer" @click=${e => this.onRemoveItem(e, item)}>X</span>
                     </span>`
                 )}
@@ -239,7 +302,7 @@ export default class VariableManager extends BaseManagerMixin(LitElement) {
                     .config="${this._config}"
                     @fieldChange="${e => this.onFieldChangeVariable(e)}"
                     @clear="${this.onClearForm}"
-                    @submit="${this.parent? e => this.onAddVariable(e) : e => this.onAddVariablesChild(e)}">
+                    @submit="${e => this.onSendVariable(e)}">
                 </data-form>
             </div>`:
             html ``

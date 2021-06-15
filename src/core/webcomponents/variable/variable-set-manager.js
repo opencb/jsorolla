@@ -65,7 +65,6 @@ export default class VariableSetManager extends BaseManagerMixin(LitElement) {
         return {
             title: "Edit",
             icon: "fas fa-edit",
-            type: "form",
             buttons: {
                 show: true,
                 cancelText: "Cancel",
