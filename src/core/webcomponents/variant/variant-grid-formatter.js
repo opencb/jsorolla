@@ -446,6 +446,37 @@ export default class VariantGridFormatter {
         };
     }
 
+    static getHgvsLink(id, hgvsArray) {
+        if (!id) {
+            return;
+        }
+
+        let hgvs = hgvsArray.find(hgvs => hgvs.startsWith(id));
+        if (hgvs) {
+            if (hgvs.includes("(")) {
+                const split = hgvs.split(new RegExp("[()]"));
+                hgvs = split[0] + split[2];
+            }
+
+            const split = hgvs.split(":");
+            let link;
+            if (hgvs.includes(":c.")) {
+                link = BioinfoUtils.getTranscriptLink(split[0]);
+            }
+            if (hgvs.includes(":p.")) {
+                link = BioinfoUtils.getProteinLink(split[0]);
+            }
+
+            return `<a href=${link} target="_blank">${split[0]}</a>:${split[1]}`;
+        } else {
+            if (id.startsWith("ENST") || id.startsWith("NM_") || id.startsWith("NR_")) {
+                return `<a href=${BioinfoUtils.getTranscriptLink(id)} target="_blank">${id}</a>`;
+            } else {
+                return `<a href=${BioinfoUtils.getProteinLink(id)} target="_blank">${id}</a>`;
+            }
+        }
+    }
+
     static toggleDetailConsequenceType(e) {
         const id = e.target.dataset.id;
         const elements = document.getElementsByClassName(this._prefix + id + "Filtered");
@@ -461,7 +492,7 @@ export default class VariantGridFormatter {
     static consequenceTypeDetailFormatter(value, row, variantGrid, query, filter, assembly) {
         if (row?.annotation?.consequenceTypes && row.annotation.consequenceTypes.length > 0) {
             // Sort and group CTs by Gene name
-            BioinfoUtils.sortConsequenceTypes(row.annotation.consequenceTypes);
+            BioinfoUtils.sort(row.annotation.consequenceTypes, v => v.geneName);
 
             const showArrayIndexes = VariantGridFormatter._consequenceTypeDetailFormatterFilter(row.annotation.consequenceTypes, filter).indexes;
             let message = "";
@@ -530,25 +561,12 @@ export default class VariantGridFormatter {
                     </div>
                     <div style="margin: 5px 0px">
                         <span>
-                            ${transcriptId ?
-                                `<div>
-                                    <a href="${ensemblTranscriptIdLink}" target="_blank">${transcriptId}</a>
+                            ${transcriptId ? `
+                                <div style="margin: 5px 0px">
+                                    ${VariantGridFormatter.getHgvsLink(transcriptId, row.annotation.hgvs) || ""}
                                 </div>
-                                <div class="help-block" style="margin: 5px 0px">${row.annotation.hgvs
-                                    .filter(hgvs => hgvs.startsWith(transcriptId))
-                                    .map(hgvs => {
-                                        if (hgvs.includes("(")) {
-                                            const split = hgvs.split(new RegExp("[()]"));
-                                            return split[0] + split[2];
-                                        } else {
-                                            return hgvs;
-                                        }
-                                    })}
-                                </div>` : ""
-                            }
-                            ${ct?.proteinVariantAnnotation?.proteinId ?
-                                `<div class="help-block" style="margin: 5px 0px">
-                                    ${row.annotation.hgvs.find(hgvs => hgvs.startsWith(ct.proteinVariantAnnotation.proteinId))}
+                                <div style="margin: 5px 0px">
+                                    ${VariantGridFormatter.getHgvsLink(ct?.proteinVariantAnnotation?.proteinId, row.annotation.hgvs) || ""}
                                 </div>` : ""
                             }
                         </span>
