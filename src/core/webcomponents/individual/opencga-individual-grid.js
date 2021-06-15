@@ -139,17 +139,9 @@ export default class OpencgaIndividualGrid extends LitElement {
                         sort: this.table.bootstrapTable("getOptions").sortName,
                         order: this.table.bootstrapTable("getOptions").sortOrder
                     } : {};
-                    let limit;
-                    // cannot use UtilsNew.sleep as the map of requests in rest-client.js relies on the raw XHR responses
-                    // so we slow down the query by limiting it at 100 results
-                    if (!this.stop) {
-                        limit = 100
-                    } else {
-                        limit = 10
-                    }
                     const _filters = {
                         study: this.opencgaSession.study.fqn,
-                        limit: limit,
+                        limit: params.data.limit,
                         skip: params.data.offset || 0,
                         count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
                         ...sort,

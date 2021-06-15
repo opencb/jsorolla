@@ -159,38 +159,26 @@ export default class VariantBrowserGrid extends LitElement {
                 formatLoadingMessage: () => "<loading-spinner></loading-spinner>",
                 // this makes the variant-browser-grid properties available in the bootstrap-table detail formatter
                 variantGrid: this,
-                ajax: async params => {
+                ajax: params => {
                     // TODO We must decide i this component support a porperty:  mode = {opencga | cellbase}
                     const tableOptions = $(this.table).bootstrapTable("getOptions");
-                    let limit;
-                    // cannot use UtilsNew.sleep as the map of requests in rest-client.js relies on the raw XHR responses
-                    // so we slow down the query by limiting it at 100 results
-                    if (!this.stop) {
-                        limit = 1000
-                    } else {
-                        limit = 10
-                    }
                     const filters = {
                         study: this.opencgaSession.study.fqn,
-                        limit: limit,
+                        limit: params.data.limit || tableOptions.pageSize,
                         skip: params.data.offset || 0,
                         count: !tableOptions.pageNumber || tableOptions.pageNumber === 1,
                         includeStudy: "all",
                         summary: !this.query.sample && !this.query.family,
                         ...this.query
                     };
-
-
                     this.opencgaSession.opencgaClient.variants().query(filters)
-                        .then(async res => {
+                        .then(res => {
                             params.success(res);
                         })
                         .catch(e => {
                             console.error(e);
                             params.error(e);
-                        }).finally(() => {
-                            this.requestDone = true;
-                    });
+                        });
                 },
                 responseHandler: response => {
                     const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
