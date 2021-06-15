@@ -56,6 +56,8 @@ export default class VariableTypeValue extends LitElement {
     }
 
     onAddValues(e) {
+        // https://lit-element.polymer-project.org/guide/templates#accessing-nodes-in-the-shadow-dom
+        // https://lit.dev/docs/templates/directives/#ref
         console.log("OnAddValue", this.nameValue);
         this.values = [...this.values, this.nameValue];
         this.nameValue = "";

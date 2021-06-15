@@ -1,3 +1,5 @@
+/* eslint-disable no-useless-escape */
+/* eslint-disable valid-jsdoc */
 /*
  * Copyright 2015-2016 OpenCB
  *
@@ -70,11 +72,15 @@ export default class DataForm extends LitElement {
         if (changedProperties.has("data")) {
             // Undefined or null values are accepted only when rendering forms.
             // Check if 'data' passed is undefined or null and initialised to empty object
-            if (this.config?.type?.toUpperCase() === "FORM") {
-                this.data = this.data ?? {};
-            }
+            this.dataObserver();
         }
         super.update(changedProperties);
+    }
+
+    dataObserver() {
+        if (this.config?.type?.toUpperCase() === "FORM") {
+            this.data = this.data ?? {};
+        }
     }
 
     getValue(field, object, defaultValue, format) {
@@ -301,7 +307,7 @@ export default class DataForm extends LitElement {
                             <span>${section.text}</span>
                         </div>` : null
                     }
-                    <div class="${sectionWidth} ${sectionClasses}" style="${sectionStyle}">    
+                    <div class="${sectionWidth} ${sectionClasses}" style="${sectionStyle}">
                         <div class="">
                             ${section.elements.map(element => this._createElement(element, section))}
                         </div>
@@ -429,7 +435,7 @@ export default class DataForm extends LitElement {
             if (layout === "horizontal") {
                 return html`
                     <div class="form-group">
-                        <label class="control-label col-md-${labelWidth} ${elementLabelClasses}" 
+                        <label class="control-label col-md-${labelWidth} ${elementLabelClasses}"
                                 style="text-align: ${this.config.display?.labelAlign || "left"}; ${elementLabelStyle}">${title}</label>
                         <div class="col-md-${width - labelWidth}">
                             ${content}
@@ -465,7 +471,7 @@ export default class DataForm extends LitElement {
                         <div class="col-md-${width - labelWidth}">
                             ${content}
                         </div>
-                    </div>        
+                    </div>
                 `;
             } else {
                 const sectionWidth = element?.display?.width ? element.display.width : "12";
@@ -479,7 +485,7 @@ export default class DataForm extends LitElement {
                         <div class="col-md-${sectionWidth}">
                             ${content}
                         </div>
-                    </div>        
+                    </div>
                 `;
             }
         }
@@ -500,9 +506,9 @@ export default class DataForm extends LitElement {
 
         return html`
             <div class="">
-                <text-field-filter placeholder="${element.display?.placeholder}" .rows=${rows} ?disabled=${disabled} 
-                                   ?required=${element.required} .value="${value}" 
-                                   .classes="${element.display?.updated ? "updated" : ""}" 
+                <text-field-filter placeholder="${element.display?.placeholder}" .rows=${rows} ?disabled=${disabled}
+                                   ?required=${element.required} .value="${value}"
+                                   .classes="${element.display?.updated ? "updated" : ""}"
                                    @filterChange="${e => this.onFilterChange(element.field, e.detail.value)}">
                 </text-field-filter>
                 ${element?.display?.help?.mode === "block" && element?.display?.help?.text ? html`<span class="help-block" style="margin: 5px">${element.display.help.text}</span>` : null}
@@ -518,7 +524,7 @@ export default class DataForm extends LitElement {
         // debugger
         return html`
             <div class="">
-                <number-field-filter label="Value" .value="${value ? value : ""}" 
+                <number-field-filter label="Value" .value="${value ? value : ""}"
                                      .min=${min} .max=${max} .step="${step}" .placeholder="${element.display?.placeholder || ""}"
                                      .classes="${element.display?.updated ? "updated" : ""}"
                                      @filterChange="${e => this.onFilterChange(element.field, e.detail.value)}">
@@ -581,9 +587,9 @@ export default class DataForm extends LitElement {
 
         return html`
             <div class="">
-                <toggle-switch .value="${value}" .onText="${element.display.onText}" .offText="${element.display.offText}" 
+                <toggle-switch .value="${value}" .onText="${element.display.onText}" .offText="${element.display.offText}"
                                .activeClass="${element.display.activeClass}" .inactiveClass="${element.display.inactiveClass}"
-                               .classes="${element.display?.updated ? "updated" : ""}" 
+                               .classes="${element.display?.updated ? "updated" : ""}"
                                @filterChange="${e => this.onFilterChange(element.field, e.detail.value)}">
                 </toggle-switch>
             </div>
@@ -596,7 +602,7 @@ export default class DataForm extends LitElement {
 
         return html`
             <div class="">
-                <toggle-buttons .names="${names}" .value="${value}" 
+                <toggle-buttons .names="${names}" .value="${value}"
                                 .activeClass="${element.display.activeClass}" .inactiveClass="${element.display.inactiveClass}"
                                 .classes="${element.display?.updated ? "updated" : ""}"
                                 @filterChange="${e => this.onFilterChange(element.field, e.detail.value)}">
@@ -689,9 +695,9 @@ export default class DataForm extends LitElement {
         if (allowedValues && allowedValues.length > 0) {
             return html`
                 <div class="">
-                    <select-field-filter .data="${allowedValues}" ?multiple="${element.multiple}" ?disabled=${disabled} 
-                                         ?required=${element.required} .value="${defaultValue}" 
-                                         .classes="${element.display?.updated ? "updated" : ""}" 
+                    <select-field-filter .data="${allowedValues}" ?multiple="${element.multiple}" ?disabled=${disabled}
+                                         ?required=${element.required} .value="${defaultValue}"
+                                         .classes="${element.display?.updated ? "updated" : ""}"
                                          @filterChange="${e => this.onFilterChange(element.field, e.detail.value)}">
                     </select-field-filter>
                 </div>
@@ -853,10 +859,10 @@ export default class DataForm extends LitElement {
         }
         if (data) {
             return html`
-                <simple-chart   .active="${true}" 
+                <simple-chart   .active="${true}"
                                 .type="${element.display.highcharts?.chart?.type || "column"}"
-                                .title="${element.display.highcharts?.title?.text || element.name}" 
-                                .data="${data}" 
+                                .title="${element.display.highcharts?.title?.text || element.name}"
+                                .data="${data}"
                                 .config="${element.display.highcharts}">
                 </simple-chart>`;
         } else {
@@ -867,7 +873,7 @@ export default class DataForm extends LitElement {
     _createJsonElement(element) {
         const json = this.getValue(element.field, this.data, this._getDefaultValue(element));
         if (json.length || UtilsNew.isObject(json)) {
-            return html`<json-viewer .data="${json}" />`;
+            return html`<json-viewer .data="${json}"></json-viewer>`;
         } else {
             return this._getDefaultValue(element);
         }
@@ -880,12 +886,12 @@ export default class DataForm extends LitElement {
         } else {
             if (Array.isArray(json)) {
                 if (json.length > 0) {
-                    return html`<tree-viewer .data="${json.map(element.display.apply)}" />`;
+                    return html`<tree-viewer .data="${json.map(element.display.apply)}"></tree-viewer>`;
                 } else {
                     return this._getDefaultValue(element);
                 }
             } else if (UtilsNew.isObject(json)) {
-                return html`<tree-viewer .data="${element.display.apply.call(null, json)}" />`;
+                return html`<tree-viewer .data="${element.display.apply.call(null, json)}"></tree-viewer>`;
             } else {
                 return html`<span class="text-danger">Unexpected JSON format</span>`;
             }
@@ -954,6 +960,20 @@ export default class DataForm extends LitElement {
         }));
     }
 
+    renderButtons() {
+        return html`
+            <div class="row">
+                <div class="${this.config.buttons.classes ? this.config.buttons.classes : "col-md-12"}" style="padding: 10px 20px">
+                    <button type="button" class="btn btn-primary ripple" @click="${this.onClear}">
+                        ${this.config.buttons.cancelText ? this.config.buttons.cancelText : "Cancel"}
+                    </button>
+                    <button type="button" class="btn btn-primary ripple" @click="${this.onSubmit}">
+                        ${this.config.buttons.okText ? this.config.buttons.okText : "OK"}
+                    </button>
+                </div>
+            </div>`;
+    }
+
     render() {
         // Check configuration
         if (!this.config) {
@@ -962,7 +982,7 @@ export default class DataForm extends LitElement {
                     <i class="fas fa-exclamation fa-5x"></i>
                     <h3>No valid configuration provided. Please check configuration:</h3>
                     <div style="padding: 10px">
-                        <pre>${JSON.stringify(this.config, null, 2)}</pre>              
+                        <pre>${JSON.stringify(this.config, null, 2)}</pre>
                     </div>
                 </div>
             `;
@@ -995,8 +1015,8 @@ export default class DataForm extends LitElement {
                 <button type="button" class="btn ${buttonClass} ${this.config.display.mode.disabled ? "disabled" : null}" data-toggle="modal" data-target="#${this._prefix}DataModal">
                     <i class="${this.config.icon ? this.config.icon : "fas fa-info-circle"} icon-padding" aria-hidden="true"></i> ${this.config.title}
                 </button>
-                <div class="modal fade" id="${this._prefix}DataModal" tabindex="-1" role="dialog" aria-labelledby="${this._prefix}exampleModalLabel" 
-                     aria-hidden="true">
+                <div class="modal fade" id="${this._prefix}DataModal" tabindex="-1" role="dialog" aria-labelledby="${this._prefix}exampleModalLabel"
+                    aria-hidden="true">
                     <div class="modal-dialog" style="width: ${this.config.display.mode.width ? this.config.display.mode.width : 768}px">
                         <div class="modal-content">
                             <div class="modal-header">
@@ -1034,23 +1054,19 @@ export default class DataForm extends LitElement {
                     </div>` :
                 null
             }
-            
+
+            <!-- Render buttons -->
+            ${this.config.buttons && this.config.buttons.show && this.config.buttons.top ?
+                this.renderButtons():
+                null
+            }
+
             <!-- Render data form -->
             ${this.data ? this.renderData() : null}
-            
+
             <!-- Render buttons -->
-            ${this.config.buttons && this.config.buttons.show ?
-                html`
-                    <div class="row">
-                        <div class="${this.config.buttons.classes ? this.config.buttons.classes : "col-md-12"}" style="padding: 10px 20px">
-                            <button type="button" class="btn btn-primary ripple" @click="${this.onClear}">
-                                ${this.config.buttons.cancelText ? this.config.buttons.cancelText : "Cancel"}
-                            </button>
-                            <button type="button" class="btn btn-primary ripple" @click="${this.onSubmit}">
-                                ${this.config.buttons.okText ? this.config.buttons.okText : "OK"}
-                            </button>
-                        </div>
-                    </div>` :
+            ${this.config.buttons && this.config.buttons.show && !this.config.buttons.top?
+                this.renderButtons():
                 null
             }
         `;

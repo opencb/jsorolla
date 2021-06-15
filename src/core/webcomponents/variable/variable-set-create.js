@@ -82,6 +82,8 @@ export default class VariableSetCreate extends LitElement {
             type: "form",
             buttons: {
                 show: true,
+                top: true,
+                classes: "pull-right",
                 cancelText: "Cancel",
                 okText: "Save"
             },
