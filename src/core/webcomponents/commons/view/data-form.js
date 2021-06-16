@@ -560,6 +560,7 @@ export default class DataForm extends LitElement {
 
     _createCheckboxElement(element) {
         let value = this.getValue(element.field); // || this._getDefaultValue(element);
+        const disabled = this._getBooleanValue(element.display?.disabled, false);
 
         // TODO to be fixed.
         if (element.field === "FILTER") {
@@ -568,7 +569,7 @@ export default class DataForm extends LitElement {
         }
         return html`
             <div class="">
-                <input type="checkbox" class="${this._prefix}FilterCheckbox" .checked="${value}"
+                <input type="checkbox" class="${this._prefix}FilterCheckbox" .checked="${value}" ?disabled=${disabled}
                         @click="${e => this.onFilterChange(element.field, e.currentTarget.checked)}" style="margin-right: 5px">
                 <span>${element.text}</span>
             </div>
