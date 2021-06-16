@@ -20,6 +20,7 @@ import "../commons/tool-header.js";
 import "../commons/filters/variableset-id-autocomplete.js";
 import "../variable/variable-set-manager.js";
 import "../variable/variable-type-value.js";
+import "../commons/filters/select-field-token.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 
 // eslint-disable-next-line new-cap
@@ -58,6 +59,12 @@ export default class VariableManager extends BaseManagerMixin(LitElement) {
         console.log("variable Observer");
     }
 
+    variableFormObserver() {
+        console.log("updating variable form");
+        this._config = {...this.getDefaultConfig(), ...this.config};
+        this.requestUpdate();
+    }
+
     onFieldChangeVariable(e) {
         const [field, prop] = e.detail.param.split(".");
         const value = e.detail.value;
@@ -65,9 +72,11 @@ export default class VariableManager extends BaseManagerMixin(LitElement) {
             ...this.variable,
             [prop]: e.detail.value
         };
-        if (prop == "type") {
-            this.typeObserver(value);
-            e.stopPropagation();
+        if (prop === "type") {
+            console.log("Update changed");
+            this.variableFormObserver();
+            // this.typeObserver(value);
+            // e.stopPropagation();
         }
     }
 
@@ -140,6 +149,8 @@ export default class VariableManager extends BaseManagerMixin(LitElement) {
 
     getDefaultConfig() {
         const variableType = ["BOOLEAN", "CATEGORICAL", "INTEGER", "DOUBLE", "STRING", "OBJECT", "MAP_BOOLEAN", "MAP_INTEGER", "MAP_DOUBLE", "MAP_STRING"];
+        const mapType = ["MAP_BOOLEAN", "MAP_INTEGER", "MAP_DOUBLE", "MAP_STRING"];
+        const ComplexType = ["MAP_", "OBJECT"];
         return {
             title: "Edit",
             icon: "fas fa-edit",
@@ -190,18 +201,36 @@ export default class VariableManager extends BaseManagerMixin(LitElement) {
                         },
                         {
                             name: "Allowed Values",
-                            // field: "variable.allowedValues",
-                            type: "input-text",
+                            field: "variable.allowedValues",
+                            type: "custom",
                             display: {
-                                visible: data => this.variable?.type === "CATEGORICAL"
+                                visible: variable => variable?.type === "CATEGORICAL",
+                                layout: "horizontal",
+                                defaultLayout: "horizontal",
+                                width: 12,
+                                style: "padding-left: 0px",
+                                render: () => html`
+                                <select-field-token
+                                    .values="${this.variable?.allowedValues}"
+                                    placeholder=${"Type something to start"}
+                                    @addToken=${e => this.onAddValues(e)}>
+                                </select-field-token>
+                                `
                             }
                         },
                         {
                             name: "Allowed Keys",
-                            // field: "variable.allowedKeys",
-                            type: "input-text",
+                            field: "variable.allowedKeys",
+                            type: "custom",
                             display: {
-                                visible: data => this.variable?.type === "MAP_INTEGER"
+                                visible: variable => mapType.includes(variable?.type),
+                                render: () => html `
+                                <select-field-token
+                                    .values="${this.variable?.allowedKeys}"
+                                    placeholder=${"Type something to start"}
+                                    @addToken=${e => this.onAddValues(e)}>
+                                </select-field-token>
+                                `
                             }
                         },
                         {
@@ -209,21 +238,27 @@ export default class VariableManager extends BaseManagerMixin(LitElement) {
                             field: "variable.defaultValue",
                             type: "input-text",
                             display: {
+                                disabled: variable => ComplexType.some(varType => variable?.type?.startsWith(varType))
                             }
                         },
                         {
                             name: "Multi Value",
                             field: "variable.multivalue",
                             type: "checkbox",
-                        },
-                        {
-                            name: "Depends On",
-                            field: "variable.dependsOn",
-                            type: "input-text",
                             display: {
-                                placeholder: "select a variable type..."
+                                disabled: variable => ComplexType.some(varType => variable?.type?.startsWith(varType))
                             }
                         },
+                        // {
+                        //     name: "Depends On",
+                        //     field: "variable.dependsOn",
+                        //     type: "select",
+                        //     allowedValues: variable => variable?.type === "CATEGORICAL" ? variable?.allowedValues: variable?.allowedKeys,
+                        //     display: {
+                        //         visible: variable => variable?.allowedValues || variable?.allowedKeys,
+                        //         placeholder: "select an allow key or values..."
+                        //     }
+                        // },
                         {
                             name: "Category",
                             field: "variable.category",
@@ -271,6 +306,7 @@ export default class VariableManager extends BaseManagerMixin(LitElement) {
             const allowedKeys = e.detail.value;
             this.variable.allowedKeys = allowedKeys;
         }
+        this.variableFormObserver();
         e.stopPropagation();
     }
 
