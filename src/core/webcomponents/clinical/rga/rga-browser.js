@@ -312,7 +312,7 @@ export default class RgaBrowser extends LitElement {
                                 tooltip: tooltips.region
                             },*/
                             {
-                                id: "populationFrequencyAlt",
+                                id: "populationFrequency",
                                 name: "Select Population Frequency",
                                 onlyPopFreqAll: true
                             },

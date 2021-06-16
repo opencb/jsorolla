@@ -170,8 +170,8 @@ export default class RgaFilter extends LitElement {
                 content = html`<cohort-stats-filter .opencgaSession="${this.opencgaSession}" .onlyCohortAll=${true} .cohortStatsAlt="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
                             </cohort-stats-filter>`;
                 break;
-            case "populationFrequencyAlt":
-                content = html`<population-frequency-filter .populationFrequencies="${populationFrequencies}" .allowedFrequencies=${this.allowedPopFrequencies} ?onlyPopFreqAll="${subsection.onlyPopFreqAll}" .populationFrequencyAlt="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange("populationFrequencyAlt", e.detail.value)}"></population-frequency-filter>`;
+            case "populationFrequency":
+                content = html`<population-frequency-filter .populationFrequencies="${populationFrequencies}" .allowedFrequencies=${this.allowedPopFrequencies} ?onlyPopFreqAll="${subsection.onlyPopFreqAll}" .populationFrequencyAlt="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></population-frequency-filter>`;
                 break;
             case "type":
                 content = html`<variant-type-filter .type="${this.preparedQuery[subsection.id]}" .config="${subsection}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></variant-type-filter>`;
