@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-import UtilsNew from "../../utilsNew.js";
-
 
 export default class CatalogGridFormatter {
 
@@ -23,8 +21,8 @@ export default class CatalogGridFormatter {
         if (value && value.length === 0) {
             return "-";
         }
-
-        const tooltip = [...value].sort((a, b) => a.status === "OBSERVED" ? -1 : 1).map(phenotype => {
+        const status = ["OBSERVED", "NOT_OBSERVED", "UNKNOWN"];
+        const tooltip = [...value].sort((a, b) => status.indexOf(a.status) - status.indexOf(b.status)).map(phenotype => {
             return `
                     <p>
                         ${phenotype.source && phenotype.source.toUpperCase() === "HPO" ?
