@@ -75,40 +75,8 @@ export default class DiseasePanelFilter extends LitElement {
         }
     }
 
-    // Deprecated
-    showPanelGenes(panels) {
-        PolymerUtils.getElementById(this._prefix + "DiseasePanelsTextarea").value = "";
-        const _this = this;
-
-        if (panels && panels.length) {
-            this.opencgaSession.opencgaClient.panels()
-                .info(panels.join(","), {
-                    study: _this.opencgaSession.study.fqn,
-                    include: "id,name,stats,genes.id,genes.name,regions.id"
-                })
-                .then(function(response) {
-                    let text = "";
-                    for (const panelResponse of response.response) {
-                        const panel = panelResponse.result[0];
-                        const geneNames = panel.genes.map(gene => gene.name);
-                        const regions = panel.regions.map(region => region.id);
-                        text += `${panel.name} (${geneNames.length} genes and ${regions.length} regions): ${geneNames.join(",")} \n`;
-                        text += `${geneNames.join(",")} \n`;
-                        text += `${regions.join(",")} \n\n`;
-                    }
-                    PolymerUtils.getElementById(_this._prefix + "DiseasePanelsTextarea").value = text;
-                })
-                .catch(function(response) {
-                    console.error(response);
-                });
-        } else {
-            PolymerUtils.getElementById(_this._prefix + "DiseasePanelsTextarea").value = "";
-        }
-    }
-
     panelChange(e) {
         e.stopPropagation();
-        
         if (e.detail?.value) {
             this.genes = this.diseasePanels.find(diseasePanel => diseasePanel.id === e.detail.value)?.genes ?? [];
             this.requestUpdate();
@@ -116,19 +84,18 @@ export default class DiseasePanelFilter extends LitElement {
     }
 
     filterChange(e) {
+        this.panelId = e.detail.value;
         const event = new CustomEvent("filterChange", {
             detail: {
                 value: e.detail.value
-            },
-            bubbles: true,
-            composed: true
+            }
         });
         this.dispatchEvent(event);
     }
 
     getDefaultConfig() {
         return {
-            showSummary: false
+            showSummary: true
         };
     }
 
@@ -180,9 +147,22 @@ export default class DiseasePanelFilter extends LitElement {
                                             @filterChange="${this.filterChange}">
                     </select-field-filter>
                     
-                    ${this._config.showSummary
+                    ${this._config.showSummary && this.panelId
                         ? html`
-                            <textarea class="form-control" rows="4" style="margin-top: 5px;background: #f7f7f7" disabled>${this.panelId}</textarea>`
+                            <div class="selection-list">
+                                <ul>
+                                    ${this.panelId.split(",").map(panel => {
+                                        const p = this.diseasePanels.find(p => p.id === panel);
+                                        return html`
+                                            <li>
+                                                <span class="badge break-spaces">
+                                                    <a href="https://panelapp.genomicsengland.co.uk/panels/${p.source.id}" target="_blank">${p.name} <i class="fas fa-external-link-alt"></i></a>
+                                                </span>
+                                            </li>`;
+                                    })}
+                                </ul>
+                            </div>
+                            `
                         : null
                     }
                 </div>
