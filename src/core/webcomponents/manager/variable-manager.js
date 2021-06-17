@@ -80,73 +80,6 @@ export default class VariableManager extends BaseManagerMixin(LitElement) {
         }
     }
 
-    typeObserver(value) {
-        let customElement = {};
-        let sections = [];
-        switch (value) {
-            case "OBJECT":
-                customElement = {
-                    elements: [
-                        {
-                            field: "variables",
-                            type: "custom",
-                            display: {
-                                layout: "vertical",
-                                defaultLayout: "vertical",
-                                width: 12,
-                                style: "padding-left: 0px",
-                                render: () => html`
-                                    <variable-manager
-                                        .parent="${false}"
-                                        .variables="${this.variable?.variables}"
-                                        .opencgaSession="${this.opencgaSession}"
-                                        @addItem="${e => this.onAddVariableChild(e)}">
-                                    </variable-manager>`
-                            }
-                        },
-                    ]
-                };
-                sections = [...this.getDefaultConfig().sections, {...customElement}];
-                this._config = {...this.getDefaultConfig(), ...this.config, sections: sections};
-                this.requestUpdate();
-                break;
-            case "CATEGORICAL":
-            case "MAP_STRING":
-                customElement = {
-                    elements: [
-                        {
-                            field: "categorical",
-                            type: "custom",
-                            display: {
-                                layout: "vertical",
-                                defaultLayout: "vertical",
-                                width: 12,
-                                style: "padding-left: 0px",
-                                render: () => html`
-                                <variable-type-values
-                                        .type="${this.variable.type}"
-                                        @addItem="${e => this.onAddValues(e)}">
-                                </variable-type-values>
-                                `
-                            }
-                        },
-                    ]
-                };
-                sections = [...this.getDefaultConfig().sections, {...customElement}];
-                this._config = {...this.getDefaultConfig(), ...this.config, sections: sections};
-                this.requestUpdate();
-                break;
-            case "MAP_BOOLEAN":
-            case "MAP_INTEGER":
-            case "MAP_DOUBLE":
-                break;
-            default:
-                this._config = {...this.getDefaultConfig(), ...this.config};
-                this.requestUpdate();
-                break;
-        }
-    }
-
     getDefaultConfig() {
         const variableType = ["BOOLEAN", "CATEGORICAL", "INTEGER", "DOUBLE", "STRING", "OBJECT", "MAP_BOOLEAN", "MAP_INTEGER", "MAP_DOUBLE", "MAP_STRING"];
         const mapType = ["MAP_BOOLEAN", "MAP_INTEGER", "MAP_DOUBLE", "MAP_STRING"];
@@ -249,16 +182,17 @@ export default class VariableManager extends BaseManagerMixin(LitElement) {
                                 disabled: variable => ComplexType.some(varType => variable?.type?.startsWith(varType))
                             }
                         },
-                        // {
-                        //     name: "Depends On",
-                        //     field: "variable.dependsOn",
-                        //     type: "select",
-                        //     allowedValues: variable => variable?.type === "CATEGORICAL" ? variable?.allowedValues: variable?.allowedKeys,
-                        //     display: {
-                        //         visible: variable => variable?.allowedValues || variable?.allowedKeys,
-                        //         placeholder: "select an allow key or values..."
-                        //     }
-                        // },
+                        {
+                            name: "Depends On",
+                            field: "variable.dependsOn",
+                            type: "select",
+                            // allowedValues: variable => variable?.type === "CATEGORICAL" ? variable?.allowedValues: variable?.allowedKeys,
+                            allowedValues: this.variables?.map(variable => variable.name),
+                            display: {
+                                visible: this.variables?.length > 0,
+                                placeholder: "select an allow key or values..."
+                            }
+                        },
                         {
                             name: "Category",
                             field: "variable.category",
@@ -284,8 +218,30 @@ export default class VariableManager extends BaseManagerMixin(LitElement) {
                                 placeholder: "VariableSet description..."
                             }
                         }
+                    ],
+                },
+                {
+                    elements: [
+                        {
+                            field: "variables",
+                            type: "custom",
+                            display: {
+                                visible: variable => variable?.type === "OBJECT",
+                                layout: "vertical",
+                                defaultLayout: "vertical",
+                                width: 12,
+                                style: "padding-left: 0px",
+                                render: () => html`
+                                    <variable-manager
+                                        .parent="${false}"
+                                        .variables="${this.variable?.variables}"
+                                        .opencgaSession="${this.opencgaSession}"
+                                        @addItem="${e => this.onAddVariableChild(e)}">
+                                    </variable-manager>`
+                            }
+                        }
                     ]
-                }
+                },
             ]
         };
     }
@@ -318,6 +274,14 @@ export default class VariableManager extends BaseManagerMixin(LitElement) {
         e.stopPropagation();
     }
 
+    onEditVariable(item) {
+        console.log(item);
+        this.variable = item;
+        this.isShow = true;
+        this.variableFormObserver();
+        // this.getVariablesById(item.variableSetId);
+    }
+
     onRemoveVariablesChild(e) {
         console.log("onRemoveVariablesChild");
         this.variable = {
@@ -343,12 +307,13 @@ export default class VariableManager extends BaseManagerMixin(LitElement) {
             <hr style="margin:0px">
             <div class="col-md-10" style="padding: 10px 20px">
                 <button type="button" class="btn btn-primary ripple" @click="${this.onShow}">
-                    Add Variable
+                    ${!this.isShow? "Add Variable":"Close Variable"}
                 </button>
             </div>
             <div class="col-md-12" style="padding: 10px 20px">
                 ${this.variables?.map(item => html`
-                    <span class="label label-primary" style="font-size: 14px; margin:5px; padding-right:0px; display:inline-block">${item.name}:${item.type}
+                    <span class="label label-primary" style="font-size: 14px; margin:5px; padding-right:0px; display:inline-block">
+                        <span style="cursor:pointer" @click=${e => this.onEditVariable(item)}>${item.name}:${item.type}</span>
                         <span class="badge" style="cursor:pointer" @click=${e => this.onRemoveItem(e, item)}>X</span>
                     </span>`
                 )}

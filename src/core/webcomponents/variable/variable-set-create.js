@@ -193,9 +193,9 @@ export default class VariableSetCreate extends LitElement {
         console.log("onRemoveVariable");
         this.variableSet = {
             ...this.variableSet,
-            variables: this.variableSet.variables.filter(item => item !== e.detai.value)
+            variables: this.variableSet.variables.filter(item => item !== e.detail.value)
         };
-        // this.requestUpdate();
+        this.requestUpdate();
     }
 
     onClear(e) {

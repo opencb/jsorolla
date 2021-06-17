@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { html, LitElement } from "/web_modules/lit-element.js";
+import {html, LitElement} from "/web_modules/lit-element.js";
 import UtilsNew from "./../../utilsNew.js";
 import "./study-admin-users.js";
 import "./study-admin-permissions.js";
@@ -24,7 +24,7 @@ import "./study-admin-sample.js";
 import "./study-admin-individual.js";
 import "./study-admin-family.js";
 import "./study-admin-cohort.js";
-import "./study-admin-configuration.js"
+import "./study-admin-configuration.js";
 
 
 export default class StudyAdmin extends LitElement {
@@ -64,22 +64,25 @@ export default class StudyAdmin extends LitElement {
     connectedCallback() {
         super.connectedCallback();
 
-        this._config = { ...this.getDefaultConfig(), ...this.config };
+        this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
     update(changedProperties) {
         if (changedProperties.has("studyId") || changedProperties.has("opencgaSession")) {
-            for (const project of this.opencgaSession.projects) {
-                for (const study of project.studies) {
-                    if (study.id === this.studyId || study.fqn === this.studyId) {
-                        this.study = study;
-                        break;
-                    }
+            this.studyIdObserver();
+        }
+        super.update(changedProperties);
+    }
+
+    studyIdObserver() {
+        for (const project of this.opencgaSession.projects) {
+            for (const study of project.studies) {
+                if (study.id === this.studyId || study.fqn === this.studyId) {
+                    this.study = study;
+                    break;
                 }
             }
         }
-
-        super.update(changedProperties);
     }
 
     getDefaultConfig() {
@@ -110,8 +113,8 @@ export default class StudyAdmin extends LitElement {
             <style>
 
                 .navbar.navbar-inverse.main-navbar{
-                    position:fixed; 
-                    top:0; 
+                    position:fixed;
+                    top:0;
                     width:100%;
                     z-index: 1000;
                 }
@@ -272,6 +275,12 @@ export default class StudyAdmin extends LitElement {
                     padding-left: 15px;
                 }
 
+                .footer {
+                    position: fixed;
+                    bottom: 0px;
+                    z-index: 10;
+                }
+
             </style>
 
             <div class="row left">
@@ -413,6 +422,7 @@ export default class StudyAdmin extends LitElement {
                 </div>
             </div>`;
     }
+
 }
 
 customElements.define("study-admin", StudyAdmin);
