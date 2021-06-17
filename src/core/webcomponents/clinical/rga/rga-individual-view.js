@@ -160,7 +160,7 @@ export default class RgaIndividualView extends LitElement {
 
                 this.opencgaSession.opencgaClient.clinical().summaryRgaIndividual(_filters)
                     .then(rgaIndividualResponse => {
-                        this.isApproximateCount = rgaIndividualResponse.getResultEvents("WARNING")?.find(event => event?.message?.includes("numMatches value is approximated considering the individuals"));
+                        this.isApproximateCount = rgaIndividualResponse.getResultEvents("WARNING")?.find(event => event?.message?.includes("numMatches value is approximated"));
                         this.hiddenIndividuals = rgaIndividualResponse.getResponse()?.attributes.totalIndividuals - rgaIndividualResponse.getResponse().numMatches;
 
                         // fetching Case Id of the individuals (paginated)
@@ -245,14 +245,16 @@ export default class RgaIndividualView extends LitElement {
         });
     }
 
+    // TODO move this into utils class
     formatShowingRows(pageFrom, pageTo, totalRows) {
         const pagedFromFormatted = Number(pageFrom).toLocaleString();
         const pagedToFormatted = Number(pageTo).toLocaleString();
-        const total = this.isApproximateCount ? "~" + (Math.round(totalRows / 100) * 100) : Number(totalRows).toLocaleString();
-        let res = `Showing <b>${pagedFromFormatted}</b> to <b>${pagedToFormatted}</b> of <b>${total}</b> records `;
+        let res = `Showing <b>${pagedFromFormatted}</b> to <b>${pagedToFormatted}</b> of <b>${Number(totalRows).toLocaleString()}</b> records `;
         let tooltip = "";
         if (this.isApproximateCount) {
             tooltip += "The total count is approximate. ";
+            const round = Math.pow(10, totalRows.toString().length - 2);
+            res = `Showing <b>${pagedFromFormatted}</b> to <b>${pagedToFormatted}</b> of <b>${Number((Math.round(totalRows/round))*round).toLocaleString()}</b> records `;
         }
         if (this.hiddenIndividuals) {
             tooltip += (this.isApproximateCount ? "<br>" : "") + `${this.hiddenIndividuals} individual${this.hiddenIndividuals > 1 ? "s are" : " is"} hidden due to your permission settings.`;
