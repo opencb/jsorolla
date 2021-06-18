@@ -21,6 +21,7 @@ import "../commons/filters/variableset-id-autocomplete.js";
 import "../variable/variable-set-manager.js";
 import "../variable/variable-type-value.js";
 import "../commons/filters/select-field-token.js";
+import "../variable/treeviewer-variable.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 
 // eslint-disable-next-line new-cap
@@ -297,6 +298,151 @@ export default class VariableManager extends BaseManagerMixin(LitElement) {
         e.stopPropagation();
     }
 
+    sampleVariables() {
+        return [
+            {
+                "id": "typeCount",
+                "name": "typeCount",
+                "category": "",
+                "type": "MAP_INTEGER",
+                "required": false,
+                "multiValue": false,
+                "allowedValues": [],
+                "rank": 7,
+                "dependsOn": "",
+                "description": "Variants count group by type. e.g. SNP, INDEL, MNP, SNV, ...",
+                "attributes": {}
+            },
+            {
+                "id": "variantCount",
+                "name": "variantCount",
+                "category": "",
+                "type": "INTEGER",
+                "required": false,
+                "multiValue": false,
+                "allowedValues": [],
+                "rank": 0,
+                "dependsOn": "",
+                "description": "Number of variants in the variant set",
+                "attributes": {}
+            },
+            {
+                "id": "hsMetricsReport",
+                "name": "Hs metrics report",
+                "category": "",
+                "type": "OBJECT",
+                "required": false,
+                "multiValue": false,
+                "allowedValues": [],
+                "rank": 10,
+                "dependsOn": "",
+                "description": "Hs metrics report (from the picard/CollecHsMetrics command)",
+                "variables": [
+                    {
+                        "id": "onBaitVsSelected",
+                        "name": "On bait vs selected",
+                        "type": "DOUBLE",
+                        "required": false,
+                        "multiValue": false,
+                        "allowedValues": [],
+                        "rank": 24,
+                        "description": "The percentage of on+near bait bases that are on as opposed to near"
+                    },
+                    {
+                        "id": "minTargetCoverage",
+                        "name": "Min target coverage",
+                        "type": "DOUBLE",
+                        "required": false,
+                        "multiValue": false,
+                        "allowedValues": [],
+                        "rank": 23,
+                        "description": "The minimum coverage of targets"
+                    }
+                ]
+            },
+            {
+                "id": "fastQcReport",
+                "name": "FastQC report",
+                "category": "",
+                "type": "OBJECT",
+                "required": false,
+                "multiValue": false,
+                "allowedValues": [],
+                "rank": 8,
+                "dependsOn": "",
+                "description": "FastQC report (from the FastQC tool)",
+                "variables": [],
+                "attributes": {}
+            },
+            {
+                "id": "mendelianErrorsReport",
+                "name": "Mendelian errors report",
+                "category": "",
+                "type": "OBJECT",
+                "required": false,
+                "multiValue": false,
+                "allowedValues": [],
+                "rank": 7,
+                "dependsOn": "",
+                "description": "Mendelian errors report",
+                "variables": [
+                    {
+                        "id": "numErrors",
+                        "name": "Total number of errors",
+                        "type": "INTEGER",
+                        "required": false,
+                        "multiValue": false,
+                        "allowedValues": [],
+                        "rank": 0,
+                        "description": "Total number of errors"
+                    },
+                    {
+                        "id": "chromAggregation",
+                        "name": "Aggregation per chromosome",
+                        "type": "OBJECT",
+                        "required": false,
+                        "multiValue": false,
+                        "allowedValues": [],
+                        "rank": 2,
+                        "description": "Aggregation per chromosome",
+                        "variables": [
+                            {
+                                "id": "codeAggregation",
+                                "name": "Aggregation per error code",
+                                "type": "MAP_INTEGER",
+                                "required": false,
+                                "multiValue": false,
+                                "allowedValues": [],
+                                "rank": 2,
+                                "description": "Aggregation per error code for that chromosome"
+                            },
+                            {
+                                "id": "numErrors",
+                                "name": "Total number of errors",
+                                "type": "STRING",
+                                "required": false,
+                                "multiValue": false,
+                                "allowedValues": [],
+                                "rank": 1,
+                                "description": "Total number of errors"
+                            },
+                            {
+                                "id": "chromosome",
+                                "name": "chromosome",
+                                "type": "STRING",
+                                "required": false,
+                                "multiValue": false,
+                                "allowedValues": [],
+                                "rank": 0,
+                                "description": "Chromosome"
+                            }
+                        ]
+                    },
+                ]
+            }
+        ];
+    }
+
     render() {
         return html`
         <div class="row">
@@ -311,12 +457,9 @@ export default class VariableManager extends BaseManagerMixin(LitElement) {
                 </button>
             </div>
             <div class="col-md-12" style="padding: 10px 20px">
-                ${this.variables?.map(item => html`
-                    <span class="label label-primary" style="font-size: 14px; margin:5px; padding-right:0px; display:inline-block">
-                        <span style="cursor:pointer" @click=${e => this.onEditVariable(item)}>${item.name}:${item.type}</span>
-                        <span class="badge" style="cursor:pointer" @click=${e => this.onRemoveItem(e, item)}>X</span>
-                    </span>`
-                )}
+                <treeviewer-variable
+                    .variables="${this.sampleVariables()}">
+                </treeviewer-variable>
             </div>
         </div>
         ${this.isShow ? html `
