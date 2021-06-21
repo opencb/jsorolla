@@ -119,15 +119,18 @@ export default class OpencgaProjects extends LitElement {
 
     opencgaSessionObserver() {
         this.totalCount = {
-            variants: 0,
             files: 0,
+            family: 0,
             samples: 0,
             jobs: 0,
             individuals: 0,
-            cohorts: 0
+            cohorts: 0,
+            variants: 0
         };
         this.filesCount = new CountUp("files-count", 0);
         this.filesCount.start();
+        this.familyCount = new CountUp("files-count", 0);
+        this.familyCount.start();
         this.samplesCount = new CountUp("samples-count", 0);
         this.samplesCount.start();
         this.jobsCount = new CountUp("jobs-count", 0);
@@ -176,25 +179,24 @@ export default class OpencgaProjects extends LitElement {
             this.chartData[project.id] = {};
             for (const study of project.studies) {
                 try {
-                    const catalogStudyResponse = await this.opencgaSession.opencgaClient.studies().aggregationStats(study.fqn, {
+                    /*const catalogStudyResponse = await this.opencgaSession.opencgaClient.studies().aggregationStats(study.fqn, {
                         individualFields: "lifeStatus,sex"
-                    });
+                    });*/
 
-                    // let f = await fetch("/lib/jsorolla/src/core/webcomponents/user/" + study.fqn + ".json")
-                    // const catalogStudyResponse = new RestResponse(await f.json());
+                    const f = await fetch("/lib/jsorolla/src/core/webcomponents/user/" + study.fqn + ".json");
+                    const catalogStudyResponse = new RestResponse(await f.json());
 
-                    // console.error(study.fqn)
-                    // console.log(JSON.stringify(catalogStudyResponse))
-                    // console.log("catalogStudyResponse", catalogStudyResponse)
                     const r = catalogStudyResponse.getResult(0).results ? catalogStudyResponse.getResult(0).results[0] : catalogStudyResponse.getResult(0);
 
                     const stats = r[study.fqn];
                     this.filesCount.update(this.totalCount.files += stats.file.results[0]?.count);
+                    this.familyCount.update(this.totalCount.files += stats.family.results[0]?.count);
                     this.samplesCount.update(this.totalCount.samples += stats.sample.results[0]?.count);
                     this.jobsCount.update(this.totalCount.jobs += stats.job.results[0]?.count);
                     this.individualsCount.update(this.totalCount.individuals += stats.individual.results[0]?.count);
-                    // this.variantCount.update(this.totalCount.variants += r.variants);
                     this.cohortsCount.update(this.totalCount.cohorts += stats.cohort.results[0]?.count);
+
+                    // this.variantCount.update(this.totalCount.variants += r.variants);
 
                     this.data[project.id].stats[study.fqn] = {
                         file: {
@@ -220,15 +222,16 @@ export default class OpencgaProjects extends LitElement {
             }
 
 
-            const response = await this.opencgaSession.opencgaClient.variants().aggregationStats({project: project.id, fields: "studies"});
+            //const response = await this.opencgaSession.opencgaClient.variants().aggregationStats({project: project.id, fields: "studies"});
+
 
             // let response = await fetch("/lib/jsorolla/src/core/webcomponents/user/" + project.id + ".json")
             // response = new RestResponse(await response.json());
 
             // console.error(project.id)
             // console.log(JSON.stringify(response))
-            const r = response.getResult(0).results ? response.getResult(0).results[0] : response.getResult(0);
-            this.variantsCount.update(this.totalCount.variants += r.count);
+           /* const r = response.getResult(0).results ? response.getResult(0).results[0] : response.getResult(0);
+            this.variantsCount.update(this.totalCount.variants += r.count);*/
 
             this.chartData[project.id] = {};
             /* for (let entity in this.charts) {
