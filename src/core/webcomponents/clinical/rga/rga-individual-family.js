@@ -144,7 +144,7 @@ export default class RgaIndividualFamily extends LitElement {
             pageSize: this._config.pageSize,
             pageList: this._config.pageList,
             paginationVAlign: "both",
-            formatShowingRows: this.gridCommons.formatShowingRows,
+            formatShowingRows: (pageFrom, pageTo, totalRows) => this.formatShowingRows(pageFrom, pageTo, totalRows),
             showExport: this._config.showExport,
             detailView: this._config.detailView,
             detailFormatter: this._config.detailFormatter,
@@ -159,6 +159,8 @@ export default class RgaIndividualFamily extends LitElement {
                 };
                 this.opencgaSession.opencgaClient.clinical().queryRgaVariant(_filters)
                     .then(async rgaVariantResponse => {
+                        this.isApproximateCount = rgaVariantResponse.getResultEvents("WARNING")?.find(event => event?.message?.includes("numMatches value is approximated"));
+
                         const variantIds = rgaVariantResponse.getResults().map(variant => variant.id);
                         if (variantIds.length) {
                             const variantResponse = await this.getVariantInfo(this.sampleIds, variantIds);
@@ -197,6 +199,27 @@ export default class RgaIndividualFamily extends LitElement {
         });
 
     }
+
+    // TODO move this into utils class
+    formatShowingRows(pageFrom, pageTo, totalRows) {
+        const pagedFromFormatted = Number(pageFrom).toLocaleString();
+        const pagedToFormatted = Number(pageTo).toLocaleString();
+        let res = `Showing <b>${pagedFromFormatted}</b> to <b>${pagedToFormatted}</b> of <b>${Number(totalRows).toLocaleString()}</b> records `;
+        let tooltip = "";
+        if (this.isApproximateCount) {
+            tooltip += "The total count is approximate. ";
+            const round = Math.pow(10, totalRows.toString().length - 2);
+            res = `Showing <b>${pagedFromFormatted}</b> to <b>${pagedToFormatted}</b> of <b>~${Number((Math.round(totalRows/round))*round).toLocaleString()}</b> records `;
+        }
+        if (this.hiddenIndividuals) {
+            tooltip += (this.isApproximateCount ? "<br>" : "") + `${this.hiddenIndividuals} individual${this.hiddenIndividuals > 1 ? "s are" : " is"} hidden due to your permission settings.`;
+        }
+        if (tooltip) {
+            res += ` <a tooltip-title="Warning" tooltip-text='${tooltip}'> <i class="fas fa-exclamation-circle text-muted"></i></a>`;
+        }
+        return res;
+    }
+
 
     /**
      * @deprecated

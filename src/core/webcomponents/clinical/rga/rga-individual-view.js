@@ -254,7 +254,7 @@ export default class RgaIndividualView extends LitElement {
         if (this.isApproximateCount) {
             tooltip += "The total count is approximate. ";
             const round = Math.pow(10, totalRows.toString().length - 2);
-            res = `Showing <b>${pagedFromFormatted}</b> to <b>${pagedToFormatted}</b> of <b>${Number((Math.round(totalRows/round))*round).toLocaleString()}</b> records `;
+            res = `Showing <b>${pagedFromFormatted}</b> to <b>${pagedToFormatted}</b> of <b>~${Number((Math.round(totalRows/round))*round).toLocaleString()}</b> records `;
         }
         if (this.hiddenIndividuals) {
             tooltip += (this.isApproximateCount ? "<br>" : "") + `${this.hiddenIndividuals} individual${this.hiddenIndividuals > 1 ? "s are" : " is"} hidden due to your permission settings.`;
