@@ -181,6 +181,13 @@ export default class VariantBrowserDetail extends LitElement {
                                     .active="${active}">
                             </variant-beacon-network>`;
                     }
+                },
+                {
+                    id: "json-view",
+                    name: "JSON Data",
+                    render: (variant, active, opencgaSession) => {
+                        return html`<json-viewer .data="${variant}" .active="${active}"></json-viewer>`;
+                    }
                 }
                 // TODO Think about Networks
                 // {
