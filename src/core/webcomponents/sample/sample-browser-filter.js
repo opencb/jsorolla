@@ -96,6 +96,8 @@ export default class SampleBrowserFilter extends LitElement {
         }
     }
 
+    // TODO review
+    // this is used only in case of Search button inside filter component.
     onSearch() {
         this.notifySearch(this.preparedQuery);
     }
@@ -131,9 +133,7 @@ export default class SampleBrowserFilter extends LitElement {
         this.dispatchEvent(new CustomEvent("queryChange", {
             detail: {
                 query: query
-            },
-            bubbles: true,
-            composed: true
+            }
         }));
     }
 
@@ -141,9 +141,7 @@ export default class SampleBrowserFilter extends LitElement {
         this.dispatchEvent(new CustomEvent("querySearch", {
             detail: {
                 query: query
-            },
-            bubbles: true,
-            composed: true
+            }
         }));
     }
 
@@ -217,7 +215,7 @@ export default class SampleBrowserFilter extends LitElement {
 
     render() {
         return html`
-            ${this.searchButton ? html`
+            ${this.config?.searchButton ? html`
                 <div class="search-button-wrapper">
                     <button type="button" class="btn btn-primary ripple" @click="${this.onSearch}">
                         <i class="fa fa-search" aria-hidden="true"></i> Search

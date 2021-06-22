@@ -683,7 +683,6 @@ export default class VariantBrowser extends LitElement {
                                                     .cellbaseClient="${this.cellbaseClient}"
                                                     .populationFrequencies="${this.populationFrequencies}"
                                                     .consequenceTypes="${this.consequenceTypes}"
-                                                    .searchButton="${false}"
                                                     .config="${this._config.filter}"
                                                     @queryChange="${this.onQueryFilterChange}"
                                                     @querySearch="${this.onVariantFilterSearch}"

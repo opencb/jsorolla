@@ -93,7 +93,6 @@ export default class OpencgaSampleBrowser extends LitElement {
         return {
             title: "Sample Browser",
             icon: "fab fa-searchengin",
-            searchButtonText: "Search",
             views: [
                 {
                     id: "table-tab",
@@ -112,6 +111,7 @@ export default class OpencgaSampleBrowser extends LitElement {
                 }*/
             ],
             filter: {
+                searchButton: false,
                 sections: [
                     {
                         title: "Section title",
