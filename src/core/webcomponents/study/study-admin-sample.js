@@ -108,7 +108,7 @@ export default class StudyAdminSample extends LitElement {
     }
 
     onSampleSearch(e) {
-        if (e.detail.status.error) {
+        if (e.detail.status?.error) {
             // inform
         } else {
             this.sample = e.detail.value;

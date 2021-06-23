@@ -275,12 +275,12 @@ export default class VariableManager extends BaseManagerMixin(LitElement) {
         e.stopPropagation();
     }
 
-    onEditVariable(item) {
-        console.log(item);
-        this.variable = item;
+    onEditVariable(e) {
+        console.log("EditVariable: ", e.detail.value);
+        this.variable = {...e.detail.value};
         this.isShow = true;
         this.variableFormObserver();
-        // this.getVariablesById(item.variableSetId);
+        e.stopPropagation();
     }
 
     onRemoveVariable(e) {
@@ -288,7 +288,7 @@ export default class VariableManager extends BaseManagerMixin(LitElement) {
         const removeVariable = e.detail.value.split(".");
         this.variables = this.removalVariable(this.variables, removeVariable);
         console.log("result: ", this.variables);
-        this.requestUpdate();
+        e.stopPropagation();
         // this.variable = {
         //     ...this.variable,
         //     variables: this.variable.variables.filter(item => item !== e.detail.value)
@@ -349,6 +349,7 @@ export default class VariableManager extends BaseManagerMixin(LitElement) {
                     <treeviewer-variable
                         .variables="${this.variables}"
                         @addVariable="${e => this.onShowVariableForm(e)}"
+                        @editVariable="${e => this.onEditVariable(e)}"
                         @removeVariable="${e => this.onRemoveVariable(e)}">
                     </treeviewer-variable>
                 </div>
