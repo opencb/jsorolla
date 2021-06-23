@@ -18,12 +18,12 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import "../commons/tool-header.js";
 import "../commons/filters/text-field-filter.js";
+import LitUtils from "../commons/utils/lit-utils.js";
 
 export default class TreeViewerVariable extends LitElement {
 
     constructor() {
         super();
-        this._init();
     }
 
     static get properties() {
@@ -34,68 +34,69 @@ export default class TreeViewerVariable extends LitElement {
         };
     }
 
-    _init() {
-        this.isShow = "";
-    }
-
     createRenderRoot() {
         return this;
     }
 
-    firstUpdated() {
-        // console.log("Try basic tree viewer", this);
-        // const toggler = this.getElementsByClassName("fa-caret-right");
-        // const self = this;
-        // console.log("Toggler ", toggler);
-        // toggler.forEach(el => {
+    updated(changedProperties) {
+        if (changedProperties.has("variables")) {
+            console.log("Updating elements tree");
+            const toggler = document.getElementsByClassName("fa-caret-right");
 
-        //     el.addEventListener("click", () => {
-        //         self.querySelector(".nested").classList.toggle("active");
-        //         self.classList.toggle("fa-caret-down");
-        //     });
-        // });
-        const toggler = document.getElementsByClassName("fa-caret-right");
-        let i;
-        for (i = 0; i < toggler.length; i++) {
-            toggler[i].addEventListener("click", function () {
-                const self = this;
-                console.log("I'm this: ", self);
-                console.log("I'm this: ", self.parentElement);
-                console.log("I'm this: ", self.parentElement.querySelector(".nested"));
-                this.parentElement.querySelector(".nested").classList.toggle("active");
-                this.classList.toggle("fa-caret-down");
+            toggler.forEach(el => {
+                el.addEventListener("click", function () {
+                    this.parentElement.querySelector(".nested").classList.toggle("active");
+                    this.classList.toggle("fa-caret-down");
+                });
             });
         }
     }
 
-    _openChildNode(e, el) {
-        // TODO: if this a object, display all the child node
-        console.log("Child", el);
-        // this.parentElement.querySelector(".nested").classList.toggle("active");
-        // this.classList.toggle("fa-caret-down");
+    addVariable(e, item) {
+        // Send to the variable-manager
+        LitUtils.dispatchEventCustom(this, "addVariable", item);
     }
 
-    closeChildNode() {
-        //
+    removeVariable(e, item) {
+        console.log(item);
+        LitUtils.dispatchEventCustom(this, "removeVariable", item);
     }
 
 
-    renderVariables(variables) {
+    editVariable(e, item) {
+        console.log("Edit Variable", item);
+        LitUtils.dispatchEventCustom(this, "editVariable", item);
+    }
+
+    renderVariableTitle(item) {
+        return html `${item.variables.length > 0 ? html`
+        <span class="fas fa-caret-right">
+            <span>${item.id} (${item.type})</span>
+        </span>` :
+        html `<span>${item.id} (${item.type})</span>`
+        }`;
+    }
+
+
+    renderVariables(variables, parentItem) {
         console.log("Render variables");
+        const itemParentOf = item => parentItem? `${parentItem}.${item.id}`: item.id;
         return html `
             ${variables.map(item => html`
                 ${item.type === "OBJECT"? html `
-                    <li><span class="fas fa-caret-right">${item.id} (${item.type})</span>
-                        <button type="button" class="btn btn-primary btn-xs">Add</button>
-                        <button type="button" class="btn btn-primary btn-xs">Edit</button>
-                        <button type="button" class="btn btn-danger btn-xs">Delete</button>
+                    <li class="tree-list">
+                            ${this.renderVariableTitle(item)}
+                            <button type="button" class="btn btn-primary btn-xs" @click="${e => this.addVariable(e, item)}">Add</button>
+                            <button type="button" class="btn btn-primary btn-xs" @click="${e => this.editVariable(e, item)}">Edit</button>
+                            <button type="button" class="btn btn-danger btn-xs" @click="${e => this.removeVariable(e, itemParentOf(item))}">Delete</button>
                         <ul class="nested">
-                            ${this.renderVariables(item.variables)}
+                            ${this.renderVariables(item.variables, itemParentOf(item))}
                         </ul>
                     </li>
-                    `:
-                    html`
-                    <li>${item.id} (${item.type})</li>`}
+                    `: html`<li> <span >${item.id} (${item.type})</span>
+                                <button type="button" class="btn btn-primary btn-xs" @click="${e => this.editVariable(e, item)}" >Edit</button>
+                                <button type="button" class="btn btn-danger btn-xs" @click="${e => this.removeVariable(e, itemParentOf(item))}">Delete</button>
+                            </li>`}
                 `)}
             `;
     }
@@ -107,6 +108,10 @@ export default class TreeViewerVariable extends LitElement {
             /* Remove default bullets */
             ul, #myUL {
                 list-style-type: none;
+            }
+
+            .tree-list {
+                padding-bottom:2px
             }
 
             /* Remove margins and padding from the parent ul */
@@ -143,49 +148,12 @@ export default class TreeViewerVariable extends LitElement {
                 display: block;
             }
         </style>
-
-        <ul id="myUL">
-        ${this.renderVariables(this.variables)}
-        </ul>
-        <button type="button" class="btn btn-primary btn-xs">Add Variable</button>
-        <!-- <ul id="myUL">
-        <li>Sencha</li>
-        <li>Gyokuro</li>
-        <li>Matcha</li>
-        <li>Pi Lo Chun</li>
-        <li><span class="fas fa-caret-right">Beverages</span>
-            <ul class="nested">
-            <li>Water</li>
-            <li>Coffee</li>
-            <li><span class="fas fa-caret-right">Tea</span>
-                <ul class="nested">
-                <li>Black Tea</li>
-                <li>White Tea</li>
-                <li><span class="fas fa-caret-right">Green Tea</span>
-                    <ul class="nested">
-                    <li>Sencha</li>
-                    <li>Gyokuro</li>
-                    <li>Matcha</li>
-                    <li>Pi Lo Chun</li>
-                    </ul>
-                </li>
-                </ul>
-            </li>
+        <div class="container" style="width:100%">
+            <ul id="myUL">
+                ${this.renderVariables(this.variables)}
             </ul>
-        </li>
-        <li><span class="fas fa-caret-right">Green Tea</span>
-            <ul class="nested">
-                <li>Sencha</li>
-                <li>Gyokuro</li>
-                <li>Matcha</li>
-                <li>Pi Lo Chun</li>
-            </ul>
-        </li>
-        <li>Sencha</li>
-        <li>Gyokuro</li>
-        <li>Matcha</li>
-        <li>Pi Lo Chun</li>
-        </ul> -->
+            <button type="button" class="btn btn-primary btn-xs" @click="${e => this.addVariableChild(e)}">Add Variable</button>
+        </div>
     `;
     }
 

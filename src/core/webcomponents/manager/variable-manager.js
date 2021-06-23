@@ -61,7 +61,7 @@ export default class VariableManager extends BaseManagerMixin(LitElement) {
     }
 
     variableFormObserver() {
-        console.log("updating variable form");
+        console.log("changed variable form");
         this._config = {...this.getDefaultConfig(), ...this.config};
         this.requestUpdate();
     }
@@ -74,7 +74,7 @@ export default class VariableManager extends BaseManagerMixin(LitElement) {
             [prop]: e.detail.value
         };
         if (prop === "type") {
-            console.log("Update changed");
+            console.log("changed type variable");
             this.variableFormObserver();
             // this.typeObserver(value);
             // e.stopPropagation();
@@ -221,28 +221,28 @@ export default class VariableManager extends BaseManagerMixin(LitElement) {
                         }
                     ],
                 },
-                {
-                    elements: [
-                        {
-                            field: "variables",
-                            type: "custom",
-                            display: {
-                                visible: variable => variable?.type === "OBJECT",
-                                layout: "vertical",
-                                defaultLayout: "vertical",
-                                width: 12,
-                                style: "padding-left: 0px",
-                                render: () => html`
-                                    <variable-manager
-                                        .parent="${false}"
-                                        .variables="${this.variable?.variables}"
-                                        .opencgaSession="${this.opencgaSession}"
-                                        @addItem="${e => this.onAddVariableChild(e)}">
-                                    </variable-manager>`
-                            }
-                        }
-                    ]
-                },
+                // {
+                //     elements: [
+                //         {
+                //             field: "variables",
+                //             type: "custom",
+                //             display: {
+                //                 visible: false, // variable => variable?.type === "OBJECT",
+                //                 layout: "vertical",
+                //                 defaultLayout: "vertical",
+                //                 width: 12,
+                //                 style: "padding-left: 0px",
+                //                 render: () => html`
+                //                     <variable-manager
+                //                         .parent="${false}"
+                //                         .variables="${this.variable?.variables}"
+                //                         .opencgaSession="${this.opencgaSession}"
+                //                         @addItem="${e => this.onAddVariableChild(e)}">
+                //                     </variable-manager>`
+                //             }
+                //         }
+                //     ]
+                // },
             ]
         };
     }
@@ -283,12 +283,38 @@ export default class VariableManager extends BaseManagerMixin(LitElement) {
         // this.getVariablesById(item.variableSetId);
     }
 
-    onRemoveVariablesChild(e) {
-        console.log("onRemoveVariablesChild");
-        this.variable = {
-            ...this.variable,
-            variables: this.variable.variables.filter(item => item !== e.detai.value)
-        };
+    onRemoveVariable(e) {
+        console.log("onRemoveVariable ", e.detail.value);
+        const removeVariable = e.detail.value.split(".");
+        this.variables = this.removalVariable(this.variables, removeVariable);
+        console.log("result: ", this.variables);
+        this.requestUpdate();
+        // this.variable = {
+        //     ...this.variable,
+        //     variables: this.variable.variables.filter(item => item !== e.detail.value)
+        // };
+    }
+
+    removalVariable(variables, removeVariables) {
+        let result = [];
+
+        if (removeVariables.length === 1) {
+            return variables.filter(item => item.id !== removeVariables[0]);
+        }
+
+        removeVariables.forEach(removeVariable => {
+            result = variables.map(item => {
+                if (item.id === removeVariable) {
+                    if (removeVariables.length > 1) {
+                        removeVariables.shift();
+                        return {...item, variables: this.removalVariable(item.variables, removeVariables)};
+                    }
+                } else {
+                    return item;
+                }
+            });
+        });
+        return result;
     }
 
     onClearForm(e) {
@@ -298,150 +324,17 @@ export default class VariableManager extends BaseManagerMixin(LitElement) {
         e.stopPropagation();
     }
 
-    sampleVariables() {
-        return [
-            {
-                "id": "typeCount",
-                "name": "typeCount",
-                "category": "",
-                "type": "MAP_INTEGER",
-                "required": false,
-                "multiValue": false,
-                "allowedValues": [],
-                "rank": 7,
-                "dependsOn": "",
-                "description": "Variants count group by type. e.g. SNP, INDEL, MNP, SNV, ...",
-                "attributes": {}
-            },
-            {
-                "id": "variantCount",
-                "name": "variantCount",
-                "category": "",
-                "type": "INTEGER",
-                "required": false,
-                "multiValue": false,
-                "allowedValues": [],
-                "rank": 0,
-                "dependsOn": "",
-                "description": "Number of variants in the variant set",
-                "attributes": {}
-            },
-            {
-                "id": "hsMetricsReport",
-                "name": "Hs metrics report",
-                "category": "",
-                "type": "OBJECT",
-                "required": false,
-                "multiValue": false,
-                "allowedValues": [],
-                "rank": 10,
-                "dependsOn": "",
-                "description": "Hs metrics report (from the picard/CollecHsMetrics command)",
-                "variables": [
-                    {
-                        "id": "onBaitVsSelected",
-                        "name": "On bait vs selected",
-                        "type": "DOUBLE",
-                        "required": false,
-                        "multiValue": false,
-                        "allowedValues": [],
-                        "rank": 24,
-                        "description": "The percentage of on+near bait bases that are on as opposed to near"
-                    },
-                    {
-                        "id": "minTargetCoverage",
-                        "name": "Min target coverage",
-                        "type": "DOUBLE",
-                        "required": false,
-                        "multiValue": false,
-                        "allowedValues": [],
-                        "rank": 23,
-                        "description": "The minimum coverage of targets"
-                    }
-                ]
-            },
-            {
-                "id": "fastQcReport",
-                "name": "FastQC report",
-                "category": "",
-                "type": "OBJECT",
-                "required": false,
-                "multiValue": false,
-                "allowedValues": [],
-                "rank": 8,
-                "dependsOn": "",
-                "description": "FastQC report (from the FastQC tool)",
-                "variables": [],
-                "attributes": {}
-            },
-            {
-                "id": "mendelianErrorsReport",
-                "name": "Mendelian errors report",
-                "category": "",
-                "type": "OBJECT",
-                "required": false,
-                "multiValue": false,
-                "allowedValues": [],
-                "rank": 7,
-                "dependsOn": "",
-                "description": "Mendelian errors report",
-                "variables": [
-                    {
-                        "id": "numErrors",
-                        "name": "Total number of errors",
-                        "type": "INTEGER",
-                        "required": false,
-                        "multiValue": false,
-                        "allowedValues": [],
-                        "rank": 0,
-                        "description": "Total number of errors"
-                    },
-                    {
-                        "id": "chromAggregation",
-                        "name": "Aggregation per chromosome",
-                        "type": "OBJECT",
-                        "required": false,
-                        "multiValue": false,
-                        "allowedValues": [],
-                        "rank": 2,
-                        "description": "Aggregation per chromosome",
-                        "variables": [
-                            {
-                                "id": "codeAggregation",
-                                "name": "Aggregation per error code",
-                                "type": "MAP_INTEGER",
-                                "required": false,
-                                "multiValue": false,
-                                "allowedValues": [],
-                                "rank": 2,
-                                "description": "Aggregation per error code for that chromosome"
-                            },
-                            {
-                                "id": "numErrors",
-                                "name": "Total number of errors",
-                                "type": "STRING",
-                                "required": false,
-                                "multiValue": false,
-                                "allowedValues": [],
-                                "rank": 1,
-                                "description": "Total number of errors"
-                            },
-                            {
-                                "id": "chromosome",
-                                "name": "chromosome",
-                                "type": "STRING",
-                                "required": false,
-                                "multiValue": false,
-                                "allowedValues": [],
-                                "rank": 0,
-                                "description": "Chromosome"
-                            }
-                        ]
-                    },
-                ]
-            }
-        ];
+    onShowVariableForm(e) {
+        this.onShow();
+        const item = e.detail.value;
+        if (item) {
+            console.log("Add variable child");
+        } else {
+            console.log("Add a parent variable");
+        }
+        e.stopPropagation();
     }
+
 
     render() {
         return html`
@@ -452,15 +345,18 @@ export default class VariableManager extends BaseManagerMixin(LitElement) {
             <div class="clearfix"></div>
             <hr style="margin:0px">
             <div class="col-md-10" style="padding: 10px 20px">
-                <button type="button" class="btn btn-primary ripple" @click="${this.onShow}">
-                    ${!this.isShow? "Add Variable":"Close Variable"}
-                </button>
+                <div class="col-md-12" style="padding: 10px 20px">
+                    <treeviewer-variable
+                        .variables="${this.variables}"
+                        @addVariable="${e => this.onShowVariableForm(e)}"
+                        @removeVariable="${e => this.onRemoveVariable(e)}">
+                    </treeviewer-variable>
+                </div>
+                <!-- <button type="button" class="btn btn-primary ripple" @click="\${this.onShow}">
+                    \${!this.isShow? "Add Variable":"Close Variable"}
+                </button> -->
             </div>
-            <div class="col-md-12" style="padding: 10px 20px">
-                <treeviewer-variable
-                    .variables="${this.sampleVariables()}">
-                </treeviewer-variable>
-            </div>
+
         </div>
         ${this.isShow ? html `
             <div class="subform-test">

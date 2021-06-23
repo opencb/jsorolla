@@ -41,7 +41,7 @@ export default class VariableSetCreate extends LitElement {
 
     _init() {
         this.variableSet = {
-            variables: []
+            variables: this.sampleVariables()
         };
         this.variable = {};
     }
@@ -180,13 +180,21 @@ export default class VariableSetCreate extends LitElement {
         };
     }
 
-    onAddVariable(e) {
+    async onAddVariable(e) {
+        // TODO: Fixme, I don't know why
+        // I've to clean variableSet to reflex the changes.
         const variable = e.detail.value;
-        console.log("onAddVariable: ", e.detail.value);
-        this.variableSet.variables.push(e.detail.value);
-        console.log("onAddVariable Result: ", this.variableSet);
+        const variableSetCopy = {...this.variableSet};
+        this.variableSet = {variables: []};
         this._config = {...this.getDefaultConfig(), ...this.config};
-        this.requestUpdate();
+        await this.requestUpdate();
+
+        this.variableSet = variableSetCopy;
+        this.variableSet.variables.push(variable);
+        console.log("onAddVariable Result: ", this.variableSet);
+        await this.requestUpdate();
+
+        e.stopPropagation();
     }
 
     onRemoveVariable(e) {
@@ -204,6 +212,151 @@ export default class VariableSetCreate extends LitElement {
 
     onSubmit(e) {
         console.log("Submit Form: ", this.variableSet);
+    }
+
+    sampleVariables() {
+        return [
+            {
+                "id": "typeCount",
+                "name": "typeCount",
+                "category": "",
+                "type": "MAP_INTEGER",
+                "required": false,
+                "multiValue": false,
+                "allowedValues": [],
+                "rank": 7,
+                "dependsOn": "",
+                "description": "Variants count group by type. e.g. SNP, INDEL, MNP, SNV, ...",
+                "attributes": {}
+            },
+            {
+                "id": "variantCount",
+                "name": "variantCount",
+                "category": "",
+                "type": "INTEGER",
+                "required": false,
+                "multiValue": false,
+                "allowedValues": [],
+                "rank": 0,
+                "dependsOn": "",
+                "description": "Number of variants in the variant set",
+                "attributes": {}
+            },
+            {
+                "id": "hsMetricsReport",
+                "name": "Hs metrics report",
+                "category": "",
+                "type": "OBJECT",
+                "required": false,
+                "multiValue": false,
+                "allowedValues": [],
+                "rank": 10,
+                "dependsOn": "",
+                "description": "Hs metrics report (from the picard/CollecHsMetrics command)",
+                "variables": [
+                    {
+                        "id": "onBaitVsSelected",
+                        "name": "On bait vs selected",
+                        "type": "DOUBLE",
+                        "required": false,
+                        "multiValue": false,
+                        "allowedValues": [],
+                        "rank": 24,
+                        "description": "The percentage of on+near bait bases that are on as opposed to near"
+                    },
+                    {
+                        "id": "minTargetCoverage",
+                        "name": "Min target coverage",
+                        "type": "DOUBLE",
+                        "required": false,
+                        "multiValue": false,
+                        "allowedValues": [],
+                        "rank": 23,
+                        "description": "The minimum coverage of targets"
+                    }
+                ]
+            },
+            {
+                "id": "fastQcReport",
+                "name": "FastQC report",
+                "category": "",
+                "type": "OBJECT",
+                "required": false,
+                "multiValue": false,
+                "allowedValues": [],
+                "rank": 8,
+                "dependsOn": "",
+                "description": "FastQC report (from the FastQC tool)",
+                "variables": [],
+                "attributes": {}
+            },
+            {
+                "id": "mendelianErrorsReport",
+                "name": "Mendelian errors report",
+                "category": "",
+                "type": "OBJECT",
+                "required": false,
+                "multiValue": false,
+                "allowedValues": [],
+                "rank": 7,
+                "dependsOn": "",
+                "description": "Mendelian errors report",
+                "variables": [
+                    {
+                        "id": "numErrors",
+                        "name": "Total number of errors",
+                        "type": "INTEGER",
+                        "required": false,
+                        "multiValue": false,
+                        "allowedValues": [],
+                        "rank": 0,
+                        "description": "Total number of errors"
+                    },
+                    {
+                        "id": "chromAggregation",
+                        "name": "Aggregation per chromosome",
+                        "type": "OBJECT",
+                        "required": false,
+                        "multiValue": false,
+                        "allowedValues": [],
+                        "rank": 2,
+                        "description": "Aggregation per chromosome",
+                        "variables": [
+                            {
+                                "id": "codeAggregation",
+                                "name": "Aggregation per error code",
+                                "type": "MAP_INTEGER",
+                                "required": false,
+                                "multiValue": false,
+                                "allowedValues": [],
+                                "rank": 2,
+                                "description": "Aggregation per error code for that chromosome"
+                            },
+                            {
+                                "id": "numErrors",
+                                "name": "Total number of errors",
+                                "type": "STRING",
+                                "required": false,
+                                "multiValue": false,
+                                "allowedValues": [],
+                                "rank": 1,
+                                "description": "Total number of errors"
+                            },
+                            {
+                                "id": "chromosome",
+                                "name": "chromosome",
+                                "type": "STRING",
+                                "required": false,
+                                "multiValue": false,
+                                "allowedValues": [],
+                                "rank": 0,
+                                "description": "Chromosome"
+                            }
+                        ]
+                    },
+                ]
+            }
+        ];
     }
 
     render() {
