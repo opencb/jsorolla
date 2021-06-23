@@ -61,6 +61,8 @@ export default class OpencgaProjects extends LitElement {
 
         this.activeTab = {};
 
+        this.sideNavItems = ["Summary", "Variants", "Files", "Samples", "Individuals", "Cohorts"];
+
         this.charts = {
             variant: [],
             file: ["format", "bioformat"],
@@ -161,23 +163,12 @@ export default class OpencgaProjects extends LitElement {
         this.facetQuery();
     }
 
-    _changeBottomTab(e) {
-        e.stopPropagation();
-        const {projectId} = e.currentTarget.dataset;
-        console.log(projectId);
-        for (const tab in this.activeTab) this.activeTab[projectId] = false;
-        this.activeTab[projectId] = true;
-        this.requestUpdate();
-    }
-
     async facetQuery() {
         // this.clearPlots();
         console.log("this.opencgaSession", this.opencgaSession);
         this.querySelector("#loading").style.display = "block";
         const sleep = s => new Promise(resolve => setTimeout(() => resolve(), s * 1000));
         this.errors = "";
-
-        const _this = this;
 
         const done = 0;
         for (const project of this.opencgaSession.projects) {
@@ -339,7 +330,18 @@ export default class OpencgaProjects extends LitElement {
             </table>`;
     }
 
-    onSideNavClick(e) {
+    onChangeProjectTab(e) {
+        e.stopPropagation();
+        const {projectId} = e.currentTarget.dataset;
+        console.log(projectId);
+        // reset this.activeTab and enable just the active project with the first side nav item.
+        this.activeTab = {
+            [projectId]: {[this.sideNavItems[0]]: true}
+        }
+        this.requestUpdate();
+    }
+
+    onSideNavChange(e) {
         e.preventDefault();
         // Remove button focus highlight
         e.currentTarget.blur();
@@ -462,7 +464,7 @@ export default class OpencgaProjects extends LitElement {
                             type: "custom",
                             display: {
                                 render: studies => {
-                                    return studies.map(study => study.name).join(", ");
+                                    return studies.map(study => html`<li>${study.name}</li>`);
                                 }
                             }
                         }
@@ -555,8 +557,8 @@ export default class OpencgaProjects extends LitElement {
             <div class="detail-tabs">
                 <ul class="nav nav-tabs nav-center tablist" role="tablist">
                     ${this.data ? Object.entries(this.data).map(([projectId, project], i) => html`
-                        <li role="presentation" class="${classMap({active: this.activeTab[projectId]})}">
-                            <a href="javascript: void 0" @click="${this._changeBottomTab}" data-project-id="${projectId}" aria-controls="profile" role="tab" data-toggle="tab">${project.name}</a>
+                        <li role="presentation" class="${classMap({active: this.activeTab[projectId] || (UtilsNew.isEmpty(this.activeTab) && i === 0)})}">
+                            <a href="javascript: void 0" @click="${this.onChangeProjectTab}" data-project-id="${projectId}" aria-controls="profile" role="tab" data-toggle="tab">${project.name}</a>
                         </li>
                     `) : null}
                 </ul>
@@ -564,54 +566,64 @@ export default class OpencgaProjects extends LitElement {
                 <div class="content-tab-wrapper">
                 
                     ${this.data ? Object.entries(this.data).map(([projectId, project], i) => html`
-                        <div role="tabpanel" class="content-tab project-tab tab-pane ${i === 0 ? "active" : ""}" id="${projectId}-tab">
+                        <div role="tabpanel" class="content-tab project-tab tab-pane ${classMap({active: this.activeTab[projectId] || (UtilsNew.isEmpty(this.activeTab) && i === 0)})}" id="${projectId}-tab">
                             <div class="row">
                                 <div class="col-md-10 col-md-offset-1">
                                     <h3 class="project-name">Project <span class="inverse">${projectId}</span></h3>                               
                                     <div class="col-md-2 list-group projects-side-nav side-tabs side-nav">
-                                        <button type="button" class="list-group-item active" 
-                                              data-project-id="${project.id}" data-menu-item-id="Summary" @click="${this.onSideNavClick}">Summary</button>
-                                        <button type="button" class="list-group-item" 
-                                              data-project-id="${project.id}" data-menu-item-id="Variants" @click="${this.onSideNavClick}">Variants</button>
-                                        <button type="button" class="list-group-item" 
-                                              data-project-id="${project.id}" data-menu-item-id="Files" @click="${this.onSideNavClick}">Files</button>
-                                        <button type="button" class="list-group-item" 
-                                              data-project-id="${project.id}" data-menu-item-id="Samples" @click="${this.onSideNavClick}">Samples</button>
-                                        <button type="button" class="list-group-item" 
-                                              data-project-id="${project.id}" data-menu-item-id="Individuals" @click="${this.onSideNavClick}">Individuals</button>
-                                        <button type="button" class="list-group-item" 
-                                              data-project-id="${project.id}" data-menu-item-id="Cohorts" @click="${this.onSideNavClick}">Cohorts</button>
+                                        ${this.sideNavItems.map((item, sideNavIndx) => html`
+                                            <button type="button" class="list-group-item ${classMap({active: this.activeTab[projectId]?.[item] || (UtilsNew.isEmpty(this.activeTab) && sideNavIndx === 0)})}"
+                                                    data-project-id="${project.id}" data-menu-item-id="${item}" @click="${this.onSideNavChange}">${item}</button>
+                                        `)}
                                     </div>
                                     <div class="col-md-10">
                                         <div class="content-tab-wrapper projects-content-tab ${project.id}">
-                                            <div id="${this._prefix}${project.id}Summary" role="tabpanel" class="tab-pane content-tab active">
-                                                <h3>Summary</h3>
-                                                <data-form .data=${project} .config="${this.getProjectConfig()}"></data-form>
-                                            </div>
-                                            <div id="${this._prefix}${project.id}Variants" role="tabpanel" class="tab-pane content-tab">
-                                                <h3>Variants</h3>
-                                            </div>
-                                            <div id="${this._prefix}${project.id}Files" role="tabpanel" class="tab-pane content-tab">
-                                                <h3>Files</h3>
-                                                <div class="row">
-                                                    ${this.chartData[project.id]?.["file"]?.map?.(chart => html`
+                                            ${~this.sideNavItems.indexOf("Summary") ? html`
+                                                <div id="${this._prefix}${project.id}Summary" role="tabpanel" class="tab-pane content-tab ${classMap({active: this.activeTab[projectId]?.["Summary"] || UtilsNew.isEmpty(this.activeTab)})}" data-project-id="${project.id}" data-menu-item-id="${project.id}">
+                                                    <h3>Summary</h3>
+                                                    <data-form .data=${project} .config="${this.getProjectConfig()}"></data-form>
+                                                </div>`
+                                                : ""
+                                            }
+                                            
+                                            ${~this.sideNavItems.indexOf("Variants") ? html`
+                                                <div id="${this._prefix}${project.id}Variants" role="tabpanel" class="tab-pane content-tab ${classMap({active: this.activeTab[projectId]?.["Variants"]})}">
+                                                    <h3>Variants</h3>
+                                                </div>`
+                                            : ""}
+
+                                            ${~this.sideNavItems.indexOf("Files") ? html`
+                                                <div id="${this._prefix}${project.id}Files" role="tabpanel" class="tab-pane content-tab ${classMap({active: this.activeTab[projectId]?.["Files"]})}">
+                                                    <h3>Files</h3>
+                                                    <div class="row">
+                                                        ${this.chartData[project.id]?.["file"]?.map?.(chart => html`
                                                         <div class="col-md-6"><simple-chart .active="${true}" type="column" title="${chart.name}" .config=${chart.config} .data="${chart.data}"></simple-chart></div>
-                                                    `)}
+                                                        `)}
+                                                    </div>
+                                                    ${this.renderTable(project.stats, "file")}
+                                                </div>`
+                                            : ""}
+
+                                            ${~this.sideNavItems.indexOf("Samples") ? html`
+                                                <div id="${this._prefix}${project.id}Samples" role="tabpanel" class="tab-pane content-tab ${classMap({active: this.activeTab[projectId]?.["Samples"]})}">
+                                                    <h3>Samples</h3>
+                                                    ${this.renderTable(project.stats, "sample")}
                                                 </div>
-                                                ${this.renderTable(project.stats, "file")}
-                                            </div>
-                                            <div id="${this._prefix}${project.id}Samples" role="tabpanel" class="tab-pane content-tab">
-                                                <h3>Samples</h3>
-                                                ${this.renderTable(project.stats, "sample")}
-                                            </div>
-                                            <div id="${this._prefix}${project.id}Individuals" role="tabpanel" class="tab-pane content-tab">
-                                                <h3>Individuals</h3>
-                                                ${this.renderTable(project.stats, "individual")}
-                                            </div>
-                                            <div id="${this._prefix}${project.id}Cohorts" role="tabpanel" class="tab-pane content-tab">
-                                                <h3>Cohorts</h3>
-                                                ${this.renderTable(project.stats, "cohort")}
-                                            </div>
+                                            ` : ""}
+
+                                            ${~this.sideNavItems.indexOf("Individuals") ? html`
+                                                <div id="${this._prefix}${project.id}Individuals" role="tabpanel" class="tab-pane content-tab ${classMap({active: this.activeTab[projectId]?.["Individuals"]})}">
+                                                    <h3>Individuals</h3>
+                                                    ${this.renderTable(project.stats, "individual")}
+                                                </div>
+                                            ` : ""}
+
+                                            ${~this.sideNavItems.indexOf("Cohorts") ? html`
+                                                <div id="${this._prefix}${project.id}Cohorts" role="tabpanel" class="tab-pane content-tab ${classMap({active: this.activeTab[projectId]?.["Cohorts"]})}">
+                                                    <h3>Cohorts</h3>
+                                                    ${this.renderTable(project.stats, "cohort")}
+                                                </div>
+                                            ` : ""}
                                         </div>
                                     </div>
                                 </div>
