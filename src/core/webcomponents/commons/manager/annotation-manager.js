@@ -16,9 +16,8 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import {BaseManagerMixin} from "./base-manager.js";
-import "../commons/tool-header.js";
-import "../commons/filters/variableset-id-autocomplete.js";
-import LitUtils from "../commons/utils/lit-utils.js";
+import "../filters/variableset-id-autocomplete.js";
+import LitUtils from "../utils/lit-utils.js";
 
 // eslint-disable-next-line new-cap
 export default class AnnotationManager extends BaseManagerMixin(LitElement) {

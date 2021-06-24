@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-import "../commons/tool-header.js";
-
 export const BaseManagerMixin = superClass => class extends superClass {
 
     static UPDATE_MODE = "update";

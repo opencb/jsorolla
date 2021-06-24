@@ -18,7 +18,6 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../utilsNew.js";
 import LitUtils from "../utils/lit-utils.js";
 
-
 export default class SelectFieldToken extends LitElement {
 
     constructor() {
@@ -35,11 +34,14 @@ export default class SelectFieldToken extends LitElement {
             opencgaSession: {
                 type: Object
             },
-            config: {
+            configToken: {
                 type: Object
             },
-            placeholder: {
-                type: String
+            disabled: {
+                type: Boolean
+            },
+            config: {
+                type: Object
             },
             values: {
                 type: Array
@@ -49,6 +51,7 @@ export default class SelectFieldToken extends LitElement {
 
     _init() {
         this._prefix = UtilsNew.randomString(8);
+        this.disabled = false;
     }
 
     connectedCallback() {
@@ -57,11 +60,12 @@ export default class SelectFieldToken extends LitElement {
     }
 
     firstUpdated(_changedProperties) {
-        console.log("Updating select field token");
+        console.log("Updating select field token", this.configToken);
         $(".tokenize", this).tokenize2({
-            placeholder: this.placeholder,
-            delimiter: [",", "-"],
-            tokensAllowCustom: true
+            placeholder: this.configToken?.placeholder,
+            delimiter: this.configToken?.delimiter,
+            tokensAllowCustom: this.configToken?.tokensAllowCustom,
+            disabled: true
         });
 
         $(".tokenize", this).on("tokenize:tokens:added", (e, value, text) => {
@@ -78,12 +82,21 @@ export default class SelectFieldToken extends LitElement {
         });
     }
 
+    tokenizeObserver() {
+        console.log("Updating disabled value:", this.disabled);
+        this.querySelector(".tokenize.form-control").disabled = this.disabled;
+    }
+
     updated(_changedProperties) {
         if (this.values && _changedProperties.has("values")) {
             console.log("Passing values");
             this.values.forEach(value => {
                 $(".tokenize", this).tokenize2().trigger("tokenize:tokens:add", [value, value, true]);
             });
+        }
+
+        if (_changedProperties.has("disabled")) {
+            this.tokenizeObserver();
         }
     }
 

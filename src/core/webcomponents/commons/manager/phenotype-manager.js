@@ -16,9 +16,8 @@
 
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../utilsNew.js";
+import UtilsNew from "../../../utilsNew.js";
 import {BaseManagerMixin} from "./base-manager.js";
-import "../commons/tool-header.js";
 
 // eslint-disable-next-line new-cap
 export default class PhenotypeManager extends BaseManagerMixin(LitElement) {
@@ -40,6 +39,43 @@ export default class PhenotypeManager extends BaseManagerMixin(LitElement) {
         this._prefix = UtilsNew.randomString(8);
         this.phenotypes = [];
         this.phenotype = {};
+    }
+
+
+    onClearForm(e) {
+        console.log("OnClear Phenotype form ", this);
+        this.phenotype = {};
+        this.onShow();
+        e.stopPropagation();
+    }
+
+    onAddPhenotype(e, item) {
+        // super or this.onAddItem(item) //it's the same?
+        console.log("Execute addPhenotype from Phenotype-Manager");
+        this.onAddItem(item);
+        this.phenotype = {};
+        // this.requestUpdate();
+        this.onShow(); // it's from BaseManager.
+    }
+
+    onPhenotypeChange(e) {
+        console.log("onPhenotypeChange ", e.detail.param, e.detail.value);
+        let field = "";
+        switch (e.detail.param) {
+            case "phenotype.id":
+            case "phenotype.name":
+            case "phenotype.ageOfOnset":
+            case "phenotype.source":
+            case "phenotype.status":
+                field = e.detail.param.split(".")[1];
+                if (!this.phenotype[field]) {
+                    this.phenotype[field] = {};
+                }
+                this.phenotype[field] = e.detail.value;
+                break;
+        }
+        // To stop the bubbles when dispatched this method
+        e.stopPropagation();
     }
 
     getDefaultConfig() {
@@ -107,40 +143,6 @@ export default class PhenotypeManager extends BaseManagerMixin(LitElement) {
         };
     }
 
-    onClearForm(e) {
-        console.log("OnClear Phenotype form ", this);
-        this.phenotype = {};
-        this.onShow();
-        e.stopPropagation();
-    }
-
-    onAddPhenotype(e, item) {
-        // super or this.onAddItem(item) //it's the same?
-        this.onAddItem(item);
-        this.phenotype = {};
-        this.onShow(); // it's from BaseManager.
-    }
-
-    onPhenotypeChange(e) {
-        console.log("onPhenotypeChange ", e.detail.param, e.detail.value);
-        let field = "";
-        switch (e.detail.param) {
-            case "phenotype.id":
-            case "phenotype.name":
-            case "phenotype.ageOfOnset":
-            case "phenotype.source":
-            case "phenotype.status":
-                field = e.detail.param.split(".")[1];
-                if (!this.phenotype[field]) {
-                    this.phenotype[field] = {};
-                }
-                this.phenotype[field] = e.detail.value;
-                break;
-        }
-        // To stop the bubbles when dispatched this method
-        e.stopPropagation();
-    }
-
     render() {
         return html`
         <div class="row">
@@ -165,7 +167,7 @@ export default class PhenotypeManager extends BaseManagerMixin(LitElement) {
 
         <div class="subform-test" style="${this.isShow ? "display:block" : "display:none"}">
             <data-form
-                .data=${this.phenotypes}
+                .data=${this.phenotype}
                 .config="${this._config}"
                 @fieldChange="${e => this.onPhenotypeChange(e)}"
                 @clear="${this.onClearForm}"

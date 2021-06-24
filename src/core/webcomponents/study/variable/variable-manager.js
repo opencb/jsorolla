@@ -15,14 +15,11 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import {BaseManagerMixin} from "./base-manager.js";
-import "../commons/tool-header.js";
-import "../commons/filters/variableset-id-autocomplete.js";
-import "../variable/variable-set-manager.js";
-import "../variable/variable-type-value.js";
-import "../commons/filters/select-field-token.js";
+import {BaseManagerMixin} from "../../commons/manager/base-manager.js";
+import "../../commons/filters/variableset-id-autocomplete.js";
+import "../../commons/filters/select-field-token.js";
 import "../variable/treeviewer-variable.js";
-import LitUtils from "../commons/utils/lit-utils.js";
+import LitUtils from "../../commons/utils/lit-utils.js";
 
 // eslint-disable-next-line new-cap
 export default class VariableManager extends BaseManagerMixin(LitElement) {
@@ -47,6 +44,13 @@ export default class VariableManager extends BaseManagerMixin(LitElement) {
         this.variable = {
             variables: []
         };
+
+        this.configToken = {
+            placeholder: "Type something to start",
+            delimiter: [",", "-"],
+            tokensAllowCustom: true,
+        };
+        this.disabledCategorical = true;
     }
 
     update(changedProperties) {
@@ -146,6 +150,7 @@ export default class VariableManager extends BaseManagerMixin(LitElement) {
                                 render: () => html`
                                 <select-field-token
                                     .values="${this.variable?.allowedValues}"
+                                    .configToken="${this.configToken}"
                                     placeholder=${"Type something to start"}
                                     @addToken=${e => this.onAddValues(e)}>
                                 </select-field-token>
@@ -161,7 +166,7 @@ export default class VariableManager extends BaseManagerMixin(LitElement) {
                                 render: () => html `
                                 <select-field-token
                                     .values="${this.variable?.allowedKeys}"
-                                    placeholder=${"Type something to start"}
+                                    .configToken="${this.configToken}"
                                     @addToken=${e => this.onAddValues(e)}>
                                 </select-field-token>
                                 `
@@ -220,29 +225,7 @@ export default class VariableManager extends BaseManagerMixin(LitElement) {
                             }
                         }
                     ],
-                },
-                // {
-                //     elements: [
-                //         {
-                //             field: "variables",
-                //             type: "custom",
-                //             display: {
-                //                 visible: false, // variable => variable?.type === "OBJECT",
-                //                 layout: "vertical",
-                //                 defaultLayout: "vertical",
-                //                 width: 12,
-                //                 style: "padding-left: 0px",
-                //                 render: () => html`
-                //                     <variable-manager
-                //                         .parent="${false}"
-                //                         .variables="${this.variable?.variables}"
-                //                         .opencgaSession="${this.opencgaSession}"
-                //                         @addItem="${e => this.onAddVariableChild(e)}">
-                //                     </variable-manager>`
-                //             }
-                //         }
-                //     ]
-                // },
+                }
             ]
         };
     }

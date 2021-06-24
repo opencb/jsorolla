@@ -16,10 +16,9 @@
 
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import "../commons/tool-header.js";
-import "../commons/filters/text-field-filter.js";
-import LitUtils from "../commons/utils/lit-utils.js";
-
+import "../../commons/tool-header.js";
+import "../../commons/filters/text-field-filter.js";
+import LitUtils from "../../commons/utils/lit-utils.js";
 
 // eslint-disable-next-line new-cap
 export default class VariableTypeValue extends LitElement {
@@ -58,11 +57,14 @@ export default class VariableTypeValue extends LitElement {
     onAddValues(e) {
         // https://lit-element.polymer-project.org/guide/templates#accessing-nodes-in-the-shadow-dom
         // https://lit.dev/docs/templates/directives/#ref
-        console.log("OnAddValue", this.nameValue);
-        this.values = [...this.values, this.nameValue];
-        this.nameValue = "";
-        this.querySelector("#itemInput").value = "";
-        this.onSendValues();
+        if (e.keyCode === 13) {
+            console.log("OnAddValue", this.nameValue);
+            this.values = [...this.values, this.nameValue];
+            this.nameValue = "";
+            this.querySelector("#itemInput").value = "";
+            this.onSendValues();
+            e.preventDefault();
+        }
     }
 
     handleInput(e) {
@@ -76,13 +78,23 @@ export default class VariableTypeValue extends LitElement {
     }
 
     render() {
+
+
         return html`
+
+        <!-- <style>
+        .no-border {
+            border: 0;
+            box-shadow: none; /* You may want to include this as bootstrap applies these styles too */
+        }
+        </style> -->
+
         <div class="row">
-            <div class="col-md-2" style="padding: 10px 20px">
-                <h3>${this.type}</h3>
-            </div>
-            <div class="clearfix"></div>
-            <hr style="margin:0px">
+            <!-- <div class="col-md-2" style="padding: 10px 20px">
+                <h3>\${this.type}</h3>
+            </div> -->
+            <!-- <div class="clearfix"></div> -->
+
             <div class="col-md-12" style="padding: 10px 20px">
                 ${this.values?.map(item => html`
                     <span class="label label-primary" style="font-size: 14px; margin:5px; padding-right:0px; display:inline-block">${item}
@@ -92,10 +104,10 @@ export default class VariableTypeValue extends LitElement {
             </div>
             <div class="col-md-12" style="padding: 10px 20px">
                 <div class="form-inline form-group">
-                    <input id="itemInput" class="form-control" .value="${this.nameValue}" @input="${e => this.handleInput(e)}">
-                    <button type="button" class="btn btn-primary ripple" @click="${this.onAddValues}">
+                    <input id="itemInput" class="form-control no-border" .value="${this.nameValue}" @input="${e => this.handleInput(e)}" @keyup="${e => this.onAddValues(e)}">
+                    <!-- <button type="button" class="btn btn-primary ripple" @click="\${this.onAddValues}">
                         Add Value
-                    </button>
+                    </button> -->
                 </div>
             </div>
         </div>

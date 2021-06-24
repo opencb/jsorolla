@@ -16,8 +16,7 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
-import "../commons/tool-header.js";
-import {BaseManagerMixin} from "../manager/base-manager.js";
+import {BaseManagerMixin} from "../commons/manager/base-manager.js";
 
 // eslint-disable-next-line new-cap
 export default class DisorderManager extends BaseManagerMixin(LitElement) {

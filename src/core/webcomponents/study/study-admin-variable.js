@@ -19,7 +19,7 @@ import UtilsNew from "./../../utilsNew.js";
 import GridCommons from "../commons/grid-commons.js";
 import OpencgaCatalogUtils from "../../clients/opencga/opencga-catalog-utils.js";
 import "../permission/permission-browser-grid.js";
-import "../variable/variable-set-create.js";
+import "./variable/variable-set-create.js";
 
 
 export default class StudyAdminVariable extends LitElement {

@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import "../manager/variable-manager.js";
+import "./variable-manager.js";
 
 export default class VariableSetCreate extends LitElement {
 

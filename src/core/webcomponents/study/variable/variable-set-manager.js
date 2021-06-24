@@ -15,8 +15,8 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import {BaseManagerMixin} from "../manager/base-manager.js";
-import "../manager/variable-manager.js";
+import {BaseManagerMixin} from "../../commons/manager/base-manager.js";
+import "./variable-manager.js";
 
 // eslint-disable-next-line new-cap
 export default class VariableSetManager extends BaseManagerMixin(LitElement) {

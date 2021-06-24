@@ -16,9 +16,8 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
-import "../commons/tool-header.js";
-import "../manager/phenotype-manager.js";
-import "../manager/annotation-set-manager.js";
+import "../commons/manager/phenotype-manager.js";
+import "../commons/manager/annotation-set-manager.js";
 
 export default class SampleCreate extends LitElement {
 

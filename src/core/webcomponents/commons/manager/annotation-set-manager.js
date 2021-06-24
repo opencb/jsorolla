@@ -16,10 +16,10 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import {BaseManagerMixin} from "./base-manager.js";
-import "../commons/tool-header.js";
-import "../commons/filters/variableset-id-autocomplete.js";
-import "../manager/annotation-manager.js";
-import FormUtils from "../../form-utils.js";
+import "../../commons/filters/variableset-id-autocomplete.js";
+import "./annotation-manager.js";
+import FormUtils from "../../../form-utils.js";
+
 
 // eslint-disable-next-line new-cap
 export default class AnnotationSetManager extends BaseManagerMixin(LitElement) {
