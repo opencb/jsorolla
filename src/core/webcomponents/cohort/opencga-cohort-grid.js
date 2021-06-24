@@ -219,7 +219,6 @@ export default class OpencgaCohortGrid extends LitElement {
                 {
                     title: "Cohort",
                     field: "id",
-                    // sortable: true,
                     halign: this._config.header.horizontalAlign
                 },
                 {
