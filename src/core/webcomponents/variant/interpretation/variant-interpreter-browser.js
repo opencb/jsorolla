@@ -190,6 +190,7 @@ class VariantInterpreterBrowser extends LitElement {
                                                                 .clinicalAnalysis="${this.clinicalAnalysis}"
                                                                 .query="${this.query}"
                                                                 .cellbaseClient="${this.cellbaseClient}"
+                                                                .settings="${variantInterpreterBrowserRdSettings}"
                                                                 @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}"
                                                                 @samplechange="${this.onSampleChange}">
                                 </variant-interpreter-browser-rd>

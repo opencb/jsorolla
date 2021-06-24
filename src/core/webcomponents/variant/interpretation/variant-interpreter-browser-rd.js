@@ -59,6 +59,9 @@ class VariantInterpreterBrowserRd extends LitElement {
             },
             config: {
                 type: Object
+            },
+            settings: {
+                type: Object
             }
         };
     }
@@ -90,6 +93,9 @@ class VariantInterpreterBrowserRd extends LitElement {
     }
 
     updated(changedProperties) {
+        if (changedProperties.has("settings") || changedProperties.has("config")) {
+            this.settingsObserver();
+        }
         if (changedProperties.has("opencgaSession")) {
             this.clinicalAnalysisManager = new ClinicalAnalysisManager(this.clinicalAnalysis, this.opencgaSession);
         }
@@ -102,9 +108,12 @@ class VariantInterpreterBrowserRd extends LitElement {
         if (changedProperties.has("query")) {
             this.queryObserver();
         }
-        if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
-        }
+    }
+
+    settingsObserver() {
+        this._config = {...this.getDefaultConfig(), ...this.config};
+        this._config.filter = UtilsNew.mergeFilters(this._config?.filter, this.settings.filters);
+        this.requestUpdate();
     }
 
     queryObserver() {
@@ -121,6 +130,8 @@ class VariantInterpreterBrowserRd extends LitElement {
     }
 
     clinicalAnalysisObserver() {
+        console.log("clinicalAnalysisObserver")
+
         this.clinicalAnalysisManager = new ClinicalAnalysisManager(this.clinicalAnalysis, this.opencgaSession);
 
         // If sample is not defined and proband exists then we set the default samples
@@ -180,7 +191,7 @@ class VariantInterpreterBrowserRd extends LitElement {
             this.savedVariants = this.clinicalAnalysis?.interpretation?.primaryFindings?.map(v => v.id);
         }
 
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        //this._config = {...this.getDefaultConfig(), ...this.config};
         this.requestUpdate();
     }
 
@@ -339,7 +350,7 @@ class VariantInterpreterBrowserRd extends LitElement {
                                 id: "file-quality",
                                 title: "Quality Filters",
                                 tooltip: "VCF file based FILTER and QUAL filters",
-                                showDepth: application.appConfig === "opencb"
+                                // showDepth: false
                             },
                             {
                                 id: "cohort",

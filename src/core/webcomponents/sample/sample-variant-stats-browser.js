@@ -97,8 +97,15 @@ export default class SampleVariantStatsBrowser extends LitElement {
     }
 
     sampleObserver() {
-        if (this.sample?.qualityControl?.variantMetrics.variantStats?.length) {
+        console.log("this.sample", this.sample)
+        if (this.sample?.qualityControl?.variantMetrics?.variantStats?.length) {
+
+            console.error("old data model")
             this.selectVariantStats("ALL", this.sample.qualityControl.variantMetrics.variantStats[0]);
+        }
+        if (this.sample?.qualityControl?.variant?.variantStats?.length) {
+            console.error("new data model")
+            this.selectVariantStats("ALL", this.sample.qualityControl.variant.variantStats[0]);
         }
     }
 
@@ -438,9 +445,7 @@ export default class SampleVariantStatsBrowser extends LitElement {
                                     <span><i class="fas fa-folder-open icon-padding"></i>Load <span class="caret" style="padding-left: 5px"></span></span>
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="${this._prefix}ResetMenu" style="width: 360px">
-                                    <li style="margin: 5px 10px">
-                                        <span style="font-weight: bold">Saved Variant Stats</span>
-                                    </li>
+                                    <li style="padding: 3px 20px;"><b>Saved Variant Stats</b></li>
                                     ${this.sample?.qualityControl?.variantMetrics?.variantStats?.length > 0
                                         ? this.sample.qualityControl.variantMetrics.variantStats.map(qcVariantStat => html`
                                             <li>
@@ -449,7 +454,7 @@ export default class SampleVariantStatsBrowser extends LitElement {
                                                 </a>
                                             </li>
                                         `)
-                                        : html`<div style="margin: 5px 5px">No Variant Stats found</div>`
+                                        : html`<li style="padding: 3px 20px;" class="text-muted">No Variant Stats found</li>`
                                     }
                                 </ul>
                             </div>

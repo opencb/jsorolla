@@ -51,6 +51,9 @@ export default class OpencgaClinicalReviewCases extends LitElement {
             },
             config: {
                 type: Object
+            },
+            settings: {
+                type: Object
             }
         };
     }
@@ -65,11 +68,16 @@ export default class OpencgaClinicalReviewCases extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
-        this.mergeSetting();
+        // settings is a prop, therefore the first render is performed without it
+        this._config = {...this.getDefaultConfig(), ...this.config};
 
     }
 
     updated(changedProperties) {
+        if (changedProperties.has("settings")) {
+            this.settingsObserver();
+        }
+
         if (changedProperties.has("opencgaSession")) {
             this.opencgaSessionObserver();
         }
@@ -79,7 +87,8 @@ export default class OpencgaClinicalReviewCases extends LitElement {
     }
 
     opencgaSessionObserver() {
-        this.filters = this._config.filter.examples;
+        //console.error(this._config.filter)
+        this.filters = this._config?.filter?.examples;
         if (this?.opencgaSession?.study) {
             this.checkProjects = true;
             this.refreshFilters();
@@ -90,11 +99,17 @@ export default class OpencgaClinicalReviewCases extends LitElement {
     }
 
     propertyObserver() {
-        this.mergeSetting();
+        this.settingsObserver();
 
         if (UtilsNew.isNotUndefinedOrNull(this.query)) {
             this._query = {...this.query};
         }
+        this.requestUpdate();
+    }
+
+    settingsObserver() {
+        this._config = {...this.getDefaultConfig(), ...this.config};
+        this._config.filter = UtilsNew.mergeFilters(this._config?.filter, this.settings.filters);
         this.requestUpdate();
     }
 
@@ -315,11 +330,6 @@ export default class OpencgaClinicalReviewCases extends LitElement {
             delete this.query[key];
             this.query = {...this.query};
         }
-    }
-
-    mergeSetting() {
-        this._config = {...this.getDefaultConfig(), ...this.config};
-        this._config.filter = UtilsNew.mergeFilters(this._config.filter, OpencgaClinicalReviewCasesSettings.filter);
     }
 
     // TODO better adapt config to the a dynamic view

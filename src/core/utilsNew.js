@@ -419,13 +419,14 @@ export default class UtilsNew {
     }
 
     /**
-     * It merges external filter list with internal one.
+     * @deprecated
+     * It merges external filter list with internal one. It support reorganisation of sections.
      *
      * @param internal
      * @param external
      * @return {Array} hydrated array
      */
-    static mergeFilters(internal, external) {
+    static mergeFiltersOld(internal, external) {
         // console.log("internal, external", internal, external)
         if (external) {
             // flattening the whole list of fields
@@ -438,6 +439,32 @@ export default class UtilsNew {
             });
             return {...internal, ...external, sections: sections};
         }
+    }
+
+    /**
+     * It merges external filter list with internal one.
+     * It doesn't support sections reorder and fields reorganisation among sections. Sections are fixed from the internal config.
+     *
+     * @param internal Filter object
+     * @param external Simplified filter object
+     * @return {Array} hydrated array
+     */
+    static mergeFilters(internal, external) {
+        // console.log("internal, external", internal, external)
+        if (external?.length) {
+            const updatedSections = internal.sections.map(section => {
+                const fields = [];
+                for (const ex of external) {
+                    const internalField = section.fields.find(field => field.id === ex.id);
+                    if (internalField) {
+                        fields.push({...internalField, ...ex});
+                    }
+                }
+                return {...section, fields: fields};
+            });
+            return {...internal, sections: updatedSections};
+        }
+        return internal;
     }
 
 }

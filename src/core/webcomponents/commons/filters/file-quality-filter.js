@@ -98,6 +98,7 @@ export default class FileQualityFilter extends LitElement {
 
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
+            this.requestUpdate();
         }
     }
 
@@ -172,7 +173,6 @@ export default class FileQualityFilter extends LitElement {
                         @change="${this.filterChange}" .checked="${this.filter === "PASS"}" style="margin-right: 5px" data-cy="filter-pass">
                 <span>Include only <span style="font-weight: bold;">PASS</span> variants</span>
             </div>
-            
             ${this._config.showDepth ? html`
                 <form class="form-horizontal subsection-content">
                 <div id="${this._prefix}FileDepthCheckboxDiv" class="subsection-content form-group">

@@ -157,7 +157,8 @@ export default class OpencgaClinicalPortal extends LitElement {
                     <div style="padding: 0px 10px">
                         <div id="${this._prefix}ReviewCases" class="clinical-portal-content">
                             <opencga-clinical-review-cases .opencgaSession="${this.opencgaSession}"
-                                                           .config="${this._config.reviewCases}">
+                                                           .config="${this._config.reviewCases}"
+                                                           .settings="${OpencgaClinicalReviewCasesSettings}">
                             </opencga-clinical-review-cases>
                         </div>
 
