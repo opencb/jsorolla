@@ -251,51 +251,8 @@ export default class VariableManager extends BaseManagerMixin(LitElement) {
         // Send the variable to the upper component
         console.log("onSendVariable Variable: ", this.variable);
         this.onAddItem(this.variable);
-        this.onShow();
-        e.stopPropagation();
     }
 
-    onEditVariable(e) {
-        console.log("EditVariable: ", e.detail.value);
-        this.variable = {...e.detail.value};
-        this.isShow = true;
-        this.variableFormObserver();
-        e.stopPropagation();
-    }
-
-    onRemoveVariable(e) {
-        console.log("onRemoveVariable ", e.detail.value);
-        const removeVariable = e.detail.value.split(".");
-        this.variables = this.removalVariable(this.variables, removeVariable);
-        console.log("result: ", this.variables);
-        e.stopPropagation();
-        // this.variable = {
-        //     ...this.variable,
-        //     variables: this.variable.variables.filter(item => item !== e.detail.value)
-        // };
-    }
-
-    removalVariable(variables, removeVariables) {
-        let result = [];
-
-        if (removeVariables.length === 1) {
-            return variables.filter(item => item.id !== removeVariables[0]);
-        }
-
-        removeVariables.forEach(removeVariable => {
-            result = variables.map(item => {
-                if (item.id === removeVariable) {
-                    if (removeVariables.length > 1) {
-                        removeVariables.shift();
-                        return {...item, variables: this.removalVariable(item.variables, removeVariables)};
-                    }
-                } else {
-                    return item;
-                }
-            });
-        });
-        return result;
-    }
 
     onClearForm(e) {
         console.log("onClearForm");

@@ -45,6 +45,7 @@ export default class VariableListManager extends LitElement {
     _init() {
         this.isShow = false;
         this.variable = {};
+        this.parentVar = "";
     }
 
     updated(changedProperties) {
@@ -61,24 +62,89 @@ export default class VariableListManager extends LitElement {
         }
     }
 
-    addVariable(e, item) {
-        // Send to the variable-manager
-        // LitUtils.dispatchEventCustom(this, "addVariable", item);
-        this.isShow = !this.isShow;
+    onShowVariableManager(e, item) {
         console.log("Open variableManager", item);
+
+        if (item === undefined) {
+            this.isShow = !this.isShow;
+        }
+
+        if (item) {
+            this.isShow = true;
+            this.parentVar = item;
+        }
+
         this.requestUpdate();
     }
 
-    removeVariable(e, item) {
-        console.log(item);
-        LitUtils.dispatchEventCustom(this, "removeVariable", item);
+    onAddVariable(e) {
+        console.log("onAddVariableList", this.parentVar, e.detail.value);
+        this.isShow = false;
+        if (this.parentVar) {
+            console.log("Add child variable to the list", this.parentVar);
+            const parentVars = this.parentVar.split(".");
+            this.addChildVariable(this.variables, parentVars, e.detail.value);
+            this.parentVar = "";
+        } else {
+            console.log("Add variable to the list");
+            this.variables = [...this.variables, e.detail.value];
+        }
+        console.log("Results: ", this.variables);
+        this.requestUpdate();
+        e.stopPropagation();
     }
 
+    addChildVariable(variables, parentVars, childVariable) {
+        parentVars.forEach(parentVar => {
+            variables.forEach(item => {
+                if (item.id === parentVar) {
+                    if (parentVars.length === 1) {
+                        console.log("Add child variable to the parents", item, parentVars);
+                        item.variables.push(childVariable);
+                        return variables;
+                    }
+                    parentVars.shift();
+                    return {...item, variables: this.addChildVariable(item.variables, parentVars, childVariable)};
+                }
+            });
+        });
+    }
 
-    editVariable(e, item) {
+    onRemoveVariable(e, item) {
+        console.log("onRemoveVariable ", item);
+        const removeVariable = item.split(".");
+        this.variables = this.removalVariable(this.variables, removeVariable);
+        console.log("result: ", this.variables);
+        e.stopPropagation();
+    }
+
+    removalVariable(variables, removeVariables) {
+        let result = [];
+
+        if (removeVariables.length === 1) {
+            return variables.filter(item => item.id !== removeVariables[0]);
+        }
+
+        removeVariables.forEach(removeVariable => {
+            result = variables.map(item => {
+                if (item.id === removeVariable) {
+                    if (removeVariables.length > 1) {
+                        removeVariables.shift();
+                        return {...item, variables: this.removalVariable(item.variables, removeVariables)};
+                    }
+                } else {
+                    return item;
+                }
+            });
+        });
+        return result;
+    }
+
+    onEditVariable(e, item) {
         console.log("Edit Variable", item);
-        // LitUtils.dispatchEventCustom(this, "editVariable", item);
-        this.isShow = !this.isShow;
+        if (!this.isShow) {
+            this.isShow = true;
+        }
         this.variable = item;
         this.requestUpdate();
     }
@@ -101,9 +167,9 @@ export default class VariableListManager extends LitElement {
                 ${item.type === "OBJECT"? html`
                     <li class="tree-list">
                         ${this.renderVariableTitle(item)}
-                        <button type="button" class="btn btn-primary btn-xs" @click="${e => this.addVariable(e, item)}">Add</button>
-                        <button type="button" class="btn btn-primary btn-xs" @click="${e => this.editVariable(e, item)}">Edit</button>
-                        <button type="button" class="btn btn-danger btn-xs" @click="${e => this.removeVariable(e, itemParentOf(item))}">Delete</button>
+                        <button type="button" class="btn btn-primary btn-xs" @click="${e => this.onShowVariableManager(e, itemParentOf(item))}">Add</button>
+                        <button type="button" class="btn btn-primary btn-xs" @click="${e => this.onEditVariable(e, item)}">Edit</button>
+                        <button type="button" class="btn btn-danger btn-xs" @click="${e => this.onRemoveVariable(e, itemParentOf(item))}">Delete</button>
                         <ul class="nested">
                             ${this.renderVariables(item.variables, itemParentOf(item))}
                         </ul>
@@ -111,8 +177,8 @@ export default class VariableListManager extends LitElement {
                     `: html`
                         <li>
                             <span >${item.id} (${item.type})</span>
-                            <button type="button" class="btn btn-primary btn-xs" @click="${e => this.editVariable(e, item)}" >Edit</button>
-                            <button type="button" class="btn btn-danger btn-xs" @click="${e => this.removeVariable(e, itemParentOf(item))}">Delete</button>
+                            <button type="button" class="btn btn-primary btn-xs" @click="${e => this.onEditVariable(e, item)}" >Edit</button>
+                            <button type="button" class="btn btn-danger btn-xs" @click="${e => this.onRemoveVariable(e, itemParentOf(item))}">Delete</button>
                         </li>`}
             `)}
         `;
@@ -177,14 +243,15 @@ export default class VariableListManager extends LitElement {
                 <ul id="myUL">
                     ${this.renderVariables(this.variables)}
                 </ul>
-                <button type="button" class="btn btn-primary btn-xs" @click="${e => this.addVariable(e)}">${this.isShow? "Close Variable":"Add Variable"}</button>
+                <button type="button" class="btn btn-primary btn-xs" @click="${e => this.onShowVariableManager(e)}">${this.isShow? "Close Variable":"Add Variable"}</button>
             </div>
         </div>
         <div class="col-md-12" style="padding: 10px 20px">
             ${this.isShow ? html `
                 <variable-manager
                     .variable="${this.variable}"
-                    .opencgaSession="${this.opencgaSession}">
+                    .opencgaSession="${this.opencgaSession}"
+                    @addItem="${this.onAddVariable}">
                 </variable-manager>
             ` : html ``}
         </div>
