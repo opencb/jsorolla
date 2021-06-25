@@ -112,7 +112,10 @@ class VariantInterpreterBrowserRd extends LitElement {
 
     settingsObserver() {
         this._config = {...this.getDefaultConfig(), ...this.config};
-        this._config.filter = UtilsNew.mergeFilters(this._config?.filter, this.settings.filters);
+        // merge filters
+        this._config.filter = UtilsNew.mergeFilters(this._config?.filter, this.settings.menu.filters);
+        // merge details tab
+        this._config.filter.detail.items = UtilsNew.mergeConfigById(this._config.filter.detail.items, this.settings.details);
         this.requestUpdate();
     }
 

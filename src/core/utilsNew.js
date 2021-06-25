@@ -396,11 +396,11 @@ export default class UtilsNew {
     }
 
     /**
-     * Hydrates `external` array with `internal` data.
+     * Hydrates `external` array of objects with `internal` one.
      *
      * @param internal
      * @param external
-     * @return {Array} hydrated array
+     * @returns {Array} hydrated array
      */
     static mergeConfigArray(internal, external) {
         // console.log("internal, external", internal, external)
@@ -422,9 +422,9 @@ export default class UtilsNew {
      * @deprecated
      * It merges external filter list with internal one. It support reorganisation of sections.
      *
-     * @param internal
-     * @param external
-     * @return {Array} hydrated array
+     * @param internal {Array}
+     * @param external {Array}
+     * @returns {Array} hydrated array
      */
     static mergeFiltersOld(internal, external) {
         // console.log("internal, external", internal, external)
@@ -432,7 +432,7 @@ export default class UtilsNew {
             // flattening the whole list of fields
             const allFields = internal.sections.flatMap(section => section);
             const sections = external.sections.map(section => {
-                //const internalSection = internal.sections.find(s => s.id === section.id);
+                // const internalSection = internal.sections.find(s => s.id === section.id);
                 // hydrates all the fields of each external section from the pool of fields.
                 const fields = UtilsNew.mergeConfigArray(allFields, section.fields);
                 return {...external, fields: fields};
@@ -445,9 +445,9 @@ export default class UtilsNew {
      * It merges external filter list with internal one.
      * It doesn't support sections reorder and fields reorganisation among sections. Sections are fixed from the internal config.
      *
-     * @param internal Filter object
-     * @param external Simplified filter object
-     * @return {Array} hydrated array
+     * @param internal {Array} Filter object
+     * @param external {Array} Simplified filter object
+     * @returns {Array} hydrated array
      */
     static mergeFilters(internal, external) {
         // console.log("internal, external", internal, external)
@@ -465,6 +465,34 @@ export default class UtilsNew {
             return {...internal, sections: updatedSections};
         }
         return internal;
+    }
+
+    /**
+     * Hydrates `external` array with `internal` data.
+     * `external` is a plain list of IDs.
+     *
+     * @param internal {Array} Array of objects
+     * @param external {Array} List of IDs
+     * @returns {Array} hydrated array
+     */
+    static mergeConfigById(internal, external) {
+        // console.log("internal, external", internal, external)
+        if (external?.length) {
+            return external.map(id => {
+                const obj = internal.find(e => id === e.id);
+                if (!obj) {
+                    console.error(`Config Merge failed. ${id} not found in internal config`);
+                } else {
+                    return {...obj};
+                }
+            });
+        }
+        console.warn("external config not available");
+        return internal;
+    }
+
+    static mergeTable(internal, external) {
+
     }
 
 }
