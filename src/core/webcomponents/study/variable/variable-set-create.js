@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import "./variable-manager.js";
+import "./variable-list-manager.js";
 
 export default class VariableSetCreate extends LitElement {
 
@@ -165,13 +165,10 @@ export default class VariableSetCreate extends LitElement {
                                 width: 12,
                                 style: "padding-left: 0px",
                                 render: () => html`
-                                    <variable-manager
-                                        .parent="${true}"
+                                    <variable-list-manager
                                         .opencgaSession="${this.opencgaSession}"
-                                        .variables="${this.variableSet?.variables}"
-                                        @addItem="${e => this.onAddVariable(e)}"
-                                        @removeItem="${e => this.onRemoveVariable(e)}">
-                                    </variable-manager>`
+                                        .variables="${this.variableSet?.variables}">
+                                    </variable-list-manager>`
                             }
                         },
                     ]

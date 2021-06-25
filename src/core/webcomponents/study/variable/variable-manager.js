@@ -18,7 +18,6 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import {BaseManagerMixin} from "../../commons/manager/base-manager.js";
 import "../../commons/filters/variableset-id-autocomplete.js";
 import "../../commons/filters/select-field-token.js";
-import "../variable/treeviewer-variable.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
 
 // eslint-disable-next-line new-cap
@@ -31,11 +30,8 @@ export default class VariableManager extends BaseManagerMixin(LitElement) {
 
     static get properties() {
         return {
-            parent: {
-                type: Boolean
-            },
-            variables: {
-                type: Array
+            variable: {
+                type: Object
             }
         };
     }
@@ -50,6 +46,7 @@ export default class VariableManager extends BaseManagerMixin(LitElement) {
             delimiter: [",", "-"],
             tokensAllowCustom: true,
         };
+
         this.disabledCategorical = true;
     }
 
@@ -96,7 +93,7 @@ export default class VariableManager extends BaseManagerMixin(LitElement) {
                 show: true,
                 cancelText: "Cancel",
                 classes: "pull-right",
-                okText: this.parent ? "Save":"Add"
+                okText: "Add"
             },
             display: {
                 labelWidth: 3,
@@ -321,28 +318,6 @@ export default class VariableManager extends BaseManagerMixin(LitElement) {
 
     render() {
         return html`
-        <div class="row">
-            <div class="col-md-2" style="padding: 10px 20px">
-                <h3>Variable</h3>
-            </div>
-            <div class="clearfix"></div>
-            <hr style="margin:0px">
-            <div class="col-md-10" style="padding: 10px 20px">
-                <div class="col-md-12" style="padding: 10px 20px">
-                    <treeviewer-variable
-                        .variables="${this.variables}"
-                        @addVariable="${e => this.onShowVariableForm(e)}"
-                        @editVariable="${e => this.onEditVariable(e)}"
-                        @removeVariable="${e => this.onRemoveVariable(e)}">
-                    </treeviewer-variable>
-                </div>
-                <!-- <button type="button" class="btn btn-primary ripple" @click="\${this.onShow}">
-                    \${!this.isShow? "Add Variable":"Close Variable"}
-                </button> -->
-            </div>
-
-        </div>
-        ${this.isShow ? html `
             <div class="subform-test">
                 <data-form
                     .data=${this.variable}
@@ -351,9 +326,7 @@ export default class VariableManager extends BaseManagerMixin(LitElement) {
                     @clear="${this.onClearForm}"
                     @submit="${e => this.onSendVariable(e)}">
                 </data-form>
-            </div>`:
-            html ``
-        }`;
+            </div>`;
     }
 
 }

@@ -18,23 +18,33 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import "../../commons/filters/text-field-filter.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
+import "./variable-manager.js";
 
-export default class TreeViewerVariable extends LitElement {
+export default class VariableListManager extends LitElement {
 
     constructor() {
         super();
+        this._init();
     }
 
     static get properties() {
         return {
             variables: {
                 type: Array
+            },
+            opencgaSession: {
+                type: Object
             }
         };
     }
 
     createRenderRoot() {
         return this;
+    }
+
+    _init() {
+        this.isShow = false;
+        this.variable = {};
     }
 
     updated(changedProperties) {
@@ -53,7 +63,10 @@ export default class TreeViewerVariable extends LitElement {
 
     addVariable(e, item) {
         // Send to the variable-manager
-        LitUtils.dispatchEventCustom(this, "addVariable", item);
+        // LitUtils.dispatchEventCustom(this, "addVariable", item);
+        this.isShow = !this.isShow;
+        console.log("Open variableManager", item);
+        this.requestUpdate();
     }
 
     removeVariable(e, item) {
@@ -64,7 +77,10 @@ export default class TreeViewerVariable extends LitElement {
 
     editVariable(e, item) {
         console.log("Edit Variable", item);
-        LitUtils.dispatchEventCustom(this, "editVariable", item);
+        // LitUtils.dispatchEventCustom(this, "editVariable", item);
+        this.isShow = !this.isShow;
+        this.variable = item;
+        this.requestUpdate();
     }
 
     renderVariableTitle(item) {
@@ -80,24 +96,26 @@ export default class TreeViewerVariable extends LitElement {
     renderVariables(variables, parentItem) {
         console.log("Render variables");
         const itemParentOf = item => parentItem? `${parentItem}.${item.id}`: item.id;
-        return html `
+        return html`
             ${variables.map(item => html`
-                ${item.type === "OBJECT"? html `
+                ${item.type === "OBJECT"? html`
                     <li class="tree-list">
-                            ${this.renderVariableTitle(item)}
-                            <button type="button" class="btn btn-primary btn-xs" @click="${e => this.addVariable(e, item)}">Add</button>
-                            <button type="button" class="btn btn-primary btn-xs" @click="${e => this.editVariable(e, item)}">Edit</button>
-                            <button type="button" class="btn btn-danger btn-xs" @click="${e => this.removeVariable(e, itemParentOf(item))}">Delete</button>
+                        ${this.renderVariableTitle(item)}
+                        <button type="button" class="btn btn-primary btn-xs" @click="${e => this.addVariable(e, item)}">Add</button>
+                        <button type="button" class="btn btn-primary btn-xs" @click="${e => this.editVariable(e, item)}">Edit</button>
+                        <button type="button" class="btn btn-danger btn-xs" @click="${e => this.removeVariable(e, itemParentOf(item))}">Delete</button>
                         <ul class="nested">
                             ${this.renderVariables(item.variables, itemParentOf(item))}
                         </ul>
                     </li>
-                    `: html`<li> <span >${item.id} (${item.type})</span>
-                                <button type="button" class="btn btn-primary btn-xs" @click="${e => this.editVariable(e, item)}" >Edit</button>
-                                <button type="button" class="btn btn-danger btn-xs" @click="${e => this.removeVariable(e, itemParentOf(item))}">Delete</button>
-                            </li>`}
-                `)}
-            `;
+                    `: html`
+                        <li>
+                            <span >${item.id} (${item.type})</span>
+                            <button type="button" class="btn btn-primary btn-xs" @click="${e => this.editVariable(e, item)}" >Edit</button>
+                            <button type="button" class="btn btn-danger btn-xs" @click="${e => this.removeVariable(e, itemParentOf(item))}">Delete</button>
+                        </li>`}
+            `)}
+        `;
     }
 
     render() {
@@ -147,15 +165,32 @@ export default class TreeViewerVariable extends LitElement {
                 display: block;
             }
         </style>
-        <div class="container" style="width:100%">
-            <ul id="myUL">
-                ${this.renderVariables(this.variables)}
-            </ul>
-            <button type="button" class="btn btn-primary btn-xs" @click="${e => this.addVariableChild(e)}">Add Variable</button>
+        <div class="row">
+            <div class="col-md-2" style="padding: 10px 20px">
+                <h3>Variable</h3>
+            </div>
+            <div class="clearfix"></div>
+            <hr style="margin:0px">
+        </div>
+        <div class="col-md-12" style="padding: 10px 20px">
+            <div class="container" style="width:100%">
+                <ul id="myUL">
+                    ${this.renderVariables(this.variables)}
+                </ul>
+                <button type="button" class="btn btn-primary btn-xs" @click="${e => this.addVariable(e)}">${this.isShow? "Close Variable":"Add Variable"}</button>
+            </div>
+        </div>
+        <div class="col-md-12" style="padding: 10px 20px">
+            ${this.isShow ? html `
+                <variable-manager
+                    .variable="${this.variable}"
+                    .opencgaSession="${this.opencgaSession}">
+                </variable-manager>
+            ` : html ``}
         </div>
     `;
     }
 
 }
 
-customElements.define("treeviewer-variable", TreeViewerVariable);
+customElements.define("variable-list-manager", VariableListManager);
