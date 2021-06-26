@@ -948,8 +948,8 @@ export default class VariantInterpreterGrid extends LitElement {
             pageList: [5, 10, 25],
             showExport: false,
             detailView: true,
-            showReview: false,
-            showSelectCheckbox: true,
+            showReview: true,
+            showSelectCheckbox: false,
             showActions: false,
             multiSelection: false,
             nucleotideGenotype: true,
@@ -1004,7 +1004,7 @@ export default class VariantInterpreterGrid extends LitElement {
             ],
 
             evidences: {
-                showSelectCheckbox: false
+                showSelectCheckbox: true
             }
         };
     }

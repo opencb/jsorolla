@@ -52,6 +52,7 @@ export default class VariantInterpreterGridConfig extends LitElement {
             case "consequenceType.gencodeBasicTranscript":
             case "consequenceType.ccdsTranscript":
             case "consequenceType.ensemblTslTranscript":
+            case "consequenceType.illuminaTSO500Transcript":
             case "consequenceType.proteinCodingTranscript":
             case "consequenceType.highImpactConsequenceTypeTranscript":
             case "consequenceType.showNegativeConsequenceTypes":
@@ -137,6 +138,13 @@ export default class VariantInterpreterGridConfig extends LitElement {
                             field: "consequenceType.ensemblTslTranscript",
                             type: "checkbox",
                             text: "Include Ensembl TSL:1 transcripts",
+                            display: {
+                            }
+                        },
+                        {
+                            field: "consequenceType.illuminaTSO500Transcript",
+                            type: "checkbox",
+                            text: "Include Illumina TSO500 transcripts",
                             display: {
                             }
                         },

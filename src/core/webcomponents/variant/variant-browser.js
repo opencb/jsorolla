@@ -395,10 +395,15 @@ export default class VariantBrowser extends LitElement {
                                 title: "Disease Panels",
                                 tooltip: tooltips.diseasePanels
                             },
+                            // {
+                            //     id: "clinvar",
+                            //     title: "ClinVar Accessions",
+                            //     tooltip: tooltips.clinvar
+                            // },
                             {
-                                id: "clinvar",
-                                title: "ClinVar Accessions",
-                                tooltip: tooltips.clinvar
+                                id: "clinical",
+                                title: "Clinical",
+                                tooltip: tooltips.clinical
                             },
                             {
                                 id: "fullTextSearch",
@@ -454,7 +459,7 @@ export default class VariantBrowser extends LitElement {
                 examples: [
                     {
                         id: "BRCA2 missense variants",
-                        active: false,
+                        active: true,
                         query: {
                             gene: "BRCA2",
                             ct: "missense_variant"

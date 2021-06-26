@@ -16,7 +16,6 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../utilsNew.js";
-import PolymerUtils from "../../PolymerUtils.js";
 
 export default class ClinvarAccessionsFilter extends LitElement {
 
@@ -52,7 +51,7 @@ export default class ClinvarAccessionsFilter extends LitElement {
     }
 
     _init() {
-        this._prefix = "cvaf-" + UtilsNew.randomString(6) + "_";
+        this._prefix = UtilsNew.randomString(8) + "_";
         this.placeholder = "RCV000058226";
     }
 
@@ -61,37 +60,33 @@ export default class ClinvarAccessionsFilter extends LitElement {
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
-    updated(_changedProperties) {
-        if (_changedProperties.has("clinvar")) {
+    updated(changedProperties) {
+        if (changedProperties.has("clinvar")) {
             this.querySelector("#" + this._prefix + "ClinVarTextarea").value = this.clinvar || "";
         }
     }
 
-    clinVarChange(e) {
-        const textArea = e.target.value;
-        this._clinVar = textArea?.trim()?.replace(/\r?\n/g, ",").replace(/\s/g, "");
-        this.filterChange();
-    }
+    // clinVarChange(e) {
+    //     const textArea = e.target.value;
+    //     this._clinVar = textArea?.trim()?.replace(/\r?\n/g, ",").replace(/\s/g, "");
+    //     this.filterChange();
+    // }
+    //
+    // clinicalSignificanceChange(e) {
+    //     this.clinicalSignificance = e.detail.value;
+    //     this.filterChange();
+    // }
 
-    clinicalSignificanceChange(e) {
-        this.clinicalSignificance = e.detail.value;
-        this.filterChange()
-    }
-
-    filterChange(e,field) {
-        console.log("field", field);
-        console.log()
-        let _clinvar;
+    filterChange(e, field) {
         if (field === "clinvar") {
             const textArea = e.target.value;
             this._clinVar = textArea?.trim()?.replace(/\r?\n/g, ",").replace(/\s/g, "");
-
-        } else if (field === "clinicalSignificance"){
+        } else if (field === "clinicalSignificance") {
             this.clinicalSignificance = e.detail.value;
-
         }
+
         e.stopPropagation();
-        let value = {};
+        const value = {};
         if (this._config.clinvar) {
             value.clinvar = this._clinVar || null;
         }
@@ -118,13 +113,22 @@ export default class ClinvarAccessionsFilter extends LitElement {
     render() {
         return html`
             <div class="form-group">
-                <select-field-filter multiple .data="${Object.entries(this._config.clinicalSignificanceValues).map( ([code, label]) => ({id: code, name: label}))}" .value=${this.clinicalSignificance} @filterChange="${e => this.filterChange(e, "clinicalSignificance")}"></select-field-filter>
+                <select-field-filter multiple 
+                                     .data="${Object.entries(this._config.clinicalSignificanceValues).map(([code, label]) => ({id: code, name: label}))}" 
+                                     .value=${this.clinicalSignificance} @filterChange="${e => this.filterChange(e, "clinicalSignificance")}">
+                </select-field-filter>
             </div>
             ${this._config.clinvar ? html`
                 <div class="form-group">
-                    <textarea id="${this._prefix}ClinVarTextarea" class="form-control clearable ${this._prefix}FilterTextInput" rows="3" name="clinvar" placeholder="${this.placeholder}" @keyup="${e => this.filterChange(e, "clinvar")}"></textarea>
-                </div>
-            ` : null}`
+                    <textarea id="${this._prefix}ClinVarTextarea" 
+                              class="form-control clearable ${this._prefix}FilterTextInput" 
+                              rows="3" 
+                              name="clinvar" 
+                              placeholder="${this.placeholder}" 
+                              @keyup="${e => this.filterChange(e, "clinvar")}">
+                    </textarea>
+                </div>` : null
+        }`;
     }
 
 }

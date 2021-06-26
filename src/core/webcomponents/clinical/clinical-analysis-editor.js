@@ -271,6 +271,14 @@ class ClinicalAnalysisEditor extends LitElement {
                             }
                         },
                         {
+                            name: "Disease Panel",
+                            // field: "panels",
+                            type: "custom",
+                            display: {
+                                render: panels => "-"
+                            }
+                        },
+                        {
                             name: "Analysis Type",
                             field: "type",
                         },

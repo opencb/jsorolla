@@ -140,12 +140,42 @@ export default class DiseasePanelFilter extends LitElement {
         } else {
             return html`
                 <div>
-                    <select-field-filter    multiple 
-                                            .liveSearch=${true} 
-                                            .data="${selectOptions}" 
-                                            .value=${this.panelId} 
-                                            @filterChange="${this.filterChange}">
-                    </select-field-filter>
+                    <div style="padding: 5px 0px">
+                        <span style="padding-top: 10px;padding-left: 0px;">Select panels</span>
+                        <select-field-filter    multiple 
+                                                .liveSearch=${true} 
+                                                .data="${selectOptions}" 
+                                                .value=${this.panelId} 
+                                                @filterChange="${this.filterChange}">
+                        </select-field-filter>
+                    </div>
+                    
+                    <div style="padding: 5px 0px">
+                        <span style="padding-top: 10px;padding-left: 0px;">Select Mode of Inheritance</span>
+                        <select-field-filter    multiple
+                                                .data="${MODE_OF_INHERITANCE}"
+                                                .value=${this.panelId}
+                                                @filterChange="${this.filterChange}">
+                        </select-field-filter>
+                    </div>
+                    
+                    <div style="padding: 5px 0px">
+                        <span style="padding-top: 10px;padding-left: 0px;">Select Confidence</span>
+                        <select-field-filter    multiple
+                                                .data="${DISEASE_PANEL_CONFIDENCE}"
+                                                .value=${this.panelId}
+                                                @filterChange="${this.filterChange}">
+                        </select-field-filter>
+                    </div>
+
+                    <div style="padding: 5px 0px">
+                        <span style="padding-top: 10px;padding-left: 0px;">Select Role in Cancer</span>
+                        <select-field-filter    multiple
+                                                .data="${ROLE_IN_CANCER}"
+                                                .value=${this.panelId}
+                                                @filterChange="${this.filterChange}">
+                        </select-field-filter>
+                    </div>
                     
                     ${this._config.showSummary && this.panelId
                         ? html`

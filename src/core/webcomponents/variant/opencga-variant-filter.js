@@ -21,6 +21,7 @@ import "../commons/filters/cadd-filter.js";
 import "../commons/filters/biotype-filter.js";
 import "../commons/filters/region-filter.js";
 import "../commons/filters/clinvar-accessions-filter.js";
+import "../commons/filters/clinical-filter.js";
 import "../commons/filters/cohort-stats-filter.js";
 import "../commons/filters/consequence-type-filter.js";
 import "../commons/filters/consequence-type-select-filter.js";
@@ -422,7 +423,11 @@ export default class OpencgaVariantFilter extends LitElement {
                                     </disease-panel-filter>`;
                     break;
                 case "biotype":
-                    content = html`<biotype-filter .config="${this.config}" .biotype=${this.preparedQuery.biotype} @filterChange="${e => this.onFilterChange("biotype", e.detail.value)}"></biotype-filter>`;
+                    content = html`
+                        <biotype-filter .config="${this.config}" 
+                                        .biotype=${this.preparedQuery.biotype} 
+                                        @filterChange="${e => this.onFilterChange("biotype", e.detail.value)}">
+                        </biotype-filter>`;
                     break;
                 case "type":
                     let config = {};
@@ -469,17 +474,33 @@ export default class OpencgaVariantFilter extends LitElement {
                 case "hpo":
                     content = html`<hpo-accessions-filter .annot-hpo="${this.preparedQuery["annot-hpo"]}" @ontologyModalOpen="${this.onOntologyModalOpen}" @filterChange="${e => this.onFilterChange("annot-hpo", e.detail.value)}"></hpo-accessions-filter>`;
                     break;
-                case "clinvar":
-                    content = html`<clinvar-accessions-filter  .clinvar="${this.preparedQuery.clinvar}" 
-                                                               .clinicalSignificance="${this.preparedQuery.clinicalSignificance}" 
-                                                               @filterChange="${e => this.onFilterChange({
-                                                                    clinvar: "clinvar",
+                case "clinical":
+                    content = html`
+                        <clinical-filter  .clinical="${this.preparedQuery.clinical}"
+                                          .clinicalSignificance="${this.preparedQuery.clinicalSignificance}"
+                                          .clinicalConfirmedStatus="${this.preparedQuery.clinicalConfirmedStatus}"
+                                          @filterChange="${e => this.onFilterChange({
+                                              clinical: "clinical",
+                                              clinicalSignificance: "clinicalSignificance",
+                                              clinicalConfirmedStatus: "clinicalConfirmedStatus"
+                                          }, e.detail)}">
+                        </clinical-filter>`;
+                    break;
+                case "clinvar": // Deprecated: use clinical instead
+                    content = html`
+                        <clinvar-accessions-filter  .clinvar="${this.preparedQuery.clinvar}" 
+                                                    .clinicalSignificance="${this.preparedQuery.clinicalSignificance}" 
+                                                    @filterChange="${e => this.onFilterChange({
+                                                                    clinvar: "xref",
                                                                     clinicalSignificance: "clinicalSignificance"
                                                                 }, e.detail.value)}">
-                                    </clinvar-accessions-filter>`;
+                        </clinvar-accessions-filter>`;
                     break;
                 case "fullTextSearch":
-                    content = html`<fulltext-search-accessions-filter .traits="${this.preparedQuery.traits}" @filterChange="${e => this.onFilterChange("traits", e.detail.value)}"></fulltext-search-accessions-filter>`;
+                    content = html`
+                        <fulltext-search-accessions-filter .traits="${this.preparedQuery.traits}" 
+                                                           @filterChange="${e => this.onFilterChange("traits", e.detail.value)}">
+                        </fulltext-search-accessions-filter>`;
                     break;
                 case "caveman":
                 case "strelka":

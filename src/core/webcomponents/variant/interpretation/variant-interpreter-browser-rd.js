@@ -396,6 +396,11 @@ class VariantInterpreterBrowserRd extends LitElement {
                                 id: "clinvar",
                                 title: "ClinVar Accession",
                                 tooltip: tooltips.clinvar
+                            },
+                            {
+                                id: "clinical",
+                                title: "Clinical",
+                                tooltip: tooltips.clinical
                             }
                         ]
                     },
@@ -530,7 +535,7 @@ class VariantInterpreterBrowserRd extends LitElement {
                         pageList: [5, 10, 25],
                         showExport: false,
                         detailView: true,
-                        showReview: false,
+                        showReview: true,
                         showActions: false,
                         showSelectCheckbox: true,
                         multiSelection: false,
@@ -545,8 +550,10 @@ class VariantInterpreterBrowserRd extends LitElement {
                         quality: {
                             qual: 30,
                             dp: 20
+                        },
+                        evidences: {
+                            showSelectCheckbox: true
                         }
-                        // populationFrequencies: ["1kG_phase3:ALL", "GNOMAD_GENOMES:ALL", "GNOMAD_EXOMES:ALL", "UK10K:ALL", "GONL:ALL", "ESP6500:ALL", "EXAC:ALL"]
                     }
                 },
                 detail: {
