@@ -106,7 +106,7 @@ export default class VariantBrowserDetail extends LitElement {
                         return html`
                             <cellbase-variant-annotation-summary
                                     .variantAnnotation="${variant.annotation}"
-                                    .consequenceTypes="${consequenceTypes}"
+                                    .consequenceTypes="${CONSEQUENCE_TYPES}"
                                     .proteinSubstitutionScores="${proteinSubstitutionScore}">
                             </cellbase-variant-annotation-summary>`;
                     }

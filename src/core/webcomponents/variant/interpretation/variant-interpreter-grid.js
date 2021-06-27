@@ -79,7 +79,7 @@ export default class VariantInterpreterGrid extends LitElement {
 
         // Set colors
         // consequenceTypesImpact;
-        this.consequenceTypeColors = VariantGridFormatter.assignColors(consequenceTypes, proteinSubstitutionScore);
+        this.consequenceTypeColors = VariantGridFormatter.assignColors(CONSEQUENCE_TYPES, proteinSubstitutionScore);
     }
 
     connectedCallback() {

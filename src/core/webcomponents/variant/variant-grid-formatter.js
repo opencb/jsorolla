@@ -296,7 +296,7 @@ export default class VariantGridFormatter {
             for (const ct of selectedConsequenceTypes) {
                 for (const so of ct.sequenceOntologyTerms) {
                     if (!soVisited.has(so?.name)) {
-                        positiveConsequenceTypes.push(`<span style="color: ${consequenceTypes.style[consequenceTypes.impact[so.name]] || "black"}">${so.name}</span>`);
+                        positiveConsequenceTypes.push(`<span style="color: ${CONSEQUENCE_TYPES.style[CONSEQUENCE_TYPES.impact[so.name]] || "black"}">${so.name}</span>`);
                         soVisited.add(so.name);
                     }
                 }
@@ -308,7 +308,7 @@ export default class VariantGridFormatter {
                 for (const ct of notSelectedConsequenceTypes) {
                     for (const so of ct.sequenceOntologyTerms) {
                         if (!soVisited.has(so.name)) {
-                            negativeConsequenceTypes.push(`<div style="color: ${consequenceTypes.style[consequenceTypes.impact[so.name]] || "black"}; margin: 5px">${so.name}</div>`);
+                            negativeConsequenceTypes.push(`<div style="color: ${CONSEQUENCE_TYPES.style[CONSEQUENCE_TYPES.impact[so.name]] || "black"}; margin: 5px">${so.name}</div>`);
                             soVisited.add(so.name);
                         }
                     }
@@ -427,7 +427,7 @@ export default class VariantGridFormatter {
                 }
                 if (filter.consequenceType.highImpactConsequenceTypeTranscript) {
                     for (const so of ct.sequenceOntologyTerms) {
-                        const impact = consequenceTypes?.impact[so.name]?.toUpperCase();
+                        const impact = CONSEQUENCE_TYPES?.impact[so.name]?.toUpperCase();
                         result = result || impact === "HIGH" || impact === "MODERATE";
                     }
                 }
@@ -574,7 +574,7 @@ export default class VariantGridFormatter {
 
                 const soArray = [];
                 for (const so of ct.sequenceOntologyTerms) {
-                    const color = consequenceTypes.style[consequenceTypes.impact[so.name]] || "black";
+                    const color = CONSEQUENCE_TYPES.style[CONSEQUENCE_TYPES.impact[so.name]] || "black";
                     soArray.push(`<div style="color: ${color}; margin-bottom: 5px">
                                     <span style="padding-right: 5px">${so.name}</span> 
                                     <a title="Go to Sequence Ontology ${so.accession} term" 

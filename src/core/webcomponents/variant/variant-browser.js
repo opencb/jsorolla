@@ -401,8 +401,8 @@ export default class VariantBrowser extends LitElement {
                             //     tooltip: tooltips.clinvar
                             // },
                             {
-                                id: "clinical",
-                                title: "Clinical",
+                                id: "clinical-annotation",
+                                title: "Clinical Annotation",
                                 tooltip: tooltips.clinical
                             },
                             {
@@ -491,7 +491,7 @@ export default class VariantBrowser extends LitElement {
                                 return html`
                                     <cellbase-variant-annotation-summary
                                             .variantAnnotation="${variant.annotation}"
-                                            .consequenceTypes="${consequenceTypes}"
+                                            .consequenceTypes="${CONSEQUENCE_TYPES}"
                                             .proteinSubstitutionScores="${proteinSubstitutionScore}">
                                     </cellbase-variant-annotation-summary>`;
                             }

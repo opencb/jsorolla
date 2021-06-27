@@ -392,14 +392,14 @@ class VariantInterpreterBrowserRd extends LitElement {
                                 title: "Disease Panels",
                                 tooltip: tooltips.diseasePanels
                             },
+                            // {
+                            //     id: "clinvar",
+                            //     title: "ClinVar Accession",
+                            //     tooltip: tooltips.clinvar
+                            // },
                             {
-                                id: "clinvar",
-                                title: "ClinVar Accession",
-                                tooltip: tooltips.clinvar
-                            },
-                            {
-                                id: "clinical",
-                                title: "Clinical",
+                                id: "clinical-annotation",
+                                title: "Clinical Annotation",
                                 tooltip: tooltips.clinical
                             }
                         ]
@@ -568,7 +568,7 @@ class VariantInterpreterBrowserRd extends LitElement {
                                 return html`
                                     <cellbase-variant-annotation-summary
                                             .variantAnnotation="${variant.annotation}"
-                                            .consequenceTypes="${consequenceTypes}"
+                                            .consequenceTypes="${CONSEQUENCE_TYPES}"
                                             .proteinSubstitutionScores="${proteinSubstitutionScore}">
                                     </cellbase-variant-annotation-summary>`;
                             }
@@ -725,7 +725,7 @@ class VariantInterpreterBrowserRd extends LitElement {
                                             .clinicalAnalysis="${this.clinicalAnalysis}"
                                             .cellbaseClient="${this.cellbaseClient}"
                                             .populationFrequencies="${populationFrequencies}"
-                                            .consequenceTypes="${consequenceTypes}"
+                                            .consequenceTypes="${CONSEQUENCE_TYPES}"
                                             .config="${this._config.filter}"
                                             @queryChange="${this.onVariantFilterChange}"
                                             @querySearch="${this.onVariantFilterSearch}">

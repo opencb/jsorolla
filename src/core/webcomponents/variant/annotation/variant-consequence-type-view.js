@@ -54,11 +54,11 @@ export default class VariantConsequenceTypeView extends LitElement {
 
     _getConsequenceTypeColorMap() {
         let consequenceTypeToColor = {};
-        if (consequenceTypes) {
-            for (let categoryIndex in consequenceTypes.categories) {
-                let terms = consequenceTypes.categories[categoryIndex].terms;
+        if (CONSEQUENCE_TYPES) {
+            for (let categoryIndex in CONSEQUENCE_TYPES.categories) {
+                let terms = CONSEQUENCE_TYPES.categories[categoryIndex].terms;
                 for (let termIndex in terms) {
-                    consequenceTypeToColor[terms[termIndex].name] = consequenceTypes.style[terms[termIndex].impact];
+                    consequenceTypeToColor[terms[termIndex].name] = CONSEQUENCE_TYPES.style[terms[termIndex].impact];
                 }
             }
         }

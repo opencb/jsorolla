@@ -424,14 +424,14 @@ class VariantInterpreterBrowserCancer extends LitElement {
                                 title: "Disease Panels",
                                 tooltip: tooltips.diseasePanels
                             },
+                            // {
+                            //     id: "clinvar",
+                            //     title: "ClinVar Accession",
+                            //     tooltip: tooltips.clinvar
+                            // },
                             {
-                                id: "clinvar",
-                                title: "ClinVar Accession",
-                                tooltip: tooltips.clinvar
-                            },
-                            {
-                                id: "clinical",
-                                title: "Clinical",
+                                id: "clinical-annotation",
+                                title: "Clinical Annotation",
                                 tooltip: tooltips.clinical
                             }
                         ]
@@ -598,7 +598,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                                 return html`
                                     <cellbase-variant-annotation-summary
                                             .variantAnnotation="${variant.annotation}"
-                                            .consequenceTypes="${consequenceTypes}"
+                                            .consequenceTypes="${CONSEQUENCE_TYPES}"
                                             .proteinSubstitutionScores="${proteinSubstitutionScore}">
                                     </cellbase-variant-annotation-summary>`;
                             }
