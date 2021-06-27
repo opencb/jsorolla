@@ -82,6 +82,7 @@ export default class ClinicalFilter extends LitElement {
 
     filterChange(e, field) {
         e.stopPropagation();
+
         this.query[field] = e.detail.value;
         const event = new CustomEvent("filterChange", {
             detail: this.query

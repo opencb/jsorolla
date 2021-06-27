@@ -414,14 +414,6 @@ export default class OpencgaVariantFilter extends LitElement {
                                                     @filterChange="${e => this.onFilterChange("xref", e.detail.value)}">
                                     </feature-filter>`;
                     break;
-                case "diseasePanels":
-                    content = html`<disease-panel-filter    .opencgaSession="${this.opencgaSession}" 
-                                                            .diseasePanels="${this.opencgaSession.study.panels}" 
-                                                            .panelId="${this.preparedQuery.panel}" 
-                                                            .config="${this.config}" 
-                                                            @filterChange="${e => this.onFilterChange("panel", e.detail.value)}">
-                                    </disease-panel-filter>`;
-                    break;
                 case "biotype":
                     content = html`
                         <biotype-filter .config="${this.config}" 
@@ -472,7 +464,27 @@ export default class OpencgaVariantFilter extends LitElement {
                     content = html`<go-accessions-filter .go="${this.preparedQuery.go}" @ontologyModalOpen="${this.onOntologyModalOpen}" @filterChange="${e => this.onFilterChange("go", e.detail.value)}"></go-accessions-filter>`;
                     break;
                 case "hpo":
-                    content = html`<hpo-accessions-filter .annot-hpo="${this.preparedQuery["annot-hpo"]}" @ontologyModalOpen="${this.onOntologyModalOpen}" @filterChange="${e => this.onFilterChange("annot-hpo", e.detail.value)}"></hpo-accessions-filter>`;
+                    content = html`
+                        <hpo-accessions-filter .annot-hpo="${this.preparedQuery["annot-hpo"]}" 
+                                               @ontologyModalOpen="${this.onOntologyModalOpen}" 
+                                               @filterChange="${e => this.onFilterChange("annot-hpo", e.detail.value)}">
+                        </hpo-accessions-filter>`;
+                    break;
+                case "diseasePanels":
+                    content = html`
+                        <disease-panel-filter    .opencgaSession="${this.opencgaSession}"
+                                                 .diseasePanels="${this.opencgaSession.study.panels}"
+                                                 .panel="${this.preparedQuery.panel}"
+                                                 .panelModeOfInheritance="${this.preparedQuery.panelModeOfInheritance}"
+                                                 .panelConfidence="${this.preparedQuery.panelConfidence}"
+                                                 .panelRoleInCancer="${this.preparedQuery.panelRoleInCancer}"
+                                                 @filterChange="${e => this.onFilterChange({
+                                                     panel: "panel",
+                                                     panelModeOfInheritance: "panelModeOfInheritance",
+                                                     panelConfidence: "panelConfidence",
+                                                     panelRoleInCancer: "panelRoleInCancer"
+                                                 }, e.detail)}">
+                        </disease-panel-filter>`;
                     break;
                 case "clinical":
                     content = html`
