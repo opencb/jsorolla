@@ -68,17 +68,15 @@ export default class VariableManager extends BaseManagerMixin(LitElement) {
     }
 
     onFieldChangeVariable(e) {
-        const [field, prop] = e.detail.param.split(".");
-        const value = e.detail.value;
+        const field = e.detail.param;
         this.variable = {
             ...this.variable,
-            [prop]: e.detail.value
+            [field]: e.detail.value
         };
-        if (prop === "type") {
+        console.log("The new variable: ", this.variable);
+        if (field === "type") {
             console.log("changed type variable");
             this.variableFormObserver();
-            // this.typeObserver(value);
-            // e.stopPropagation();
         }
     }
 
@@ -106,7 +104,7 @@ export default class VariableManager extends BaseManagerMixin(LitElement) {
                     elements: [
                         {
                             name: "Id",
-                            field: "variable.id",
+                            field: "id",
                             type: "input-text",
                             display: {
                                 placeholder: "Name ..."
@@ -114,7 +112,7 @@ export default class VariableManager extends BaseManagerMixin(LitElement) {
                         },
                         {
                             name: "Name",
-                            field: "variable.name",
+                            field: "name",
                             type: "input-text",
                             display: {
                                 placeholder: "Name ..."
@@ -122,12 +120,12 @@ export default class VariableManager extends BaseManagerMixin(LitElement) {
                         },
                         {
                             name: "Required",
-                            field: "variable.required",
+                            field: "required",
                             type: "checkbox",
                         },
                         {
                             name: "Type",
-                            field: "variable.type",
+                            field: "type",
                             type: "select",
                             allowedValues: variableType,
                             display: {
@@ -136,7 +134,7 @@ export default class VariableManager extends BaseManagerMixin(LitElement) {
                         },
                         {
                             name: "Allowed Values",
-                            field: "variable.allowedValues",
+                            field: "allowedValues",
                             type: "custom",
                             display: {
                                 visible: variable => variable?.type === "CATEGORICAL",
@@ -156,7 +154,7 @@ export default class VariableManager extends BaseManagerMixin(LitElement) {
                         },
                         {
                             name: "Allowed Keys",
-                            field: "variable.allowedKeys",
+                            field: "allowedKeys",
                             type: "custom",
                             display: {
                                 visible: variable => mapType.includes(variable?.type),
@@ -171,7 +169,7 @@ export default class VariableManager extends BaseManagerMixin(LitElement) {
                         },
                         {
                             name: "Default Value",
-                            field: "variable.defaultValue",
+                            field: "defaultValue",
                             type: "input-text",
                             display: {
                                 disabled: variable => ComplexType.some(varType => variable?.type?.startsWith(varType))
@@ -179,7 +177,7 @@ export default class VariableManager extends BaseManagerMixin(LitElement) {
                         },
                         {
                             name: "Multi Value",
-                            field: "variable.multivalue",
+                            field: "multivalue",
                             type: "checkbox",
                             display: {
                                 disabled: variable => ComplexType.some(varType => variable?.type?.startsWith(varType))
@@ -187,7 +185,7 @@ export default class VariableManager extends BaseManagerMixin(LitElement) {
                         },
                         {
                             name: "Depends On",
-                            field: "variable.dependsOn",
+                            field: "dependsOn",
                             type: "select",
                             // allowedValues: variable => variable?.type === "CATEGORICAL" ? variable?.allowedValues: variable?.allowedKeys,
                             allowedValues: this.variables?.map(variable => variable.name),
@@ -198,7 +196,7 @@ export default class VariableManager extends BaseManagerMixin(LitElement) {
                         },
                         {
                             name: "Category",
-                            field: "variable.category",
+                            field: "category",
                             type: "input-text",
                             display: {
                                 placeholder: "Name ..."
@@ -206,7 +204,7 @@ export default class VariableManager extends BaseManagerMixin(LitElement) {
                         },
                         {
                             name: "Rank",
-                            field: "variable.rank",
+                            field: "rank",
                             type: "input-text",
                             display: {
                                 placeholder: "select a variable type..."
@@ -214,7 +212,7 @@ export default class VariableManager extends BaseManagerMixin(LitElement) {
                         },
                         {
                             name: "Description",
-                            field: "variable.description",
+                            field: "description",
                             type: "input-text",
                             display: {
                                 rows: 3,
