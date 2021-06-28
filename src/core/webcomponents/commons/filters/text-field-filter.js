@@ -58,8 +58,9 @@ export default class TextFieldFilter extends LitElement {
     }
 
     _init() {
-        this._prefix = "tff-" + UtilsNew.randomString(6);
+        this._prefix = UtilsNew.randomString(9);
         this.rows = 1;
+        this.separator = ",";
         this.classes = "";
     }
 
@@ -77,7 +78,7 @@ export default class TextFieldFilter extends LitElement {
                     .replace(/\s/g, "")
                     .split((new RegExp(`[${this.separator}]`)))
                     .filter(Boolean)
-                    .join(",") :
+                    .join(this.separator) :
                 null;
         } else {
             value = e.target.value ?? null;
@@ -86,7 +87,7 @@ export default class TextFieldFilter extends LitElement {
             detail: {
                 value: value
             },
-            bubbles: true,
+            bubbles: false,
             composed: true
         });
         this.dispatchEvent(event);

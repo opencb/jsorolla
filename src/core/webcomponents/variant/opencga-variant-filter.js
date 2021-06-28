@@ -410,9 +410,11 @@ export default class OpencgaVariantFilter extends LitElement {
                                     </region-filter>`;
                     break;
                 case "feature":
-                    content = html`<feature-filter  .cellbaseClient="${this.cellbaseClient}" .query=${this.preparedQuery}
-                                                    @filterChange="${e => this.onFilterChange("xref", e.detail.value)}">
-                                    </feature-filter>`;
+                    content = html`
+                        <feature-filter  .cellbaseClient="${this.cellbaseClient}" 
+                                         .query=${this.preparedQuery}
+                                         @filterChange="${e => this.onFilterChange("xref", e.detail.value)}">
+                        </feature-filter>`;
                     break;
                 case "biotype":
                     content = html`
