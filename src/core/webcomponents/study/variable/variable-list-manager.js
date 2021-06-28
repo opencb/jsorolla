@@ -205,10 +205,12 @@ export default class VariableListManager extends LitElement {
     }
 
     onShowNode(e) {
-        const treeList = e.target.parentElement;
-        const parentList = treeList.parentElement;
-        parentList.querySelector(".nested").classList.toggle("active");
-        treeList.classList.toggle("fa-caret-down");
+        const childTreeList = e.currentTarget;
+        const findParentTreeList = child => child.parentElement.className === "tree-list"? child.parentElement : findParentTreeList(child.parentElement);
+        const parentTreeList = findParentTreeList(childTreeList);
+        console.log("TreeList", childTreeList, "parentList", parentTreeList);
+        parentTreeList.querySelector(".nested").classList.toggle("active");
+        childTreeList.classList.toggle("fa-caret-down");
     }
 
     renderVariables(variables, parentItem) {
@@ -218,23 +220,41 @@ export default class VariableListManager extends LitElement {
             ${variables.map(item => html`
                 ${item.type === "OBJECT"? html`
                     <li class="tree-list">
-                        ${this.renderVariableTitle(item)}
-                        <button type="button" class="btn btn-primary btn-xs" @click="${e => this.onShowVariableManager(e, {parent: parentItemOf(item), action: "ADD", variable: item})}">Add</button>
-                        <button type="button" class="btn btn-primary btn-xs" @click="${e => this.onShowVariableManager(e, {parent: parentItemOf(item), action: "EDIT", variable: item})}">Edit</button>
-                        <button type="button" class="btn btn-danger btn-xs" @click="${e => this.onRemoveVariable(e, parentItemOf(item))}">Delete</button>
-                        <ul class="nested">
-                            ${this.renderVariables(item.variables, parentItemOf(item))}
-                        </ul>
+                        <div class="row">
+                            <div class="col-md-8">
+                                ${this.renderVariableTitle(item)}
+                            </div>
+                            <div class="col-md-4">
+                                <div class="btn-group pull-right" style="padding-bottom:5px" role="group">
+                                    <button type="button" class="btn btn-primary btn-xs"
+                                        @click="${e => this.onShowVariableManager(e, {parent: parentItemOf(item), action: "ADD", variable: item})}">Add</button>
+                                    <button type="button" class="btn btn-primary btn-xs"
+                                        @click="${e => this.onShowVariableManager(e, {parent: parentItemOf(item), action: "EDIT", variable: item})}">Edit</button>
+                                    <button type="button" class="btn btn-danger btn-xs"
+                                        @click="${e => this.onRemoveVariable(e, parentItemOf(item))}">Delete</button>
+                                </div>
+                            </div>
+                            <ul class="nested">
+                                ${this.renderVariables(item.variables, parentItemOf(item))}
+                            </ul>
+                        </div>
                     </li>
                     `: html`
-                        <li>
-                            <span >${item.id} (${item.type})</span>
-                            <button type="button" class="btn btn-primary btn-xs"
-                            @click="${e => this.onShowVariableManager(e, {parent: parentItemOf(item), action: "EDIT", variable: item})}">
-                                Edit
-                            </button>
-                            <button type="button" class="btn btn-danger btn-xs" @click="${e => this.onRemoveVariable(e, parentItemOf(item))}">Delete</button>
-                        </li>`}
+                    <li>
+                        <div class="row">
+                            <div class="col-md-8">
+                                <span>${item.id} (${item.type})</span>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="btn-group pull-right" style="padding-bottom:5px" role="group">
+                                    <button type="button" class="btn btn-primary btn-xs"
+                                        @click="${e => this.onShowVariableManager(e, {parent: parentItemOf(item), action: "EDIT", variable: item})}">Edit</button>
+                                    <button type="button" class="btn btn-danger btn-xs"
+                                        @click="${e => this.onRemoveVariable(e, parentItemOf(item))}">Delete</button>
+                                </div>
+                            </div>
+                        </div>
+                    </li>`}
             `)}
         `;
     }
@@ -298,7 +318,7 @@ export default class VariableListManager extends LitElement {
                 <ul id="myUL">
                     ${this.renderVariables(this.variables)}
                 </ul>
-                <button type="button" class="btn btn-primary btn-xs"
+                <button type="button" class="btn btn-primary btn-sm"
                 @click="${e => this.onShowVariableManager(e, {parent: "", action: "ADD"})}">
                 ${this.isShow? "Close Variable":"Add Variable"}</button>
             </div>
