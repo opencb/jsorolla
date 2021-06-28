@@ -21,7 +21,7 @@ import "../commons/filters/cadd-filter.js";
 import "../commons/filters/biotype-filter.js";
 import "../commons/filters/region-filter.js";
 import "../commons/filters/clinvar-accessions-filter.js";
-import "../commons/filters/clinical-filter.js";
+import "../commons/filters/clinical-annotation-filter.js";
 import "../commons/filters/cohort-stats-filter.js";
 import "../commons/filters/consequence-type-filter.js";
 import "../commons/filters/consequence-type-select-filter.js";
@@ -410,9 +410,11 @@ export default class OpencgaVariantFilter extends LitElement {
                                     </region-filter>`;
                     break;
                 case "feature":
-                    content = html`<feature-filter  .cellbaseClient="${this.cellbaseClient}" .query=${this.preparedQuery}
-                                                    @filterChange="${e => this.onFilterChange("xref", e.detail.value)}">
-                                    </feature-filter>`;
+                    content = html`
+                        <feature-filter  .cellbaseClient="${this.cellbaseClient}" 
+                                         .query=${this.preparedQuery}
+                                         @filterChange="${e => this.onFilterChange("xref", e.detail.value)}">
+                        </feature-filter>`;
                     break;
                 case "biotype":
                     content = html`
@@ -486,17 +488,17 @@ export default class OpencgaVariantFilter extends LitElement {
                                                  }, e.detail)}">
                         </disease-panel-filter>`;
                     break;
-                case "clinical":
+                case "clinical-annotation":
                     content = html`
-                        <clinical-filter  .clinical="${this.preparedQuery.clinical}"
-                                          .clinicalSignificance="${this.preparedQuery.clinicalSignificance}"
-                                          .clinicalConfirmedStatus="${this.preparedQuery.clinicalConfirmedStatus}"
-                                          @filterChange="${e => this.onFilterChange({
-                                              clinical: "clinical",
-                                              clinicalSignificance: "clinicalSignificance",
-                                              clinicalConfirmedStatus: "clinicalConfirmedStatus"
-                                          }, e.detail)}">
-                        </clinical-filter>`;
+                        <clinical-annotation-filter  .clinical="${this.preparedQuery.clinical}"
+                                                     .clinicalSignificance="${this.preparedQuery.clinicalSignificance}"
+                                                     .clinicalConfirmedStatus="${this.preparedQuery.clinicalConfirmedStatus}"
+                                                     @filterChange="${e => this.onFilterChange({
+                                                         clinical: "clinical",
+                                                         clinicalSignificance: "clinicalSignificance",
+                                                         clinicalConfirmedStatus: "clinicalConfirmedStatus"
+                                                     }, e.detail)}">
+                        </clinical-annotation-filter>`;
                     break;
                 case "clinvar": // Deprecated: use clinical instead
                     content = html`

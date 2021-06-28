@@ -401,8 +401,8 @@ export default class VariantBrowser extends LitElement {
                             //     tooltip: tooltips.clinvar
                             // },
                             {
-                                id: "clinical",
-                                title: "Clinical",
+                                id: "clinical-annotation",
+                                title: "Clinical Annotation",
                                 tooltip: tooltips.clinical
                             },
                             {

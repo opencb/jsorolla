@@ -19,7 +19,7 @@ import UtilsNew from "../../../utilsNew.js";
 import "../../commons/filters/select-field-filter.js";
 import "../../commons/filters/checkbox-field-filter.js";
 
-export default class ClinicalFilter extends LitElement {
+export default class ClinicalAnnotationFilter extends LitElement {
 
     constructor() {
         super();
@@ -132,21 +132,9 @@ export default class ClinicalFilter extends LitElement {
                                            @filterChange="${e => this.filterChange(e, "clinicalConfirmedStatus")}">
                     </checkbox-field-filter>
                 </div>
-            </div>
-            
-            <div style="margin: 15px 0px">
-                <span>Search ClinVar or Cosmic Accessions</span>
-                <div style="padding: 2px 0px">
-                    <textarea id="${this._prefix}ClinVarTextarea"
-                              class="form-control clearable ${this._prefix}FilterTextInput"
-                              placeholder="${this._config.placeholder}"
-                              rows="2"
-                              name="clinvar"
-                              @keyup="${e => this.filterChange(e, "clinvar")}"></textarea>
-                </div>
             </div>`;
     }
 
 }
 
-customElements.define("clinical-filter", ClinicalFilter);
+customElements.define("clinical-annotation-filter", ClinicalAnnotationFilter);

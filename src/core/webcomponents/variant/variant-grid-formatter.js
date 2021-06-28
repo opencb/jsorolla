@@ -427,7 +427,7 @@ export default class VariantGridFormatter {
                 }
                 if (filter.consequenceType.highImpactConsequenceTypeTranscript) {
                     for (const so of ct.sequenceOntologyTerms) {
-                        const impact = consequenceTypes?.impact[so.name]?.toUpperCase();
+                        const impact = CONSEQUENCE_TYPES?.impact[so.name]?.toUpperCase();
                         result = result || impact === "HIGH" || impact === "MODERATE";
                     }
                 }
