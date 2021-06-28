@@ -140,10 +140,23 @@ class SampleVariantStatsView extends LitElement {
     }
 
     sampleObserver() {
-        if (this.sample?.qualityControl?.variantMetrics.variantStats?.length) {
+
+        // TODO temp fix to support both Opencga 2.0.3 and Opencga 2.1.0-rc
+        if (this.sample?.qualityControl?.variantMetrics) {
+            this._variantStatsPath = "variantMetrics";
+            console.warn("old data model");
+        }
+        else if (this.sample?.qualityControl?.variant) {
+            this._variantStatsPath = "variant";
+            console.warn("new data model");
+        } else {
+            console.error("unexpected QC data model");
+        }
+
+        if (this.sample?.qualityControl?.[this._variantStatsPath].variantStats?.length) {
             // By default we render the stat 'ALL' from the first metric, if there is not stat 'ALL' then we take the first one
-            this.statsSelect = this.sample.qualityControl.variantMetrics.variantStats.map(stat => stat.id);
-            this.variantStats = this.sample.qualityControl.variantMetrics.variantStats.find(stat => stat.id === "ALL") ?? this.sample.qualityControl.variantMetrics.variantStats[0];
+            this.statsSelect = this.sample.qualityControl[this._variantStatsPath].variantStats.map(stat => stat.id);
+            this.variantStats = this.sample.qualityControl[this._variantStatsPath].variantStats.find(stat => stat.id === "ALL") ?? this.sample.qualityControl[this._variantStatsPath].variantStats[0];
             if (this.variantStats?.stats?.chromosomeCount) {
                 this.variantStats.stats.chromosomeCount = UtilsNew.objectKeySort(this.variantStats.stats.chromosomeCount, CHROMOSOMES, false);
             }
@@ -172,7 +185,7 @@ class SampleVariantStatsView extends LitElement {
     }
 
     statChange(e) {
-        this.variantStats = this.sample.qualityControl.variantMetrics.variantStats.find(stat => stat.id === e.detail.value);
+        this.variantStats = this.sample.qualityControl[this._variantStatsPath].variantStats.find(stat => stat.id === e.detail.value);
     }
 
     getDefaultConfig() {

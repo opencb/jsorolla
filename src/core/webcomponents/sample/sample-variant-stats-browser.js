@@ -97,19 +97,19 @@ export default class SampleVariantStatsBrowser extends LitElement {
     }
 
     sampleObserver() {
-        // console.log("this.sample", this.sample);
-        if (this.sample?.qualityControl?.variantMetrics?.variantStats?.length) {
+        // TODO temp fix to support both Opencga 2.0.3 and Opencga 2.1.0-rc
+        if (this.sample?.qualityControl?.variantMetrics) {
+            this._variantStatsPath = "variantMetrics";
             console.warn("old data model");
-            this._variantStats = this.sample.qualityControl.variantMetrics.variantStats[0];
-            this.selectVariantStats("ALL", this._variantStats);
         }
-        else if (this.sample?.qualityControl?.variant?.variantStats?.length) {
+        else if (this.sample?.qualityControl?.variant) {
             console.warn("new data model");
-            this._variantStats = this.sample.qualityControl.variant.variantStats[0];
-            this.selectVariantStats("ALL", this._variantStats);
+            this._variantStatsPath = "variant";
         } else {
-            // console.error("no stats");
+            console.error("no path for variant stats defined");
         }
+        this._variantStats = this.sample.qualityControl?.[this._variantStatsPath]?.variantStats[0];
+        this.selectVariantStats("ALL", this._variantStats);
     }
 
     sampleIdObserver() {
@@ -204,17 +204,18 @@ export default class SampleVariantStatsBrowser extends LitElement {
             stats: this.sampleQcVariantStats.stats
         };
 
-        if (!this.sample?.qualityControl?.variantMetrics) {
-            this.sample.qualityControl["variantMetrics"] = {
+
+        if (!this.sample?.qualityControl?.[this._variantStatsPath]) {
+            this.sample.qualityControl[this._variantStatsPath] = {
                 variantStats: [],
                 signatures: []
             };
         }
 
-        if (this.sample.qualityControl.variantMetrics.variantStats) {
-            this.sample.qualityControl.variantMetrics.variantStats.push(variantStats);
+        if (this.sample.qualityControl[this._variantStatsPath].variantStats) {
+            this.sample.qualityControl[this._variantStatsPath].variantStats.push(variantStats);
         } else {
-            this.sample.qualityControl.variantMetrics["variantStats"] = [variantStats];
+            this.sample.qualityControl[this._variantStatsPath].variantStats = [variantStats];
         }
 
         this.opencgaSession.opencgaClient.samples().update(this.sample.id, {qualityControl: this.sample.qualityControl}, {study: this.opencgaSession.study.fqn})
@@ -372,7 +373,8 @@ export default class SampleVariantStatsBrowser extends LitElement {
     }
 
     selectVariantStats(id, defaultQcVariantStats) {
-        let qcVariantStats = this.sample.qualityControl.variantMetrics.variantStats.find(qcVariantStats => qcVariantStats.id === id);
+        console.log("this._variantStatsPath", this._variantStatsPath)
+        let qcVariantStats = this.sample.qualityControl[this._variantStatsPath].variantStats.find(qcVariantStats => qcVariantStats.id === id);
         if (!qcVariantStats && defaultQcVariantStats) {
             qcVariantStats = defaultQcVariantStats;
         }
@@ -447,8 +449,8 @@ export default class SampleVariantStatsBrowser extends LitElement {
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="${this._prefix}ResetMenu" style="width: 360px">
                                     <li style="padding: 3px 20px;"><b>Saved Variant Stats</b></li>
-                                    ${this.sample?.qualityControl?.variantMetrics?.variantStats?.length > 0 ?
-                                        this.sample.qualityControl.variantMetrics.variantStats.map(qcVariantStat => html`
+                                    ${this.sample?.qualityControl?.[this._variantStatsPath]?.variantStats?.length > 0 ?
+                                        this.sample.qualityControl[this._variantStatsPath].variantStats.map(qcVariantStat => html`
                                             <li>
                                                 <a href="javascript:void(0);" data-id="${qcVariantStat.id}" @click="${e=> this.selectVariantStats(qcVariantStat.id)}">
                                                     ${this.renderQcVariantStatsSelectItem(qcVariantStat)}
