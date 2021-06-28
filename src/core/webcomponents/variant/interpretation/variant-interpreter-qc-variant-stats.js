@@ -79,12 +79,25 @@ class VariantInterpreterQcVariantStats extends LitElement {
     clinicalAnalysisObserver() {
         //TODO use ClinicalAnalysisUtils
         if (this.clinicalAnalysis) {
+
+            // TODO temp fix to support both Opencga 2.0.3 and Opencga 2.1.0-rc
+            if (this.clinicalAnalysis.proband?.samples[0]?.qualityControl?.variantMetrics) {
+                this._variantStatsPath = "variantMetrics";
+                console.warn("old data model");
+            }
+            else if (this.clinicalAnalysis.proband?.samples[0]?.qualityControl.variant) {
+                this._variantStatsPath = "variant";
+                console.warn("new data model");
+            } else {
+                console.error("unexpected QC data model");
+            }
+
             switch (this.clinicalAnalysis.type.toUpperCase()) {
                 case "SINGLE":
                     this.statsSelect = [
                         {
                             id: this.clinicalAnalysis.proband.samples[0].id,
-                            fields: this.clinicalAnalysis.proband?.samples[0]?.qualityControl?.variantMetrics?.variantStats
+                            fields: this.clinicalAnalysis.proband?.samples[0]?.qualityControl?.[this._variantStatsPath]?.variantStats
                                 .map( vStats => ({id: this.clinicalAnalysis.proband.samples[0].id + ":" + vStats.id, name: vStats.id}))
                         }
                     ];
