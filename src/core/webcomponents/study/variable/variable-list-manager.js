@@ -52,19 +52,21 @@ export default class VariableListManager extends LitElement {
         };
     }
 
-    updated(changedProperties) {
-        if (changedProperties.has("variables")) {
-            console.log("Updating elements tree");
-            const toggler = document.getElementsByClassName("fa-caret-right");
+    // updated(changedProperties) {
+    //     if (changedProperties.has("variables")) {
+    //         console.log("Updating elements tree");
+    //         const toggler = this.getElementsByClassName("fa-caret-right");
+    //         console.log("Updated toggler", toggler);
 
-            toggler.forEach(el => {
-                el.addEventListener("click", function () {
-                    this.parentElement.querySelector(".nested").classList.toggle("active");
-                    this.classList.toggle("fa-caret-down");
-                });
-            });
-        }
-    }
+    //         toggler.forEach(el => {
+    //             el.addEventListener("click", function () {
+    //                 console.log("Clicked the item: ", el);
+    //                 this.parentElement.querySelector(".nested").classList.toggle("active");
+    //                 this.classList.toggle("fa-caret-down");
+    //             });
+    //         });
+    //     }
+    // }
 
     onShowVariableManager(e, manager) {
         console.log("Open variableManager", manager.variable);
@@ -195,11 +197,18 @@ export default class VariableListManager extends LitElement {
 
     renderVariableTitle(item) {
         return html `${item.variables.length > 0 ? html`
-        <span class="fas fa-caret-right">
+        <span class="fas fa-caret-right" @click="${this.onShowNode}">
             <span>${item.id} (${item.type})</span>
         </span>` :
         html `<span>${item.id} (${item.type})</span>`
         }`;
+    }
+
+    onShowNode(e) {
+        const treeList = e.target.parentElement;
+        const parentList = treeList.parentElement;
+        parentList.querySelector(".nested").classList.toggle("active");
+        treeList.classList.toggle("fa-caret-down");
     }
 
     renderVariables(variables, parentItem) {
