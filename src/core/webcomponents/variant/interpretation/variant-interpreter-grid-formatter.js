@@ -372,7 +372,7 @@ export default class VariantInterpreterGridFormatter {
                 const soArray = [];
                 if (re.genomicFeature.consequenceTypes && re.genomicFeature.consequenceTypes.length > 0) {
                     for (const so of re.genomicFeature.consequenceTypes) {
-                        const color = consequenceTypes.style[consequenceTypes.impact[so.name]] || "black";
+                        const color = CONSEQUENCE_TYPES.style[CONSEQUENCE_TYPES.impact[so.name]] || "black";
                         soArray.push(`<div style="color: ${color}; margin-bottom: 5px">
                                         <span style="padding-right: 5px">${so.name}</span> 
                                         <a title="Go to Sequence Ontology ${so.accession} term" 
@@ -728,7 +728,7 @@ export default class VariantInterpreterGridFormatter {
                 <div class="circle" style="width: ${radius *2}px;height: ${radius *2}px;background: ${right}"></div>
             </div>`;
     }
-    
+
     static _getLeftRightColors(gt, filter) {
         let leftColor;
         let rightColor;

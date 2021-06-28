@@ -65,7 +65,7 @@ export default class VariantBrowserGrid extends LitElement {
         this.checkedVariants = new Map();
 
         // Set colors
-        this.consequenceTypeColors = VariantGridFormatter.assignColors(consequenceTypes, proteinSubstitutionScore);
+        this.consequenceTypeColors = VariantGridFormatter.assignColors(CONSEQUENCE_TYPES, PROTEIN_SUBSTITUTION_SCORE);
 
         // TODO move to the configuration?
         this.maxNumberOfPages = 1000000;
