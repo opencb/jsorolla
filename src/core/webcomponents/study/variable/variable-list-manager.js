@@ -51,22 +51,10 @@ export default class VariableListManager extends LitElement {
             variable: ""
         };
     }
-    // Move: updated into a function call onShowNode to avoid innecesary updated call.
-    // updated(changedProperties) {
-    //     if (changedProperties.has("variables")) {
-    //         console.log("Updating elements tree");
-    //         const toggler = this.getElementsByClassName("fa-caret-right");
-    //         console.log("Updated toggler", toggler);
 
-    //         toggler.forEach(el => {
-    //             el.addEventListener("click", function () {
-    //                 console.log("Clicked the item: ", el);
-    //                 this.parentElement.querySelector(".nested").classList.toggle("active");
-    //                 this.classList.toggle("fa-caret-down");
-    //             });
-    //         });
-    //     }
-    // }
+    buildVariable(variable) {
+        return variable.type === "OBJECT"? {...variable, variables: []} : variable;
+    }
 
     onShowVariableManager(e, manager) {
         console.log("Open variableManager", manager.variable);
@@ -116,7 +104,8 @@ export default class VariableListManager extends LitElement {
             this.parentVar = "";
         } else {
             console.log("Add variable to the list");
-            this.variables = [...this.variables, variable];
+            const newVar = this.buildVariable(variable);
+            this.variables = [...this.variables, newVar];
         }
         LitUtils.dispatchEventCustom(this, "changeVariables", this.variables);
     }
@@ -142,7 +131,8 @@ export default class VariableListManager extends LitElement {
             variables.forEach(item => {
                 if (item.id === parentVar) {
                     if (parentVars.length === 1) {
-                        item.variables.push(childVariable);
+                        const newVar = this.buildVariable(childVariable);
+                        item.variables.push(newVar);
                         return variables;
                     }
                     parentVars.shift();
@@ -158,9 +148,10 @@ export default class VariableListManager extends LitElement {
         if (parentVars.length === 1) {
             // const vars = variables.filter(item => item.id !== parentVars[0]);
             // vars.push(childVariable);
-            const variablesEdited = variables;
             const findIndexVariable = variables.findIndex(item => item.id === parentVars[0]);
-            variablesEdited[findIndexVariable] = childVariable;
+
+            const variablesEdited = variables;
+            variablesEdited[findIndexVariable] = this.buildVariable(childVariable);
             return variablesEdited;
         }
 
@@ -218,8 +209,15 @@ export default class VariableListManager extends LitElement {
         childTreeList.classList.toggle("fa-caret-down");
     }
 
+    onCloseForm(e) {
+        e.stopPropagation();
+        this.isShow = false;
+        this.variable = {};
+        this.requestUpdate();
+    }
+
     renderVariableTitle(item) {
-        return html `${item.variables.length > 0 ? html`
+        return html `${item?.variables?.length > 0 ? html`
         <span class="fas fa-caret-right" @click="${this.onShowNode}">
             <span>${item.id} (${item.type})</span>
         </span>` :
@@ -342,7 +340,7 @@ export default class VariableListManager extends LitElement {
                 <variable-manager
                     .variable="${this.variable}"
                     .dependsOn="${this.variables}"
-                    .opencgaSession="${this.opencgaSession}"
+                    @closeForm="${e => this.onCloseForm(e)}"
                     @addItem="${this.onActionVariable}">
                 </variable-manager>
             ` : html ``}

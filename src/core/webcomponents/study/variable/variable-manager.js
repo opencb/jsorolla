@@ -18,13 +18,18 @@ import {html, LitElement} from "/web_modules/lit-element.js";
 import {BaseManagerMixin} from "../../commons/manager/base-manager.js";
 import "../../commons/filters/variableset-id-autocomplete.js";
 import "../../commons/filters/select-field-token.js";
+import LitUtils from "../../commons/utils/lit-utils.js";
 
 // eslint-disable-next-line new-cap
-export default class VariableManager extends BaseManagerMixin(LitElement) {
+export default class VariableManager extends LitElement {
 
     constructor() {
         super();
         this._init();
+    }
+
+    createRenderRoot() {
+        return this;
     }
 
     static get properties() {
@@ -34,25 +39,24 @@ export default class VariableManager extends BaseManagerMixin(LitElement) {
             },
             dependsOn: {
                 type: Array
+            },
+            config: {
+                type: Object
             }
         };
     }
 
     _init() {
-        this.variable = {
-            variables: []
-        };
-
+        this.variable = {};
         this.configToken = {
             placeholder: "Type something to start",
             delimiter: [",", "-"],
             tokensAllowCustom: true,
         };
-
-        this.disabledCategorical = true;
-
         this.mapType = ["MAP_BOOLEAN", "MAP_INTEGER", "MAP_DOUBLE", "MAP_STRING"];
         this.ComplexType = ["MAP_", "OBJECT"];
+
+        this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
     refreshForm() {
@@ -113,6 +117,11 @@ export default class VariableManager extends BaseManagerMixin(LitElement) {
                         {
                             name: "Required",
                             field: "required",
+                            type: "checkbox",
+                        },
+                        {
+                            name: "Internal",
+                            field: "internal",
                             type: "checkbox",
                         },
                         {
@@ -230,18 +239,13 @@ export default class VariableManager extends BaseManagerMixin(LitElement) {
     onSendVariable(e) {
         // Send the variable to the upper component
         console.log("onSendVariable Variable: ", this.variable);
-        // TODO: It can be replace with LitUtil Custom event
-        // and then it's not necessary to implement BaseManagerMixin.
-        // example: LitUtils.dispatchEventCustom(this, ...);
-        this.onAddItem(this.variable);
+        LitUtils.dispatchEventCustom(this, "addItem", this.variable);
     }
 
     onClearForm(e) {
         e.stopPropagation();
-
-        console.log("onClearForm");
-        this.variable = {};
-        this.onShow();
+        console.log("Close Forms");
+        LitUtils.dispatchEventCustom(this, "closeForm");
     }
 
     render() {
