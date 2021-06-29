@@ -216,17 +216,17 @@ export default class OpencgaFileFilter extends LitElement {
 
     render() {
         return html`
-        ${this.searchButton ? html`
-            <div class="search-button-wrapper">
-                <button type="button" class="btn btn-primary ripple" @click="${this.onSearch}">
-                    <i class="fa fa-search" aria-hidden="true"></i> Search
-                </button>
-            </div>
+            ${this.config?.searchButton ? html`
+                <div class="search-button-wrapper">
+                    <button type="button" class="btn btn-primary ripple" @click="${this.onSearch}">
+                        <i class="fa fa-search" aria-hidden="true"></i> Search
+                    </button>
+                </div>
             ` : null}
 
-        <div class="panel-group" id="${this._prefix}Accordion" role="tablist" aria-multiselectable="true">
-                ${this.config.sections && this.config.sections.length ? this.config.sections.map( section => this._createSection(section)) : html`No filter has been configured.`}
-        </div>
+            <div class="panel-group" id="${this._prefix}Accordion" role="tablist" aria-multiselectable="true">
+                    ${this.config.sections && this.config.sections.length ? this.config.sections.map( section => this._createSection(section)) : html`No filter has been configured.`}
+            </div>
         `;
     }
 

@@ -201,7 +201,7 @@ export default class OpencgaIndividualFilter extends LitElement {
 
     render() {
         return html`
-            ${this.searchButton ? html`
+            ${this.config?.searchButton ? html`
                 <div class="search-button-wrapper">
                     <button type="button" class="btn btn-primary ripple" @click="${this.onSearch}">
                         <i class="fa fa-search" aria-hidden="true"></i> Search
@@ -209,14 +209,14 @@ export default class OpencgaIndividualFilter extends LitElement {
                 </div>
             ` : null}
 
-        <div class="panel-group" id="${this._prefix}Accordion" role="tablist" aria-multiselectable="true">
-
-            <!-- Individual field attributes -->
-                <div class="">            
-                    ${this.config.sections && this.config.sections.length ? this.config.sections.map(section => this._createSection(section)) : html`No filter has been configured.`}
+            <div class="panel-group" id="${this._prefix}Accordion" role="tablist" aria-multiselectable="true">
+    
+                <!-- Individual field attributes -->
+                    <div class="">            
+                        ${this.config.sections && this.config.sections.length ? this.config.sections.map(section => this._createSection(section)) : html`No filter has been configured.`}
+                    </div>
                 </div>
             </div>
-        </div>
         `;
     }
 

@@ -133,7 +133,7 @@ export default class VariantBrowser extends LitElement {
             this.preparedQuery = {study: this.opencgaSession.study.fqn};
             this.facetQuery = null;
             this.selectedFacetFormatted = null;
-            //this.requestUpdate();
+            // this.requestUpdate();
             // this.onRun();
 
             // this.requestUpdate().then(() => $(".bootstrap-select", this).selectpicker());
@@ -156,8 +156,8 @@ export default class VariantBrowser extends LitElement {
                 }
                 // onServerFilterChange() in opencga-active-filters drops a filterchange event when the Filter dropdown is used
                 this.dispatchEvent(new CustomEvent("queryChange", {
-                        detail: this.preparedQuery
-                    }
+                    detail: this.preparedQuery
+                }
                 ));
                 this.detail = {};
             } else {
@@ -395,10 +395,15 @@ export default class VariantBrowser extends LitElement {
                                 title: "Disease Panels",
                                 tooltip: tooltips.diseasePanels
                             },
+                            // {
+                            //     id: "clinvar",
+                            //     title: "ClinVar Accessions",
+                            //     tooltip: tooltips.clinvar
+                            // },
                             {
-                                id: "clinvar",
-                                title: "ClinVar Accessions",
-                                tooltip: tooltips.clinvar
+                                id: "clinical-annotation",
+                                title: "Clinical Annotation",
+                                tooltip: tooltips.clinical
                             },
                             {
                                 id: "fullTextSearch",
@@ -454,7 +459,7 @@ export default class VariantBrowser extends LitElement {
                 examples: [
                     {
                         id: "BRCA2 missense variants",
-                        active: false,
+                        active: true,
                         query: {
                             gene: "BRCA2",
                             ct: "missense_variant"
@@ -482,12 +487,12 @@ export default class VariantBrowser extends LitElement {
                             id: "annotationSummary",
                             name: "Summary",
                             active: true,
-                            render: (variant) => {
+                            render: variant => {
                                 return html`
                                     <cellbase-variant-annotation-summary
                                             .variantAnnotation="${variant.annotation}"
-                                            .consequenceTypes="${consequenceTypes}"
-                                            .proteinSubstitutionScores="${proteinSubstitutionScore}">
+                                            .consequenceTypes="${CONSEQUENCE_TYPES}"
+                                            .proteinSubstitutionScores="${PROTEIN_SUBSTITUTION_SCORE}">
                                     </cellbase-variant-annotation-summary>`;
                             }
                         },
@@ -516,7 +521,7 @@ export default class VariantBrowser extends LitElement {
                         {
                             id: "annotationClinical",
                             name: "Clinical",
-                            render: (variant) => {
+                            render: variant => {
                                 return html`
                                     <variant-annotation-clinical-view
                                             .traitAssociation="${variant.annotation.traitAssociation}"
@@ -560,6 +565,13 @@ export default class VariantBrowser extends LitElement {
                                             .config="${this.beaconConfig}"
                                             .active="${active}">
                                     </variant-beacon-network>`;
+                            }
+                        },
+                        {
+                            id: "json-view",
+                            name: "JSON Data",
+                            render: (variant, active) => {
+                                return html`<json-viewer .data="${variant.annotation.traitAssociation}" .active="${active}"></json-viewer>`;
                             }
                         }
                         // TODO Think about Neeworks
@@ -622,14 +634,14 @@ export default class VariantBrowser extends LitElement {
                         fields: [
                             ...this.populationFrequencies.studies.map(study =>
                                 study.populations.map(population => (
-                                        {
-                                            id: `popFreq__${study.id}__${population.id}`,
-                                            // value: `popFreq__${study.id}__${population.id}`,
-                                            name: `${study.id} - ${population.id}`,
-                                            defaultValue: "[0..1]:0.1",
-                                            type: "number"
-                                        }
-                                    )
+                                    {
+                                        id: `popFreq__${study.id}__${population.id}`,
+                                        // value: `popFreq__${study.id}__${population.id}`,
+                                        name: `${study.id} - ${population.id}`,
+                                        defaultValue: "[0..1]:0.1",
+                                        type: "number"
+                                    }
+                                )
                                 )
                             ).flat()
                         ]
@@ -676,7 +688,6 @@ export default class VariantBrowser extends LitElement {
                                                     .cellbaseClient="${this.cellbaseClient}"
                                                     .populationFrequencies="${this.populationFrequencies}"
                                                     .consequenceTypes="${this.consequenceTypes}"
-                                                    .searchButton="${false}"
                                                     .config="${this._config.filter}"
                                                     @queryChange="${this.onQueryFilterChange}"
                                                     @querySearch="${this.onVariantFilterSearch}"

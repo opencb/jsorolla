@@ -190,14 +190,18 @@ class VariantInterpreterQc extends LitElement {
                                 -->`
                             : null
                         }
-                        
-                        ${this.clinicalAnalysis.type.toUpperCase() === "CANCER"
+
+                        ${application.appConfig === "opencb" && this.clinicalAnalysis.type.toUpperCase() === "CANCER"
                             ? html`
                                 <li role="presentation" class="content-pills ${classMap({active: this.activeTab["VariantQcCancer"]})}">
                                     <a href="javascript: void 0" role="tab" data-id="VariantQcCancer" @click="${this._changeTab}" class="tab-title">
                                         Cancer QC Plots
                                     </a>
-                                </li>
+                                </li>`
+                            : ""
+                        }
+                        ${this.clinicalAnalysis.type.toUpperCase() === "CANCER"
+                            ? html`
                                 <li role="presentation" class="content-pills ${classMap({active: this.activeTab["SomaticVariantStats"]})}">
                                     <a href="javascript: void 0" role="tab" data-id="SomaticVariantStats" @click="${this._changeTab}" class="tab-title">
                                         Somatic Variant Stats
@@ -267,7 +271,7 @@ class VariantInterpreterQc extends LitElement {
                         : ""
                     }
                     
-                    ${this.clinicalAnalysis.type.toUpperCase() === "CANCER" 
+                    ${application.appConfig === "opencb" && this.clinicalAnalysis.type.toUpperCase() === "CANCER" 
                         ? html`
                             <div id="${this._prefix}VariantQcCancer" role="tabpanel" class="tab-pane content-tab">
                                 <tool-header title="Cancer QC Plots - ${this.clinicalAnalysis.proband.id} (${this.somaticSample?.id})" class="bg-white"></tool-header>
@@ -277,7 +281,9 @@ class VariantInterpreterQc extends LitElement {
                                                                         .active="${this.activeTab["VariantQcCancer"]}" 
                                                                         .config="${{showTitle: false}}">
                                 </sample-cancer-variant-stats-browser>
-                            </div>
+                            </div>` : ""}
+                    ${this.clinicalAnalysis.type.toUpperCase() === "CANCER"
+                        ? html`
                             <div id="${this._prefix}SomaticVariantStats" role="tabpanel" class="tab-pane content-tab">
                                 <tool-header title="Somatic Variant Stats - ${this.clinicalAnalysis.proband.id} (${this.somaticSample?.id})" class="bg-white"></tool-header>
                                 <sample-variant-stats-browser .opencgaSession="${this.opencgaSession}"

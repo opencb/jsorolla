@@ -173,7 +173,18 @@ class VariantInterpreterBrowserRd extends LitElement {
         const sampleQc = ClinicalAnalysisUtils.getProbandSampleQc(this.clinicalAnalysis);
         let _activeFilterFilters = [];
         if (sampleQc?.metrics?.length > 0) {
-            const variantStats = sampleQc.variantMetrics?.variantStats;
+            // TODO temp fix to support both Opencga 2.0.3 and Opencga 2.1.0-rc
+            if (sampleQc.variantMetrics) {
+                this._variantStatsPath = "variantMetrics";
+                console.warn("old data model");
+            }
+            else if (sampleQc.variant) {
+                this._variantStatsPath = "variant";
+                console.warn("new data model");
+            } else {
+                console.error("unexpected QC data model");
+            }
+            const variantStats = sampleQc[this._variantStatsPath]?.variantStats;
             if (variantStats && variantStats.length > 0) {
                 _activeFilterFilters = variantStats.map(variantStat => ({id: variantStat.id, query: variantStat.query}));
             }
@@ -406,10 +417,15 @@ class VariantInterpreterBrowserRd extends LitElement {
                                 title: "Disease Panels",
                                 tooltip: tooltips.diseasePanels
                             },
+                            // {
+                            //     id: "clinvar",
+                            //     title: "ClinVar Accession",
+                            //     tooltip: tooltips.clinvar
+                            // },
                             {
-                                id: "clinvar",
-                                title: "ClinVar Accession",
-                                tooltip: tooltips.clinvar
+                                id: "clinical-annotation",
+                                title: "Clinical Annotation",
+                                tooltip: tooltips.clinical
                             }
                         ]
                     },
@@ -544,7 +560,7 @@ class VariantInterpreterBrowserRd extends LitElement {
                         pageList: [5, 10, 25],
                         showExport: false,
                         detailView: true,
-                        showReview: false,
+                        showReview: true,
                         showActions: false,
                         showSelectCheckbox: true,
                         multiSelection: false,
@@ -559,8 +575,10 @@ class VariantInterpreterBrowserRd extends LitElement {
                         quality: {
                             qual: 30,
                             dp: 20
+                        },
+                        evidences: {
+                            showSelectCheckbox: true
                         }
-                        // populationFrequencies: ["1kG_phase3:ALL", "GNOMAD_GENOMES:ALL", "GNOMAD_EXOMES:ALL", "UK10K:ALL", "GONL:ALL", "ESP6500:ALL", "EXAC:ALL"]
                     }
                 },
                 detail: {
@@ -575,8 +593,8 @@ class VariantInterpreterBrowserRd extends LitElement {
                                 return html`
                                     <cellbase-variant-annotation-summary
                                             .variantAnnotation="${variant.annotation}"
-                                            .consequenceTypes="${consequenceTypes}"
-                                            .proteinSubstitutionScores="${proteinSubstitutionScore}">
+                                            .consequenceTypes="${CONSEQUENCE_TYPES}"
+                                            .proteinSubstitutionScores="${PROTEIN_SUBSTITUTION_SCORE}">
                                     </cellbase-variant-annotation-summary>`;
                             }
                         },
@@ -732,7 +750,7 @@ class VariantInterpreterBrowserRd extends LitElement {
                                             .clinicalAnalysis="${this.clinicalAnalysis}"
                                             .cellbaseClient="${this.cellbaseClient}"
                                             .populationFrequencies="${populationFrequencies}"
-                                            .consequenceTypes="${consequenceTypes}"
+                                            .consequenceTypes="${CONSEQUENCE_TYPES}"
                                             .config="${this._config.filter}"
                                             @queryChange="${this.onVariantFilterChange}"
                                             @querySearch="${this.onVariantFilterSearch}">

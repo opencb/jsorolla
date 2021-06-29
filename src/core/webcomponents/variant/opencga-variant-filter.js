@@ -21,6 +21,7 @@ import "../commons/filters/cadd-filter.js";
 import "../commons/filters/biotype-filter.js";
 import "../commons/filters/region-filter.js";
 import "../commons/filters/clinvar-accessions-filter.js";
+import "../commons/filters/clinical-annotation-filter.js";
 import "../commons/filters/cohort-stats-filter.js";
 import "../commons/filters/consequence-type-filter.js";
 import "../commons/filters/consequence-type-select-filter.js";
@@ -407,20 +408,18 @@ export default class OpencgaVariantFilter extends LitElement {
                                     </region-filter>`;
                     break;
                 case "feature":
-                    content = html`<feature-filter  .cellbaseClient="${this.cellbaseClient}" .query=${this.preparedQuery}
-                                                    @filterChange="${e => this.onFilterChange("xref", e.detail.value)}">
-                                    </feature-filter>`;
-                    break;
-                case "diseasePanels":
-                    content = html`<disease-panel-filter    .opencgaSession="${this.opencgaSession}" 
-                                                            .diseasePanels="${this.opencgaSession.study.panels}" 
-                                                            .panelId="${this.preparedQuery.panel}" 
-                                                            .config="${this.config}" 
-                                                            @filterChange="${e => this.onFilterChange("panel", e.detail.value)}">
-                                    </disease-panel-filter>`;
+                    content = html`
+                        <feature-filter  .cellbaseClient="${this.cellbaseClient}" 
+                                         .query=${this.preparedQuery}
+                                         @filterChange="${e => this.onFilterChange("xref", e.detail.value)}">
+                        </feature-filter>`;
                     break;
                 case "biotype":
-                    content = html`<biotype-filter .config="${this.config}" .biotype=${this.preparedQuery.biotype} @filterChange="${e => this.onFilterChange("biotype", e.detail.value)}"></biotype-filter>`;
+                    content = html`
+                        <biotype-filter .config="${this.config}" 
+                                        .biotype=${this.preparedQuery.biotype} 
+                                        @filterChange="${e => this.onFilterChange("biotype", e.detail.value)}">
+                        </biotype-filter>`;
                     break;
                 case "type":
                     let config = {};
@@ -465,19 +464,55 @@ export default class OpencgaVariantFilter extends LitElement {
                     content = html`<go-accessions-filter .go="${this.preparedQuery.go}" @ontologyModalOpen="${this.onOntologyModalOpen}" @filterChange="${e => this.onFilterChange("go", e.detail.value)}"></go-accessions-filter>`;
                     break;
                 case "hpo":
-                    content = html`<hpo-accessions-filter .annot-hpo="${this.preparedQuery["annot-hpo"]}" @ontologyModalOpen="${this.onOntologyModalOpen}" @filterChange="${e => this.onFilterChange("annot-hpo", e.detail.value)}"></hpo-accessions-filter>`;
+                    content = html`
+                        <hpo-accessions-filter .annot-hpo="${this.preparedQuery["annot-hpo"]}" 
+                                               @ontologyModalOpen="${this.onOntologyModalOpen}" 
+                                               @filterChange="${e => this.onFilterChange("annot-hpo", e.detail.value)}">
+                        </hpo-accessions-filter>`;
                     break;
-                case "clinvar":
-                    content = html`<clinvar-accessions-filter  .clinvar="${this.preparedQuery.clinvar}" 
-                                                               .clinicalSignificance="${this.preparedQuery.clinicalSignificance}" 
-                                                               @filterChange="${e => this.onFilterChange({
-                                                                    clinvar: "clinvar",
+                case "diseasePanels":
+                    content = html`
+                        <disease-panel-filter    .opencgaSession="${this.opencgaSession}"
+                                                 .diseasePanels="${this.opencgaSession.study.panels}"
+                                                 .panel="${this.preparedQuery.panel}"
+                                                 .panelModeOfInheritance="${this.preparedQuery.panelModeOfInheritance}"
+                                                 .panelConfidence="${this.preparedQuery.panelConfidence}"
+                                                 .panelRoleInCancer="${this.preparedQuery.panelRoleInCancer}"
+                                                 @filterChange="${e => this.onFilterChange({
+                                                     panel: "panel",
+                                                     panelModeOfInheritance: "panelModeOfInheritance",
+                                                     panelConfidence: "panelConfidence",
+                                                     panelRoleInCancer: "panelRoleInCancer"
+                                                 }, e.detail)}">
+                        </disease-panel-filter>`;
+                    break;
+                case "clinical-annotation":
+                    content = html`
+                        <clinical-annotation-filter  .clinical="${this.preparedQuery.clinical}"
+                                                     .clinicalSignificance="${this.preparedQuery.clinicalSignificance}"
+                                                     .clinicalConfirmedStatus="${this.preparedQuery.clinicalConfirmedStatus}"
+                                                     @filterChange="${e => this.onFilterChange({
+                                                         clinical: "clinical",
+                                                         clinicalSignificance: "clinicalSignificance",
+                                                         clinicalConfirmedStatus: "clinicalConfirmedStatus"
+                                                     }, e.detail)}">
+                        </clinical-annotation-filter>`;
+                    break;
+                case "clinvar": // Deprecated: use clinical instead
+                    content = html`
+                        <clinvar-accessions-filter  .clinvar="${this.preparedQuery.clinvar}" 
+                                                    .clinicalSignificance="${this.preparedQuery.clinicalSignificance}" 
+                                                    @filterChange="${e => this.onFilterChange({
+                                                                    clinvar: "xref",
                                                                     clinicalSignificance: "clinicalSignificance"
                                                                 }, e.detail.value)}">
-                                    </clinvar-accessions-filter>`;
+                        </clinvar-accessions-filter>`;
                     break;
                 case "fullTextSearch":
-                    content = html`<fulltext-search-accessions-filter .traits="${this.preparedQuery.traits}" @filterChange="${e => this.onFilterChange("traits", e.detail.value)}"></fulltext-search-accessions-filter>`;
+                    content = html`
+                        <fulltext-search-accessions-filter .traits="${this.preparedQuery.traits}" 
+                                                           @filterChange="${e => this.onFilterChange("traits", e.detail.value)}">
+                        </fulltext-search-accessions-filter>`;
                     break;
                 case "caveman":
                 case "strelka":

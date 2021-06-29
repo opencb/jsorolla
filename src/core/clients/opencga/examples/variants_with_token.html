@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Fetch first 10 variants (with JWT)</title>
+</head>
+<body>
+<h2>Fetch first 10 variants (with JWT)</h2>
+<script>
+    const application = {} // quickfix
+</script>
+
+<script type="module">
+    import {OpenCGAClient} from "../opencga-client.js";
+    import {RestResponse} from "../../rest-response.js";
+
+    const host = "https://re-uat.opencga.gel.zone/opencga";
+    const study = "re-opencgahadoop@100k_genomes_grch37_germline:RD37";
+    const user = "aaltamura";
+    const token = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhYWx0YW11cmEiLCJhdWQiOiJPcGVuQ0dBIHVzZXJzIiwib3BlbmNnYV9kbiI6IkNOPWFhbHRhbXVyYSxPVT1HRUwsT1U9VXNlcnMsT1U9R0VMLERDPWNvcnAsREM9Z2VsLERDPWFjIiwiZXhwIjoxNjIzNzY5NzQ2LCJpYXQiOjE2MjM3NjYxNDZ9.lT-zdS_0kLAUOJ-6v-Qu7fnNByl6S7QPxT3Xg0h3i2k";
+
+    /**
+     *  Query using a token. No Opencga Session is created.
+    */
+    (async () => {
+        try {
+            const client = new OpenCGAClient({
+                host: host,
+                version: "v2",
+                cookies: {active: false},
+                token: token
+            });
+
+            const restResponse = await client.variants().query({limit:10, study: study});
+            console.table(restResponse.getResults());
+        } catch (response) {
+            if (response instanceof RestResponse) {
+                console.error(response.getEvents());
+            } else {
+                console.error(response);
+            }
+        }
+    })();
+</script>
+</body>
+</html>
+
+

@@ -183,7 +183,8 @@ class VariantInterpreterQcOverview extends LitElement {
                             },
                             {
                                 id: "VariantStats",
-                                title: "QC Plot Files"
+                                title: "QC Plot Files",
+                                disabled: application.appConfig !== "opencb"
                             },
                             {
                                 id: "SamtoolsPlots",

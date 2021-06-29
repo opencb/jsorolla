@@ -17,6 +17,13 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../utilsNew.js";
 
+/**
+ * TODO
+ * 1. find a better way than silendClear() to clear the tokens without triggering filterChange(). We need that in updated().
+ * 2. avoid pointless remote requests each click on the blank area of the select.
+ * 3. custom template in dropdown
+ * 4. debug
+ */
 
 export default class SelectTokenFilter extends LitElement {
 
@@ -94,7 +101,7 @@ export default class SelectTokenFilter extends LitElement {
 
     updated(_changedProperties) {
         if (_changedProperties.has("config")) {
-            this.propertyObserver();
+            this._config = {...this.getDefaultConfig(), ...this.config};
         }
         if (_changedProperties.has("value")) {
             if (this.value) {

@@ -90,7 +90,6 @@ export default class OpencgaFamilyBrowser extends LitElement {
         return {
             title: "Family Browser",
             icon: "fab fa-searchengin",
-            searchButtonText: "Search",
             views: [
                 {
                     id: "table-tab",
@@ -109,6 +108,7 @@ export default class OpencgaFamilyBrowser extends LitElement {
                 }*/
             ],
             filter: {
+                searchButton: false,
                 sections: [
                     {
                         title: "Section title",

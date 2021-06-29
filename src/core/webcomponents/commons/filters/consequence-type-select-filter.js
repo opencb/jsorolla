@@ -126,36 +126,26 @@ export default class ConsequenceTypeSelectFilter extends LitElement {
             alias: [
                 {
                     name: "Loss-of-Function (LoF)",
-                    description: "LoF description",
-                    terms: ["transcript_ablation", "splice_acceptor_variant", "splice_donor_variant", "stop_gained", "frameshift_variant",
-                        "stop_lost", "start_lost", "transcript_amplification", "inframe_insertion", "inframe_deletion"]
+                    description: "Filter Loss-of-Function variants",
+                    terms: CONSEQUENCE_TYPES.lof
                 },
                 {
                     name: "Missense",
-                    description: "Missense variant description",
+                    description: "Filter Missense variants",
                     terms: ["missense_variant"]
                 },
                 {
-                    name: "Protein Truncating",
-                    description: "Protein Truncating variants",
-                    terms: ["splice_acceptor_variant", "splice_donor_variant", "stop_gained", "frameshift_variant"]
-                },
-                {
                     name: "Protein Altering",
-                    description: "Protein Truncating variants",
-                    terms: ["missense_variant", "frameshift_variant", "inframe_insertion", "inframe_deletion", "incomplete_terminal_codon_variant"]
+                    description: "Filter Protein Altering variants",
+                    terms: CONSEQUENCE_TYPES.pa
                 },
                 {
                     name: "Coding Sequence",
-                    description: "LoF description",
+                    description: "Filter Coding variants",
                     terms: ["missense_variant", "synonymous_variant", "stop_lost", "start_lost", "initiator_codon_variant",
                         "terminator_codon_variant", "frameshift_variant", "inframe_insertion", "inframe_deletion", "incomplete_terminal_codon_variant"]
                 }
             ],
-
-            // DEPRECATED Loss-of-function SO terms
-            // lof: ["transcript_ablation", "splice_acceptor_variant", "splice_donor_variant", "stop_gained", "frameshift_variant",
-            //     "stop_lost", "start_lost", "transcript_amplification", "inframe_insertion", "inframe_deletion"],
 
             // 'Title' is optional. if there is not title provided then 'name' will be used.
             //  There are two more optional properties - 'checked' and 'impact'. They can be set to display them default in web application.
