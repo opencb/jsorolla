@@ -50,17 +50,6 @@ export default class VariableManager extends BaseManagerMixin(LitElement) {
         this.disabledCategorical = true;
     }
 
-    update(changedProperties) {
-        if (changedProperties.has("variables")) {
-            this.variablesObserver();
-        }
-        super.update(changedProperties);
-    }
-
-    variablesObserver() {
-        console.log("variable Observer");
-    }
-
     variableFormObserver() {
         console.log("changed variable form");
         this._config = {...this.getDefaultConfig(), ...this.config};
@@ -81,7 +70,6 @@ export default class VariableManager extends BaseManagerMixin(LitElement) {
     }
 
     getDefaultConfig() {
-        const variableType = ["BOOLEAN", "CATEGORICAL", "INTEGER", "DOUBLE", "STRING", "OBJECT", "MAP_BOOLEAN", "MAP_INTEGER", "MAP_DOUBLE", "MAP_STRING"];
         const mapType = ["MAP_BOOLEAN", "MAP_INTEGER", "MAP_DOUBLE", "MAP_STRING"];
         const ComplexType = ["MAP_", "OBJECT"];
         return {
@@ -127,7 +115,7 @@ export default class VariableManager extends BaseManagerMixin(LitElement) {
                             name: "Type",
                             field: "type",
                             type: "select",
-                            allowedValues: variableType,
+                            allowedValues: ["BOOLEAN", "CATEGORICAL", "INTEGER", "DOUBLE", "STRING", "OBJECT", "MAP_BOOLEAN", "MAP_INTEGER", "MAP_DOUBLE", "MAP_STRING"],
                             display: {
                                 placeholder: "select a variable type..."
                             }
@@ -225,13 +213,6 @@ export default class VariableManager extends BaseManagerMixin(LitElement) {
         };
     }
 
-    onAddVariableChild(e) {
-        const variable = e.detail.value;
-        this.variable.variables.push(variable);
-        console.log("onAddVariable Result: ", this.variable);
-        e.stopPropagation();
-    }
-
     onAddValues(e) {
         console.log("onAddValue Allowed...: ", e.detail.value);
         if (this.variable.type === "CATEGORICAL") {
@@ -248,9 +229,10 @@ export default class VariableManager extends BaseManagerMixin(LitElement) {
     onSendVariable(e) {
         // Send the variable to the upper component
         console.log("onSendVariable Variable: ", this.variable);
+        // TODO: It can be replace with LitUtil Custom event
+        // and then it's not necessary to implement BaseManagerMixin.
         this.onAddItem(this.variable);
     }
-
 
     onClearForm(e) {
         console.log("onClearForm");
@@ -259,21 +241,9 @@ export default class VariableManager extends BaseManagerMixin(LitElement) {
         e.stopPropagation();
     }
 
-    onShowVariableForm(e) {
-        this.onShow();
-        const item = e.detail.value;
-        if (item) {
-            console.log("Add variable child");
-        } else {
-            console.log("Add a parent variable");
-        }
-        e.stopPropagation();
-    }
-
-
     render() {
         return html`
-            <div class="subform-test">
+            <div class="subform">
                 <data-form
                     .data=${this.variable}
                     .config="${this._config}"

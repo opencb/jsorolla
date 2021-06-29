@@ -53,13 +53,15 @@ export default class VariableSetCreate extends LitElement {
 
     onFieldChangeVariableSet(e) {
         const field = e.detail.param;
+        console.log("Field:", field);
         switch (e.detail.param) {
             case "id":
             case "name":
             case "unique":
             case "confidential":
             case "description":
-                if (e.detail.param === "entities") {
+            case "entities":
+                if (field === "entities") {
                     this.renderFieldEntity(e.detail.value);
                 }
                 this.variableSet = {
@@ -68,6 +70,7 @@ export default class VariableSetCreate extends LitElement {
                 };
                 break;
         }
+        console.log("VariableSet Data", this.variableSet);
     }
 
     renderFieldEntity(entity) {
@@ -75,7 +78,6 @@ export default class VariableSetCreate extends LitElement {
     }
 
     getDefaultConfig() {
-        const annotableDataModels = ["SAMPLE", "COHORT", "INDIVIDUAL", "FAMILY", "FILE"];
         return {
             title: "Edit",
             icon: "fas fa-edit",
@@ -147,7 +149,7 @@ export default class VariableSetCreate extends LitElement {
                             name: "Entities",
                             field: "entities",
                             type: "select",
-                            allowedValues: annotableDataModels,
+                            allowedValues: ["SAMPLE", "COHORT", "INDIVIDUAL", "FAMILY", "FILE"],
                             display: {
                                 placeholder: "select a entity..."
                             }
@@ -167,7 +169,8 @@ export default class VariableSetCreate extends LitElement {
                                 render: () => html`
                                     <variable-list-manager
                                         .opencgaSession="${this.opencgaSession}"
-                                        .variables="${this.variableSet?.variables}">
+                                        .variables="${this.variableSet?.variables}"
+                                        @changeVariables="${e => this.onSyncVariables(e)}">
                                     </variable-list-manager>`
                             }
                         },
@@ -177,31 +180,39 @@ export default class VariableSetCreate extends LitElement {
         };
     }
 
-    async onAddVariable(e) {
-        // TODO: Fixme, I don't know why
-        // I've to clean variableSet to reflex the changes.
-        const variable = e.detail.value;
-        const variableSetCopy = {...this.variableSet};
-        this.variableSet = {variables: []};
-        this._config = {...this.getDefaultConfig(), ...this.config};
-        await this.requestUpdate();
-
-        this.variableSet = variableSetCopy;
-        this.variableSet.variables.push(variable);
-        console.log("onAddVariable Result: ", this.variableSet);
-        await this.requestUpdate();
-
+    async onSyncVariables(e) {
+        console.log("...Sync variables list to the variableSet", e.detail.value);
+        this.variableSet = {...this.variableSet, variables: e.detail.value};
+        console.log("variableSet synced: ", this.variableSet);
         e.stopPropagation();
     }
 
-    onRemoveVariable(e) {
-        console.log("onRemoveVariable");
-        this.variableSet = {
-            ...this.variableSet,
-            variables: this.variableSet.variables.filter(item => item !== e.detail.value)
-        };
-        this.requestUpdate();
-    }
+    // Safe To delete!
+    // async onAddVariable(e) {
+    //     // TODO: Fixme, I don't know why
+    //     // I've to clean variableSet to reflex the changes.
+    //     const variable = e.detail.value;
+    //     const variableSetCopy = {...this.variableSet};
+    //     this.variableSet = {variables: []};
+    //     this._config = {...this.getDefaultConfig(), ...this.config};
+    //     await this.requestUpdate();
+
+    //     this.variableSet = variableSetCopy;
+    //     this.variableSet.variables.push(variable);
+    //     console.log("onAddVariable Result: ", this.variableSet);
+    //     await this.requestUpdate();
+
+    //     e.stopPropagation();
+    // }
+
+    // onRemoveVariable(e) {
+    //     console.log("onRemoveVariable");
+    //     this.variableSet = {
+    //         ...this.variableSet,
+    //         variables: this.variableSet.variables.filter(item => item !== e.detail.value)
+    //     };
+    //     this.requestUpdate();
+    // }
 
     onClear(e) {
         console.log("Clear Form");

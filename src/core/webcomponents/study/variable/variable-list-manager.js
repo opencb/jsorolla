@@ -51,7 +51,7 @@ export default class VariableListManager extends LitElement {
             variable: ""
         };
     }
-
+    // Move: updated into a function call onShowNode to avoid innecesary updated call.
     // updated(changedProperties) {
     //     if (changedProperties.has("variables")) {
     //         console.log("Updating elements tree");
@@ -72,7 +72,6 @@ export default class VariableListManager extends LitElement {
         console.log("Open variableManager", manager.variable);
 
         if (manager.action === "ADD") {
-            // if has parent variable
             if (manager.parent) {
                 this.isShow = true;
                 this.parentVar = manager.parent;
@@ -85,28 +84,29 @@ export default class VariableListManager extends LitElement {
         } else {
             console.log("Edit Variable", manager.variable);
             this.variable = manager.variable;
+            this.parentVar = manager.parent;
             this.isShow = true;
         }
         this._manager = manager;
         this.requestUpdate();
     }
 
-    // TODO: it's possible to rename this function.
+    // TODO: maybe should be rename this function.
     onActionVariable(e) {
         if (this._manager.action === "ADD") {
             console.log("Add new variable");
-            this.onAddVariable(e.detail.value);
+            this._onAddVariable(e.detail.value);
 
         } else {
             console.log("Edit info variable");
-            this.editVariable(e.detail.value);
+            this._onEditVariable(e.detail.value);
         }
         console.log("results: ", this.variables);
         this.requestUpdate();
         e.stopPropagation();
     }
 
-    onAddVariable(variable) {
+    _onAddVariable(variable) {
         console.log("onAddVariableList", this.parentVar, variable);
         this.isShow = false;
         if (this.parentVar) {
@@ -118,17 +118,20 @@ export default class VariableListManager extends LitElement {
             console.log("Add variable to the list");
             this.variables = [...this.variables, variable];
         }
+        LitUtils.dispatchEventCustom(this, "changeVariables", this.variables);
     }
 
-    onEditVariable(variable) {
+    _onEditVariable(variable) {
         console.log("onEditVariableList", this.parentVar, variable);
         this.isShow = false;
         if (this.parentVar) {
-            console.log("Add child variable to the list", this.parentVar);
+            console.log("Edit variable to the list", this.parentVar);
             const parentVars = this.parentVar.split(".");
-            this.editChildVariable(this.variables, parentVars, variable);
+            this.variables = this.editChildVariable(this.variables, parentVars, variable);
             this.parentVar = "";
+            LitUtils.dispatchEventCustom(this, "changeVariables", this.variables);
         } else {
+            // Deprecated
             console.log("Add variable to the list");
             this.variables = [...this.variables, variable];
         }
@@ -150,19 +153,28 @@ export default class VariableListManager extends LitElement {
     }
 
     editChildVariable(variables, parentVars, childVariable) {
+        let result = [];
+
+        if (parentVars.length === 1) {
+            // const vars = variables.filter(item => item.id !== parentVars[0]);
+            // vars.push(childVariable);
+            const variablesEdited = variables;
+            const findIndexVariable = variables.findIndex(item => item.id === parentVars[0]);
+            variablesEdited[findIndexVariable] = childVariable;
+            return variablesEdited;
+        }
+
         parentVars.forEach(parentVar => {
-            variables.forEach(item => {
+            result = variables.map(item => {
                 if (item.id === parentVar) {
-                    if (parentVars.length === 1) {
-                        variables.filter(item => item.id !== parentVar);
-                        item.variables.push(childVariable);
-                        return variables;
-                    }
                     parentVars.shift();
-                    return {...item, variables: this.addChildVariable(item.variables, parentVars, childVariable)};
+                    return {...item, variables: this.editChildVariable(item.variables, parentVars, childVariable)};
+                } else {
+                    return item;
                 }
             });
         });
+        return result;
     }
 
     onRemoveVariable(e, item) {
@@ -170,6 +182,7 @@ export default class VariableListManager extends LitElement {
         const removeVariable = item.split(".");
         this.variables = this.removalVariable(this.variables, removeVariable);
         console.log("result: ", this.variables);
+        LitUtils.dispatchEventCustom(this, "changeVariables", this.variables);
         e.stopPropagation();
     }
 
@@ -195,22 +208,23 @@ export default class VariableListManager extends LitElement {
         return result;
     }
 
+    onShowNode(e) {
+        const findParentTreeList = child => child.parentElement.className === "tree-list"? child.parentElement : findParentTreeList(child.parentElement);
+
+        const childTreeList = e.currentTarget;
+        const parentTreeList = findParentTreeList(childTreeList);
+        console.log("TreeList", childTreeList, "parentList", parentTreeList);
+        parentTreeList.querySelector(".nested").classList.toggle("active");
+        childTreeList.classList.toggle("fa-caret-down");
+    }
+
     renderVariableTitle(item) {
         return html `${item.variables.length > 0 ? html`
         <span class="fas fa-caret-right" @click="${this.onShowNode}">
             <span>${item.id} (${item.type})</span>
         </span>` :
-        html `<span>${item.id} (${item.type})</span>`
+        html `<span style="margin-left:14px">${item.id} (${item.type})</span>`
         }`;
-    }
-
-    onShowNode(e) {
-        const childTreeList = e.currentTarget;
-        const findParentTreeList = child => child.parentElement.className === "tree-list"? child.parentElement : findParentTreeList(child.parentElement);
-        const parentTreeList = findParentTreeList(childTreeList);
-        console.log("TreeList", childTreeList, "parentList", parentTreeList);
-        parentTreeList.querySelector(".nested").classList.toggle("active");
-        childTreeList.classList.toggle("fa-caret-down");
     }
 
     renderVariables(variables, parentItem) {
@@ -243,7 +257,7 @@ export default class VariableListManager extends LitElement {
                     <li>
                         <div class="row">
                             <div class="col-md-8">
-                                <span>${item.id} (${item.type})</span>
+                                <span style="margin-left:14px">${item.id} (${item.type})</span>
                             </div>
                             <div class="col-md-4">
                                 <div class="btn-group pull-right" style="padding-bottom:5px" role="group">
