@@ -144,7 +144,7 @@ export default class DiseasePanelFilter extends LitElement {
         return {
             showSummary: true,
             showGeneFilter: false,
-            showPanelFilter: true
+            showPanelFilter: false
         };
     }
 
