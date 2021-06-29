@@ -491,8 +491,42 @@ export default class UtilsNew {
         return internal;
     }
 
-    static mergeTable(internal, external) {
+    /**
+     * Filters 1D or 2D Bootstrap Table array for columns using the fields in `external` 1D array.
+     * At the moment it manages the visibility of the fields at the first level.
+     * The fields at the second level are hidden iff the corresponding field at the first level is hidden.
+     * At the moment it doesn't handle >2D arrays.
+     *
+     * @param internal {Array} 1D or 2D array
+     * @param external {Array} plain array of strings.
+     * @return {Array} filtered array.
+     */
 
+    static mergeTable(internal, external) {
+        // single array
+        if (internal instanceof Array && !(internal[0] instanceof Array)) {
+            return internal.filter(c => ~external.indexOf(c.id));
+        }
+        // double array
+        if (internal[0] instanceof Array) {
+            const result = [[], []];
+            let internalIndx = 0; // keeps track of the starting index of the elms to add
+            internal[0].forEach((c, i) => {
+                if (~external.indexOf(c.id)) {
+                    result[0].push(c);
+                    // rowspan = 1
+                    if (c.rowspan !==2 || !c.rowspan) {
+                        // add second level
+                        result[1].push(...internal[1].slice(internalIndx, internalIndx + c.colspan));
+                    } else {
+                    }
+                } else {
+                    // increment internalIndx
+                    internalIndx += c.colspan ? c.colspan : 0;
+                }
+            });
+            return result;
+        }
     }
 
 }
