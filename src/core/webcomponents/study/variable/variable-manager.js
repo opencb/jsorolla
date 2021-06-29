@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "/web_modules/lit-element.js";
+import {html, LitElement} from "/web_modules/lit-element.js";
 import {BaseManagerMixin} from "../../commons/manager/base-manager.js";
 import "../../commons/filters/variableset-id-autocomplete.js";
 import "../../commons/filters/select-field-token.js";
-import LitUtils from "../../commons/utils/lit-utils.js";
 
 // eslint-disable-next-line new-cap
 export default class VariableManager extends BaseManagerMixin(LitElement) {
@@ -32,6 +31,9 @@ export default class VariableManager extends BaseManagerMixin(LitElement) {
         return {
             variable: {
                 type: Object
+            },
+            dependsOn: {
+                type: Array
             }
         };
     }
@@ -48,10 +50,13 @@ export default class VariableManager extends BaseManagerMixin(LitElement) {
         };
 
         this.disabledCategorical = true;
+
+        this.mapType = ["MAP_BOOLEAN", "MAP_INTEGER", "MAP_DOUBLE", "MAP_STRING"];
+        this.ComplexType = ["MAP_", "OBJECT"];
     }
 
-    variableFormObserver() {
-        console.log("changed variable form");
+    refreshForm() {
+        // When using data-form we need to update config object and render again
         this._config = {...this.getDefaultConfig(), ...this.config};
         this.requestUpdate();
     }
@@ -62,16 +67,15 @@ export default class VariableManager extends BaseManagerMixin(LitElement) {
             ...this.variable,
             [field]: e.detail.value
         };
-        console.log("The new variable: ", this.variable);
+
+        // When we change 'type' we might need to enable/disable some parts of the form
         if (field === "type") {
             console.log("changed type variable");
-            this.variableFormObserver();
+            this.refreshForm();
         }
     }
 
     getDefaultConfig() {
-        const mapType = ["MAP_BOOLEAN", "MAP_INTEGER", "MAP_DOUBLE", "MAP_STRING"];
-        const ComplexType = ["MAP_", "OBJECT"];
         return {
             title: "Edit",
             icon: "fas fa-edit",
@@ -131,13 +135,12 @@ export default class VariableManager extends BaseManagerMixin(LitElement) {
                                 width: 12,
                                 style: "padding-left: 0px",
                                 render: () => html`
-                                <select-field-token
-                                    .values="${this.variable?.allowedValues}"
-                                    .configToken="${this.configToken}"
-                                    placeholder=${"Type something to start"}
-                                    @addToken=${e => this.onAddValues(e)}>
-                                </select-field-token>
-                                `
+                                    <select-field-token
+                                        .values="${this.variable?.allowedValues}"
+                                        .configToken="${this.configToken}"
+                                        placeholder=${"Type something to start"}
+                                        @addToken=${e => this.onAddValues(e)}>
+                                    </select-field-token>`
                             }
                         },
                         {
@@ -145,7 +148,7 @@ export default class VariableManager extends BaseManagerMixin(LitElement) {
                             field: "allowedKeys",
                             type: "custom",
                             display: {
-                                visible: variable => mapType.includes(variable?.type),
+                                visible: variable => this.mapType.includes(variable?.type),
                                 render: () => html `
                                 <select-field-token
                                     .values="${this.variable?.allowedKeys}"
@@ -160,7 +163,7 @@ export default class VariableManager extends BaseManagerMixin(LitElement) {
                             field: "defaultValue",
                             type: "input-text",
                             display: {
-                                disabled: variable => ComplexType.some(varType => variable?.type?.startsWith(varType))
+                                disabled: variable => this.ComplexType.some(varType => variable?.type?.startsWith(varType))
                             }
                         },
                         {
@@ -168,7 +171,7 @@ export default class VariableManager extends BaseManagerMixin(LitElement) {
                             field: "multivalue",
                             type: "checkbox",
                             display: {
-                                disabled: variable => ComplexType.some(varType => variable?.type?.startsWith(varType))
+                                disabled: variable => this.ComplexType.some(varType => variable?.type?.startsWith(varType))
                             }
                         },
                         {
@@ -176,9 +179,9 @@ export default class VariableManager extends BaseManagerMixin(LitElement) {
                             field: "dependsOn",
                             type: "select",
                             // allowedValues: variable => variable?.type === "CATEGORICAL" ? variable?.allowedValues: variable?.allowedKeys,
-                            allowedValues: this.variables?.map(variable => variable.name),
+                            allowedValues: this.dependsOn?.map(variable => variable.name),
                             display: {
-                                visible: this.variables?.length > 0,
+                                visible: this.dependsOn?.length > 0,
                                 placeholder: "select an allow key or values..."
                             }
                         },
@@ -214,16 +217,14 @@ export default class VariableManager extends BaseManagerMixin(LitElement) {
     }
 
     onAddValues(e) {
-        console.log("onAddValue Allowed...: ", e.detail.value);
-        if (this.variable.type === "CATEGORICAL") {
-            const allowedValues = e.detail.value;
-            this.variable.allowedValues = allowedValues;
-        } else {
-            const allowedKeys = e.detail.value;
-            this.variable.allowedKeys = allowedKeys;
-        }
-        this.variableFormObserver();
         e.stopPropagation();
+
+        if (this.variable.type === "CATEGORICAL") {
+            this.variable.allowedValues = e.detail.value ?? [];
+        } else {
+            this.variable.allowedKeys = e.detail.value ?? [];
+        }
+        this.refreshForm();
     }
 
     onSendVariable(e) {
@@ -231,14 +232,16 @@ export default class VariableManager extends BaseManagerMixin(LitElement) {
         console.log("onSendVariable Variable: ", this.variable);
         // TODO: It can be replace with LitUtil Custom event
         // and then it's not necessary to implement BaseManagerMixin.
+        // example: LitUtils.dispatchEventCustom(this, ...);
         this.onAddItem(this.variable);
     }
 
     onClearForm(e) {
+        e.stopPropagation();
+
         console.log("onClearForm");
         this.variable = {};
         this.onShow();
-        e.stopPropagation();
     }
 
     render() {

@@ -37,14 +37,14 @@ export default class SelectFieldToken extends LitElement {
             configToken: {
                 type: Object
             },
+            values: {
+                type: Array
+            },
             disabled: {
                 type: Boolean
             },
             config: {
                 type: Object
-            },
-            values: {
-                type: Array
             }
         };
     }

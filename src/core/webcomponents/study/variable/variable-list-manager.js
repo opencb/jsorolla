@@ -341,6 +341,7 @@ export default class VariableListManager extends LitElement {
             ${this.isShow ? html `
                 <variable-manager
                     .variable="${this.variable}"
+                    .dependsOn="${this.variables}"
                     .opencgaSession="${this.opencgaSession}"
                     @addItem="${this.onActionVariable}">
                 </variable-manager>
