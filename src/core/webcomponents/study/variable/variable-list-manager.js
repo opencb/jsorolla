@@ -172,12 +172,29 @@ export default class VariableListManager extends LitElement {
     }
 
     onRemoveVariable(e, item) {
-        console.log("onRemoveVariable ", item);
-        const removeVariable = item.split(".");
-        this.variables = this.removalVariable(this.variables, removeVariable);
-        console.log("result: ", this.variables);
-        LitUtils.dispatchEventCustom(this, "changeVariables", this.variables);
         e.stopPropagation();
+        Swal.fire({
+            title: "Are you sure?",
+            text: "You won't be able to revert this!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, delete it!"
+        }).then(result => {
+            if (result.isConfirmed) {
+                console.log("onRemoveVariable ", item);
+                const removeVariable = item.split(".");
+                this.variables = this.removalVariable(this.variables, removeVariable);
+                console.log("result: ", this.variables);
+                LitUtils.dispatchEventCustom(this, "changeVariables", this.variables);
+                Swal.fire(
+                    "Deleted!",
+                    "The variable has been deleted.",
+                    "success"
+                );
+            }
+        });
     }
 
     removalVariable(variables, removeVariables) {

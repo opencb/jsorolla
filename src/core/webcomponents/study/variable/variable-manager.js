@@ -147,7 +147,6 @@ export default class VariableManager extends LitElement {
                                     <select-field-token
                                         .values="${this.variable?.allowedValues}"
                                         .configToken="${this.configToken}"
-                                        placeholder=${"Type something to start"}
                                         @addToken=${e => this.onAddValues(e)}>
                                     </select-field-token>`
                             }
