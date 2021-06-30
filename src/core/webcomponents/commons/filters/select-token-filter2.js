@@ -20,7 +20,8 @@ import UtilsNew from "../../../utilsNew.js";
 /**
  * Select2 version
  *
- * TODO FIXME Update from active-filters lead to an inconsistent state.
+ * TODO FIXME Update from active-filters leads to an inconsistent state.
+ * TODO support both static and dynamic data
  */
 
 export default class SelectTokenFilter2 extends LitElement {
@@ -66,7 +67,8 @@ export default class SelectTokenFilter2 extends LitElement {
     }
 
     firstUpdated(_changedProperties) {
-        $("#" + this._prefix).select2({
+        this.select = $("#" + this._prefix);
+        this.select.select2({
             multiple: true,
             ajax: {
                 transport: (params, success, failure) => {
@@ -99,18 +101,18 @@ export default class SelectTokenFilter2 extends LitElement {
             }
 
         })
-            .on("select2:select", e => {
+            .on("select2:select", async e => {
                 console.log("adding", e.params.data.id);
-                console.log($("#" + this._prefix).select2("data"));
-                this.state = [...this.state, e.params.data.id];
-                this.value = this.state.join(",");
+                // this.state = [...this.state, e.params.data.id];
+                // this.value = this.state.join(",");
+                console.log("select2(\"data\")", this.select.select2("data"));
                 this.filterChange(e);
             })
-            .on("select2:unselect", e => {
+            .on("select2:unselect", async e => {
                 console.log("removing", e.params.data.id);
-                console.log($("#" + this._prefix).select2("data"));
-                this.state = this.state.filter(el => el.id === e.params.data.id);
-                this.value = this.state.join(",");
+                // this.state = this.state.filter(el => el.id === e.params.data.id);
+                // this.value = this.state.join(",");
+                console.log("select2(\"data\")", this.select.select2("data"));
                 this.filterChange(e);
             });
 
@@ -121,18 +123,42 @@ export default class SelectTokenFilter2 extends LitElement {
             this._config = {...this.getDefaultConfig(), ...this.config};
         }
         if (_changedProperties.has("value")) {
-            console.log("this.value", this.value)
-            //const selection = this.value ? this.value.split(this.separator) : null;
-            //$("#" + this._prefix).val(selection); // this wont work as options arent actually there since there is an ajax source
-            // $("#" + this._prefix).trigger('change');
-            //this.requestUpdate();
+            console.log("this.value", this.value);
+            this.state = this.value?.split(this.separator);
+            // this.addOptions(this.value?.split(this.separator));
+            // const selection = this.value ? this.value.split(this.separator) : null;
+            // this.select.val(selection); // this wont work as options arent actually there since there is an ajax source
+            // this.select.trigger('change');
+            // this.requestUpdate();
+
+        }
+
+    }
+
+    addOptions(ids) {
+        if (ids) {
+            for (const id of ids) {
+                console.log("ADDING", id)
+                if (this.select.find("option[value='" + id + "']").length) {
+                    this.select.val(id).trigger("change");
+                } else {
+                    // Create a DOM Option and pre-select by default
+                    const newOption = new Option(id, id, true, true);
+                    // Append it to the select
+                    this.select.append(newOption).trigger("change");
+                }
+            }
+            this.select.trigger('change');
+        } else {
+            this.select.val(null).trigger('change');
+
         }
 
     }
 
     filterChange(e) {
-        const selection = $("#" + this._prefix).select2("data");
-        console.log("filterChange", selection)
+        const selection = this.select.select2("data");
+        console.log("filterChange", selection);
         const event = new CustomEvent("filterChange", {
             detail: {
                 value: selection.map(el => el.id).join(this.separator)
@@ -154,7 +180,7 @@ export default class SelectTokenFilter2 extends LitElement {
         ${JSON.stringify(this.value)}
         <div class="">
             <select id="${this._prefix}" style="width: 100%" @change="${this.filterChange}">
-                ${this.value?.split(this.separator)?.map(el => html`<option>${el}</option>`)}
+                ${this.value?.split(this.separator)?.map(el => html`<option>${el.id}</option>`)}
             </select>
         </div>
         `;
