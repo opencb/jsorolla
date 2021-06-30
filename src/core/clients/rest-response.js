@@ -181,10 +181,10 @@ export class RestResponse {
      * @returns {Number} The total number
      */
     count(attribute, responsePos) {
-        if (responsePos) {
+        if (responsePos !== undefined) {
             return this.responses[responsePos][attribute];
         } else {
-            return this.responses.reduce((acc, curr) => acc + curr[attribute]);
+            return this.responses.reduce((acc, curr) => acc + curr[attribute], 0);
         }
     }
 
