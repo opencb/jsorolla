@@ -77,10 +77,13 @@ export default class VariableListManager extends LitElement {
         }
         this._manager = manager;
         this.requestUpdate();
+
+        $("#variableManagerModal").modal("show");
     }
 
     // TODO: maybe should be rename this function.
     onActionVariable(e) {
+        e.stopPropagation();
         if (this._manager.action === "ADD") {
             console.log("Add new variable");
             this._onAddVariable(e.detail.value);
@@ -90,8 +93,8 @@ export default class VariableListManager extends LitElement {
             this._onEditVariable(e.detail.value);
         }
         console.log("results: ", this.variables);
+        $("#variableManagerModal").modal("hide");
         this.requestUpdate();
-        e.stopPropagation();
     }
 
     _onAddVariable(variable) {
@@ -213,6 +216,7 @@ export default class VariableListManager extends LitElement {
         e.stopPropagation();
         this.isShow = false;
         this.variable = {};
+        $("#variableManagerModal").modal("hide");
         this.requestUpdate();
     }
 
@@ -332,18 +336,26 @@ export default class VariableListManager extends LitElement {
                 </ul>
                 <button type="button" class="btn btn-primary btn-sm"
                 @click="${e => this.onShowVariableManager(e, {parent: "", action: "ADD"})}">
-                ${this.isShow? "Close Variable":"Add Variable"}</button>
+                Add Variable</button>
             </div>
         </div>
-        <div class="col-md-12" style="padding: 10px 20px">
-            ${this.isShow ? html `
-                <variable-manager
-                    .variable="${this.variable}"
-                    .dependsOn="${this.variables}"
-                    @closeForm="${e => this.onCloseForm(e)}"
-                    @addItem="${this.onActionVariable}">
-                </variable-manager>
-            ` : html ``}
+        <div id="variableManagerModal" class="modal fade" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title">Variable Information</h4>
+                    </div>
+                    <div class="modal-body">
+                        <variable-manager
+                            .variable="${this.variable}"
+                            .dependsOn="${this.variables}"
+                            @closeForm="${e => this.onCloseForm(e)}"
+                            @addItem="${this.onActionVariable}">
+                        </variable-manager>
+                    </div>
+                </div>
+            </div>
         </div>
     `;
     }

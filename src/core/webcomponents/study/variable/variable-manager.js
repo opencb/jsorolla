@@ -249,7 +249,7 @@ export default class VariableManager extends LitElement {
     }
 
     render() {
-        return html`
+        return html `
             <div class="subform">
                 <data-form
                     .data=${this.variable}
