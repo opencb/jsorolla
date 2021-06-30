@@ -308,7 +308,9 @@ export default class OpencgaVariantFilter extends LitElement {
         const id = section.title.replace(/ /g, "");
         const collapsed = section.collapsed ? "" : "in";
 
-        return html`
+        // whole section is hidden if there are no filters to show
+        if (section?.fields?.length) {
+            return html`
             <div class="panel panel-default filter-section shadow-sm">
                 <div class="panel-heading" role="tab" id="${this._prefix}${id}Heading">
                     <h4 class="panel-title">
@@ -320,16 +322,12 @@ export default class OpencgaVariantFilter extends LitElement {
                 </div>
                 <div id="${this._prefix}${id}" class="panel-collapse collapse ${collapsed}" role="tabpanel" aria-labelledby="${this._prefix}${id}Heading">
                     <div class="panel-body" style="padding-top: 5px">
-                        ${section.fields && section.fields.length && section.fields.map(field => html`
-                            ${this._isFilterVisible(field) ?
-                                this._createSubSection(field) :
-                                null
-                            }`
-                        )}
+                        ${section.fields.map(field => html`${this._isFilterVisible(field) ? this._createSubSection(field) : ""}`)}
                     </div>
                 </div>
             </div>
         `;
+        }
     }
 
     _createSubSection(subsection) {
