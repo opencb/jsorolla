@@ -62,7 +62,7 @@ export default class AnnotationSetManager extends BaseManagerMixin(LitElement) {
         try {
             const resp = await this.opencgaSession.opencgaClient.studies().variableSets(this.opencgaSession.study.fqn);
             this.variableSets = await resp.responses[0].results;
-            this._variableSetIds = this.variableSets.map(item => item.id);
+            this._variableSetIds = this.variableSets.filter(item => !item.internal).map(item => item.id);
             const annotationSetIdsSelected = this.annotationSets.map(item => item.variableSetId);
             this.variableSetIds = this._variableSetIds.filter(variableSetId => !annotationSetIdsSelected.includes(variableSetId));
         } catch (error) {
