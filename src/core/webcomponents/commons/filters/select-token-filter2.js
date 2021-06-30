@@ -63,8 +63,38 @@ export default class SelectTokenFilter2 extends LitElement {
 
     firstUpdated(_changedProperties) {
         $("#" + this._prefix).select2({
-            multiple: true
-            });
+            multiple: true,
+            ajax: {
+                transport: (params, success, failure) => {
+                    params.data.page = params.data.page || 1;
+                    const filters = {
+                        study: this.opencgaSession.study.fqn,
+                        limit: this._config.limit,
+                        count: true,
+                        skip: (params.data.page - 1) * this._config.limit,
+                        include: "id",
+                        id: "~^" + params?.data?.term?.toUpperCase()
+                    };
+                    this.opencgaSession.opencgaClient.samples().search(filters).then(restResponse => {
+                        const results = restResponse.getResults();
+                        success(restResponse);
+                    });
+                },
+                processResults: (restResponse, params) => {
+                    params.page = params.page || 1;
+                    return {
+                        results: restResponse.getResults().map(r => ({id: r.id, text: r.id})),
+                        pagination: {
+                            more: (params.page * this._config.limit) < restResponse.getResponse().numMatches
+                        }
+                    };
+                }
+            },
+            templateResult: (r) => {
+                return $("<span>" + r.id + "<p class='dropdown-item-extra'><label>ID</label>" + r.id + "</p></span>");
+            }
+
+        });
 
     }
 
@@ -94,9 +124,7 @@ export default class SelectTokenFilter2 extends LitElement {
         return html`
             
         <div class="">
-            <select class="${this._prefix}">
-                <option value="AB">AB</option>
-                <option value="BC">BC</option>
+            <select id="${this._prefix}" style="width: 100%">
             </select>
         </div>
         `;
