@@ -16,6 +16,7 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import "./variable-list-manager.js";
+import FormUtils from "../../form-utils.js";
 
 export default class VariableSetCreate extends LitElement {
 
@@ -61,9 +62,6 @@ export default class VariableSetCreate extends LitElement {
             case "confidential":
             case "description":
             case "entities":
-                if (field === "entities") {
-                    this.renderFieldEntity(e.detail.value);
-                }
                 this.variableSet = {
                     ...this.variableSet,
                     [field]: e.detail.value
@@ -71,10 +69,6 @@ export default class VariableSetCreate extends LitElement {
                 break;
         }
         console.log("VariableSet Data", this.variableSet);
-    }
-
-    renderFieldEntity(entity) {
-        console.log("Render exclusive form by entity", entity);
     }
 
     getDefaultConfig() {
@@ -150,6 +144,7 @@ export default class VariableSetCreate extends LitElement {
                             field: "entities",
                             type: "select",
                             allowedValues: ["SAMPLE", "COHORT", "INDIVIDUAL", "FAMILY", "FILE"],
+                            multiple: true,
                             display: {
                                 placeholder: "select a entity..."
                             }
@@ -187,39 +182,48 @@ export default class VariableSetCreate extends LitElement {
         e.stopPropagation();
     }
 
-    // Safe To delete!
-    // async onAddVariable(e) {
-    //     // TODO: Fixme, I don't know why
-    //     // I've to clean variableSet to reflex the changes.
-    //     const variable = e.detail.value;
-    //     const variableSetCopy = {...this.variableSet};
-    //     this.variableSet = {variables: []};
-    //     this._config = {...this.getDefaultConfig(), ...this.config};
-    //     await this.requestUpdate();
-
-    //     this.variableSet = variableSetCopy;
-    //     this.variableSet.variables.push(variable);
-    //     console.log("onAddVariable Result: ", this.variableSet);
-    //     await this.requestUpdate();
-
-    //     e.stopPropagation();
-    // }
-
-    // onRemoveVariable(e) {
-    //     console.log("onRemoveVariable");
-    //     this.variableSet = {
-    //         ...this.variableSet,
-    //         variables: this.variableSet.variables.filter(item => item !== e.detail.value)
-    //     };
-    //     this.requestUpdate();
-    // }
-
     onClear(e) {
         console.log("Clear Form");
+        Swal.fire({
+            title: "Are you sure to clear?",
+            text: "You won't be able to revert this!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, delete it!"
+        }).then(result => {
+            if (result.isConfirmed) {
+                this.variableSet = {};
+                this.requestUpdate();
+                Swal.fire(
+                    "Cleaned!",
+                    "The fields has been cleaned.",
+                    "success"
+                );
+            }
+        });
     }
 
-    onSubmit(e) {
+    async onSubmit(e) {
         console.log("Submit Form: ", this.variableSet);
+        try {
+            const res = await this.opencgaSession.opencgaClient.studies()
+                .updateVariableSets(this.opencgaSession.study.fqn, this.variableSet, {action: "ADD"});
+            this.variableSet = {};
+            this.requestUpdate();
+            FormUtils.showAlert(
+                "New VariableSet",
+                "VariableSet save correctly",
+                "success"
+            );
+        } catch (err) {
+            FormUtils.showAlert(
+                "New VariableSet",
+                `Could not save variableSet ${err}`,
+                "error"
+            );
+        }
     }
 
     sampleVariables() {
@@ -369,13 +373,13 @@ export default class VariableSetCreate extends LitElement {
 
     render() {
         return html `
-        <data-form
-            .data=${this.variableSet}
-            .config="${this._config}"
-            @fieldChange="${e => this.onFieldChangeVariableSet(e)}"
-            @clear="${e => this.onClear(e)}"
-            @submit="${e => this.onSubmit(e)}">
-        </data-form>`;
+            <data-form
+                .data=${this.variableSet}
+                .config="${this._config}"
+                @fieldChange="${e => this.onFieldChangeVariableSet(e)}"
+                @clear="${e => this.onClear(e)}"
+                @submit="${e => this.onSubmit(e)}">
+            </data-form>`;
     }
 
 }
