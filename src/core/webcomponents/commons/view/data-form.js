@@ -968,7 +968,7 @@ export default class DataForm extends LitElement {
                     <button type="button" class="btn btn-primary ripple" @click="${this.onClear}">
                         ${this.config.buttons.cancelText ? this.config.buttons.cancelText : "Cancel"}
                     </button>
-                    <button type="button" class="btn btn-primary ripple" @click="${this.onSubmit}">
+                    <button type="button" class="btn btn-primary ripple" @click="${this.onSubmit}" ?disabled=${UtilsNew.isEmpty(this.data)}>
                         ${this.config.buttons.okText ? this.config.buttons.okText : "OK"}
                     </button>
                 </div>
