@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import "./variable-list-manager.js";
-import FormUtils from "../../form-utils.js";
+import FormUtils from "../../../form-utils.js";
 
 export default class VariableSetCreate extends LitElement {
 
@@ -90,12 +90,13 @@ export default class VariableSetCreate extends LitElement {
                 defaultLayout: "horizontal",
                 defaultValue: "",
                 help: {
-                    mode: "block"
+                    mode: "block",
+                    // icon: "fa fa-lock",
                 }
             },
             sections: [
                 {
-                    title: "VariableSet General Information",
+                    title: "General Information",
                     elements: [
                         {
                             name: "Id",
@@ -105,6 +106,7 @@ export default class VariableSetCreate extends LitElement {
                             display: {
                                 placeholder: "Add a short ID...",
                                 help: {
+                                    icon: "fa fa-lock",
                                     text: "short variableSet id"
                                 },
                                 validation: {}
@@ -115,14 +117,27 @@ export default class VariableSetCreate extends LitElement {
                             field: "name",
                             type: "input-text",
                             display: {
-                                placeholder: "Name ..."
+                                placeholder: "Name ...",
+                                help: {
+                                    text: ";kaslkaslkas"
+                                },
+                            }
+                        },
+                        {
+                            name: "Entities",
+                            field: "entities",
+                            type: "select",
+                            allowedValues: ["SAMPLE", "COHORT", "INDIVIDUAL", "FAMILY", "FILE"],
+                            multiple: true,
+                            display: {
+                                placeholder: "select a entity..."
                             }
                         },
                         {
                             name: "Unique",
                             field: "unique",
                             type: "checkbox",
-                            checked: false
+                            checked: true
                         },
                         {
                             name: "Confidential",
@@ -138,20 +153,11 @@ export default class VariableSetCreate extends LitElement {
                                 rows: 3,
                                 placeholder: "variable description..."
                             }
-                        },
-                        {
-                            name: "Entities",
-                            field: "entities",
-                            type: "select",
-                            allowedValues: ["SAMPLE", "COHORT", "INDIVIDUAL", "FAMILY", "FILE"],
-                            multiple: true,
-                            display: {
-                                placeholder: "select a entity..."
-                            }
                         }
                     ]
                 },
                 {
+                    title: "Variables",
                     elements: [
                         {
                             field: "variables",

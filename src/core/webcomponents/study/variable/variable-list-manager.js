@@ -339,13 +339,7 @@ export default class VariableListManager extends LitElement {
                 display: block;
             }
         </style>
-        <div class="row">
-            <div class="col-md-2" style="padding: 10px 20px">
-                <h3>Variable</h3>
-            </div>
-            <div class="clearfix"></div>
-            <hr style="margin:0px">
-        </div>
+
         <div class="col-md-12" style="padding: 10px 20px">
             <div class="container" style="width:100%">
                 <ul id="myUL">

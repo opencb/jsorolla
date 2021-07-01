@@ -208,6 +208,22 @@ export default class DataForm extends LitElement {
         }
     }
 
+    _getHelpIcon(element, section) {
+        if (element.display?.help.icon) {
+            return element.display.help.icon;
+        } else {
+            if (section.display?.help.icon) {
+                return section.display.help.icon;
+            } else {
+                if (this.config.display.help.icon) {
+                    return this.config.display.help.icon;
+                } else {
+                    return "fas fa-info";
+                }
+            }
+        }
+    }
+
 
     renderData() {
         const classes = this.config?.display?.classes ?? "";
@@ -440,6 +456,11 @@ export default class DataForm extends LitElement {
                         <div class="col-md-${width - labelWidth}">
                             ${content}
                         </div>
+                        ${element.display?.help ? html `
+                            <div title="${element.display.help.text}">
+                                <span><i class="${this._getHelpIcon(element, section)}"></i></span>
+                            </div>` : null
+                        }
                     </div>
                 `;
             } else {
@@ -962,6 +983,7 @@ export default class DataForm extends LitElement {
     }
 
     renderButtons() {
+        // By default OK is disabled if the input object is empty
         return html`
             <div class="row">
                 <div class="${this.config.buttons.classes ? this.config.buttons.classes : "col-md-12"}" style="padding: 10px 20px">
