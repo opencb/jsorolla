@@ -209,6 +209,7 @@ export default class DataForm extends LitElement {
     }
 
     _getHelpIcon(element, section) {
+
         if (element.display?.help.icon) {
             return element.display.help.icon;
         } else {
@@ -218,7 +219,7 @@ export default class DataForm extends LitElement {
                 if (this.config.display.help.icon) {
                     return this.config.display.help.icon;
                 } else {
-                    return "fas fa-info";
+                    return "fas fa-info-circle";
                 }
             }
         }
@@ -454,13 +455,15 @@ export default class DataForm extends LitElement {
                         <label class="control-label col-md-${labelWidth} ${elementLabelClasses}"
                                 style="text-align: ${this.config.display?.labelAlign || "left"}; ${elementLabelStyle}">${title}</label>
                         <div class="col-md-${width - labelWidth}">
+                            <div class="col-md-11">
                             ${content}
-                        </div>
-                        ${element.display?.help ? html `
-                            <div title="${element.display.help.text}">
+                            </div>
+                            ${element.display?.help ? html `
+                            <div class="col-md-1" style="padding:0%; margin-top:6px" title="${element.display.help.text}">
                                 <span><i class="${this._getHelpIcon(element, section)}"></i></span>
                             </div>` : null
-                        }
+                            }
+                        </div>
                     </div>
                 `;
             } else {
@@ -591,7 +594,7 @@ export default class DataForm extends LitElement {
         return html`
             <div class="">
                 <input type="checkbox" class="${this._prefix}FilterCheckbox" .checked="${value}" ?disabled=${disabled}
-                        @click="${e => this.onFilterChange(element.field, e.currentTarget.checked)}" style="margin-right: 5px">
+                        @click="${e => this.onFilterChange(element.field, e.currentTarget.checked)}" style="margin-right: 5px; margin-top: 12px">
                 <span>${element.text}</span>
             </div>
         `;
