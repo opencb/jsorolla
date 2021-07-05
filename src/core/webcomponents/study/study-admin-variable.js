@@ -15,11 +15,11 @@
  */
 
 import {html, LitElement} from "/web_modules/lit-element.js";
-import UtilsNew from "./../../utilsNew.js";
-import GridCommons from "../commons/grid-commons.js";
 import OpencgaCatalogUtils from "../../clients/opencga/opencga-catalog-utils.js";
 import "../permission/permission-browser-grid.js";
 import "./variable/variable-set-create.js";
+import "./variable/variable-set-view.js";
+import DetailTabs from "../commons/view/detail-tabs.js";
 
 
 export default class StudyAdminVariable extends LitElement {
@@ -51,7 +51,9 @@ export default class StudyAdminVariable extends LitElement {
     }
 
     _init() {
-        this._prefix = UtilsNew.randomString(8);
+        this.editVariableSet = false;
+        this.variableSetId = "";
+        this.variableSet = {};
     }
 
     connectedCallback() {
@@ -64,8 +66,50 @@ export default class StudyAdminVariable extends LitElement {
         super.update(changedProperties);
     }
 
-    studyObserver() {
+    editForm(e) {
+        this.editVariableSet = !this.editVariableSet;
+        this._config = {...this.getDefaultConfig(), ...this.config};
+        this.requestUpdate();
+    }
 
+    clearForm() {
+        this.editVariableSet = false;
+        this.variableSet = {};
+        this._config = {...this.getDefaultConfig(), ...this.config};
+        this.requestUpdate();
+    }
+
+    changeVariableSetId(e) {
+        this.fetchVariableSetId(e.detail.value);
+    }
+
+    fetchVariableSetId(variableSetId) {
+        if (this.opencgaSession) {
+            if (variableSetId) {
+                this.opencgaSession.opencgaClient.studies().variableSet(this.opencgaSession.study.fqn, {id: variableSetId})
+                    .then(response => {
+                        this.variableSet = response.responses[0].results[0];
+                    })
+                    .catch(reason => {
+                        this.variableSet = {};
+                        console.error(reason);
+                    })
+                    .finally(() => {
+                        this._config = {...this.getDefaultConfig(), ...this.config};
+                        this.requestUpdate();
+                    });
+            }
+        }
+    }
+
+    onVariableSearch(e) {
+        if (e.detail.status?.error) {
+            // inform
+        } else {
+            this.variableSet = e.detail.value;
+            this._config = {...this.getDefaultConfig(), ...this.config};
+            this.requestUpdate();
+        }
     }
 
     getDefaultConfig() {
@@ -76,13 +120,32 @@ export default class StudyAdminVariable extends LitElement {
                     name: "View Variable",
                     icon: "fa fa-table icon-padding",
                     active: true,
-                    render: () => {
+                    render: (study, active, opencgaSession) => {
                         return html`
-                        <div class="guard-page">
-                            <i class="fas fa-pencil-ruler fa-5x"></i>
-                            <h3>Component under construction</h3>
-                            <h3>(Coming Soon)</h3>
-                        </div>`;
+                            <div class="row">
+                                <div class="col-md-6" style="margin: 20px 10px">
+                                    <div style="float: right">
+                                        <span style="padding-right:5px">
+                                            <i class="fas fa-times icon-hover" @click="${e => this.clearForm(e)}" ></i>
+                                        </span>
+                                        <span style="padding-left:5px">
+                                            <i class="fa fa-edit icon-hover" @click="${e => this.editForm(e)}"></i>
+                                        </span>
+                                    </div>
+                                    ${this.editVariableSet? html`
+                                    <variable-set-update
+                                        .variableSet="${this.variableSet}"
+                                        .opencgaSession="${opencgaSession}"
+                                        @updateVariableSetId="${e => this.changeVariableSetId(e)}">
+                                    </variable-set-update>
+                                `: html `
+                                    <variable-set-view
+                                        .variableSet="${this.variableSet}"
+                                        .opencgaSession="${opencgaSession}"
+                                        @variableSetSearch="${e => this.onVariableSearch(e)}">
+                                    </variable-set-view>`}
+                                </div>
+                            </div>`;
                     }
                 },
                 {
@@ -118,10 +181,9 @@ export default class StudyAdminVariable extends LitElement {
         return html`
             <div style="margin: 20px">
                 <detail-tabs
-                        .data=${this.study}
-                        .mode=${"pills"}
-                        .config="${this._config}"
-                        .opencgaSession="${this.opencgaSession}">
+                    .config="${this._config}"
+                    .mode=${DetailTabs.PILLS_MODE}
+                    .opencgaSession="${this.opencgaSession}">
                 </detail-tabs>
             </div>
             `;

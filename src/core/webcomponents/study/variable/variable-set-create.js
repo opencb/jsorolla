@@ -42,7 +42,8 @@ export default class VariableSetCreate extends LitElement {
 
     _init() {
         this.variableSet = {
-            variables: this.sampleVariables()
+            variables: this.sampleVariables(),
+            unique: true
         };
         this.variable = {};
     }
@@ -50,6 +51,12 @@ export default class VariableSetCreate extends LitElement {
     connectedCallback() {
         super.connectedCallback();
         this._config = {...this.getDefaultConfig(), ...this.config};
+    }
+
+    refreshForm() {
+        // When using data-form we need to update config object and render again
+        this._config = {...this.getDefaultConfig(), ...this.config};
+        this.requestUpdate();
     }
 
     onFieldChangeVariableSet(e) {
@@ -68,8 +75,14 @@ export default class VariableSetCreate extends LitElement {
                 };
                 break;
         }
+        // TODO: Here we can put a switch of field has validation to refreshForm
+        if (field === "id") {
+            this.refreshForm();
+        }
         console.log("VariableSet Data", this.variableSet);
+
     }
+
 
     getDefaultConfig() {
         return {
@@ -102,20 +115,29 @@ export default class VariableSetCreate extends LitElement {
                             name: "Id",
                             field: "id",
                             type: "input-text",
-                            required: true,
+                            required: "required",
                             display: {
                                 placeholder: "Add a short ID...",
                                 help: {
+                                    // mode: "block",
                                     icon: "fa fa-lock",
                                     text: "short variableSet id"
+
                                 },
-                                validation: {}
+                                validation: {
+                                    message: "Please enter more that 3 character",
+                                    validate: variable => variable?.id?.length > 4 || variable?.id === undefined || variable?.id === ""
+                                    // TODO: this work if we update the config everychange
+                                    // to re-evaluate or refresh the form applying the validation.
+                                    // validate: variable => variable?.id?.length > 4
+                                }
                             }
                         },
                         {
                             name: "Name",
                             field: "name",
                             type: "input-text",
+                            required: "required",
                             display: {
                                 placeholder: "Name ...",
                                 help: {
@@ -137,7 +159,7 @@ export default class VariableSetCreate extends LitElement {
                             name: "Unique",
                             field: "unique",
                             type: "checkbox",
-                            checked: true
+                            required: true
                         },
                         {
                             name: "Confidential",
@@ -149,6 +171,7 @@ export default class VariableSetCreate extends LitElement {
                             name: "Description",
                             field: "description",
                             type: "input-text",
+                            required: true,
                             display: {
                                 rows: 3,
                                 placeholder: "variable description..."
@@ -212,24 +235,28 @@ export default class VariableSetCreate extends LitElement {
     }
 
     async onSubmit(e) {
+        e.preventDefault();
         console.log("Submit Form: ", this.variableSet);
-        try {
-            const res = await this.opencgaSession.opencgaClient.studies()
-                .updateVariableSets(this.opencgaSession.study.fqn, this.variableSet, {action: "ADD"});
-            this.variableSet = {};
-            this.requestUpdate();
-            FormUtils.showAlert(
-                "New VariableSet",
-                "VariableSet save correctly",
-                "success"
-            );
-        } catch (err) {
-            FormUtils.showAlert(
-                "New VariableSet",
-                `Could not save variableSet ${err}`,
-                "error"
-            );
-        }
+        // try {
+        //     const res = await this.opencgaSession.opencgaClient.studies()
+        //         .updateVariableSets(this.opencgaSession.study.fqn, this.variableSet, {action: "ADD"});
+        //     this.variableSet = {
+        //         variables: [],
+        //         unique: true
+        //     };
+        //     this.requestUpdate();
+        //     FormUtils.showAlert(
+        //         "New VariableSet",
+        //         "VariableSet save correctly",
+        //         "success"
+        //     );
+        // } catch (err) {
+        //     FormUtils.showAlert(
+        //         "New VariableSet",
+        //         `Could not save variableSet ${err}`,
+        //         "error"
+        //     );
+        // }
     }
 
     sampleVariables() {
