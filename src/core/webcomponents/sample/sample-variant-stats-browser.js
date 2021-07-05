@@ -100,10 +100,7 @@ export default class SampleVariantStatsBrowser extends LitElement {
         // TODO temp fix to support both Opencga 2.0.3 and Opencga 2.1.0-rc
         if (this.sample?.qualityControl?.variantMetrics) {
             this._variantStatsPath = "variantMetrics";
-            console.warn("old data model");
-        }
-        else if (this.sample?.qualityControl?.variant) {
-            console.warn("new data model");
+        } else if (this.sample?.qualityControl?.variant) {
             this._variantStatsPath = "variant";
         } else {
             console.error("no path for variant stats defined");

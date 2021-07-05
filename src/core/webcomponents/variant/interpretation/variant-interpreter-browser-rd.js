@@ -158,15 +158,12 @@ class VariantInterpreterBrowserRd extends LitElement {
         // Check if QC filters exist and add them to active filter
         const sampleQc = ClinicalAnalysisUtils.getProbandSampleQc(this.clinicalAnalysis);
         let _activeFilterFilters = [];
-        if (sampleQc?.metrics?.length > 0) {
+        if (sampleQc) {
             // TODO temp fix to support both Opencga 2.0.3 and Opencga 2.1.0-rc
             if (sampleQc.variantMetrics) {
                 this._variantStatsPath = "variantMetrics";
-                console.warn("old data model");
-            }
-            else if (sampleQc.variant) {
+            } else if (sampleQc.variant) {
                 this._variantStatsPath = "variant";
-                console.warn("new data model");
             } else {
                 console.error("unexpected QC data model");
             }

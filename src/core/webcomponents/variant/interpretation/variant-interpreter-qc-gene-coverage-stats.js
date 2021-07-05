@@ -91,7 +91,7 @@ class VariantInterpreterQcGeneCoverageStats extends LitElement {
 
     prepareGeneCoverageStats() {
         let sampleQc = ClinicalAnalysisUtils.getProbandSampleQc(this.clinicalAnalysis);
-        if (sampleQc?.metrics?.length > 0) {
+        if (sampleQc) {
             this.geneCoverageStats = sampleQc.alignmentMetrics[0].geneCoverageStats;
             this._geneCoverageStats = this.geneCoverageStats[0];
         }
