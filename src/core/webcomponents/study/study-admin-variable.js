@@ -19,6 +19,7 @@ import OpencgaCatalogUtils from "../../clients/opencga/opencga-catalog-utils.js"
 import "../permission/permission-browser-grid.js";
 import "./variable/variable-set-create.js";
 import "./variable/variable-set-view.js";
+import "./variable/variable-set-update.js";
 import DetailTabs from "../commons/view/detail-tabs.js";
 
 
