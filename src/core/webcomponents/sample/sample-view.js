@@ -240,7 +240,7 @@ export default class SampleView extends LitElement {
     }
 
     render() {
-        if (!this.sample?.id && this.sampleId) {
+        if (!this.sample) {
             return html`
                 <h2>Sample not found</h2>
             `;

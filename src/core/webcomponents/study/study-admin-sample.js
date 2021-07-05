@@ -71,7 +71,11 @@ export default class StudyAdminSample extends LitElement {
 
     clearForm(e) {
         this.editSample = false;
-        this.fetchSampleId("");
+        this.sample = {};
+        this.sampleId = "";
+        this._config = {...this.getDefaultConfig(), ...this.config};
+        console.log("Clean....");
+        this.requestUpdate();
     }
 
     changeSampleId(e) {
@@ -99,10 +103,6 @@ export default class StudyAdminSample extends LitElement {
                         this._config = {...this.getDefaultConfig(), ...this.config};
                         this.requestUpdate();
                     });
-            } else {
-                this.sample = {};
-                this._config = {...this.getDefaultConfig(), ...this.config};
-                this.requestUpdate();
             }
         }
     }
