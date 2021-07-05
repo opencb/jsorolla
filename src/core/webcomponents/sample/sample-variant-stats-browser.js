@@ -370,7 +370,6 @@ export default class SampleVariantStatsBrowser extends LitElement {
     }
 
     selectVariantStats(id, defaultQcVariantStats) {
-        console.log("this._variantStatsPath", this._variantStatsPath)
         let qcVariantStats = this.sample.qualityControl[this._variantStatsPath].variantStats.find(qcVariantStats => qcVariantStats.id === id);
         if (!qcVariantStats && defaultQcVariantStats) {
             qcVariantStats = defaultQcVariantStats;
