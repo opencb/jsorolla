@@ -107,8 +107,8 @@ export default class VariantBrowserDetail extends LitElement {
                         return html`
                             <cellbase-variant-annotation-summary
                                     .variantAnnotation="${variant.annotation}"
-                                    .consequenceTypes="${consequenceTypes}"
-                                    .proteinSubstitutionScores="${proteinSubstitutionScore}">
+                                    .consequenceTypes="${CONSEQUENCE_TYPES}"
+                                    .proteinSubstitutionScores="${PROTEIN_SUBSTITUTION_SCORE}">
                             </cellbase-variant-annotation-summary>`;
                     }
                 },
@@ -181,6 +181,13 @@ export default class VariantBrowserDetail extends LitElement {
                                     .config="${this.beaconConfig}"
                                     .active="${active}">
                             </variant-beacon-network>`;
+                    }
+                },
+                {
+                    id: "json-view",
+                    name: "JSON Data",
+                    render: (variant, active, opencgaSession) => {
+                        return html`<json-viewer .data="${variant}" .active="${active}"></json-viewer>`;
                     }
                 }
                 // TODO Think about Networks

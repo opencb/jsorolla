@@ -107,6 +107,7 @@ export default class OpencgaFamilyGrid extends LitElement {
                 method: "get",
                 sidePagination: "server",
                 uniqueId: "id",
+                silentSort: false,
                 // Table properties
                 pagination: this._config.pagination,
                 pageSize: this._config.pageSize,

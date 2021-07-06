@@ -104,8 +104,8 @@ export default class VariantInterpreterDetail extends LitElement {
                         return html`
                             <cellbase-variant-annotation-summary
                                     .variantAnnotation="${variant.annotation}"
-                                    .consequenceTypes="${consequenceTypes}"
-                                    .proteinSubstitutionScores="${proteinSubstitutionScore}">
+                                    .consequenceTypes="${CONSEQUENCE_TYPES}"
+                                    .proteinSubstitutionScores="${PROTEIN_SUBSTITUTION_SCORE}">
                             </cellbase-variant-annotation-summary>`;
                     }
                 },

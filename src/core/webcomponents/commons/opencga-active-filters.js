@@ -246,6 +246,7 @@ export default class OpencgaActiveFilters extends LitElement {
                 // console.log("hiding warn")
             }
         } else {
+            // TODO handle warning alert here too
             this._JsonSelectedFacet = null;
         }
     }

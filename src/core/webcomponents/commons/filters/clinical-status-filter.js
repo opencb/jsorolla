@@ -77,12 +77,13 @@ export default class ClinicalStatusFilter extends LitElement {
 
     getDefaultConfig() {
         return {
+            multiple: true
         };
     }
 
     render() {
         return html`
-            <select-field-filter placeholder="${this.placeholder}" .data="${this.data}" .value=${this.status} multiple @filterChange="${e => this.filterChange(e)}"></select-field-filter>
+            <select-field-filter .placeholder="${this.placeholder}" ?multiple="${this._config.multiple}" .data="${this.data}" .value=${this.status} multiple @filterChange="${e => this.filterChange(e)}"></select-field-filter>
         `;
     }
 
