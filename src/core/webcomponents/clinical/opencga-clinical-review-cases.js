@@ -109,7 +109,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
 
     settingsObserver() {
         this._config = {...this.getDefaultConfig(), ...this.config};
-        this._config.filter = UtilsNew.mergeFilters(this._config?.filter, this.settings.filters);
+        this._config.filter = UtilsNew.mergeFilters(this._config?.filter, this.settings.menu.filters);
         this.requestUpdate();
     }
 

@@ -458,6 +458,8 @@ export default class UtilsNew {
                     const internalField = section.fields.find(field => field.id === ex.id);
                     if (internalField) {
                         fields.push({...internalField, ...ex});
+                    } else {
+                        console.warn(`Field "${ex.id}" not found merging user settings`);
                     }
                 }
                 return {...section, fields: fields};
