@@ -327,7 +327,7 @@ export default class RgaBrowser extends LitElement {
                                 id: "consequenceType",
                                 name: "Consequence type",
                                 tooltip: tooltips.consequenceTypeSelect,
-                                value: consequenceTypes.lof
+                                value: CONSEQUENCE_TYPES.lof
                             },
                             {
                                 id: "clinicalSignificance",
