@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { LitElement, html } from "/web_modules/lit-element.js";
+import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "./../../utilsNew.js";
 import "../commons/tool-header.js";
 
@@ -22,8 +22,6 @@ export default class StudyForm extends LitElement {
 
     constructor() {
         super();
-
-        // Set status and init private properties
         this._init();
     }
 
@@ -47,38 +45,34 @@ export default class StudyForm extends LitElement {
 
     _init() {
         this._prefix = UtilsNew.randomString(8);
-        this.newStudy = {}
-        this.study = {}
-    }
-
-    connectedCallback() {
-        super.connectedCallback();
-        // this._config = { ...this.getDefaultConfig(), ...this.config };
-    }
-
-    update(changedProperties) {
-        // checking if this component receive the project
-        console.log("Project for the new Study: ",this.project?.fqn) 
-        super.update(changedProperties);
+        this.study = {};
     }
 
     onFieldChange(e) {
+        const field = e.detail.param;
         switch (e.detail.param) {
             case "id":
             case "name":
             case "description":
-                this.study[e.detail.param] = e.detail.value;
+                this.study = {
+                    ...this.study,
+                    [field]: e.detail.value
+                };
                 break;
         }
+        // Study is not a lit property  #L32,
+        // so it's necessary use requestUpdate();
+        this.requestUpdate();
+        console.log("New Study", this.study);
     }
 
     getSaveForm(e) {
-        console.log(e.detail.param)
+        console.log(e.detail.param);
     }
 
     onSave(e) {
         // TODO: Check it's ok ?
-        this.opencgaSession.opencgaClient.studies().create(this.study, { project: this.project.fqn })
+        this.opencgaSession.opencgaClient.studies().create(this.study, {project: this.project.fqn})
             .then(res => {
                 this.study = {};
                 this.requestUpdate();
@@ -100,7 +94,7 @@ export default class StudyForm extends LitElement {
                 console.error(err);
                 params.error(err);
             });
-            $(`#newStudy`).modal("hide"); // TODO: refactor this function.
+        $("#newStudy").modal("hide"); // TODO: refactor this function.
     }
 
     onHide() {
@@ -164,12 +158,12 @@ export default class StudyForm extends LitElement {
                     ]
                 }
             ]
-        }
+        };
     }
 
     render() {
         return html`
-            <data-form  .data=${this.newStudy}
+            <data-form  .data=${this.study}
                         .config="${this.getStudyFormConfig()}"
                         @fieldChange="${e => this.onFieldChange(e)}"
                         @clear="${this.onHide}"

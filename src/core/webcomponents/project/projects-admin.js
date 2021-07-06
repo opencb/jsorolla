@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import { html, LitElement } from "/web_modules/lit-element.js";
+import {html, LitElement} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
-import OpencgaCatalogUtils from "../../clients/opencga/opencga-catalog-utils.js"
+import OpencgaCatalogUtils from "../../clients/opencga/opencga-catalog-utils.js";
 import "../commons/tool-header.js";
 import "../study/study-form.js";
 import "./project-form.js";
@@ -51,14 +51,11 @@ export default class ProjectsAdmin extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
-
-        this._config = { ...this.getDefaultConfig(), ...this.config };
-
+        this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
     update(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
-            // this.users = [...new Set(this.opencgaSession.projects?.map(project => project.fqn.split('@')[0]))];
             this.owners = OpencgaCatalogUtils.getProjectOwners(this.opencgaSession.projects);
         }
         super.update(changedProperties);
@@ -99,26 +96,26 @@ export default class ProjectsAdmin extends LitElement {
                         <i class="fas fa-ellipsis-v fa-lg" style="color:#fff"></i>
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="dLabel" role="menu">
-                        <li class="${!isAdmin ? "disabled" : "item-pointer"}"> 
+                        <li class="${!isAdmin ? "disabled" : "item-pointer"}">
                             <a @click="${() => this.actionModal('Study', 'show', project)}">
                                 <i class="fas fa-file icon-padding"></i> New Study
                             </a>
                         </li>
                         <li class="divider"></li>
-                        <li class="${!isAdmin ? "disabled" : "item-pointer"}"> 
+                        <li class="${!isAdmin ? "disabled" : "item-pointer"}">
                             <a @click="${() => this.actionModal('Project', 'show', project, 'UPDATE')}">
                                 <i class="fas fa-edit icon-padding"></i>Edit
                             </a>
                         </li>
-                        <li class="${!isAdmin ? "disabled" : "item-pointer"}"> 
+                        <li class="${!isAdmin ? "disabled" : "item-pointer"}">
                             <a><i class="fas fa-copy icon-padding"></i> Duplicate</a>
                         </li>
-                        <li class="${!isAdmin ? "disabled" : "item-pointer"}"> 
+                        <li class="${!isAdmin ? "disabled" : "item-pointer"}">
                             <a><i class="fas fa-trash icon-padding"></i> Delete</a>
                         </li>
                     </ul>
                 </div>
-            </div>`
+            </div>`;
     }
 
     // Project and Studies Style (OLD)
@@ -175,7 +172,7 @@ export default class ProjectsAdmin extends LitElement {
                     )}
                 </div>
             </div>
-        `
+        `;
     }
 
     // Project and Studies Style Alternative
@@ -210,8 +207,7 @@ export default class ProjectsAdmin extends LitElement {
                         <div class="row">
                             <div class="col-md-2 border-dotted-right">
                                 <!-- Vertical dots   -->
-                                <!-- ${OpencgaCatalogUtils.checkUserAccountView(user, this.opencgaSession?.user?.id) ? html`${this.renderVerticalDotAction(project)}` : ""} -->
-                                ${this.renderVerticalDotAction(user, project)}                                 
+                                ${this.renderVerticalDotAction(user, project)}
                                 <h3 style="margin:5px">Project</h3>
                                 <div class="text-block text-center" style="padding-top: 5px;">
                                     <h4>${project.name}</h4>
@@ -241,7 +237,7 @@ export default class ProjectsAdmin extends LitElement {
                         </div>
                     </div>
                 </div>
-            </div>`
+            </div>`;
     }
 
     renderStudy(study) {
@@ -270,12 +266,12 @@ export default class ProjectsAdmin extends LitElement {
                         </div>
                     </div>
                 </a>
-            </div>`
+            </div>`;
     }
 
 
     renderModal(id, name, type) {
-        let modalType = {
+        const modalType = {
             "project": html`
                 <project-form
                         .opencgaSession="${this.opencgaSession}"
@@ -291,7 +287,7 @@ export default class ProjectsAdmin extends LitElement {
                         .mode=${this.mode}
                         @hide="${() => this.actionModal('Study', 'hide')}">
                 </study-form>`,
-        }
+        };
         return html`
             <div id="${id}" class="modal fade" tabindex="-1" role="dialog">
                 <div class="modal-dialog" role="document">
@@ -380,8 +376,8 @@ export default class ProjectsAdmin extends LitElement {
                             </div>
                             <div class="col-md-6">
                                 <div class="pull-right">
-                                    <button class="btn-custom btn btn-primary" 
-                                        ?disabled=${!OpencgaCatalogUtils.checkUserAccountView(owner, this.opencgaSession?.user?.id)} 
+                                    <button class="btn-custom btn btn-primary"
+                                        ?disabled=${!OpencgaCatalogUtils.checkUserAccountView(owner, this.opencgaSession?.user?.id)}
                                         @click="${() => this.actionModal('Project', 'show')}">New Project
                                     </button>
                                 </div>
@@ -397,7 +393,7 @@ export default class ProjectsAdmin extends LitElement {
                             <div class="col-md-12">
                                 ${this.opencgaSession.projects.filter(proj => proj.fqn.startsWith(owner + "@")).map(project => this.renderProjectAndStudiesAlt(project, owner))}
                             </div>
-                        </div>`
+                        </div>`;
         })}
             </div>
 
@@ -407,5 +403,6 @@ export default class ProjectsAdmin extends LitElement {
             ${this.renderModal("newStudy", 'Study', 'study')}
         `;
     }
+
 }
 customElements.define("projects-admin", ProjectsAdmin);

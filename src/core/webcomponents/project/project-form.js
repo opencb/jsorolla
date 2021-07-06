@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { LitElement, html } from "/web_modules/lit-element.js";
+import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "./../../utilsNew.js";
 import "../commons/tool-header.js";
 
@@ -51,7 +51,7 @@ export default class ProjectForm extends LitElement {
 
     _init() {
         this._prefix = UtilsNew.randomString(8);
-        this.project = {}
+        this.project = {};
     }
 
     connectedCallback() {
@@ -76,23 +76,26 @@ export default class ProjectForm extends LitElement {
     // }
 
 
-
     onFieldChange(e) {
+        const [field, prop] = e.detail.param.split(".");
         switch (e.detail.param) {
             case "id":
             case "name":
             case "description":
-                this.project[e.detail.param] = e.detail.value;
+                this.project = {
+                    ...this.project,
+                    [field]: e.detail.value
+                };
                 break;
             case "organism.scientificName":
             case "organism.assembly":
-                const param = e.detail.param.split(".")[1];
-                if (!this.project.organism) {
-                    this.project.organism = {};
-                }
-                this.project.organism[param] = e.detail.value;
+                this.project[field] = {
+                    ...this.project[field],
+                    [prop]: e.detail.value
+                };
                 break;
         }
+        console.log("New Project: ", this.project);
     }
 
     saveProject() {
@@ -116,7 +119,7 @@ export default class ProjectForm extends LitElement {
     }
 
     updateProject() {
-        this.opencgaSession.opencgaClient.projects().update(this.project?.fqn,this.project)
+        this.opencgaSession.opencgaClient.projects().update(this.project?.fqn, this.project)
             .then(res => {
                 this.project = {};
                 this.requestUpdate();
@@ -178,9 +181,6 @@ export default class ProjectForm extends LitElement {
                                 help: {
                                     text: "short project id for thehis as;lsal"
                                 },
-                                validation: {
-
-                                }
                             },
                         },
                         {
@@ -229,7 +229,7 @@ export default class ProjectForm extends LitElement {
                     ]
                 }
             ]
-        }
+        };
     }
 
 
@@ -244,21 +244,21 @@ export default class ProjectForm extends LitElement {
     onSave(e) {
         // TODO: Check it's ok ?
         if (mode == "CREATE") {
-            this.saveProject()
+            this.saveProject();
         } else {
-            this.updateProject()
+            this.updateProject();
         }
     }
 
 
-
     render() {
         return html`
-            <data-form  .data=${this.project}
-                        .config="${this.getStudyFormConfig()}"
-                        @fieldChange="${e => this.onFieldChange(e)}"
-                        @clear="${this.onHide}"
-                        @submit="${this.onSave}">
+            <data-form
+                .data=${this.project}
+                .config="${this.getStudyFormConfig()}"
+                @fieldChange="${e => this.onFieldChange(e)}"
+                @clear="${this.onHide}"
+                @submit="${this.onSave}">
             </data-form>
         `;
     }

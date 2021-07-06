@@ -387,8 +387,8 @@ export default class StudyAdminUsers extends LitElement {
                 }));
 
                 Swal.fire(
-                    "Use Delete",
-                    "User deleted correctly.",
+                    "User Removed",
+                    "User removed correctly.",
                     "success"
                 );
             })
@@ -602,7 +602,7 @@ export default class StudyAdminUsers extends LitElement {
                     <div class="btn-group">
                         <button type="button" id="${this._prefix}AddGroupMenu" class="btn btn-default btn-sm dropdown-toggle ripple" data-toggle="dropdown"
                                 aria-haspopup="true" aria-expanded="false" title="Add new group to ${this.study?.name} study">
-                            <i class="fas fa-user-friends icon-padding" aria-hidden="true"></i> Add Group
+                            <i class="fas fa-user-friends icon-padding" aria-hidden="true"></i> Create a Group
                         </button>
                         <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="${this._prefix}AddGroupMenu" style="width: 320px">
                             <li style="margin: 5px 10px">
