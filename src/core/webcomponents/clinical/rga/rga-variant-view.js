@@ -21,9 +21,10 @@ import GridCommons from "../../commons/grid-commons.js";
 import "../../family/opencga-family-view.js";
 import "../../variant/annotation/cellbase-population-frequency-grid.js";
 import "../../variant/annotation/variant-annotation-clinical-view.js";
-import "./rga-variant-individual-grid.js";
+import "./rga-variant-individual.js";
 import "./rga-variant-allele-pairs.js";
 import VariantGridFormatter from "../../variant/variant-grid-formatter.js";
+
 
 export default class RgaVariantView extends LitElement {
 
@@ -629,7 +630,7 @@ export default class RgaVariantView extends LitElement {
                     active: true,
                     render: (variant, active, opencgaSession) => {
                         return html`
-                            <rga-variant-individual-grid .query=${this.query} .variant="${variant}" .opencgaSession="${opencgaSession}"></rga-variant-individual-grid>
+                            <rga-variant-individual .query=${this.query} .variant="${variant}" .opencgaSession="${opencgaSession}"></rga-variant-individual>
                         `;
                     }
                 },

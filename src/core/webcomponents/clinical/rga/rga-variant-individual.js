@@ -21,7 +21,7 @@ import CatalogGridFormatter from "../../commons/catalog-grid-formatter.js";
 import GridCommons from "../../commons/grid-commons.js";
 
 
-export default class RgaVariantIndividualGrid extends LitElement {
+export default class RgaVariantIndividual extends LitElement {
 
     constructor() {
         super();
@@ -370,10 +370,6 @@ export default class RgaVariantIndividualGrid extends LitElement {
         return uniqueValues.size ? Array.from(uniqueValues.keys()).join(", ") : "-";
     }
 
-    getVariantInfo(row) {
-        // TODO
-    }
-
     getDefaultConfig() {
         return {
             title: "Individual"
@@ -395,4 +391,4 @@ export default class RgaVariantIndividualGrid extends LitElement {
 
 }
 
-customElements.define("rga-variant-individual-grid", RgaVariantIndividualGrid);
+customElements.define("rga-variant-individual", RgaVariantIndividual);
