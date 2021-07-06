@@ -346,6 +346,17 @@ export default class RgaVariantIndividual extends LitElement {
                 formatter: (_, row) => row.genes[0].transcripts[0].variants.find(variant => variant.id === this.variant.id)?.qual
             },
             {
+                title: "Phenotypes",
+                field: "phenotypes",
+                formatter: CatalogGridFormatter.phenotypesFormatter
+            },
+            {
+                title: "Disorders",
+                field: "disorders",
+                formatter: disorders => disorders?.length ? disorders.map(CatalogGridFormatter.disorderFormatter) : "-"
+
+            },
+            {
                 title: "Case ID",
                 field: "attributes.OPENCGA_CLINICAL_ANALYSIS",
                 // rowspan: 2, //TODO misconfiguration here silently fails. Open a gh issue in their repo
