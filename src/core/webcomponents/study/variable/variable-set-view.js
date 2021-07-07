@@ -89,6 +89,7 @@ export default class VariableSetView extends LitElement {
 
     onFilterChange(e) {
         // This must call sampleIdObserver function
+        console.log(`Searching VariableSet: ${e.detail.value}`);
         this.variableSetId = e.detail.value;
     }
 
@@ -121,10 +122,6 @@ export default class VariableSetView extends LitElement {
                                     <variableset-id-autocomplete
                                         .value="${this.variableSet?.id}"
                                         .opencgaSession="${this.opencgaSession}"
-                                        .config=${{
-                                            addButton: false,
-                                            multiple: false
-                                        }}
                                         @filterChange="${e => this.onFilterChange(e)}">
                                     </variableset-id-autocomplete>`
                             }

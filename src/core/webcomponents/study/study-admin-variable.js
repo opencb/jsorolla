@@ -129,22 +129,12 @@ export default class StudyAdminVariable extends LitElement {
                                         <span style="padding-right:5px">
                                             <i class="fas fa-times icon-hover" @click="${e => this.clearForm(e)}" ></i>
                                         </span>
-                                        <span style="padding-left:5px">
-                                            <i class="fa fa-edit icon-hover" @click="${e => this.editForm(e)}"></i>
-                                        </span>
                                     </div>
-                                    ${this.editVariableSet? html`
-                                    <variable-set-update
-                                        .variableSet="${this.variableSet}"
-                                        .opencgaSession="${opencgaSession}"
-                                        @updateVariableSetId="${e => this.changeVariableSetId(e)}">
-                                    </variable-set-update>
-                                `: html `
                                     <variable-set-view
                                         .variableSet="${this.variableSet}"
                                         .opencgaSession="${opencgaSession}"
                                         @variableSetSearch="${e => this.onVariableSearch(e)}">
-                                    </variable-set-view>`}
+                                    </variable-set-view>
                                 </div>
                             </div>`;
                     }

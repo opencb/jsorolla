@@ -42,7 +42,7 @@ export default class VariableSetCreate extends LitElement {
 
     _init() {
         this.variableSet = {
-            variables: this.sampleVariables(),
+            variables: [],
             unique: true
         };
         this.variable = {};
@@ -220,7 +220,8 @@ export default class VariableSetCreate extends LitElement {
             showCancelButton: true,
             confirmButtonColor: "#3085d6",
             cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, delete it!"
+            confirmButtonText: "Yes, delete it!",
+            reverseButtons: true
         }).then(result => {
             if (result.isConfirmed) {
                 this.variableSet = {};
@@ -234,9 +235,7 @@ export default class VariableSetCreate extends LitElement {
         });
     }
 
-    async onSubmit(e) {
-        e.preventDefault();
-        console.log("Submit Form: ", this.variableSet);
+    async onSave() {
         // try {
         //     const res = await this.opencgaSession.opencgaClient.studies()
         //         .updateVariableSets(this.opencgaSession.study.fqn, this.variableSet, {action: "ADD"});
@@ -257,6 +256,25 @@ export default class VariableSetCreate extends LitElement {
         //         "error"
         //     );
         // }
+    }
+
+    async onSubmit(e) {
+        e.preventDefault();
+        console.log("Save Form");
+        Swal.fire({
+            title: "Are you sure to create?",
+            text: "You won't be able to modify this!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, save it!",
+            reverseButtons: true
+        }).then(result => {
+            if (result.isConfirmed) {
+                this.onSave();
+            }
+        });
     }
 
     sampleVariables() {

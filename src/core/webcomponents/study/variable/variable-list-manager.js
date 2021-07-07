@@ -180,7 +180,8 @@ export default class VariableListManager extends LitElement {
             showCancelButton: true,
             confirmButtonColor: "#3085d6",
             cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, delete it!"
+            confirmButtonText: "Yes, delete it!",
+            reverseButtons: true
         }).then(result => {
             if (result.isConfirmed) {
                 console.log("onRemoveVariable ", item);
@@ -250,7 +251,7 @@ export default class VariableListManager extends LitElement {
         console.log("Render variables");
         const parentItemOf = item => parentItem? `${parentItem}.${item.id}`: item.id;
         return html`
-            ${variables.map(item => html`
+            ${variables?.map(item => html`
                 ${item.type === "OBJECT"? html`
                     <li class="tree-list">
                         <div class="row">

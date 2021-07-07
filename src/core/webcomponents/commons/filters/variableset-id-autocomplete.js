@@ -35,56 +35,59 @@ export default class VariableSetIdAutocomplete extends LitElement {
             },
             value: {
                 type: Object
-            },
-            config: {
-                type: Object
             }
         };
     }
 
     connectedCallback() {
         super.connectedCallback();
-        this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
-    onFilterChange(key, value) {
+    firstUpdated() {
+        this.variableSetIdObserver();
+    }
+
+    variableSetIdObserver() {
+        if (this.opencgaSession) {
+            let error;
+            this.opencgaSession.opencgaClient.studies().variableSets(this.opencgaSession.study.fqn, {id: ""})
+                .then(response => {
+                    const variableSets = response.responses[0].results;
+                    this.variableSetIds = variableSets.map(variableSet => variableSet.id);
+                    console.log("variableSets ..............", this.variableSetIds);
+                })
+                .catch(reason => {
+                    this.variableSetIds = [];
+                    error = reason;
+                    console.error(reason);
+                })
+                .finally(() => {
+                    this.requestUpdate();
+                });
+        }
+    }
+
+    onVariableSetSearchFieldChange(e) {
+        this.searchVariableSetId = e.target.value;
         const event = new CustomEvent("filterChange", {
             detail: {
-                value: value
+                value: e.target.value
             }
         });
         this.dispatchEvent(event);
     }
 
-    getDefaultConfig() {
-        return {
-            addButton: false,
-            fields: item => ({
-                name: item.id
-            }),
-            dataSource: (query, process) => {
-                const filters = {
-                    study: this.opencgaSession.study.fqn,
-                    limit: 20,
-                    count: false,
-                    include: "id",
-                    id: "~^" + query.toUpperCase()
-                };
-                this.opencgaSession.opencgaClient.studies().variableSets(this.opencgaSession.study.fqn, filters).then(restResponse => {
-                    const results = restResponse.getResults();
-                    process(results.map(this._config.fields));
-                });
-            }
-        };
-    }
-
     render() {
         return html`
-            <select-field-filter-autocomplete
-                .opencgaSession="${this.opencgaSession}"
-                .config=${this._config} .value="${this.value}"
-                @filterChange="${e => this.onFilterChange("id", e.detail.value)}">
-            </select-field-filter-autocomplete>
+            <div class="form-group">
+                <input type="text" .value="${this.searchVariableSetId || ""}" class="form-control" list="${this._prefix}VariableSets" placeholder="Search by VariableSet ID..."
+                    @change="${this.onVariableSetSearchFieldChange}">
+            </div>
+            <datalist id="${this._prefix}VariableSets">
+                ${this.variableSetIds?.map(variableSetId => html`
+                    <option value="${variableSetId}"></option>
+                `)}
+            </datalist>
         `;
     }
 
