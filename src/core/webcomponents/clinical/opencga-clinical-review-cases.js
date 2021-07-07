@@ -109,7 +109,14 @@ export default class OpencgaClinicalReviewCases extends LitElement {
 
     settingsObserver() {
         this._config = {...this.getDefaultConfig(), ...this.config};
-        this._config.filter = UtilsNew.mergeFilters(this._config?.filter, this.settings.menu.filters);
+        this._config.filter = UtilsNew.mergeFilters(this._config?.filter, this.settings.menu);
+
+        // TODO continue refactor
+        // 1. columns array is in opencga-clinical-analysis-grid
+        // 2. it is not in config object
+        // 3. it depends on OpencgaSession and the observer method depends on config (circular dep)
+        // (notes: build config after OpencgaSession is available would involve other checks in opencga-clinical-analysis-grid. We also have to prevent any rendering until opencgaSession and _config are available)
+        this._config.grid = {...this._config.grid, ...this.settings.table};
         this.requestUpdate();
     }
 

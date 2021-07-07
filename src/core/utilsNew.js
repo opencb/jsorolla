@@ -396,19 +396,28 @@ export default class UtilsNew {
     }
 
     /**
-     * Hydrates `external` array of objects with `internal` one.
+     * Hydrates `external` array of objects with `internal` one. The merge is based on id.
+     * It acts like a filter for the internal object.
+     * If an object with a certain Id is present in the internal array but not in the external, it won't be present in the returning array.
+     * The other way around, if an object with a certain Id is present in the external array but not in the internal, it will be added only if `force` flag is true.
      *
-     * @param internal
-     * @param external
+     * @param internal {Array}
+     * @param external {Array}
+     * @param force {Boolean} force external object addition even if there is no object with the same id in `internal`
      * @returns {Array} hydrated array
      */
-    static mergeConfigArray(internal, external) {
+    static mergeConfigArray(internal, external, force = false) {
         // console.log("internal, external", internal, external)
         if (external) {
             return external.map(entry => {
                 const obj = internal.find(e => entry.id === e.id);
                 if (!obj) {
-                    console.error(`Config Merge failed. ${entry.id} not found in internal config`);
+                    // force external entry addition
+                    if (force) {
+                        return entry;
+                    } else {
+                        console.error(`Config Merge failed. ${entry.id} not found in internal config`);
+                    }
                 } else {
                     return {...entry, ...obj};
                 }
@@ -447,14 +456,16 @@ export default class UtilsNew {
      *
      * @param internal {Array} Filter object
      * @param external {Array} Simplified filter object
-     * @returns {Array} hydrated array
+     * @returns {Object} hydrated array
      */
     static mergeFilters(internal, external) {
-        // console.log("internal, external", internal, external)
-        if (external?.length) {
-            const updatedSections = internal.sections.map(section => {
+        // console.log("internal, external", internal, external);
+        let sections = internal.sections;
+        let examples = internal.examples;
+        if (external?.filters?.length) {
+            sections = internal.sections.map(section => {
                 const fields = [];
-                for (const ex of external) {
+                for (const ex of external.filters) {
                     const internalField = section.fields.find(field => field.id === ex.id);
                     if (internalField) {
                         fields.push({...internalField, ...ex});
@@ -464,9 +475,12 @@ export default class UtilsNew {
                 }
                 return {...section, fields: fields};
             });
-            return {...internal, sections: updatedSections};
         }
-        return internal;
+        // merge canned filters
+        if (external?.examples?.length) {
+            examples = UtilsNew.joinArray(internal.examples, external.examples);
+        }
+        return {...internal, sections, examples};
     }
 
     /**
@@ -503,7 +517,6 @@ export default class UtilsNew {
      * @param external {Array} plain array of strings.
      * @return {Array} filtered array.
      */
-
     static mergeTable(internal, external) {
         // single array
         if (internal instanceof Array && !(internal[0] instanceof Array)) {
@@ -528,6 +541,35 @@ export default class UtilsNew {
                 }
             });
             return result;
+        }
+    }
+
+    /**
+     * It merges objects with the same Ids overwriting internal fields with the external ones.
+     * For the rest of object (present EITHER in internal or external arrays) it acts like an outer join.
+     *
+     * @param internal {Array} 1D or 2D array
+     * @param external {Array} plain array of strings.
+     * @returns {Array} filtered array.
+     */
+    static joinArray(internal, external) {
+        if (external?.length) {
+            // convert both arrays in map
+            const results = [];
+            const internalMap = Object.assign({}, ...internal.map(el => ({[el.id]: el})));
+            const externalMap = Object.assign({}, ...external.map(el => ({[el.id]: el})));
+            for (const [k, v] of Object.entries({...internalMap, ...externalMap})) {
+                // element is present in both array or just in external
+                if (externalMap[k]) {
+                    results.push({...v, ...externalMap[k]});
+                } else {
+                    // only present in internal
+                    results.push(v);
+                }
+            }
+            return results;
+        } else {
+            return internal;
         }
     }
 
