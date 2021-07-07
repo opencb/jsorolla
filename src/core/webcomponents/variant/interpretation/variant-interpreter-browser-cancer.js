@@ -582,6 +582,11 @@ class VariantInterpreterBrowserCancer extends LitElement {
                         multiSelection: false,
                         nucleotideGenotype: true,
                         alleleStringLengthMax: 10,
+
+                        genotype: {
+                            type: "VAF"
+                        },
+
                         header: {
                             horizontalAlign: "center",
                             verticalAlign: "bottom"

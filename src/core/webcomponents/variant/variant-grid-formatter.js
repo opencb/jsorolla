@@ -251,7 +251,15 @@ export default class VariantGridFormatter {
         }
     }
 
-    static typeFormatter(value, row, index) {
+    static vcfFormatter(value, row, field, type = "INFO") {
+        if (type.toUpperCase() === "INFO") {
+            return row.studies[0].files[0].data[field];
+        } else {
+            // return row.studies[0].samples[0].data[field];
+        }
+    }
+
+    static typeFormatter(value, row) {
         if (row) {
             let type = row.type;
             let color = "";

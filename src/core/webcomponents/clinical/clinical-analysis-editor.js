@@ -87,7 +87,7 @@ class ClinicalAnalysisEditor extends LitElement {
     opencgaSessionObserver() {
         this._users = [];
         if (this.opencgaSession && this.opencgaSession.study) {
-            for (let group of this.opencgaSession.study.groups) {
+            for (const group of this.opencgaSession.study.groups) {
                 if (group.id === "@members") {
                     this._users.push(...group.userIds.filter(user => user !== "*"));
                 }
@@ -119,7 +119,7 @@ class ClinicalAnalysisEditor extends LitElement {
 
     renderStatus(status) {
         let statuses;
-        let configStatuses = this.opencgaSession.study?.configuration?.clinical?.status[this.clinicalAnalysis.type];
+        const configStatuses = this.opencgaSession.study?.configuration?.clinical?.status[this.clinicalAnalysis.type];
         if (configStatuses && configStatuses.length > 0) {
             statuses = configStatuses;
         } else {
@@ -132,21 +132,43 @@ class ClinicalAnalysisEditor extends LitElement {
                                      .classes="${this.updateParams.status ? "updated" : ""}"
                                      @filterChange="${e => {e.detail.param = "status.id"; this.onFieldChange(e)}}">
                 </select-field-filter>
-                ${status.description
-                    ? html`<span class="help-block" style="padding: 0px 5px">${status.description}</span>`
-                    : null
-                }
+                ${status.description ?
+            html`<span class="help-block" style="padding: 0px 5px">${status.description}</span>` :
+            null
+        }
+            </div>`;
+    }
+
+    renderPanels(selectedPanels) {
+        const panels = this.opencgaSession.study.panels;
+        const selectedValues = selectedPanels?.map(panel => panel.id).join(",");
+        return html`
+            <div class="">
+                <select-field-filter .data="${panels}" 
+                                     .value="${selectedValues}"
+                                     .multiple="${true}"
+                                     .classes="${this.updateParams.panels ? "updated" : ""}"
+                                     @filterChange="${e => {
+                                        e.detail.param = "panels.id";
+                                        this.onFieldChange(e);
+                                    }}">
+                </select-field-filter>
             </div>`;
     }
 
     renderFlags(flags) {
-        let studyFlags = this.opencgaSession.study.configuration.clinical.flags[this.clinicalAnalysis.type.toUpperCase()].map(flag => flag.id);
-        let selectedValues = flags.map(flag => flag.id).join(",");
+        const studyFlags = this.opencgaSession.study.configuration.clinical.flags[this.clinicalAnalysis.type.toUpperCase()].map(flag => flag.id);
+        const selectedValues = flags.map(flag => flag.id).join(",");
         return html`
             <div class="">
-                <select-field-filter .data="${studyFlags}" .value="${selectedValues}"
+                <select-field-filter .data="${studyFlags}" 
+                                     .value="${selectedValues}"
+                                     .multiple="${true}"
                                      .classes="${this.updateParams.flags ? "updated" : ""}"
-                                     @filterChange="${e => {e.detail.param = "flags.id"; this.onFieldChange(e)}}">
+                                     @filterChange="${e => {
+                                         e.detail.param = "flags.id";
+                                         this.onFieldChange(e);
+                                     }}">
                 </select-field-filter>
             </div>`;
     }
@@ -166,7 +188,7 @@ class ClinicalAnalysisEditor extends LitElement {
             case "status.id":
             case "priority.id":
             case "analyst.id":
-                let field = e.detail.param.split(".")[0];
+                const field = e.detail.param.split(".")[0];
                 if (this._clinicalAnalysis[field]?.id !== e.detail.value && e.detail.value !== null) {
                     this.clinicalAnalysis[field].id = e.detail.value;
                     this.updateParams[field] = {
@@ -184,13 +206,13 @@ class ClinicalAnalysisEditor extends LitElement {
                     };
                 }
 
-                let index = this._clinicalAnalysis.flags.findIndex(flag => flag.id === e.detail.value);
+                const index = this._clinicalAnalysis.flags.findIndex(flag => flag.id === e.detail.value);
                 if (index === -1 && e.detail.value !== null) {
                     this.clinicalAnalysis.flags.push({id: e.detail.value});
                     if (!this.updateParams?.flags) {
                         this.updateParams.flags = [];
                     }
-                    for (let flag of this.clinicalAnalysis.flags) {
+                    for (const flag of this.clinicalAnalysis.flags) {
                         this.updateParams.flags.push({id: flag.id});
                     }
                 } else {
@@ -198,6 +220,29 @@ class ClinicalAnalysisEditor extends LitElement {
                 }
                 if (this.updateParams.flags?.length === 0) {
                     delete this.updateParams.flags;
+                }
+                break;
+            case "panels.id":
+                if (!this._clinicalAnalysis?.panels) {
+                    this._clinicalAnalysis = {
+                        panels: []
+                    };
+                }
+
+                const panelIndex = this._clinicalAnalysis.panels.findIndex(panel => panel.id === e.detail.value);
+                if (panelIndex === -1 && e.detail.value !== null) {
+                    this.clinicalAnalysis.panels.push({id: e.detail.value});
+                    if (!this.updateParams?.panels) {
+                        this.updateParams.panels = [];
+                    }
+                    for (const panel of this.clinicalAnalysis.panels) {
+                        this.updateParams.panels.push(panel.id);
+                    }
+                } else {
+                    this.updateParams.panels.splice(panelIndex, 1);
+                }
+                if (this.updateParams.panels?.length === 0) {
+                    delete this.updateParams.panels;
                 }
                 break;
         }
@@ -254,8 +299,8 @@ class ClinicalAnalysisEditor extends LitElement {
                             type: "custom",
                             display: {
                                 render: proband => {
-                                    let sex = (proband.sex && proband.sex !== "UNKNOWN") ? `(${proband.sex})` : "";
-                                    let sampleIds = proband.samples.map(sample => sample.id).join(", ");
+                                    const sex = (proband.sex && proband.sex !== "UNKNOWN") ? `(${proband.sex})` : "";
+                                    const sampleIds = proband.samples.map(sample => sample.id).join(", ");
                                     return html`
                                         <span style="padding-right: 25px">${proband.id} ${sex}</span>
                                         <span style="font-weight: bold; padding-right: 10px">Sample(s):</span><span>${sampleIds}</span>`;
@@ -263,7 +308,7 @@ class ClinicalAnalysisEditor extends LitElement {
                             }
                         },
                         {
-                            name: "Disorder",
+                            name: "Clinical Condition",
                             field: "disorder",
                             type: "custom",
                             display: {
@@ -272,10 +317,23 @@ class ClinicalAnalysisEditor extends LitElement {
                         },
                         {
                             name: "Disease Panel",
-                            // field: "panels",
+                            field: "panels",
                             type: "custom",
                             display: {
-                                render: panels => "-"
+                                render: panels => {
+                                    let panelHtml = "-";
+                                    if (panels?.length > 0) {
+                                        panelHtml = html`
+                                            ${panels.map(panel => html`
+                                                <div style="margin: 5px 0px">
+                                                    <a href="https://panelapp.genomicsengland.co.uk/panels/${panel.source.id}/" target="_blank">
+                                                        ${panel.name} (${panel.source.project} v${panel.source.version})
+                                                    </a>
+                                                </div>
+                                            `)}`;
+                                    }
+                                    return html`<div>${panelHtml}</div>`;
+                                }
                             }
                         },
                         {
@@ -291,7 +349,7 @@ class ClinicalAnalysisEditor extends LitElement {
                                     <span style="font-weight: bold; margin-right: 10px">${interpretation?.id}</span> 
                                     <span style="color: grey; padding-right: 40px">version ${interpretation?.version}</span>`
                             }
-                        },
+                        }
                     ]
                 },
                 {
@@ -308,6 +366,16 @@ class ClinicalAnalysisEditor extends LitElement {
                                 updated: this.updateParams.locked ?? false
                                 // onText: "YES",
                                 // activeClass: "btn-danger"
+                            }
+                        },
+                        {
+                            name: "Status",
+                            field: "status",
+                            type: "custom",
+                            display: {
+                                width: "9",
+                                updated: this.updateParams.status ?? false,
+                                render: status => this.renderStatus(status)
                             }
                         },
                         {
@@ -340,7 +408,7 @@ class ClinicalAnalysisEditor extends LitElement {
                                 width: "9",
                                 render: date => moment(date, "YYYYMMDDHHmmss").format("DD/MM/YYYY"),
                             }
-                        },
+                        }
                     ]
                 },
                 {
@@ -348,11 +416,12 @@ class ClinicalAnalysisEditor extends LitElement {
                     title: "General",
                     elements: [
                         {
-                            name: "Status",
-                            field: "status",
+                            name: "Disease Panels",
+                            field: "panels",
                             type: "custom",
                             display: {
-                                render: status => this.renderStatus(status)
+                                render: panels => this.renderPanels(panels),
+                                updated: this.updateParams.panels ?? false
                             }
                         },
                         {
@@ -360,7 +429,8 @@ class ClinicalAnalysisEditor extends LitElement {
                             field: "flags",
                             type: "custom",
                             display: {
-                                render: flags => this.renderFlags(flags)
+                                render: flags => this.renderFlags(flags),
+                                updated: this.updateParams.flags ?? false
                             }
                         },
                         {
@@ -385,8 +455,8 @@ class ClinicalAnalysisEditor extends LitElement {
                             }
                         }
                     ]
-                },
-            ],
+                }
+            ]
         };
     }
 

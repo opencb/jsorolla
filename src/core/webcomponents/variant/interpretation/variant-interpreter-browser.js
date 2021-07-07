@@ -19,6 +19,7 @@ import {classMap} from "/web_modules/lit-html/directives/class-map.js";
 import UtilsNew from "../../../utilsNew.js";
 import "./variant-interpreter-browser-rd.js";
 import "./variant-interpreter-browser-cancer.js";
+import "./variant-interpreter-browser-rearrangement.js";
 
 
 class VariantInterpreterBrowser extends LitElement {
@@ -47,7 +48,7 @@ class VariantInterpreterBrowser extends LitElement {
             },
             clinicalAnalysisId: {
                 type: String
-            },
+            }
             // query: {
             //     type: Object
             // },
@@ -59,7 +60,9 @@ class VariantInterpreterBrowser extends LitElement {
 
     _init() {
         this._prefix = UtilsNew.randomString(8);
-        this.activeTab = {"VariantBrowser": true}; //default active tab
+
+        this.activeTab = {"VariantBrowser": true}; // default active tab
+        this.showRearrangementBrowser = false;
     }
 
     updated(changedProperties) {
@@ -112,13 +115,15 @@ class VariantInterpreterBrowser extends LitElement {
             navTabs.removeClass("active");
             contentTabs.removeClass("active");
             $("#" + this._prefix + tabId).addClass("active");
-            for (const tab in this.activeTab) this.activeTab[tab] = false;
+            for (const tab in this.activeTab) {
+                this.activeTab[tab] = false;
+            }
             this.activeTab[tabId] = true;
             this.requestUpdate();
         }
     }
 
-    onClinicalAnalysisUpdate (e) {
+    onClinicalAnalysisUpdate(e) {
         this.dispatchEvent(new CustomEvent("clinicalAnalysisUpdate", {
             detail: {
                 clinicalAnalysis: e.detail.clinicalAnalysis
@@ -156,34 +161,44 @@ class VariantInterpreterBrowser extends LitElement {
             <div id="${this._prefix}QcTabs">
                 <div class="">
                     <ul class="nav nav-tabs nav-center tablist" role="tablist" aria-label="toolbar">
-                        ${this.clinicalAnalysis.type.toUpperCase() === "SINGLE" || this.clinicalAnalysis.type.toUpperCase() === "FAMILY"
-                            ? html`
+                        ${this.clinicalAnalysis.type.toUpperCase() === "SINGLE" || this.clinicalAnalysis.type.toUpperCase() === "FAMILY" ?
+                            html`
                                 <li role="presentation" class="content-pills ${classMap({active: this.activeTab["VariantBrowser"]})}">
                                     <a href="javascript: void 0" role="tab" data-id="VariantBrowser" @click="${this._changeTab}" class="tab-title">Variant Browser</a>
-                                </li>`
-                            : null
+                                </li>` :
+                            null
                         }
                         
-                        ${this.clinicalAnalysis.type.toUpperCase() === "CANCER" 
-                            ? html`
+                        ${this.clinicalAnalysis.type.toUpperCase() === "CANCER" ?
+                            html`
                                 <li role="presentation" class="content-pills ${classMap({active: this.activeTab["CancerSomaticVariantBrowser"]})}">
-                                    <a href="javascript: void 0" role="tab" data-id="CancerSomaticVariantBrowser" @click="${this._changeTab}" class="tab-title">Somatic Variant Browser</a>
+                                    <a href="javascript: void 0" role="tab" data-id="CancerSomaticVariantBrowser" 
+                                       @click="${this._changeTab}" class="tab-title">Somatic Variant Browser</a>
                                 </li>
-                                ${this._germlineSample 
-                                    ? html`
+                                ${this.showRearrangementBrowser ?
+                                    html`
+                                        <li role="presentation" class="content-pills ${classMap({active: this.activeTab["CancerSomaticRearrangementVariantBrowser"]})}">
+                                            <a href="javascript: void 0" role="tab" data-id="CancerSomaticRearrangementVariantBrowser" 
+                                               @click="${this._changeTab}" class="tab-title">Somatic Rearrangement Variant Browser</a>
+                                        </li>` :
+                                    null
+                                }
+                                ${this._germlineSample ?
+                                    html`
                                         <li role="presentation" class="content-pills ${classMap({active: this.activeTab["CancerGermlineVariantBrowser"]})}">
-                                            <a href="javascript: void 0" role="tab" data-id="CancerGermlineVariantBrowser" @click="${this._changeTab}" class="tab-title">Germline Variant Browser</a>
-                                        </li>`
-                                    : null
-                                }`
-                            : null
+                                            <a href="javascript: void 0" role="tab" data-id="CancerGermlineVariantBrowser" 
+                                               @click="${this._changeTab}" class="tab-title">Germline Variant Browser</a>
+                                        </li>` :
+                                    null
+                                }` :
+                            null
                         }
                     </ul>
                 </div>
                 
                 <div class="content-tab-wrapper col-md-12">
-                    ${this.clinicalAnalysis.type.toUpperCase() === "SINGLE" || this.clinicalAnalysis.type.toUpperCase() === "FAMILY"
-                        ? html`
+                    ${this.clinicalAnalysis.type.toUpperCase() === "SINGLE" || this.clinicalAnalysis.type.toUpperCase() === "FAMILY" ?
+                        html`
                             <div id="${this._prefix}VariantBrowser" role="tabpanel" class="tab-pane active content-tab">
                                 <tool-header title="Variant Browser - ${this._sample?.id}" class="bg-white"></tool-header>
                                 <variant-interpreter-browser-rd .opencgaSession="${this.opencgaSession}"
@@ -193,11 +208,11 @@ class VariantInterpreterBrowser extends LitElement {
                                                                 @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}"
                                                                 @samplechange="${this.onSampleChange}">
                                 </variant-interpreter-browser-rd>
-                            </div>`
-                        : null
+                            </div>` :
+                        null
                     }
-                    ${this.clinicalAnalysis.type.toUpperCase() === "CANCER" 
-                        ? html`
+                    ${this.clinicalAnalysis.type.toUpperCase() === "CANCER" ?
+                        html`
                             <div id="${this._prefix}CancerSomaticVariantBrowser" role="tabpanel" class="tab-pane active content-tab">
                                 <tool-header title="Somatic Variant Browser - ${this._somaticSample?.id}" class="bg-white"></tool-header>
                                 <variant-interpreter-browser-cancer .opencgaSession="${this.opencgaSession}"
@@ -207,8 +222,22 @@ class VariantInterpreterBrowser extends LitElement {
                                                                     @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
                                 </variant-interpreter-browser-cancer>
                             </div>
-                            ${this._germlineSample     // Check Germline sample exist
-                                ? html`
+                            ${this.showRearrangementBrowser ?
+                                html`
+                                    <div id="${this._prefix}CancerSomaticRearrangementVariantBrowser" role="tabpanel" class="tab-pane content-tab">
+                                        <tool-header title="Somatic Rearrangement Variant Browser - ${this._somaticSample?.id}" class="bg-white"></tool-header>
+                                        <variant-interpreter-browser-rearrangement .opencgaSession="${this.opencgaSession}"
+                                                                                   .clinicalAnalysis="${this.clinicalAnalysis}"
+                                                                                   .query="${this.query}"
+                                                                                   .cellbaseClient="${this.cellbaseClient}"
+                                                                                   @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
+                                        </variant-interpreter-browser-rearrangement>
+                                    </div>` :
+                                null
+                            }
+                            
+                            ${this._germlineSample ? // Check Germline sample exist
+                                html`
                                     <div id="${this._prefix}CancerGermlineVariantBrowser" role="tabpanel" class="tab-pane content-tab">
                                         <tool-header title="Germline Variant Browser - ${this._germlineSample?.id}" class="bg-white"></tool-header>
                                         <variant-interpreter-browser-rd .opencgaSession="${this.opencgaSession}"
@@ -218,11 +247,11 @@ class VariantInterpreterBrowser extends LitElement {
                                                                         @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}"
                                                                         @samplechange="${this.onSampleChange}">
                                         </variant-interpreter-browser-rd>
-                                    </div>` 
-                                : null
+                                    </div>` :
+                                null
                             }
-                            `
-                        : null
+                            ` :
+                        null
                     }
                 </div>
             </div>

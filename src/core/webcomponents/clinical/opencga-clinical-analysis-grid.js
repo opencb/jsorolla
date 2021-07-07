@@ -555,19 +555,17 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                 visible: !this._config.columns.hidden.includes("familyId")
             },
             {
-                title: "Disorder",
+                title: "Clinical Condition / Panel",
                 field: "disorder",
                 halign: this._config.header.horizontalAlign,
                 valign: "middle",
-                formatter: CatalogGridFormatter.disorderFormatter,
+                formatter: (value, row) => {
+                    const panelHtml = row.panels?.length > 0 ? CatalogGridFormatter.panelFormatter(row.panels) : "-";
+                    return `<div>${CatalogGridFormatter.disorderFormatter(value, row)}</div>
+                            <div style="margin: 5px 0px">${panelHtml}</div>`;
+                },
                 visible: !this._config.columns.hidden.includes("disorderId")
             },
-            // {
-            //     title: "Type",
-            //     field: "type",
-            //     valign: "middle",
-            //     visible: !this._config.columns.hidden.includes("type")
-            // },
             {
                 title: "Interpretation",
                 field: "interpretation",

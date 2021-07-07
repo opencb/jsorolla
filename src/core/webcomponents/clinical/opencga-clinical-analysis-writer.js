@@ -212,6 +212,22 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
         }));
     }
 
+    renderPanels(selectedPanels) {
+        const panels = this.opencgaSession.study.panels;
+        const selectedValues = selectedPanels?.map(panel => panel.id).join(",");
+        return html`
+            <div class="">
+                <select-field-filter .data="${panels}" 
+                                     .value="${selectedValues}"
+                                     .multiple="${true}"
+                                     @filterChange="${e => {
+                                        e.detail.param = "panels.id";
+                                        this.onFieldChange(e);
+                                    }}">
+                </select-field-filter>
+            </div>`;
+    }
+
     getDefaultConfig() {
         return {
             id: "clinical-analysis",
@@ -270,6 +286,14 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                             errorMessage: "No found...",
                             display: {
                                 disabled: () => this.mode === "update"
+                            }
+                        },
+                        {
+                            name: "Disease Panels",
+                            field: "panels",
+                            type: "custom",
+                            display: {
+                                render: panels => this.renderPanels(panels)
                             }
                         },
                         {
