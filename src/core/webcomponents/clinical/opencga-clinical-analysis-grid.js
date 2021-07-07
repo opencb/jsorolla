@@ -506,7 +506,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
     }
 
     _getDefaultColumns() {
-        const _columns = [
+        let _columns = [
             {
                 id: "caseId",
                 title: "Case",
@@ -514,7 +514,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                 formatter: this.caseFormatter.bind(this),
                 halign: this._config.header.horizontalAlign,
                 valign: "middle",
-                visible: !this._config.columns.hidden.includes("id")
+                //visible: !this._config.columns.hidden.includes("id")
             },
             {
                 id: "probandId",
@@ -528,7 +528,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                                         <div>
                                             <span class="help-block" style="margin: 5px 0px">${proband.samples?.map(sample => `<p data-cy="proband-sample-id">${sample.id}</p>`)?.join("") ?? "-"}</span>
                                         </div>`,
-                visible: !this._config.columns.hidden.includes("probandId")
+                //visible: !this._config.columns.hidden.includes("probandId")
             },
             {
                 id: "familyId",
@@ -547,7 +547,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                             </div>`;
                     }
                 },
-                visible: !this._config.columns.hidden.includes("familyId")
+                //visible: !this._config.columns.hidden.includes("familyId")
             },
             {
                 id: "disorderId",
@@ -556,7 +556,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                 halign: this._config.header.horizontalAlign,
                 valign: "middle",
                 formatter: CatalogGridFormatter.disorderFormatter,
-                visible: !this._config.columns.hidden.includes("disorderId")
+                //visible: !this._config.columns.hidden.includes("disorderId")
             },
             // {
             //     title: "Type",
@@ -571,7 +571,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                 halign: this._config.header.horizontalAlign,
                 valign: "middle",
                 formatter: this.interpretationFormatter.bind(this),
-                visible: !this._config.columns.hidden.includes("interpretation")
+                //visible: !this._config.columns.hidden.includes("interpretation")
             },
             {
                 id: "status",
@@ -583,7 +583,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                 events: {
                     "click a": this.onActionClick.bind(this)
                 },
-                visible: !this._config.columns.hidden.includes("status") && !!this.opencgaSession.study?.configuration?.clinical?.status
+                //visible: !this._config.columns.hidden.includes("status") && !!this.opencgaSession.study?.configuration?.clinical?.status
             },
             {
                 id: "priority",
@@ -596,7 +596,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                 events: {
                     "click a": this.onActionClick.bind(this)
                 },
-                visible: !this._config.columns.hidden.includes("priority") && !!this.opencgaSession.study?.configuration?.clinical?.priorities
+                //visible: !this._config.columns.hidden.includes("priority") && !!this.opencgaSession.study?.configuration?.clinical?.priorities
             },
             {
                 id: "Analyst",
@@ -605,7 +605,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                 align: "center",
                 halign: this._config.header.horizontalAlign,
                 valign: "middle",
-                visible: !this._config.columns.hidden.includes("assignedTo")
+                //visible: !this._config.columns.hidden.includes("assignedTo")
             },
             {
                 id: "dates",
@@ -626,7 +626,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                         <div><span class="help-block">${UtilsNew.dateFormatter(clinicalAnalysis.creationDate)}</span></div>
                     `;
                 },
-                visible: !this._config.columns.hidden.includes("dueDate")
+                //visible: !this._config.columns.hidden.includes("dueDate")
             },
             // {
             //     title: "Due Date",
@@ -648,7 +648,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                 checkbox: true,
                 class: "cursor-pointer",
                 eligible: false,
-                visible: this._config.showSelectCheckbox
+                //visible: this._config.showSelectCheckbox
             }
         ];
 
@@ -697,9 +697,11 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                 events: {
                     "click a": this.onActionClick.bind(this)
                 },
-                visible: !this._config.columns?.hidden?.includes("actions")
+               // visible: !this._config.columns?.hidden?.includes("actions")
             });
         }
+        // TODO continue settings integration
+        _columns = UtilsNew.mergeTable(_columns, this._config.columns);
 
         return _columns;
     }
