@@ -132,6 +132,16 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
             // let vcfIds = this.sample.fileIds?.filter(fileId => fileId.endsWith(".vcf") || fileId.endsWith(".vcf.gz")).join(",");
             this.opencgaSession.opencgaClient.files().search({sampleIds: this.sample.id, study: this.opencgaSession.study.fqn})
                 .then(fileResponse => {
+
+                    // TODO temp fix to support both Opencga 2.0.3 and Opencga 2.1.0-rc
+                    if (this.sample?.qualityControl?.variantMetrics) {
+                        this._variantStatsPath = "variantMetrics";
+                    } else if (this.sample?.qualityControl?.variant) {
+                        this._variantStatsPath = "variant";
+                    } else {
+                        console.error("unexpected QC data model");
+                    }
+
                     this.files = fileResponse.response[0].results;
 
                     // Prepare a map from caller to File
@@ -340,17 +350,17 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
         //     }
         // }
 
-        if (!this.sample?.qualityControl?.variantMetrics) {
-            this.sample.qualityControl["variantMetrics"] = {
+        if (!this.sample?.qualityControl?.[this._variantStatsPath]) {
+            this.sample.qualityControl[this._variantStatsPath] = {
                 variantStats: [],
                 signatures: []
             };
         }
 
-        if (this.sample.qualityControl.variantMetrics.variantStats) {
-            this.sample.qualityControl.variantMetrics.variantStats.push(variantStats);
+        if (this.sample.qualityControl[this._variantStatsPath].variantStats) {
+            this.sample.qualityControl[this._variantStatsPath].variantStats.push(variantStats);
         } else {
-            this.sample.qualityControl.variantMetrics["variantStats"] = [variantStats];
+            this.sample.qualityControl[this._variantStatsPath].variantStats = [variantStats];
         }
 
         this.opencgaSession.opencgaClient.samples().update(this.sample.id, {qualityControl: this.sample.qualityControl}, {study: this.opencgaSession.study.fqn})

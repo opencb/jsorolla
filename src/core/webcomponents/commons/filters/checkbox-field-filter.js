@@ -44,7 +44,7 @@ export default class CheckboxFieldFilter extends LitElement {
     }
 
     _init() {
-        this._prefix = "tff-" + UtilsNew.randomString(6);
+        this._prefix = UtilsNew.randomString(8);
         this.state = {};
     }
 
@@ -84,7 +84,7 @@ export default class CheckboxFieldFilter extends LitElement {
                     return html`
                         <li>
                             <input class="magic-checkbox" type="checkbox" id="${this._prefix}checkbox${i}" .checked="${this.state[id]}" value="${id}" @click="${this.filterChange}">
-                            <label for="${this._prefix}checkbox${i}">
+                            <label for="${this._prefix}checkbox${i}" style="font-weight: normal; padding-top: 2px">
                                 ${name}
                             </label>
                         </li>

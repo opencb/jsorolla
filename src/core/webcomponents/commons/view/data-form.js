@@ -15,6 +15,7 @@
  */
 
 import {html, LitElement} from "/web_modules/lit-element.js";
+import {ifDefined} from "/web_modules/lit-html/directives/if-defined.js";
 import UtilsNew from "../../../utilsNew.js";
 import "../simple-chart.js";
 import "../json-viewer.js";
@@ -991,7 +992,7 @@ export default class DataForm extends LitElement {
         if (this.config.display && this.config.display?.mode?.type === "modal") {
             const buttonClass = this.config.display.mode.buttonClass ? this.config.display.mode.buttonClass : "btn-primary";
             return html`
-                <button type="button" class="btn ${buttonClass} ${this.config.display.mode.disabled ? "disabled" : null}" data-toggle="modal" data-target="#${this._prefix}DataModal">
+                <button type="button" class="btn ${buttonClass} ${this.config.display.mode.disabled === true ? "disabled" : null}" data-toggle="modal" disabled="${ifDefined(this.config.display.mode.disabled === true ? "disabled" : undefined)}" data-target="#${this._prefix}DataModal">
                     <i class="${this.config.icon ? this.config.icon : "fas fa-info-circle"} icon-padding" aria-hidden="true"></i> ${this.config.title}
                 </button>
                 <div class="modal fade" id="${this._prefix}DataModal" tabindex="-1" role="dialog" aria-labelledby="${this._prefix}exampleModalLabel" 

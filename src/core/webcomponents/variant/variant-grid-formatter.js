@@ -296,7 +296,7 @@ export default class VariantGridFormatter {
             for (const ct of selectedConsequenceTypes) {
                 for (const so of ct.sequenceOntologyTerms) {
                     if (!soVisited.has(so?.name)) {
-                        positiveConsequenceTypes.push(`<span style="color: ${consequenceTypes.style[consequenceTypes.impact[so.name]] || "black"}">${so.name}</span>`);
+                        positiveConsequenceTypes.push(`<span style="color: ${CONSEQUENCE_TYPES.style[CONSEQUENCE_TYPES.impact[so.name]] || "black"}">${so.name}</span>`);
                         soVisited.add(so.name);
                     }
                 }
@@ -308,7 +308,7 @@ export default class VariantGridFormatter {
                 for (const ct of notSelectedConsequenceTypes) {
                     for (const so of ct.sequenceOntologyTerms) {
                         if (!soVisited.has(so.name)) {
-                            negativeConsequenceTypes.push(`<div style="color: ${consequenceTypes.style[consequenceTypes.impact[so.name]] || "black"}; margin: 5px">${so.name}</div>`);
+                            negativeConsequenceTypes.push(`<div style="color: ${CONSEQUENCE_TYPES.style[CONSEQUENCE_TYPES.impact[so.name]] || "black"}; margin: 5px">${so.name}</div>`);
                             soVisited.add(so.name);
                         }
                     }
@@ -427,7 +427,7 @@ export default class VariantGridFormatter {
                 }
                 if (filter.consequenceType.highImpactConsequenceTypeTranscript) {
                     for (const so of ct.sequenceOntologyTerms) {
-                        const impact = consequenceTypes?.impact[so.name]?.toUpperCase();
+                        const impact = CONSEQUENCE_TYPES?.impact[so.name]?.toUpperCase();
                         result = result || impact === "HIGH" || impact === "MODERATE";
                     }
                 }
@@ -574,7 +574,7 @@ export default class VariantGridFormatter {
 
                 const soArray = [];
                 for (const so of ct.sequenceOntologyTerms) {
-                    const color = consequenceTypes.style[consequenceTypes.impact[so.name]] || "black";
+                    const color = CONSEQUENCE_TYPES.style[CONSEQUENCE_TYPES.impact[so.name]] || "black";
                     soArray.push(`<div style="color: ${color}; margin-bottom: 5px">
                                     <span style="padding-right: 5px">${so.name}</span> 
                                     <a title="Go to Sequence Ontology ${so.accession} term" 
@@ -937,32 +937,53 @@ export default class VariantGridFormatter {
         if (row.annotation.traitAssociation && row.annotation.traitAssociation.length > 0) {
             for (const trait of row.annotation.traitAssociation) {
                 const values = [];
+                const vcvId = trait.additionalProperties.find(p => p.name === "VCV ID");
+                const genomicFeature = trait.genomicFeatures.find(f => f.featureType.toUpperCase() === "GENE");
+                const reviewStatus = trait.additionalProperties.find(p => p.name === "ReviewStatus_in_source_file");
                 if (trait.source.name.toUpperCase() === "CLINVAR") {
                     values.push(`<a href="${trait.url ?? BioinfoUtils.getClinvarVariationLink(trait.id)}" target="_blank">${trait.id}</a>`);
+                    values.push(vcvId ? vcvId.value : trait.id);
+                    values.push(genomicFeature?.xrefs ? genomicFeature.xrefs?.symbol : "-");
                     values.push(trait.variantClassification?.clinicalSignificance);
+                    values.push(trait.consistencyStatus);
+                    values.push(reviewStatus ? reviewStatus.value : "-");
                     values.push(trait.heritableTraits ? trait.heritableTraits.map(t => t.trait).join("<br>") : "-");
                     clinvar.push({
                         values: values
                     });
                 } else { // COSMIC section
                     // Prepare data to group by histologySubtype field
-                    const key = trait.id + ":" + trait.somaticInformation.primaryHistology;
+                    const key = trait.id + ":" + trait.somaticInformation.primaryHistology + ":" + trait.somaticInformation.primaryHistology;
+                    const reviewStatus = trait.additionalProperties.find(p => p.id === "MUTATION_SOMATIC_STATUS");
+                    const zygosity = trait.additionalProperties.find(p => p.id === "MUTATION_ZYGOSITY");
                     if (!cosmicIntermdiate.has(key)) {
                         cosmicIntermdiate.set(key, {
                             id: trait.id,
                             url: trait.url,
+                            primarySite: trait.somaticInformation.primarySite,
                             primaryHistology: trait.somaticInformation.primaryHistology,
                             histologySubtypes: [],
-                            histologySubtypesCounter: new Map()
+                            histologySubtypesCounter: new Map(),
+                            reviewStatus: reviewStatus,
+                            pubmed: new Set(),
+                            zygosity: new Set()
                         });
                     }
                     // Only add the new terms for this key
-                    if (!cosmicIntermdiate.get(key).histologySubtypesCounter.get(trait.somaticInformation.histologySubtype)) {
-                        cosmicIntermdiate.get(key).histologySubtypes.push(trait.somaticInformation.histologySubtype);
+                    if (trait.somaticInformation.histologySubtype) {
+                        if (!cosmicIntermdiate.get(key).histologySubtypesCounter.get(trait.somaticInformation.histologySubtype)) {
+                            cosmicIntermdiate.get(key).histologySubtypes.push(trait.somaticInformation.histologySubtype);
+                        }
+                        // Increment the counter always
+                        cosmicIntermdiate.get(key).histologySubtypesCounter
+                            .set(trait.somaticInformation.histologySubtype, cosmicIntermdiate.get(key).histologySubtypesCounter.size + 1);
                     }
-                    // Increment the counter always
-                    cosmicIntermdiate.get(key).histologySubtypesCounter
-                        .set(trait.somaticInformation.histologySubtype, cosmicIntermdiate.get(key).histologySubtypesCounter.size + 1);
+                    if (trait?.bibliography?.length > 0) {
+                        cosmicIntermdiate.get(key).pubmed.add(...trait.bibliography);
+                    }
+                    if (zygosity) {
+                        cosmicIntermdiate.get(key).zygosity.add(zygosity.value);
+                    }
                 }
             }
 
@@ -970,16 +991,20 @@ export default class VariantGridFormatter {
             for (const [key, c] of new Map([...cosmicIntermdiate.entries()].sort())) {
                 const values = [];
                 values.push(`<a href="${c.url ?? BioinfoUtils.getCosmicVariantLink(c.id)}" target="_blank">${c.id}</a>`);
+                values.push(c.primarySite);
                 values.push(c.primaryHistology);
                 values.push(c.histologySubtypes
                     .map(value => {
                         if (cosmicIntermdiate.get(key).histologySubtypesCounter.get(value) > 1) {
                             return value + " (x" + cosmicIntermdiate.get(key).histologySubtypesCounter.get(value) + ")";
                         } else {
-                            return value;
+                            return "-";
                         }
                     })
-                    .join(", "));
+                    .join("<br>") || "-");
+                values.push(Array.from(c.zygosity?.values()).join(", ") || "-");
+                values.push(c?.reviewStatus?.value || "-");
+                values.push(Array.from(c.pubmed.values()).map(p => `<a href="${BioinfoUtils.getPubmedLink(p)}" target="_blank">${p}</a>`).join("<br>"));
                 cosmic.push({
                     values: values
                 });
@@ -988,8 +1013,12 @@ export default class VariantGridFormatter {
 
         // Clinvar
         const clinvarColumns = [
-            {title: "id"},
+            {title: "ID"},
+            {title: "Variation ID"},
+            {title: "Gene"},
             {title: "Clinical Significance"},
+            {title: "Consistency Status"},
+            {title: "Review Status"},
             {title: "Traits"}
         ];
         const clinvarTable = VariantGridFormatter.renderTable("", clinvarColumns, clinvar, {defaultMessage: "No ClinVar data found"});
@@ -1000,9 +1029,13 @@ export default class VariantGridFormatter {
 
         // Cosmic
         const cosmicColumns = [
-            {title: "id"},
+            {title: "ID"},
+            {title: "Primary Site"},
             {title: "Primary Histology"},
-            {title: "Histology Subtype"}
+            {title: "Histology Subtype"},
+            {title: "Zygosity"},
+            {title: "Status"},
+            {title: "Pubmed"}
         ];
         const cosmicTable = VariantGridFormatter.renderTable("", cosmicColumns, cosmic, {defaultMessage: "No Cosmic data found"});
         const cosmicTraits = `<div style="margin-top: 15px">

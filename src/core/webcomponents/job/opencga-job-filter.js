@@ -228,13 +228,13 @@ export default class OpencgaJobFilter extends LitElement {
             }
         </style>
 
-        ${this.searchButton ? html`
+        ${this.config?.searchButton ? html`
             <div class="search-button-wrapper">
                 <button type="button" class="btn btn-primary ripple" @click="${this.onSearch}">
                     <i class="fa fa-search" aria-hidden="true"></i> Search
                 </button>
             </div>
-            ` : null}
+        ` : null}
 
         <div class="panel-group" id="${this._prefix}Accordion" role="tablist" aria-multiselectable="true">
 

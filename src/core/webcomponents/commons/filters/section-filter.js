@@ -52,7 +52,7 @@ export default class SectionFilter extends LitElement {
     }
 
     render() {
-        return this.config ? html`
+        return this.config && this.filters?.length ? html`
                 <div class="panel panel-default filter-section shadow-sm">
                     <div class="panel-heading" role="tab" id="${this._prefix}${this.id}Heading">
                             <h4 class="panel-title">
@@ -68,7 +68,7 @@ export default class SectionFilter extends LitElement {
                         </div>
                     </div>
                 </div>                    
-        ` : html`<div>No config</div>`;
+        ` : "";
     }
 
 }

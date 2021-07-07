@@ -83,7 +83,7 @@ export default class ClinicalPriorityFilter extends LitElement {
 
     render() {
         return html`
-            <select-field-filter placeholder="${this.placeholder}" ?multiple="${this._config.multiple}" .data="${this.priorities}" .value=${this.priority} multiple @filterChange="${e => this.filterChange(e)}"></select-field-filter>
+            <select-field-filter .placeholder="${this.placeholder}" ?multiple="${this._config.multiple}" .data="${this.priorities}" .value=${this.priority} multiple @filterChange="${e => this.filterChange(e)}"></select-field-filter>
         `;
     }
 

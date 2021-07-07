@@ -94,7 +94,7 @@ class OpencgaKnockoutAnalysisConfig {
                                 title: "Consequence type",
                                 type: "CONSEQUENCE_TYPE_FILTER",
                                 tooltip: tooltips.consequenceTypeSelect,
-                                value: consequenceTypes.lof
+                                value: CONSEQUENCE_TYPES.lof
                             },
                             {
                                 id: "clinicalSignificance",

@@ -90,7 +90,6 @@ export default class OpencgaJobBrowser extends LitElement {
             title: "Jobs Browser",
             icon: "fab fa-searchengin",
             description: "",
-            searchButtonText: "Search",
             views: [
                 {
                     id: "table-tab",
@@ -113,6 +112,7 @@ export default class OpencgaJobBrowser extends LitElement {
                 }
             ],
             filter: {
+                searchButton: false,
                 sections: [
                     {
                         title: "Section title",

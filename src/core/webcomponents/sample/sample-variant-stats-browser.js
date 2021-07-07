@@ -82,7 +82,7 @@ export default class SampleVariantStatsBrowser extends LitElement {
         }
 
         if ((changedProperties.has("sampleId") || changedProperties.has("active")) && this.active) {
-           this.sampleIdObserver();
+            this.sampleIdObserver();
         }
 
         if (changedProperties.has("query")) {
@@ -97,9 +97,16 @@ export default class SampleVariantStatsBrowser extends LitElement {
     }
 
     sampleObserver() {
-        if (this.sample?.qualityControl?.variantMetrics.variantStats?.length) {
-            this.selectVariantStats("ALL", this.sample.qualityControl.variantMetrics.variantStats[0]);
+        // TODO temp fix to support both Opencga 2.0.3 and Opencga 2.1.0-rc
+        if (this.sample?.qualityControl?.variantMetrics) {
+            this._variantStatsPath = "variantMetrics";
+        } else if (this.sample?.qualityControl?.variant) {
+            this._variantStatsPath = "variant";
+        } else {
+            console.error("no path for variant stats defined");
         }
+        this._variantStats = this.sample.qualityControl?.[this._variantStatsPath]?.variantStats[0];
+        this.selectVariantStats("ALL", this._variantStats);
     }
 
     sampleIdObserver() {
@@ -187,24 +194,25 @@ export default class SampleVariantStatsBrowser extends LitElement {
     }
 
     onSave(e) {
-        let variantStats = {
+        const variantStats = {
             id: this.save.id,
             query: this.executedQuery || {},
             description: this.save.description || "",
             stats: this.sampleQcVariantStats.stats
         };
 
-        if (!this.sample?.qualityControl?.variantMetrics) {
-            this.sample.qualityControl["variantMetrics"] = {
+
+        if (!this.sample?.qualityControl?.[this._variantStatsPath]) {
+            this.sample.qualityControl[this._variantStatsPath] = {
                 variantStats: [],
                 signatures: []
             };
         }
 
-        if (this.sample.qualityControl.variantMetrics.variantStats) {
-            this.sample.qualityControl.variantMetrics.variantStats.push(variantStats);
+        if (this.sample.qualityControl[this._variantStatsPath].variantStats) {
+            this.sample.qualityControl[this._variantStatsPath].variantStats.push(variantStats);
         } else {
-            this.sample.qualityControl.variantMetrics["variantStats"] = [variantStats];
+            this.sample.qualityControl[this._variantStatsPath].variantStats = [variantStats];
         }
 
         this.opencgaSession.opencgaClient.samples().update(this.sample.id, {qualityControl: this.sample.qualityControl}, {study: this.opencgaSession.study.fqn})
@@ -232,7 +240,7 @@ export default class SampleVariantStatsBrowser extends LitElement {
             buttons: {
                 show: true,
                 cancelText: "Cancel",
-                okText: "Save",
+                okText: "Save"
             },
             display: {
                 style: "margin: 0px 25px 0px 0px",
@@ -245,7 +253,7 @@ export default class SampleVariantStatsBrowser extends LitElement {
                 labelWidth: 3,
                 labelAlign: "right",
                 defaultValue: "",
-                defaultLayout: "horizontal",
+                defaultLayout: "horizontal"
             },
             sections: [
                 {
@@ -255,7 +263,7 @@ export default class SampleVariantStatsBrowser extends LitElement {
                             field: "id",
                             type: "input-text",
                             display: {
-                                placeholder: "Add a filter ID",
+                                placeholder: "Add a filter ID"
                             }
                         },
                         {
@@ -291,7 +299,7 @@ export default class SampleVariantStatsBrowser extends LitElement {
                     complexFields: ["genotype"],
                     hiddenFields: []
                 },
-                sections: [     // sections and subsections, structure and order is respected
+                sections: [ // sections and subsections, structure and order is respected
                     {
                         title: "Filters",
                         collapsed: false,
@@ -349,7 +357,7 @@ export default class SampleVariantStatsBrowser extends LitElement {
                         id: "INDEL LoF",
                         query: {
                             type: "INDEL",
-                            ct: "lof",
+                            ct: "lof"
                         }
                     }
                 ],
@@ -362,7 +370,7 @@ export default class SampleVariantStatsBrowser extends LitElement {
     }
 
     selectVariantStats(id, defaultQcVariantStats) {
-        let qcVariantStats = this.sample.qualityControl.variantMetrics.variantStats.find(qcVariantStats => qcVariantStats.id === id);
+        let qcVariantStats = this.sample.qualityControl[this._variantStatsPath].variantStats.find(qcVariantStats => qcVariantStats.id === id);
         if (!qcVariantStats && defaultQcVariantStats) {
             qcVariantStats = defaultQcVariantStats;
         }
@@ -385,18 +393,16 @@ export default class SampleVariantStatsBrowser extends LitElement {
                 <div style="font-weight: bold; margin: 5px 10px">${qcVvariantStats.id}</div>
                 <div style="margin: 5px 10px">${qcVvariantStats.description}</div>
                 <div class="help-block break-word" style="margin: 5px 10px;overflow-wrap: break-word;">
-                    ${qcVvariantStats.query 
-                        ? Object.entries(qcVvariantStats.query).map(([k, v]) => {
-                            if (k !== "study") {
-                                return html`<span class="break-word" style="overflow-wrap: break-word;"><span style="font-weight: bold">${k}:</span> ${UtilsNew.substring(v, 40)}</span><br>`;
-                            } else {
-                                if (Object.keys(qcVvariantStats.query).length === 1) {
-                                    // No fitlers applied
-                                    return html`<span></span>`;
-                                }
+                    ${qcVvariantStats.query ? Object.entries(qcVvariantStats.query).map(([k, v]) => {
+                        if (k !== "study") {
+                            return html`<span class="break-word" style="overflow-wrap: break-word;"><span style="font-weight: bold">${k}:</span> ${UtilsNew.substring(v, 40)}</span><br>`;
+                        } else {
+                            if (Object.keys(qcVvariantStats.query).length === 1) {
+                                // No fitlers applied
+                                return html`<span></span>`;
                             }
-                        })
-                        : null
+                        }
+                    }) : null
                     }
                 </div>
             </div>
@@ -409,11 +415,11 @@ export default class SampleVariantStatsBrowser extends LitElement {
         }
 
         return html`
-            ${this.sample && this._config.showTitle
-                ? html`
-                    <tool-header title="${this._config.title} - ${this.sample.id}" icon="${this._config.titleIcon}" class="${this._config.titleClass}"></tool-header>`
-                : null
-            }
+            ${this.sample && this._config.showTitle ?
+            html`
+                    <tool-header title="${this._config.title} - ${this.sample.id}" icon="${this._config.titleIcon}" class="${this._config.titleClass}"></tool-header>` :
+            null
+        }
             <div class="row">                
                 <div class="col-md-2 left-menu">
                     <opencga-variant-filter .opencgaSession=${this.opencgaSession}
@@ -438,18 +444,15 @@ export default class SampleVariantStatsBrowser extends LitElement {
                                     <span><i class="fas fa-folder-open icon-padding"></i>Load <span class="caret" style="padding-left: 5px"></span></span>
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="${this._prefix}ResetMenu" style="width: 360px">
-                                    <li style="margin: 5px 10px">
-                                        <span style="font-weight: bold">Saved Variant Stats</span>
-                                    </li>
-                                    ${this.sample?.qualityControl?.variantMetrics?.variantStats?.length > 0
-                                        ? this.sample.qualityControl.variantMetrics.variantStats.map(qcVariantStat => html`
+                                    <li style="padding: 3px 20px;"><b>Saved Variant Stats</b></li>
+                                    ${this.sample?.qualityControl?.[this._variantStatsPath]?.variantStats?.length > 0 ?
+                                        this.sample.qualityControl[this._variantStatsPath].variantStats.map(qcVariantStat => html`
                                             <li>
                                                 <a href="javascript:void(0);" data-id="${qcVariantStat.id}" @click="${e=> this.selectVariantStats(qcVariantStat.id)}">
                                                     ${this.renderQcVariantStatsSelectItem(qcVariantStat)}
                                                 </a>
-                                            </li>
-                                        `)
-                                        : html`<div style="margin: 5px 5px">No Variant Stats found</div>`
+                                            </li>`) :
+                                        html`<li style="padding: 3px 20px;" class="text-muted">No Variant Stats found</li>`
                                     }
                                 </ul>
                             </div>
@@ -477,29 +480,29 @@ export default class SampleVariantStatsBrowser extends LitElement {
                         </opencga-active-filters>
                       
                         <div class="main-view">
-                            ${this.loading
-                                ? html`
+                            ${this.loading ?
+                                html`
                                     <div id="loading">
                                         <loading-spinner></loading-spinner>
-                                    </div>`
-                                : this.sampleQcVariantStats
-                                    ? html`
+                                    </div>` :
+                                this.sampleQcVariantStats ?
+                                    html`
                                         <div style="padding: 0px 15px">
                                             <sample-variant-stats-view  .sampleVariantStats="${this.sampleQcVariantStats}" 
                                                                         .query="${this.sampleQcVariantStats.query}"
                                                                         .description="${this.sampleQcVariantStats.description}">
                                             </sample-variant-stats-view>
-                                        </div>`
-                                    : this.errorState
-                                        ? html`
+                                        </div>` :
+                                    this.errorState ?
+                                        html`
                                             <div id="error" class="alert alert-danger" role="alert">
-                                                ${this.errorState.messages.map( error => html`<p><b>${error.name}</b></p><p>${error.message}</p>`)}
-                                            </div>`
-                                        : html`
+                                                ${this.errorState.messages.map(error => html`<p><b>${error.name}</b></p><p>${error.message}</p>`)}
+                                            </div>` :
+                                        html`
                                             <div class="alert alert-info" role="alert" style="margin: 0px 15px">
                                                 <i class="fas fa-3x fa-info-circle align-middle"></i> Please select some filters on the left.
                                             </div>`
-                            }
+                                }
                         </div>
                     </div>
                 </div>

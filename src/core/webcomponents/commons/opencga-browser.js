@@ -243,6 +243,16 @@ export default class OpencgaBrowser extends LitElement {
         this.requestUpdate();
     }
 
+    // TODO review
+    // this is used only in case of Search button inside filter component. Only in Clinical Analysis Browser.
+    onQueryFilterSearch(e) {
+        this.dispatchEvent(new CustomEvent("querySearch", {
+            detail: {
+                query: e.detail.query
+            }
+        }));
+    }
+
     onActiveFilterChange(e) {
         // console.log("onActiveFilterChange");
         this.preparedQuery = {study: this.opencgaSession.study.fqn, ...e.detail};
@@ -436,7 +446,7 @@ export default class OpencgaBrowser extends LitElement {
                     <div class="col-md-2">
                         <div class="search-button-wrapper">
                             <button type="button" class="btn btn-primary ripple" @click="${this.onRun}">
-                                <i class="fa fa-arrow-circle-right" aria-hidden="true"></i> ${this._config.searchButtonText || "Run"}
+                                <i class="fa fa-arrow-circle-right" aria-hidden="true"></i> ${this._config.searchButtonText || "Search"}
                             </button>
                         </div>
                         <ul class="nav nav-tabs left-menu-tabs" role="tablist">
@@ -452,7 +462,6 @@ export default class OpencgaBrowser extends LitElement {
                                     <opencga-file-filter    .opencgaSession="${this.opencgaSession}"
                                                             .config="${this._config.filter}"
                                                             .query="${this.query}"
-                                                            .searchButton="${false}"
                                                             @queryChange="${this.onQueryFilterChange}"
                                                             @querySearch="${this.onQueryFilterSearch}">
                                     </opencga-file-filter>
@@ -462,7 +471,6 @@ export default class OpencgaBrowser extends LitElement {
                                     <sample-browser-filter  .opencgaSession="${this.opencgaSession}"
                                                             .config="${this._config.filter}"
                                                             .query="${this.query}"
-                                                            .searchButton="${false}"
                                                             @queryChange="${this.onQueryFilterChange}"
                                                             @querySearch="${this.onQueryFilterSearch}">
                                     </sample-browser-filter>
@@ -472,7 +480,6 @@ export default class OpencgaBrowser extends LitElement {
                                     <opencga-individual-filter  .opencgaSession="${this.opencgaSession}"
                                                                 .config="${this._config.filter}"
                                                                 .query="${this.query}"
-                                                                .searchButton="${false}"
                                                                 @queryChange="${this.onQueryFilterChange}"
                                                                 @querySearch="${this.onQueryFilterSearch}">
                                     </opencga-individual-filter>
@@ -482,7 +489,6 @@ export default class OpencgaBrowser extends LitElement {
                                     <opencga-family-filter  .opencgaSession="${this.opencgaSession}"
                                                             .config="${this._config.filter}"
                                                             .query="${this.query}"
-                                                            .searchButton="${false}"
                                                             @queryChange="${this.onQueryFilterChange}"
                                                             @querySearch="${this.onQueryFilterSearch}">
                                     </opencga-family-filter>
@@ -493,7 +499,6 @@ export default class OpencgaBrowser extends LitElement {
                                                             .config="${this._config.filter}"
                                                             .query="${this.query}"
                                                             .variableSets="${this.variableSets}"
-                                                            .searchButton="${false}"
                                                             @queryChange="${this.onQueryFilterChange}"
                                                             @querySearch="${this.onQueryFilterSearch}">
                                     </opencga-cohort-filter>
@@ -503,7 +508,6 @@ export default class OpencgaBrowser extends LitElement {
                                     <opencga-clinical-analysis-filter   .opencgaSession="${this.opencgaSession}"
                                                                         .config="${this._config.filter}"
                                                                         .query="${this.query}"
-                                                                        .searchButton="${false}"
                                                                         @queryChange="${this.onQueryFilterChange}"
                                                                         @querySearch="${this.onQueryFilterSearch}">
                                     </opencga-clinical-analysis-filter>
@@ -515,7 +519,6 @@ export default class OpencgaBrowser extends LitElement {
                                                         .files="${this.files}"
                                                         .query="${this.query}"
                                                         .variableSets="${this.variableSets}"
-                                                        .searchButton="${false}"
                                                         @queryChange="${this.onQueryFilterChange}"
                                                         @querySearch="${this.onQueryFilterSearch}">
                                     </opencga-job-filter>
