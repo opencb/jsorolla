@@ -401,9 +401,9 @@ export default class UtilsNew {
      * If an object with a certain Id is present in the internal array but not in the external, it won't be present in the returning array.
      * The other way around, if an object with a certain Id is present in the external array but not in the internal, it will be added only if `force` flag is true.
      *
-     * @param internal {Array}
-     * @param external {Array}
-     * @param force {Boolean} force external object addition even if there is no object with the same id in `internal`
+     * @param {Array} internal
+     * @param {Array} external
+     * @param {Boolean} force  force external object addition even if there is no object with the same id in `internal`
      * @returns {Array} hydrated array
      */
     static mergeConfigArray(internal, external, force = false) {
@@ -431,8 +431,8 @@ export default class UtilsNew {
      * @deprecated
      * It merges external filter list with internal one. It support reorganisation of sections.
      *
-     * @param internal {Array}
-     * @param external {Array}
+     * @param {Array} internal
+     * @param {Array} external
      * @returns {Array} hydrated array
      */
     static mergeFiltersOld(internal, external) {
@@ -454,8 +454,8 @@ export default class UtilsNew {
      * It merges external filter list with internal one.
      * It doesn't support sections reorder and fields reorganisation among sections. Sections are fixed from the internal config.
      *
-     * @param internal {Array} Filter object
-     * @param external {Array} Simplified filter object
+     * @param {Array} internal Filter object
+     * @param {Array} external Simplified filter object
      * @returns {Object} hydrated array
      */
     static mergeFilters(internal, external) {
@@ -487,8 +487,8 @@ export default class UtilsNew {
      * Hydrates `external` array with `internal` data.
      * `external` is a plain list of IDs.
      *
-     * @param internal {Array} Array of objects
-     * @param external {Array} List of IDs
+     * @param {Array} internal Array of objects
+     * @param {Array} external List of IDs
      * @returns {Array} hydrated array
      */
     static mergeConfigById(internal, external) {
@@ -513,9 +513,9 @@ export default class UtilsNew {
      * The fields at the second level are hidden iff the corresponding field at the first level is hidden.
      * At the moment it doesn't handle >2D arrays.
      *
-     * @param internal {Array} 1D or 2D array
-     * @param external {Array} plain array of strings.
-     * @return {Array} filtered array.
+     * @param {Array} internal 1D or 2D array
+     * @param {Array} external plain array of strings.
+     * @returns {Array} filtered array.
      */
     static mergeTable(internal, external) {
         // single array
@@ -547,9 +547,10 @@ export default class UtilsNew {
     /**
      * It merges objects with the same Ids overwriting internal fields with the external ones.
      * For the rest of object (present EITHER in internal or external arrays) it acts like an outer join.
+     * Useful for merging canned filters.
      *
-     * @param internal {Array} 1D or 2D array
-     * @param external {Array} plain array of strings.
+     * @param {Array} internal 1D or 2D array
+     * @param {Array} external plain array of strings.
      * @returns {Array} filtered array.
      */
     static joinArray(internal, external) {
@@ -571,6 +572,33 @@ export default class UtilsNew {
         } else {
             return internal;
         }
+    }
+
+    /**
+     * It filters internal data-form config object with the fields defined in `external` array. Sections are fixed.
+     * NOTE very similar logic as mergeFilters()
+     *
+     * @param {Object} internal data-form config object
+     * @param {Array} external plain array of fields to show.
+     * @returns {Object} filtered array.
+     */
+    static mergeDataFormConfig(internal, external) {
+        if (external?.length) {
+            const sections = internal.sections.map(section => {
+                const fields = [];
+                for (const ex of external) {
+                    const internalField = section.elements.find(field => field.id === ex.id);
+                    if (internalField) {
+                        fields.push({...internalField, ...ex});
+                    } else {
+                        console.warn(`Field "${ex.id}" not found merging user settings`);
+                    }
+                }
+                return {...section, elements: fields};
+            });
+            return {...internal, sections};
+        }
+        return internal;
     }
 
 }
