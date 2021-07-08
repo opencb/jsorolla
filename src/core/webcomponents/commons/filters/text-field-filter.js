@@ -75,7 +75,7 @@ export default class TextFieldFilter extends LitElement {
         if (this.separator) {
             value = e.target.value ?
                 e.target.value.trim()
-                    .replace(/\s/g, "")
+                    // .replace(/\s/g, "") // this prevents using values with more than 1 word (e.g. "Cardiovascular disorders")
                     .split((new RegExp(`[${this.separator}]`)))
                     .filter(Boolean)
                     .join(this.separator) :
