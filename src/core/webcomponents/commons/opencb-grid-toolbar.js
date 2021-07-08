@@ -162,7 +162,7 @@ export default class OpencbGridToolbar extends LitElement {
                     </div>
                     <div id="${this._prefix}toolbar" class="col-md-6">
                         <div class="form-inline text-right pull-right">
-                            ${~this._config.buttons.indexOf("columns") && this._config.columns.length ? html`
+                            ${this._config.showColumns && this._config.columns.length ? html`
                                 <div class="btn-group columns-toggle-wrapper">
                                     <button type="button" class="btn btn-default ripple btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                         <i id="${this._prefix}ColumnIcon" class="fa fa-columns icon-padding" aria-hidden="true"></i> Columns <span class="caret"></span>
@@ -182,7 +182,7 @@ export default class OpencbGridToolbar extends LitElement {
                             ` : null
                             }
             
-                            ${~this._config.buttons.indexOf("download") ? html`
+                            ${this._config.showDownload ? html`
                                 <div class="btn-group">
                                     <button type="button" class="btn btn-default ripple btn-sm dropdown-toggle" data-toggle="dropdown"
                                             aria-haspopup="true" aria-expanded="false">
@@ -198,9 +198,10 @@ export default class OpencbGridToolbar extends LitElement {
                             ` : null
                             }
                             
-                            ${~this._config.buttons.indexOf("export") ? html`
+                            ${this._config.showExport ? html`
                                 <div class="btn-group">
                                     <button type="button" class="btn btn-default ripple btn-sm" @click="${this.openModal}">
+                                        ${this.config?.downloading === true ? html`<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>` : null}
                                         <i class="fa fa-download icon-padding" aria-hidden="true"></i> Export
                                     </button>
                                 </div>
@@ -208,8 +209,8 @@ export default class OpencbGridToolbar extends LitElement {
 
             
                             <!--Share URL-->
-                            ${this.showShareLink ? html`
-                                <button type="button" class="btn btn-default btn-sm" data-toggle="popover" data-placement="bottom" @click="onShareLink">
+                            ${this._config.showShareLink ? html`
+                                <button type="button" class="btn btn-default btn-sm" data-toggle="popover" data-placement="bottom" @click="${this.onShareLink}">
                                     <i class="fa fa-share-alt icon-padding" aria-hidden="true"></i> Share
                                 </button>
                             ` : null

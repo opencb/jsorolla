@@ -172,9 +172,9 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
         // Config for the grid toolbar
         this.toolbarConfig = {
             ...this._config.toolbar,
-            columns: this._getDefaultColumns().filter(col => col.field && col.visible)
+            newButtonLink: "#clinical-analysis-writer/",
+            columns: this._getDefaultColumns().filter(col => col.field && (!col.visible || col.visible === true))
         };
-
         this.renderTable();
         this.requestUpdate();
     }
@@ -780,9 +780,8 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                 horizontalAlign: "center",
                 verticalAlign: "bottom"
             },
-            columns: {
-                hidden: []
-            }
+            // it comes from external settings and it is used in _getDefaultColumns()
+            // columns: []
         };
     }
 
