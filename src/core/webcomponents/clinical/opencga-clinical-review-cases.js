@@ -109,7 +109,10 @@ export default class OpencgaClinicalReviewCases extends LitElement {
 
     settingsObserver() {
         this._config = {...this.getDefaultConfig(), ...this.config};
-        this._config.filter = UtilsNew.mergeFilters(this._config?.filter, this.settings.menu);
+        // filter list and canned filters
+        if (this.settings?.menu) {
+            this._config.filter = UtilsNew.mergeFilters(this._config?.filter, this.settings.menu);
+        }
 
         // TODO continue refactor
         // 1. columns array is in opencga-clinical-analysis-grid
@@ -119,6 +122,9 @@ export default class OpencgaClinicalReviewCases extends LitElement {
         this._config.grid = {...this._config.grid, ...this.settings.table};
         if (this.settings?.table?.toolbar) {
             this._config.grid.toolbar = {...this._config.grid.toolbar, ...this.settings.table.toolbar};
+        }
+        if (this.settings?.view) {
+            this._config.view = {...this._config.view, ...this.settings.view};
         }
         this.requestUpdate();
     }
@@ -405,7 +411,8 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                     showExport: true,
                     showDownload: true
                 }
-            }
+            },
+            view: {}
         };
     }
 
@@ -695,7 +702,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                             <div>
                                                 <opencga-clinical-analysis-view .opencgaSession="${this.opencgaSession}"
                                                                                 .clinicalAnalysisId=${this.clinicalAnalysis.id}
-                                                                                .config="${this.config}">
+                                                                                .config="${this._config.view}">
                                                 </opencga-clinical-analysis-view>
                                             </div>
                                         </div>

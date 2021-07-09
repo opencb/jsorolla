@@ -67,6 +67,13 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
 
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
+
+            if (this.config?.fields?.length) {
+                this._config.hiddenFields = null;
+                this._config = UtilsNew.mergeDataFormConfig(this._config, this.config.fields);
+            } else if (this.config?.hiddenFields?.length) {
+                this._config.hiddenFields = this.config.hiddenFields;
+            }
         }
     }
 
@@ -89,7 +96,8 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
         return {
             title: "Summary",
             icon: "",
-            hiddenFields: OpencgaClinicalAnalysisViewSettings.hiddenFields,
+            // comes from external settings
+            // hiddenFields: [],
             display: {
                 collapsable: true,
                 showTitle: false,
@@ -179,6 +187,7 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                         {
                             name: "Disorder",
                             field: "disorder",
+                            id: "type",
                             type: "custom",
                             display: {
                                 render: disorder => UtilsNew.renderHTML(CatalogGridFormatter.disorderFormatter(disorder))
