@@ -112,8 +112,8 @@ export default class VariantBrowserGrid extends LitElement {
         const fieldToHide = ["deleteriousness", "cohorts", "conservation", "popfreq", "phenotypes", "clinicalInfo"];
         // Config for the grid toolbar
         this.toolbarConfig = {
+            ...this._config.toolbar,
             resource: "VARIANT",
-            buttons: ["columns", "download"],
             columns: this._createDefaultColumns()
                 .flat()
                 .filter(f => f.title && !fieldToHide.includes(f.field) && (f.visible ?? true))
@@ -522,6 +522,7 @@ export default class VariantBrowserGrid extends LitElement {
         this._columns = [
             [
                 {
+                    id: "id",
                     title: "Variant",
                     field: "id",
                     rowspan: 2,
@@ -530,6 +531,7 @@ export default class VariantBrowserGrid extends LitElement {
                     halign: "center"
                 },
                 {
+                    id: "gene",
                     title: "Gene",
                     field: "gene",
                     rowspan: 2,
@@ -538,6 +540,7 @@ export default class VariantBrowserGrid extends LitElement {
                     halign: "center"
                 },
                 {
+                    id: "type",
                     title: "Type",
                     field: "type",
                     rowspan: 2,
@@ -546,6 +549,7 @@ export default class VariantBrowserGrid extends LitElement {
                     halign: "center"
                 },
                 {
+                    id: "consequenceType",
                     title: "Consequence Type",
                     field: "consequenceType",
                     rowspan: 2,
@@ -554,6 +558,7 @@ export default class VariantBrowserGrid extends LitElement {
                     halign: "center"
                 },
                 {
+                    id: "deleteriousness",
                     title: `Deleteriousness <a tooltip-title="Deleteriousness" tooltip-text="SIFT scores are classified into tolerated and deleterious.
                         Polyphen scores are classified into benign, possibly damaging, probably damaging and possibly & probably damaging.
                         Please, leave the cursor over each tag to visualize the actual score value.
@@ -566,7 +571,7 @@ export default class VariantBrowserGrid extends LitElement {
                     align: "center"
                 },
                 {
-                    // eslint-disable-next-line max-len
+                    id: "conservation",
                     title: "Conservation  <a tooltip-title='Conservation' tooltip-text=\"Positive PhyloP scores measure conservation which is slower evolution than expected, at sites that are predicted to be conserved. Negative PhyloP scores measure acceleration, which is faster evolution than expected, at sites that are predicted to be fast-evolving. Absolute values of phyloP scores represent -log p-values under a null hypothesis of neutral evolution. The phastCons scores represent probabilities of negative selection and range between 0 and 1. Positive GERP scores represent a substitution deficit and thus indicate that a site may be under evolutionary constraint. Negative scores indicate that a site is probably evolving neutrally. Some authors suggest that a score threshold of 2 provides high sensitivity while still strongly enriching for truly constrained sites\"><i class=\"fa fa-info-circle\" aria-hidden=\"true\"></i></a>",
                     field: "conservation",
                     rowspan: 1,
@@ -574,6 +579,7 @@ export default class VariantBrowserGrid extends LitElement {
                     align: "center"
                 },
                 {
+                    id: "samples",
                     title: "Samples",
                     field: "samples",
                     rowspan: 1,
@@ -582,6 +588,7 @@ export default class VariantBrowserGrid extends LitElement {
                     visible: sampleColumns.length > 0 && sampleColumns[0].visible === undefined
                 },
                 {
+                    id: "cohorts",
                     title: `Cohort Stats <a id="cohortStatsInfoIcon" tooltip-title="Cohort Stats" tooltip-text="${VariantGridFormatter.populationFrequenciesInfoTooltipContent(this.populationFrequencies)}"><i class="fa fa-info-circle" aria-hidden="true"></i></a>`,
                     field: "cohorts",
                     rowspan: 1,
@@ -590,6 +597,7 @@ export default class VariantBrowserGrid extends LitElement {
                     visible: cohortColumns.length > 0 && cohortColumns[0].visible === undefined
                 },
                 {
+                    id: "popfreq",
                     title: `Population Frequencies <a class="popFreqInfoIcon" tooltip-title="Population Frequencies" tooltip-text="${VariantGridFormatter.populationFrequenciesInfoTooltipContent(this.populationFrequencies)}" tooltip-position-at="left bottom" tooltip-position-my="right top"><i class="fa fa-info-circle" aria-hidden="true"></i></a>`,
                     field: "popfreq",
                     rowspan: 1,
@@ -598,6 +606,7 @@ export default class VariantBrowserGrid extends LitElement {
                     visible: populationFrequencyColumns.length > 0 && populationFrequencyColumns[0].visible === undefined
                 },
                 {
+                    id: "clinicalInfo",
                     title: `Clinical Info <a id="phenotypesInfoIcon" tooltip-title="Phenotypes" tooltip-text="
                                 <div>
                                     <span style='font-weight: bold'>ClinVar</span> is a freely accessible, public archive of reports of the relationships among human variations 
@@ -704,6 +713,8 @@ export default class VariantBrowserGrid extends LitElement {
             ]
         ];
 
+        // TODO debug mergeTable
+        this._columns = UtilsNew.mergeTable(this._columns, this._config.columns);
         return this._columns;
     }
 

@@ -70,7 +70,7 @@ export default class VariantBrowser extends LitElement {
             cohorts: {
                 type: Array
             },
-            config: {
+            settings: {
                 type: Object
             }
         };
@@ -102,23 +102,47 @@ export default class VariantBrowser extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
+        this._config = {...this.getDefaultConfig()};
     }
 
     update(changedProperties) {
+        if (changedProperties.has("settings")) {
+            this.settingsObserver();
+        }
         if (changedProperties.has("opencgaSession")) {
             this.opencgaSessionObserver();
-            this._config = {...this.getDefaultConfig(), ...this.config};
+            //this._config = {...this.getDefaultConfig(), ...this.config};
         }
         if (changedProperties.has("query")) {
             this.queryObserver();
         }
-        if (changedProperties.has("config")) {
+        /*if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
-        }
+        }*/
         if (changedProperties.has("selectedFacet")) {
             this.facetQueryBuilder();
         }
         super.update(changedProperties);
+    }
+
+    settingsObserver() {
+        // console.log("settingsObserver")
+        this._config = {...this.getDefaultConfig(), ...this.config};
+        // filter list and canned filters
+        if (this.settings?.menu) {
+            this._config.filter = UtilsNew.mergeFilters(this._config?.filter, this.settings.menu);
+        }
+
+        if (this.settings?.table) {
+            this._config.grid = {...this._config.grid, ...this.settings.table};
+        }
+        if (this.settings?.table?.toolbar) {
+            this._config.grid.toolbar = {...this._config.grid.toolbar, ...this.settings.table.toolbar};
+        }
+        /*if (this.settings?.view) {
+            this._config.view = {...this._config.view, ...this.settings.view};
+        }*/
+        this.requestUpdate();
     }
 
     opencgaSessionObserver() {
@@ -748,7 +772,7 @@ export default class VariantBrowser extends LitElement {
                                                       .populationFrequencies="${this.populationFrequencies}"
                                                       .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
                                                       .consequenceTypes="${this.consequenceTypes}"
-                                                      .config="${this._config.filter}"
+                                                      .config="${this._config.grid}"
                                                       @selectrow="${this.onSelectVariant}">
                                 </variant-browser-grid>
 
