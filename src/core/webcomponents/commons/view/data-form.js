@@ -291,41 +291,43 @@ export default class DataForm extends LitElement {
         const sectionStyle = section?.display?.style ?? "";
 
         // Section 'elements' array has just one dimension
-        if (!Array.isArray(section.elements[0])) {
-            // const sectionWidth = section?.display?.width ? `col-md-${section?.display?.width}` : "col-md-12";
-            const sectionWidth = "col-md-" + this._getSectionWidth(section);
-            return html`
-                <div class="row" style="">
-                    ${section.title ? this._getTitleHeader(titleHeader, section.title, sectionTitleClass, sectionTitleStyle) : null}
-                    ${section.text ? html`
-                        <div class="${section.display?.textClass ? section.display.textClass : ""}" style="${section.display?.textStyle ? section.display.textStyle : ""}">
-                            <span>${section.text}</span>
-                        </div>` : null
-                    }
-                    <div class="${sectionWidth} ${sectionClasses}" style="${sectionStyle}">    
-                        <div class="">
-                            ${section.elements.map(element => this._createElement(element, section))}
-                        </div>
-                    </div>
-                </div>
-            `;
-        } else { // Field 'elements' array has two dimensions
-            const leftColumnWidth = section?.display?.leftColumnWith ? section.display.leftColumnWith : 6;
-            const rightColumnWidth = section?.display?.rightColumnWith ? section.display.rightColumnWith : 6;
-            const columnSeparatorStyle = (section.display && section.display.columnSeparatorStyle) ? section.display.columnSeparatorStyle : "";
-            return html`
-                <div>
+        if (section?.elements?.length) {
+            if (!Array.isArray(section.elements[0])) {
+                // const sectionWidth = section?.display?.width ? `col-md-${section?.display?.width}` : "col-md-12";
+                const sectionWidth = "col-md-" + this._getSectionWidth(section);
+                return html`
                     <div class="row" style="">
-                        ${section.title ? html`<h3 class="${sectionTitleClass}" style="${sectionTitleStyle}">${section.title}</h3>` : null}
-                        <div class="col-md-${leftColumnWidth} ${sectionClasses}" style="${columnSeparatorStyle} ${sectionStyle}">
-                            ${section.elements[0].map(element => this._createElement(element, section))}
-                        </div>
-                        <div class="col-md-${rightColumnWidth} ${sectionClasses}" style="padding-left: 25px; ${sectionStyle}">
-                            ${section.elements[1].map(element => this._createElement(element, section))}
+                        ${section.title ? this._getTitleHeader(titleHeader, section.title, sectionTitleClass, sectionTitleStyle) : null}
+                        ${section.text ? html`
+                            <div class="${section.display?.textClass ? section.display.textClass : ""}" style="${section.display?.textStyle ? section.display.textStyle : ""}">
+                                <span>${section.text}</span>
+                            </div>` : null
+                        }
+                        <div class="${sectionWidth} ${sectionClasses}" style="${sectionStyle}">
+                            <div class="">
+                                ${section.elements.map(element => this._createElement(element, section))}
+                            </div>
                         </div>
                     </div>
-                </div>
-            `;
+                `;
+            } else { // Field 'elements' array has two dimensions
+                const leftColumnWidth = section?.display?.leftColumnWith ? section.display.leftColumnWith : 6;
+                const rightColumnWidth = section?.display?.rightColumnWith ? section.display.rightColumnWith : 6;
+                const columnSeparatorStyle = (section.display && section.display.columnSeparatorStyle) ? section.display.columnSeparatorStyle : "";
+                return html`
+                    <div>
+                        <div class="row" style="">
+                            ${section.title ? html`<h3 class="${sectionTitleClass}" style="${sectionTitleStyle}">${section.title}</h3>` : null}
+                            <div class="col-md-${leftColumnWidth} ${sectionClasses}" style="${columnSeparatorStyle} ${sectionStyle}">
+                                ${section.elements[0].map(element => this._createElement(element, section))}
+                            </div>
+                            <div class="col-md-${rightColumnWidth} ${sectionClasses}" style="padding-left: 25px; ${sectionStyle}">
+                                ${section.elements[1].map(element => this._createElement(element, section))}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
         }
     }
 
