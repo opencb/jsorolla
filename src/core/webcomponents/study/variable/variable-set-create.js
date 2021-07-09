@@ -194,6 +194,7 @@ export default class VariableSetCreate extends LitElement {
                                     <variable-list-manager
                                         .opencgaSession="${this.opencgaSession}"
                                         .variables="${this.variableSet?.variables}"
+                                        .readOnly=${false}
                                         @changeVariables="${e => this.onSyncVariables(e)}">
                                     </variable-list-manager>`
                             }

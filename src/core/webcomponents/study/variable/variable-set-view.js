@@ -165,8 +165,26 @@ export default class VariableSetView extends LitElement {
                             name: "Description",
                             field: "description"
                         },
+                        {
+                            name: "Variables",
+                            field: "variables",
+                            type: "custom",
+                            display: {
+                                layout: "vertical",
+                                defaultLayout: "vertical",
+                                width: 12,
+                                style: "padding-left: 0px",
+                                render: () => html`
+                                    <variable-list-manager
+                                        .opencgaSession=${this.opencgaSession}
+                                        .variables=${this.variableSet?.variables}
+                                        .readOnly=${true}>
+                                    </variable-list-manager>
+                                `
+                            }
+                        }
                     ]
-                }
+                },
             ]
         };
     }
