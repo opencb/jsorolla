@@ -99,7 +99,7 @@ class ClinicalAnalysisEditor extends LitElement {
         if (this.opencgaSession && this.clinicalAnalysis) {
             this._clinicalAnalysis = JSON.parse(JSON.stringify(this.clinicalAnalysis));
 
-            this.flags = this.opencgaSession.study.configuration.clinical.flags[this.clinicalAnalysis.type.toUpperCase()].map(flag => flag.id);
+            this.flags = this.opencgaSession.study.configuration?.clinical.flags[this.clinicalAnalysis.type.toUpperCase()].map(flag => flag.id);
             this.requestUpdate();
         }
     }
@@ -157,7 +157,7 @@ class ClinicalAnalysisEditor extends LitElement {
     }
 
     renderFlags(flags) {
-        const studyFlags = this.opencgaSession.study.configuration.clinical.flags[this.clinicalAnalysis.type.toUpperCase()].map(flag => flag.id);
+        const studyFlags = this.opencgaSession.study.configuration?.clinical.flags[this.clinicalAnalysis.type.toUpperCase()].map(flag => flag.id);
         const selectedValues = flags.map(flag => flag.id).join(",");
         return html`
             <div class="">

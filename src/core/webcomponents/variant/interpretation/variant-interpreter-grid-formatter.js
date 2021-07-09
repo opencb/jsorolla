@@ -384,19 +384,19 @@ export default class VariantInterpreterGridFormatter {
                 }
 
                 let transcriptFlagHtml = ["-"];
-                if ((ct.transcriptId || ct.ensemblTranscriptId) && (ct?.transcriptFlags?.length > 0 || ct?.transcriptAnnotationFlags?.length > 0)) {
+                if ((ct?.transcriptId || ct?.ensemblTranscriptId) && (ct?.transcriptFlags?.length > 0 || ct?.transcriptAnnotationFlags?.length > 0)) {
                     transcriptFlagHtml = ct.transcriptFlags ?
                         ct.transcriptFlags.map(flag => `<div style="margin-bottom: 5px">${flag}</div>`) :
                         ct.transcriptAnnotationFlags.map(flag => `<div style="margin-bottom: 5px">${flag}</div>`);
                 }
 
                 let panel = "-";
-                if (UtilsNew.isNotUndefinedOrNull(re.panelId)) {
+                if (re.panelId) {
                     panel = re.panelId;
                 }
 
                 let moi = "-";
-                if (UtilsNew.isNotUndefinedOrNull(re.modeOfInheritance)) {
+                if (re.modeOfInheritance) {
                     moi = re.modeOfInheritance;
                 }
 
@@ -417,11 +417,12 @@ export default class VariantInterpreterGridFormatter {
 
                 let tier = "-";
                 let color = "black";
-                if (UtilsNew.isNotUndefinedOrNull(re.tier)) {
-                    color = (re.tier === "Tier1" || re.tier === "Tier 1") ? "red" : color;
-                    color = (re.tier === "Tier2" || re.tier === "Tier 2") ? "darkorange" : color;
-                    color = (re.tier === "Tier3" || re.tier === "Tier 3") ? "blue" : color;
-                    tier = `<span style="color: ${color}">${re.tier}</span>`;
+                if (re.classification?.tier) {
+                    const tierClassification = re.classification.tier?.toUpperCase();
+                    color = (tierClassification === "TIER1" || tierClassification === "TIER 1") ? "red" : color;
+                    color = (tierClassification === "TIER2" || tierClassification === "TIER 2") ? "darkorange" : color;
+                    color = (tierClassification === "TIER3" || tierClassification === "TIER 3") ? "blue" : color;
+                    tier = `<span style="color: ${color}">${re.classification.tier}</span>`;
                 }
 
                 let clinicalSignificance = "-";
@@ -517,7 +518,8 @@ export default class VariantInterpreterGridFormatter {
             const sampleId = this.field.sampleId;
             let sampleEntries = [row.studies[0].samples.find(s => s.sampleId === sampleId)];
 
-            if (!sampleEntries) {
+            // If not sampleId is found and there is only one sample we take that one
+            if (!sampleEntries && row.studies[0].samples?.length === 1) {
                 sampleEntries = [row.studies[0].samples[0]];
             }
 
@@ -538,7 +540,6 @@ export default class VariantInterpreterGridFormatter {
 
                 // Render genotypes
                 let content;
-                debugger;
                 switch (this.field.config.genotype.type.toUpperCase()) {
                     case "ALLELES":
                         content = VariantInterpreterGridFormatter.alleleGenotypeRenderer(row, sampleEntry, "alleles");

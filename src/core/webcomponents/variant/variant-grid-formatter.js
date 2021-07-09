@@ -66,7 +66,7 @@ export default class VariantGridFormatter {
         let alt = row.alternate ? row.alternate : "-";
 
         // Check size
-        const maxAlleleLength = config?.alleleStringLengthMax ? config.alleleStringLengthMax : 10;
+        const maxAlleleLength = config?.alleleStringLengthMax ? config.alleleStringLengthMax : 20;
         ref = (ref.length > maxAlleleLength) ? ref.substring(0, 4) + "..." + ref.substring(ref.length - 4) : ref;
         alt = (alt.length > maxAlleleLength) ? alt.substring(0, 4) + "..." + alt.substring(alt.length - 4) : alt;
 
@@ -255,7 +255,8 @@ export default class VariantGridFormatter {
         if (type.toUpperCase() === "INFO") {
             return row.studies[0].files[0].data[field];
         } else {
-            // return row.studies[0].samples[0].data[field];
+            const index = row.studies[0].sampleDataKeys.findIndex(f => f === field);
+            return row.studies[0].samples[0].data[index];
         }
     }
 
@@ -293,7 +294,7 @@ export default class VariantGridFormatter {
         }
     }
 
-    static consequenceTypeFormatter(value, row, index, gridCtSettings, consequenceTypeColors) {
+    static consequenceTypeFormatter(value, row, index, gridCtSettings) {
         if (row?.annotation && row.annotation.consequenceTypes?.length > 0) {
             const {selectedConsequenceTypes, notSelectedConsequenceTypes, indexes} =
                 VariantGridFormatter._consequenceTypeDetailFormatterFilter(row.annotation.consequenceTypes, gridCtSettings);
@@ -459,7 +460,7 @@ export default class VariantGridFormatter {
             return;
         }
 
-        let hgvs = hgvsArray.find(hgvs => hgvs.startsWith(id));
+        let hgvs = hgvsArray?.find(hgvs => hgvs.startsWith(id));
         if (hgvs) {
             if (hgvs.includes("(")) {
                 const split = hgvs.split(new RegExp("[()]"));

@@ -62,7 +62,7 @@ class VariantInterpreterBrowser extends LitElement {
         this._prefix = UtilsNew.randomString(8);
 
         this.activeTab = {"VariantBrowser": true}; // default active tab
-        this.showRearrangementBrowser = false;
+        this.showRearrangementBrowser = true;
     }
 
     updated(changedProperties) {
