@@ -288,7 +288,7 @@ export default class VariableListManager extends LitElement {
                             <div class="col-md-8">
                                 <span style="margin-left:14px">${item.id} (${item.type})</span>
                             </div>
-                            <div class="col-md-4"  style=${this.readOnly? "display:none":""}>
+                            <div class="col-md-4" style=${this.readOnly? "display:none":""}>
                                 <div class="btn-group pull-right" style="padding-bottom:5px" role="group">
                                     <button type="button" class="btn btn-primary btn-xs"
                                         @click="${e => this.onShowVariableManager(e, {parent: parentItemOf(item), action: "EDIT", variable: item})}">Edit</button>
@@ -360,7 +360,8 @@ export default class VariableListManager extends LitElement {
                 Add Variable</button>
             </div>
         </div>
-        <div id="variableManagerModal" class="modal fade" tabindex="-1" role="dialog" >
+        ${!this.readOnly ?html `
+        <div id="variableManagerModal" class="modal fade" tabindex="-1" role="dialog">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -378,6 +379,7 @@ export default class VariableListManager extends LitElement {
                 </div>
             </div>
         </div>
+        `: html` `}
     `;
     }
 
