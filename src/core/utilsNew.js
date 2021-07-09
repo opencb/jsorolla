@@ -470,7 +470,7 @@ export default class UtilsNew {
                     if (internalField) {
                         fields.push({...internalField, ...ex});
                     } else {
-                        console.warn(`Field "${ex.id}" not found merging user settings`);
+                        // console.warn(`Field "${ex.id}" not found merging user settings`);
                     }
                 }
                 return {...section, fields: fields};
@@ -576,7 +576,7 @@ export default class UtilsNew {
 
     /**
      * It filters internal data-form config object with the fields defined in `external` array. Sections are fixed.
-     * NOTE very similar logic as mergeFilters()
+     * NOTE very similar logic as mergeFilters() (although here `external` is an array of strings)
      *
      * @param {Object} internal data-form config object
      * @param {Array} external plain array of fields to show.
@@ -587,11 +587,11 @@ export default class UtilsNew {
             const sections = internal.sections.map(section => {
                 const fields = [];
                 for (const ex of external) {
-                    const internalField = section.elements.find(field => field.id === ex.id);
+                    const internalField = section.elements.find(field => field.id === ex);
                     if (internalField) {
-                        fields.push({...internalField, ...ex});
+                        fields.push({...internalField});
                     } else {
-                        console.warn(`Field "${ex.id}" not found merging user settings`);
+                        // console.warn(`Field "${ex}" not found merging user settings`);
                     }
                 }
                 return {...section, elements: fields};
