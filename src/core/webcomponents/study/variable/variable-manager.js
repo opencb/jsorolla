@@ -48,11 +48,11 @@ export default class VariableManager extends LitElement {
 
     _init() {
         this.variable = {};
-        this.configToken = {
-            placeholder: "Type something to start",
-            delimiter: [",", "-"],
-            tokensAllowCustom: true,
-        };
+        // this.configToken = {
+        //     placeholder: "Type something to start",
+        //     delimiter: [",", "-"],
+        //     tokensAllowCustom: true,
+        // };
         this.mapType = ["MAP_BOOLEAN", "MAP_INTEGER", "MAP_DOUBLE", "MAP_STRING"];
         this.ComplexType = ["MAP_", "OBJECT"];
 
@@ -146,7 +146,6 @@ export default class VariableManager extends LitElement {
                                 render: () => html`
                                     <select-field-token
                                         .values="${this.variable?.allowedValues}"
-                                        .configToken="${this.configToken}"
                                         @addToken=${e => this.onAddValues(e)}>
                                     </select-field-token>`
                             }
@@ -160,7 +159,6 @@ export default class VariableManager extends LitElement {
                                 render: () => html `
                                 <select-field-token
                                     .values="${this.variable?.allowedKeys}"
-                                    .configToken="${this.configToken}"
                                     @addToken=${e => this.onAddValues(e)}>
                                 </select-field-token>
                                 `

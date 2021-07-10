@@ -460,9 +460,9 @@ export default class DataForm extends LitElement {
                             ${content}
                             </div>
                             ${element.display?.help ? html `
-                            <div class="col-md-1" style="padding:0%; margin-top:6px" title="${element.display.help.text}">
-                                <span><i class="${this._getHelpIcon(element, section)}"></i></span>
-                            </div>` : null
+                                <div class="col-md-1" style="padding:0%; margin-top:6px" title="${element.display.help.text}">
+                                    <span><i class="${this._getHelpIcon(element, section)}"></i></span>
+                                </div>` : null
                             }
                         </div>
                     </div>
@@ -528,17 +528,17 @@ export default class DataForm extends LitElement {
         const value = this.getValue(element.field) || this._getDefaultValue(element);
         const disabled = this._getBooleanValue(element.display?.disabled, false);
         const rows = element.display && element.display.rows ? element.display.rows : 1;
-        const validate = this._getBooleanValue(element.display?.validation?.validate, true);
+        const isValid = this._getBooleanValue(element.display?.validation?.validate, true);
 
         return html`
-            <div class=${validate? "" : "has-error"}>
+            <div class=${isValid? "" : "has-error"}>
                 <text-field-filter placeholder="${element.display?.placeholder}" .rows=${rows} ?disabled=${disabled}
                                    ?required=${element.required} .value="${value}"
                                    .classes="${element.display?.updated ? "updated" : ""}"
                                    @filterChange="${e => this.onFilterChange(element.field, e.detail.value)}">
                 </text-field-filter>
                 ${element?.display?.help?.mode === "block" && element?.display?.help?.text ? html`<span class="help-block" style="margin: 5px">${element.display.help.text}</span>` : null}
-                ${!validate? html`<span class="help-block" style="margin: 5px">${element.display.validation.message}</span>` : null}
+                ${!isValid ? html`<span class="help-block" style="margin: 5px">${element.display.validation.message}</span>` : null}
             </div>
         `;
     }

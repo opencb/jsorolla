@@ -127,7 +127,7 @@ export default class VariableSetCreate extends LitElement {
                                 validation: {
                                     message: "Please enter more that 3 character",
                                     validate: variable => variable?.id?.length > 4 || variable?.id === undefined || variable?.id === ""
-                                    // TODO: this work if we update the config everychange
+                                    // TODO: this work if we update the config every change
                                     // to re-evaluate or refresh the form applying the validation.
                                     // validate: variable => variable?.id?.length > 4
                                 }

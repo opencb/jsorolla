@@ -31,17 +31,14 @@ export default class SelectFieldToken extends LitElement {
 
     static get properties() {
         return {
-            opencgaSession: {
-                type: Object
-            },
-            configToken: {
-                type: Object
-            },
             values: {
                 type: Array
             },
             disabled: {
                 type: Boolean
+            },
+            opencgaSession: {
+                type: Object
             },
             config: {
                 type: Object
@@ -51,21 +48,24 @@ export default class SelectFieldToken extends LitElement {
 
     _init() {
         this._prefix = UtilsNew.randomString(8);
+
         this.disabled = false;
+        this.placeholder = "Type something to start";
+        this.allowCustomTokens = true;
+        this.separators = [",", "-"];  // TODO consider to add blank space
     }
 
     connectedCallback() {
         super.connectedCallback();
+
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
     firstUpdated(_changedProperties) {
-        console.log("Updating select field token", this.configToken);
         $(".tokenize", this).tokenize2({
-            placeholder: this.configToken?.placeholder,
-            delimiter: this.configToken?.delimiter,
-            tokensAllowCustom: this.configToken?.tokensAllowCustom,
-            disabled: true
+            placeholder: this._config?.placeholder,
+            delimiter: this._config?.separators,
+            tokensAllowCustom: this._config?.allowCustomTokens
         });
 
         $(".tokenize", this).on("tokenize:tokens:added", (e, value, text) => {
@@ -82,22 +82,22 @@ export default class SelectFieldToken extends LitElement {
         });
     }
 
-    tokenizeObserver() {
-        console.log("Updating disabled value:", this.disabled);
-        this.querySelector(".tokenize.form-control").disabled = this.disabled;
-    }
-
-    updated(_changedProperties) {
-        if (this.values && _changedProperties.has("values")) {
-            console.log("Passing values");
+    // NOTE: We MUST use updated() instead of update()here we need to access to DOM in the tokenizeObserver()
+    updated(changedProperties) {
+        if (this.values && changedProperties.has("values")) {
             this.values.forEach(value => {
                 $(".tokenize", this).tokenize2().trigger("tokenize:tokens:add", [value, value, true]);
             });
         }
 
-        if (_changedProperties.has("disabled")) {
+        if (changedProperties.has("disabled")) {
             this.tokenizeObserver();
         }
+    }
+
+    tokenizeObserver() {
+        console.log("Updating disabled value:", this.disabled);
+        this.querySelector(".tokenize.form-control").disabled = this.disabled;
     }
 
     onSendValues(e) {
@@ -108,9 +108,9 @@ export default class SelectFieldToken extends LitElement {
 
     getDefaultConfig() {
         return {
-            limit: 10,
-            searchMinLength: 3,
-            maxItems: 0
+            placeholder: "Type something to start",
+            allowCustomTokens: true,
+            separators: [",", "-"]  // TODO consider to add blank space
         };
     }
 
@@ -124,9 +124,9 @@ export default class SelectFieldToken extends LitElement {
 
     render() {
         return html`
-        <div id="${this._prefix}-wrapper">
-            <select class="tokenize form-control" multiple></select>
-        </div>
+            <div id="${this._prefix}-wrapper">
+                <select class="tokenize form-control" multiple></select>
+            </div>
         `;
     }
 
