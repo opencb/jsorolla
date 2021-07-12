@@ -16,7 +16,7 @@
 
 import {html, LitElement} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
-import "../commons/manager/phenotype-manager.js";
+// import "../commons/manager/phenotype-manager.js";
 import "../annotations/annotationSet-form.js";
 import FormUtils from "../../form-utils.js";
 
@@ -358,23 +358,23 @@ export default class SampleUpdate extends LitElement {
                 },
                 {
                     elements: [
-                        {
-                            field: "phenotype",
-                            type: "custom",
-                            display: {
-                                layout: "vertical",
-                                defaultLayout: "vertical",
-                                width: 12,
-                                style: "padding-left: 0px",
-                                render: () => html`
-                                    <phenotype-manager
-                                        .phenotypes="${this.sample?.phenotypes}"
-                                        .opencgaSession="${this.opencgaSession}"
-                                        @addItem="${e => this.onAddPhenotype(e)}"
-                                        @removeItem="${e => this.onRemovePhenotype(e)}">
-                                    </phenotype-manager>`
-                            }
-                        },
+                        // {
+                        //     field: "phenotype",
+                        //     type: "custom",
+                        //     display: {
+                        //         layout: "vertical",
+                        //         defaultLayout: "vertical",
+                        //         width: 12,
+                        //         style: "padding-left: 0px",
+                        //         render: () => html`
+                        //             <phenotype-manager
+                        //                 .phenotypes="${this.sample?.phenotypes}"
+                        //                 .opencgaSession="${this.opencgaSession}"
+                        //                 @addItem="${e => this.onAddPhenotype(e)}"
+                        //                 @removeItem="${e => this.onRemovePhenotype(e)}">
+                        //             </phenotype-manager>`
+                        //     }
+                        // },
                         {
                             field: "annotationSets",
                             type: "custom",

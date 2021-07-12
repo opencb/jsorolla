@@ -16,7 +16,8 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "./../../utilsNew.js";
-import "../commons/manager/phenotype-manager.js";
+// import "../commons/manager/phenotype-manager.js";
+import "../commons/phenotype/phenotype-list-manager.js";
 import "../individual/disorder-manager.js";
 import FormUtils from "../../form-utils.js";
 
@@ -284,23 +285,23 @@ export default class IndividualCreate extends LitElement {
                 },
                 {
                     elements: [
-                        {
-                            field: "phenotype",
-                            type: "custom",
-                            display: {
-                                layout: "vertical",
-                                defaultLayout: "vertical",
-                                width: 12,
-                                style: "padding-left: 0px",
-                                render: () => html`
-                                        <phenotype-manager
-                                            .phenotypes="${this.individual?.phenotypes}"
-                                            .opencgaSession="${this.opencgaSession}"
-                                            @addItem="${e => this.onAddPhenotype(e)}"
-                                            @removeItem="${e => this.onRemovePhenotype(e)}">
-                                        </phenotype-manager>`
-                            }
-                        },
+                        // {
+                        //     field: "phenotype",
+                        //     type: "custom",
+                        //     display: {
+                        //         layout: "vertical",
+                        //         defaultLayout: "vertical",
+                        //         width: 12,
+                        //         style: "padding-left: 0px",
+                        //         render: () => html`
+                        //                 <phenotype-manager
+                        //                     .phenotypes="${this.individual?.phenotypes}"
+                        //                     .opencgaSession="${this.opencgaSession}"
+                        //                     @addItem="${e => this.onAddPhenotype(e)}"
+                        //                     @removeItem="${e => this.onRemovePhenotype(e)}">
+                        //                 </phenotype-manager>`
+                        //     }
+                        // },
                         {
                             field: "disorder",
                             type: "custom",

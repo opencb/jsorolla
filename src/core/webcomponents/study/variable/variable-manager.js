@@ -15,7 +15,6 @@
  */
 
 import {html, LitElement} from "/web_modules/lit-element.js";
-import {BaseManagerMixin} from "../../commons/manager/base-manager.js";
 import "../../commons/filters/variableset-id-autocomplete.js";
 import "../../commons/filters/select-field-token.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
@@ -235,7 +234,7 @@ export default class VariableManager extends LitElement {
 
     onSendVariable(e) {
         // Send the variable to the upper component
-        console.log("onSendVariable Variable: ", this.variable)
+        console.log("onSendVariable Variable: ", this.variable);
         LitUtils.dispatchEventCustom(this, "addItem", this.variable);
     }
 

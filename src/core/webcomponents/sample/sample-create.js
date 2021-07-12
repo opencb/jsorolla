@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
-import "../commons/manager/phenotype-manager.js";
+import "../commons/phenotype/phenotype-list-manager.js";
 import "../commons/manager/annotation-set-manager.js";
 
 export default class SampleCreate extends LitElement {
@@ -164,6 +164,11 @@ export default class SampleCreate extends LitElement {
         //     .catch(err => {
         //         console.error(err);
         //     });
+    }
+
+    onSyncPhenotypes(e) {
+        e.stopPropagation();
+        this.sample = {...this.sample, phenotypes: e.detail.value};
     }
 
     getDefaultConfig() {
@@ -361,6 +366,7 @@ export default class SampleCreate extends LitElement {
                     ]
                 },
                 {
+                    title: "Phenotype",
                     elements: [
                         {
                             field: "phenotype",
@@ -371,12 +377,11 @@ export default class SampleCreate extends LitElement {
                                 width: 12,
                                 style: "padding-left: 0px",
                                 render: () => html`
-                                    <phenotype-manager
+                                    <phenotype-list-manager
                                         .phenotypes="${this.sample?.phenotypes}"
                                         .opencgaSession="${this.opencgaSession}"
-                                        @addItem="${e => this.onAddPhenotype(e)}"
-                                        @removeItem="${e => this.onRemovePhenotype(e)}">
-                                    </phenotype-manager>`
+                                        @changePhenotypes="${e => this.onSyncPhenotypes(e)}">
+                                    </phenotype-list-manager>`
                             }
                         },
                         {

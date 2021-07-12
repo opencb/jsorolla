@@ -16,31 +16,46 @@
 
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../../utilsNew.js";
-import {BaseManagerMixin} from "./base-manager.js";
+// import UtilsNew from "../../../utilsNew.js";
+import LitUtils from "../../commons/utils/lit-utils.js";
+
 
 // eslint-disable-next-line new-cap
-export default class PhenotypeManager extends BaseManagerMixin(LitElement) {
+export default class PhenotypeManager extends LitElement {
 
     constructor() {
         super();
         this._init();
     }
 
+
+    createRenderRoot() {
+        return this;
+    }
+
     static get properties() {
         return {
-            phenotypes: {
+            phenotype: {
                 type: Array
+            },
+            config: {
+                type: Object
             }
         };
     }
 
     _init() {
-        this._prefix = UtilsNew.randomString(8);
         this.phenotypes = [];
         this.phenotype = {};
+        this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
+
+    refreshForm() {
+        // When using data-form we need to update config object and render again
+        this._config = {...this.getDefaultConfig(), ...this.config};
+        this.requestUpdate();
+    }
 
     onClearForm(e) {
         console.log("OnClear Phenotype form ", this);
@@ -58,6 +73,15 @@ export default class PhenotypeManager extends BaseManagerMixin(LitElement) {
         this.onShow(); // it's from BaseManager.
     }
 
+    onFieldChangePhenotype(e) {
+        const field = e.detail.param;
+        this.phenotype = {
+            ...this.phenotype,
+            [field]: e.detail.value
+        };
+    }
+
+    // DEPRECATED
     onPhenotypeChange(e) {
         console.log("onPhenotypeChange ", e.detail.param, e.detail.value);
         let field = "";
@@ -98,7 +122,7 @@ export default class PhenotypeManager extends BaseManagerMixin(LitElement) {
                     elements: [
                         {
                             name: "Id",
-                            field: "phenotype.id",
+                            field: "id",
                             type: "input-text",
                             display: {
                                 placeholder: "Name ..."
@@ -106,7 +130,7 @@ export default class PhenotypeManager extends BaseManagerMixin(LitElement) {
                         },
                         {
                             name: "Name",
-                            field: "phenotype.name",
+                            field: "name",
                             type: "input-text",
                             display: {
                                 placeholder: "Name ..."
@@ -114,7 +138,7 @@ export default class PhenotypeManager extends BaseManagerMixin(LitElement) {
                         },
                         {
                             name: "Source",
-                            field: "phenotype.source",
+                            field: "source",
                             type: "input-text",
                             display: {
                                 placeholder: "Name ..."
@@ -122,7 +146,7 @@ export default class PhenotypeManager extends BaseManagerMixin(LitElement) {
                         },
                         {
                             name: "Age of on set",
-                            field: "phenotype.ageOfOnset",
+                            field: "ageOfOnset",
                             type: "input-text",
                             display: {
                                 placeholder: "Name ..."
@@ -130,7 +154,7 @@ export default class PhenotypeManager extends BaseManagerMixin(LitElement) {
                         },
                         {
                             name: "Status",
-                            field: "phenotype.status",
+                            field: "status",
                             type: "select",
                             allowedValues: ["OBSERVED", "NOT_OBSERVED", "UNKNOWN"],
                             display: {
@@ -143,35 +167,21 @@ export default class PhenotypeManager extends BaseManagerMixin(LitElement) {
         };
     }
 
+    onSendPhenotype(e) {
+        // Send the variable to the upper component
+        console.log("onSendPhenotype Phenotype: ", this.phenotype);
+        LitUtils.dispatchEventCustom(this, "addItem", this.phenotype);
+    }
+
     render() {
         return html`
-        <div class="row">
-            <div class="col-md-2" style="padding: 10px 20px">
-                <h3>Phenotype</h3>
-            </div>
-            <div class="col-md-10" style="padding: 10px 20px">
-                <button type="button" class="btn btn-primary ripple pull-right" @click="${this.onShow}">
-                    Add Phenotype
-                </button>
-            </div>
-            <div class="clearfix"></div>
-            <hr style="margin:0px">
-            <div class="col-md-12" style="padding: 10px 20px">
-                ${this.phenotypes?.map(item => html`
-                    <span class="label label-primary" style="font-size: 14px; margin:5px; padding-right:0px; display:inline-block">${item.name}
-                        <span class="badge" style="cursor:pointer" @click=${e => this.onRemoveItem(e, item)}>X</span>
-                    </span>`
-        )}
-            </div>
-        </div>
-
-        <div class="subform-test" style="${this.isShow ? "display:block" : "display:none"}">
+        <div class="subform-test">
             <data-form
                 .data=${this.phenotype}
                 .config="${this._config}"
-                @fieldChange="${e => this.onPhenotypeChange(e)}"
+                @fieldChange="${e => this.onFieldChangePhenotype(e)}"
                 @clear="${this.onClearForm}"
-                @submit="${e => this.onAddPhenotype(e, this.phenotype)}">
+                @submit="${e => this.onSendPhenotype(e)}">
             </data-form>
         </div>
     `;
