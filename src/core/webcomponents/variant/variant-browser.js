@@ -130,7 +130,7 @@ export default class VariantBrowser extends LitElement {
         this._config = {...this.getDefaultConfig(), ...this.config};
         // filter list and canned filters
         if (this.settings?.menu) {
-            this._config.filter = UtilsNew.mergeFilters(this._config?.filter, this.settings.menu);
+            this._config.filter = UtilsNew.mergeFilters(this._config?.filter, this.settings);
         }
 
         if (this.settings?.table) {
@@ -595,7 +595,7 @@ export default class VariantBrowser extends LitElement {
                             id: "json-view",
                             name: "JSON Data",
                             render: (variant, active) => {
-                                return html`<json-viewer .data="${variant.annotation.traitAssociation}" .active="${active}"></json-viewer>`;
+                                return html`<json-viewer .data="${variant}" .active="${active}"></json-viewer>`;
                             }
                         }
                         // TODO Think about Neeworks
