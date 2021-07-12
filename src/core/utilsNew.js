@@ -462,10 +462,11 @@ export default class UtilsNew {
         // console.log("internal, external", internal, external);
         let sections = internal.sections;
         let examples = internal.examples;
-        if (external?.filters?.length) {
+        let detail = internal.detail;
+        if (external?.menu?.filters?.length) {
             sections = internal.sections.map(section => {
                 const fields = [];
-                for (const ex of external.filters) {
+                for (const ex of external.menu.filters) {
                     const internalField = section.fields.find(field => field.id === ex.id);
                     if (internalField) {
                         fields.push({...internalField, ...ex});
@@ -477,10 +478,16 @@ export default class UtilsNew {
             });
         }
         // merge canned filters
-        if (external?.examples?.length) {
-            examples = UtilsNew.joinArray(internal.examples, external.examples);
+        if (external?.menu?.examples?.length) {
+            examples = UtilsNew.joinArray(internal.examples, external.menu.examples);
         }
-        return {...internal, sections, examples};
+
+        // merge detail tab
+        if (external?.detail?.length && detail.items) {
+            detail.items = UtilsNew.mergeConfigById(internal.detail.items, external.detail);
+        }
+
+        return {...internal, sections, examples, detail};
     }
 
     /**
@@ -523,22 +530,39 @@ export default class UtilsNew {
             return internal.filter(c => ~external.indexOf(c.id));
         }
         // double array
+
+        /**
+         * the correct indexes for subFields are found with this simple idea:
+         * in the first array, each rowspan=x means the second array has x-1 less elements, each colspan=y has y+1 elms.
+         */
         if (internal[0] instanceof Array) {
             const result = [[], []];
-            let internalIndx = 0; // keeps track of the starting index of the elms to add
-            internal[0].forEach((c, i) => {
+            let subIndx = 0; // keeps track of the starting index of the elms to add
+            let rowSpanCnt = 0;
+            internal[0].filter(f => f?.visible !== false).forEach((c, i) => {
+                // debugger
                 if (~external.indexOf(c.id)) {
+                    // debugger
                     result[0].push(c);
                     // rowspan = 1
                     if (c.rowspan !==2 || !c.rowspan) {
-                        // add second level
-                        result[1].push(...internal[1].slice(internalIndx, internalIndx + c.colspan));
+                        // add sub Level
+                        const subFields = internal[1].filter(f => f?.visible !== false).slice(subIndx, subIndx + c.colspan);
+                        result[1].push(...subFields);
+                        // add subIndx the number of elements just added
+                        subIndx += c.colspan ? c.colspan : 0;
+
                     } else {
                     }
                 } else {
-                    // increment internalIndx
-                    internalIndx += c.colspan ? c.colspan : 0;
+                    // increment subIndx in case the `c` (the current internal element) is not present in `external` array.
+                    // increment iff if rowspan=1 because otherwise an element on top array has no corrisponding elm in the sub array.
+                    if (c.rowspan !==2 || !c.rowspan) {
+                        subIndx += c.colspan ? c.colspan : 0;
+                    }
                 }
+                // rowSpanCnt += c.rowspan ? c.rowspan-1 : 0;
+
             });
             return result;
         }
