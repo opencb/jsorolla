@@ -235,7 +235,7 @@ export default class VariableManager extends LitElement {
 
     onSendVariable(e) {
         // Send the variable to the upper component
-        console.log("onSendVariable Variable: ", this.variable);
+        console.log("onSendVariable Variable: ", this.variable)
         LitUtils.dispatchEventCustom(this, "addItem", this.variable);
     }
 
