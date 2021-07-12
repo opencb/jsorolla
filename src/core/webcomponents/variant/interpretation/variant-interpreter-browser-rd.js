@@ -111,11 +111,20 @@ class VariantInterpreterBrowserRd extends LitElement {
     }
 
     settingsObserver() {
-        this._config = {...this.getDefaultConfig(), ...this.config};
         // merge filters
-        this._config.filter = UtilsNew.mergeFilters(this._config?.filter, this.settings.menu.filters);
-        // merge details tab
-        this._config.filter.detail.items = UtilsNew.mergeConfigById(this._config.filter.detail.items, this.settings.details);
+        this._config = {...this.getDefaultConfig(), ...this.config};
+        // filter list, canned filters, detail tabs
+        if (this.settings?.menu) {
+            this._config.filter = UtilsNew.mergeFilters(this._config?.filter, this.settings);
+        }
+
+        if (this.settings?.table) {
+            this._config.grid = {...this._config.grid, ...this.settings.table};
+        }
+        if (this.settings?.table?.toolbar) {
+            this._config.grid.toolbar = {...this._config.grid.toolbar, ...this.settings.table.toolbar};
+        }
+
         this.requestUpdate();
     }
 
@@ -792,7 +801,7 @@ class VariantInterpreterBrowserRd extends LitElement {
                                 <variant-interpreter-grid .opencgaSession="${this.opencgaSession}"
                                                           .clinicalAnalysis="${this.clinicalAnalysis}"
                                                           .query="${this.executedQuery}"
-                                                          .config="${this._config.filter.result.grid}"
+                                                          .config="${this._config.grid}"
                                                           @selectrow="${this.onSelectVariant}"
                                                           @checkrow="${this.onCheckVariant}">
                                 </variant-interpreter-grid>

@@ -62,17 +62,6 @@ export default class VariantInterpreterGrid extends LitElement {
     _init() {
         this._prefix = UtilsNew.randomString(8);
 
-        // Config for the grid toolbar
-        this.toolbarConfig = {
-            download: ["JSON"],
-            columns: [
-                {title: "Variant", field: "id"},
-                {title: "Genes", field: "genes"},
-                {title: "Type", field: "type"},
-                {title: "Gene Annotations", field: "consequenceType"}
-            ]
-        };
-
         this.gridId = this._prefix + "VariantBrowserGrid";
         this.checkedVariants = new Map();
         this.review = false;
@@ -111,6 +100,20 @@ export default class VariantInterpreterGrid extends LitElement {
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config, ...this.opencgaSession.user.configs?.IVA?.interpreterGrid};
             this.gridCommons = new GridCommons(this.gridId, this, this._config);
+            // Config for the grid toolbar
+            // some columns has tooltips in title, we cannot used them for the dropdown
+            const visibleColumns = this._createDefaultColumns()[0].map(f => f.id);
+            const columns = [
+                {id: "id", title: "Variant", field: "id"},
+                {id: "gene", title: "Genes", field: "gene"},
+                {id: "type", title: "Type", field: "type"},
+                {id: "consequenceType", title: "Gene Annotations", field: "consequenceType"}
+            ].filter(f => ~visibleColumns.indexOf(f.id));
+            this.toolbarConfig = {
+                ...this._config.toolbar,
+                download: ["JSON"],
+                columns: columns
+            };
             // Nacho (14/11/2020) - Commented since it does not look necessary
             // this.requestUpdate();
         }
@@ -550,9 +553,10 @@ export default class VariantInterpreterGrid extends LitElement {
         }
 
         // Prepare Grid columns
-        const _columns = [
+        this._columns = [
             [
                 {
+                    id: "id",
                     title: "Variant",
                     field: "id",
                     rowspan: 2,
@@ -562,6 +566,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     sortable: true
                 },
                 {
+                    id: "gene",
                     title: "Gene",
                     field: "gene",
                     rowspan: 2,
@@ -570,6 +575,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     halign: "center"
                 },
                 {
+                    id: "type",
                     title: "Type",
                     field: "type",
                     rowspan: 2,
@@ -578,6 +584,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     halign: "center"
                 },
                 {
+                    id: "consequenceType",
                     title: "Gene Annotation",
                     field: "consequenceType",
                     rowspan: 2,
@@ -586,6 +593,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     halign: "center"
                 },
                 {
+                    id: "evidences",
                     title: "Role in Cancer",
                     field: "evidences",
                     rowspan: 2,
@@ -595,6 +603,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     visible: this.clinicalAnalysis.type.toUpperCase() === "CANCER"
                 },
                 {
+                    id: "VCF_Data",
                     title: "VCF Data",
                     rowspan: 1,
                     colspan: vcfDataColumns?.length,
@@ -602,6 +611,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     visible: vcfDataColumns?.length > 1
                 },
                 {
+                    id: "frequencies",
                     title: `Variant Allele Frequency <a class="pop-preq-info-icon" tooltip-title="Population Frequencies" tooltip-text="${VariantGridFormatter.populationFrequenciesInfoTooltipContent(populationFrequencies)}" tooltip-position-at="left bottom" tooltip-position-my="right top"><i class="fa fa-info-circle" aria-hidden="true"></i></a>`,
                     field: "frequencies",
                     rowspan: 1,
@@ -609,6 +619,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     align: "center"
                 },
                 {
+                    id: "clinicalInfo",
                     title: `Clinical Info <a id="phenotypesInfoIcon" tooltip-title="Phenotypes" tooltip-text="
                                 <div>
                                     <span style='font-weight: bold'>ClinVar</span> is a freely accessible, public archive of reports of the relationships among human variations
@@ -623,13 +634,15 @@ export default class VariantInterpreterGrid extends LitElement {
                     align: "center"
                 },
                 {
+                    id: "interpretation",
                     title: "Interpretation <a class='interpretation-info-icon' tooltip-title='Interpretation' tooltip-text=\"<span style='font-weight: bold'>Prediction</span> column shows the Clinical Significance prediction and Tier following the ACMG guide recommendations\" tooltip-position-at=\"left bottom\" tooltip-position-my=\"right top\"><i class='fa fa-info-circle' aria-hidden='true'></i></a>",
                     field: "interpretation",
                     rowspan: 1,
-                    colspan: 2,
+                    colspan: this._config.showSelectCheckbox ? 2 : 1,
                     halign: "center"
                 },
                 {
+                    id: "review",
                     title: "Review",
                     rowspan: 2,
                     colspan: 1,
@@ -642,6 +655,7 @@ export default class VariantInterpreterGrid extends LitElement {
                     visible: this.review
                 },
                 {
+                    id: "actions",
                     title: "Actions",
                     rowspan: 2,
                     colspan: 1,
@@ -733,8 +747,15 @@ export default class VariantInterpreterGrid extends LitElement {
         ];
 
         // update columns dynamically
-        this._updateTableColumns(_columns);
-        return _columns;
+        this._columns = this._updateTableColumns(this._columns);
+        console.log("before this._columns", this._columns)
+
+        this._columns = UtilsNew.mergeTable(this._columns, this._config.columns);
+
+        console.log("_CONFIG", this._config)
+        console.log("after this._columns", this._columns)
+
+        return this._columns;
     }
 
     _updateTableColumns(_columns) {
@@ -777,6 +798,7 @@ export default class VariantInterpreterGrid extends LitElement {
 
             if (samples.length > 0) {
                 _columns[0].splice(4, 0, {
+                    id: "zygosity",
                     title: "Sample Genotypes",
                     field: "zygosity",
                     rowspan: 1,
@@ -837,6 +859,7 @@ export default class VariantInterpreterGrid extends LitElement {
                 }
 
                 _columns[0].splice(5, 0, {
+                    id: "sampleGenotypes",
                     title: "Sample Genotypes",
                     rowspan: 1,
                     colspan: samples.length,
@@ -864,6 +887,8 @@ export default class VariantInterpreterGrid extends LitElement {
                 }
             }
         }
+
+        return _columns;
     }
 
     onActionClick(e, value, row) {
