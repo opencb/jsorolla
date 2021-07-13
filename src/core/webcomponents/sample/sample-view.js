@@ -226,21 +226,19 @@ export default class SampleView extends LitElement {
                         {
                             name: "Phenotypes",
                             field: "phenotypes",
-                            type: "custom",
+                            type: "list",
                             display: {
-                                layout: "vertical",
-                                defaultLayout: "vertical",
-                                width: 12,
-                                style: "padding-left: 0px",
-                                render: () => html`
-                                    <phenotype-list-manager
-                                        .opencgaSession=${this.opencgaSession}
-                                        .phenotypes=${this.sample?.phenotypes}
-                                        .readOnly=${true}>
-                                    </phenotype-list-manager>
-                                `
+                                contentLayout: "bullets",
+                                render: phenotype => {
+                                    let id = phenotype.id;
+                                    if (phenotype.id.startsWith("HP:")) {
+                                        id = html`<a href="https://hpo.jax.org/app/browse/term/${phenotype.id}" target="_blank">${phenotype.id}</a>`;
+                                    }
+                                    return html`${phenotype.name} (${id})`;
+                                },
+                                defaultValue: "N/A"
                             }
-                        }
+                        },
                         /*
                             {
                                 name: "Annotation sets",

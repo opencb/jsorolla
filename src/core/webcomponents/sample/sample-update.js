@@ -181,6 +181,11 @@ export default class SampleUpdate extends LitElement {
             });
     }
 
+    onSyncPhenotypes(e) {
+        e.stopPropagation();
+        this.updateParams = {...this.updateParams, phenotypes: e.detail.value};
+    }
+
     getDefaultConfig() {
         return {
             title: "Edit",

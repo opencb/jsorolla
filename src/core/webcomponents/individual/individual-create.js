@@ -92,20 +92,6 @@ export default class IndividualCreate extends LitElement {
         }
     }
 
-    onRemovePhenotype(e) {
-        this.individual = {
-            ...this.individual,
-            phenotypes: this.individual.phenotypes
-                .filter(item => item !== e.detail.value)
-        };
-        this.requestUpdate();
-    }
-
-    onAddPhenotype(e) {
-        this.individual.phenotypes.push(e.detail.value);
-        this.requestUpdate();
-    }
-
     onClear(e) {
         console.log("onClear individual form");
     }
@@ -122,6 +108,11 @@ export default class IndividualCreate extends LitElement {
             .catch(err => {
                 console.error(err);
             });
+    }
+
+    onSyncPhenotypes(e) {
+        e.stopPropagation();
+        this.individual = {...this.individual, phenotypes: e.detail.value};
     }
 
     getDefaultConfig() {
@@ -285,23 +276,22 @@ export default class IndividualCreate extends LitElement {
                 },
                 {
                     elements: [
-                        // {
-                        //     field: "phenotype",
-                        //     type: "custom",
-                        //     display: {
-                        //         layout: "vertical",
-                        //         defaultLayout: "vertical",
-                        //         width: 12,
-                        //         style: "padding-left: 0px",
-                        //         render: () => html`
-                        //                 <phenotype-manager
-                        //                     .phenotypes="${this.individual?.phenotypes}"
-                        //                     .opencgaSession="${this.opencgaSession}"
-                        //                     @addItem="${e => this.onAddPhenotype(e)}"
-                        //                     @removeItem="${e => this.onRemovePhenotype(e)}">
-                        //                 </phenotype-manager>`
-                        //     }
-                        // },
+                        {
+                            field: "phenotype",
+                            type: "custom",
+                            display: {
+                                layout: "vertical",
+                                defaultLayout: "vertical",
+                                width: 12,
+                                style: "padding-left: 0px",
+                                render: () => html`
+                                        <phenotype-list-manager
+                                            .phenotypes="${this.individual?.phenotypes}"
+                                            .opencgaSession="${this.opencgaSession}"
+                                            @changePhenotypes="${e => this.onSyncPhenotypes(e)}">
+                                        </phenotype-list-manager>`
+                            }
+                        },
                         {
                             field: "disorder",
                             type: "custom",

@@ -18,6 +18,7 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "./../../utilsNew.js";
 import "../commons/tool-header.js";
 import FormUtils from "../../form-utils.js";
+import "../commons/phenotype/phenotype-list-manager.js";
 
 export default class IndividualUpdate extends LitElement {
 
@@ -151,6 +152,11 @@ export default class IndividualUpdate extends LitElement {
             .catch(err => {
                 console.error(err);
             });
+    }
+
+    onSyncPhenotypes(e) {
+        e.stopPropagation();
+        this.updateParams = {...this.updateParams, phenotypes: e.detail.value};
     }
 
     getDefaultConfig() {
@@ -309,6 +315,28 @@ export default class IndividualUpdate extends LitElement {
                                 placeholder: "add a description...",
                             }
                         }
+                    ]
+                },
+                {
+                    title: "Phenotypes",
+                    elements: [
+                        {
+                            field: "phenotype",
+                            type: "custom",
+                            display: {
+                                layout: "vertical",
+                                defaultLayout: "vertical",
+                                width: 12,
+                                style: "padding-left: 0px",
+                                render: () => html`
+                                <phenotype-list-manager
+                                    .phenotypes="${this.individual?.phenotypes}"
+                                    .updateManager="${true}"
+                                    .opencgaSession="${this.opencgaSession}"
+                                    @changePhenotypes="${e => this.onSyncPhenotypes(e)}">
+                                </phenotype-list-manager>`
+                            }
+                        },
                     ]
                 }
             ]
