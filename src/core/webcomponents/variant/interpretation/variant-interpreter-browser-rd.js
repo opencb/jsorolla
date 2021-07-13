@@ -101,6 +101,8 @@ class VariantInterpreterBrowserRd extends LitElement {
         }
         if (changedProperties.has("clinicalAnalysis")) {
             this.clinicalAnalysisObserver();
+            // this.config has a clinicalAnalysis reference in it, we need to updated it once clinicalAnalysis is available
+            this.settingsObserver();
         }
         if (changedProperties.has("clinicalAnalysisId")) {
             this.clinicalAnalysisIdObserver();
@@ -111,6 +113,9 @@ class VariantInterpreterBrowserRd extends LitElement {
     }
 
     settingsObserver() {
+        if (!this.clinicalAnalysis) {
+            return;
+        }
         // merge filters
         this._config = {...this.getDefaultConfig(), ...this.config};
         // filter list, canned filters, detail tabs
@@ -119,12 +124,11 @@ class VariantInterpreterBrowserRd extends LitElement {
         }
 
         if (this.settings?.table) {
-            this._config.grid = {...this._config.grid, ...this.settings.table};
+            this._config.filter.result.grid = {...this._config.filter.result.grid, ...this.settings.table};
         }
         if (this.settings?.table?.toolbar) {
-            this._config.grid.toolbar = {...this._config.grid.toolbar, ...this.settings.table.toolbar};
+            this._config.filter.result.grid.toolbar = {...this._config.filter.result.grid.toolbar, ...this.settings.table.toolbar};
         }
-
         this.requestUpdate();
     }
 
@@ -142,8 +146,6 @@ class VariantInterpreterBrowserRd extends LitElement {
     }
 
     clinicalAnalysisObserver() {
-        console.log("clinicalAnalysisObserver")
-
         this.clinicalAnalysisManager = new ClinicalAnalysisManager(this.clinicalAnalysis, this.opencgaSession);
 
         // If sample is not defined and proband exists then we set the default samples
@@ -211,8 +213,7 @@ class VariantInterpreterBrowserRd extends LitElement {
             this.savedVariants = this.clinicalAnalysis?.interpretation?.primaryFindings?.map(v => v.id);
         }
 
-        //this._config = {...this.getDefaultConfig(), ...this.config};
-        this.requestUpdate();
+        // this.requestUpdate();
     }
 
     /**
@@ -801,7 +802,7 @@ class VariantInterpreterBrowserRd extends LitElement {
                                 <variant-interpreter-grid .opencgaSession="${this.opencgaSession}"
                                                           .clinicalAnalysis="${this.clinicalAnalysis}"
                                                           .query="${this.executedQuery}"
-                                                          .config="${this._config.grid}"
+                                                          .config="${this._config.filter.result.grid}"
                                                           @selectrow="${this.onSelectVariant}"
                                                           @checkrow="${this.onCheckVariant}">
                                 </variant-interpreter-grid>

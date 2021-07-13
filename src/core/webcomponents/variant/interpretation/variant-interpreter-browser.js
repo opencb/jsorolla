@@ -205,6 +205,7 @@ class VariantInterpreterBrowser extends LitElement {
                                                                     .clinicalAnalysis="${this.clinicalAnalysis}"
                                                                     .query="${this.query}"
                                                                     .cellbaseClient="${this.cellbaseClient}"
+                                                                    .settings="${variantInterpreterBrowserCancerSettings}"
                                                                     @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
                                 </variant-interpreter-browser-cancer>
                             </div>
