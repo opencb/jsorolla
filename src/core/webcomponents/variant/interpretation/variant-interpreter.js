@@ -59,7 +59,7 @@ class VariantInterpreter extends LitElement {
             cellbaseClient: {
                 type: Object
             },
-            config: {
+            settings: {
                 type: Object
             }
         };
@@ -67,17 +67,19 @@ class VariantInterpreter extends LitElement {
 
     _init() {
         this._prefix = UtilsNew.randomString(8);
-
         this.activeTab = {};
     }
 
     connectedCallback() {
         super.connectedCallback();
-
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this._config = {...this.getDefaultConfig()};
     }
 
     updated(changedProperties) {
+        if (changedProperties.has("settings")) {
+            this.settingsObserver();
+        }
+
         if (changedProperties.has("opencgaSession")) {
             this.opencgaSessionObserver();
         }
@@ -87,10 +89,16 @@ class VariantInterpreter extends LitElement {
         }
     }
 
+    settingsObserver() {
+        this._config.tools = UtilsNew.mergeConfigArray(this._config.tools, this.settings?.tools);
+        this._config = {...this._config};
+        this.requestUpdate();
+    }
+
     opencgaSessionObserver() {
         if (this?.opencgaSession?.study?.fqn) {
             // With each property change we must updated config and create the columns again. No extra checks are needed.
-            this._config = {...this.getDefaultConfig(), ...this.config};
+            // this._config = {...this.getDefaultConfig(), ...this.config};
             this.clinicalAnalysis = null;
             this._changeView(this._config?.tools[0].id);
             this.requestUpdate();
@@ -304,7 +312,7 @@ class VariantInterpreter extends LitElement {
                                     <variant-interpreter-qc .opencgaSession="${this.opencgaSession}"
                                                             .cellbaseClient="${this.cellbaseClient}"
                                                             .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                            .config="${this._config}" 
+                                                            .config="${this._config.tools.find(tool => tool.id === "qc")}" 
                                                             @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
                                     </variant-interpreter-qc>
                                 </div>

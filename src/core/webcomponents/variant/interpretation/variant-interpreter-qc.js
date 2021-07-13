@@ -68,12 +68,16 @@ class VariantInterpreterQc extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
+        // this._config = {...this.getDefaultConfig(), ...this.config};
+
     }
 
     updated(changedProperties) {
-        // if (changedProperties.has("opencgaSession")) {
-        //     this.opencgaSessionObserver();
-        // }
+        if (changedProperties.has("config")) {
+            // console.error("this.config", this.config)
+            this._config = {...this.getDefaultConfig(), ...this.config};
+            this.requestUpdate();
+        }
         if (changedProperties.has("clinicalAnalysis")) {
             this.clinicalAnalysisObserver();
         }
@@ -127,6 +131,12 @@ class VariantInterpreterQc extends LitElement {
         }
     }
 
+    getDefaultConfig() {
+        return {
+            tabs: ["overview", "sampleVariantStats", "cancerQCPlots", "somaticVariantStats", "germlineVariantStats", "geneCoverage"]
+        };
+    }
+
     render() {
         // Check Project exists
         if (!this.opencgaSession.project) {
@@ -151,6 +161,12 @@ class VariantInterpreterQc extends LitElement {
             `;
         }
 
+        if (!this._config?.tabs?.length) {
+            return html`
+                <div class="alert alert-warning" role="alert"><i class="fas fa-3x fa-exclamation-circle align-middle"></i> No QC tab available. Check the tool configuration.</div>
+            `;
+        }
+
         // Different cases types will show different QC tools (displayed as tabs).
         // To avoid initialising unnecessary components we only render the needed components based on the case type.
         return html`
@@ -158,24 +174,28 @@ class VariantInterpreterQc extends LitElement {
                 <div class="">
                     <ul class="nav nav-tabs nav-center tablist" role="tablist" aria-label="toolbar">
                         
-                        <li role="presentation" class="content-pills ${classMap({active: this.activeTab["Overview"]})}">
-                            <a href="javascript: void 0" role="tab" data-id="Overview" @click="${this._changeTab}" class="tab-title">
-                                Overview
-                            </a>
-                        </li>
+                        ${this._config.tabs.includes("overview") ?
+                            html`
+                                <li role="presentation" class="content-pills ${classMap({active: this.activeTab["Overview"]})}">
+                                    <a href="javascript: void 0" role="tab" data-id="Overview" @click="${this._changeTab}" class="tab-title">
+                                        Overview
+                                    </a>
+                                </li>` :
+                            ""
+                        }
                         
-                        ${this.clinicalAnalysis.type.toUpperCase() === "SINGLE"
-                            ? html`
+                        ${this._config.tabs.includes("sampleVariantStats") && this.clinicalAnalysis.type.toUpperCase() === "SINGLE" ?
+                            html`
                                 <li role="presentation" class="content-pills ${classMap({active: this.activeTab["SampleVariantStats"]})}">
                                     <a href="javascript: void 0" role="tab" data-id="SampleVariantStats" @click="${this._changeTab}" class="tab-title">
                                         Sample Variant Stats
                                     </a>
-                                </li>` 
-                            : null
+                                </li>` :
+                            ""
                         }
                         
-                        ${this.clinicalAnalysis.type.toUpperCase() === "FAMILY"
-                            ? html`
+                        ${this._config.tabs.includes("sampleVariantStats") && this.clinicalAnalysis.type.toUpperCase() === "FAMILY" ?
+                            html`
                                 <li role="presentation" class="content-pills ${classMap({active: this.activeTab["SampleVariantStats"]})}">
                                     <a href="javascript: void 0" role="tab" data-id="SampleVariantStats" @click="${this._changeTab}" class="tab-title">
                                         Sample Variant Stats
@@ -187,61 +207,65 @@ class VariantInterpreterQc extends LitElement {
                                             UPD (coming soon)
                                         </a>
                                     </li>
-                                -->`
-                            : null
+                                -->` :
+                            ""
                         }
 
-                        ${application.appConfig === "opencb" && this.clinicalAnalysis.type.toUpperCase() === "CANCER"
-                            ? html`
+                        ${this._config.tabs.includes("cancerQCPlots") && this.clinicalAnalysis.type.toUpperCase() === "CANCER" ?
+                            html`
                                 <li role="presentation" class="content-pills ${classMap({active: this.activeTab["VariantQcCancer"]})}">
                                     <a href="javascript: void 0" role="tab" data-id="VariantQcCancer" @click="${this._changeTab}" class="tab-title">
                                         Cancer QC Plots
                                     </a>
-                                </li>`
-                            : ""
+                                </li>` :
+                            ""
                         }
-                        ${this.clinicalAnalysis.type.toUpperCase() === "CANCER"
-                            ? html`
+                        ${this._config.tabs.includes("somaticVariantStats") && this.clinicalAnalysis.type.toUpperCase() === "CANCER" ?
+                            html`
                                 <li role="presentation" class="content-pills ${classMap({active: this.activeTab["SomaticVariantStats"]})}">
                                     <a href="javascript: void 0" role="tab" data-id="SomaticVariantStats" @click="${this._changeTab}" class="tab-title">
                                         Somatic Variant Stats
                                     </a>
                                 </li>
-                                ${this.sample 
-                                    ? html`
+                                ${this._config.tabs.includes("germlineVariantStats") && this.sample ?
+                                    html`
                                         <li role="presentation" class="content-pills ${classMap({active: this.activeTab["SampleVariantStats"]})}">
                                             <a href="javascript: void 0" role="tab" data-id="SampleVariantStats" @click="${this._changeTab}" class="tab-title">
                                                 Germline Variant Stats
                                             </a>
-                                        </li>` 
-                                    : null
+                                        </li>` :
+                                    ""
                                 }
-                            `
-                            : null
+                            ` :
+                            ""
                         }                        
                         
-                        ${application.appConfig === "opencb" 
-                            ? html`
+                        ${this._config.tabs.includes("geneCoverage") ?
+                            html`
                                 <li role="presentation" class="content-pills ${classMap({active: this.activeTab["GeneCoverage"]})}">
                                     <a href="javascript: void 0" role="tab" data-id="GeneCoverage" @click="${this._changeTab}" class="tab-title">Gene Coverage Stats
                                     </a>
-                                </li>` 
-                            : null
+                                </li>` :
+                            ""
                         }
                     </ul>
                 </div>
                 
                 <div class="content-tab-wrapper col-md-12">
-                    <div id="${this._prefix}Overview" role="tabpanel" class="tab-pane active content-tab">
-                        <tool-header title="Quality Control Overview - ${this.clinicalAnalysis.proband.id}" class="bg-white"></tool-header>
-                        <variant-interpreter-qc-overview .opencgaSession="${this.opencgaSession}" 
-                                                         .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                         .active="${this.activeTab["Overview"]}">
-                        </variant-interpreter-qc-overview>
-                    </div>
+                    ${this._config.tabs.includes("overview") ?
+                        html`
+                            <div id="${this._prefix}Overview" role="tabpanel" class="tab-pane active content-tab">
+                            <tool-header title="Quality Control Overview - ${this.clinicalAnalysis.proband.id}" class="bg-white"></tool-header>
+                            <variant-interpreter-qc-overview .opencgaSession="${this.opencgaSession}" 
+                                                             .clinicalAnalysis="${this.clinicalAnalysis}"
+                                                             .active="${this.activeTab["Overview"]}">
+                            </variant-interpreter-qc-overview>
+                        </div>` :
+                        ""
+                    }
                     
-                    ${this.clinicalAnalysis.type.toUpperCase() === "SINGLE"
-                        ? html`
+                    ${this._config.tabs.includes("sampleVariantStats") && this.clinicalAnalysis.type.toUpperCase() === "SINGLE" ?
+                        html`
                             <div id="${this._prefix}SampleVariantStats" role="tabpanel" class="tab-pane content-tab">
                                  <tool-header title="Samlpe Variant Stats - ${this.clinicalAnalysis.proband.id} (${this.sample?.id})" class="bg-white"></tool-header>
                                  <sample-variant-stats-browser .opencgaSession="${this.opencgaSession}"
@@ -250,12 +274,12 @@ class VariantInterpreterQc extends LitElement {
                                                                .active="${this.activeTab["SampleVariantStats"]}"
                                                                .config="${{showTitle: false}}">
                                  </sample-variant-stats-browser>
-                             </div>`
-                        : null
+                             </div>` :
+                        ""
                     }
                     
-                    ${this.clinicalAnalysis.type.toUpperCase() === "FAMILY"
-                        ? html`
+                    ${this._config.tabs.includes("sampleVariantStats") && this.clinicalAnalysis.type.toUpperCase() === "FAMILY" ?
+                        html`
                             <div id="${this._prefix}SampleVariantStats" role="tabpanel" class="tab-pane content-tab">
                                 <tool-header title="Sample Variant Stats - ${this.clinicalAnalysis.proband.id} (${this.sample?.id})" class="bg-white"></tool-header>
                                 <sample-variant-stats-browser .opencgaSession="${this.opencgaSession}"
@@ -267,12 +291,12 @@ class VariantInterpreterQc extends LitElement {
                             </div>
                             <div id="${this._prefix}Upd" role="tabpanel" class="tab-pane content-tab">
                                 <h3>Not implemented yet.</h3>
-                            </div>`
-                        : ""
+                            </div>` :
+                        ""
                     }
                     
-                    ${application.appConfig === "opencb" && this.clinicalAnalysis.type.toUpperCase() === "CANCER" 
-                        ? html`
+                    ${this._config.tabs.includes("cancerQCPlots") && this.clinicalAnalysis.type.toUpperCase() === "CANCER" ?
+                        html`
                             <div id="${this._prefix}VariantQcCancer" role="tabpanel" class="tab-pane content-tab">
                                 <tool-header title="Cancer QC Plots - ${this.clinicalAnalysis.proband.id} (${this.somaticSample?.id})" class="bg-white"></tool-header>
                                 <sample-cancer-variant-stats-browser    .opencgaSession="${this.opencgaSession}"
@@ -281,9 +305,12 @@ class VariantInterpreterQc extends LitElement {
                                                                         .active="${this.activeTab["VariantQcCancer"]}" 
                                                                         .config="${{showTitle: false}}">
                                 </sample-cancer-variant-stats-browser>
-                            </div>` : ""}
-                    ${this.clinicalAnalysis.type.toUpperCase() === "CANCER"
-                        ? html`
+                            </div>` :
+                        ""
+                    }
+                    
+                    ${this._config.tabs.includes("somaticVariantStats") && this.clinicalAnalysis.type.toUpperCase() === "CANCER" ?
+                        html`
                             <div id="${this._prefix}SomaticVariantStats" role="tabpanel" class="tab-pane content-tab">
                                 <tool-header title="Somatic Variant Stats - ${this.clinicalAnalysis.proband.id} (${this.somaticSample?.id})" class="bg-white"></tool-header>
                                 <sample-variant-stats-browser .opencgaSession="${this.opencgaSession}"
@@ -293,8 +320,8 @@ class VariantInterpreterQc extends LitElement {
                                                               .config="${{showTitle: false}}">
                                 </sample-variant-stats-browser>
                             </div>
-                            ${this.sample
-                                ? html`
+                            ${this._config.tabs.includes("germlineVariantStats") && this.sample ?
+                                html`
                                     <div id="${this._prefix}SampleVariantStats" role="tabpanel" class="tab-pane content-tab">
                                         <tool-header title="Germline Variant Stats - ${this.clinicalAnalysis.proband.id} (${this.sample?.id})" class="bg-white"></tool-header>
                                         <sample-variant-stats-browser .opencgaSession="${this.opencgaSession}"
@@ -303,21 +330,25 @@ class VariantInterpreterQc extends LitElement {
                                                                       .active="${this.activeTab["SampleVariantStats"]}"
                                                                       .config="${{showTitle: false}}">
                                         </sample-variant-stats-browser>
-                                    </div>`
-                                : null
+                                    </div>` :
+                                ""
                             }
-                        ` 
-                        : null
+                        ` :
+                        ""
                     }
                     
-                    <div id="${this._prefix}GeneCoverage" role="tabpanel" class="tab-pane content-tab">
-                        <tool-header title="Gene Coverage Stats - ${this.clinicalAnalysis.proband.id}" class="bg-white"></tool-header>
-                        <variant-interpreter-qc-gene-coverage   .opencgaSession="${this.opencgaSession}" 
-                                                                .cellbaseClient="${this.cellbaseClient}"
-                                                                .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                                .active="${this.activeTab["Coverage"]}">
-                        </variant-interpreter-qc-gene-coverage>
-                    </div>
+                    ${this._config.tabs.includes("geneCoverage") ?
+                        html`
+                            <div id="${this._prefix}GeneCoverage" role="tabpanel" class="tab-pane content-tab">
+                                <tool-header title="Gene Coverage Stats - ${this.clinicalAnalysis.proband.id}" class="bg-white"></tool-header>
+                                <variant-interpreter-qc-gene-coverage   .opencgaSession="${this.opencgaSession}" 
+                                                                        .cellbaseClient="${this.cellbaseClient}"
+                                                                        .clinicalAnalysis="${this.clinicalAnalysis}"
+                                                                        .active="${this.activeTab["Coverage"]}">
+                                </variant-interpreter-qc-gene-coverage>
+                            </div>` :
+                        ""
+                    }
                 </div>
             </div>`;
     }
