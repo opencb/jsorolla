@@ -38,6 +38,9 @@ export default class PhenotypeManager extends LitElement {
             phenotype: {
                 type: Array
             },
+            updateManager: {
+                type: Boolean
+            },
             config: {
                 type: Object
             }
@@ -45,32 +48,20 @@ export default class PhenotypeManager extends LitElement {
     }
 
     _init() {
-        this.phenotypes = [];
         this.phenotype = {};
-        this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
+
+    connectedCallback() {
+        super.connectedCallback();
+        // It must be in connectCallback for the display.disabled option in the input text to work.
+        this._config = {...this.getDefaultConfig(), ...this.config};
+    }
 
     refreshForm() {
         // When using data-form we need to update config object and render again
         this._config = {...this.getDefaultConfig(), ...this.config};
         this.requestUpdate();
-    }
-
-    onClearForm(e) {
-        console.log("OnClear Phenotype form ", this);
-        this.phenotype = {};
-        this.onShow();
-        e.stopPropagation();
-    }
-
-    onAddPhenotype(e, item) {
-        // super or this.onAddItem(item) //it's the same?
-        console.log("Execute addPhenotype from Phenotype-Manager");
-        this.onAddItem(item);
-        this.phenotype = {};
-        // this.requestUpdate();
-        this.onShow(); // it's from BaseManager.
     }
 
     onFieldChangePhenotype(e) {
@@ -79,27 +70,6 @@ export default class PhenotypeManager extends LitElement {
             ...this.phenotype,
             [field]: e.detail.value
         };
-    }
-
-    // DEPRECATED
-    onPhenotypeChange(e) {
-        console.log("onPhenotypeChange ", e.detail.param, e.detail.value);
-        let field = "";
-        switch (e.detail.param) {
-            case "phenotype.id":
-            case "phenotype.name":
-            case "phenotype.ageOfOnset":
-            case "phenotype.source":
-            case "phenotype.status":
-                field = e.detail.param.split(".")[1];
-                if (!this.phenotype[field]) {
-                    this.phenotype[field] = {};
-                }
-                this.phenotype[field] = e.detail.value;
-                break;
-        }
-        // To stop the bubbles when dispatched this method
-        e.stopPropagation();
     }
 
     getDefaultConfig() {
@@ -125,6 +95,7 @@ export default class PhenotypeManager extends LitElement {
                             field: "id",
                             type: "input-text",
                             display: {
+                                disabled: this.updateManager,
                                 placeholder: "Name ..."
                             }
                         },
@@ -168,9 +139,13 @@ export default class PhenotypeManager extends LitElement {
     }
 
     onSendPhenotype(e) {
-        // Send the variable to the upper component
-        console.log("onSendPhenotype Phenotype: ", this.phenotype);
+        // Send the phenotype to the upper component
         LitUtils.dispatchEventCustom(this, "addItem", this.phenotype);
+    }
+
+    onClearForm(e) {
+        e.stopPropagation();
+        LitUtils.dispatchEventCustom(this, "closeForm");
     }
 
     render() {

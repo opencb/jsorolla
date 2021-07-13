@@ -56,18 +56,11 @@ export default class VariableListManager extends LitElement {
         this.readOnly = false;
     }
 
-    connectedCallback() {
-        super.connectedCallback();
-        console.log("Star with the component has readOnly: ", this.readOnly);
-    }
-
     buildVariable(variable) {
         return variable.type === "OBJECT"? {...variable, variables: []} : variable;
     }
 
     onShowVariableManager(e, manager) {
-        console.log("Open variableManager", manager.variable);
-
         if (manager.action === "ADD") {
             if (manager.parent) {
                 this.isShow = true;

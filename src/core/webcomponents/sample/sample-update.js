@@ -214,7 +214,7 @@ export default class SampleUpdate extends LitElement {
                                 placeholder: "Add a short ID...",
                                 disabled: true,
                                 help: {
-                                    text: "short Sample id for thehis as;lsal"
+                                    text: "short Sample id"
                                 }
                             }
                         },
@@ -358,23 +358,24 @@ export default class SampleUpdate extends LitElement {
                 },
                 {
                     elements: [
-                        // {
-                        //     field: "phenotype",
-                        //     type: "custom",
-                        //     display: {
-                        //         layout: "vertical",
-                        //         defaultLayout: "vertical",
-                        //         width: 12,
-                        //         style: "padding-left: 0px",
-                        //         render: () => html`
-                        //             <phenotype-manager
-                        //                 .phenotypes="${this.sample?.phenotypes}"
-                        //                 .opencgaSession="${this.opencgaSession}"
-                        //                 @addItem="${e => this.onAddPhenotype(e)}"
-                        //                 @removeItem="${e => this.onRemovePhenotype(e)}">
-                        //             </phenotype-manager>`
-                        //     }
-                        // },
+                        {
+                            name: "Phenotypes",
+                            field: "phenotype",
+                            type: "custom",
+                            display: {
+                                layout: "vertical",
+                                defaultLayout: "vertical",
+                                width: 12,
+                                style: "padding-left: 0px",
+                                render: () => html`
+                                    <phenotype-list-manager
+                                        .phenotypes="${this.sample?.phenotypes}"
+                                        .updateManager="${true}"
+                                        .opencgaSession="${this.opencgaSession}"
+                                        @changePhenotypes="${e => this.onSyncPhenotypes(e)}">
+                                    </phenotype-list-manager>`
+                            }
+                        },
                         {
                             field: "annotationSets",
                             type: "custom",

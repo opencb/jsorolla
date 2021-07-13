@@ -18,6 +18,7 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import "../../commons/filters/text-field-filter.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
+import UtilsNew from "../../../utilsNew.js";
 import "./phenotype-manager.js";
 
 export default class PhenotypeListManager extends LitElement {
@@ -42,12 +43,16 @@ export default class PhenotypeListManager extends LitElement {
             },
             readOnly: {
                 type: Boolean
+            },
+            updateManager: {
+                type: Boolean
             }
         };
     }
 
 
     _init() {
+        this._prefix = UtilsNew.randomString(8);
         this.isShow = false;
         this.phenotype = {};
         this._manager = {
@@ -57,51 +62,37 @@ export default class PhenotypeListManager extends LitElement {
         this.readOnly = false;
     }
 
-    connectedCallback() {
-        super.connectedCallback();
-    }
-
     onShowPhenotypeManager(e, manager) {
-        console.log("Open phenotypeManager", manager.phenotype);
-
+        this._manager = manager;
         if (manager.action === "ADD") {
             this.phenotype = {};
         } else {
-            console.log("Edit phenotype", manager.phenotype);
             this.phenotype = manager.phenotype;
             this.isShow = true;
         }
-        this._manager = manager;
         this.requestUpdate();
-
-        $("#phenotypeManagerModal").modal("show");
+        $("#phenotypeManagerModal"+ this._prefix).modal("show");
     }
 
-    // TODO: maybe should be rename this function.
     onActionPhenotype(e) {
         e.stopPropagation();
         if (this._manager.action === "ADD") {
-            console.log("Add new phenotype");
             this._onAddPhenotype(e.detail.value);
-
         } else {
-            console.log("Edit info phenotype");
             this._onEditPhenotype(e.detail.value);
         }
-        console.log("results: ", this.phenotypes);
-        $("#phenotypeManagerModal").modal("hide");
+        $("#phenotypeManagerModal" + this._prefix).modal("hide");
         this.requestUpdate();
     }
 
     _onAddPhenotype(phenotype) {
-        this.phenotypes = [...this.phenotypes, phenotype];
         this.isShow = false;
+        this.phenotypes = [...this.phenotypes, phenotype];
         LitUtils.dispatchEventCustom(this, "changePhenotypes", this.phenotypes);
     }
 
     _onEditPhenotype(phenotype) {
         this.isShow = false;
-        console.log("Add phenotype to the list");
         const indexPheno = this.phenotypes.findIndex(pheno => pheno.id === this.phenotype.id);
         this.phenotypes[indexPheno] = phenotype;
         this.phenotype = {};
@@ -123,9 +114,7 @@ export default class PhenotypeListManager extends LitElement {
             reverseButtons: true
         }).then(result => {
             if (result.isConfirmed) {
-                console.log("onRemovePhenotype ", item);
                 this.phenotypes = this.phenotypes.filter(pheno => pheno !== item);
-                console.log("result: ", this.phenotypes);
                 LitUtils.dispatchEventCustom(this, "changePhenotypes", this.phenotypes);
                 Swal.fire(
                     "Deleted!",
@@ -137,16 +126,15 @@ export default class PhenotypeListManager extends LitElement {
     }
 
     onCloseForm(e) {
-        e.stopPropagation();
         this.isShow = false;
         this.phenotype = {};
-        $("#phenotypeManagerModal").modal("hide");
-        this.requestUpdate();
+        $("#phenotypeManagerModal"+ this._prefix).modal("hide");
+        e.stopPropagation();
     }
 
     renderPhenotypes(phenotypes) {
         return html`
-            ${phenotypes?.map((item, i) => html`
+            ${phenotypes?.map(item => html`
                     <li>
                         <div class="row">
                             <div class="col-md-8">
@@ -162,6 +150,20 @@ export default class PhenotypeListManager extends LitElement {
                             </div>
                         </div>
                     </li>
+            `)}
+        `;
+    }
+
+    renderReadOnlyPhenotypes(phenotypes) {
+        return html`
+            ${phenotypes?.map(item => html`
+                <li>
+                    <div class="row">
+                        <div class="col-md-8">
+                            <span style="margin-left:14px">${item.name}</span>
+                        </div>
+                    </div>
+                </li>
             `)}
         `;
     }
@@ -182,34 +184,45 @@ export default class PhenotypeListManager extends LitElement {
             }
         </style>
 
-        <div class="col-md-12" style="padding: 10px 20px">
-            <div class="container" style="width:100%">
-                <ul id="myUL">
-                    ${this.renderPhenotypes(this.phenotypes)}
-                </ul>
-                <button type="button" class="btn btn-primary btn-sm"
-                @click="${e => this.onShowPhenotypeManager(e, {action: "ADD"})}">
-                Add Phenotype</button>
-            </div>
-        </div>
-        <div id="phenotypeManagerModal" class="modal fade" tabindex="-1" role="dialog">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                        <h4 class="modal-title">Phenotype Information</h4>
-                    </div>
-                    <div class="modal-body">
-                        <phenotype-manager
-                            .phenotype="${this.phenotype}"
-                            @closeForm="${e => this.onCloseForm(e)}"
-                            @addItem="${this.onActionPhenotype}">
-                        </phenotype-manager>
-                    </div>
+        ${this.readOnly ?html `
+            <div class="col-md-12" style="padding: 10px 20px">
+                <div class="container" style="width:100%">
+                    <ul id="myUL">
+                        ${this.renderReadOnlyPhenotypes(this.phenotypes)}
+                    </ul>
                 </div>
             </div>
-        </div>
-    `;
+            `: html`
+            <div class="col-md-12" style="padding: 10px 20px">
+                <div class="container" style="width:100%">
+                    <ul id="myUL">
+                        ${this.renderPhenotypes(this.phenotypes)}
+                    </ul>
+                    ${!this.updateManager?html`
+                        <button type="button" class="btn btn-primary btn-sm"
+                            @click="${e => this.onShowPhenotypeManager(e, {action: "ADD"})}">
+                            Add Phenotype
+                        </button>`: ""}
+                </div>
+            </div>
+            <div id=${"phenotypeManagerModal"+this._prefix} class="modal fade" tabindex="-1" role="dialog">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title">Phenotype Information</h4>
+                        </div>
+                        <div class="modal-body">
+                            <phenotype-manager
+                                .phenotype="${this.phenotype}"
+                                .updateManager="${this.updateManager}"
+                                @closeForm="${e => this.onCloseForm(e)}"
+                                @addItem="${this.onActionPhenotype}">
+                            </phenotype-manager>
+                        </div>
+                    </div>
+                </div>
+            </div>`}`;
     }
 
 }

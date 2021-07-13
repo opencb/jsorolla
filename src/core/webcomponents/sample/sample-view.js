@@ -222,6 +222,24 @@ export default class SampleView extends LitElement {
                         {
                             name: "Description",
                             field: "description"
+                        },
+                        {
+                            name: "Phenotypes",
+                            field: "phenotypes",
+                            type: "custom",
+                            display: {
+                                layout: "vertical",
+                                defaultLayout: "vertical",
+                                width: 12,
+                                style: "padding-left: 0px",
+                                render: () => html`
+                                    <phenotype-list-manager
+                                        .opencgaSession=${this.opencgaSession}
+                                        .phenotypes=${this.sample?.phenotypes}
+                                        .readOnly=${true}>
+                                    </phenotype-list-manager>
+                                `
+                            }
                         }
                         /*
                             {

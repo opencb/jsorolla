@@ -47,11 +47,6 @@ export default class VariableManager extends LitElement {
 
     _init() {
         this.variable = {};
-        // this.configToken = {
-        //     placeholder: "Type something to start",
-        //     delimiter: [",", "-"],
-        //     tokensAllowCustom: true,
-        // };
         this.mapType = ["MAP_BOOLEAN", "MAP_INTEGER", "MAP_DOUBLE", "MAP_STRING"];
         this.ComplexType = ["MAP_", "OBJECT"];
 
