@@ -111,6 +111,8 @@ export default class VariantBrowser extends LitElement {
         }
         if (changedProperties.has("opencgaSession")) {
             this.opencgaSessionObserver();
+            this.settingsObserver();
+
             //this._config = {...this.getDefaultConfig(), ...this.config};
         }
         if (changedProperties.has("query")) {
@@ -126,22 +128,22 @@ export default class VariantBrowser extends LitElement {
     }
 
     settingsObserver() {
-        // console.log("settingsObserver")
+        if (!this.opencgaSession) {
+            return;
+        }
+        // merge filters
         this._config = {...this.getDefaultConfig(), ...this.config};
-        // filter list and canned filters
+        // filter list, canned filters, detail tabs
         if (this.settings?.menu) {
             this._config.filter = UtilsNew.mergeFilters(this._config?.filter, this.settings);
         }
 
         if (this.settings?.table) {
-            this._config.grid = {...this._config.grid, ...this.settings.table};
+            this._config.filter.result.grid = {...this._config.filter.result.grid, ...this.settings.table};
         }
         if (this.settings?.table?.toolbar) {
-            this._config.grid.toolbar = {...this._config.grid.toolbar, ...this.settings.table.toolbar};
+            this._config.filter.result.grid.toolbar = {...this._config.filter.result.grid.toolbar, ...this.settings.table.toolbar};
         }
-        /*if (this.settings?.view) {
-            this._config.view = {...this._config.view, ...this.settings.view};
-        }*/
         this.requestUpdate();
     }
 
@@ -772,7 +774,7 @@ export default class VariantBrowser extends LitElement {
                                                       .populationFrequencies="${this.populationFrequencies}"
                                                       .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
                                                       .consequenceTypes="${this.consequenceTypes}"
-                                                      .config="${this._config.grid}"
+                                                      .config="${this._config.filter.result.grid}"
                                                       @selectrow="${this.onSelectVariant}">
                                 </variant-browser-grid>
 

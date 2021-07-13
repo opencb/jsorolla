@@ -118,7 +118,7 @@ export default class OpencgaVariantFilter extends LitElement {
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("opencgaSession")) {
+        if (changedProperties.has("opencgaSession") || changedProperties.has("config")) {
             this.opencgaSessionObserver();
         }
 
