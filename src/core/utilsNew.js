@@ -396,38 +396,6 @@ export default class UtilsNew {
     }
 
     /**
-     * Hydrates `external` array of objects with `internal` one. The merge is based on id.
-     * It acts like a filter for the internal object.
-     * If an object with a certain Id is present in the internal array but not in the external, it won't be present in the returning array.
-     * The other way around, if an object with a certain Id is present in the external array but not in the internal, it will be added only if `force` flag is true.
-     *
-     * @param {Array} internal
-     * @param {Array} external
-     * @param {Boolean} force  force external object addition even if there is no object with the same id in `internal`
-     * @returns {Array} hydrated array
-     */
-    static mergeConfigArray(internal, external, force = false) {
-        // console.log("internal, external", internal, external)
-        if (external) {
-            return external.map(entry => {
-                const obj = internal.find(e => entry.id === e.id);
-                if (!obj) {
-                    // force external entry addition
-                    if (force) {
-                        return entry;
-                    } else {
-                        console.error(`Config Merge failed. ${entry.id} not found in internal config`);
-                    }
-                } else {
-                    return {...entry, ...obj};
-                }
-            });
-        }
-        console.warn("external config not available");
-        return internal;
-    }
-
-    /**
      * @deprecated
      * It merges external filter list with internal one. It support reorganisation of sections.
      *
@@ -490,6 +458,39 @@ export default class UtilsNew {
         return {...internal, sections, examples, detail};
     }
 
+
+    /**
+     * Hydrates `external` array of objects with `internal` one. The merge is based on id.
+     * It acts like a filter for the internal object.
+     * If an object with a certain Id is present in the internal array but not in the external, it won't be present in the returning array.
+     * The other way around, if an object with a certain Id is present in the external array but not in the internal, it will be added only if `force` flag is true.
+     *
+     * @param {Array} internal
+     * @param {Array} external
+     * @param {Boolean} force  force external object addition even if there is no object with the same id in `internal`
+     * @returns {Array} hydrated array
+     */
+    static mergeConfigArray(internal, external, force = false) {
+        // console.log("internal, external", internal, external)
+        if (external) {
+            return external.map(entry => {
+                const obj = internal.find(e => entry.id === e.id);
+                if (!obj) {
+                    // force external entry addition
+                    if (force) {
+                        return entry;
+                    } else {
+                        console.error(`Config Merge failed. ${entry.id} not found in internal config`);
+                    }
+                } else {
+                    return {...entry, ...obj};
+                }
+            });
+        }
+        console.warn("external config not available");
+        return internal;
+    }
+
     /**
      * Hydrates `external` array with `internal` data.
      * `external` is a plain list of IDs.
@@ -526,45 +527,49 @@ export default class UtilsNew {
      */
     static mergeTable(internal, external) {
         // single array
-        if (internal instanceof Array && !(internal[0] instanceof Array)) {
-            return internal.filter(c => ~external.indexOf(c.id));
-        }
-        // double array
+        if (external) {
+            if (internal instanceof Array && !(internal[0] instanceof Array)) {
+                return internal.filter(c => ~external.indexOf(c.id));
+            }
+            // double array
 
-        /**
-         * the correct indexes for subFields are found with this simple idea:
-         * in the first array, each rowspan=x means the second array has x-1 less elements, each colspan=y has y+1 elms.
-         */
-        if (internal[0] instanceof Array) {
-            const result = [[], []];
-            let subIndx = 0; // keeps track of the starting index of the elms to add
-            let rowSpanCnt = 0;
-            internal[0].filter(f => f?.visible !== false).forEach((c, i) => {
-                // debugger
-                if (~external.indexOf(c.id)) {
+            /**
+             * the correct indexes for subFields are found with this simple idea:
+             * in the first array, each rowspan=x means the second array has x-1 less elements, each colspan=y has y+1 elms.
+             */
+            if (internal[0] instanceof Array) {
+                const result = [[], []];
+                let subIndx = 0; // keeps track of the starting index of the elms to add
+                let rowSpanCnt = 0;
+                internal[0].filter(f => f?.visible !== false).forEach((c, i) => {
                     // debugger
-                    result[0].push(c);
-                    // rowspan = 1
-                    if (c.rowspan !==2 || !c.rowspan) {
-                        // add sub Level
-                        const subFields = internal[1].filter(f => f?.visible !== false).slice(subIndx, subIndx + c.colspan);
-                        result[1].push(...subFields);
-                        // add subIndx the number of elements just added
-                        subIndx += c.colspan ? c.colspan : 0;
+                    if (~external.indexOf(c.id)) {
+                        // debugger
+                        result[0].push(c);
+                        // rowspan = 1
+                        if (c.rowspan !== 2 || !c.rowspan) {
+                            // add sub Level
+                            const subFields = internal[1].filter(f => f?.visible !== false).slice(subIndx, subIndx + c.colspan);
+                            result[1].push(...subFields);
+                            // add subIndx the number of elements just added
+                            subIndx += c.colspan ? c.colspan : 0;
 
+                        } else {
+                        }
                     } else {
+                        // increment subIndx in case the `c` (the current internal element) is not present in `external` array.
+                        // increment iff if rowspan=1 because otherwise an element on top array has no corrisponding elm in the sub array.
+                        if (c.rowspan !== 2 || !c.rowspan) {
+                            subIndx += c.colspan ? c.colspan : 0;
+                        }
                     }
-                } else {
-                    // increment subIndx in case the `c` (the current internal element) is not present in `external` array.
-                    // increment iff if rowspan=1 because otherwise an element on top array has no corrisponding elm in the sub array.
-                    if (c.rowspan !==2 || !c.rowspan) {
-                        subIndx += c.colspan ? c.colspan : 0;
-                    }
-                }
-                // rowSpanCnt += c.rowspan ? c.rowspan-1 : 0;
+                    // rowSpanCnt += c.rowspan ? c.rowspan-1 : 0;
 
-            });
-            return result;
+                });
+                return result;
+            }
+        } else {
+            return internal;
         }
     }
 
