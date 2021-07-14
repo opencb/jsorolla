@@ -185,15 +185,14 @@ export default class VariantInterpreterGrid extends LitElement {
                 columns: this._createDefaultColumns(),
                 method: "get",
                 sidePagination: "server",
-
                 // Set table properties, these are read from config property
                 uniqueId: "id",
+                silentSort: false,
                 pagination: this._config.pagination,
                 pageSize: this._config.pageSize,
                 pageList: this._config.pageList,
                 paginationVAlign: "both",
-                formatShowingRows: (pageFrom, pageTo, totalRows) =>
-                    this.gridCommons.formatShowingRows(pageFrom, pageTo, totalRows, null, this.isApproximateCount),
+                formatShowingRows: (pageFrom, pageTo, totalRows) => this.gridCommons.formatShowingRows(pageFrom, pageTo, totalRows, null, this.isApproximateCount),
                 showExport: this._config.showExport,
                 detailView: this._config.detailView,
                 detailFormatter: this.detailFormatter,

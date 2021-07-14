@@ -119,7 +119,6 @@ class VariantInterpreterBrowserCancer extends LitElement {
         }
         // merge filters
         this._config = {...this.getDefaultConfig(), ...this.config};
-        debugger
         // filter list, canned filters, detail tabs
         if (this.settings?.menu) {
             this._config.filter = UtilsNew.mergeFilters(this._config?.filter, this.settings);
