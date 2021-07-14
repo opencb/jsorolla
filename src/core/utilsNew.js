@@ -430,7 +430,8 @@ export default class UtilsNew {
         // console.log("internal, external", internal, external);
         let sections = internal.sections;
         let examples = internal.examples;
-        let detail = internal.detail;
+        const detail = internal.detail;
+
         if (external?.menu?.filters?.length) {
             sections = internal.sections.map(section => {
                 const fields = [];
@@ -546,6 +547,9 @@ export default class UtilsNew {
                 let rowSpanCnt = 0;
                 internal[0].filter(f => f?.visible !== false).forEach((c, i) => {
                     // debugger
+                    if (!c.id) {
+                        console.error("Column fields must have an id to be merged", c);
+                    }
                     if (~external.indexOf(c.id)) {
                         // debugger
                         result[0].push(c);
@@ -609,6 +613,7 @@ export default class UtilsNew {
     /**
      * It filters internal data-form config object with the fields defined in `external` array. Sections are fixed.
      * NOTE very similar logic as mergeFilters() (although here `external` is an array of strings)
+     * NOTE this is being used in variant-interpreter-qc-overview for merging settings and internal config despite the fact we don't use data-form.
      *
      * @param {Object} internal data-form config object
      * @param {Array} external plain array of fields to show.
