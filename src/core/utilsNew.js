@@ -451,7 +451,8 @@ export default class UtilsNew {
         }
 
         // merge detail tab
-        if (external?.detail?.length && detail.items) {
+        // it doesn't check for external.detail.length because it supports empty array
+        if (external?.detail && detail.items) {
             detail.items = UtilsNew.mergeConfigById(internal.detail.items, external.detail);
         }
 
@@ -472,6 +473,7 @@ export default class UtilsNew {
      */
     static mergeConfigArray(internal, external, force = false) {
         // console.log("internal, external", internal, external)
+        // it doesn't check for external.length because it supports empty array
         if (external) {
             return external.map(entry => {
                 const obj = internal.find(e => entry.id === e.id);
@@ -501,7 +503,8 @@ export default class UtilsNew {
      */
     static mergeConfigById(internal, external) {
         // console.log("internal, external", internal, external)
-        if (external?.length) {
+        // it doesn't check for external.length because it supports empty array
+        if (external) {
             return external.map(id => {
                 const obj = internal.find(e => id === e.id);
                 if (!obj) {
