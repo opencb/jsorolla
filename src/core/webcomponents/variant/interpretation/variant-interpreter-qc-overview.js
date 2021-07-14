@@ -51,7 +51,7 @@ class VariantInterpreterQcOverview extends LitElement {
             clinicalAnalysis: {
                 type: Object
             },
-            config: {
+            settings: {
                 type: Object
             }
         };
@@ -81,11 +81,12 @@ class VariantInterpreterQcOverview extends LitElement {
             this.clinicalAnalysisIdObserver();
         }
 
-        if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
-            if (this.config.overviewTabs) {
-                this._config = UtilsNew.mergeDataFormConfig(this._config, this.config.overviewTabs);
+        if (changedProperties.has("settings")) {
+            this._config = {...this.getDefaultConfig(), ...this.settings};
+            if (this.settings.tabs) {
+                this._config = UtilsNew.mergeDataFormConfig(this._config, this.settings.tabs);
             }
+            // debugger
             this.requestUpdate();
         }
     }

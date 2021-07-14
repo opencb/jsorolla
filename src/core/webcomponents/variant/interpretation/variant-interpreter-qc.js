@@ -259,7 +259,7 @@ class VariantInterpreterQc extends LitElement {
                             <variant-interpreter-qc-overview .opencgaSession="${this.opencgaSession}" 
                                                              .clinicalAnalysis="${this.clinicalAnalysis}"
                                                              .active="${this.activeTab["Overview"]}" 
-                                                             .config="${this._config}">
+                                                             .settings="${variantInterpreterQcOverviewSettings}">
                             </variant-interpreter-qc-overview>
                         </div>` :
                         ""
