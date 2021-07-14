@@ -164,7 +164,7 @@ class VariantInterpreterQcOverview extends LitElement {
                             {
                                 id: "AlignmentStats",
                                 title: "Samtools Flagstats",
-                                disabled: application.appConfig !== "opencb"
+                                /*disabled: application.appConfig !== "opencb"*/
                             }
                             /* {
                                 id: "GeneCoverageStats",
@@ -188,7 +188,7 @@ class VariantInterpreterQcOverview extends LitElement {
                             {
                                 id: "VariantStats",
                                 title: "QC Plot Files",
-                                disabled: application.appConfig !== "opencb"
+                                /*disabled: application.appConfig !== "opencb"*/
                             },
                             {
                                 id: "SamtoolsPlots",
@@ -197,12 +197,12 @@ class VariantInterpreterQcOverview extends LitElement {
                             {
                                 id: "Alignment",
                                 title: "Samtools Stats",
-                                disabled: application.appConfig !== "opencb"
+                                /*disabled: application.appConfig !== "opencb"*/
                             },
                             {
                                 id: "AlignmentStats",
                                 title: "Samtools Flagstats",
-                                disabled: application.appConfig !== "opencb"
+                                /*disabled: application.appConfig !== "opencb"*/
                             },
                             {
                                 id: "GenomicContext",
@@ -211,7 +211,7 @@ class VariantInterpreterQcOverview extends LitElement {
                             {
                                 id: "GeneCoverageStats",
                                 title: "Gene Coverage Stats",
-                                disabled: application.appConfig !== "opencb"
+                                /*disabled: application.appConfig !== "opencb"*/
                             }
                         ]
                     }
