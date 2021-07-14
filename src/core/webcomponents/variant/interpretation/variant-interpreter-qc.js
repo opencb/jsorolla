@@ -258,7 +258,8 @@ class VariantInterpreterQc extends LitElement {
                             <tool-header title="Quality Control Overview - ${this.clinicalAnalysis.proband.id}" class="bg-white"></tool-header>
                             <variant-interpreter-qc-overview .opencgaSession="${this.opencgaSession}" 
                                                              .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                             .active="${this.activeTab["Overview"]}">
+                                                             .active="${this.activeTab["Overview"]}" 
+                                                             .config="${this._config}">
                             </variant-interpreter-qc-overview>
                         </div>` :
                         ""
