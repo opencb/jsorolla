@@ -111,7 +111,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
         this._config = {...this.getDefaultConfig(), ...this.config};
         // filter list and canned filters
         if (this.settings?.menu) {
-            this._config.filter = UtilsNew.mergeFilters(this._config?.filter, this.settings.menu);
+            this._config.filter = UtilsNew.mergeFilters(this._config?.filter, this.settings);
         }
 
         if (this.settings?.table) {
@@ -120,9 +120,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
         if (this.settings?.table?.toolbar) {
             this._config.grid.toolbar = {...this._config.grid.toolbar, ...this.settings.table.toolbar};
         }
-        if (this.settings?.view) {
-            this._config.view = {...this._config.view, ...this.settings.view};
-        }
+
         this.requestUpdate();
     }
 
@@ -345,7 +343,6 @@ export default class OpencgaClinicalReviewCases extends LitElement {
         }
     }
 
-    // TODO better adapt config to the a dynamic view
     getDefaultConfig() {
         return {
             title: "Review Portal",
@@ -699,7 +696,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                             <div>
                                                 <opencga-clinical-analysis-view .opencgaSession="${this.opencgaSession}"
                                                                                 .clinicalAnalysisId=${this.clinicalAnalysis.id}
-                                                                                .config="${this._config.view}">
+                                                                                .settings="${opencgaClinicalAnalysisViewSettings}">
                                                 </opencga-clinical-analysis-view>
                                             </div>
                                         </div>
