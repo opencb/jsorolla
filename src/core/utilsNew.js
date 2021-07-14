@@ -561,7 +561,7 @@ export default class UtilsNew {
                         }
                     } else {
                         // increment subIndx in case the `c` (the current internal element) is not present in `external` array.
-                        // increment iff if rowspan=1 because otherwise an element on top array has no corrisponding elm in the sub array.
+                        // increment iff if rowspan=1 because otherwise an element on top array has no corresponding elm in the sub array.
                         if (c.rowspan !== 2 || !c.rowspan) {
                             subIndx += c.colspan ? c.colspan : 0;
                         }
