@@ -54,6 +54,9 @@ export default class OpencgaJobGrid extends LitElement {
             },
             config: {
                 type: Object
+            },
+            active: {
+                type: Boolean
             }
         };
     }
@@ -62,6 +65,7 @@ export default class OpencgaJobGrid extends LitElement {
         this._prefix = "jbgrid" + UtilsNew.randomString(6) + "_";
         this.eventNotifyName = "messageevent";
         this.gridId = this._prefix + "JobBrowserGrid";
+        this.active = true;
     }
 
     connectedCallback() {
@@ -70,38 +74,25 @@ export default class OpencgaJobGrid extends LitElement {
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
     }
 
-    firstUpdated(_changedProperties) {
-        this._initTableColumns();
-        this.dispatchEvent(new CustomEvent("clear", {detail: {}, bubbles: true, composed: true}));
-        this.table = $("#" + this.gridId);
-        this.query = {};
-    }
-
     updated(changedProperties) {
-        if (changedProperties.has("opencgaSession") || changedProperties.has("query")) {
+        if ((changedProperties.has("opencgaSession") ||
+            changedProperties.has("query") ||
+            changedProperties.has("config") ||
+            changedProperties.has("active")) &&
+            this.active) {
             this.propertyObserver();
-        }
-        if (changedProperties.has("filters")) {
-            this.onFilterUpdate();
-        }
-        if (changedProperties.has("config")) {
-            this.configObserver();
-        }
-
-        if (changedProperties.has("filteredVariables")) {
-            // this.calculateFilters(); // TODO whats this?
         }
     }
 
     propertyObserver() {
+        // With each property change we must updated config and create the columns again. No extra checks are needed.
+        this._config = {...this.getDefaultConfig(), ...this.config};
         this.toolbarConfig = {
+            ...this.config.toolbar,
+            resource: "JOB",
             columns: this._initTableColumns().filter(col => col.field)
         };
         this.renderTable();
-    }
-
-    configObserver() {
-        this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
     onColumnChange(e) {
@@ -111,9 +102,7 @@ export default class OpencgaJobGrid extends LitElement {
     renderTable() {
         this.jobs = [];
 
-        if (UtilsNew.isNotUndefined(this.opencgaSession.opencgaClient) &&
-            UtilsNew.isNotUndefined(this.opencgaSession.study) &&
-            UtilsNew.isNotUndefined(this.opencgaSession.study.fqn)) {
+        if (this.opencgaSession.opencgaClient && this.opencgaSession?.study?.fqn) {
             // Make a copy of the jobs (if they exist), we will use this private copy until it is assigned to this.jobs
             if (UtilsNew.isNotUndefined(this.jobs)) {
                 this._jobs = this.jobs;
@@ -121,12 +110,10 @@ export default class OpencgaJobGrid extends LitElement {
                 this._jobs = [];
             }
 
-            const _this = this;
             this.table = $("#" + this.gridId);
-
             this.table.bootstrapTable("destroy");
             this.table.bootstrapTable({
-                columns: _this._columns,
+                columns: this._initTableColumns(),
                 method: "get",
                 sidePagination: "server",
                 uniqueId: "id",
@@ -195,10 +182,6 @@ export default class OpencgaJobGrid extends LitElement {
                 },
                 onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse)
             });
-        } else {
-            // Delete table
-            this.table.bootstrapTable("destroy");
-            this.numTotalResults = 0;
         }
     }
 
@@ -249,27 +232,32 @@ export default class OpencgaJobGrid extends LitElement {
     }*/
 
     _initTableColumns() {
-        this._columns = [
+        let _columns = [
             // name,path,samples,status,format,bioformat,creationDate,modificationDate,uuid"
             {
+                id: "id",
                 title: "Job ID",
                 field: "id"
             },
             {
+                id: "toolId",
                 title: "Analysis Tool ID",
                 field: "tool.id"
             },
             {
+                id: "status",
                 title: "Status",
                 field: "internal.status",
                 formatter: status => UtilsNew.jobStatusFormatter(status)
             },
 
             {
+                id: "priority",
                 title: "Priority",
                 field: "priority"
             },
             {
+                id: "dependsOn",
                 title: "Depends on",
                 field: "dependsOn",
                 formatter: v => v.length > 0 ?
@@ -279,6 +267,7 @@ export default class OpencgaJobGrid extends LitElement {
                     ` : "-"
             },
             {
+                id: "output",
                 title: "Output Files",
                 field: "output",
                 formatter: value => {
@@ -296,6 +285,7 @@ export default class OpencgaJobGrid extends LitElement {
             //     formatter: v => v && v.length ? v.map( tag => `<span class="badge badge-secondary">${tag}</span>`).join(" ") : "-"
             // },
             {
+                id: "execution",
                 title: "Runtime",
                 field: "execution",
                 formatter: execution => {
@@ -308,6 +298,7 @@ export default class OpencgaJobGrid extends LitElement {
 
             },
             {
+                id: "execution",
                 title: "Start/End Date",
                 field: "execution",
                 formatter: execution => execution?.start ?
@@ -315,17 +306,16 @@ export default class OpencgaJobGrid extends LitElement {
                     "-"
             },
             {
+                id: "creationDate",
                 title: "Creation Date",
                 field: "creationDate",
                 formatter: CatalogGridFormatter.dateFormatter
             }
-            // {
-            //     title: "Visited",
-            //     field: "visited"
-            // }
         ];
 
-        return this._columns;
+        console.log(_columns.map(f => f.id))
+        _columns = UtilsNew.mergeTable(_columns, this._config.columns);
+        return _columns;
     }
 
     detailFormatter(value, row) {
@@ -474,12 +464,17 @@ export default class OpencgaJobGrid extends LitElement {
 
     render() {
         return html`
-            ${this._config.showToolbar ? html`
-                <opencb-grid-toolbar .config="${this.toolbarConfig}"
-                                    @columnChange="${this.onColumnChange}"
-                                    @download="${this.onDownload}">
-                </opencb-grid-toolbar>` :
-            null}
+            ${this._config.showToolbar ?
+                html`
+                    <opencb-grid-toolbar  .config="${this.toolbarConfig}"
+                                          .query="${this.query}"
+                                          .opencgaSession="${this.opencgaSession}"
+                                          @columnChange="${this.onColumnChange}"
+                                          @download="${this.onDownload}"
+                                          @export="${this.onDownload}">
+                    </opencb-grid-toolbar>` :
+                ""
+            }
             <div>
                 <table id="${this.gridId}"></table>
             </div>
