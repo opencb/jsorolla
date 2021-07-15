@@ -33,12 +33,6 @@ export default class DisorderManager extends LitElement {
             disorder: {
                 type: Object
             },
-            updateManager: {
-                type: Boolean
-            },
-            config: {
-                type: Object
-            }
         };
     }
 
@@ -51,12 +45,17 @@ export default class DisorderManager extends LitElement {
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
-    onFieldChangeDisorder(e) {
+    onFieldChange(e) {
         const field = e.detail.param;
-        this.disorder = {
-            ...this.disorder,
-            [field]: e.detail.value
-        };
+        if (e.detail.value) {
+            this.disorder = {
+                ...this.disorder,
+                [field]: e.detail.value
+            };
+        } else {
+            delete this.disorder[field];
+        }
+        console.log("Change disorder: ", this.disorder);
     }
 
     getDefaultConfig() {
@@ -66,13 +65,9 @@ export default class DisorderManager extends LitElement {
             buttons: {
                 show: true,
                 cancelText: "Cancel",
-                classes: "pull-right btn btn-primary ripple"
+                classes: "pull-right"
             },
             display: {
-                mode: {
-                    type: "modal",
-                    title: "Disorder information"
-                },
                 labelWidth: 3,
                 labelAlign: "right",
                 defaultLayout: "horizontal",
@@ -110,7 +105,7 @@ export default class DisorderManager extends LitElement {
 
     onClearForm(e) {
         e.stopPropagation();
-        LitUtils.dispatchEventCustom(this._config, "closeForm");
+        LitUtils.dispatchEventCustom(this, "closeForm");
     }
 
     onDisorderChange(e) {
@@ -134,7 +129,7 @@ export default class DisorderManager extends LitElement {
             <data-form
                 .data=${this.disorder}
                 .config="${this._config}"
-                @fieldChange="${e =>this.onFieldChangeDisorder(e)}"
+                @fieldChange="${e =>this.onFieldChange(e)}"
                 @clear="${this.onClearForm}"
                 @submit="${e => this.onSendDisorder(e)}">
             </data-form>

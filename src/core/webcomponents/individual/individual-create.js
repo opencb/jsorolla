@@ -16,9 +16,8 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "./../../utilsNew.js";
-// import "../commons/manager/phenotype-manager.js";
-import "../commons/phenotype/phenotype-list-manager.js";
-import "../individual/disorder/disorder-list-manager.js";
+import "../commons/phenotype/phenotype-list-update.js";
+import "../individual/disorder/disorder-list-update.js";
 import FormUtils from "../../form-utils.js";
 
 export default class IndividualCreate extends LitElement {
@@ -117,6 +116,7 @@ export default class IndividualCreate extends LitElement {
 
     onSyncDisorders(e) {
         e.stopPropagation();
+        console.log("Updated list");
         this.individual = {...this.individual, disorders: e.detail.value};
     }
 
@@ -291,11 +291,11 @@ export default class IndividualCreate extends LitElement {
                                 width: 12,
                                 style: "padding-left: 0px",
                                 render: () => html`
-                                    <phenotype-list-manager
+                                    <phenotype-list-update
                                         .phenotypes="${this.individual?.phenotypes}"
                                         .opencgaSession="${this.opencgaSession}"
                                         @changePhenotypes="${e => this.onSyncPhenotypes(e)}">
-                                    </phenotype-list-manager>`
+                                    </phenotype-list-update>`
                             }
                         },
                     ]
@@ -312,11 +312,11 @@ export default class IndividualCreate extends LitElement {
                                 width: 12,
                                 style: "padding-left: 0px",
                                 render: () => html`
-                                    <disorder-list-manager
+                                    <disorder-list-update
                                         .disorders="${this.individual?.disorders}"
                                         .opencgaSession="${this.opencgaSession}"
                                         .@changeDisorders=${e => this.onSyncDisorders(e)}>
-                                    </disorder-list-manager>`
+                                    </disorder-list-update>`
                             }
                         }
                     ]

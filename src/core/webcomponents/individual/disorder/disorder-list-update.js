@@ -21,7 +21,7 @@ import LitUtils from "../../commons/utils/lit-utils.js";
 import UtilsNew from "../../../utilsNew.js";
 import "./disorder-manager.js";
 
-export default class DisorderListManager extends LitElement {
+export default class DisorderListUpdate extends LitElement {
 
     constructor() {
         super();
@@ -126,10 +126,9 @@ export default class DisorderListManager extends LitElement {
     }
 
     onCloseForm(e) {
-        this.isShow = false;
-        this.phenotype = {};
-        $("#disorderManagerModal"+ this._prefix).modal("hide");
         e.stopPropagation();
+        this.disorder = {};
+        $("#disorderManagerModal"+ this._prefix).modal("hide");
     }
 
     renderItems(disorders) {
@@ -138,7 +137,7 @@ export default class DisorderListManager extends LitElement {
                     <li>
                         <div class="row">
                             <div class="col-md-8">
-                                <span style="margin-left:14px">${item.name}</span>
+                                <span style="margin-left:14px">${item.description}</span>
                             </div>
                             <div class="col-md-4">
                                 <div class="btn-group pull-right" style="padding-bottom:5px" role="group">
@@ -188,7 +187,7 @@ export default class DisorderListManager extends LitElement {
             <div class="col-md-12" style="padding: 10px 20px">
                 <div class="container" style="width:100%">
                     <ul id="myUL">
-                        ${this.renderReadOnlyItem(this.phenotypes)}
+                        ${this.renderReadOnlyItem(this.disorders)}
                     </ul>
                 </div>
             </div>
@@ -196,7 +195,7 @@ export default class DisorderListManager extends LitElement {
             <div class="col-md-12" style="padding: 10px 20px">
                 <div class="container" style="width:100%">
                     <ul id="myUL">
-                        ${this.renderItems(this.phenotypes)}
+                        ${this.renderItems(this.disorders)}
                     </ul>
                     ${!this.updateManager?html`
                         <button type="button" class="btn btn-primary btn-sm"
@@ -205,17 +204,28 @@ export default class DisorderListManager extends LitElement {
                         </button>`: ""}
                 </div>
             </div>
-            <disorder-manager
-                .disorder="${this.disorder}"
-                .updateManager="${this.updateManager}"
-                @closeForm="${e => this.onCloseForm(e)}"
-                @addItem="${this.onActionPhenotype}">
-            </disorder-manager>
 
+            <div id=${"disorderManagerModal"+this._prefix} class="modal fade" tabindex="-1" role="dialog">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title">Disorder Information</h4>
+                        </div>
+                        <div class="modal-body">
+                            <disorder-manager
+                                .disorder="${this.disorder}"
+                                @closeForm="${e => this.onCloseForm(e)}"
+                                @addItem="${this.onActionDisorder}">
+                            </disorder-manager>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             `}`;
     }
 
 }
 
-customElements.define("disorder-list-manager", DisorderListManager);
+customElements.define("disorder-list-update", DisorderListUpdate);

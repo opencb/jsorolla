@@ -18,7 +18,7 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "./../../utilsNew.js";
 import "../commons/tool-header.js";
 import FormUtils from "../../form-utils.js";
-import "../commons/phenotype/phenotype-list-manager.js";
+import "../commons/phenotype/phenotype-list-update.js";
 
 export default class IndividualUpdate extends LitElement {
 
@@ -329,12 +329,12 @@ export default class IndividualUpdate extends LitElement {
                                 width: 12,
                                 style: "padding-left: 0px",
                                 render: () => html`
-                                <phenotype-list-manager
+                                <phenotype-list-update
                                     .phenotypes="${this.individual?.phenotypes}"
                                     .updateManager="${true}"
                                     .opencgaSession="${this.opencgaSession}"
                                     @changePhenotypes="${e => this.onSyncPhenotypes(e)}">
-                                </phenotype-list-manager>`
+                                </phenotype-list-update>`
                             }
                         },
                     ]
