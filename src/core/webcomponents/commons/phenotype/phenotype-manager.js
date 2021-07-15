@@ -14,20 +14,15 @@
  * limitations under the License.
  */
 
-
 import {LitElement, html} from "/web_modules/lit-element.js";
-// import UtilsNew from "../../../utilsNew.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
 
-
-// eslint-disable-next-line new-cap
 export default class PhenotypeManager extends LitElement {
 
     constructor() {
         super();
         this._init();
     }
-
 
     createRenderRoot() {
         return this;
@@ -36,21 +31,20 @@ export default class PhenotypeManager extends LitElement {
     static get properties() {
         return {
             phenotype: {
-                type: Array
-            },
-            updateManager: {
-                type: Boolean
-            },
-            config: {
                 type: Object
             }
+            // updateManager: {
+            //     type: Boolean
+            // },
+            // config: {
+            //     type: Object
+            // }
         };
     }
 
     _init() {
         this.phenotype = {};
     }
-
 
     connectedCallback() {
         super.connectedCallback();
@@ -64,12 +58,17 @@ export default class PhenotypeManager extends LitElement {
         this.requestUpdate();
     }
 
-    onFieldChangePhenotype(e) {
+    onFieldChange(e) {
         const field = e.detail.param;
-        this.phenotype = {
-            ...this.phenotype,
-            [field]: e.detail.value
-        };
+        if (e.detail.value) {
+            // No need to switch(field) since all of them are processed in the same way
+            this.phenotype = {
+                ...this.phenotype,
+                [field]: e.detail.value
+            };
+        } else {
+            delete this.phenotype[field];
+        }
     }
 
     getDefaultConfig() {
@@ -95,7 +94,7 @@ export default class PhenotypeManager extends LitElement {
                             field: "id",
                             type: "input-text",
                             display: {
-                                disabled: this.updateManager,
+                                // disabled: this.updateManager,
                                 placeholder: "Name ..."
                             }
                         },
@@ -154,7 +153,7 @@ export default class PhenotypeManager extends LitElement {
             <data-form
                 .data=${this.phenotype}
                 .config="${this._config}"
-                @fieldChange="${e => this.onFieldChangePhenotype(e)}"
+                @fieldChange="${e => this.onFieldChange(e)}"
                 @clear="${this.onClearForm}"
                 @submit="${e => this.onSendPhenotype(e)}">
             </data-form>
