@@ -46,14 +46,14 @@ export default class OpencgaSampleBrowser extends LitElement {
             selectedFacet: {
                 type: Object
             },
-            config: {
+            settings: {
                 type: Object
             }
         };
     }
 
     _init() {
-        this._prefix = UtilsNew.randomString(8);
+        this._prefix = "sb" + UtilsNew.randomString(8);
 
         // These are for making the queries to server
         this.facetFields = [];
@@ -75,18 +75,32 @@ export default class OpencgaSampleBrowser extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
-
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
     updated(changedProperties) {
-        /*if (changedProperties.has("opencgaSession")) {
+        /* if (changedProperties.has("opencgaSession")) {
             this.opencgaSessionObserver();
         }*/
-        if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
-            this.requestUpdate();
+        if (changedProperties.has("settings")) {
+            this.settingsObserver();
         }
+    }
+
+    settingsObserver() {
+        this._config = {...this.getDefaultConfig()};
+        // merge filter list, canned filters, detail tabs
+        if (this.settings?.menu) {
+            this._config.filter = UtilsNew.mergeFilters(this._config?.filter, this.settings);
+        }
+
+        if (this.settings?.table) {
+            this._config.filter.result.grid = {...this._config.filter.result.grid, ...this.settings.table};
+        }
+        if (this.settings?.table?.toolbar) {
+            this._config.filter.result.grid.toolbar = {...this._config.filter.result.grid.toolbar, ...this.settings.table.toolbar};
+        }
+        this.requestUpdate();
     }
 
     getDefaultConfig() {
@@ -104,7 +118,7 @@ export default class OpencgaSampleBrowser extends LitElement {
                     id: "facet-tab",
                     name: "Aggregation stats",
                     icon: "fas fa-chart-bar"
-                },/*
+                }/*
                 {
                     id: "comparator-tab",
                     name: "Comparator"
@@ -173,11 +187,13 @@ export default class OpencgaSampleBrowser extends LitElement {
                         }
                     }
                 ],
-                grid: {
-                    pageSize: 10,
-                    pageList: [10, 25, 50],
-                    multiSelection: false,
-                    showSelectCheckbox: false,
+                result: {
+                    grid: {
+                        pageSize: 10,
+                        pageList: [10, 25, 50],
+                        multiSelection: false,
+                        showSelectCheckbox: false
+                    }
                 },
                 detail: {
                     title: "Sample",
@@ -373,12 +389,13 @@ export default class OpencgaSampleBrowser extends LitElement {
     }
 
     render() {
-        return this._config ? html`
+        return this.opencgaSession && this._config ? html`
             <opencga-browser  resource="SAMPLE"
                               .opencgaSession="${this.opencgaSession}"
                               .query="${this.query}"
                               .config="${this._config}">
-            </opencga-browser>` : null;
+            </opencga-browser>` :
+            "";
     }
 
 }

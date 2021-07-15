@@ -45,34 +45,34 @@ export default class OpencgaSampleGrid extends LitElement {
             samples: {
                 type: Array
             },
-            active: {
-                type: Boolean
-            },
             config: {
                 type: Object
+            },
+            active: {
+                type: Boolean
             }
         };
     }
 
     _init() {
         this._prefix = UtilsNew.randomString(8);
-
-        this.catalogUiUtils = new CatalogUtils();
         this.gridId = this._prefix + "SampleBrowserGrid";
+        this.catalogUiUtils = new CatalogUtils();
+        this.active = true;
     }
 
     connectedCallback() {
         super.connectedCallback();
-
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this._config = {...this.getDefaultConfig()};
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("opencgaSession") ||
+        if ((changedProperties.has("opencgaSession") ||
             changedProperties.has("query") ||
             changedProperties.has("config") ||
-            changedProperties.has("active")) {
+            changedProperties.has("active")) &&
+            this.active) {
             this.propertyObserver();
         }
     }
@@ -82,6 +82,7 @@ export default class OpencgaSampleGrid extends LitElement {
         this._config = {...this.getDefaultConfig(), ...this.config};
         // Config for the grid toolbar
         this.toolbarConfig = {
+            ...this.config.toolbar,
             resource: "SAMPLE",
             buttons: ["columns", "download"],
             columns: this._getDefaultColumns()
@@ -100,7 +101,7 @@ export default class OpencgaSampleGrid extends LitElement {
     }
 
     renderRemoteTable() {
-        if (this.opencgaSession.opencgaClient && this.opencgaSession.study) {
+        if (this.opencgaSession.opencgaClient && this.opencgaSession?.study?.fqn) {
             const filters = {...this.query};
             // TODO fix and replicate this in all browsers (the current filter is not "filters", it is actually built in the ajax() function in bootstrapTable)
             if (UtilsNew.isNotUndefinedOrNull(this.lastFilters) &&
@@ -270,38 +271,46 @@ export default class OpencgaSampleGrid extends LitElement {
     }
 
     _getDefaultColumns() {
-        const _columns = [
+        let _columns = [
             {
+                id: "id",
                 title: "Sample ID",
                 field: "id"
             },
             {
+                id: "individualId",
                 title: "Individual ID",
                 formatter: (value, row) => row?.individualId ?? "-"
             },
             {
+                id: "fileIds",
                 title: "Files (VCF, BAM)",
                 field: "fileIds",
                 formatter: fileIds => CatalogGridFormatter.fileFormatter(fileIds, ["vcf", "vcf.gz", "bam"])
             },
             {
+                id: "caseId",
                 title: "Case ID",
                 field: "attributes.OPENCGA_CLINICAL_ANALYSIS",
                 formatter: (value, row) => CatalogGridFormatter.caseFormatter(value, row, row.individualId, this.opencgaSession)
             },
             {
+                id: "collection.method",
                 title: "Collection Method",
                 field: "collection.method"
             },
             {
+                id: "processing.preparationMethod",
                 title: "Preparation Method",
                 field: "processing.preparationMethod"
             },
             {
+                id: "cellLine",
                 title: "Cell Line",
                 formatter: (value, row) => row.somatic ? "Somatic" : "Germline"
             },
             {
+                id: "creationDate",
                 title: "Creation Date",
                 field: "creationDate",
                 formatter: CatalogGridFormatter.dateFormatter
@@ -310,6 +319,7 @@ export default class OpencgaSampleGrid extends LitElement {
 
         if (this._config.showSelectCheckbox) {
             _columns.push({
+                id: "state",
                 field: "state",
                 checkbox: true,
                 // formatter: this.stateFormatter,
@@ -320,6 +330,7 @@ export default class OpencgaSampleGrid extends LitElement {
 
         if (this.opencgaSession && this._config.showActions) {
             _columns.push({
+                id: "actions",
                 title: "Actions",
                 formatter: (value, row) => `
                     <div class="dropdown">
@@ -378,6 +389,8 @@ export default class OpencgaSampleGrid extends LitElement {
             });
         }
 
+        console.log(_columns.map(f => f.id))
+        _columns = UtilsNew.mergeTable(_columns, this._config.columns);
         return _columns;
     }
 
@@ -395,7 +408,7 @@ export default class OpencgaSampleGrid extends LitElement {
 
         this.opencgaSession.opencgaClient.samples().search(params)
             .then(response => {
-                const results = response.responses[0].results;
+                const results = response.getResults();
                 if (results) {
                     // Check if user clicked in Tab or JSON format
                     if (e.detail.option.toUpperCase() === "TAB") {
@@ -445,7 +458,7 @@ export default class OpencgaSampleGrid extends LitElement {
                                           @download="${this.onDownload}"
                                           @export="${this.onDownload}">
                     </opencb-grid-toolbar>` :
-                null
+                ""
             }
     
             <div id="${this._prefix}GridTableDiv" class="force-overflow">

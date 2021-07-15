@@ -524,6 +524,8 @@ export default class UtilsNew {
      * At the moment it manages the visibility of the fields at the first level.
      * The fields at the second level are hidden iff the corresponding field at the first level is hidden.
      * At the moment it doesn't handle >2D arrays.
+     * // TODO add support to hiddenColumns list. (we use clinical-analysis-grid with no action column in individual-browser)
+     *
      *
      * @param {Array} internal 1D or 2D array
      * @param {Array} external plain array of strings.
@@ -533,7 +535,12 @@ export default class UtilsNew {
         // single array
         if (external) {
             if (internal instanceof Array && !(internal[0] instanceof Array)) {
-                return internal.filter(c => ~external.indexOf(c.id));
+                return internal.filter(c => {
+                    if (!c.id) {
+                        console.error("Column fields must have an id to be merged", c);
+                    }
+                    return ~external.indexOf(c.id)
+                });
             }
             // double array
 
@@ -546,7 +553,7 @@ export default class UtilsNew {
                 let subIndx = 0; // keeps track of the starting index of the elms to add
                 let rowSpanCnt = 0;
                 internal[0].filter(f => f?.visible !== false).forEach((c, i) => {
-                    // debugger
+
                     if (!c.id) {
                         console.error("Column fields must have an id to be merged", c);
                     }
