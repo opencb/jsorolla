@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
-import "../commons/phenotype/phenotype-list-manager.js";
+import "../commons/phenotype/phenotype-list-update.js";
 import "../commons/manager/annotation-set-manager.js";
 
 export default class SampleCreate extends LitElement {
@@ -377,11 +377,11 @@ export default class SampleCreate extends LitElement {
                                 width: 12,
                                 style: "padding-left: 0px",
                                 render: () => html`
-                                    <phenotype-list-manager
+                                    <phenotype-list-update
                                         .phenotypes="${this.sample?.phenotypes}"
                                         .opencgaSession="${this.opencgaSession}"
                                         @changePhenotypes="${e => this.onSyncPhenotypes(e)}">
-                                    </phenotype-list-manager>`
+                                    </phenotype-list-update>`
                             }
                         },
                         {

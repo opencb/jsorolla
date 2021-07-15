@@ -21,7 +21,7 @@ import LitUtils from "../../commons/utils/lit-utils.js";
 import UtilsNew from "../../../utilsNew.js";
 import "./phenotype-manager.js";
 
-export default class PhenotypeListManager extends LitElement {
+export default class phenotypeListUpdate extends LitElement {
 
     constructor() {
         super();
@@ -31,7 +31,6 @@ export default class PhenotypeListManager extends LitElement {
     createRenderRoot() {
         return this;
     }
-
 
     static get properties() {
         return {
@@ -50,9 +49,9 @@ export default class PhenotypeListManager extends LitElement {
         };
     }
 
-
     _init() {
         this._prefix = UtilsNew.randomString(8);
+
         this.isShow = false;
         this.phenotype = {};
         this._manager = {
@@ -77,21 +76,21 @@ export default class PhenotypeListManager extends LitElement {
     onActionPhenotype(e) {
         e.stopPropagation();
         if (this._manager.action === "ADD") {
-            this._onAddPhenotype(e.detail.value);
+            this.addPhenotype(e.detail.value);
         } else {
-            this._onEditPhenotype(e.detail.value);
+            this.editPhenotype(e.detail.value);
         }
         $("#phenotypeManagerModal" + this._prefix).modal("hide");
         this.requestUpdate();
     }
 
-    _onAddPhenotype(phenotype) {
+    addPhenotype(phenotype) {
         this.isShow = false;
         this.phenotypes = [...this.phenotypes, phenotype];
         LitUtils.dispatchEventCustom(this, "changePhenotypes", this.phenotypes);
     }
 
-    _onEditPhenotype(phenotype) {
+    editPhenotype(phenotype) {
         this.isShow = false;
         const indexPheno = this.phenotypes.findIndex(pheno => pheno.id === this.phenotype.id);
         this.phenotypes[indexPheno] = phenotype;
@@ -99,7 +98,6 @@ export default class PhenotypeListManager extends LitElement {
         LitUtils.dispatchEventCustom(this, "changePhenotypes", this.phenotypes);
         this.requestUpdate();
     }
-
 
     onRemovePhenotype(e, item) {
         e.stopPropagation();
@@ -184,7 +182,7 @@ export default class PhenotypeListManager extends LitElement {
             }
         </style>
 
-        ${this.readOnly ?html `
+        ${this.readOnly ? html `
             <div class="col-md-12" style="padding: 10px 20px">
                 <div class="container" style="width:100%">
                     <ul id="myUL">
@@ -198,7 +196,7 @@ export default class PhenotypeListManager extends LitElement {
                     <ul id="myUL">
                         ${this.renderPhenotypes(this.phenotypes)}
                     </ul>
-                    ${!this.updateManager?html`
+                    ${!this.updateManager ? html`
                         <button type="button" class="btn btn-primary btn-sm"
                             @click="${e => this.onShowPhenotypeManager(e, {action: "ADD"})}">
                             Add Phenotype
@@ -227,4 +225,4 @@ export default class PhenotypeListManager extends LitElement {
 
 }
 
-customElements.define("phenotype-list-manager", PhenotypeListManager);
+customElements.define("phenotype-list-update", phenotypeListUpdate);

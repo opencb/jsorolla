@@ -373,12 +373,12 @@ export default class SampleUpdate extends LitElement {
                                 width: 12,
                                 style: "padding-left: 0px",
                                 render: () => html`
-                                    <phenotype-list-manager
+                                    <phenotype-list-update
                                         .phenotypes="${this.sample?.phenotypes}"
                                         .updateManager="${true}"
                                         .opencgaSession="${this.opencgaSession}"
                                         @changePhenotypes="${e => this.onSyncPhenotypes(e)}">
-                                    </phenotype-list-manager>`
+                                    </phenotype-list-update>`
                             }
                         },
                         {
