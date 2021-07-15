@@ -15,29 +15,48 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../utilsNew.js";
-import {BaseManagerMixin} from "../commons/manager/base-manager.js";
+import LitUtils from "../../commons/utils/lit-utils.js";
 
-// eslint-disable-next-line new-cap
-export default class DisorderManager extends BaseManagerMixin(LitElement) {
+export default class DisorderManager extends LitElement {
 
     constructor() {
         super();
         this._init();
     }
 
+    createRenderRoot() {
+        return this;
+    }
+
     static get properties() {
         return {
-            disorders: {
-                type: Array
+            disorder: {
+                type: Object
             },
+            updateManager: {
+                type: Boolean
+            },
+            config: {
+                type: Object
+            }
         };
     }
 
     _init() {
-        this._prefix = UtilsNew.randomString(8);
-        this.disorders = [];
         this.disorder = {};
+    }
+
+    connectedCallback() {
+        super.connectedCallback();
+        this._config = {...this.getDefaultConfig(), ...this.config};
+    }
+
+    onFieldChangeDisorder(e) {
+        const field = e.detail.param;
+        this.disorder = {
+            ...this.disorder,
+            [field]: e.detail.value
+        };
     }
 
     getDefaultConfig() {
@@ -47,9 +66,13 @@ export default class DisorderManager extends BaseManagerMixin(LitElement) {
             buttons: {
                 show: true,
                 cancelText: "Cancel",
-                classes: "pull-right"
+                classes: "pull-right btn btn-primary ripple"
             },
             display: {
+                mode: {
+                    type: "modal",
+                    title: "Disorder information"
+                },
                 labelWidth: 3,
                 labelAlign: "right",
                 defaultLayout: "horizontal",
@@ -60,7 +83,7 @@ export default class DisorderManager extends BaseManagerMixin(LitElement) {
                     elements: [
                         {
                             name: "Description",
-                            field: "disorder.description",
+                            field: "description",
                             type: "input-text",
                             display: {
                                 placeholder: "Name ...",
@@ -68,7 +91,7 @@ export default class DisorderManager extends BaseManagerMixin(LitElement) {
                         },
                         {
                             name: "Evidences",
-                            field: "disorder.evidences",
+                            field: "evidences",
                             type: "select",
                             allowedValues: ["OBSERVED", "NOT_OBSERVED", "UNKNOW"],
                             display: {
@@ -81,25 +104,21 @@ export default class DisorderManager extends BaseManagerMixin(LitElement) {
         };
     }
 
-    onClearForm(e) {
-        console.log("OnClear disorders form ", e);
-        this.disorder = {};
-        this.onShow();
-        e.stopPropagation();
+    onSendDisorder(e) {
+        LitUtils.dispatchEventCustom(this, "addItem", this.disorder);
     }
 
-    onAddDisorder(e, item) {
-        this.onAddItem(item);
-        this.disorder = {};
-        this.onShow(); // it's from BaseManager.
+    onClearForm(e) {
+        e.stopPropagation();
+        LitUtils.dispatchEventCustom(this._config, "closeForm");
     }
 
     onDisorderChange(e) {
         console.log("onDisorderChange ", e.detail.param, e.detail.value);
         let field = "";
         switch (e.detail.param) {
-            case "disorder.description":
-            case "disorder.status":
+            case "description":
+            case "status":
                 field = e.detail.param.split(".")[1];
                 if (!this.disorder[field]) {
                     this.disorder[field] = {};
@@ -111,33 +130,13 @@ export default class DisorderManager extends BaseManagerMixin(LitElement) {
 
     render() {
         return html`
-        <div class="row">
-            <div class="col-md-2" style="padding: 10px 20px">
-                <h3>Disorder</h3>
-            </div>
-            <div class="col-md-10" style="padding: 10px 20px">
-                <button type="button" class="btn btn-primary ripple pull-right" @click="${this.onShow}">
-                    Add Disorder
-                </button>
-            </div>
-            <div class="clearfix"></div>
-            <hr style="margin:0px">
-            <div class="col-md-12" style="padding: 10px 20px">
-                ${this.disorders?.map(item => html`
-                    <span class="label label-primary" style="font-size: 14px; margin:5px; padding-right:0px; display:inline-block">${item.description}
-                        <span class="badge" style="cursor:pointer" @click=${e => this.onRemoveItem(e, item)}>X</span>
-                    </span>`
-                )}
-            </div>
-        </div>
-
-        <div class="subform-test" style="${this.isShow ? "display:block" : "display:none"}">
+        <div class="subform-test">
             <data-form
-                .data=${this.disorders}
+                .data=${this.disorder}
                 .config="${this._config}"
-                @fieldChange="${this.onDisorderChange}"
+                @fieldChange="${e =>this.onFieldChangeDisorder(e)}"
                 @clear="${this.onClearForm}"
-                @submit="${e => this.onAddDisorder(e, this.disorder)}">
+                @submit="${e => this.onSendDisorder(e)}">
             </data-form>
         </div>`;
     }

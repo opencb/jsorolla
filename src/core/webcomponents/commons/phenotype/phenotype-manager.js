@@ -19,8 +19,6 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 // import UtilsNew from "../../../utilsNew.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
 
-
-// eslint-disable-next-line new-cap
 export default class PhenotypeManager extends LitElement {
 
     constructor() {
@@ -36,7 +34,7 @@ export default class PhenotypeManager extends LitElement {
     static get properties() {
         return {
             phenotype: {
-                type: Array
+                type: Object
             },
             updateManager: {
                 type: Boolean

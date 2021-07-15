@@ -18,7 +18,7 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "./../../utilsNew.js";
 // import "../commons/manager/phenotype-manager.js";
 import "../commons/phenotype/phenotype-list-manager.js";
-import "../individual/disorder-manager.js";
+import "../individual/disorder/disorder-list-manager.js";
 import FormUtils from "../../form-utils.js";
 
 export default class IndividualCreate extends LitElement {
@@ -113,6 +113,11 @@ export default class IndividualCreate extends LitElement {
     onSyncPhenotypes(e) {
         e.stopPropagation();
         this.individual = {...this.individual, phenotypes: e.detail.value};
+    }
+
+    onSyncDisorders(e) {
+        e.stopPropagation();
+        this.individual = {...this.individual, disorders: e.detail.value};
     }
 
     getDefaultConfig() {
@@ -275,6 +280,7 @@ export default class IndividualCreate extends LitElement {
                     ]
                 },
                 {
+                    title: "Phenotype",
                     elements: [
                         {
                             field: "phenotype",
@@ -285,13 +291,18 @@ export default class IndividualCreate extends LitElement {
                                 width: 12,
                                 style: "padding-left: 0px",
                                 render: () => html`
-                                        <phenotype-list-manager
-                                            .phenotypes="${this.individual?.phenotypes}"
-                                            .opencgaSession="${this.opencgaSession}"
-                                            @changePhenotypes="${e => this.onSyncPhenotypes(e)}">
-                                        </phenotype-list-manager>`
+                                    <phenotype-list-manager
+                                        .phenotypes="${this.individual?.phenotypes}"
+                                        .opencgaSession="${this.opencgaSession}"
+                                        @changePhenotypes="${e => this.onSyncPhenotypes(e)}">
+                                    </phenotype-list-manager>`
                             }
                         },
+                    ]
+                },
+                {
+                    title: "Disorder",
+                    elements: [
                         {
                             field: "disorder",
                             type: "custom",
@@ -301,10 +312,11 @@ export default class IndividualCreate extends LitElement {
                                 width: 12,
                                 style: "padding-left: 0px",
                                 render: () => html`
-                                        <disorder-manager
-                                            .disorders="${this.individual?.disorders}"
-                                            .opencgaSession="${this.opencgaSession}" >
-                                        </disorder-manager>`
+                                    <disorder-list-manager
+                                        .disorders="${this.individual?.disorders}"
+                                        .opencgaSession="${this.opencgaSession}"
+                                        .@changeDisorders=${e => this.onSyncDisorders(e)}>
+                                    </disorder-list-manager>`
                             }
                         }
                     ]
