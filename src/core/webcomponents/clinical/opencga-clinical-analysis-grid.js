@@ -47,13 +47,16 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
             },
             config: {
                 type: Object
+            },
+            active: {
+                type: Boolean
             }
         };
     }
 
     _init() {
         this._prefix = UtilsNew.randomString(8);
-
+        this.active = true;
         this.gridId = this._prefix + "ClinicalAnalysisGrid";
 
         // TODO remove this code as soon as new OpenCGA configuration is in place
@@ -155,20 +158,19 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
     }
 
-    firstUpdated(_changedProperties) {
-        this.table = $("#" + this.gridId);
-    }
-
     updated(changedProperties) {
-        if (changedProperties.has("opencgaSession") || changedProperties.has("query") || changedProperties.has("config")) {
+        if ((changedProperties.has("opencgaSession") ||
+            changedProperties.has("query") ||
+            changedProperties.has("config") ||
+            changedProperties.has("active")) &&
+            this.active) {
             this.propertyObserver();
         }
     }
 
     propertyObserver() {
         // With each property change we must updated config and create the columns again. No extra checks are needed.
-        this._config = Object.assign({}, this.getDefaultConfig(), this.config);
-
+        this._config = {...this.getDefaultConfig(), ...this.config};
         // Config for the grid toolbar
         this.toolbarConfig = {
             ...this._config.toolbar,
@@ -188,7 +190,6 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                 method: "get",
                 sidePagination: "server",
                 uniqueId: "id",
-
                 // Table properties
                 pagination: this._config.pagination,
                 pageSize: this._config.pageSize,
@@ -197,9 +198,6 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                 formatShowingRows: this.gridCommons.formatShowingRows,
                 showExport: this._config.showExport,
                 detailView: this._config.detailView,
-                // detailFormatter: _this._config.detailFormatter,
-
-                // Make Polymer components available to table formatters
                 gridContext: this,
                 formatLoadingMessage: () =>"<div><loading-spinner></loading-spinner></div>",
 
@@ -282,10 +280,6 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                     });*/
                 }
             });
-        } else {
-            // Delete table
-            $("#" + this.gridId).bootstrapTable("destroy");
-            this.numTotalResults = 0;
         }
     }
 
@@ -648,7 +642,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                 checkbox: true,
                 class: "cursor-pointer",
                 eligible: false,
-                //visible: this._config.showSelectCheckbox
+                visible: this._config.showSelectCheckbox
             }
         ];
 
@@ -700,7 +694,6 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                // visible: !this._config.columns?.hidden?.includes("actions")
             });
         }
-        // TODO continue settings integration
         _columns = UtilsNew.mergeTable(_columns, this._config.columns);
 
         return _columns;
@@ -760,7 +753,6 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
 
     }
 
-    // TODO check
     getDefaultConfig() {
         return {
             readOnlyMode: false, // it hides priority and status selectors even if the user has permissions

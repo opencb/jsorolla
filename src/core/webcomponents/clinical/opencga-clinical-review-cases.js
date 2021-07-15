@@ -467,33 +467,35 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                             <i class="fa fa-filter icon-padding" aria-hidden="true"></i> Filters <span class="caret"></span>
                                         </button>
                                         <ul class="dropdown-menu saved-filter-wrapper">
-                                            <li>
-                                                <a><i class="fas fa-cloud-upload-alt icon-padding"></i> <strong>Saved Filters</strong></a>
-                                            </li>
-                                            ${this._filters && this._filters.length ?
-                                                    this._filters.map(item => item.separator ?
-                                                            html`
-                                                                <li role="separator" class="divider"></li>` :
-                                                            html`
-                                                                <li>
-                                                                    <a data-filter-id="${item.id}" class="filtersLink" style="cursor: pointer;color: ${!item.active ? "black" : "green"}"
-                                                                       @click="${this.onServerFilterChange}">
-                                                                        <span class="id-filter-button">${item.id}</span>
-                                                                        <span class="action-buttons">
-                                                                            <span tooltip-title="${item.id}"
-                                                                                  tooltip-text="${(item.description ? item.description + "<br>" : "") + Object.entries(item.query).map(([k, v]) => `<b>${k}</b> = ${v}`).join("<br>")}"
-                                                                                  data-filter-id="${item.id}">
-                                                                                <i class="fas fa-eye"></i>
-                                                                            </span>
-                                                                            <i data-cy="delete" tooltip-title="Delete filter" class="fas fa-trash" data-filter-id="${item.id}" @click="${this.serverFilterDelete}"></i>
-                                                                        </span>
-                                                                    </a>
-                                                                </li>`
-                                                    ) :
-                                                    html`<li><a class="help-block">No filters found</a></li>`
-                                            }
+                                            ${this._filters && this._filters.length ? html`
+                                                <li>
+                                                    <a><i class="fas fa-cloud-upload-alt icon-padding"></i> <strong>Saved Filters</strong></a>
+                                                </li>
                                             
-                                            <li role="separator" class="divider"></li>
+                                                ${this._filters.map(item => item.separator ?
+                                                    html`
+                                                        <li role="separator" class="divider"></li>` :
+                                                                html`
+                                                        <li>
+                                                            <a data-filter-id="${item.id}" class="filtersLink" style="cursor: pointer;color: ${!item.active ? "black" : "green"}" 
+                                                                    @click="${this.onServerFilterChange}">
+                                                                <span class="id-filter-button">${item.id}</span>
+                                                                <span class="action-buttons">
+                                                                    <span tooltip-title="${item.id}"
+                                                                          tooltip-text="${(item.description ? item.description + "<br>" : "") + Object.entries(item.query).map(([k, v]) => `<b>${k}</b> = ${v}`).join("<br>")}"
+                                                                          data-filter-id="${item.id}">
+                                                                        <i class="fas fa-eye"></i>
+                                                                    </span>
+                                                                    <i data-cy="delete" tooltip-title="Delete filter" class="fas fa-trash" data-filter-id="${item.id}" @click="${this.serverFilterDelete}"></i>
+                                                                </span>
+                                                            </a>
+                                                        </li>`
+                                                    )}
+                                                <li role="separator" class="divider"></li>
+                                                ` :
+                                            "" }
+                                            
+                                            
                                             <li>
                                                 <a href="javascript: void 0" @click="${this.clear}" data-action="active-filter-clear">
                                                     <i class="fa fa-eraser icon-padding" aria-hidden="true"></i> <strong>Clear</strong>
