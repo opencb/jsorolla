@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
 import "../commons/opencga-browser.js";
+
 
 export default class OpencgaFileBrowser extends LitElement {
 
@@ -46,7 +46,7 @@ export default class OpencgaFileBrowser extends LitElement {
             selectedFacet: {
                 type: Object
             },
-            config: {
+            settings: {
                 type: Object
             }
         };
@@ -79,16 +79,29 @@ export default class OpencgaFileBrowser extends LitElement {
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
-            this.requestUpdate();
+        if (changedProperties.has("settings")) {
+            this.settingsObserver();
         }
+    }
+
+    settingsObserver() {
+        this._config = {...this.getDefaultConfig()};
+        // merge filter list, canned filters, detail tabs
+        if (this.settings?.menu) {
+            this._config.filter = UtilsNew.mergeFilters(this._config?.filter, this.settings);
+        }
+        if (this.settings?.table) {
+            this._config.filter.result.grid = {...this._config.filter.result.grid, ...this.settings.table};
+        }
+        if (this.settings?.table?.toolbar) {
+            this._config.filter.result.grid.toolbar = {...this._config.filter.result.grid.toolbar, ...this.settings.table.toolbar};
+        }
+        this.requestUpdate();
     }
 
     getDefaultConfig() {
         return {
             title: "File Browser",
-            //active: false,
             icon: "fab fa-searchengin",
             description: "",
             views: [
@@ -441,12 +454,12 @@ export default class OpencgaFileBrowser extends LitElement {
     }
 
     render() {
-        return this._config ? html`
+        return this.opencgaSession && this._config ? html`
             <opencga-browser  resource="FILE"
                             .opencgaSession="${this.opencgaSession}"
                             .query="${this.query}"
                             .config="${this._config}">
-            </opencga-browser>` : null;
+            </opencga-browser>` : "";
     }
 
 }
