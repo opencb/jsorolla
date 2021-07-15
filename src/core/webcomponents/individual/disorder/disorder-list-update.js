@@ -59,7 +59,6 @@ export default class DisorderListUpdate extends LitElement {
             action: "",
             disorder: ""
         };
-        this.readOnly = false;
     }
 
     onShowDisorderManager(e, manager) {
@@ -77,21 +76,21 @@ export default class DisorderListUpdate extends LitElement {
     onActionDisorder(e) {
         e.stopPropagation();
         if (this._manager.action === "ADD") {
-            this._onAddDisorder(e.detail.value);
+            this.addDisorder(e.detail.value);
         } else {
-            this._onEditDisorder(e.detail.value);
+            this.editDisorders(e.detail.value);
         }
         $("#disorderManagerModal" + this._prefix).modal("hide");
         this.requestUpdate();
     }
 
-    _onAddDisorder(disorder) {
+    addDisorder(disorder) {
         this.isShow = false;
         this.disorders = [...this.disorders, disorder];
         LitUtils.dispatchEventCustom(this, "changeDisorders", this.disorders);
     }
 
-    _onEditDisorders(disorder) {
+    editDisorders(disorder) {
         this.isShow = false;
         const indexItem = this.disorders.findIndex(item => item.id === this.disorder.id);
         this.disorders[indexItem] = disorder;
@@ -99,7 +98,6 @@ export default class DisorderListUpdate extends LitElement {
         LitUtils.dispatchEventCustom(this, "changedisorders", this.disorders);
         this.requestUpdate();
     }
-
 
     onRemoveDisorder(e, item) {
         e.stopPropagation();
@@ -153,19 +151,6 @@ export default class DisorderListUpdate extends LitElement {
         `;
     }
 
-    renderReadOnlyItem(disorders) {
-        return html`
-            ${disorders?.map(item => html`
-                <li>
-                    <div class="row">
-                        <div class="col-md-8">
-                            <span style="margin-left:14px">${item.name}</span>
-                        </div>
-                    </div>
-                </li>
-            `)}
-        `;
-    }
 
     render() {
         return html`
@@ -183,47 +168,36 @@ export default class DisorderListUpdate extends LitElement {
             }
         </style>
 
-        ${this.readOnly ?html `
-            <div class="col-md-12" style="padding: 10px 20px">
-                <div class="container" style="width:100%">
-                    <ul id="myUL">
-                        ${this.renderReadOnlyItem(this.disorders)}
-                    </ul>
-                </div>
+        <div class="col-md-12" style="padding: 10px 20px">
+            <div class="container" style="width:100%">
+                <ul id="myUL">
+                    ${this.renderItems(this.disorders)}
+                </ul>
+                <button type="button" class="btn btn-primary btn-sm"
+                    @click="${e => this.onShowDisorderManager(e, {action: "ADD"})}">
+                    Add Disorder
+                </button>
             </div>
-            `: html`
-            <div class="col-md-12" style="padding: 10px 20px">
-                <div class="container" style="width:100%">
-                    <ul id="myUL">
-                        ${this.renderItems(this.disorders)}
-                    </ul>
-                    ${!this.updateManager?html`
-                        <button type="button" class="btn btn-primary btn-sm"
-                            @click="${e => this.onShowDisorderManager(e, {action: "ADD"})}">
-                            Add Disorder
-                        </button>`: ""}
-                </div>
-            </div>
+        </div>
 
-            <div id=${"disorderManagerModal"+this._prefix} class="modal fade" tabindex="-1" role="dialog">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                            <h4 class="modal-title">Disorder Information</h4>
-                        </div>
-                        <div class="modal-body">
-                            <disorder-manager
-                                .disorder="${this.disorder}"
-                                @closeForm="${e => this.onCloseForm(e)}"
-                                @addItem="${this.onActionDisorder}">
-                            </disorder-manager>
-                        </div>
+        <div id=${"disorderManagerModal"+this._prefix} class="modal fade" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title">Disorder Information</h4>
+                    </div>
+                    <div class="modal-body">
+                        <disorder-manager
+                            .disorder="${this.disorder}"
+                            @closeForm="${e => this.onCloseForm(e)}"
+                            @addItem="${this.onActionDisorder}">
+                        </disorder-manager>
                     </div>
                 </div>
             </div>
-
-            `}`;
+        </div>
+            `;
     }
 
 }

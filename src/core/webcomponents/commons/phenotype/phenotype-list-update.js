@@ -36,15 +36,6 @@ export default class phenotypeListUpdate extends LitElement {
         return {
             phenotypes: {
                 type: Array
-            },
-            opencgaSession: {
-                type: Object
-            },
-            readOnly: {
-                type: Boolean
-            },
-            updateManager: {
-                type: Boolean
             }
         };
     }
@@ -58,7 +49,6 @@ export default class phenotypeListUpdate extends LitElement {
             action: "",
             phenotype: ""
         };
-        this.readOnly = false;
     }
 
     onShowPhenotypeManager(e, manager) {
@@ -133,32 +123,18 @@ export default class phenotypeListUpdate extends LitElement {
     renderPhenotypes(phenotypes) {
         return html`
             ${phenotypes?.map(item => html`
-                    <li>
-                        <div class="row">
-                            <div class="col-md-8">
-                                <span style="margin-left:14px">${item.name}</span>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="btn-group pull-right" style="padding-bottom:5px" role="group">
-                                    <button type="button" class="btn btn-primary btn-xs"
-                                        @click="${e => this.onShowPhenotypeManager(e, {action: "EDIT", phenotype: item})}">Edit</button>
-                                    <button type="button" class="btn btn-danger btn-xs"
-                                        @click="${e => this.onRemovePhenotype(e, item)}">Delete</button>
-                                </div>
-                            </div>
-                        </div>
-                    </li>
-            `)}
-        `;
-    }
-
-    renderReadOnlyPhenotypes(phenotypes) {
-        return html`
-            ${phenotypes?.map(item => html`
                 <li>
                     <div class="row">
                         <div class="col-md-8">
                             <span style="margin-left:14px">${item.name}</span>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="btn-group pull-right" style="padding-bottom:5px" role="group">
+                                <button type="button" class="btn btn-primary btn-xs"
+                                    @click="${e => this.onShowPhenotypeManager(e, {action: "EDIT", phenotype: item})}">Edit</button>
+                                <button type="button" class="btn btn-danger btn-xs"
+                                    @click="${e => this.onRemovePhenotype(e, item)}">Delete</button>
+                            </div>
                         </div>
                     </div>
                 </li>
@@ -182,45 +158,34 @@ export default class phenotypeListUpdate extends LitElement {
             }
         </style>
 
-        ${this.readOnly ? html `
-            <div class="col-md-12" style="padding: 10px 20px">
-                <div class="container" style="width:100%">
-                    <ul id="myUL">
-                        ${this.renderReadOnlyPhenotypes(this.phenotypes)}
-                    </ul>
-                </div>
+        <div class="col-md-12" style="padding: 10px 20px">
+            <div class="container" style="width:100%">
+                <ul id="myUL">
+                    ${this.renderPhenotypes(this.phenotypes)}
+                </ul>
+                <button type="button" class="btn btn-primary btn-sm"
+                    @click="${e => this.onShowPhenotypeManager(e, {action: "ADD"})}">
+                    Add Phenotype
+                </button>
             </div>
-            `: html`
-            <div class="col-md-12" style="padding: 10px 20px">
-                <div class="container" style="width:100%">
-                    <ul id="myUL">
-                        ${this.renderPhenotypes(this.phenotypes)}
-                    </ul>
-                    ${!this.updateManager ? html`
-                        <button type="button" class="btn btn-primary btn-sm"
-                            @click="${e => this.onShowPhenotypeManager(e, {action: "ADD"})}">
-                            Add Phenotype
-                        </button>`: ""}
-                </div>
-            </div>
-            <div id=${"phenotypeManagerModal"+this._prefix} class="modal fade" tabindex="-1" role="dialog">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                            <h4 class="modal-title">Phenotype Information</h4>
-                        </div>
-                        <div class="modal-body">
-                            <phenotype-manager
-                                .phenotype="${this.phenotype}"
-                                .updateManager="${this.updateManager}"
-                                @closeForm="${e => this.onCloseForm(e)}"
-                                @addItem="${this.onActionPhenotype}">
-                            </phenotype-manager>
-                        </div>
+        </div>
+        <div id=${"phenotypeManagerModal"+this._prefix} class="modal fade" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title">Phenotype Information</h4>
+                    </div>
+                    <div class="modal-body">
+                        <phenotype-manager
+                            .phenotype="${this.phenotype}"
+                            @closeForm="${e => this.onCloseForm(e)}"
+                            @addItem="${this.onActionPhenotype}">
+                        </phenotype-manager>
                     </div>
                 </div>
-            </div>`}`;
+            </div>
+        </div>`;
     }
 
 }

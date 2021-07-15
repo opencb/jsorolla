@@ -56,10 +56,6 @@ export default class VariableListManager extends LitElement {
         this.readOnly = false;
     }
 
-    buildVariable(variable) {
-        return variable.type === "OBJECT"? {...variable, variables: []} : variable;
-    }
-
     onShowVariableManager(e, manager) {
         if (manager.action === "ADD") {
             if (manager.parent) {
@@ -83,23 +79,26 @@ export default class VariableListManager extends LitElement {
         $("#variableManagerModal").modal("show");
     }
 
-    // TODO: maybe should be rename this function.
     onActionVariable(e) {
         e.stopPropagation();
         if (this._manager.action === "ADD") {
             console.log("Add new variable");
-            this._onAddVariable(e.detail.value);
+            this.addVariable(e.detail.value);
 
         } else {
             console.log("Edit info variable");
-            this._onEditVariable(e.detail.value);
+            this.editVariable(e.detail.value);
         }
         console.log("results: ", this.variables);
         $("#variableManagerModal").modal("hide");
         this.requestUpdate();
     }
 
-    _onAddVariable(variable) {
+    buildVariable(variable) {
+        return variable.type === "OBJECT"? {...variable, variables: []} : variable;
+    }
+
+    addVariable(variable) {
         console.log("onAddVariableList", this.parentVar, variable);
         this.isShow = false;
         if (this.parentVar) {
@@ -113,22 +112,6 @@ export default class VariableListManager extends LitElement {
             this.variables = [...this.variables, newVar];
         }
         LitUtils.dispatchEventCustom(this, "changeVariables", this.variables);
-    }
-
-    _onEditVariable(variable) {
-        console.log("onEditVariableList", this.parentVar, variable);
-        this.isShow = false;
-        if (this.parentVar) {
-            console.log("Edit variable to the list", this.parentVar);
-            const parentVars = this.parentVar.split(".");
-            this.variables = this.editChildVariable(this.variables, parentVars, variable);
-            this.parentVar = "";
-            LitUtils.dispatchEventCustom(this, "changeVariables", this.variables);
-        } else {
-            // Deprecated
-            console.log("Add variable to the list");
-            this.variables = [...this.variables, variable];
-        }
     }
 
     addChildVariable(variables, parentVars, childVariable) {
@@ -145,6 +128,22 @@ export default class VariableListManager extends LitElement {
                 }
             });
         });
+    }
+
+    editVariable(variable) {
+        console.log("onEditVariableList", this.parentVar, variable);
+        this.isShow = false;
+        if (this.parentVar) {
+            console.log("Edit variable to the list", this.parentVar);
+            const parentVars = this.parentVar.split(".");
+            this.variables = this.editChildVariable(this.variables, parentVars, variable);
+            this.parentVar = "";
+            LitUtils.dispatchEventCustom(this, "changeVariables", this.variables);
+        } else {
+            // Deprecated
+            console.log("Add variable to the list");
+            this.variables = [...this.variables, variable];
+        }
     }
 
     editChildVariable(variables, parentVars, childVariable) {
