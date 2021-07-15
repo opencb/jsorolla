@@ -87,31 +87,7 @@ export default class OpencgaCohortDetail extends LitElement {
 
     getDefaultConfig() {
         return {
-            title: "Cohort",
-            showTitle: true,
-            items: [
-                {
-                    id: "cohort-view",
-                    name: "Overview",
-                    active: true,
-                    render: (cohort, active, opencgaSession) => {
-                        return html`<opencga-cohort-view .opencgaSession="${opencgaSession}" .cohort="${cohort}"></opencga-cohort-view>`;
-                    }
-                },
-                {
-                    id: "sample-view",
-                    name: "Samples",
-                    render: (cohort, active, opencgaSession) => {
-                        return html`
-                            <opencga-sample-grid    .opencgaSession="${opencgaSession}"
-                                                    .query="${{id: cohort.samples.map(sample => sample.id).join(",")}}"
-                                                    .config="${{showSelectCheckbox: false}}"
-                                                    .active="${active}">
-                            </opencga-sample-grid>
-                        `;
-                    }
-                }
-            ]
+            // details config in cohort-browser
         };
     }
 
