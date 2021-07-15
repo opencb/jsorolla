@@ -139,18 +139,34 @@ export default class VariantGridFormatter {
         return snpId;
     }
 
-    static geneFormatter(variant, index, query, opencgaSession) {
+    static geneFormatter(variant, index, query, opencgaSession, gridCtSettings) {
+        const {selectedConsequenceTypes, notSelectedConsequenceTypes} =
+            VariantGridFormatter._consequenceTypeDetailFormatterFilter(variant.annotation.consequenceTypes, gridCtSettings);
+
         // Keep a map of genes and the SO accessions and names
         const geneHasQueryCt = new Set();
         if (query?.ct) {
-            const queryCtArray = query.ct.split(",");
-            for (const ct of variant.annotation.consequenceTypes) {
-                for (const so of ct.sequenceOntologyTerms) {
-                    if (queryCtArray.includes(so.name)) {
-                        geneHasQueryCt.add(ct.geneName);
-                        break;
-                    }
+            const consequenceTypes = new Set();
+            for (const ct of query.ct.split(",")) {
+                if (ct.toUpperCase() === "LOF") {
+                    CONSEQUENCE_TYPES.lof.forEach(key => consequenceTypes.add(key));
+                } else {
+                    consequenceTypes.add(ct);
                 }
+            }
+
+            // const queryCtArray = query.ct.split(",");
+            for (const ct of selectedConsequenceTypes) {
+                if (ct.sequenceOntologyTerms.some(so => consequenceTypes.has(so.name))) {
+                    geneHasQueryCt.add(ct.geneName);
+                }
+
+                // for (const so of ct.sequenceOntologyTerms) {
+                //     if (queryCtArray.includes(so.name)) {
+                //         geneHasQueryCt.add(ct.geneName);
+                //         break;
+                //     }
+                // }
             }
         }
 
@@ -294,10 +310,32 @@ export default class VariantGridFormatter {
         }
     }
 
-    static consequenceTypeFormatter(value, row, index, gridCtSettings) {
+    static consequenceTypeFormatter(value, row, ctQuery, gridCtSettings) {
         if (row?.annotation && row.annotation.consequenceTypes?.length > 0) {
-            const {selectedConsequenceTypes, notSelectedConsequenceTypes, indexes} =
+            let {selectedConsequenceTypes, notSelectedConsequenceTypes, indexes} =
                 VariantGridFormatter._consequenceTypeDetailFormatterFilter(row.annotation.consequenceTypes, gridCtSettings);
+
+            // If CT is passed in the query then we must make and AND with the selected transcript by the user.
+            // This means that only the selectedConsequenceTypes that ARE ALSO IN THE CT QUERY are displayed.
+            if (ctQuery) {
+                const consequenceTypes = new Set();
+                for (const ct of ctQuery.split(",")) {
+                    if (ct.toUpperCase() === "LOF") {
+                        CONSEQUENCE_TYPES.lof.forEach(key => consequenceTypes.add(key));
+                    } else {
+                        consequenceTypes.add(ct);
+                    }
+                }
+                const newSelectedConsequenceTypes = [];
+                for (const ct of selectedConsequenceTypes) {
+                    if (ct.sequenceOntologyTerms.some(so => consequenceTypes.has(so.name))) {
+                        newSelectedConsequenceTypes.push(ct);
+                    } else {
+                        notSelectedConsequenceTypes.push(ct);
+                    }
+                }
+                selectedConsequenceTypes = newSelectedConsequenceTypes;
+            }
 
             const positiveConsequenceTypes = [];
             const negativeConsequenceTypes = [];
