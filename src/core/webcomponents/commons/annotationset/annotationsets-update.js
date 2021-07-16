@@ -19,9 +19,9 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import "../../commons/filters/text-field-filter.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import UtilsNew from "../../../utilsNew.js";
-import "./phenotype-manager.js";
+import "./annotationset-manager.js";
 
-export default class PhenotypeListUpdate extends LitElement {
+export default class AnnotationSetsUpdate extends LitElement {
 
     constructor() {
         super();
@@ -34,62 +34,60 @@ export default class PhenotypeListUpdate extends LitElement {
 
     static get properties() {
         return {
-            phenotypes: {
+            annotationSets: {
                 type: Array
+            },
+            opencgaSession: {
+                type: Object
             }
         };
     }
 
     _init() {
         this._prefix = UtilsNew.randomString(8);
-
-        // this.isShow = false;
-        this.phenotype = {};
+        this.annotationSet = {};
         this._manager = {
             action: "",
-            phenotype: ""
+            data: ""
         };
     }
 
-    onShowPhenotypeManager(e, manager) {
+    onShowManager(e, manager) {
         this._manager = manager;
         if (manager.action === "ADD") {
-            this.phenotype = {};
+            this.data = {};
         } else {
-            this.phenotype = manager.phenotype;
-            // this.isShow = true;
+            this.annotationSet = manager.annotationSet;
         }
         this.requestUpdate();
-        $("#phenotypeManagerModal"+ this._prefix).modal("show");
+        $("#annotationSetManagerModal" + this._prefix).modal("show");
     }
 
-    onActionPhenotype(e) {
+    onAction(e) {
         e.stopPropagation();
         if (this._manager.action === "ADD") {
-            this.addPhenotype(e.detail.value);
+            this.addAnnotationSet(e.detail.value);
         } else {
-            this.editPhenotype(e.detail.value);
+            this.editAnnotationSet(e.detail.value);
         }
-        $("#phenotypeManagerModal" + this._prefix).modal("hide");
+        $("#annotationSetManagerModal" + this._prefix).modal("hide");
         this.requestUpdate();
     }
 
-    addPhenotype(phenotype) {
-        // this.isShow = false;
-        this.phenotypes = [...this.phenotypes, phenotype];
-        LitUtils.dispatchEventCustom(this, "changePhenotypes", this.phenotypes);
+    addAnnotationSet(annotationSet) {
+        this.annotationSets = [...this.annotationSets, annotationSet];
+        LitUtils.dispatchEventCustom(this, "changeAnnotationSets", this.annotationSets);
     }
 
-    editPhenotype(phenotype) {
-        // this.isShow = false;
-        const indexPheno = this.phenotypes.findIndex(pheno => pheno.id === this.phenotype.id);
-        this.phenotypes[indexPheno] = phenotype;
-        this.phenotype = {};
-        LitUtils.dispatchEventCustom(this, "changePhenotypes", this.phenotypes);
+    editAnnotationSet(annotationSet) {
+        const index = this.annotations.findIndex(ann => ann.id === this.annotationSet.id);
+        this.annotations[index] = annotationSet;
+        this.annotationSet = {};
+        LitUtils.dispatchEventCustom(this, "changeAnnotationSets", this.annotationSets);
         this.requestUpdate();
     }
 
-    onRemovePhenotype(e, item) {
+    onRemoveAnnotationSet(e, item) {
         e.stopPropagation();
         Swal.fire({
             title: "Are you sure?",
@@ -102,11 +100,11 @@ export default class PhenotypeListUpdate extends LitElement {
             reverseButtons: true
         }).then(result => {
             if (result.isConfirmed) {
-                this.phenotypes = this.phenotypes.filter(pheno => pheno !== item);
-                LitUtils.dispatchEventCustom(this, "changePhenotypes", this.phenotypes);
+                this.annotationSets = this.annotationSets.filter(annotationSet => annotationSet !== item);
+                LitUtils.dispatchEventCustom(this, "changeAnnotationSets", this.annotationSets);
                 Swal.fire(
                     "Deleted!",
-                    "The phenotype has been deleted.",
+                    "The annotationSet has been deleted.",
                     "success"
                 );
             }
@@ -114,26 +112,25 @@ export default class PhenotypeListUpdate extends LitElement {
     }
 
     onCloseForm(e) {
-        // this.isShow = false;
-        this.phenotype = {};
-        $("#phenotypeManagerModal"+ this._prefix).modal("hide");
+        this.annotationSet = {};
+        $("#annotationSetManagerModal"+ this._prefix).modal("hide");
         e.stopPropagation();
     }
 
-    renderPhenotypes(phenotypes) {
+    renderAnnotationsSets(annotationSets) {
         return html`
-            ${phenotypes?.map(item => html`
+            ${annotationSets?.map(item => html`
                 <li>
                     <div class="row">
                         <div class="col-md-8">
-                            <span style="margin-left:14px">${item.name}</span>
+                            <span style="margin-left:14px">${item.variableSetId}</span>
                         </div>
                         <div class="col-md-4">
                             <div class="btn-group pull-right" style="padding-bottom:5px" role="group">
                                 <button type="button" class="btn btn-primary btn-xs"
-                                    @click="${e => this.onShowPhenotypeManager(e, {action: "EDIT", phenotype: item})}">Edit</button>
+                                    @click="${e => this.onShowManager(e, {action: "EDIT", annotationSet: item})}">Edit</button>
                                 <button type="button" class="btn btn-danger btn-xs"
-                                    @click="${e => this.onRemovePhenotype(e, item)}">Delete</button>
+                                    @click="${e => this.onRemoveAnnotationSet(e, item)}">Delete</button>
                             </div>
                         </div>
                     </div>
@@ -161,33 +158,36 @@ export default class PhenotypeListUpdate extends LitElement {
         <div class="col-md-12" style="padding: 10px 20px">
             <div class="container" style="width:100%">
                 <ul id="myUL">
-                    ${this.renderPhenotypes(this.phenotypes)}
+                    ${this.renderAnnotationsSets(this.annotationSets)}
                 </ul>
                 <button type="button" class="btn btn-primary btn-sm"
-                    @click="${e => this.onShowPhenotypeManager(e, {action: "ADD"})}">
-                    Add Phenotype
+                    @click="${e => this.onShowManager(e, {action: "ADD"})}">
+                    Add AnnotationSet
                 </button>
             </div>
         </div>
-        <div id=${"phenotypeManagerModal"+this._prefix} class="modal fade" tabindex="-1" role="dialog">
+        <div id=${"annotationSetManagerModal"+this._prefix} class="modal fade" tabindex="-1" role="dialog">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                        <h4 class="modal-title">Phenotype Information</h4>
+                        <h4 class="modal-title">AnnotationSets Information</h4>
                     </div>
                     <div class="modal-body">
-                        <phenotype-manager
-                            .phenotype="${this.phenotype}"
+                        <annotationset-manager
+                            .annotationSet="${this.annotationSet}"
+                            .annotationSets="${this.annotationSets}"
+                            .opencgaSession="${this.opencgaSession}"
                             @closeForm="${e => this.onCloseForm(e)}"
-                            @addItem="${this.onActionPhenotype}">
-                        </phenotype-manager>
+                            @addItem="${this.onAction}">
+                        </annotationset-manager>
                     </div>
                 </div>
             </div>
-        </div>`;
+        </div>
+        `;
     }
 
 }
 
-customElements.define("phenotype-list-update", PhenotypeListUpdate);
+customElements.define("annotationsets-update", AnnotationSetsUpdate);

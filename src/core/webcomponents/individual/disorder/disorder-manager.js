@@ -108,21 +108,6 @@ export default class DisorderManager extends LitElement {
         LitUtils.dispatchEventCustom(this, "closeForm");
     }
 
-    onDisorderChange(e) {
-        console.log("onDisorderChange ", e.detail.param, e.detail.value);
-        let field = "";
-        switch (e.detail.param) {
-            case "description":
-            case "status":
-                field = e.detail.param.split(".")[1];
-                if (!this.disorder[field]) {
-                    this.disorder[field] = {};
-                }
-                this.disorder[field] = e.detail.value;
-                break;
-        }
-    }
-
     render() {
         return html`
         <div class="subform-test">

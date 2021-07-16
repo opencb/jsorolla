@@ -17,7 +17,7 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
 import "../commons/phenotype/phenotype-list-update.js";
-import "../commons/manager/annotation-set-manager.js";
+import "../commons/annotationset/annotationsets-update.js";
 
 export default class SampleCreate extends LitElement {
 
@@ -169,6 +169,11 @@ export default class SampleCreate extends LitElement {
     onSyncPhenotypes(e) {
         e.stopPropagation();
         this.sample = {...this.sample, phenotypes: e.detail.value};
+    }
+
+    onSyncAnnotationSets(e) {
+        e.stopPropagation();
+        this.sample = {...this.sample, annotationSets: e.detail.value};
     }
 
     getDefaultConfig() {
@@ -366,7 +371,7 @@ export default class SampleCreate extends LitElement {
                     ]
                 },
                 {
-                    title: "Phenotype",
+                    title: "Phenotypes",
                     elements: [
                         {
                             field: "phenotype",
@@ -384,6 +389,11 @@ export default class SampleCreate extends LitElement {
                                     </phenotype-list-update>`
                             }
                         },
+                    ]
+                },
+                {
+                    title: "Annotations Sets",
+                    elements: [
                         {
                             field: "annotationSets",
                             type: "custom",
@@ -393,12 +403,11 @@ export default class SampleCreate extends LitElement {
                                 width: 12,
                                 style: "padding-left: 0px",
                                 render: () => html`
-                                    <annotation-set-manager
+                                    <annotationsets-update
                                         .annotationSets="${this.sample?.annotationSets}"
                                         .opencgaSession="${this.opencgaSession}"
-                                        @addItem="${e => this.onAddAnnotationSet(e)}"
-                                        @removeItem="${e => this.onRemoveAnnotationSets(e)}">
-                                    </annotation-set-manager>
+                                        @changeAnnotationSets="${e => this.onSyncAnnotationSets(e)}">
+                                    </annotationsets-update>
                                 `
                             }
                         }
