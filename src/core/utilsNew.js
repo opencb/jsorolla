@@ -631,7 +631,12 @@ export default class UtilsNew {
             const sections = internal.sections.map(section => {
                 const fields = [];
                 for (const ex of external) {
-                    const internalField = section.elements.find(field => field.id === ex);
+                    const internalField = section.elements.find(c => {
+                        if (!c.id) {
+                            console.error("Column fields must have an id to be merged", c);
+                        }
+                        return c.id === ex;
+                    });
                     if (internalField) {
                         fields.push({...internalField});
                     } else {

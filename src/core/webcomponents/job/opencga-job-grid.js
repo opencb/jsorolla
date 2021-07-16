@@ -313,7 +313,6 @@ export default class OpencgaJobGrid extends LitElement {
             }
         ];
 
-        console.log(_columns.map(f => f.id))
         _columns = UtilsNew.mergeTable(_columns, this._config.columns);
         return _columns;
     }
