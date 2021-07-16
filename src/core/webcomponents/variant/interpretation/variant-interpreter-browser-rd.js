@@ -400,16 +400,16 @@ class VariantInterpreterBrowserRd extends LitElement {
                                 title: "Disease Panels",
                                 tooltip: tooltips.diseasePanels
                             },
-                            // {
-                            //     id: "clinvar",
-                            //     title: "ClinVar Accession",
-                            //     tooltip: tooltips.clinvar
-                            // },
                             {
+                                id: "clinvar",
+                                title: "ClinVar Accession",
+                                tooltip: tooltips.clinvar
+                            },
+                            /*{
                                 id: "clinical-annotation",
                                 title: "Clinical Annotation",
                                 tooltip: tooltips.clinical
-                            }
+                            }*/
                         ]
                     },
                     {

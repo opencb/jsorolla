@@ -395,16 +395,16 @@ export default class VariantBrowser extends LitElement {
                                 title: "Disease Panels",
                                 tooltip: tooltips.diseasePanels
                             },
-                            // {
-                            //     id: "clinvar",
-                            //     title: "ClinVar Accessions",
-                            //     tooltip: tooltips.clinvar
-                            // },
                             {
+                                id: "clinvar",
+                                title: "ClinVar Accessions",
+                                tooltip: tooltips.clinvar
+                            },
+                            /*{
                                 id: "clinical-annotation",
                                 title: "Clinical Annotation",
                                 tooltip: tooltips.clinical
-                            },
+                            },*/
                             {
                                 id: "fullTextSearch",
                                 title: "Full-text search on HPO, ClinVar, protein domains or keywords. Some OMIM and Orphanet IDs are also supported",

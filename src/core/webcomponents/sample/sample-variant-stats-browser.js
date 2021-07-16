@@ -74,6 +74,7 @@ export default class SampleVariantStatsBrowser extends LitElement {
         super.connectedCallback();
 
         this._config = {...this.getDefaultConfig(), ...this.config};
+        this.consequenceTypes = SAMPLE_STATS_CONSEQUENCE_TYPES;
     }
 
     update(changedProperties) {
@@ -323,7 +324,7 @@ export default class SampleVariantStatsBrowser extends LitElement {
                             {
                                 id: "biotype",
                                 title: "Gene Biotype",
-                                biotypes: BIOTYPES,
+                                biotypes: SAMPLE_STATS_BIOTYPES,
                                 tooltip: tooltips.biotype
                             },
                             {

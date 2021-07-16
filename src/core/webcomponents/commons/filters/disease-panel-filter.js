@@ -163,9 +163,9 @@ export default class DiseasePanelFilter extends LitElement {
 
     getDefaultConfig() {
         return {
-            showSummary: true,
-            showGeneFilter: true,
-            showPanelFilter: true
+            showSummary: false,
+            showGeneFilter: false,
+            showPanelFilter: false
         };
     }
 
