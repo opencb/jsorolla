@@ -40,7 +40,7 @@ export default class OpencgaTranscriptView extends LitElement {
             cellbaseClient: {
                 type: Object
             },
-            /*project: {
+            /* project: {
                 type: Object
             },
             study: {
@@ -64,13 +64,13 @@ export default class OpencgaTranscriptView extends LitElement {
             variant: {
                 type: String
             },
-            config: {
+            settings: {
                 type: Object
             }
-        }
+        };
     }
 
-    _init(){
+    _init() {
         this._prefix = "transcript" + UtilsNew.randomString(6);
         this.variantId = "";
         this.transcriptObj = {};
@@ -78,15 +78,18 @@ export default class OpencgaTranscriptView extends LitElement {
     }
 
     updated(changedProperties) {
-        if(changedProperties.has("transcript")) {
+        if (changedProperties.has("transcript")) {
             this.transcriptChanged();
         }
-        /*if(changedProperties.has("project") || changedProperties.has("study")) {
+
+        if (changedProperties.has("settings")) {
+        }
+        /* if(changedProperties.has("project") || changedProperties.has("study")) {
             this.projectStudyObtained();
         }*/
     }
 
-    /*projectStudyObtained(project, study) {
+    /* projectStudyObtained(project, study) {
         if (UtilsNew.isNotUndefined(this.opencgaSession.project) && UtilsNew.isNotEmpty(this.opencgaSession.project.alias) &&
             UtilsNew.isNotUndefined(this.opencgaSession.study) && UtilsNew.isNotEmpty(this.opencgaSession.study.alias)) {
             this.hashFragmentCredentials = {
@@ -98,9 +101,9 @@ export default class OpencgaTranscriptView extends LitElement {
 
     transcriptChanged() {
         // Remove the previously added SVG
-        let svg = PolymerUtils.querySelector("svg");
+        const svg = PolymerUtils.querySelector("svg");
         if (svg !== null) {
-            let proteinSvgDiv = PolymerUtils.getElementById(this._prefix + "TranscriptSvg");
+            const proteinSvgDiv = PolymerUtils.getElementById(this._prefix + "TranscriptSvg");
             if (UtilsNew.isNotUndefinedOrNull(proteinSvgDiv)) {
                 // proteinSvgDiv.removeChild(svg);
             }
@@ -150,7 +153,7 @@ export default class OpencgaTranscriptView extends LitElement {
     }
 
     showBrowser() {
-        this.notifySearch({xref: this.geneId})
+        this.notifySearch({xref: this.geneId});
         const hash = window.location.hash.split("/");
         const newHash = "#browser/" + hash[1] + "/" + hash[2];
         window.location.hash = newHash;
@@ -171,17 +174,6 @@ export default class OpencgaTranscriptView extends LitElement {
 
     render() {
         return html`
-        <style>
-            .transcript-variant-tab-title {
-                font-size: 150%;
-                font-weight: bold;
-            }
-
-            .transcript-summary-title {
-                font-weight: bold;
-            }
-        </style>
-
         <div>
             <div style="float: right;padding: 10px 5px 10px 5px">
                 <button type="button" class="btn btn-primary" @click="${this.showBrowser}">
@@ -211,9 +203,9 @@ export default class OpencgaTranscriptView extends LitElement {
                         </tr>
                         <tr>
                             <td class="transcript-summary-title">Gene</td>
-                            <td><a href="#gene/${this.opencgaSession.project.alias}/${this.opencgaSession.study.alias}/${this.gene}">${this.gene}</a></td>
+                            <td><a href="#gene/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${this.gene}">${this.gene}</a></td>
                         </tr>
-                        ${application.appConfig === "opencb" ? html`
+                        ${/* application.appConfig === "opencb"*/ this.settings.externalLinks ? html`
                         <tr>
                             <td class="transcript-summary-title">Genome Browser</td>
                             <td>
@@ -233,12 +225,12 @@ export default class OpencgaTranscriptView extends LitElement {
 
         <ul id="${this._prefix}ViewTabs" class="nav nav-tabs" role="tablist">
             <li role="presentation" class="active">
-                <a href="#${this._prefix}Variants" role="tab" data-toggle="tab" class="transcript-variant-tab-title">
+                <a href="#${this._prefix}Variants" role="tab" data-toggle="tab">
                     Variants
                 </a>
             </li>
             <li role="presentation">
-                <a href="#${this._prefix}Protein" role="tab" data-toggle="tab" class="transcript-variant-tab-title">
+                <a href="#${this._prefix}Protein" role="tab" data-toggle="tab">
                     Protein
                 </a>
             </li>
