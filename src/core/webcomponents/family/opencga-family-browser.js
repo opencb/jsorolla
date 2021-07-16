@@ -200,7 +200,7 @@ export default class OpencgaFamilyBrowser extends LitElement {
                             active: true,
                             // visible:
                             render: (family, active, opencgaSession) => {
-                                return html`<opencga-family-view .opencgaSession="${opencgaSession}" .family="${family}"></opencga-family-view>`;
+                                return html`<opencga-family-view .opencgaSession="${opencgaSession}" .family="${family}" .settings="${opencgaFamilyViewSettings}"></opencga-family-view>`;
                             }
                         },
                         {

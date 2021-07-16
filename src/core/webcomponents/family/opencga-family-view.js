@@ -45,7 +45,7 @@ export default class OpencgaFamilyView extends LitElement {
             individualId: {
                 type: Object
             },
-            config: {
+            settings: {
                 type: Object
             }
         };
@@ -77,9 +77,22 @@ export default class OpencgaFamilyView extends LitElement {
         if (changedProperties.has("individualId")) {
             this.individualIdObserver();
         }
-        if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
+        if (changedProperties.has("settings")) {
+            this.settingsObserver();
         }
+    }
+
+    settingsObserver() {
+        this._config = {...this.getDefaultConfig()};
+        if (this.settings?.fields?.length) {
+            this._config.hiddenFields = null;
+            this._config = UtilsNew.mergeDataFormConfig(this._config, this.settings.fields);
+        } else if (this.settings?.hiddenFields?.length) {
+            this._config.hiddenFields = this.settings.hiddenFields;
+            this._config = {...this._config, ...this.getDefaultConfig()}; // this is needed as we need to relauch getDefaultConfig() with the updated `hiddenFields` array
+
+        }
+        this.requestUpdate();
     }
 
     familyIdObserver() {
@@ -147,6 +160,7 @@ export default class OpencgaFamilyView extends LitElement {
                             field: "disorders",
                             type: "list",
                             display: {
+                                visible: !this._config?.hiddenFields?.includes("disorders"),
                                 contentLayout: "bullets",
                                 render: disorder => {
                                     let id = disorder.id;
@@ -163,6 +177,7 @@ export default class OpencgaFamilyView extends LitElement {
                             field: "phenotypes",
                             type: "list",
                             display: {
+                                visible: !this._config?.hiddenFields?.includes("phenotypes"),
                                 contentLayout: "bullets",
                                 render: phenotype => {
                                     let id = phenotype.id;
@@ -179,7 +194,7 @@ export default class OpencgaFamilyView extends LitElement {
                             field: "creationDate",
                             type: "custom",
                             display: {
-                                visible: data => application.appConfig === "opencb",
+                                visible: !this._config?.hiddenFields?.includes("creationDate"), /* application.appConfig === "opencb" */
                                 render: field => html`${UtilsNew.dateFormatter(field)}`
                             }
                         },
@@ -187,7 +202,7 @@ export default class OpencgaFamilyView extends LitElement {
                             name: "Description",
                             field: "description",
                             display: {
-                                visible: data => application.appConfig === "opencb"
+                                visible: !this._config?.hiddenFields?.includes("description"), /* application.appConfig === "opencb" */
                             }
                         }
                     ]
@@ -242,7 +257,7 @@ export default class OpencgaFamilyView extends LitElement {
                             type: "custom",
                             display: {
                                 layout: "vertical",
-                                visible: data => application.appConfig === "opencb", // TODO pedigree doesnt work with families with over 2 generations
+                                visible: !this._config?.hiddenFields?.includes("pedigree"), /* application.appConfig === "opencb" */
                                 render: data => html`<pedigree-view .family="${this.family}"></pedigree-view>`
                             }
                         }
