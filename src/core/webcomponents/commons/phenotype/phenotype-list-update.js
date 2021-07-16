@@ -21,7 +21,7 @@ import LitUtils from "../../commons/utils/lit-utils.js";
 import UtilsNew from "../../../utilsNew.js";
 import "./phenotype-manager.js";
 
-export default class phenotypeListUpdate extends LitElement {
+export default class PhenotypeListUpdate extends LitElement {
 
     constructor() {
         super();
@@ -190,4 +190,4 @@ export default class phenotypeListUpdate extends LitElement {
 
 }
 
-customElements.define("phenotype-list-update", phenotypeListUpdate);
+customElements.define("phenotype-list-update", PhenotypeListUpdate);
