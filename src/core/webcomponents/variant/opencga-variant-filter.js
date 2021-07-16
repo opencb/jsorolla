@@ -416,7 +416,7 @@ export default class OpencgaVariantFilter extends LitElement {
                     break;
                 case "biotype":
                     content = html`
-                        <biotype-filter .config="${this.config}" 
+                        <biotype-filter .config="${subsection}" 
                                         .biotype=${this.preparedQuery.biotype} 
                                         @filterChange="${e => this.onFilterChange("biotype", e.detail.value)}">
                         </biotype-filter>`;
