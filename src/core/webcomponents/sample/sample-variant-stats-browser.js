@@ -316,22 +316,22 @@ export default class SampleVariantStatsBrowser extends LitElement {
                                 title: "Genomic Location",
                                 tooltip: tooltips.region
                             },
-                            {
+                            /*{
                                 id: "feature",
                                 title: "Feature IDs (gene, SNPs, ...)",
                                 tooltip: tooltips.feature
-                            },
+                            },*/
                             {
                                 id: "biotype",
                                 title: "Gene Biotype",
                                 biotypes: SAMPLE_STATS_BIOTYPES,
                                 tooltip: tooltips.biotype
                             },
-                            {
+                            /*{
                                 id: "diseasePanels",
                                 title: "Disease Panels",
                                 tooltip: tooltips.diseasePanels
-                            },
+                            },*/
                             {
                                 id: "type",
                                 title: "Variant Type",
