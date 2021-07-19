@@ -17,6 +17,27 @@
 import {html, LitElement} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../utilsNew.js";
 
+/**
+ * This class ....
+ * Implementation notes:
+ *  1. diseasePanels is DEPRECATED
+ *  2. ...
+ *
+ * Usage:
+ * <disease-panel-filter    .opencgaSession="${this.opencgaSession}"
+                            .diseasePanels="${this.opencgaSession.study.panels}"
+                            .panel="${this.preparedQuery.panel}"
+                            .panelModeOfInheritance="${this.preparedQuery.panelModeOfInheritance}"
+                            .panelConfidence="${this.preparedQuery.panelConfidence}"
+                            .panelRoleInCancer="${this.preparedQuery.panelRoleInCancer}"
+                            @filterChange="${e => this.onFilterChange({
+                                  panel: "panel",
+                                  panelModeOfInheritance: "panelModeOfInheritance",
+                                  panelConfidence: "panelConfidence",
+                                  panelRoleInCancer: "panelRoleInCancer"
+                              }, e.detail)}">
+   </disease-panel-filter>
+ */
 export default class DiseasePanelFilter extends LitElement {
 
     constructor() {
@@ -128,7 +149,7 @@ export default class DiseasePanelFilter extends LitElement {
     filterChange(e, field) {
         e.stopPropagation();
 
-        // If panel cis changed wwe must called to the panelObserver
+        // If panel changes wwe must called to panelObserver
         if (field === "panel") {
             this.panelObserver(e.detail.value);
         }
@@ -144,7 +165,7 @@ export default class DiseasePanelFilter extends LitElement {
         return {
             showSummary: true,
             showGeneFilter: true,
-            showPanelFilter: false
+            showPanelFilter: true
         };
     }
 
@@ -217,7 +238,11 @@ export default class DiseasePanelFilter extends LitElement {
                                 const p = this.diseasePanels.find(p => p.id === panel);
                                 return html`
                                     <li>
-                                        <span class="badge break-spaces"><a href="https://panelapp.genomicsengland.co.uk/panels/${p.source.id}" target="_blank">${p.name} <i class="fas fa-external-link-alt"></i></a></span>
+                                        <span class="badge break-spaces">
+                                            <a href="https://panelapp.genomicsengland.co.uk/panels/${p.source.id}" target="_blank">
+                                                ${p.name} <i class="fas fa-external-link-alt"></i>
+                                            </a>
+                                        </span>
                                     </li>`;
                             })}
                         </ul>

@@ -115,7 +115,6 @@ import "./core/webcomponents/opencga/clinical/obsolete/opencga-variant-clinical.
 import "./core/webcomponents/opencga/clinical/opencga-clinical-analysis-grid.js";
 import "./core/webcomponents/opencga/clinical/opencga-clinical-analysis-view.js";
 import "./core/webcomponents/opencga/clinical/opencga-clinical-analysis-filter.js";
-import "./core/webcomponents/opencga/clinical/opencga-clinical-portal.js";
 import "./core/webcomponents/opencga/clinical/test/interpretation.js";
 import "./core/webcomponents/opencga/clinical/opencga-clinical-review-cases.js";
 import "./core/webcomponents/opencga/clinical/opencga-clinical-analysis-editor.js";

@@ -189,13 +189,13 @@ export default class OpencgaProjects extends LitElement {
             this.chartData[project.id] = {};
             for (const study of project.studies) {
                 try {
-                    /* const catalogStudyResponse = await this.opencgaSession.opencgaClient.studies().aggregationStats(study.fqn, {
+                     const catalogStudyResponse = await this.opencgaSession.opencgaClient.studies().aggregationStats(study.fqn, {
                         individualFields: "lifeStatus,sex"
-                    });*/
+                    });
 
-                    const f = await fetch("/lib/jsorolla/src/core/webcomponents/user/" + study.fqn + ".json");
+                    //const f = await fetch("/lib/jsorolla/src/core/webcomponents/user/" + study.fqn + ".json");
 
-                    const catalogStudyResponse = new RestResponse(await f.json());
+                    //const catalogStudyResponse = new RestResponse(await f.json());
 
                     const r = catalogStudyResponse.getResult(0).results ? catalogStudyResponse.getResult(0).results[0] : catalogStudyResponse.getResult(0);
 
@@ -236,13 +236,13 @@ export default class OpencgaProjects extends LitElement {
             // const response = await this.opencgaSession.opencgaClient.variants().aggregationStats({project: project.id, fields: "studies"});
 
 
-            let response = await fetch("/lib/jsorolla/src/core/webcomponents/user/variants_" + project.id + ".json")
-            response = new RestResponse(await response.json());
+            // let response = await fetch("/lib/jsorolla/src/core/webcomponents/user/variants_" + project.id + ".json")
+            // response = new RestResponse(await response.json());
 
             // console.error(project.id)
             // console.log(JSON.stringify(response))
-            const r = response.getResult(0).results ? response.getResult(0).results[0] : response.getResult(0);
-            this.variantsCount.update(this.totalCount.variants += r.count);
+            // const r = response.getResult(0).results ? response.getResult(0).results[0] : response.getResult(0);
+            // this.variantsCount.update(this.totalCount.variants += r.count);
 
             this.chartData[project.id] = {};
             /* for (let entity in this.charts) {

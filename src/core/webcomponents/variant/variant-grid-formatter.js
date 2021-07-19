@@ -66,7 +66,7 @@ export default class VariantGridFormatter {
         let alt = row.alternate ? row.alternate : "-";
 
         // Check size
-        const maxAlleleLength = config?.alleleStringLengthMax ? config.alleleStringLengthMax : 10;
+        const maxAlleleLength = config?.alleleStringLengthMax ? config.alleleStringLengthMax : 20;
         ref = (ref.length > maxAlleleLength) ? ref.substring(0, 4) + "..." + ref.substring(ref.length - 4) : ref;
         alt = (alt.length > maxAlleleLength) ? alt.substring(0, 4) + "..." + alt.substring(alt.length - 4) : alt;
 
@@ -139,18 +139,34 @@ export default class VariantGridFormatter {
         return snpId;
     }
 
-    static geneFormatter(variant, index, query, opencgaSession) {
+    static geneFormatter(variant, index, query, opencgaSession, gridCtSettings) {
+        const {selectedConsequenceTypes, notSelectedConsequenceTypes} =
+            VariantGridFormatter._consequenceTypeDetailFormatterFilter(variant.annotation.consequenceTypes, gridCtSettings);
+
         // Keep a map of genes and the SO accessions and names
         const geneHasQueryCt = new Set();
         if (query?.ct) {
-            const queryCtArray = query.ct.split(",");
-            for (const ct of variant.annotation.consequenceTypes) {
-                for (const so of ct.sequenceOntologyTerms) {
-                    if (queryCtArray.includes(so.name)) {
-                        geneHasQueryCt.add(ct.geneName);
-                        break;
-                    }
+            const consequenceTypes = new Set();
+            for (const ct of query.ct.split(",")) {
+                if (ct.toUpperCase() === "LOF") {
+                    CONSEQUENCE_TYPES.lof.forEach(key => consequenceTypes.add(key));
+                } else {
+                    consequenceTypes.add(ct);
                 }
+            }
+
+            // const queryCtArray = query.ct.split(",");
+            for (const ct of selectedConsequenceTypes) {
+                if (ct.sequenceOntologyTerms.some(so => consequenceTypes.has(so.name))) {
+                    geneHasQueryCt.add(ct.geneName);
+                }
+
+                // for (const so of ct.sequenceOntologyTerms) {
+                //     if (queryCtArray.includes(so.name)) {
+                //         geneHasQueryCt.add(ct.geneName);
+                //         break;
+                //     }
+                // }
             }
         }
 
@@ -251,7 +267,16 @@ export default class VariantGridFormatter {
         }
     }
 
-    static typeFormatter(value, row, index) {
+    static vcfFormatter(value, row, field, type = "INFO") {
+        if (type.toUpperCase() === "INFO") {
+            return row.studies[0].files[0].data[field];
+        } else {
+            const index = row.studies[0].sampleDataKeys.findIndex(f => f === field);
+            return row.studies[0].samples[0].data[index];
+        }
+    }
+
+    static typeFormatter(value, row) {
         if (row) {
             let type = row.type;
             let color = "";
@@ -285,10 +310,32 @@ export default class VariantGridFormatter {
         }
     }
 
-    static consequenceTypeFormatter(value, row, index, gridCtSettings, consequenceTypeColors) {
+    static consequenceTypeFormatter(value, row, ctQuery, gridCtSettings) {
         if (row?.annotation && row.annotation.consequenceTypes?.length > 0) {
-            const {selectedConsequenceTypes, notSelectedConsequenceTypes, indexes} =
+            let {selectedConsequenceTypes, notSelectedConsequenceTypes, indexes} =
                 VariantGridFormatter._consequenceTypeDetailFormatterFilter(row.annotation.consequenceTypes, gridCtSettings);
+
+            // If CT is passed in the query then we must make and AND with the selected transcript by the user.
+            // This means that only the selectedConsequenceTypes that ARE ALSO IN THE CT QUERY are displayed.
+            if (ctQuery) {
+                const consequenceTypes = new Set();
+                for (const ct of ctQuery.split(",")) {
+                    if (ct.toUpperCase() === "LOF") {
+                        CONSEQUENCE_TYPES.lof.forEach(key => consequenceTypes.add(key));
+                    } else {
+                        consequenceTypes.add(ct);
+                    }
+                }
+                const newSelectedConsequenceTypes = [];
+                for (const ct of selectedConsequenceTypes) {
+                    if (ct.sequenceOntologyTerms.some(so => consequenceTypes.has(so.name))) {
+                        newSelectedConsequenceTypes.push(ct);
+                    } else {
+                        notSelectedConsequenceTypes.push(ct);
+                    }
+                }
+                selectedConsequenceTypes = newSelectedConsequenceTypes;
+            }
 
             const positiveConsequenceTypes = [];
             const negativeConsequenceTypes = [];
@@ -451,7 +498,7 @@ export default class VariantGridFormatter {
             return;
         }
 
-        let hgvs = hgvsArray.find(hgvs => hgvs.startsWith(id));
+        let hgvs = hgvsArray?.find(hgvs => hgvs.startsWith(id));
         if (hgvs) {
             if (hgvs.includes("(")) {
                 const split = hgvs.split(new RegExp("[()]"));

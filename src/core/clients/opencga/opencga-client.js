@@ -365,16 +365,7 @@ export class OpenCGAClient {
                                                     if (session.user?.configs?.IVA?.lastStudy === study.fqn) {
                                                         session.project = project;
                                                         session.study = study;
-                                                    } else {
-                                                        // TODO rethink the defaultStudy feature: do we need it? should have more priority than lastStudy?
-                                                        // If study matches the defaultStudy AND no lastStudy ha been found, in other words:
-                                                        // This CANNOT overwrite lastStudy
-                                                        if (application.defaultStudy === study.fqn && !session.project && !session.study) {
-                                                            session.project = project;
-                                                            session.study = study;
-                                                        }
                                                     }
-
                                                     // Keep track of the studies to fetch Disease Panels
                                                     studies.push(project.id + ":" + study.id);
                                                 }
@@ -420,18 +411,21 @@ export class OpenCGAClient {
                                 } catch (e) {
                                     console.error("Error getting study permissions, cohorts or disease panels");
                                     console.error(e);
-                                    reject({message: "Error getting study permissions / study panels", value: e});
+                                    reject(new Error("Error getting study permissions / study panels"));
                                 }
                             })
-                            .catch(function (response) {
-                                reject({message: "An error when getting user projects", value: response});
+                            .catch(response => {
+                                console.error(response);
+                                reject(new Error("An error when getting user projects"));
                             });
                     })
-                    .catch(function (response) {
-                        reject({message: "An error getting user information", value: response});
+                    .catch(response => {
+                        console.error(response);
+                        reject(new Error("An error getting user information"));
                     });
             } else {
-                reject({message: "No valid token", value: _this._config.token});
+                console.error("No valid token:" + _this?._config?.token);
+                reject(new Error("No valid token:" + _this?._config?.token));
             }
         });
     }

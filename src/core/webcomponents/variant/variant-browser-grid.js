@@ -113,7 +113,7 @@ export default class VariantBrowserGrid extends LitElement {
         // Config for the grid toolbar
         this.toolbarConfig = {
             resource: "VARIANT",
-            buttons: ["columns", "download"],
+            buttons: ["columns", "download", "export"],
             columns: this._createDefaultColumns()
                 .flat()
                 .filter(f => f.title && !fieldToHide.includes(f.field) && (f.visible ?? true))
@@ -534,7 +534,7 @@ export default class VariantBrowserGrid extends LitElement {
                     field: "gene",
                     rowspan: 2,
                     colspan: 1,
-                    formatter: (value, row, index) => VariantGridFormatter.geneFormatter(row, index, this.query, this.opencgaSession),
+                    formatter: (value, row, index) => VariantGridFormatter.geneFormatter(row, index, this.query, this.opencgaSession, this._config),
                     halign: "center"
                 },
                 {
@@ -550,7 +550,7 @@ export default class VariantBrowserGrid extends LitElement {
                     field: "consequenceType",
                     rowspan: 2,
                     colspan: 1,
-                    formatter: (value, row, index) => VariantGridFormatter.consequenceTypeFormatter(value, row, index, this._config, this.consequenceTypeColors),
+                    formatter: (value, row, index) => VariantGridFormatter.consequenceTypeFormatter(value, row, this.query.ct, this._config),
                     halign: "center"
                 },
                 {
@@ -757,8 +757,9 @@ export default class VariantBrowserGrid extends LitElement {
             },
             consequenceType: {
                 maneTranscript: true,
-                gencodeBasicTranscript: true,
+                gencodeBasicTranscript: false,
                 ensemblCanonicalTranscript: true,
+                refseqTranscript: true,
                 ccdsTranscript: false,
                 ensemblTslTranscript: false,
                 proteinCodingTranscript: false,
