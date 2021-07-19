@@ -17,7 +17,7 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
 
-export default class AnnotationSetManager extends LitElement {
+export default class AnnotationCreate extends LitElement {
 
     constructor() {
         super();
@@ -33,7 +33,7 @@ export default class AnnotationSetManager extends LitElement {
             annotationSet: {
                 type: Object
             },
-            annotationSets: {
+            variableSetIdsSelected: {
                 type: Array
             },
             opencgaSession: {
@@ -59,18 +59,16 @@ export default class AnnotationSetManager extends LitElement {
     }
 
     update(changedProperties) {
-        if (this.annotationSets > 0) {
-            this.annotationSetsObserver();
-            console.log("##### Executed annotationSetsObserver()");
+        if (this._variableSetIds && changedProperties.has("variableSetIdsSelected")) {
+            this.variableSetIdsObserver();
         }
         super.update(changedProperties);
     }
 
-    // Delete from the list annotationSets is existed;
-    annotationSetsObserver() {
-        const annotationSetIdsSelected = this.annotationSets.map(item => item.variableSetId);
-        this.variableSetIds = this._variableSetIds.filter(variableSetId => !annotationSetIdsSelected.includes(variableSetId));
-        // Check this
+
+    variableSetIdsObserver() {
+        this.variableSetIds = this._variableSetIds?.filter(variableSetId => !this.variableSetIdsSelected.includes(variableSetId));
+        console.log("selected", this.variableSetIdsSelected, "result: ", this.variableSetIds);
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
@@ -79,8 +77,8 @@ export default class AnnotationSetManager extends LitElement {
             const resp = await this.opencgaSession.opencgaClient.studies().variableSets(this.opencgaSession.study.fqn);
             this.variableSets = await resp.responses[0].results;
             this._variableSetIds = this.variableSets.filter(item => !item.internal).map(item => item.id);
-            const annotationSetIdsSelected = this.annotationSets.map(item => item.variableSetId);
-            this.variableSetIds = this._variableSetIds.filter(variableSetId => !annotationSetIdsSelected.includes(variableSetId));
+            // const annotationSetIdsSelected = this.annotationSets.map(item => item.variableSetId);
+            this.variableSetIds = this._variableSetIds.filter(variableSetId => !this.variableSetIdsSelected.includes(variableSetId));
         } catch (error) {
             // TODO: Add Message to notify user;
             console.log("######ERROR :", error);
@@ -89,7 +87,7 @@ export default class AnnotationSetManager extends LitElement {
         }
     }
 
-    variablesObserver() {
+    renderVariables() {
         const variableSorted = this.variableSet?.variables.sort((a, b) => a.rank > b.rank? 1 : -1);
         this.annotationsElements = variableSorted.map(item => {
             return {
@@ -101,7 +99,6 @@ export default class AnnotationSetManager extends LitElement {
                 }
             };
         });
-        console.log("##### AnnotationsElements!!!!", this.annotationsElements);
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
@@ -144,8 +141,7 @@ export default class AnnotationSetManager extends LitElement {
     getVariablesById(variableId) {
         this.variableSet = this.variableSets.find(item => item.id === variableId);
         //     .variables.sort((a, b) => a.rank > b.rank? 1 : -1);
-        console.log("Change AnnotationSetId ", this.variableSet);
-        this.variablesObserver();
+        this.renderVariables();
     }
 
     getDefaultConfig() {
@@ -188,7 +184,7 @@ export default class AnnotationSetManager extends LitElement {
                 {
                     title: "Annotation Information",
                     display: {
-                        visible: this.annotationsElements.length > 0
+                        visible: annotationSet => annotationSet.variableSetId && this.annotationsElements.length > 0
                     },
                     elements: this.annotationsElements
                 }
@@ -221,4 +217,4 @@ export default class AnnotationSetManager extends LitElement {
 
 }
 
-customElements.define("annotationset-manager", AnnotationSetManager);
+customElements.define("annotation-create", AnnotationCreate);

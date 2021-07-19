@@ -17,7 +17,7 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
 import "../commons/phenotype/phenotype-list-update.js";
-import "../commons/annotationset/annotationsets-update.js";
+import "../commons/annotationset/annotation-set-update.js";
 
 export default class SampleCreate extends LitElement {
 
@@ -174,6 +174,7 @@ export default class SampleCreate extends LitElement {
     onSyncAnnotationSets(e) {
         e.stopPropagation();
         this.sample = {...this.sample, annotationSets: e.detail.value};
+        console.log("Add Annotation to Sample", this.sample);
     }
 
     getDefaultConfig() {
@@ -403,11 +404,11 @@ export default class SampleCreate extends LitElement {
                                 width: 12,
                                 style: "padding-left: 0px",
                                 render: () => html`
-                                    <annotationsets-update
+                                    <annotation-set-update
                                         .annotationSets="${this.sample?.annotationSets}"
                                         .opencgaSession="${this.opencgaSession}"
                                         @changeAnnotationSets="${e => this.onSyncAnnotationSets(e)}">
-                                    </annotationsets-update>
+                                    </annotation-set-update>
                                 `
                             }
                         }

@@ -19,9 +19,10 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import "../../commons/filters/text-field-filter.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import UtilsNew from "../../../utilsNew.js";
-import "./annotationset-manager.js";
+import "./annotation-create.js";
+import "./annotation-update.js";
 
-export default class AnnotationSetsUpdate extends LitElement {
+export default class AnnotationSetUpdate extends LitElement {
 
     constructor() {
         super();
@@ -52,10 +53,17 @@ export default class AnnotationSetsUpdate extends LitElement {
         };
     }
 
+    // connectedCallback() {
+    //     super.connectedCallback();
+    //
+
+    //     this._config = {...this.getDefaultConfig(), ...this.config};
+    // }
+
     onShowManager(e, manager) {
         this._manager = manager;
         if (manager.action === "ADD") {
-            this.data = {};
+            this.annotationSet = {};
         } else {
             this.annotationSet = manager.annotationSet;
         }
@@ -80,8 +88,8 @@ export default class AnnotationSetsUpdate extends LitElement {
     }
 
     editAnnotationSet(annotationSet) {
-        const index = this.annotations.findIndex(ann => ann.id === this.annotationSet.id);
-        this.annotations[index] = annotationSet;
+        const index = this.annotationSets.findIndex(ann => ann.variableSetId === this.annotationSet.variableSetId);
+        this.annotationSets[index] = annotationSet;
         this.annotationSet = {};
         LitUtils.dispatchEventCustom(this, "changeAnnotationSets", this.annotationSets);
         this.requestUpdate();
@@ -171,16 +179,24 @@ export default class AnnotationSetsUpdate extends LitElement {
                 <div class="modal-content">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                        <h4 class="modal-title">AnnotationSets Information</h4>
+                        <h4 class="modal-title">Annotation Set Information</h4>
                     </div>
                     <div class="modal-body">
-                        <annotationset-manager
-                            .annotationSet="${this.annotationSet}"
-                            .annotationSets="${this.annotationSets}"
-                            .opencgaSession="${this.opencgaSession}"
-                            @closeForm="${e => this.onCloseForm(e)}"
-                            @addItem="${this.onAction}">
-                        </annotationset-manager>
+                        ${this._manager.action === "ADD"? html `
+                            <annotation-create
+                                .annotationSet="${this.annotationSet}"
+                                .variableSetIdsSelected="${this.annotationSets.map(item => item.variableSetId)}"
+                                .opencgaSession="${this.opencgaSession}"
+                                @closeForm="${e => this.onCloseForm(e)}"
+                                @addItem="${this.onAction}">
+                            </annotation-create>
+                        `:html`
+                            <annotation-update
+                                .annotationSet="${this.annotationSet}"
+                                .opencgaSession="${this.opencgaSession}"
+                                @closeForm="${e => this.onCloseForm(e)}"
+                                @addItem="${this.onAction}">
+                            </annotation-update>`}
                     </div>
                 </div>
             </div>
@@ -190,4 +206,4 @@ export default class AnnotationSetsUpdate extends LitElement {
 
 }
 
-customElements.define("annotationsets-update", AnnotationSetsUpdate);
+customElements.define("annotation-set-update", AnnotationSetUpdate);
