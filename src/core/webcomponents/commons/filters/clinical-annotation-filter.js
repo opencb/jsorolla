@@ -15,7 +15,6 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../../utilsNew.js";
 import "../../commons/filters/select-field-filter.js";
 import "../../commons/filters/checkbox-field-filter.js";
 
@@ -34,9 +33,6 @@ export default class ClinicalAnnotationFilter extends LitElement {
 
     static get properties() {
         return {
-            opencgaSession: {
-                type: Object
-            },
             clinical: {
                 type: String
             },
@@ -46,9 +42,6 @@ export default class ClinicalAnnotationFilter extends LitElement {
             clinicalConfirmedStatus: {
                 type: Boolean
             },
-            clinicalAccessions: {
-                type: String
-            },
             config: {
                 type: Object
             }
@@ -56,8 +49,6 @@ export default class ClinicalAnnotationFilter extends LitElement {
     }
 
     _init() {
-        this._prefix = UtilsNew.randomString(8);
-
         this.query = {};
     }
 
@@ -83,7 +74,12 @@ export default class ClinicalAnnotationFilter extends LitElement {
     filterChange(e, field) {
         e.stopPropagation();
 
-        this.query[field] = e.detail.value;
+        if (field !== "clinicalConfirmedStatus") {
+            this.query[field] = e.detail.value;
+        } else {
+            this.query[field] = e.detail.value === "Confirmed";
+        }
+
         const event = new CustomEvent("filterChange", {
             detail: this.query
         });
@@ -103,7 +99,7 @@ export default class ClinicalAnnotationFilter extends LitElement {
     render() {
         return html`
             <div style="margin: 10px 0px">
-                <span>Select Clinical database</span>
+                <span>Select Clinical Database</span>
                 <div style="padding: 2px 0px">
                     <select-field-filter multiple
                                          .data="${this._config.clinicalDatabases}"

@@ -27,7 +27,7 @@ import "../../commons/opencb-grid-toolbar.js";
 import "../../loading-spinner.js";
 
 
-export default class VariantInterpreterGrid extends LitElement {
+export default class VariantInterpreterRearrangementGrid extends LitElement {
 
     constructor() {
         super();
@@ -62,6 +62,17 @@ export default class VariantInterpreterGrid extends LitElement {
     _init() {
         this._prefix = UtilsNew.randomString(8);
 
+        // Config for the grid toolbar
+        this.toolbarConfig = {
+            download: ["JSON"],
+            columns: [
+                {title: "Variant", field: "id"},
+                {title: "Genes", field: "genes"},
+                {title: "Type", field: "type"},
+                {title: "Gene Annotations", field: "consequenceType"}
+            ]
+        };
+
         this.gridId = this._prefix + "VariantBrowserGrid";
         this.checkedVariants = new Map();
         this.review = false;
@@ -74,7 +85,7 @@ export default class VariantInterpreterGrid extends LitElement {
     connectedCallback() {
         super.connectedCallback();
 
-        this._config = {...this.getDefaultConfig(), ...this.config, ...this.opencgaSession.user.configs?.IVA?.interpreterGrid};
+        this._config = {...this.getDefaultConfig(), ...this.config, ...this.opencgaSession.user.configs?.IVA?.interpreter?.rearrangementGrid};
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
         this.clinicalAnalysisManager = new ClinicalAnalysisManager(this.clinicalAnalysis, this.opencgaSession);
     }
@@ -98,36 +109,22 @@ export default class VariantInterpreterGrid extends LitElement {
         }
 
         if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config, ...this.opencgaSession.user.configs?.IVA?.interpreterGrid};
+            this._config = {...this.getDefaultConfig(), ...this.config, ...this.opencgaSession.user.configs?.IVA?.interpreter?.rearrangementGrid};
             this.gridCommons = new GridCommons(this.gridId, this, this._config);
-            // Config for the grid toolbar
-            // some columns has tooltips in title, we cannot used them for the dropdown
-            const visibleColumns = this._createDefaultColumns()[0].map(f => f.id);
-            const columns = [
-                {id: "id", title: "Variant", field: "id"},
-                {id: "gene", title: "Genes", field: "gene"},
-                {id: "type", title: "Type", field: "type"},
-                {id: "consequenceType", title: "Gene Annotations", field: "consequenceType"}
-            ].filter(f => ~visibleColumns.indexOf(f.id));
-            this.toolbarConfig = {
-                ...this._config.toolbar,
-                download: ["JSON"],
-                columns: columns
-            };
             // Nacho (14/11/2020) - Commented since it does not look necessary
             // this.requestUpdate();
         }
     }
 
     opencgaSessionObserver() {
-        this._config = {...this.getDefaultConfig(), ...this.config, ...this.opencgaSession.user.configs?.IVA?.interpreterGrid};
+        this._config = {...this.getDefaultConfig(), ...this.config, ...this.opencgaSession.user.configs?.IVA?.interpreter?.rearrangementGrid};
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
         this.clinicalAnalysisManager = new ClinicalAnalysisManager(this.clinicalAnalysis, this.opencgaSession);
     }
 
     clinicalAnalysisObserver() {
         // We need to load server config always.
-        this._config = {...this.getDefaultConfig(), ...this.config, ...this.opencgaSession.user.configs?.IVA?.interpreterGrid};
+        this._config = {...this.getDefaultConfig(), ...this.config, ...this.opencgaSession.user.configs?.IVA?.interpreter?.rearrangementGrid};
         this.clinicalAnalysisManager = new ClinicalAnalysisManager(this.clinicalAnalysis, this.opencgaSession);
 
         // Make sure somatic sample is the first one
@@ -185,14 +182,15 @@ export default class VariantInterpreterGrid extends LitElement {
                 columns: this._createDefaultColumns(),
                 method: "get",
                 sidePagination: "server",
+
                 // Set table properties, these are read from config property
                 uniqueId: "id",
-                silentSort: false,
                 pagination: this._config.pagination,
                 pageSize: this._config.pageSize,
                 pageList: this._config.pageList,
                 paginationVAlign: "both",
-                formatShowingRows: (pageFrom, pageTo, totalRows) => this.gridCommons.formatShowingRows(pageFrom, pageTo, totalRows, null, this.isApproximateCount),
+                formatShowingRows: (pageFrom, pageTo, totalRows) =>
+                    this.gridCommons.formatShowingRows(pageFrom, pageTo, totalRows, null, this.isApproximateCount),
                 showExport: this._config.showExport,
                 detailView: this._config.detailView,
                 detailFormatter: this.detailFormatter,
@@ -205,71 +203,45 @@ export default class VariantInterpreterGrid extends LitElement {
                     // Make a deep clone object to manipulate the query sent to OpenCGA
                     const internalQuery = JSON.parse(JSON.stringify(this.query));
 
-                    // We need to make sure that the proband is the first sample when analysing Families
-                    if (this.clinicalAnalysis.type.toUpperCase() === "FAMILY" && this.query?.sample) {
-                        // Note:
-                        // - sample=A;B;C
-                        // - sample=A:0/1,1/1;B:1/1;C:1/1
-                        // There is also another param called: 'includeSample'
-
-                        const samples = internalQuery.sample.split(";");
-                        const sortedSamples = [];
-                        for (const sample of samples) {
-                            const sampleFields = sample.split(":");
-                            if (sampleFields && sampleFields[0] === this.clinicalAnalysis.proband.samples[0].id) {
-                                sortedSamples.unshift(sample);
-                            } else {
-                                sortedSamples.push(sample);
-                            }
-                        }
-
-                        // For all non proband samples
-                        const newQuerySample = [sortedSamples[0]];
-                        for (let i = 1; i < sortedSamples.length; i++) {
-                            // Non proband samples must have a genotype filter BUT ir cannot have ALL the genotypes
-                            if (sortedSamples[i].includes(":")) {
-                                if (!sortedSamples[i].includes("0/0") || !sortedSamples[i].includes("0/1") || !sortedSamples[i].includes("1/1")) {
-                                    newQuerySample.push(sortedSamples[i]);
-                                }
-                            }
-                        }
-                        internalQuery.sample = newQuerySample.join(";");
-
-                        const sortedSampleIds = [];
-                        for (const member of this.clinicalAnalysis.family.members) {
-                            if (member && member.id === this.clinicalAnalysis.proband.id) {
-                                sortedSampleIds.unshift(member.samples[0].id);
-                            } else {
-                                if (member.samples?.[0]?.id) {
-                                    sortedSampleIds.push(member.samples[0].id);
-                                }
-                            }
-                        }
-                        internalQuery.includeSample = sortedSampleIds.join(",");
-                    }
-
                     const tableOptions = $(this.table).bootstrapTable("getOptions");
                     const filters = {
                         study: this.opencgaSession.study.fqn,
-                        limit: params.data.limit || tableOptions.pageSize,
+                        limit: params.data.limit * 2 || tableOptions.pageSize * 2,
                         skip: params.data.offset || 0,
                         count: !tableOptions.pageNumber || tableOptions.pageNumber === 1,
-                        includeSampleId: "true",
 
                         approximateCount: true,
                         approximateCountSamplingSize: 500,
 
-                        // populationFrequencyAlt: "1kG_phase3:ALL<0.001",
-
-                        ...internalQuery
-
-                        // sample: this.clinicalAnalysis.proband.samples[0].id + ":0/0,0/1,1/1",
-                        // unknownGenotype: "0/0"
+                        ...internalQuery,
+                        includeSampleId: "true",
+                        type: "BREAKEND"
                     };
 
                     this.opencgaSession.opencgaClient.clinical().queryVariant(filters)
                         .then(res => {
                             this.isApproximateCount = res.responses[0].attributes?.approximateCount ?? false;
+
+                            const pairs = []; // pairs = [[v1, v2], [v3, v4], [v5, v6]];
+                            if (res?.responses[0].results) {
+                                for (const variant of res.responses[0].results) {
+                                    const mateId = variant.studies[0].files[0].data.MATEID;
+                                    let found = false;
+                                    for (const pair of pairs) {
+                                        if (pair[0].studies[0].files[0].data.VCF_ID === mateId) {
+                                            pair.push(variant);
+                                            found = true;
+                                            break;
+                                        }
+                                    }
+                                    if (!found) {
+                                        pairs.push([variant]);
+                                    }
+                                }
+                                // It's important to overwrite results array
+                                res.responses[0].results = pairs;
+                            }
+
                             params.success(res);
                         })
                         .catch(e => {
@@ -429,16 +401,17 @@ export default class VariantInterpreterGrid extends LitElement {
         return result;
     }
 
-    vcfDataFormatter(value, row, index) {
+    vcfDataFormatter(value, row, field) {
+        debugger;
         if (row.studies?.length > 0) {
-            if (this.field.vcfColumn === "info") {
+            if (field.vcfColumn === "info") {
                 for (const file of row.studies[0].files) {
-                    if (file.data[this.field.key]) {
-                        return file.data[this.field.key];
+                    if (file.data[field.key]) {
+                        return file.data[field.key];
                     }
                 }
             } else { // This must be FORMAT column
-                const sampleIndex = row.studies[0].samples.findIndex(sample => sample.sampleId === this.field.sample.id);
+                const sampleIndex = row.studies[0].samples.findIndex(sample => sample.sampleId === field.sample.id);
                 const index = row.studies[0].sampleDataKeys.findIndex(key => key === this.field.key);
                 if (index >= 0) {
                     return row.studies[0].samples[sampleIndex].data[index];
@@ -499,6 +472,7 @@ export default class VariantInterpreterGrid extends LitElement {
         // This code creates dynamically the columns for the VCF INFO and FORMAT column data.
         // Multiple file callers are supported.
         let vcfDataColumns = [];
+        const vcfDataColumns2 = [];
         const fileCallers = this.clinicalAnalysis.files.filter(file => file.format === "VCF" && file.software?.name).map(file => file.software.name);
         if (this._config.callers?.length > 0 && fileCallers?.length > 0) {
             for (const caller of this._config.callers) {
@@ -514,7 +488,27 @@ export default class VariantInterpreterGrid extends LitElement {
                                 },
                                 rowspan: 1,
                                 colspan: 1,
-                                formatter: this.vcfDataFormatter,
+                                formatter: (value, row) => this.vcfDataFormatter(value, row[0], {
+                                    vcfColumn: "info",
+                                    key: caller.info[i]
+                                }),
+                                halign: "center"
+                            });
+                        }
+
+                        for (let i = 0; i < caller.info.length; i++) {
+                            vcfDataColumns2.push({
+                                title: caller.info[i],
+                                field: {
+                                    vcfColumn: "info",
+                                    key: caller.info[i]
+                                },
+                                rowspan: 1,
+                                colspan: 1,
+                                formatter: (value, row) => this.vcfDataFormatter(value, row[1], {
+                                    vcfColumn: "info",
+                                    key: caller.info[i]
+                                }),
                                 halign: "center"
                             });
                         }
@@ -552,96 +546,99 @@ export default class VariantInterpreterGrid extends LitElement {
         }
 
         // Prepare Grid columns
-        this._columns = [
+        const _columns = [
             [
                 {
-                    id: "id",
-                    title: "Variant",
+                    title: "Variant 1",
                     field: "id",
                     rowspan: 2,
                     colspan: 1,
-                    formatter: (value, row, index) => VariantGridFormatter.variantFormatter(value, row, index, this.opencgaSession.project.organism.assembly, this._config),
+                    formatter: (value, row, index) => VariantGridFormatter.variantFormatter(value, row[0], index, this.opencgaSession.project.organism.assembly, this._config),
                     halign: "center",
                     sortable: true
                 },
                 {
-                    id: "gene",
+                    title: "Variant 2",
+                    field: "id",
+                    rowspan: 2,
+                    colspan: 1,
+                    formatter: (value, row, index) => VariantGridFormatter.variantFormatter(value, row[1], index, this.opencgaSession.project.organism.assembly, this._config),
+                    halign: "center",
+                    sortable: true
+                },
+                {
                     title: "Gene",
                     field: "gene",
                     rowspan: 2,
                     colspan: 1,
-                    formatter: (value, row, index) => VariantGridFormatter.geneFormatter(row, index, this.query, this.opencgaSession, this._config),
+                    formatter: (value, row, index) => VariantGridFormatter.geneFormatter(row[0], index, this.query, this.opencgaSession),
                     halign: "center"
                 },
+                // {
+                //     title: "Gene",
+                //     field: "gene",
+                //     rowspan: 2,
+                //     colspan: 1,
+                //     formatter: (value, row, index) => VariantGridFormatter.geneFormatter(row[1], index, this.query, this.opencgaSession),
+                //     halign: "center"
+                // },
                 {
-                    id: "type",
                     title: "Type",
                     field: "type",
                     rowspan: 2,
                     colspan: 1,
-                    formatter: VariantGridFormatter.typeFormatter.bind(this),
+                    formatter: (value, row) => VariantGridFormatter.vcfFormatter(value, row[0], "EXT_SVTYPE", "INFO"),
                     halign: "center"
                 },
                 {
-                    id: "consequenceType",
-                    title: "Gene Annotation",
-                    field: "consequenceType",
+                    title: "SVCLASS",
+                    // field: "type",
                     rowspan: 2,
                     colspan: 1,
-                    formatter: (value, row, index) => VariantGridFormatter.consequenceTypeFormatter(value, row, this.query.ct, this._config),
+                    formatter: (value, row) => {
+                        return `<div>${VariantGridFormatter.vcfFormatter(value, row[0], "SVCLASS", "INFO")}</div>`;
+                    },
                     halign: "center"
                 },
+                // {
+                //     title: "Gene Annotation",
+                //     field: "consequenceType",
+                //     rowspan: 2,
+                //     colspan: 1,
+                //     formatter: (value, row, index) => VariantGridFormatter.consequenceTypeFormatter(value, row, index, this._config, this.consequenceTypeColors),
+                //     halign: "center"
+                // },
+                // {
+                //     title: "Role in Cancer",
+                //     field: "evidences",
+                //     rowspan: 2,
+                //     colspan: 1,
+                //     formatter: VariantInterpreterGridFormatter.roleInCancerFormatter.bind(this),
+                //     halign: "center",
+                //     visible: this.clinicalAnalysis.type.toUpperCase() === "CANCER"
+                // },
                 {
-                    id: "evidences",
-                    title: "Role in Cancer",
-                    field: "evidences",
-                    rowspan: 2,
-                    colspan: 1,
-                    formatter: VariantInterpreterGridFormatter.roleInCancerFormatter.bind(this),
-                    halign: "center",
-                    visible: this.clinicalAnalysis.type.toUpperCase() === "CANCER"
-                },
-                {
-                    id: "VCF_Data",
-                    title: "VCF Data",
+                    title: "VCF Data 1",
                     rowspan: 1,
                     colspan: vcfDataColumns?.length,
                     halign: "center",
                     visible: vcfDataColumns?.length > 1
                 },
                 {
-                    id: "frequencies",
-                    title: `Variant Allele Frequency <a class="pop-preq-info-icon" tooltip-title="Population Frequencies" tooltip-text="${VariantGridFormatter.populationFrequenciesInfoTooltipContent(populationFrequencies)}" tooltip-position-at="left bottom" tooltip-position-my="right top"><i class="fa fa-info-circle" aria-hidden="true"></i></a>`,
-                    field: "frequencies",
+                    title: "VCF Data 2",
                     rowspan: 1,
-                    colspan: 2,
-                    align: "center"
+                    colspan: vcfDataColumns2?.length,
+                    halign: "center",
+                    visible: vcfDataColumns2?.length > 1
                 },
                 {
-                    id: "clinicalInfo",
-                    title: `Clinical Info <a id="phenotypesInfoIcon" tooltip-title="Phenotypes" tooltip-text="
-                                <div>
-                                    <span style='font-weight: bold'>ClinVar</span> is a freely accessible, public archive of reports of the relationships among human variations
-                                    and phenotypes, with supporting evidence.
-                                </div>
-                                <div style='padding-top: 10px'>
-                                    <span style='font-weight: bold'>COSMIC</span> is the world's largest and most comprehensive resource for exploring the impact of somatic mutations in human cancer.
-                                </div>"
-                            tooltip-position-at="left bottom" tooltip-position-my="right top"><i class="fa fa-info-circle" aria-hidden="true"></i></a>`,
-                    rowspan: 1,
-                    colspan: 2,
-                    align: "center"
-                },
-                {
-                    id: "interpretation",
                     title: "Interpretation <a class='interpretation-info-icon' tooltip-title='Interpretation' tooltip-text=\"<span style='font-weight: bold'>Prediction</span> column shows the Clinical Significance prediction and Tier following the ACMG guide recommendations\" tooltip-position-at=\"left bottom\" tooltip-position-my=\"right top\"><i class='fa fa-info-circle' aria-hidden='true'></i></a>",
                     field: "interpretation",
                     rowspan: 1,
-                    colspan: this._config.showSelectCheckbox ? 2 : 1,
+                    colspan: 2,
                     halign: "center"
                 },
                 {
-                    id: "review",
                     title: "Review",
                     rowspan: 2,
                     colspan: 1,
@@ -654,7 +651,6 @@ export default class VariantInterpreterGrid extends LitElement {
                     visible: this.review
                 },
                 {
-                    id: "actions",
                     title: "Actions",
                     rowspan: 2,
                     colspan: 1,
@@ -691,6 +687,7 @@ export default class VariantInterpreterGrid extends LitElement {
             ],
             [
                 ...vcfDataColumns,
+                ...vcfDataColumns2,
                 {
                     title: "Cohorts",
                     field: "cohort",
@@ -698,29 +695,6 @@ export default class VariantInterpreterGrid extends LitElement {
                     rowspan: 1,
                     formatter: VariantInterpreterGridFormatter.studyCohortsFormatter.bind(this),
                     visible: this.clinicalAnalysis.type.toUpperCase() === "SINGLE" || this.clinicalAnalysis.type.toUpperCase() === "FAMILY"
-                },
-                {
-                    title: "Population Frequencies",
-                    field: "populationFrequencies",
-                    colspan: 1,
-                    rowspan: 1,
-                    formatter: VariantInterpreterGridFormatter.clinicalPopulationFrequenciesFormatter.bind(this)
-                },
-                {
-                    title: "ClinVar",
-                    field: "clinvar",
-                    colspan: 1,
-                    rowspan: 1,
-                    formatter: VariantGridFormatter.clinicalPhenotypeFormatter,
-                    align: "center"
-                },
-                {
-                    title: "Cosmic",
-                    field: "cosmic",
-                    colspan: 1,
-                    rowspan: 1,
-                    formatter: VariantGridFormatter.clinicalPhenotypeFormatter,
-                    align: "center"
                 },
                 {
                     title: `${this.clinicalAnalysis.type !== "CANCER" ? "ACMG <br> Prediction" : "Prediction"}`,
@@ -746,15 +720,8 @@ export default class VariantInterpreterGrid extends LitElement {
         ];
 
         // update columns dynamically
-        this._columns = this._updateTableColumns(this._columns);
-        console.log("before this._columns", this._columns)
-
-        this._columns = UtilsNew.mergeTable(this._columns, this._config.columns);
-
-        console.log("_CONFIG", this._config)
-        console.log("after this._columns", this._columns)
-
-        return this._columns;
+        this._updateTableColumns(_columns);
+        return _columns;
     }
 
     _updateTableColumns(_columns) {
@@ -797,7 +764,6 @@ export default class VariantInterpreterGrid extends LitElement {
 
             if (samples.length > 0) {
                 _columns[0].splice(4, 0, {
-                    id: "zygosity",
                     title: "Sample Genotypes",
                     field: "zygosity",
                     rowspan: 1,
@@ -833,7 +799,7 @@ export default class VariantInterpreterGrid extends LitElement {
                         },
                         rowspan: 1,
                         colspan: 1,
-                        formatter: VariantInterpreterGridFormatter.sampleGenotypeFormatter,
+                        formatter: (value, row) => VariantInterpreterGridFormatter.sampleGenotypeFormatter(value, row[0]),
                         align: "center",
                         nucleotideGenotype: true
                     });
@@ -858,7 +824,6 @@ export default class VariantInterpreterGrid extends LitElement {
                 }
 
                 _columns[0].splice(5, 0, {
-                    id: "sampleGenotypes",
                     title: "Sample Genotypes",
                     rowspan: 1,
                     colspan: samples.length,
@@ -879,15 +844,14 @@ export default class VariantInterpreterGrid extends LitElement {
                         },
                         rowspan: 1,
                         colspan: 1,
-                        formatter: VariantInterpreterGridFormatter.sampleGenotypeFormatter,
+                        // formatter: VariantInterpreterGridFormatter.sampleGenotypeFormatter,
+                        formatter: (value, row) => VariantGridFormatter.vcfFormatter(value, row[0], "RC", "FORMAT"),
                         align: "center",
                         nucleotideGenotype: true
                     });
                 }
             }
         }
-
-        return _columns;
     }
 
     onActionClick(e, value, row) {
@@ -977,10 +941,11 @@ export default class VariantInterpreterGrid extends LitElement {
             showActions: false,
             multiSelection: false,
             nucleotideGenotype: true,
-            alleleStringLengthMax: 10,
+
+            alleleStringLengthMax: 50,
 
             genotype: {
-                type: "VAF"
+                type: "VCF_CALL"
             },
             header: {
                 horizontalAlign: "center",
@@ -991,7 +956,7 @@ export default class VariantInterpreterGrid extends LitElement {
                 qual: 30,
                 dp: 20
             },
-            populationFrequencies: ["1kG_phase3:ALL", "GNOMAD_GENOMES:ALL", "GNOMAD_EXOMES:ALL", "UK10K:ALL", "GONL:ALL", "ESP6500:ALL", "EXAC:ALL"],
+            populationFrequencies: [],
 
             consequenceType: {
                 maneTranscript: true,
@@ -1006,25 +971,9 @@ export default class VariantInterpreterGrid extends LitElement {
             },
             callers: [
                 {
-                    id: "caveman",
-                    info: ["CLPM", "ASMD", "EXT_CNV", "EXT_TCN", "EXT_MCN"]
-                },
-                {
-                    id: "pindel",
-                    info: ["QUAL", "REP"]
-                },
-                {
-                    id: "tnhaplotyper2",
-                    info: ["DP", "ECNT", "TLOD", "P_GERMLINE"]
-                },
-                {
-                    id: "Pisces",
-                    format: ["SB", "NC", "AQ"]
+                    id: "brass",
+                    info: ["BAS", "GENE", "TID", "RGN", "RGNNO", "RGNC", "CNCH", "FFV"]
                 }
-                // {
-                //     id: "CRAFT",
-                //     format: ["FC"],
-                // }
             ],
 
             evidences: {
@@ -1044,7 +993,7 @@ export default class VariantInterpreterGrid extends LitElement {
 
     async onApplySettings(e) {
         try {
-            this._config = {...this.getDefaultConfig(), ...this.opencgaSession.user.configs?.IVA?.interpreterGrid, ...this.__config};
+            this._config = {...this.getDefaultConfig(), ...this.opencgaSession.user.configs?.IVA?.interpreter?.rearrangementGrid, ...this.__config};
 
             // TODO Delete old config values. Remove this in IVA 2.2
             delete this._config.consequenceType.canonicalTranscript;
@@ -1168,4 +1117,4 @@ export default class VariantInterpreterGrid extends LitElement {
 
 }
 
-customElements.define("variant-interpreter-grid", VariantInterpreterGrid);
+customElements.define("variant-interpreter-rearrangement-grid", VariantInterpreterRearrangementGrid);

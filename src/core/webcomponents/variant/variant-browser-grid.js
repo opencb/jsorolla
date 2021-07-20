@@ -536,7 +536,7 @@ export default class VariantBrowserGrid extends LitElement {
                     field: "gene",
                     rowspan: 2,
                     colspan: 1,
-                    formatter: (value, row, index) => VariantGridFormatter.geneFormatter(row, index, this.query, this.opencgaSession),
+                    formatter: (value, row, index) => VariantGridFormatter.geneFormatter(row, index, this.query, this.opencgaSession, this._config),
                     halign: "center"
                 },
                 {
@@ -554,7 +554,7 @@ export default class VariantBrowserGrid extends LitElement {
                     field: "consequenceType",
                     rowspan: 2,
                     colspan: 1,
-                    formatter: (value, row, index) => VariantGridFormatter.consequenceTypeFormatter(value, row, index, this._config, this.consequenceTypeColors),
+                    formatter: (value, row, index) => VariantGridFormatter.consequenceTypeFormatter(value, row, this.query.ct, this._config),
                     halign: "center"
                 },
                 {
@@ -713,7 +713,6 @@ export default class VariantBrowserGrid extends LitElement {
             ]
         ];
 
-        // TODO debug mergeTable
         this._columns = UtilsNew.mergeTable(this._columns, this._config.columns);
         return this._columns;
     }
@@ -768,8 +767,9 @@ export default class VariantBrowserGrid extends LitElement {
             },
             consequenceType: {
                 maneTranscript: true,
-                gencodeBasicTranscript: true,
+                gencodeBasicTranscript: false,
                 ensemblCanonicalTranscript: true,
+                refseqTranscript: true,
                 ccdsTranscript: false,
                 ensemblTslTranscript: false,
                 proteinCodingTranscript: false,
