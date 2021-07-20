@@ -69,7 +69,23 @@ export default class CatalogGridFormatter {
         }
     }
 
-    /**
+    static panelFormatter(panels) {
+        let panelHtml = "-";
+        if (panels?.length > 0) {
+            panelHtml = "";
+            for (const panel of panels) {
+                panelHtml += `
+                    <div style="margin: 5px 0px">
+                        <a href="https://panelapp.genomicsengland.co.uk/panels/${panel.source.id}/" target="_blank">
+                            ${panel.name} (${panel.source.project} v${panel.source.version})
+                        </a>
+                    </div>`;
+            }
+        }
+        return panelHtml;
+    }
+
+        /**
      *  Formats the files for the Catalog grids
      * @param {Array} files Either a list of fileIds or file objects
      * @param {Array} extensions A list of file extensions. If it is defined, only the file with extensions are returned.
