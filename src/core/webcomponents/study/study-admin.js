@@ -385,7 +385,7 @@ export default class StudyAdmin extends LitElement {
                         </div>
 
                         <div id="${this._prefix}VaribleSets" role="tabpanel" class="tab-pane content-tab">
-                            <h2><i class="fas fa-key icon-padding" style="padding-right: 10px"></i>Variable Sets</h2>
+                            <h2><i class="fas fa-code icon-padding" style="padding-right: 10px"></i>Variable Sets</h2>
                             <study-admin-variable .opencgaSession="${this.opencgaSession}" .study="${this.study}"></study-admin-variable>
                         </div>
 

@@ -55,7 +55,6 @@ export default class AnnotationCreate extends LitElement {
 
     firstUpdated(changedProperties) {
         this.variableSetObserver();
-        console.log("##### firstUpdated!!!!!");
     }
 
     update(changedProperties) {
@@ -109,6 +108,7 @@ export default class AnnotationCreate extends LitElement {
     }
 
     onFieldChange(e) {
+        // Prevent propagate the function to higher components
         e.stopPropagation();
         const [field, prop] = e.detail.param.split(".");
         if (e.detail.value) {

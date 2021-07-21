@@ -85,7 +85,7 @@ export default class DisorderManager extends LitElement {
                             }
                         },
                         {
-                            name: "Evidences",
+                            name: "Evidences", // Phenotypes List
                             field: "evidences",
                             type: "select",
                             allowedValues: ["OBSERVED", "NOT_OBSERVED", "UNKNOW"],

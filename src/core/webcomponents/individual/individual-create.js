@@ -48,6 +48,7 @@ export default class IndividualCreate extends LitElement {
             phenotypes: [],
             disorders: []
         };
+        // Individual -> list disorders -> description, evidences (list of phenotypes)
     }
 
     connectedCallback() {
