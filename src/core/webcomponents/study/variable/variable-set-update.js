@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import "./variable-list-manager.js";
+import "./variable-list-update.js";
 import FormUtils from "../../../form-utils.js";
 
 export default class VariableSetUpdate extends LitElement {

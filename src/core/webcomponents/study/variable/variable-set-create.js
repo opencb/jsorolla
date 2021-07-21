@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import "./variable-list-manager.js";
+import "./variable-list-update.js";
 import FormUtils from "../../../form-utils.js";
 
 export default class VariableSetCreate extends LitElement {
@@ -60,6 +60,7 @@ export default class VariableSetCreate extends LitElement {
     }
 
     onFieldChangeVariableSet(e) {
+        e.stopPropagation();
         const field = e.detail.param;
         console.log("Field:", field);
         switch (e.detail.param) {
@@ -75,12 +76,25 @@ export default class VariableSetCreate extends LitElement {
                 };
                 break;
         }
-        // TODO: Here we can put a switch of field has validation to refreshForm
-        if (field === "id") {
-            this.refreshForm();
-        }
-        console.log("VariableSet Data", this.variableSet);
+    }
 
+    // Option2 : Event for valiations ... this dispatch when user out the input field.
+    onBlurChange(e) {
+        e.stopPropagation();
+        const field = e.detail.param;
+        switch (e.detail.param) {
+            case "id":
+            case "name":
+            case "unique":
+            case "confidential":
+            case "description":
+            case "entities":
+                console.log("Blur Event:", e.detail.value);
+                if (field === "id") {
+                    this.refreshForm();
+                }
+                console.log("VariableSet Data", this.variableSet);
+        }
     }
 
 
@@ -141,7 +155,7 @@ export default class VariableSetCreate extends LitElement {
                             display: {
                                 placeholder: "Name ...",
                                 help: {
-                                    text: ";kaslkaslkas"
+                                    text: "short name variable"
                                 },
                             }
                         },
@@ -191,12 +205,12 @@ export default class VariableSetCreate extends LitElement {
                                 width: 12,
                                 style: "padding-left: 0px",
                                 render: () => html`
-                                    <variable-list-manager
+                                    <variable-list-update
                                         .opencgaSession="${this.opencgaSession}"
                                         .variables="${this.variableSet?.variables}"
                                         .readOnly=${false}
                                         @changeVariables="${e => this.onSyncVariables(e)}">
-                                    </variable-list-manager>`
+                                    </variable-list-update>`
                             }
                         },
                     ]
@@ -261,7 +275,7 @@ export default class VariableSetCreate extends LitElement {
 
     async onSubmit(e) {
         e.preventDefault();
-        console.log("Save Form");
+        console.log("Save Form", this.variableSet);
         Swal.fire({
             title: "Are you sure to create?",
             text: "You won't be able to modify this!",
@@ -429,6 +443,7 @@ export default class VariableSetCreate extends LitElement {
                 .data=${this.variableSet}
                 .config="${this._config}"
                 @fieldChange="${e => this.onFieldChangeVariableSet(e)}"
+                @blurChange="${e => this.onBlurChange(e)}"
                 @clear="${e => this.onClear(e)}"
                 @submit="${e => this.onSubmit(e)}">
             </data-form>`;
