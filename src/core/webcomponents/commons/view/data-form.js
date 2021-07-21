@@ -535,6 +535,7 @@ export default class DataForm extends LitElement {
                 <text-field-filter placeholder="${element.display?.placeholder}" .rows=${rows} ?disabled=${disabled}
                                    ?required=${element.required} .value="${value}"
                                    .classes="${element.display?.updated ? "updated" : ""}"
+                                   @blurChange="${e => this.onBlurChange(element.field, e.detail.value)}"
                                    @filterChange="${e => this.onFilterChange(element.field, e.detail.value)}">
                 </text-field-filter>
                 ${element?.display?.help?.mode === "block" && element?.display?.help?.text ? html`<span class="help-block" style="margin: 5px">${element.display.help.text}</span>` : null}
@@ -971,6 +972,18 @@ export default class DataForm extends LitElement {
             composed: true
         }));
     }
+
+    onBlurChange(field, value) {
+        this.dispatchEvent(new CustomEvent("blurChange", {
+            detail: {
+                param: field,
+                value: value
+            },
+            bubbles: false,
+            composed: true
+        }));
+    }
+
 
     onClear(e) {
         this.dispatchEvent(new CustomEvent("clear", {

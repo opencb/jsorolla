@@ -70,6 +70,23 @@ export default class TextFieldFilter extends LitElement {
         }
     }
 
+    applySeparator(e) {
+        let value;
+        if (this.separator) {
+            value = e.target.value ?
+                e.target.value.trim()
+                    // .replace(/\s/g, "") // this prevents using values with more than 1 word (e.g. "Cardiovascular disorders")
+                    .split((new RegExp(`[${this.separator}]`)))
+                    .filter(Boolean)
+                    .join(this.separator) :
+                null;
+        } else {
+            value = e.target.value ?? null;
+        }
+
+        return value;
+    }
+
     filterChange(e) {
         let value;
         if (this.separator) {
@@ -93,6 +110,18 @@ export default class TextFieldFilter extends LitElement {
         this.dispatchEvent(event);
     }
 
+    blurChange(e) {
+        const value = this.applySeparator(e);
+        const event = new CustomEvent("blurChange", {
+            detail: {
+                value: value
+            },
+            bubbles: false,
+            composed: true
+        });
+        this.dispatchEvent(event);
+    }
+
     render() {
         const rows = this.rows ? this.rows : 1;
         const placeholder = (this.placeholder && this.placeholder !== "undefined") ? this.placeholder : "";
@@ -100,11 +129,11 @@ export default class TextFieldFilter extends LitElement {
             <div id="${this._prefix}-wrapper" class="" style="margin-left: 0px">
                 ${rows === 1 ?
                     html`
-                        <input type="text" id="${this._prefix}-input" class="form-control ${this.classes}" 
-                                ?disabled=${this.disabled} ?required=${this.required} placeholder="${placeholder}" @input="${this.filterChange}">` :
+                        <input type="text" id="${this._prefix}-input" class="form-control ${this.classes}"
+                                ?disabled=${this.disabled} ?required=${this.required} placeholder="${placeholder}" @blur="${this.blurChange}" @input="${this.filterChange}">` :
                     html`
-                        <textarea id="${this._prefix}-input" rows=${rows} class="form-control ${this.classes}" 
-                                ?disabled=${this.disabled} ?required=${this.required} placeholder="${placeholder}" @input="${this.filterChange}">`
+                        <textarea id="${this._prefix}-input" rows=${rows} class="form-control ${this.classes}"
+                                ?disabled=${this.disabled} ?required=${this.required} placeholder="${placeholder}" @blur="${this.blurChange}" @input="${this.filterChange}">`
                 }
             </div>
         `;
