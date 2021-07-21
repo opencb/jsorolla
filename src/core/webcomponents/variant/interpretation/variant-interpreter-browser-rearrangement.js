@@ -405,6 +405,15 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
                                 title: "Gene Biotype",
                                 biotypes: BIOTYPES,
                                 tooltip: tooltips.biotype
+                            },
+                            {
+                                id: "ext-svtype",
+                                title: "SVTYPE",
+                                types: ["TRANSLOCATION", "DUPLICATION", "INVERSION", "DELETION"],
+                                tooltip: tooltips.type,
+                                params: {
+                                    fileId: `${this.callerToFile ? this.callerToFile["brass"]?.name : null}`
+                                }
                             }
                             // {
                             //     id: "type",
