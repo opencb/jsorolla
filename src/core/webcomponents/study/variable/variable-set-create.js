@@ -92,19 +92,21 @@ export default class VariableSetCreate extends LitElement {
     onBlurChange(e) {
         e.stopPropagation();
         const field = e.detail.param;
-        switch (e.detail.param) {
-            case "id":
-            case "name":
-            case "unique":
-            case "confidential":
-            case "description":
-            case "entities":
-                console.log("Blur Event:", e.detail.value);
-                if (field === "id") {
-                    this.refreshForm();
-                }
-                console.log("VariableSet Data", this.variableSet);
-        }
+        console.log("VariableSet Data", field, e.detail.value);
+        // switch (e.detail.param) {
+        //     case "id":
+        //     case "name":
+        //     case "unique":
+        //     case "confidential":
+        //     case "description":
+        //     case "entities":
+        //         console.log("Blur Event:", e.detail.value);
+        //         // if (field === "id") {
+        //         //     this.refreshForm();
+        //         // }
+        //         console.log("VariableSet Data", this.variableSet);
+        //         this.requestUpdate();
+        // }
     }
 
 
@@ -257,15 +259,16 @@ export default class VariableSetCreate extends LitElement {
         });
     }
 
-    async onSave() {
+    async saveData() {
+        // TODO: review requestUpdate();
         try {
+            await this.requestUpdate();
             const res = await this.opencgaSession.opencgaClient.studies()
                 .updateVariableSets(this.opencgaSession.study.fqn, this.variableSet, {action: "ADD"});
             this.variableSet = {
                 variables: [],
                 unique: true
             };
-            this.requestUpdate();
             FormUtils.showAlert(
                 "New VariableSet",
                 "VariableSet save correctly",
@@ -277,12 +280,12 @@ export default class VariableSetCreate extends LitElement {
                 `Could not save variableSet ${err}`,
                 "error"
             );
+        } finally {
+            await this.requestUpdate();
         }
     }
 
-    async onSubmit(e) {
-        e.preventDefault();
-        console.log("Save Form", this.variableSet);
+    onSubmit(e) {
         Swal.fire({
             title: "Are you sure to create?",
             text: "You won't be able to modify this!",
@@ -294,7 +297,7 @@ export default class VariableSetCreate extends LitElement {
             reverseButtons: true
         }).then(result => {
             if (result.isConfirmed) {
-                this.onSave();
+                this.saveData();
             }
         });
     }
