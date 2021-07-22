@@ -88,7 +88,7 @@ export default class VariableListUpdate extends LitElement {
     }
 
     buildVariable(variable) {
-        return variable.type === "OBJECT"? {...variable, variables: []} : variable;
+        return variable.type === "OBJECT"? {...variable, variableSet: []} : variable;
     }
 
     addVariable(variable) {
@@ -114,11 +114,11 @@ export default class VariableListUpdate extends LitElement {
                 if (variable.id === parentVar) {
                     if (parentVarIds.length === 1) {
                         const newVar = this.buildVariable(childVariable);
-                        variable.variables.push(newVar);
+                        variable.variableSet.push(newVar);
                         return variables;
                     }
                     parentVarIds.shift();
-                    return {...variable, variables: this.addChildVariable(variable.variables, parentVarIds, childVariable)};
+                    return {...variable, variableSet: this.addChildVariable(variable.variableSet, parentVarIds, childVariable)};
                 }
             });
         });
@@ -146,7 +146,7 @@ export default class VariableListUpdate extends LitElement {
         if (parentVarIds.length === 1) {
             // const vars = variables.filter(item => item.id !== parentVars[0]);
             // vars.push(childVariable);
-            const findIndexVariable = variables.findIndex(item => item.id === parentVarIds[0]);
+            const findIndexVariable = variables.findIndex(variable => variable.id === parentVarIds[0]);
 
             const variablesEdited = variables;
             variablesEdited[findIndexVariable] = this.buildVariable(childVariable);
@@ -154,19 +154,19 @@ export default class VariableListUpdate extends LitElement {
         }
 
         parentVarIds.forEach(parentVar => {
-            result = variables.map(item => {
-                if (item.id === parentVar) {
+            result = variables.map(variable => {
+                if (variable.id === parentVar) {
                     parentVarIds.shift();
-                    return {...item, variables: this.editChildVariable(item.variables, parentVarIds, childVariable)};
+                    return {...variable, variableSet: this.editChildVariable(variable.variableSet, parentVarIds, childVariable)};
                 } else {
-                    return item;
+                    return variable;
                 }
             });
         });
         return result;
     }
 
-    onRemoveVariable(e, item) {
+    onRemoveVariable(e, variable) {
         e.stopPropagation();
         Swal.fire({
             title: "Are you sure?",
@@ -179,8 +179,8 @@ export default class VariableListUpdate extends LitElement {
             reverseButtons: true
         }).then(result => {
             if (result.isConfirmed) {
-                console.log("onRemoveVariable ", item);
-                const removeVariable = item.split(".");
+                console.log("onRemoveVariable ", variable);
+                const removeVariable = variable.split(".");
                 this.variables = this.removalVariable(this.variables, removeVariable);
                 console.log("result: ", this.variables);
                 LitUtils.dispatchEventCustom(this, "changeVariables", this.variables);
@@ -197,18 +197,18 @@ export default class VariableListUpdate extends LitElement {
         let result = [];
 
         if (removeVariables.length === 1) {
-            return variables.filter(item => item.id !== removeVariables[0]);
+            return variables.filter(variable => variable.id !== removeVariables[0]);
         }
 
         removeVariables.forEach(removeVariable => {
-            result = variables.map(item => {
-                if (item.id === removeVariable) {
+            result = variables.map(variable => {
+                if (variable.id === removeVariable) {
                     if (removeVariables.length > 1) {
                         removeVariables.shift();
-                        return {...item, variables: this.removalVariable(item.variables, removeVariables)};
+                        return {...variable, variableSet: this.removalVariable(variable.variableSet, removeVariables)};
                     }
                 } else {
-                    return item;
+                    return variable;
                 }
             });
         });
@@ -233,12 +233,12 @@ export default class VariableListUpdate extends LitElement {
         this.requestUpdate();
     }
 
-    renderVariableTitle(item) {
-        return html `${item?.variables?.length > 0 ? html`
+    renderVariableTitle(variable) {
+        return html `${variable?.variableSet?.length > 0 ? html`
         <span class="fas fa-caret-right" @click="${this.onShowNode}">
-            <span>${item.id} (${item.type})</span>
+            <span>${variable.id} (${variable.type})</span>
         </span>` :
-        html `<span style="margin-left:14px">${item.id} (${item.type})</span>`
+        html `<span style="margin-left:14px">${variable.id} (${variable.type})</span>`
         }`;
     }
 
@@ -263,7 +263,7 @@ export default class VariableListUpdate extends LitElement {
                                 </div>
                             </div>
                             <ul class="nested">
-                                ${this.renderVariables(variable.variables, parentVariableId(variable))}
+                                ${this.renderVariables(variable.variableSet, parentVariableId(variable))}
                             </ul>
                         </div>
                     </li>

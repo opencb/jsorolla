@@ -63,18 +63,28 @@ export default class VariableSetCreate extends LitElement {
         e.stopPropagation();
         const field = e.detail.param;
         console.log("Field:", field);
-        switch (e.detail.param) {
-            case "id":
-            case "name":
-            case "unique":
-            case "confidential":
-            case "description":
-            case "entities":
-                this.variableSet = {
-                    ...this.variableSet,
-                    [field]: e.detail.value
-                };
-                break;
+        if (e.detail.value) {
+            switch (e.detail.param) {
+                case "id":
+                case "name":
+                case "unique":
+                case "confidential":
+                case "description":
+                    this.variableSet = {
+                        ...this.variableSet,
+                        [field]: e.detail.value
+                    };
+                    break;
+                case "entities":
+                    const entities = e.detail.value ? e.detail.value.split(",") : [];
+                    this.variableSet = {
+                        ...this.variableSet,
+                        [field]: entities
+                    };
+                    break;
+            }
+        } else {
+            delete this.variableSet[field];
         }
     }
 
@@ -136,7 +146,6 @@ export default class VariableSetCreate extends LitElement {
                                     // mode: "block",
                                     icon: "fa fa-lock",
                                     text: "short variableSet id"
-
                                 },
                                 validation: {
                                     message: "Please enter more that 3 character",
@@ -206,9 +215,7 @@ export default class VariableSetCreate extends LitElement {
                                 style: "padding-left: 0px",
                                 render: () => html`
                                     <variable-list-update
-                                        .opencgaSession="${this.opencgaSession}"
                                         .variables="${this.variableSet?.variables}"
-                                        .readOnly=${false}
                                         @changeVariables="${e => this.onSyncVariables(e)}">
                                     </variable-list-update>`
                             }
@@ -251,26 +258,26 @@ export default class VariableSetCreate extends LitElement {
     }
 
     async onSave() {
-        // try {
-        //     const res = await this.opencgaSession.opencgaClient.studies()
-        //         .updateVariableSets(this.opencgaSession.study.fqn, this.variableSet, {action: "ADD"});
-        //     this.variableSet = {
-        //         variables: [],
-        //         unique: true
-        //     };
-        //     this.requestUpdate();
-        //     FormUtils.showAlert(
-        //         "New VariableSet",
-        //         "VariableSet save correctly",
-        //         "success"
-        //     );
-        // } catch (err) {
-        //     FormUtils.showAlert(
-        //         "New VariableSet",
-        //         `Could not save variableSet ${err}`,
-        //         "error"
-        //     );
-        // }
+        try {
+            const res = await this.opencgaSession.opencgaClient.studies()
+                .updateVariableSets(this.opencgaSession.study.fqn, this.variableSet, {action: "ADD"});
+            this.variableSet = {
+                variables: [],
+                unique: true
+            };
+            this.requestUpdate();
+            FormUtils.showAlert(
+                "New VariableSet",
+                "VariableSet save correctly",
+                "success"
+            );
+        } catch (err) {
+            FormUtils.showAlert(
+                "New VariableSet",
+                `Could not save variableSet ${err}`,
+                "error"
+            );
+        }
     }
 
     async onSubmit(e) {
