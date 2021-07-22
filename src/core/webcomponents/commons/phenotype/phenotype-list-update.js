@@ -42,8 +42,7 @@ export default class PhenotypeListUpdate extends LitElement {
 
     _init() {
         this._prefix = UtilsNew.randomString(8);
-
-        // this.isShow = false;
+        console.log("this.phenotypes init", this.phenotypes);
         this.phenotype = {};
         this._manager = {
             action: "",
@@ -75,13 +74,11 @@ export default class PhenotypeListUpdate extends LitElement {
     }
 
     addPhenotype(phenotype) {
-        // this.isShow = false;
         this.phenotypes = [...this.phenotypes, phenotype];
         LitUtils.dispatchEventCustom(this, "changePhenotypes", this.phenotypes);
     }
 
     editPhenotype(phenotype) {
-        // this.isShow = false;
         const indexPheno = this.phenotypes.findIndex(pheno => pheno.id === this.phenotype.id);
         this.phenotypes[indexPheno] = phenotype;
         this.phenotype = {};
@@ -114,26 +111,25 @@ export default class PhenotypeListUpdate extends LitElement {
     }
 
     onCloseForm(e) {
-        // this.isShow = false;
+        e.stopPropagation();
         this.phenotype = {};
         $("#phenotypeManagerModal"+ this._prefix).modal("hide");
-        e.stopPropagation();
     }
 
     renderPhenotypes(phenotypes) {
         return html`
-            ${phenotypes?.map(item => html`
+            ${phenotypes?.map(pheno => html`
                 <li>
                     <div class="row">
                         <div class="col-md-8">
-                            <span style="margin-left:14px">${item.name}</span>
+                            <span style="margin-left:14px">${pheno.name}</span>
                         </div>
                         <div class="col-md-4">
                             <div class="btn-group pull-right" style="padding-bottom:5px" role="group">
                                 <button type="button" class="btn btn-primary btn-xs"
-                                    @click="${e => this.onShowPhenotypeManager(e, {action: "EDIT", phenotype: item})}">Edit</button>
+                                    @click="${e => this.onShowPhenotypeManager(e, {action: "EDIT", phenotype: pheno})}">Edit</button>
                                 <button type="button" class="btn btn-danger btn-xs"
-                                    @click="${e => this.onRemovePhenotype(e, item)}">Delete</button>
+                                    @click="${e => this.onRemovePhenotype(e, pheno)}">Delete</button>
                             </div>
                         </div>
                     </div>

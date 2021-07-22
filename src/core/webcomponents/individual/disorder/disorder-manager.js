@@ -46,6 +46,7 @@ export default class DisorderManager extends LitElement {
     }
 
     onFieldChange(e) {
+        e.stopPropagation();
         const field = e.detail.param;
         if (e.detail.value) {
             this.disorder = {

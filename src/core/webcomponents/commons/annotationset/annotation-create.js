@@ -66,7 +66,7 @@ export default class AnnotationCreate extends LitElement {
 
 
     variableSetIdsObserver() {
-        this.variableSetIds = this._variableSetIds?.filter(variableSetId => !this.variableSetIdsSelected.includes(variableSetId));
+        this.variableSetIds = this._variableSetIds?.filter(variableSetId => !this.variableSetIdsSelected?.includes(variableSetId));
         console.log("selected", this.variableSetIdsSelected, "result: ", this.variableSetIds);
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
@@ -129,7 +129,7 @@ export default class AnnotationCreate extends LitElement {
                 };
             }
         } else {
-            if (field === "annotation") {
+            if (prop) {
                 delete this.annotationSet[field][prop];
             } else {
                 delete this.annotationSet[field];
@@ -146,8 +146,6 @@ export default class AnnotationCreate extends LitElement {
 
     getDefaultConfig() {
         return {
-            title: "Edit",
-            icon: "fas fa-edit",
             buttons: {
                 show: true,
                 cancelText: "Cancel",
@@ -193,6 +191,7 @@ export default class AnnotationCreate extends LitElement {
     }
 
     onSendAnnotationSet(e) {
+        e.stopPropagation();
         LitUtils.dispatchEventCustom(this, "addItem", this.annotationSet);
     }
 

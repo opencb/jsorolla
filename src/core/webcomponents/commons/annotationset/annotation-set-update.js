@@ -53,13 +53,6 @@ export default class AnnotationSetUpdate extends LitElement {
         };
     }
 
-    // connectedCallback() {
-    //     super.connectedCallback();
-    //
-
-    //     this._config = {...this.getDefaultConfig(), ...this.config};
-    // }
-
     onShowManager(e, manager) {
         this._manager = manager;
         if (manager.action === "ADD") {
@@ -185,7 +178,7 @@ export default class AnnotationSetUpdate extends LitElement {
                         ${this._manager.action === "ADD"? html `
                             <annotation-create
                                 .annotationSet="${this.annotationSet}"
-                                .variableSetIdsSelected="${this.annotationSets.map(item => item.variableSetId)}"
+                                .variableSetIdsSelected="${this.annotationSets?.map(item => item.variableSetId)}"
                                 .opencgaSession="${this.opencgaSession}"
                                 @closeForm="${e => this.onCloseForm(e)}"
                                 @addItem="${this.onAction}">

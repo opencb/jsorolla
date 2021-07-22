@@ -18,6 +18,7 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
 import "../commons/phenotype/phenotype-list-update.js";
 import "../commons/annotationset/annotation-set-update.js";
+import LitUtils from "../commons/utils/lit-utils.js";
 
 export default class SampleCreate extends LitElement {
 
@@ -55,98 +56,84 @@ export default class SampleCreate extends LitElement {
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
-    // TODO move to a generic Utils class
+    refreshForm() {
+        // When using data-form we need to update config object and render again
+        this._config = {...this.getDefaultConfig(), ...this.config};
+        this.requestUpdate();
+    }
+
     dispatchSessionUpdateRequest() {
-        this.dispatchEvent(
-            new CustomEvent("sessionUpdateRequest", {
-                detail: {},
-                bubbles: true,
-                composed: true
-            })
-        );
+        LitUtils.dispatchEventCustom(this, "sessionUpdateRequest");
     }
 
     onFieldChange(e) {
-        console.log("test:", e.detail.param, e.detail.value, this);
         const [field, prop] = e.detail.param.split(".");
-        switch (e.detail.param) {
-            case "id":
-            case "description":
-            case "individualId":
-            case "somatic":
-                this.sample[e.detail.param] = e.detail.value;
-                break;
-            case "status.name":
-            case "status.description":
-            case "processing.product":
-            case "processing.preparationMethod":
-            case "processing.extrationMethod":
-            case "processing.labSambpleId":
-            case "processing.quantity":
-            case "processing.date":
-            case "collection.tissue":
-            case "collection.organ":
-            case "collection.quantity":
-            case "collection.method":
-            case "collection.date":
-                if (!this.sample[field]) {
-                    this.sample[field] = {};
-                }
-                this.sample[field][prop] = e.detail.value;
-                break;
+        if (e.detail.value) {
+            switch (e.detail.param) {
+                case "id":
+                case "description":
+                case "somatic":
+                    this.sample[field] = e.detail.value;
+                    break;
+                case "individualId":
+                    this.sample[field] = e.detail.value;
+                    this.refreshForm();
+                    break;
+                case "status.name":
+                case "status.description":
+                case "processing.product":
+                case "processing.preparationMethod":
+                case "processing.extrationMethod":
+                case "processing.labSambpleId":
+                case "processing.quantity":
+                case "processing.date":
+                case "collection.tissue":
+                case "collection.organ":
+                case "collection.quantity":
+                case "collection.method":
+                case "collection.date":
+                    this.sample[field] = {
+                        ...this.sample[field],
+                        [prop]: e.detail.value
+                    };
+            }
+        } else {
+            if (prop) {
+                delete this.sample[field][prop];
+            } else {
+                delete this.sample[field];
+            }
         }
-        this.requestUpdate();
-    }
-
-    onRemovePhenotype(e) {
-        console.log("This is to remove a item ");
-        this.sample = {
-            ...this.sample,
-            phenotypes: this.sample.phenotypes.filter(
-                item => item !== e.detail.value
-            )
-        };
-        this.requestUpdate();
-    }
-
-    onRemoveAnnotationSets(e) {
-        console.log("This is to remove a item ");
-        this.sample = {
-            ...this.sample,
-            annotationSets: this.sample.annotationSets.filter(
-                item => item !== e.detail.value
-            )
-        };
-        this.requestUpdate();
-    }
-
-    onAddPhenotype(e) {
-        console.log("Execute addPhenotype from Sample-create");
-        this.sample.phenotypes.push(e.detail.value);
-        this.requestUpdate();
-    }
-
-    onAddAnnotationSet(e) {
-        const annotationSet = e.detail.value;
-        if (this.sample.annotationSets.length > 0) {
-            this.sample = {
-                ...this.sample,
-                annotationSets: this.sample.annotationSets.filter(
-                    item => item.variableSetId !== annotationSet.variableSetId
-                )
-            };
-        }
-        this.sample.annotationSets.push(annotationSet);
-        console.log("Sample created", this.sample);
-        this.requestUpdate();
     }
 
     onClear(e) {
-        console.log("OnClear sample form", this);
+        Swal.fire({
+            title: "Are you sure to clear?",
+            text: "You won't be able to revert this!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, delete it!",
+            reverseButtons: true
+        }).then(result => {
+            if (result.isConfirmed) {
+                this.sample = {};
+                this.requestUpdate();
+                Swal.fire(
+                    "Cleaned!",
+                    "The fields has been cleaned.",
+                    "success"
+                );
+            }
+        });
     }
 
     onSubmit(e) {
-        console.log("Testing");
+        e.stopPropagation();
+        console.log("onSubmit", this, this.sample);
+        this.sample = {};
+        this.requestUpdate();
         // this.opencgaSession.opencgaClient
         //     .samples()
         //     .create(this.sample, {study: this.opencgaSession.study.fqn})
@@ -174,13 +161,10 @@ export default class SampleCreate extends LitElement {
     onSyncAnnotationSets(e) {
         e.stopPropagation();
         this.sample = {...this.sample, annotationSets: e.detail.value};
-        console.log("Add Annotation to Sample", this.sample);
     }
 
     getDefaultConfig() {
         return {
-            title: "Edit",
-            icon: "fas fa-edit",
             type: "form",
             buttons: {
                 show: true,
@@ -188,7 +172,6 @@ export default class SampleCreate extends LitElement {
                 okText: "Save"
             },
             display: {
-                // width: "8",
                 style: "margin: 10px",
                 labelWidth: 3,
                 labelAlign: "right",
@@ -230,26 +213,8 @@ export default class SampleCreate extends LitElement {
                             display: {
                                 rows: 3,
                                 placeholder: "Sample name..."
-                                // render: (sample) => html`
-                                //     <sample-id-autocomplete
-                                //             .value="${sample?.individualId}"
-                                //             .opencgaSession="${this.opencgaSession}"
-                                //             @filterChange="${e => this.onFieldChange({detail: {param: "individualId", value: e.detail.value}})}">
-                                //     </sample-id-autocomplete>`
                             }
                         },
-                        // {
-                        //     name: "Individual ID",
-                        //     field: "individualId",
-                        //     type: "input-text",
-                        //     display: {
-                        //         placeholder: "Add a short ID...",
-
-                        //         help: {
-                        //             text: "short Sample id for thehis as;lsal"
-                        //         }
-                        //     }
-                        // },
                         {
                             name: "Individual ID",
                             field: "individualId",
@@ -385,7 +350,6 @@ export default class SampleCreate extends LitElement {
                                 render: () => html`
                                     <phenotype-list-update
                                         .phenotypes="${this.sample?.phenotypes}"
-                                        .opencgaSession="${this.opencgaSession}"
                                         @changePhenotypes="${e => this.onSyncPhenotypes(e)}">
                                     </phenotype-list-update>`
                             }
@@ -406,7 +370,6 @@ export default class SampleCreate extends LitElement {
                                 render: () => html`
                                     <annotation-set-update
                                         .annotationSets="${this.sample?.annotationSets}"
-                                        .opencgaSession="${this.opencgaSession}"
                                         @changeAnnotationSets="${e => this.onSyncAnnotationSets(e)}">
                                     </annotation-set-update>
                                 `
@@ -425,7 +388,7 @@ export default class SampleCreate extends LitElement {
                 .config="${this._config}"
                 @fieldChange="${e => this.onFieldChange(e)}"
                 @clear="${e => this.onClear(e)}"
-                @submit="${this.onSubmit}">
+                @submit="${e => this.onSubmit(e)}">
             </data-form>`;
     }
 
