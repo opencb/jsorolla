@@ -6,21 +6,18 @@
 </head>
 <body>
 <h2>Fetch first 10 variants (with JWT)</h2>
-<script>
-    const application = {} // quickfix
-</script>
 
 <script type="module">
     import {OpenCGAClient} from "../opencga-client.js";
     import {RestResponse} from "../../rest-response.js";
 
     /**
-     *  Add Opencga host, study, username, and auth token
+     *  Add Opencga host, username, study, and auth token
      */
-    const host = "";
-    const study = "";
-    const user = "";
-    const token = "";
+    const host = "OPENCGA_HOST";
+    const user = "OPENCGA_USERNAME";
+    const study = "OPENCGA_STUDY";
+    const token = "AUTH_TOKEN";
 
     /**
      *  Query using a token. No Opencga Session is created.
