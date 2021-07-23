@@ -535,12 +535,21 @@ export default class UtilsNew {
         // single array
         if (external) {
             if (internal instanceof Array && !(internal[0] instanceof Array)) {
-                return internal.filter(c => {
-                    if (!c.id) {
-                        console.error("Column fields must have an id to be merged", c);
+                const columns = [];
+                external.forEach(c => {
+                    const field = internal.find(f => {
+                        if (!f.id) {
+                            console.error("Column fields must have an id to be merged", f);
+                        }
+                        return f.id === c;
+                    });
+                    if (field) {
+                        columns.push(field);
+                    } else {
+                        // console.error("Field not found", c);
                     }
-                    return ~external.indexOf(c.id)
                 });
+                return columns;
             }
             // double array
 
@@ -551,7 +560,7 @@ export default class UtilsNew {
             if (internal[0] instanceof Array) {
                 const result = [[], []];
                 let subIndx = 0; // keeps track of the starting index of the elms to add
-                let rowSpanCnt = 0;
+                const rowSpanCnt = 0;
                 internal[0].filter(f => f?.visible !== false).forEach((c, i) => {
 
                     if (!c.id) {
