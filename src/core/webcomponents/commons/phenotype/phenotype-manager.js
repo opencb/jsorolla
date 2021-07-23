@@ -68,8 +68,6 @@ export default class PhenotypeManager extends LitElement {
 
     getDefaultConfig() {
         return {
-            title: "Edit",
-            icon: "fas fa-edit",
             buttons: {
                 show: true,
                 cancelText: "Cancel",

@@ -56,7 +56,6 @@ export default class PhenotypeListUpdate extends LitElement {
             this.phenotype = {};
         } else {
             this.phenotype = manager.phenotype;
-            // this.isShow = true;
         }
         this.requestUpdate();
         $("#phenotypeManagerModal"+ this._prefix).modal("show");
