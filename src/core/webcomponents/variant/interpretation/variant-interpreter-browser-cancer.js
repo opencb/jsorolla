@@ -795,7 +795,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                                                     .clinicalAnalysis="${this.clinicalAnalysis}"
                                                     .defaultStudy="${this.opencgaSession.study.fqn}"
                                                     .query="${this.preparedQuery}"
-                                                    .refresh="${this.executedQuery}"
+                                                    .executedQuery="${this.executedQuery}"
                                                     .filters="${this.activeFilterFilters}"
                                                     .alias="${this._config.activeFilterAlias}"
                                                     .config="${this._config.filter.activeFilters}"

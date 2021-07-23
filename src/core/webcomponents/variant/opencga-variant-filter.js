@@ -40,6 +40,7 @@ import "../commons/filters/study-filter.js";
 import "../commons/filters/variant-file-filter.js";
 import "../commons/filters/variant-caller-info-filter.js";
 import "../commons/filters/variant-type-filter.js";
+import "../commons/filters/variant-ext-svtype-filter.js";
 
 export default class OpencgaVariantFilter extends LitElement {
 
@@ -185,6 +186,7 @@ export default class OpencgaVariantFilter extends LitElement {
      * @param value the new value of the property
      */
     onFilterChange(key, value) {
+        // debugger
         /* Some filters may return more than one parameter, in this case key and value are objects with all the keys and filters
              - key: an object mapping filter name with the one returned
              - value: and object with the filter
@@ -239,6 +241,7 @@ export default class OpencgaVariantFilter extends LitElement {
     }
 
     onVariantCallerInfoFilter(fileId, fileDataFilter, callback) {
+        debugger
         let fileDataArray = [];
         if (this.preparedQuery.fileData) {
             fileDataArray = this.preparedQuery.fileData.split(",");
@@ -254,7 +257,7 @@ export default class OpencgaVariantFilter extends LitElement {
 
         this.preparedQuery = {
             ...this.preparedQuery,
-            fileData: fileDataArray.join(",")
+            fileData: fileId + ":" + fileDataArray.join(",")
         };
 
         this.notifyQuery(this.preparedQuery);
@@ -513,6 +516,11 @@ export default class OpencgaVariantFilter extends LitElement {
                         <fulltext-search-accessions-filter .traits="${this.preparedQuery.traits}" 
                                                            @filterChange="${e => this.onFilterChange("traits", e.detail.value)}">
                         </fulltext-search-accessions-filter>`;
+                    break;
+                case "ext-svtype":
+                    content = html`
+                        <variant-ext-svtype-filter @filterChange="${e => this.onVariantCallerInfoFilter(subsection.params.fileId, e.detail.value)}">
+                        </variant-ext-svtype-filter>`;
                     break;
                 case "caveman":
                 case "strelka":

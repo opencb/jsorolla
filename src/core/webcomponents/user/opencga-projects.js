@@ -16,11 +16,12 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import {classMap} from "/web_modules/lit-html/directives/class-map.js";
-import {RestResponse} from "../../clients/rest-response.js";
 import UtilsNew from "../../utilsNew.js";
 import "../commons/tool-header.js";
 import {CountUp} from "/node_modules/countup.js/dist/countUp.min.js";
 import "../commons/simple-chart.js";
+import {NotificationQueue} from "../Notification.js";
+import {RestResponse} from "../../clients/rest-response.js";
 
 export default class OpencgaProjects extends LitElement {
 
@@ -46,7 +47,6 @@ export default class OpencgaProjects extends LitElement {
 
     _init() {
         this._prefix = "sf-" + UtilsNew.randomString(6) + "_";
-        this._studies = [];
         this.requestDone = false;
 
         this.totalCount = {
@@ -175,128 +175,107 @@ export default class OpencgaProjects extends LitElement {
             // let studyPromises = [];
 
             console.log("prj", project);
+            // init structure
             this.data[project.id] = {
                 name: project.name,
                 ...project,
                 stats: {}
             };
-            // TODO continue on this. remove catalog requests by study and use one by project
-            /*const catalogProjectResponse = await this.opencgaSession.opencgaClient.projects().aggregationStats(project.id, {
+            this.chartData[project.id] = {};
+        }
+        const projectIds = this.opencgaSession.projects.map(project => project.id).join(",");
+
+        try {
+            // NOTE queries for all the projects in once
+            const catalogProjectResponse = await this.opencgaSession.opencgaClient.projects().aggregationStats(projectIds, {
                 individualFields: "lifeStatus,sex"
             });
-            console.log(catalogProjectResponse.getResult(0))*/
+            /*const f = await fetch("/lib/jsorolla/src/core/webcomponents/user/projects.json");
+            const catalogProjectResponse = new RestResponse(await f.json());*/
 
-            this.chartData[project.id] = {};
-            for (const study of project.studies) {
-                try {
-                     const catalogStudyResponse = await this.opencgaSession.opencgaClient.studies().aggregationStats(study.fqn, {
-                        individualFields: "lifeStatus,sex"
-                    });
+            if (catalogProjectResponse.getResults().length) {
 
-                    //const f = await fetch("/lib/jsorolla/src/core/webcomponents/user/" + study.fqn + ".json");
+                // iterates over projects
+                Object.entries(catalogProjectResponse.getResult(0)).forEach(([projectId, studiesObj]) => {
+                    //console.log(projectId, studiesObj)
+                    this.chartData[projectId] = {};
 
-                    //const catalogStudyResponse = new RestResponse(await f.json());
-
-                    const r = catalogStudyResponse.getResult(0).results ? catalogStudyResponse.getResult(0).results[0] : catalogStudyResponse.getResult(0);
-
-                    const stats = r[study.fqn];
-                    this.filesCount.update(this.totalCount.files += stats.file.results[0]?.count);
-                    this.familyCount.update(this.totalCount.files += stats.family.results[0]?.count);
-                    this.samplesCount.update(this.totalCount.samples += stats.sample.results[0]?.count);
-                    this.jobsCount.update(this.totalCount.jobs += stats.job.results[0]?.count);
-                    this.individualsCount.update(this.totalCount.individuals += stats.individual.results[0]?.count);
-                    this.cohortsCount.update(this.totalCount.cohorts += stats.cohort.results[0]?.count);
-
-                    // this.variantCount.update(this.totalCount.variants += r.variants);
-
-                    this.data[project.id].stats[study.fqn] = {
-                        file: {
-                            results: stats.file.results
-                        },
-                        sample: {
-                            results: stats.sample.results
-                        },
-                        individual: {
-                            results: stats.individual.results
-                        },
-                        cohort: {
-                            results: stats.cohort.results
-                        }
-                    };
+                    // iterates over studies
+                    Object.entries(studiesObj).forEach(([studyId, stats]) => {
+                        // updates CountUp counters
+                        this.filesCount.update(this.totalCount.files += stats.file.results[0]?.count);
+                        this.familyCount.update(this.totalCount.files += stats.family.results[0]?.count);
+                        this.samplesCount.update(this.totalCount.samples += stats.sample.results[0]?.count);
+                        this.jobsCount.update(this.totalCount.jobs += stats.job.results[0]?.count);
+                        this.individualsCount.update(this.totalCount.individuals += stats.individual.results[0]?.count);
+                        this.cohortsCount.update(this.totalCount.cohorts += stats.cohort.results[0]?.count);
 
 
-                } catch (e) {
-                    console.error(e);
-                    this.querySelector("#loading").style.display = "none";
-
-                }
-            }
-
-
-            // const response = await this.opencgaSession.opencgaClient.variants().aggregationStats({project: project.id, fields: "studies"});
-
-
-            // let response = await fetch("/lib/jsorolla/src/core/webcomponents/user/variants_" + project.id + ".json")
-            // response = new RestResponse(await response.json());
-
-            // console.error(project.id)
-            // console.log(JSON.stringify(response))
-            // const r = response.getResult(0).results ? response.getResult(0).results[0] : response.getResult(0);
-            // this.variantsCount.update(this.totalCount.variants += r.count);
-
-            this.chartData[project.id] = {};
-            /* for (let entity in this.charts) {
-                let charts = this.charts[entity];
-                charts.forEach( field => {
-
-                    console.error("stats", Object.values(this.data[project.id].stats).map( study => study))
-                    let studiesData = Object.entries(this.data[project.id].stats).map( study => study)
-                    console.error(this.data[project.id].stats)
-
-                })
-            }*/
-            for (const entity in this.charts) {
-                const charts = this.charts[entity];
-                this.chartData[project.id][entity] = [];
-                charts.forEach(field => {
-
-                    // Object.values(STATS) contains the map of the entities for each study. I pick the first element as they are expected to be the same
-                    const categories = Object.values(this.data[project.id].stats)[0][entity].results.find(result => result.name === field).buckets.map(_ => _.value);
-
-                    // building chart data
-                    // I need the structure project->entity->field to plot-> aggregated data for all the studies
-                    const data = {};
-                    Object.entries(this.data[project.id].stats).forEach(([studyFqn, entitiesMap]) => {
-                        data[studyFqn] = entitiesMap[entity].results.find(result => result.name === field).buckets.map(_ => _.count);
-                    });
-                    this.chartData[project.id][entity].push({
-                        name: field,
-                        data: data,
-                        config: {
-                            xAxis: {
-                                categories: categories
+                        // prepare main data (it will be used for both charts and tables)
+                        this.data[projectId].stats[studyId] = {
+                            file: {
+                                results: stats.file.results
+                            },
+                            sample: {
+                                results: stats.sample.results
+                            },
+                            individual: {
+                                results: stats.individual.results
+                            },
+                            cohort: {
+                                results: stats.cohort.results
                             }
-                        }
+                        };
+
+
+
                     });
-                    // console.log(this.chartData)
+
+
+                    // once main data is ready, build chartData based on this.charts (which contains the list of charts we want to show per entity)
+                    for (const entity in this.charts) {
+                        const charts = this.charts[entity];
+                        this.chartData[projectId][entity] = [];
+                        charts.forEach(field => {
+
+                            // Object.values(this.data[projectId].stats) contains the map of the entities for each study. I pick the first study as they are (expected) to be the same for all studies.
+                            console.log(Object.values(this.data[projectId].stats))
+                            const categories = Object.values(this.data[projectId].stats)[0][entity].results.find(result => result.name === field).buckets.map(_ => _.value);
+
+                            // building chart data
+                            // I need the structure project->entity->field to plot-> aggregated data for all the studies
+                            const data = {};
+                            Object.entries(this.data[projectId].stats).forEach(([studyFqn, entitiesMap]) => {
+                                data[studyFqn] = entitiesMap[entity].results.find(result => result.name === field).buckets.map(_ => _.count);
+                            });
+                            this.chartData[projectId][entity].push({
+                                name: field,
+                                data: data,
+                                config: {
+                                    xAxis: {
+                                        categories: categories
+                                    }
+                                }
+                            });
+                            // console.log(this.chartData)
+                        });
+                    }
                 });
+            } else if (catalogProjectResponse.getEvents("ERROR").length) {
+                const msg = catalogProjectResponse.getEvents("ERROR").map(error => error.message).join("<br>");
+                new NotificationQueue().push("Error saving the filter", msg, "error");
             }
-
-
+        } catch (e) {
+            console.error(e);
+            UtilsNew.notifyError(e);
         }
-
-
-        console.log("this.data", this.data);
-        console.log("this.chartData", this.chartData);
         await this.requestUpdate();
-
         this.querySelector("#loading").style.display = "none";
     }
 
 
     renderTable(project, resource) {
         // console.log(project)
-        // debugger
         return html`
             <div class="v-space"></div>
             <table class="table table-no-bordered opencga-project-table">

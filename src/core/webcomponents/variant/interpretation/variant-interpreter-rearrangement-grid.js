@@ -192,8 +192,8 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                 formatShowingRows: (pageFrom, pageTo, totalRows) =>
                     this.gridCommons.formatShowingRows(pageFrom, pageTo, totalRows, null, this.isApproximateCount),
                 showExport: this._config.showExport,
-                detailView: this._config.detailView,
-                detailFormatter: this.detailFormatter,
+                // detailView: this._config.detailView,
+                // detailFormatter: this.detailFormatter,
                 formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
 
                 // this makes the opencga-interpreted-variant-grid properties available in the bootstrap-table formatters
@@ -401,13 +401,16 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
         return result;
     }
 
-    vcfDataFormatter(value, row, field) {
-        debugger;
+    vcfDataFormatter(value, row, field, separator = " / ") {
         if (row.studies?.length > 0) {
             if (field.vcfColumn === "info") {
                 for (const file of row.studies[0].files) {
-                    if (file.data[field.key]) {
-                        return file.data[field.key];
+                    if (field.key.length === 1) {
+                        if (file.data[field.key[0]]) {
+                            return file.data[field.key[0]];
+                        }
+                    } else {
+                        return `${file.data[field.key[0]] || "-"} ${separator} <span style="white-space: nowrap;">${file.data[field.key[1]] || "-"}</span>`;
                     }
                 }
             } else { // This must be FORMAT column
@@ -477,38 +480,35 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
         if (this._config.callers?.length > 0 && fileCallers?.length > 0) {
             for (const caller of this._config.callers) {
                 if (fileCallers.includes(caller.id)) {
+                    // New Columns
+                    if (caller.columns?.length > 0) {
+
+                    }
+
                     // INFO column
                     if (caller.info?.length > 0) {
                         for (let i = 0; i < caller.info.length; i++) {
                             vcfDataColumns.push({
-                                title: caller.info[i],
-                                field: {
-                                    vcfColumn: "info",
-                                    key: caller.info[i]
-                                },
+                                title: `${caller.info[i].name}<br><span class="help-block" style="margin: 0px">${caller.info[i].fields.join(", ")}</span>`,
                                 rowspan: 1,
                                 colspan: 1,
                                 formatter: (value, row) => this.vcfDataFormatter(value, row[0], {
                                     vcfColumn: "info",
-                                    key: caller.info[i]
-                                }),
+                                    key: caller.info[i].fields
+                                }, caller.info[i].separator),
                                 halign: "center"
                             });
                         }
 
                         for (let i = 0; i < caller.info.length; i++) {
                             vcfDataColumns2.push({
-                                title: caller.info[i],
-                                field: {
-                                    vcfColumn: "info",
-                                    key: caller.info[i]
-                                },
+                                title: `${caller.info[i].name}<br><span class="help-block" style="margin: 0px">${caller.info[i].fields.join(", ")}</span>`,
                                 rowspan: 1,
                                 colspan: 1,
                                 formatter: (value, row) => this.vcfDataFormatter(value, row[1], {
                                     vcfColumn: "info",
-                                    key: caller.info[i]
-                                }),
+                                    key: caller.info[i].fields
+                                }, caller.info[i].separator),
                                 halign: "center"
                             });
                         }
@@ -583,40 +583,41 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                 //     halign: "center"
                 // },
                 {
-                    title: "Type",
+                    title: "Type<br><span class='help-block' style='margin: 0px'>SVCLASS</span>",
                     field: "type",
                     rowspan: 2,
                     colspan: 1,
-                    formatter: (value, row) => VariantGridFormatter.vcfFormatter(value, row[0], "EXT_SVTYPE", "INFO"),
+                    formatter: (value, row) => this.vcfDataFormatter(value, row[0], {vcfColumn: "info", key: ["EXT_SVTYPE", "SVCLASS"]}, "<br>"),
                     halign: "center"
                 },
+                // {
+                //     title: "SVCLASS",
+                //     // field: "type",
+                //     rowspan: 2,
+                //     colspan: 1,
+                //     formatter: (value, row) => {
+                //         return `<div>${VariantGridFormatter.vcfFormatter(value, row[0], "SVCLASS", "INFO")}</div>`;
+                //     },
+                //     halign: "center"
+                // },
                 {
-                    title: "SVCLASS",
-                    // field: "type",
+                    title: "Assembly<br>Score",
                     rowspan: 2,
                     colspan: 1,
                     formatter: (value, row) => {
-                        return `<div>${VariantGridFormatter.vcfFormatter(value, row[0], "SVCLASS", "INFO")}</div>`;
+                        return `<div>${VariantGridFormatter.vcfFormatter(value, row[0], "BAS", "INFO") || "-"}</div>`;
                     },
                     halign: "center"
                 },
-                // {
-                //     title: "Gene Annotation",
-                //     field: "consequenceType",
-                //     rowspan: 2,
-                //     colspan: 1,
-                //     formatter: (value, row, index) => VariantGridFormatter.consequenceTypeFormatter(value, row, index, this._config, this.consequenceTypeColors),
-                //     halign: "center"
-                // },
-                // {
-                //     title: "Role in Cancer",
-                //     field: "evidences",
-                //     rowspan: 2,
-                //     colspan: 1,
-                //     formatter: VariantInterpreterGridFormatter.roleInCancerFormatter.bind(this),
-                //     halign: "center",
-                //     visible: this.clinicalAnalysis.type.toUpperCase() === "CANCER"
-                // },
+                {
+                    title: "CN Flag",
+                    rowspan: 2,
+                    colspan: 1,
+                    formatter: (value, row) => {
+                        return `<div>${VariantGridFormatter.vcfFormatter(value, row[0], "CNCH", "INFO") || "-"}</div>`;
+                    },
+                    halign: "center"
+                },
                 {
                     title: "VCF Data 1",
                     rowspan: 1,
@@ -630,6 +631,15 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                     colspan: vcfDataColumns2?.length,
                     halign: "center",
                     visible: vcfDataColumns2?.length > 1
+                },
+                {
+                    title: "Fusion Flag",
+                    rowspan: 2,
+                    colspan: 1,
+                    formatter: (value, row) => {
+                        return `<div>${VariantGridFormatter.vcfFormatter(value, row[0], "FFV", "INFO") || "-"}</div>`;
+                    },
+                    halign: "center"
                 },
                 {
                     title: "Interpretation <a class='interpretation-info-icon' tooltip-title='Interpretation' tooltip-text=\"<span style='font-weight: bold'>Prediction</span> column shows the Clinical Significance prediction and Tier following the ACMG guide recommendations\" tooltip-position-at=\"left bottom\" tooltip-position-my=\"right top\"><i class='fa fa-info-circle' aria-hidden='true'></i></a>",
@@ -823,7 +833,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                     samples = this.clinicalAnalysis.proband.samples.filter(s => s.somatic);
                 }
 
-                _columns[0].splice(5, 0, {
+                _columns[0].splice(4, 0, {
                     title: "Sample Genotypes",
                     rowspan: 1,
                     colspan: samples.length,
@@ -835,7 +845,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
 
                     _columns[1].splice(i, 0, {
                         title: `<span>${sample.id}</span><br>
-                                <span style="color: ${color};font-style: italic">${sample?.somatic ? "somatic" : "germline"}</span>`,
+                                <span class="help-block" style="margin: 0px">PS / RC</span>`,
                         field: {
                             sampleId: sample.id,
                             quality: this._config.quality,
@@ -845,7 +855,9 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
                         rowspan: 1,
                         colspan: 1,
                         // formatter: VariantInterpreterGridFormatter.sampleGenotypeFormatter,
-                        formatter: (value, row) => VariantGridFormatter.vcfFormatter(value, row[0], "RC", "FORMAT"),
+                        formatter: (value, row) => {
+                            return `${VariantGridFormatter.vcfFormatter(value, row[0], "RC", "FORMAT")} / ${VariantGridFormatter.vcfFormatter(value, row[0], "PS", "FORMAT")}`
+                        },
                         align: "center",
                         nucleotideGenotype: true
                     });
@@ -972,7 +984,17 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
             callers: [
                 {
                     id: "brass",
-                    info: ["BAS", "GENE", "TID", "RGN", "RGNNO", "RGNC", "CNCH", "FFV"]
+                    // TODO
+                    columns: [
+                        {name: "Assembly Score", field: "BAS", position: 5},
+                        {name: "...", field: "CNCH", position: 6},
+                        {name: "...", field: "FFV", position: 9},
+                    ],
+                    info: [
+                        {name: "Gene", fields: ["GENE", "TID"], separator: "<br>"},
+                        {name: "Region Type", fields: ["RGN"]},
+                        {name: "Region Position", fields: ["RGNNO", "RGNC"]}
+                    ]
                 }
             ],
 

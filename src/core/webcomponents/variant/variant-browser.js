@@ -727,7 +727,7 @@ export default class VariantBrowser extends LitElement {
                                                 .opencgaSession="${this.opencgaSession}"
                                                 .defaultStudy="${this.opencgaSession.study.fqn}"
                                                 .query="${this.preparedQuery}"
-                                                .refresh="${this.executedQuery}"
+                                                .executedQuery="${this.executedQuery}"
                                                 .facetQuery="${this.selectedFacetFormatted}"
                                                 .alias="${this._config.filter.activeFilters.alias}"
                                                 .filters="${this._config.filter.examples}"

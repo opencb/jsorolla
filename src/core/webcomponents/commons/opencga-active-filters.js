@@ -36,6 +36,9 @@ export default class OpencgaActiveFilters extends LitElement {
             query: {
                 type: Object
             },
+            executedQuery: {
+                type: Object
+            },
             // this is included in config param in case of variant-browser (it can be different somewhere else)
             filters: {
                 type: Array
@@ -49,9 +52,6 @@ export default class OpencgaActiveFilters extends LitElement {
             defaultStudy: {
                 type: String
             },
-            refresh: {
-                type: Object
-            },
             config: {
                 type: Object
             },
@@ -59,6 +59,9 @@ export default class OpencgaActiveFilters extends LitElement {
                 type: Boolean
             },
             facetQuery: {
+                type: Object
+            },
+            facetExecutedQuery: {
                 type: Object
             }
         };
@@ -116,7 +119,7 @@ export default class OpencgaActiveFilters extends LitElement {
         if (changedProperties.has("query")) {
             this.queryObserver();
         }
-        if (changedProperties.has("refresh")) {
+        if (changedProperties.has("executedQuery")) {
             this.searchClicked();
         }
         if (changedProperties.has("config")) {
@@ -215,6 +218,8 @@ export default class OpencgaActiveFilters extends LitElement {
     searchClicked() {
         $("#" + this._prefix + "Warning").hide();
         this._previousQuery = this.query;
+        // TODO in progress https://github.com/opencb/jsorolla/issues/150
+        this._previousFacetQuery = this.facetQuery;
     }
 
     configObserver() {

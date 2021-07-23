@@ -405,6 +405,15 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
                                 title: "Gene Biotype",
                                 biotypes: BIOTYPES,
                                 tooltip: tooltips.biotype
+                            },
+                            {
+                                id: "ext-svtype",
+                                title: "SVTYPE",
+                                types: ["TRANSLOCATION", "DUPLICATION", "INVERSION", "DELETION"],
+                                tooltip: tooltips.type,
+                                params: {
+                                    fileId: `${this.callerToFile ? this.callerToFile["brass"]?.name : null}`
+                                }
                             }
                             // {
                             //     id: "type",
@@ -653,7 +662,7 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
                                                     .clinicalAnalysis="${this.clinicalAnalysis}"
                                                     .defaultStudy="${this.opencgaSession.study.fqn}"
                                                     .query="${this.preparedQuery}"
-                                                    .refresh="${this.executedQuery}"
+                                                    .executedQuery="${this.executedQuery}"
                                                     .filters="${this.activeFilterFilters}"
                                                     .alias="${this._config.activeFilterAlias}"
                                                     .config="${this._config.filter.activeFilters}"
