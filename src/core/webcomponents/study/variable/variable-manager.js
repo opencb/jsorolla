@@ -59,18 +59,25 @@ export default class VariableManager extends LitElement {
         this.requestUpdate();
     }
 
-    onFieldChangeVariable(e) {
+    onFieldChange(e) {
+        e.stopPropagation(); // avoid to conflict with the event fieldChange from variable-set-create
         const field = e.detail.param;
-        this.variable = {
-            ...this.variable,
-            [field]: e.detail.value
-        };
+        if (e.detail.value) {
+            this.variable = {
+                ...this.variable,
+                [field]: e.detail.value
+            };
+        } else {
+            delete this.variable[field];
+        }
 
         // When we change 'type' we might need to enable/disable some parts of the form
         if (field === "type") {
             console.log("changed type variable");
             this.refreshForm();
         }
+
+
     }
 
     getDefaultConfig() {
@@ -245,7 +252,7 @@ export default class VariableManager extends LitElement {
                 <data-form
                     .data=${this.variable}
                     .config="${this._config}"
-                    @fieldChange="${e => this.onFieldChangeVariable(e)}"
+                    @fieldChange="${e => this.onFieldChange(e)}"
                     @clear="${this.onClearForm}"
                     @submit="${e => this.onSendVariable(e)}">
                 </data-form>

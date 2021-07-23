@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import "./variable-list-manager.js";
+import "./variable-list-update.js";
 import FormUtils from "../../../form-utils.js";
 
 export default class VariableSetCreate extends LitElement {
@@ -60,27 +60,53 @@ export default class VariableSetCreate extends LitElement {
     }
 
     onFieldChangeVariableSet(e) {
+        e.stopPropagation();
         const field = e.detail.param;
         console.log("Field:", field);
-        switch (e.detail.param) {
-            case "id":
-            case "name":
-            case "unique":
-            case "confidential":
-            case "description":
-            case "entities":
-                this.variableSet = {
-                    ...this.variableSet,
-                    [field]: e.detail.value
-                };
-                break;
+        if (e.detail.value) {
+            switch (e.detail.param) {
+                case "id":
+                case "name":
+                case "unique":
+                case "confidential":
+                case "description":
+                    this.variableSet = {
+                        ...this.variableSet,
+                        [field]: e.detail.value
+                    };
+                    break;
+                case "entities":
+                    const entities = e.detail.value ? e.detail.value.split(",") : [];
+                    this.variableSet = {
+                        ...this.variableSet,
+                        [field]: entities
+                    };
+                    break;
+            }
+        } else {
+            delete this.variableSet[field];
         }
-        // TODO: Here we can put a switch of field has validation to refreshForm
-        if (field === "id") {
-            this.refreshForm();
-        }
-        console.log("VariableSet Data", this.variableSet);
+    }
 
+    // Option2 : Event for valiations ... this dispatch when user out the input field.
+    onBlurChange(e) {
+        e.stopPropagation();
+        const field = e.detail.param;
+        console.log("VariableSet Data", field, e.detail.value);
+        // switch (e.detail.param) {
+        //     case "id":
+        //     case "name":
+        //     case "unique":
+        //     case "confidential":
+        //     case "description":
+        //     case "entities":
+        //         console.log("Blur Event:", e.detail.value);
+        //         // if (field === "id") {
+        //         //     this.refreshForm();
+        //         // }
+        //         console.log("VariableSet Data", this.variableSet);
+        //         this.requestUpdate();
+        // }
     }
 
 
@@ -122,7 +148,6 @@ export default class VariableSetCreate extends LitElement {
                                     // mode: "block",
                                     icon: "fa fa-lock",
                                     text: "short variableSet id"
-
                                 },
                                 validation: {
                                     message: "Please enter more that 3 character",
@@ -141,7 +166,7 @@ export default class VariableSetCreate extends LitElement {
                             display: {
                                 placeholder: "Name ...",
                                 help: {
-                                    text: ";kaslkaslkas"
+                                    text: "short name variable"
                                 },
                             }
                         },
@@ -191,12 +216,10 @@ export default class VariableSetCreate extends LitElement {
                                 width: 12,
                                 style: "padding-left: 0px",
                                 render: () => html`
-                                    <variable-list-manager
-                                        .opencgaSession="${this.opencgaSession}"
+                                    <variable-list-update
                                         .variables="${this.variableSet?.variables}"
-                                        .readOnly=${false}
                                         @changeVariables="${e => this.onSyncVariables(e)}">
-                                    </variable-list-manager>`
+                                    </variable-list-update>`
                             }
                         },
                     ]
@@ -236,32 +259,33 @@ export default class VariableSetCreate extends LitElement {
         });
     }
 
-    async onSave() {
-        // try {
-        //     const res = await this.opencgaSession.opencgaClient.studies()
-        //         .updateVariableSets(this.opencgaSession.study.fqn, this.variableSet, {action: "ADD"});
-        //     this.variableSet = {
-        //         variables: [],
-        //         unique: true
-        //     };
-        //     this.requestUpdate();
-        //     FormUtils.showAlert(
-        //         "New VariableSet",
-        //         "VariableSet save correctly",
-        //         "success"
-        //     );
-        // } catch (err) {
-        //     FormUtils.showAlert(
-        //         "New VariableSet",
-        //         `Could not save variableSet ${err}`,
-        //         "error"
-        //     );
-        // }
+    async saveData() {
+        // TODO: review requestUpdate();
+        try {
+            await this.requestUpdate();
+            const res = await this.opencgaSession.opencgaClient.studies()
+                .updateVariableSets(this.opencgaSession.study.fqn, this.variableSet, {action: "ADD"});
+            this.variableSet = {
+                variables: [],
+                unique: true
+            };
+            FormUtils.showAlert(
+                "New VariableSet",
+                "VariableSet save correctly",
+                "success"
+            );
+        } catch (err) {
+            FormUtils.showAlert(
+                "New VariableSet",
+                `Could not save variableSet ${err}`,
+                "error"
+            );
+        } finally {
+            await this.requestUpdate();
+        }
     }
 
-    async onSubmit(e) {
-        e.preventDefault();
-        console.log("Save Form");
+    onSubmit(e) {
         Swal.fire({
             title: "Are you sure to create?",
             text: "You won't be able to modify this!",
@@ -273,7 +297,7 @@ export default class VariableSetCreate extends LitElement {
             reverseButtons: true
         }).then(result => {
             if (result.isConfirmed) {
-                this.onSave();
+                this.saveData();
             }
         });
     }
@@ -429,6 +453,7 @@ export default class VariableSetCreate extends LitElement {
                 .data=${this.variableSet}
                 .config="${this._config}"
                 @fieldChange="${e => this.onFieldChangeVariableSet(e)}"
+                @blurChange="${e => this.onBlurChange(e)}"
                 @clear="${e => this.onClear(e)}"
                 @submit="${e => this.onSubmit(e)}">
             </data-form>`;

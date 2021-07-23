@@ -53,6 +53,7 @@ export default class PhenotypeManager extends LitElement {
     }
 
     onFieldChange(e) {
+        e.stopPropagation();
         const field = e.detail.param;
         if (e.detail.value) {
             // No need to switch(field) since all of them are processed in the same way
@@ -67,8 +68,6 @@ export default class PhenotypeManager extends LitElement {
 
     getDefaultConfig() {
         return {
-            title: "Edit",
-            icon: "fas fa-edit",
             buttons: {
                 show: true,
                 cancelText: "Cancel",
@@ -88,7 +87,6 @@ export default class PhenotypeManager extends LitElement {
                             field: "id",
                             type: "input-text",
                             display: {
-                                // disabled: this.updateManager,
                                 placeholder: "Name ..."
                             }
                         },
@@ -133,6 +131,7 @@ export default class PhenotypeManager extends LitElement {
 
     onSendPhenotype(e) {
         // Send the phenotype to the upper component
+        e.stopPropagation();
         LitUtils.dispatchEventCustom(this, "addItem", this.phenotype);
     }
 

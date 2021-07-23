@@ -17,8 +17,8 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "./../../utilsNew.js";
 import "../commons/phenotype/phenotype-list-update.js";
+import "../commons/annotationset/annotation-set-update.js";
 import "../individual/disorder/disorder-list-update.js";
-import FormUtils from "../../form-utils.js";
 
 export default class IndividualCreate extends LitElement {
 
@@ -46,8 +46,10 @@ export default class IndividualCreate extends LitElement {
         this._prefix = UtilsNew.randomString(8);
         this.individual = {
             phenotypes: [],
+            annotationSets: [],
             disorders: []
         };
+        // Individual -> list disorders -> description, evidences (list of phenotypes)
     }
 
     connectedCallback() {
@@ -57,67 +59,71 @@ export default class IndividualCreate extends LitElement {
 
     onFieldChange(e) {
         const [field, prop] = e.detail.param.split(".");
-        switch (e.detail.param) {
-            case "id":
-            case "name":
-            case "father":
-            case "mother":
-            case "sex":
-            case "ethnicity":
-            case "parentalConsanguinity":
-            case "karyotypicSex":
-            case "lifeStatus":
-                this.individual[field] = e.detail.value;
-                break;
-            case "location.address":
-            case "location.postalCode":
-            case "location.city":
-            case "location.state":
-            case "location.country":
-            case "population.name":
-            case "population.subpopulation":
-            case "population.description":
-            case "status.name":
-            case "status.description":
+        if (e.detail.value) {
+            if (prop) {
                 this.individual[field] = {
                     ...this.individual[field],
                     [prop]: e.detail.value
                 };
-                // if (!this.individual[field]) {
-                //     this.individual[field] = {};
-                // }
-                // this.individual[field][prop] = e.detail.value;
-                break;
+            } else {
+                this.individual = {
+                    ...this.individual,
+                    [field]: e.detail.value
+                };
+            }
+        } else {
+            if (prop) {
+                delete this.individual[field][prop];
+            } else {
+                delete this.individual[field];
+            }
         }
+
+        console.log("New Individual: ", this.individual);
     }
 
     onClear(e) {
         console.log("onClear individual form");
     }
 
-    onSubmit() {
-        this.opencgaSession.opencgaClient.individuals().create(this.individual, {study: this.opencgaSession.study.fqn})
-            .then(res => {
-                this.individual = {};
-                this.requestUpdate();
+    onSubmit(e) {
+        e.stopPropagation();
+        console.log("New individual", this.individual);
+        this.individual = {
+            phenotypes: [],
+            disorders: [],
+            annotationSets: []
+        };
+        // this.opencgaSession.opencgaClient.individuals().create(this.individual, {study: this.opencgaSession.study.fqn})
+        //     .then(res => {
+        //         this.individual = {};
+        //         this.requestUpdate();
 
-                // this.dispatchSessionUpdateRequest();
-                FormUtils.showAlert("New Individual", "New Individual created correctly.", "success");
-            })
-            .catch(err => {
-                console.error(err);
-            });
+        //         // this.dispatchSessionUpdateRequest();
+        //         FormUtils.showAlert("New Individual", "New Individual created correctly.", "success");
+        //     })
+        //     .catch(err => {
+        //         console.error(err);
+        //     });
     }
 
     onSyncPhenotypes(e) {
         e.stopPropagation();
+        console.log("Updated list", this);
         this.individual = {...this.individual, phenotypes: e.detail.value};
+        this.requestUpdate();
     }
 
     onSyncDisorders(e) {
         e.stopPropagation();
-        console.log("Updated list");
+        console.log("Updated list", this);
         this.individual = {...this.individual, disorders: e.detail.value};
+    }
+
+    onSyncAnnotationSets(e) {
+        e.stopPropagation();
+        console.log("Updated list", this);
+        this.individual = {...this.individual, annotationSets: e.detail.value};
     }
 
     getDefaultConfig() {
@@ -186,8 +192,13 @@ export default class IndividualCreate extends LitElement {
                         {
                             name: "Birth",
                             field: "dateOfBirth",
-                            type: "input-text",
-                            display: {}
+                            type: "input-date",
+                            display: {
+                                render: date =>
+                                    moment(date, "YYYYMMDDHHmmss").format(
+                                        "DD/MM/YYYY"
+                                    )
+                            }
                         },
                         {
                             name: "Ethnicity",
@@ -293,7 +304,6 @@ export default class IndividualCreate extends LitElement {
                                 render: () => html`
                                     <phenotype-list-update
                                         .phenotypes="${this.individual?.phenotypes}"
-                                        .opencgaSession="${this.opencgaSession}"
                                         @changePhenotypes="${e => this.onSyncPhenotypes(e)}">
                                     </phenotype-list-update>`
                             }
@@ -314,9 +324,31 @@ export default class IndividualCreate extends LitElement {
                                 render: () => html`
                                     <disorder-list-update
                                         .disorders="${this.individual?.disorders}"
+                                        .evidences="${this.individual?.phenotypes}"
                                         .opencgaSession="${this.opencgaSession}"
-                                        .@changeDisorders=${e => this.onSyncDisorders(e)}>
+                                        @changeDisorders="${e => this.onSyncDisorders(e)}">
                                     </disorder-list-update>`
+                            }
+                        }
+                    ]
+                },
+                {
+                    title: "Annotation Sets",
+                    elements: [
+                        {
+                            field: "annotationSets",
+                            type: "custom",
+                            display: {
+                                layout: "vertical",
+                                defaultLayout: "vertical",
+                                width: 12,
+                                style: "padding-left: 0px",
+                                render: () => html`
+                                    <annotation-set-update
+                                        .annotationSets="${this.individual?.annotationSets}"
+                                        .opencgaSession="${this.opencgaSession}"
+                                        @changeAnnotationSets=${e => this.onSyncAnnotationSets(e)}>
+                                    </annotation-set-update>`
                             }
                         }
                     ]

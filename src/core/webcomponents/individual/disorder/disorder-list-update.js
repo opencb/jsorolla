@@ -38,22 +38,15 @@ export default class DisorderListUpdate extends LitElement {
             disorders: {
                 type: Array
             },
-            opencgaSession: {
-                type: Object
+            evidences: {
+                type: Array
             },
-            readOnly: {
-                type: Boolean
-            },
-            updateManager: {
-                type: Boolean
-            }
         };
     }
 
 
     _init() {
         this._prefix = UtilsNew.randomString(8);
-        this.isShow = false;
         this.disorder = {};
         this._manager = {
             action: "",
@@ -67,7 +60,6 @@ export default class DisorderListUpdate extends LitElement {
             this.disorder = {};
         } else {
             this.disorder = manager.disorder;
-            this.isShow = true;
         }
         this.requestUpdate();
         $("#disorderManagerModal"+ this._prefix).modal("show");
@@ -85,17 +77,15 @@ export default class DisorderListUpdate extends LitElement {
     }
 
     addDisorder(disorder) {
-        this.isShow = false;
         this.disorders = [...this.disorders, disorder];
         LitUtils.dispatchEventCustom(this, "changeDisorders", this.disorders);
     }
 
     editDisorders(disorder) {
-        this.isShow = false;
         const indexItem = this.disorders.findIndex(item => item.id === this.disorder.id);
         this.disorders[indexItem] = disorder;
         this.disorder = {};
-        LitUtils.dispatchEventCustom(this, "changedisorders", this.disorders);
+        LitUtils.dispatchEventCustom(this, "changeDisorders", this.disorders);
         this.requestUpdate();
     }
 
@@ -113,7 +103,7 @@ export default class DisorderListUpdate extends LitElement {
         }).then(result => {
             if (result.isConfirmed) {
                 this.disorders = this.disorders.filter(pheno => pheno !== item);
-                LitUtils.dispatchEventCustom(this, "changeItems", this.disorders);
+                LitUtils.dispatchEventCustom(this, "changeDisorders", this.disorders);
                 Swal.fire(
                     "Deleted!",
                     "The disorder has been deleted.",
@@ -190,6 +180,7 @@ export default class DisorderListUpdate extends LitElement {
                     <div class="modal-body">
                         <disorder-manager
                             .disorder="${this.disorder}"
+                            .evidences="${this.evidences}"
                             @closeForm="${e => this.onCloseForm(e)}"
                             @addItem="${this.onActionDisorder}">
                         </disorder-manager>
