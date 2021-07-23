@@ -16,9 +16,10 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
+import LitUtils from "../commons/utils/lit-utils.js";
 import "../commons/phenotype/phenotype-list-update.js";
 import "../commons/annotationset/annotation-set-update.js";
-import LitUtils from "../commons/utils/lit-utils.js";
+
 
 export default class SampleCreate extends LitElement {
 
@@ -155,11 +156,13 @@ export default class SampleCreate extends LitElement {
 
     onSyncPhenotypes(e) {
         e.stopPropagation();
+        console.log("Updated list", this);
         this.sample = {...this.sample, phenotypes: e.detail.value};
     }
 
     onSyncAnnotationSets(e) {
         e.stopPropagation();
+        console.log("Updated list ", this);
         this.sample = {...this.sample, annotationSets: e.detail.value};
     }
 
@@ -289,6 +292,7 @@ export default class SampleCreate extends LitElement {
                             type: "input-text"
                         },
                         {
+                            id: "processing_date",
                             name: "Date",
                             field: "processing.date",
                             type: "input-date",
@@ -325,6 +329,7 @@ export default class SampleCreate extends LitElement {
                             type: "input-text"
                         },
                         {
+                            id: "collection_date",
                             name: "Date",
                             field: "collection.date",
                             type: "input-date",
@@ -370,6 +375,7 @@ export default class SampleCreate extends LitElement {
                                 render: () => html`
                                     <annotation-set-update
                                         .annotationSets="${this.sample?.annotationSets}"
+                                        .opencgaSession="${this.opencgaSession}"
                                         @changeAnnotationSets="${e => this.onSyncAnnotationSets(e)}">
                                     </annotation-set-update>
                                 `

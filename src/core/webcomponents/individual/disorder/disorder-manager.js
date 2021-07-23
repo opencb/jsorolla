@@ -33,6 +33,9 @@ export default class DisorderManager extends LitElement {
             disorder: {
                 type: Object
             },
+            evidences: {
+                types: Array
+            }
         };
     }
 
@@ -43,6 +46,14 @@ export default class DisorderManager extends LitElement {
     connectedCallback() {
         super.connectedCallback();
         this._config = {...this.getDefaultConfig(), ...this.config};
+    }
+
+    update(changedProperties) {
+        if (changedProperties.has("evidences")) {
+            this._config = {...this.getDefaultConfig(), ...this.config};
+            console.log("update disorder manager", this.evidences);
+        }
+        super.update(changedProperties);
     }
 
     onFieldChange(e) {
@@ -56,13 +67,10 @@ export default class DisorderManager extends LitElement {
         } else {
             delete this.disorder[field];
         }
-        console.log("Change disorder: ", this.disorder);
     }
 
     getDefaultConfig() {
         return {
-            title: "Edit",
-            icon: "fas fa-edit",
             buttons: {
                 show: true,
                 cancelText: "Cancel",
@@ -89,9 +97,10 @@ export default class DisorderManager extends LitElement {
                             name: "Evidences", // Phenotypes List
                             field: "evidences",
                             type: "select",
-                            allowedValues: ["OBSERVED", "NOT_OBSERVED", "UNKNOW"],
+                            allowedValues: this.evidences?.map(evidence => evidence.name),
                             display: {
-                                placeholder: "select a status...",
+                                visible: this.evidences?.length > 0,
+                                placeholder: "select an evidence...",
                             }
                         },
                     ]
@@ -101,6 +110,7 @@ export default class DisorderManager extends LitElement {
     }
 
     onSendDisorder(e) {
+        e.stopPropagation();
         LitUtils.dispatchEventCustom(this, "addItem", this.disorder);
     }
 

@@ -17,9 +17,8 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "./../../utilsNew.js";
 import "../commons/phenotype/phenotype-list-update.js";
-import "../individual/disorder/disorder-list-update.js";
 import "../commons/annotationset/annotation-set-update.js";
-import FormUtils from "../../form-utils.js";
+import "../individual/disorder/disorder-list-update.js";
 
 export default class IndividualCreate extends LitElement {
 
@@ -87,7 +86,8 @@ export default class IndividualCreate extends LitElement {
         console.log("onClear individual form");
     }
 
-    onSubmit() {
+    onSubmit(e) {
+        e.stopPropagation();
         console.log("New individual", this.individual);
         this.individual = {
             phenotypes: [],
@@ -109,18 +109,20 @@ export default class IndividualCreate extends LitElement {
 
     onSyncPhenotypes(e) {
         e.stopPropagation();
+        console.log("Updated list", this);
         this.individual = {...this.individual, phenotypes: e.detail.value};
+        this.requestUpdate();
     }
 
     onSyncDisorders(e) {
         e.stopPropagation();
-        console.log("Updated list");
+        console.log("Updated list", this);
         this.individual = {...this.individual, disorders: e.detail.value};
     }
 
     onSyncAnnotationSets(e) {
         e.stopPropagation();
-        console.log("Updated list");
+        console.log("Updated list", this);
         this.individual = {...this.individual, annotationSets: e.detail.value};
     }
 
@@ -190,8 +192,13 @@ export default class IndividualCreate extends LitElement {
                         {
                             name: "Birth",
                             field: "dateOfBirth",
-                            type: "input-text",
-                            display: {}
+                            type: "input-date",
+                            display: {
+                                render: date =>
+                                    moment(date, "YYYYMMDDHHmmss").format(
+                                        "DD/MM/YYYY"
+                                    )
+                            }
                         },
                         {
                             name: "Ethnicity",
@@ -297,7 +304,6 @@ export default class IndividualCreate extends LitElement {
                                 render: () => html`
                                     <phenotype-list-update
                                         .phenotypes="${this.individual?.phenotypes}"
-                                        .opencgaSession="${this.opencgaSession}"
                                         @changePhenotypes="${e => this.onSyncPhenotypes(e)}">
                                     </phenotype-list-update>`
                             }
@@ -318,8 +324,9 @@ export default class IndividualCreate extends LitElement {
                                 render: () => html`
                                     <disorder-list-update
                                         .disorders="${this.individual?.disorders}"
+                                        .evidences="${this.individual?.phenotypes}"
                                         .opencgaSession="${this.opencgaSession}"
-                                        .@changeDisorders=${e => this.onSyncDisorders(e)}>
+                                        @changeDisorders="${e => this.onSyncDisorders(e)}">
                                     </disorder-list-update>`
                             }
                         }
@@ -340,7 +347,7 @@ export default class IndividualCreate extends LitElement {
                                     <annotation-set-update
                                         .annotationSets="${this.individual?.annotationSets}"
                                         .opencgaSession="${this.opencgaSession}"
-                                        .@changeAnnotationSets=${e => this.onSyncAnnotationSets(e)}>
+                                        @changeAnnotationSets=${e => this.onSyncAnnotationSets(e)}>
                                     </annotation-set-update>`
                             }
                         }
