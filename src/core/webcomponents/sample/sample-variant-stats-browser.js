@@ -471,7 +471,7 @@ export default class SampleVariantStatsBrowser extends LitElement {
                                                 .opencgaSession="${this.opencgaSession}"
                                                 .defaultStudy="${this.opencgaSession.study.fqn}"
                                                 .query="${this.preparedQuery}"
-                                                .refresh="${this.executedQuery}"
+                                                .executedQuery="${this.executedQuery}"
                                                 .alias="${this.activeFilterAlias}"
                                                 .filters="${this._config.filter.examples}"
                                                 .config="${this._config.filter.activeFilters}"
