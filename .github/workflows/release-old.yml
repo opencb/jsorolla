@@ -1,0 +1,43 @@
+name: "release"
+
+on:
+  push:
+    branches-ignore:
+      - '**'
+    #branches: [ master ]
+
+jobs:
+  build:
+    name: App build
+    runs-on: ubuntu-18.04
+    steps:
+      ## Install deps and build IVA
+      - uses: actions/checkout@v2
+      - name: IVA Npm install and Prepare
+        run: |
+          npm install bower
+          npm install && npm run prepare
+      - name: Jsorolla Npm install
+        run: |
+          git submodule update --init
+          cd lib/jsorolla
+          npm install bower
+          npm install
+      - name: Npm build
+        run: npm run build
+      - name: Read package.json
+        uses: "tyankatsu0105/read-package-version-actions@v1"
+        id: package-version
+      - name: Show version number
+        run: |
+          echo "Version is ${{ steps.package-version.outputs.version }}"
+      - name: Create release
+        uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          draft: true
+          automatic_release_tag: "v${{ steps.package-version.outputs.version }}"
+          title: "v${{ steps.package-version.outputs.version }}"
+          prerelease: false
+          files: |
+            iva-${{ steps.package-version.outputs.version }}.tar.gz

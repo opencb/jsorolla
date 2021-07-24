@@ -1,0 +1,57 @@
+name: CI
+
+on:
+  push:
+    branches-ignore:
+      - '**'
+    #branches: [ develop ]
+
+jobs:
+  build:
+    name: Install deps and Build
+    runs-on: ubuntu-18.04
+    steps:
+      ## Install deps and build IVA
+      - uses: actions/checkout@v2
+      - name: IVA Npm install and Prepare
+        run: |
+          npm install bower
+          npm install && npm run prepare
+      - name: Jsorolla Npm install
+        run: |
+          git submodule update --init
+          cd lib/jsorolla
+          npm install bower
+          npm install
+      - name: Npm build
+        run: npm run build
+      - name: LS
+        run: ls
+      - name: Upload webpack artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: webpack-artifact
+          path: build
+          retention-days: 1
+
+  deploy:
+    name: Publish Docker image in DockerHub repository
+    runs-on: ubuntu-18.04
+    needs: build
+    steps:
+      ## Publish docker image to DockerHub
+      - uses: actions/checkout@v2
+      - name: Download webpack artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: webpack-artifact
+          path: build
+      - name: Read package.json
+        uses: "tyankatsu0105/read-package-version-actions@v1"
+        id: package-version
+      - name: Show version number
+        run: echo "Version is ${{ steps.package-version.outputs.version }}"
+      - name: Login to dockerhub
+        run: echo "${{ secrets.DOCKER_HUB_PASSWORD }}" | docker login --username ${{ secrets.DOCKER_HUB_USER }} --password-stdin
+      - name: Build and Publish Docker image
+        run: python3 ./docker/docker-build.py push --images app --tag ${{ steps.package-version.outputs.version }}
