@@ -16,7 +16,7 @@ module.exports = {
         //baseDir: path.resolve(__dirname),
         //directory: true
     },
-    startPath: "src",
+    startPath: "src/apps/iva",
     open: true,
     timestamps: true,
     excludedFileTypes: [],
