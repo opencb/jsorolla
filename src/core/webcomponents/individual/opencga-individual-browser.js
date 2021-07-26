@@ -41,12 +41,12 @@ export default class OpencgaIndividualBrowser extends LitElement {
             query: {
                 type: Object
             },
-            facetQuery: {
+            /* facetQuery: {
                 type: Object
             },
             selectedFacet: {
                 type: Object
-            },
+            },*/
             config: {
                 type: Object
             }
@@ -57,7 +57,7 @@ export default class OpencgaIndividualBrowser extends LitElement {
         this._prefix = "facet" + UtilsNew.randomString(6);
 
         // These are for making the queries to server
-        this.facetFields = [];
+        /* this.facetFields = [];
         this.facetRanges = [];
 
         this.facetFieldsName = [];
@@ -69,7 +69,7 @@ export default class OpencgaIndividualBrowser extends LitElement {
         this.facetActive = true;
         this.selectedFacet = {};
         this.selectedFacetFormatted = {};
-        this.errorState = false;
+        this.errorState = false;*/
 
         this._config = this.getDefaultConfig();
     }
@@ -102,7 +102,7 @@ export default class OpencgaIndividualBrowser extends LitElement {
                     name: "Aggregation stats",
                     icon: "fas fa-chart-bar"
                 }
-                ,/*
+                /*
                 {
                     id: "comparator-tab",
                     name: "Comparator"
@@ -424,7 +424,7 @@ export default class OpencgaIndividualBrowser extends LitElement {
                     }
                 ]
             },
-            annotations: {},
+            annotations: {}
         };
     }
 

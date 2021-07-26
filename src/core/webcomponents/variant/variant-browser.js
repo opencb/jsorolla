@@ -80,11 +80,11 @@ export default class VariantBrowser extends LitElement {
         this._prefix = UtilsNew.randomString(8);
 
         // These are for making the queries to server
-        this.facetFields = [];
+        /*this.facetFields = [];
         this.facetRanges = [];
 
         this.facetFieldsName = [];
-        this.facetRangeFields = [];
+        this.facetRangeFields = [];*/
 
         this.results = [];
         this._showInitMessage = true;
