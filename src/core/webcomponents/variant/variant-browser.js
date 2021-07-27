@@ -60,15 +60,13 @@ export default class VariantBrowser extends LitElement {
             query: {
                 type: Object
             },
+            // query object sent to Opencga client (includes this.selectedFacet serialised)
             facetQuery: {
                 type: Object
             },
-            selectedFacet: { // TODO naming change: preparedQueryFacet (selectedFacet), preparedQueryFacetFormatted (selectedFacetFormatted), executedQueryFacet (queryFacet) (also in opencga-browser)
+            // complex object that keeps track of the values of all facets
+            selectedFacet: {
                 type: Object
-            },
-            // Deprecated: cohorts are now fetched during login and stored in opencgaSession, no need to allow external configuration
-            cohorts: {
-                type: Array
             },
             config: {
                 type: Object
@@ -94,7 +92,7 @@ export default class VariantBrowser extends LitElement {
         this.preparedQuery = {};
         this.executedQuery = {};
         this.selectedFacet = {};
-        this.selectedFacetFormatted = {};
+        this.preparedFacetQueryFormatted = {};
         this.errorState = false;
 
         this.activeTab = {};
@@ -106,8 +104,8 @@ export default class VariantBrowser extends LitElement {
 
     update(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
-            this.opencgaSessionObserver();
             this._config = {...this.getDefaultConfig(), ...this.config};
+            this.opencgaSessionObserver();
         }
         if (changedProperties.has("query")) {
             this.queryObserver();
@@ -132,7 +130,7 @@ export default class VariantBrowser extends LitElement {
              */
             this.preparedQuery = {study: this.opencgaSession.study.fqn};
             this.facetQuery = null;
-            this.selectedFacetFormatted = null;
+            this.preparedFacetQueryFormatted = null;
             // this.requestUpdate();
             // this.onRun();
 
@@ -154,7 +152,7 @@ export default class VariantBrowser extends LitElement {
                     this.preparedQuery = {study: this.opencgaSession.study.fqn};
                     this.executedQuery = {study: this.opencgaSession.study.fqn};
                 }
-                // onServerFilterChange() in opencga-active-filters drops a filterchange event when the Filter dropdown is used
+                // onServerFilterChange() in opencga-active-filters fires an activeFilterChange event when the Filter dropdown is used
                 this.dispatchEvent(new CustomEvent("queryChange", {
                     detail: this.preparedQuery
                 }
@@ -168,12 +166,15 @@ export default class VariantBrowser extends LitElement {
     }
 
     facetQueryBuilder() {
+        // facetQuery is the query object sent to the client in <opencb-facet-results>
         if (Object.keys(this.selectedFacet).length) {
+            this.executedFacetQueryFormatted = {...this.preparedFacetQueryFormatted};
+
             this.facetQuery = {
                 ...this.preparedQuery,
                 study: this.opencgaSession.study.fqn,
                 // FIXME rename fields to field
-                fields: Object.values(this.selectedFacetFormatted).map(v => v.formatted).join(";")
+                fields: Object.values(this.preparedFacetQueryFormatted).map(v => v.formatted).join(";")
             };
             this._changeView("facet-tab");
         } else {
@@ -204,7 +205,7 @@ export default class VariantBrowser extends LitElement {
                 ...this.preparedQuery,
                 study: this.opencgaSession.study.fqn,
                 timeout: 60000,
-                fields: Object.values(this.selectedFacetFormatted).map(v => v.formatted).join(";")
+                fields: Object.values(this.preparedFacetQueryFormatted).map(v => v.formatted).join(";")
             };
             this._changeView("facet-tab");
         } else {
@@ -253,13 +254,15 @@ export default class VariantBrowser extends LitElement {
 
     onFacetQueryChange(e) {
         // console.log("onFacetQueryChange");
-        this.selectedFacetFormatted = e.detail.value;
+        this.preparedFacetQueryFormatted = e.detail.value;
         this.requestUpdate();
     }
 
     onActiveFacetChange(e) {
         this.selectedFacet = {...e.detail};
-        this.onRun();
+        this.preparedFacetQueryFormatted = {...e.detail};
+        // this.onRun();
+        this.facetQueryBuilder();
         this.requestUpdate();
     }
 
@@ -727,7 +730,8 @@ export default class VariantBrowser extends LitElement {
                                                 .defaultStudy="${this.opencgaSession.study.fqn}"
                                                 .query="${this.preparedQuery}"
                                                 .executedQuery="${this.executedQuery}"
-                                                .facetQuery="${this.selectedFacetFormatted}"
+                                                .facetQuery="${this.preparedFacetQueryFormatted}"
+                                                .executedFacetQuery="${this.executedFacetQueryFormatted}"
                                                 .alias="${this._config.filter.activeFilters.alias}"
                                                 .filters="${this._config.filter.examples}"
                                                 .config="${this._config.filter.activeFilters}"
