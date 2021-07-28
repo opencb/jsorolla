@@ -238,8 +238,9 @@ module.exports = {
                         plugins: [
                             "@babel/plugin-proposal-export-default-from",
                             // "@babel/regenerator-runtime/runtime",
+                            "@babel/plugin-proposal-nullish-coalescing-operator",
                             "@babel/transform-runtime",
-                            ["@babel/plugin-proposal-class-properties", {"loose": true}]
+                            ["@babel/plugin-proposal-class-properties", {"loose": false}]
                         ]
                     }
                 }
