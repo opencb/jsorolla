@@ -16,7 +16,7 @@
 
 import {html, LitElement} from "/web_modules/lit-element.js";
 // import {directive} from "/web_modules/lit-html.js";
-import UtilsNew from "../../../utilsNew.js";
+import UtilsNew from "../../../core/utilsNew.js";
 import "../simple-chart.js";
 import "../json-viewer.js";
 import "../../download-button.js";
@@ -199,7 +199,7 @@ export default class DataView extends LitElement {
                     <div class="col-md-${12 - (this.config.display.labelWidth || 10)}">
                         ${content}
                     </div>
-                </div>        
+                </div>
             `;
         } else {
             return html`
@@ -210,7 +210,7 @@ export default class DataView extends LitElement {
                     <div class="col-md-12">
                         ${content}
                     </div>
-                </div>        
+                </div>
             `;
         }
     }
@@ -321,8 +321,8 @@ export default class DataView extends LitElement {
                         <tr scope="row">
                             ${element.display.columns.map(elem => html`
                                 <td>
-                                    ${elem.display && elem.display.render 
-                                        ? elem.display.render(this.getValue(elem.field, row)) 
+                                    ${elem.display && elem.display.render
+                                        ? elem.display.render(this.getValue(elem.field, row))
                                         : this.getValue(elem.field, row, elem.defaultValue, elem.format)
                                     }
                                 </td>
@@ -408,7 +408,7 @@ export default class DataView extends LitElement {
                     <i class="fas fa-exclamation fa-5x"></i>
                     <h3>No valid configuration provided. Please check configuration:</h3>
                     <div style="padding: 10px">
-                        <pre>${JSON.stringify(this.config, null, 2)}</pre>              
+                        <pre>${JSON.stringify(this.config, null, 2)}</pre>
                     </div>
                 </div>
             `;

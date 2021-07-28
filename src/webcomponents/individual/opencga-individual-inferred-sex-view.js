@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../utilsNew.js";
+import UtilsNew from "../../core/utilsNew.js";
 import "../commons/view/data-form.js";
 
 
@@ -161,7 +161,7 @@ export default class OpencgaIndividualInferredSexView extends LitElement {
                                         <label>${individual.id}</label>
                                     </td>
                                     <td>${individual?.qualityControl?.sampleId ?? "N/A"}</td>
-                                    <td>${individual.sex}</td>       
+                                    <td>${individual.sex}</td>
                                     <td>
                                         <span style="color: ${!inferredSex || individual.karyotypicSex === inferredSex?.inferredKaryotypicSex ? "black" : "red"}">
                                             ${individual.karyotypicSex}
@@ -220,7 +220,7 @@ export default class OpencgaIndividualInferredSexView extends LitElement {
                         `) : null}
                     </ul>
                 </div>
-                
+
                 <div>
                     ${this.renderTable()}
                 </div>

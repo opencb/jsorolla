@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../../utilsNew.js";
+import UtilsNew from "../../../core/utilsNew.js";
 
 /**
  * TODO
@@ -202,23 +202,23 @@ export default class SelectTokenFilter extends LitElement {
                 .dropdown-item-extra {
                     font-size: .8em;
                 }
-                
+
                 .dropdown-item-extra label {
                     width: 50%;
                 }
-                
+
                 .selection-list ul {
                     list-style: none;
                     margin: 0;
                     padding: 0;
                 }
-                
+
                 .selection-list {
                     border: #d0d0d0 solid 1px;
                     padding: 5px;
                     margin-top: 10px;
                 }
-                
+
                 .dropzone-wrapper {
                     border: 2px dashed #91b0b3;
                     color: #92b0b3;
@@ -229,12 +229,12 @@ export default class SelectTokenFilter extends LitElement {
                     position: relative;
                     cursor: pointer;
                 }
-                
+
                 .dropzone-desc {
                     margin: 0 auto;
                     text-align: center;
                 }
-                
+
                 .dropzone,
                 .dropzone:focus {
                     position: absolute;
@@ -244,7 +244,7 @@ export default class SelectTokenFilter extends LitElement {
                     cursor: pointer;
                     opacity: 0;
                 }
-                
+
                 .dropzone-wrapper:hover,
                 .dropzone-wrapper.dragover {
                     background: #ecf0f5;

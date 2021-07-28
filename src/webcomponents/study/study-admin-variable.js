@@ -15,7 +15,7 @@
  */
 
 import {html, LitElement} from "/web_modules/lit-element.js";
-import OpencgaCatalogUtils from "../../clients/opencga/opencga-catalog-utils.js";
+import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import "../permission/permission-browser-grid.js";
 import "./variable/variable-set-create.js";
 import "./variable/variable-set-view.js";

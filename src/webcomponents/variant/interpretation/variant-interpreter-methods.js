@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import {classMap} from "/web_modules/lit-html/directives/class-map.js";
-import UtilsNew from "../../../utilsNew.js";
+import UtilsNew from "../../../core/utilsNew.js";
 import "../../clinical/analysis/opencga-rd-tiering-analysis.js";
 
 
@@ -136,15 +136,15 @@ class VariantInterpreterMethods extends LitElement {
                                     <a href="javascript: void 0" role="tab" data-id="Upd" @click="${this._changeTab}" class="tab-title disabled">UPD (coming soon)</a>
                                 </li>`
                             : null
-                        }                            
-                        ${this.clinicalAnalysis.type.toUpperCase() === "FAMILY" 
+                        }
+                        ${this.clinicalAnalysis.type.toUpperCase() === "FAMILY"
                             ? html`
                                 <li role="presentation" class="content-pills ${classMap({active: this.activeTab["RdTiering"]})}">
                                     <a href="javascript: void 0" role="tab" data-id="RdTiering" @click="${this._changeTab}" class="tab-title">RD Tiering</a>
                                 </li>
                                 <li role="presentation" class="content-pills ${classMap({active: this.activeTab["Zetta"]})}">
                                     <a href="javascript: void 0" role="tab" data-id="Zetta" @click="${this._changeTab}" class="tab-title">Zetta</a>
-                                </li>` 
+                                </li>`
                             : null
                         }
                         ${this.clinicalAnalysis.type.toUpperCase() === "CAMCER"
@@ -156,7 +156,7 @@ class VariantInterpreterMethods extends LitElement {
                         }
                     </ul>
                 </div>
-                
+
                 <div class="content-tab-wrapper">
                     ${this.clinicalAnalysis.type.toUpperCase() === "FAMILY"
                         ? html`

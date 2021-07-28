@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../../utilsNew.js";
+import UtilsNew from "../../../core/utilsNew.js";
 
 
 export default class SomaticFilter extends LitElement {
@@ -78,7 +78,7 @@ export default class SomaticFilter extends LitElement {
     render() {
         return html`
             <form id="${this._prefix}-somatic" class="somatic-filter subsection-content form-group">
-               
+
             <fieldset>
                 <div class="switch-toggle text-white">
                     <input id="${this._prefix}-somatic-option-none"
@@ -86,23 +86,23 @@ export default class SomaticFilter extends LitElement {
                                    type="radio" name="${this._prefix}-somatic-options" value=""
                                    @change="${this.filterChange}" checked>
                     <label for="${this._prefix}-somatic-option-none"><span class="small">None</span></label>
-            
+
                     <input id="${this._prefix}-somatic-option-true"
                                                    class="form-group-sm ${this._prefix}FilterRadio"
                                                    type="radio" name="${this._prefix}-somatic-options" value="True"
                                                    @change="${this.filterChange}">
                     <label for="${this._prefix}-somatic-option-true"><span class="small">True</span></label>
-                
+
                     <input id="${this._prefix}-somatic-option-false"
                                                    class="form-group-sm ${this._prefix}FilterRadio"
                                                    type="radio" name="${this._prefix}-somatic-options" value="False"
                                                    @change="${this.filterChange}">
                     <label for="${this._prefix}-somatic-option-false"><span class="small">False</span></label>
-            
+
                     <a class="btn btn-primary ripple"></a>
                 </div>
             </fieldset>
-              
+
             </form>
         `;
     }

@@ -15,8 +15,8 @@
  */
 
 import {html, LitElement} from "/web_modules/lit-element.js";
-import UtilsNew from "../../utilsNew.js";
-import OpencgaCatalogUtils from "../../clients/opencga/opencga-catalog-utils.js";
+import UtilsNew from "../../core/utilsNew.js";
+import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import "../commons/tool-header.js";
 import "../study/study-form.js";
 import "./project-form.js";

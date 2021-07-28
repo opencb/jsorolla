@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import {classMap} from "/web_modules/lit-html/directives/class-map.js";
-import UtilsNew from "../../utilsNew.js";
+import UtilsNew from "../../core/utilsNew.js";
 import "../commons/tool-header.js";
 import "../variant/interpretation/variant-interpreter-grid.js";
 import "../variant/interpretation/variant-interpreter-detail.js";
@@ -311,7 +311,7 @@ class ClinicalAnalysisAuditBrowser extends LitElement {
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-8">   
+                    <div class="col-md-8">
                         <div class="interpretation-audit">
                             <div class="content-tab-wrapper">
                                 <div id="${this._prefix}timeline" role="tabpanel" class="active tab-pane content-tab">
@@ -324,7 +324,7 @@ class ClinicalAnalysisAuditBrowser extends LitElement {
                                     <table id="${this.gridId}"></table>
                                 </div>
                             </div>
-                        </div> 
+                        </div>
                     </div>
                 </div>` : html`
             <div class="alert alert-info"><i class="fas fa-3x fa-info-circle align-middle"></i> No Audit available yet.</div>

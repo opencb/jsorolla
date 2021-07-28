@@ -15,11 +15,11 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../utilsNew.js";
+import UtilsNew from "../../core/utilsNew.js";
 import "../variant/opencga-variant-filter.js";
 import "../commons/opencga-active-filters.js";
 import "../loading-spinner.js";
-import OpencgaCatalogUtils from "../../clients/opencga/opencga-catalog-utils.js";
+import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 
 export default class SampleVariantStatsBrowser extends LitElement {
 
@@ -420,7 +420,7 @@ export default class SampleVariantStatsBrowser extends LitElement {
                     <tool-header title="${this._config.title} - ${this.sample.id}" icon="${this._config.titleIcon}" class="${this._config.titleClass}"></tool-header>` :
             null
         }
-            <div class="row">                
+            <div class="row">
                 <div class="col-md-2 left-menu">
                     <opencga-variant-filter .opencgaSession=${this.opencgaSession}
                                             .query="${this.query}"
@@ -439,7 +439,7 @@ export default class SampleVariantStatsBrowser extends LitElement {
                     <div class="btn-toolbar" role="toolbar" aria-label="toolbar" style="margin: 0px 5px 20px 0px">
                         <div class="pull-right" role="group">
                             <div class="btn-group" style="margin-right: 2px">
-                                <button type="button" class="btn btn-primary ripple dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" 
+                                <button type="button" class="btn btn-primary ripple dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
                                             aria-expanded="false" title="Show saved variants" @click="${this.onLoad}">
                                     <span><i class="fas fa-folder-open icon-padding"></i>Load <span class="caret" style="padding-left: 5px"></span></span>
                                 </button>
@@ -457,9 +457,9 @@ export default class SampleVariantStatsBrowser extends LitElement {
                                 </ul>
                             </div>
                             <div class="btn-group">
-                                <data-form  .data=${this.save} 
-                                            .config="${this.getSaveConfig()}" 
-                                            @fieldChange="${e => this.onSaveFieldChange(e)}" 
+                                <data-form  .data=${this.save}
+                                            .config="${this.getSaveConfig()}"
+                                            @fieldChange="${e => this.onSaveFieldChange(e)}"
                                             @submit="${this.onSave}">
                                 </data-form>
                             </div>
@@ -478,7 +478,7 @@ export default class SampleVariantStatsBrowser extends LitElement {
                                                 @activeFilterChange="${this.onActiveFilterChange}"
                                                 @activeFilterClear="${this.onActiveFilterClear}">
                         </opencga-active-filters>
-                      
+
                         <div class="main-view">
                             ${this.loading ?
                                 html`
@@ -488,7 +488,7 @@ export default class SampleVariantStatsBrowser extends LitElement {
                                 this.sampleQcVariantStats ?
                                     html`
                                         <div style="padding: 0px 15px">
-                                            <sample-variant-stats-view  .sampleVariantStats="${this.sampleQcVariantStats}" 
+                                            <sample-variant-stats-view  .sampleVariantStats="${this.sampleQcVariantStats}"
                                                                         .query="${this.sampleQcVariantStats.query}"
                                                                         .description="${this.sampleQcVariantStats.description}">
                                             </sample-variant-stats-view>

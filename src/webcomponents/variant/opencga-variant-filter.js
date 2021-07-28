@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "./../../utilsNew.js";
+import UtilsNew from "./../../core/utilsNew.js";
 import "../commons/variant-modal-ontology.js";
 import "../commons/filters/cadd-filter.js";
 import "../commons/filters/biotype-filter.js";
@@ -350,10 +350,10 @@ export default class OpencgaVariantFilter extends LitElement {
                     // FIXME subsection.cohorts must be renamed to subsection.studies
                     if (subsection.onlyCohortAll === true || subsection.cohorts?.[0].cohorts?.length > 0) {
                         content = html`
-                            <cohort-stats-filter .opencgaSession="${this.opencgaSession}" 
-                                                 .cohorts="${subsection.cohorts}" 
-                                                 .onlyCohortAll=${subsection.onlyCohortAll} 
-                                                 .cohortStatsAlt="${this.preparedQuery.cohortStatsAlt}" 
+                            <cohort-stats-filter .opencgaSession="${this.opencgaSession}"
+                                                 .cohorts="${subsection.cohorts}"
+                                                 .onlyCohortAll=${subsection.onlyCohortAll}
+                                                 .cohortStatsAlt="${this.preparedQuery.cohortStatsAlt}"
                                                  @filterChange="${e => this.onFilterChange("cohortStatsAlt", e.detail.value)}">
                             </cohort-stats-filter>`;
                     } else {
@@ -372,7 +372,7 @@ export default class OpencgaVariantFilter extends LitElement {
                 case "sample-genotype":
                     const sampleConfig = subsection.params?.genotypes ? {genotypes: subsection.params.genotypes} : {};
                     content = html`
-                        <sample-genotype-filter 
+                        <sample-genotype-filter
                                 .sample="${this.preparedQuery.sample}"
                                 .config="${sampleConfig}"
                                 @filterChange="${e => this.onFilterChange("sample", e.detail.value)}">
@@ -384,8 +384,8 @@ export default class OpencgaVariantFilter extends LitElement {
                         files = Object.entries(subsection.params.files).map(([key, value]) => value.name);
                     }
                     content = html`
-                        <variant-file-filter 
-                                .files="${files}" 
+                        <variant-file-filter
+                                .files="${files}"
                                 @filterChange="${e => this.onFilterChange("file", e.detail.value)}">
                         </variant-file-filter>`;
                     break;
@@ -396,7 +396,7 @@ export default class OpencgaVariantFilter extends LitElement {
                         const sampleDataFilters = this.preparedQuery.sampleData.split(";");
                         depth = sampleDataFilters.find(filter => filter.startsWith("DP")).split(">=")[1];
                     }
-                    content = html`<file-quality-filter .filter="${this.preparedQuery.filter}" .depth="${depth}" .qual="${this.preparedQuery.qual}" 
+                    content = html`<file-quality-filter .filter="${this.preparedQuery.filter}" .depth="${depth}" .qual="${this.preparedQuery.qual}"
                                                         @filterChange="${e => this.onFilterChange({
                                                                 filter: "filter",
                                                                 sampleData: "sampleData",
@@ -406,21 +406,21 @@ export default class OpencgaVariantFilter extends LitElement {
                             `;
                     break;
                 case "region":
-                    content = html`<region-filter  .cellbaseClient="${this.cellbaseClient}" .region="${this.preparedQuery.region}" 
+                    content = html`<region-filter  .cellbaseClient="${this.cellbaseClient}" .region="${this.preparedQuery.region}"
                                                     @filterChange="${e => this.onFilterChange("region", e.detail.value)}">
                                     </region-filter>`;
                     break;
                 case "feature":
                     content = html`
-                        <feature-filter  .cellbaseClient="${this.cellbaseClient}" 
+                        <feature-filter  .cellbaseClient="${this.cellbaseClient}"
                                          .query=${this.preparedQuery}
                                          @filterChange="${e => this.onFilterChange("xref", e.detail.value)}">
                         </feature-filter>`;
                     break;
                 case "biotype":
                     content = html`
-                        <biotype-filter .config="${subsection}" 
-                                        .biotype=${this.preparedQuery.biotype} 
+                        <biotype-filter .config="${subsection}"
+                                        .biotype=${this.preparedQuery.biotype}
                                         @filterChange="${e => this.onFilterChange("biotype", e.detail.value)}">
                         </biotype-filter>`;
                     break;
@@ -439,10 +439,10 @@ export default class OpencgaVariantFilter extends LitElement {
                     break;
                 case "populationFrequency":
                     content = html`
-                        <population-frequency-filter .populationFrequencies="${subsection.populationFrequencies}" 
+                        <population-frequency-filter .populationFrequencies="${subsection.populationFrequencies}"
                                                      .allowedFrequencies="${subsection.allowedFrequencies}"
-                                                     ?showSetAll="${subsection.showSetAll}" 
-                                                     .populationFrequencyAlt="${this.preparedQuery.populationFrequencyAlt}" 
+                                                     ?showSetAll="${subsection.showSetAll}"
+                                                     .populationFrequencyAlt="${this.preparedQuery.populationFrequencyAlt}"
                                                      @filterChange="${e => this.onFilterChange("populationFrequencyAlt", e.detail.value)}">
                         </population-frequency-filter>`;
                     break;
@@ -468,8 +468,8 @@ export default class OpencgaVariantFilter extends LitElement {
                     break;
                 case "hpo":
                     content = html`
-                        <hpo-accessions-filter .annot-hpo="${this.preparedQuery["annot-hpo"]}" 
-                                               @ontologyModalOpen="${this.onOntologyModalOpen}" 
+                        <hpo-accessions-filter .annot-hpo="${this.preparedQuery["annot-hpo"]}"
+                                               @ontologyModalOpen="${this.onOntologyModalOpen}"
                                                @filterChange="${e => this.onFilterChange("annot-hpo", e.detail.value)}">
                         </hpo-accessions-filter>`;
                     break;
@@ -503,8 +503,8 @@ export default class OpencgaVariantFilter extends LitElement {
                     break;
                 case "clinvar": // Deprecated: use clinical instead
                     content = html`
-                        <clinvar-accessions-filter  .clinvar="${this.preparedQuery.clinvar}" 
-                                                    .clinicalSignificance="${this.preparedQuery.clinicalSignificance}" 
+                        <clinvar-accessions-filter  .clinvar="${this.preparedQuery.clinvar}"
+                                                    .clinicalSignificance="${this.preparedQuery.clinicalSignificance}"
                                                     @filterChange="${e => this.onFilterChange({
                                                                     clinvar: "xref",
                                                                     clinicalSignificance: "clinicalSignificance"
@@ -513,7 +513,7 @@ export default class OpencgaVariantFilter extends LitElement {
                     break;
                 case "fullTextSearch":
                     content = html`
-                        <fulltext-search-accessions-filter .traits="${this.preparedQuery.traits}" 
+                        <fulltext-search-accessions-filter .traits="${this.preparedQuery.traits}"
                                                            @filterChange="${e => this.onFilterChange("traits", e.detail.value)}">
                         </fulltext-search-accessions-filter>`;
                     break;
@@ -533,9 +533,9 @@ export default class OpencgaVariantFilter extends LitElement {
                 case "pisces":
                 case "craft":
                     content = html`
-                        <variant-caller-info-filter .caller="${subsection.id}" 
-                                                    .fileId="${subsection.params.fileId}" 
-                                                    .fileData="${this.preparedQuery.fileData}" 
+                        <variant-caller-info-filter .caller="${subsection.id}"
+                                                    .fileId="${subsection.params.fileId}"
+                                                    .fileData="${this.preparedQuery.fileData}"
                                                     @filterChange="${e => this.onVariantCallerInfoFilter(subsection.params.fileId, e.detail.value, subsection.callback)}">
                         </variant-caller-info-filter>`;
                     break;

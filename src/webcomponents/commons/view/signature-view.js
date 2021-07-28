@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../../utilsNew.js";
+import UtilsNew from "../../../core/utilsNew.js";
 import "../../loading-spinner.js";
 
 export default class SignatureView extends LitElement {
@@ -207,7 +207,7 @@ export default class SignatureView extends LitElement {
 
         return html`
             <div style="height: ${this._config.height}px">
-                ${this.signature 
+                ${this.signature
                         ? html`
                             <div style="margin: 10px">
                                 <h4>${this.signature.counts.map(s => s.total).reduce((a, b) => a + b, 0)} Substitutions</h4>

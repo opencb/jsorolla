@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import {classMap} from "/web_modules/lit-html/directives/class-map.js";
-import UtilsNew from "./../../../utilsNew.js";
+import UtilsNew from "./../../../core/utilsNew.js";
 
 
 export default class SelectFieldFilterAutocomplete extends LitElement {
@@ -256,7 +256,7 @@ export default class SelectFieldFilterAutocomplete extends LitElement {
                         </div>
                     </div>
                 ` : null}
-                
+
                 ${this._config.showList && this.selectionList.length ? html`
                     <div class="selection-list">
                         <ul>

@@ -15,7 +15,7 @@
  */
 
 import {html, LitElement} from "/web_modules/lit-element.js";
-import UtilsNew from "../../utilsNew.js";
+import UtilsNew from "../../core/utilsNew.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import "../commons/view/data-form.js";
 import "../commons/filters/text-field-filter.js";
@@ -231,10 +231,10 @@ class ClinicalAnalysisConsentEditor extends LitElement {
         }
 
         return html`
-            <data-form  .data="${this.clinicalAnalysis}" 
-                        .config="${this._config}" 
-                        @fieldChange="${e => this.onFieldChange(e)}" 
-                        @clear="${this.onClear}" 
+            <data-form  .data="${this.clinicalAnalysis}"
+                        .config="${this._config}"
+                        @fieldChange="${e => this.onFieldChange(e)}"
+                        @clear="${this.onClear}"
                         @submit="${this.onRun}">
             </data-form>
         `;

@@ -15,8 +15,8 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../utilsNew.js";
-import OpencgaCatalogUtils from "../../clients/opencga/opencga-catalog-utils.js";
+import UtilsNew from "../../core/utilsNew.js";
+import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import "./sample-cancer-variant-stats-plots.js";
 import "../variant/opencga-variant-filter.js";
 import "../commons/opencga-active-filters.js";
@@ -734,16 +734,16 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                             <div class="btn-toolbar" role="toolbar" aria-label="toolbar" style="margin: 0px 5px 20px 0px">
                                 <div class="pull-right" role="group">
                                     <div class="btn-group" style="margin-right: 2px">
-                                        <data-form  .data=${this.settings} 
-                                                    .config="${this.getSettingsConfig()}" 
-                                                    @fieldChange="${e => this.onSettingsFieldChange(e)}" 
+                                        <data-form  .data=${this.settings}
+                                                    .config="${this.getSettingsConfig()}"
+                                                    @fieldChange="${e => this.onSettingsFieldChange(e)}"
                                                     @submit="${this.onSettingsOk}">
                                         </data-form>
                                     </div>
                                     <div class="btn-group">
-                                        <data-form  .data=${this.save} 
-                                                    .config="${this.getSaveConfig()}" 
-                                                    @fieldChange="${e => this.onSaveFieldChange(e)}" 
+                                        <data-form  .data=${this.save}
+                                                    .config="${this.getSaveConfig()}"
+                                                    @fieldChange="${e => this.onSaveFieldChange(e)}"
                                                     @submit="${this.onSave}">
                                         </data-form>
                                     </div>
@@ -751,8 +751,8 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                             </div>
                         </div>
                     ` : null}
-                    
-                    <div id="${this._prefix}MainContent">    
+
+                    <div id="${this._prefix}MainContent">
                         <div id="${this._prefix}ActiveFilters">
                             <opencga-active-filters resource="VARIANT"
                                                     .opencgaSession="${this.opencgaSession}"
@@ -768,18 +768,18 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                         </div>
 
                         <div class="main-view">
-                            ${this.executedQuery 
+                            ${this.executedQuery
                                 ? html`
                                     <div class="" style="padding: 0px 15px">
                                         <sample-cancer-variant-stats-plots      .opencgaSession="${this.opencgaSession}"
                                                                                 .query="${this.executedQuery}"
                                                                                 .queries="${this.queries}"
                                                                                 .sampleId="${this.sample?.id}"
-                                                                              
+
                                                                                 @changeSignature="${this.onChangeSignature}"
                                                                                 @changeAggregationStatsResults="${this.onChangeAggregationStatsResults}">
                                         </sample-cancer-variant-stats-plots>
-                                    </div>` 
+                                    </div>`
                                 : html`
                                     <div class="alert alert-info" role="alert" style="margin: 0px 15px">
                                         <i class="fas fa-3x fa-info-circle align-middle"></i> Please select some filters on the left.

@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "./../../../utilsNew.js";
+import UtilsNew from "./../../../core/utilsNew.js";
 
 
 export default class FileQualityFilter extends LitElement {
@@ -166,35 +166,35 @@ export default class FileQualityFilter extends LitElement {
 
     render() {
         return html`
-            
+
             <div id="${this._prefix}FilePassCheckboxDiv" class="subsection-content form-group">
-                <input id="${this._prefix}FilePassCheckbox" type="checkbox" class="${this._prefix}FilterCheckbox" 
+                <input id="${this._prefix}FilePassCheckbox" type="checkbox" class="${this._prefix}FilterCheckbox"
                         @change="${this.filterChange}" .checked="${this.filter === "PASS"}" style="margin-right: 5px" data-cy="filter-pass">
                 <span>Include only <span style="font-weight: bold;">PASS</span> variants</span>
             </div>
-            
+
             ${this._config.showDepth ? html`
                 <form class="form-horizontal subsection-content">
                 <div id="${this._prefix}FileDepthCheckboxDiv" class="subsection-content form-group">
                     <div class="col-md-8">
-                        <input id="${this._prefix}FileDepthCheckbox" type="checkbox" class="${this._prefix}FilterCheckbox" 
+                        <input id="${this._prefix}FileDepthCheckbox" type="checkbox" class="${this._prefix}FilterCheckbox"
                                 @change="${this.onChangeDepthCheckbox}" .checked="${this.depthChecked}" style="margin-right: 5px" data-cy="filter-depth">
                         <span>Select min. <span style="font-weight: bold;">DEPTH</span></span>
                     </div>
                     <div class="col-md-4">
-                        <select-field-filter .data="${this.depths}" .value="${this.depth}" @filterChange="${this.fileDepthChange}" .disabled="${!this.depthChecked}" data-cy="filter-pass-value"></select-field-filter> 
+                        <select-field-filter .data="${this.depths}" .value="${this.depth}" @filterChange="${this.fileDepthChange}" .disabled="${!this.depthChecked}" data-cy="filter-pass-value"></select-field-filter>
                     </div>
                 </div>
             </form>
             ` : null}
-            
+
 
             ${this._config.showQuality
                 ? html`
                     <form class="form-horizontal subsection-content">
                         <div class="form-group row">
                             <div class="col-md-8">
-                                <input id="${this._prefix}FileQualCheckbox" type="checkbox" class="${this._prefix}FilterCheckBox" 
+                                <input id="${this._prefix}FileQualCheckbox" type="checkbox" class="${this._prefix}FilterCheckBox"
                                         @change="${this.onChangeQualCheckBox}" .checked="${this.qualEnabled}" data-cy="filter-qual">
                                 <span>Introduce min. <span style="font-weight: bold;">QUAL</span></span>
                             </div>
@@ -204,7 +204,7 @@ export default class FileQualityFilter extends LitElement {
                         </div>
                     </form>`
                 : null
-        }            
+        }
         `;
     }
 

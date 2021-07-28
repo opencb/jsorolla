@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../utilsNew.js";
+import UtilsNew from "../../core/utilsNew.js";
 import PolymerUtils from "../PolymerUtils.js";
 
 
@@ -483,12 +483,12 @@ export default class OpencgaFacetResultView extends LitElement {
                         </div>`
             : null
         }
-                
+
                 <div id="${this._prefix}Plot"></div>
-    
+
                 <!--Table-->
                 <div>
-                    <table id="${this._prefix}Table" class="table table-bordered" style="display: none;">               
+                    <table id="${this._prefix}Table" class="table table-bordered" style="display: none;">
                         <!-- Facet Field Table -->
                         ${this.facetResult.category ? html`
                             <thead class="table-header bg-primary">
@@ -517,9 +517,9 @@ export default class OpencgaFacetResultView extends LitElement {
                                             <td>${count.value}}</td>
                                             <td>${count.count}}</td>
                                         </tr>
-                                    `}                              
+                                    `}
                                 `) : null}
-                              
+
                             </tbody>
                         ` : html`
                         <!-- Facet Range Table -->

@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../../utilsNew.js";
+import UtilsNew from "../../../core/utilsNew.js";
 import "../../variant/variant-family-genotype-filter.js";
 
 
@@ -219,8 +219,8 @@ export default class SampleFilter extends LitElement {
 
         return html`
             <div>
-                ${this._config.text 
-                    ? html`<div style="padding: 5px 0px">${this._config.text}</div>` 
+                ${this._config.text
+                    ? html`<div style="padding: 5px 0px">${this._config.text}</div>`
                     : null
                 }
                 <div class="text-center">
@@ -229,8 +229,8 @@ export default class SampleFilter extends LitElement {
                     </button>
                 </div>
             </div>
-            
-            ${this._config.showSummary 
+
+            ${this._config.showSummary
                 ? html`
                     <div style="padding: 10px 0px 5px 0px">
                         <div style="padding: 15px 0px;">
@@ -262,10 +262,10 @@ export default class SampleFilter extends LitElement {
                                 }) : null}
                             </tbody>
                         </table>
-                    </div>` 
+                    </div>`
                 : null
             }
-            
+
             <div class="modal fade" id="${this._prefix}SampleGenotypeFilterModal"
                  tabindex="-1" role="dialog" aria-hidden="true" style="padding-top: 0%; overflow-y: visible">
                 <div class="modal-dialog" style="width: 1280px">

@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../../utilsNew.js";
+import UtilsNew from "../../../core/utilsNew.js";
 import "../../text-icon.js";
 import "./opencga-analysis-tool-form.js";
 
@@ -107,15 +107,15 @@ export default class OpencgaAnalysisTool extends LitElement {
             <div class="opencga-analysis-tool">
                 <tool-header title="${this._config.title}" icon="${this._config.icon}" .rhs="${html`<button class="btn btn-default ripple" @click="${e => this.openModal()}"><i class="fas fa-info-circle"></i> Info</button>`}"></tool-header>
                 <!-- <tool-header title="${`<text-icon title="${this._config.title}" acronym="${this._config.acronym ? this._config.acronym : this._config.title[0] + this._config.title[1] + this._config.title[2].toLowerCase()}"></text-icon>` + this._config.title}"></tool-header> -->
-    
+
                 <div class="container">
-                    <opencga-analysis-tool-form .opencgaSession=${this.opencgaSession} 
+                    <opencga-analysis-tool-form .opencgaSession=${this.opencgaSession}
                                                 .cellbaseClient="${this.cellbaseClient}"
                                                 .config="${this._config.form}"
                                                 @analysisRun="${this.onAnalysisRun}">
                     </opencga-analysis-tool-form>
                 </div>
-                
+
                 <div class="modal fade" id="${this._prefix}analysis_description_modal" tabindex="-1" role="dialog">
                     <div class="modal-dialog" role="document">
                         <div class="modal-content">

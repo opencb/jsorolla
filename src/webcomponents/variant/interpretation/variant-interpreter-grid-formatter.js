@@ -16,8 +16,8 @@
 
 import {html} from "/web_modules/lit-element.js";
 import VariantGridFormatter from "../variant-grid-formatter.js";
-import UtilsNew from "../../../utilsNew.js";
-import BioinfoUtils from "../../../bioinfo-utils.js";
+import UtilsNew from "../../../core/utilsNew.js";
+import BioinfoUtils from "../../../core/bioinfo-utils.js";
 
 
 export default class VariantInterpreterGridFormatter {
@@ -246,12 +246,12 @@ export default class VariantInterpreterGridFormatter {
             let message = "";
             if (config) {
                 // Create two different divs to 'show all' or 'apply filter' title
-                message = `<div class="${variantGrid._prefix}${row.id}EvidenceFiltered">Showing <span style="font-weight: bold; color: red">${showArrayIndexes.length}</span> of 
-                                <span style="font-weight: bold; color: red">${row.annotation.consequenceTypes.length}</span> clinical evidences, 
+                message = `<div class="${variantGrid._prefix}${row.id}EvidenceFiltered">Showing <span style="font-weight: bold; color: red">${showArrayIndexes.length}</span> of
+                                <span style="font-weight: bold; color: red">${row.annotation.consequenceTypes.length}</span> clinical evidences,
                                 <a id="${variantGrid._prefix}${row.id}ShowEvidence" data-id="${row.id}" style="cursor: pointer">show all...</a>
                             </div>
-                            <div class="${variantGrid._prefix}${row.id}EvidenceFiltered" style="display: none">Showing <span style="font-weight: bold; color: red">${row.annotation.consequenceTypes.length}</span> of 
-                                <span style="font-weight: bold; color: red">${row.annotation.consequenceTypes.length}</span> clinical evidences, 
+                            <div class="${variantGrid._prefix}${row.id}EvidenceFiltered" style="display: none">Showing <span style="font-weight: bold; color: red">${row.annotation.consequenceTypes.length}</span> of
+                                <span style="font-weight: bold; color: red">${row.annotation.consequenceTypes.length}</span> clinical evidences,
                                 <a id="${variantGrid._prefix}${row.id}HideEvidence" data-id="${row.id}" style="cursor: pointer">apply filters...</a>
                            </div>
                             `;
@@ -374,8 +374,8 @@ export default class VariantInterpreterGridFormatter {
                     for (const so of re.genomicFeature.consequenceTypes) {
                         const color = CONSEQUENCE_TYPES.style[CONSEQUENCE_TYPES.impact[so.name]] || "black";
                         soArray.push(`<div style="color: ${color}; margin-bottom: 5px">
-                                        <span style="padding-right: 5px">${so.name}</span> 
-                                        <a title="Go to Sequence Ontology ${so.accession} term" 
+                                        <span style="padding-right: 5px">${so.name}</span>
+                                        <a title="Go to Sequence Ontology ${so.accession} term"
                                             href="http://www.sequenceontology.org/browser/current_svn/term/${so.accession}" target="_blank">
                                             <i class="fas fa-external-link-alt"></i>
                                         </a>

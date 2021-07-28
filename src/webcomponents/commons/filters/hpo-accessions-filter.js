@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../../utilsNew.js";
+import UtilsNew from "../../../core/utilsNew.js";
 
 
 //TODO FIX in textarea is always used a comma as separator, but in case of loading a saved filter this component could receive a text with semicolon as separator.
@@ -133,7 +133,7 @@ export default class HpoAccessionsFilter extends LitElement {
                 <i class="fa fa-search searchingButton" aria-hidden="true"></i>
                 Add HPO Term
             </button>
-            
+
             <fieldset class="switch-toggle-wrapper">
                     <label style="font-weight: normal;">Logical Operator</label>
                     <div class="switch-toggle text-white alert alert-light">
@@ -149,7 +149,7 @@ export default class HpoAccessionsFilter extends LitElement {
                         <a class="btn btn-primary ripple btn-small"></a>
                     </div>
             </fieldset>
-                
+
             <variant-modal-ontology _prefix=${this._prefix}
                                 ontologyFilter="${this.ontologyFilter}"
                                 term="${this.ontologyTerm}"

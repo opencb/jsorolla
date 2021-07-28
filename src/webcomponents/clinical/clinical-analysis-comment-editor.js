@@ -15,7 +15,7 @@
  */
 
 import {html, LitElement} from "/web_modules/lit-element.js";
-import UtilsNew from "../../utilsNew.js";
+import UtilsNew from "../../core/utilsNew.js";
 
 class ClinicalAnalysisCommentEditor extends LitElement {
 
@@ -225,8 +225,8 @@ class ClinicalAnalysisCommentEditor extends LitElement {
                         <span style="font-weight: bold">${comment.author}</span>
                         <span style="color: darkgrey; margin: 0px 10px">${UtilsNew.dateFormatter(comment.date)}</span>
                         <div style="float: right">
-                            ${comment.tags && comment.tags.includes("STARRED") 
-                                ? html`                                        
+                            ${comment.tags && comment.tags.includes("STARRED")
+                                ? html`
                                         <span style="color: darkgoldenrod" @click="${e => this.onStarClick(comment, "REMOVE", e)}">
                                             <i class="fas fa-star"></i>
                                         </span>`
@@ -271,22 +271,22 @@ class ClinicalAnalysisCommentEditor extends LitElement {
                     </div>
                 </div>
             `)}
-            
-            ${this._config.add 
+
+            ${this._config.add
                 ? html`
                     <div style="${this.commentStatus["ADD"] === "ADD" ? this._config.styles.ADD : this._config.styles.NONE}; margin: 15px 0px">
                         <div style="margin: 5px 10px">
                             <span style="font-weight: bold">New comment</span>
                         </div>
                         <div style="margin: 5px 10px">
-                            <text-field-filter .value="${this.comments?.length ? (this.comments[this.comments.length - 1]?.date ? "" : this.comments[this.comments.length - 1]?.message) : ""}" 
-                                               placeholder="Add comment..." .rows=${2} 
+                            <text-field-filter .value="${this.comments?.length ? (this.comments[this.comments.length - 1]?.date ? "" : this.comments[this.comments.length - 1]?.message) : ""}"
+                                               placeholder="Add comment..." .rows=${2}
                                                @filterChange="${e => this.onAddChange("message", e)}">
                             </text-field-filter>
                         </div>
                         <div style="margin: 5px 10px">
-                            <text-field-filter .value="${this.comments?.length ? (this.comments[this.comments.length - 1]?.date ? "" : this.comments[this.comments.length - 1]?.tags.join(" ")) : ""}" 
-                                               placeholder="Add tags..." .rows=${1} 
+                            <text-field-filter .value="${this.comments?.length ? (this.comments[this.comments.length - 1]?.date ? "" : this.comments[this.comments.length - 1]?.tags.join(" ")) : ""}"
+                                               placeholder="Add tags..." .rows=${1}
                                                @filterChange="${e => this.onAddChange("tags", e)}">
                             </text-field-filter>
                         </div>
@@ -305,7 +305,7 @@ class ClinicalAnalysisCommentEditor extends LitElement {
                                 <button type="button" class="btn btn-primary">Add</button>
                             </span>
                         </div>
-                    </div>` 
+                    </div>`
                 : null
             }
         `;

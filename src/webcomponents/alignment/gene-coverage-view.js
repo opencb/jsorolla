@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../utilsNew.js";
+import UtilsNew from "../../core/utilsNew.js";
 import "../alignment/gene-coverage-grid.js";
 import "../alignment/gene-coverage-detail.js";
 
@@ -82,7 +82,7 @@ export default class GeneCoverageView extends LitElement {
                                 .transcriptCoverageStats="${this.geneCoverageStats?.stats}"
                                 @selectrow="${e => this.onClickRow(e)}">
             </gene-coverage-grid>
-            <gene-coverage-detail   .transcriptCoverageStats="${this.transcriptCoverageStats}" 
+            <gene-coverage-detail   .transcriptCoverageStats="${this.transcriptCoverageStats}"
                                     .config="${this._config}" .opencgaSession="${this.opencgaSession}">
             </gene-coverage-detail>
         `;

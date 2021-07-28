@@ -15,7 +15,7 @@
  */
 
 import {html, LitElement} from "/web_modules/lit-element.js";
-import UtilsNew from "../../utilsNew.js";
+import UtilsNew from "../../core/utilsNew.js";
 import {NotificationQueue} from "../Notification.js";
 import GridCommons from "../commons/grid-commons.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
@@ -545,7 +545,7 @@ export default class OpencgaIndividualGrid extends LitElement {
                     </opencb-grid-toolbar>` :
                 null
             }
-    
+
             <div id="${this._prefix}GridTableDiv">
                 <table id="${this._prefix}IndividualBrowserGrid"></table>
             </div>

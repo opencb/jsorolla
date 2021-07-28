@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../utilsNew.js";
+import UtilsNew from "../../core/utilsNew.js";
 import "../commons/view/data-form.js";
 
 
@@ -135,7 +135,7 @@ export default class OpencgaIndividualMendelianErrorsView extends LitElement {
                         `)}
                     </tbody>
                 </table>
-                
+
                 <!-- Print errors for Individual -->
                 <h4 style="padding-top: 15px">Mendelian Errors of ${this.individual.id}</h4>
                 <table class="table table-hover table-no-bordered">
@@ -185,15 +185,15 @@ export default class OpencgaIndividualMendelianErrorsView extends LitElement {
                         <i class="fa fa-download pad5" aria-hidden="true" style="padding-right: 10px"></i> Download <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu btn-sm">
-                        ${this._config.download && this._config.download.length 
+                        ${this._config.download && this._config.download.length
                             ? this._config.download.map(item => html`
-                                <li><a href="javascript: void 0" data-download-option="${item}" @click="${this.onDownload}">${item}</a></li>`) 
+                                <li><a href="javascript: void 0" data-download-option="${item}" @click="${this.onDownload}">${item}</a></li>`)
                             : null
                         }
                     </ul>
                 </div>
-                     
-                <div>         
+
+                <div>
                     ${this.renderTable()}
                 </div>
             </div>

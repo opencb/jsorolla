@@ -15,9 +15,9 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../utilsNew.js";
+import UtilsNew from "../../core/utilsNew.js";
 import {NotificationQueue} from "../Notification.js";
-import {RestResponse} from "../../clients/rest-response.js";
+import {RestResponse} from "../../core/clients/rest-response.js";
 
 
 export default class OpencgaLogin extends LitElement {
@@ -178,16 +178,16 @@ export default class OpencgaLogin extends LitElement {
             #formLogin .input-group-addon{
                 background: none;
             }
-            
+
             .login-box {
                 padding: 20px;
                 margin-bottom: 20px;
             }
-            
+
             .has-error .form-control:focus {
-            
+
             }
-            
+
             opencga-login #error {
                 max-width: 316px;
                 word-break: break-word;

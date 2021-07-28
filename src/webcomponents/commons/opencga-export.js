@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import {classMap} from "/web_modules/lit-html/directives/class-map.js";
-import UtilsNew from "../../utilsNew.js";
+import UtilsNew from "../../core/utilsNew.js";
 import {NotificationQueue} from "../Notification.js";
 
 
@@ -268,7 +268,7 @@ const client = new OpenCGAClient({
         return html`
             <style>
 
-                
+
             </style>
             <div>
                 <ul class="nav nav-tabs">
@@ -280,7 +280,7 @@ const client = new OpenCGAClient({
             <div class="tab-content">
                 <div id="plain_text" class="tab-pane active">
                     <form class="form-horizontal">
-                        
+
                         <div class="form-group">
                             <div class="col-md-12">
                                 <div class="form-group">
@@ -347,7 +347,7 @@ const client = new OpenCGAClient({
                                 <button type="button" class="btn btn-primary btn-lg ripple" @click="${this.launchJob}">Launch job</button>`
                             }
                     </div>
-                    
+
                 </div>
 
 
@@ -389,7 +389,7 @@ const client = new OpenCGAClient({
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div class="modal-footer">
                             <button type="button" class="btn btn-default ripple" data-dismiss="modal">Close</button>
                         </div>

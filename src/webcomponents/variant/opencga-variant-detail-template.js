@@ -15,8 +15,8 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../utilsNew.js";
-import Region from "./../../region.js";
+import UtilsNew from "../../core/utilsNew.js";
+import Region from "./../";
 
 class OpencgaVariantDetailTemplate extends LitElement {
 

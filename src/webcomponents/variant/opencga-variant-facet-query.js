@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../utilsNew.js";
+import UtilsNew from "../../core/utilsNew.js";
 import PolymerUtils from "../PolymerUtils.js";
 import "../commons/opencga-facet-result-view.js";
 import "../loading-spinner.js";
@@ -270,14 +270,14 @@ class OpencgaVariantFacetQuery extends LitElement {
 
         <div class="row">
             <!-- RESULTS - Facet Plots -->
-            ${this.active ? html` 
+            ${this.active ? html`
             <div class="col-md-12">
                 <div>
                     <button type="button" class="btn btn-primary ripple pull-right" @click="${this.facetSearch}">Run Advanced facet query</button>
                 </div>
                 <div >
                     <h2>Results</h2>
-                    
+
                     <div id="loading" style="display: none">
                         <loading-spinner></loading-spinner>
                     </div>

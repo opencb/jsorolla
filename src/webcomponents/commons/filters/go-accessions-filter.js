@@ -16,7 +16,7 @@
 
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../../utilsNew.js";
+import UtilsNew from "../../../core/utilsNew.js";
 import PolymerUtils from "../../PolymerUtils.js";
 
 export default class GoAccessionsFilter extends LitElement {
@@ -124,14 +124,14 @@ export default class GoAccessionsFilter extends LitElement {
             .geneOntologyMonitor span {
                 display: block;
             }
-            
-           
+
+
             </style>
             <textarea id="${this._prefix}GeneOntologyTextarea" class="form-control clearable ${this._prefix}FilterTextInput"
                                 rows="3" name="geneOntology" placeholder="GO:0000145" @input="${this.filterChange}"></textarea>
             <button class="btn btn-primary ripple full-width" id="${this._prefix}buttonOpenGoAccesions" @click="${this.onOntologyModalOpen}">
                 <i class="fa fa-search" aria-hidden="true"></i>  Add GO Term
-                
+
             </button>
             <p class="bg-warning geneOntologyMonitor" id="${this._prefix}GeneOntologyMonitor"></p>
 

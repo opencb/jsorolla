@@ -17,7 +17,7 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import {classMap} from "/web_modules/lit-html/directives/class-map.js";
 import ClinicalAnalysisUtils from "../../clinical/clinical-analysis-utils.js";
-import UtilsNew from "../../../utilsNew.js";
+import UtilsNew from "../../../core/utilsNew.js";
 import "../../alignment/gene-coverage-view.js";
 
 class VariantInterpreterQcGeneCoverageStats extends LitElement {
@@ -149,14 +149,14 @@ class VariantInterpreterQcGeneCoverageStats extends LitElement {
             <div class="gene-coverage-stats">
                 <div class="btn-group content-pills" role="toolbar" aria-label="toolbar">
                     <div class="btn-group" role="group">
-                        ${this.geneCoverageStats 
+                        ${this.geneCoverageStats
                             ? this.geneCoverageStats.map( geneCoverageStats => html`
                                 <div class="btn-group">
-                                    <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab[geneCoverageStats.geneName]})}" 
+                                    <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab[geneCoverageStats.geneName]})}"
                                             @click="${this.onClickPill}" data-id="${geneCoverageStats.geneName}" style="margin: 0px 1px">
-                                        ${geneCoverageStats.geneName} 
+                                        ${geneCoverageStats.geneName}
                                     </button>
-                                </div>`) 
+                                </div>`)
                             : null}
                     </div>
                 </div>

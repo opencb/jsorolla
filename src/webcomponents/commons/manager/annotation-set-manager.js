@@ -18,7 +18,7 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import {BaseManagerMixin} from "./base-manager.js";
 import "../../commons/filters/variableset-id-autocomplete.js";
 import "./annotation-manager.js";
-import FormUtils from "../../../form-utils.js";
+import FormUtils from "../../../core/form-utils.js";
 
 
 // eslint-disable-next-line new-cap

@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../../utilsNew.js";
+import UtilsNew from "../../../core/utilsNew.js";
 import "./variant-interpreter-qc-summary.js";
 import "./variant-interpreter-qc-variant-stats.js";
 import "./variant-interpreter-qc-inferred-sex.js";
@@ -246,14 +246,14 @@ class VariantInterpreterQcOverview extends LitElement {
             <div class="row variant-interpreter-overview" style="padding: 10px 15px">
                 <div class="col-md-2 list-group interpreter-side-nav side-tabs side-nav">
                     ${this._config.sections[0].fields.filter(field => !field.disabled).map((field, i) => {
-                        return html`<button type="button" 
-                                        class="list-group-item ${i === 0 ? "active" : ""}" 
-                                        data-id="${field.id}" 
+                        return html`<button type="button"
+                                        class="list-group-item ${i === 0 ? "active" : ""}"
+                                        data-id="${field.id}"
                                         @click="${this.onSideNavClick}">${field.title}
                                     </button>`;
                     })}
                 </div>
-                
+
                 <div class="col-md-10">
                     <div class="content-tab-wrapper interpreter-content-tab" style="margin: 0px 10px">
                         <div id="${this._prefix}Summary" role="tabpanel" class="tab-pane content-tab active">
@@ -262,10 +262,10 @@ class VariantInterpreterQcOverview extends LitElement {
                                                             .clinicalAnalysis=${this.clinicalAnalysis}>
                             </variant-interpreter-qc-summary>
                         </div>
-                         
+
                         <div id="${this._prefix}VariantStats" role="tabpanel" class="tab-pane content-tab">
                             <h3>QC Plot Files</h3>
-                            <sample-files-view .sampleId="${this.clinicalAnalysis.proband.samples?.[1]?.id}" 
+                            <sample-files-view .sampleId="${this.clinicalAnalysis.proband.samples?.[1]?.id}"
                                                .mode="${"sample-qc"}"
                                                .opencgaSession="${this.opencgaSession}">
                             </sample-files-view>
@@ -277,40 +277,40 @@ class VariantInterpreterQcOverview extends LitElement {
                                                .opencgaSession="${this.opencgaSession}">
                             </sample-files-view>
                         </div>
-                        
+
                         <div id="${this._prefix}InferredSex" role="tabpanel" class="tab-pane content-tab">
                             <h3>Inferred Sex</h3>
-                            <variant-interpreter-qc-inferred-sex    .opencgaSession=${this.opencgaSession} 
+                            <variant-interpreter-qc-inferred-sex    .opencgaSession=${this.opencgaSession}
                                                                     .clinicalAnalysis="${this.clinicalAnalysis}">
                             </variant-interpreter-qc-inferred-sex>
                         </div>
-                                                
+
                         <div id="${this._prefix}MendelianErrors" role="tabpanel" class="tab-pane content-tab">
                             <h3>Mendelian Errors</h3>
-                            <variant-interpreter-qc-mendelian-errors    .opencgaSession=${this.opencgaSession} 
+                            <variant-interpreter-qc-mendelian-errors    .opencgaSession=${this.opencgaSession}
                                                                         .clinicalAnalysis="${this.clinicalAnalysis}">
                             </variant-interpreter-qc-mendelian-errors>
                         </div>
-                        
+
                         <div id="${this._prefix}Relatedness" role="tabpanel" class="tab-pane content-tab">
                             <h3>Relatedness</h3>
-                            <variant-interpreter-qc-relatedness     .opencgaSession=${this.opencgaSession} 
+                            <variant-interpreter-qc-relatedness     .opencgaSession=${this.opencgaSession}
                                                                     .clinicalAnalysis="${this.clinicalAnalysis}">
                             </variant-interpreter-qc-relatedness>
                         </div>
-                        
+
                         <div id="${this._prefix}Alignment" role="tabpanel" class="tab-pane content-tab">
                             <h3>Samtools Stats</h3>
                             <alignment-stats-view .opencgaSession=${this.opencgaSession}
                                                   .alignmentStats="${this.alignmentStats}">
                             </alignment-stats-view>
                         </div>
-                        
+
                         <div id="${this._prefix}AlignmentStats" role="tabpanel" class="tab-pane content-tab">
                             <h3>Samtools Flagstats</h3>
-                            <variant-interpreter-qc-alignment-stats .opencgaSession=${this.opencgaSession} 
+                            <variant-interpreter-qc-alignment-stats .opencgaSession=${this.opencgaSession}
                                                                     .clinicalAnalysis="${this.clinicalAnalysis}">
-                            </variant-interpreter-qc-alignment-stats>                                
+                            </variant-interpreter-qc-alignment-stats>
                         </div>
 
                         <div id="${this._prefix}GenomicContext" role="tabpanel" class="tab-pane content-tab">
@@ -319,10 +319,10 @@ class VariantInterpreterQcOverview extends LitElement {
                                                                   .clinicalAnalysis="${this.clinicalAnalysis}">
                             </variant-interpreter-qc-signature>
                         </div>
-                        
+
                         <div id="${this._prefix}GeneCoverageStats" role="tabpanel" class="tab-pane content-tab">
                             <h3>Gene Coverage Stats</h3>
-                            <variant-interpreter-qc-gene-coverage-stats  .opencgaSession=${this.opencgaSession} 
+                            <variant-interpreter-qc-gene-coverage-stats  .opencgaSession=${this.opencgaSession}
                                                                          .clinicalAnalysis="${this.clinicalAnalysis}">
                             </variant-interpreter-qc-gene-coverage-stats>
                         </div>

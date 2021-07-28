@@ -17,7 +17,7 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import {classMap} from "/web_modules/lit-html/directives/class-map.js";
-import UtilsNew from "../../../../utilsNew.js";
+import UtilsNew from "../../../../core/utilsNew.js";
 import "./../../../commons/filters/select-field-filter.js";
 
 export default class OpencgaAnnotationFilterModal extends LitElement {
@@ -314,8 +314,8 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
                             pattern="${variable?.attributes?.pattern ?? null}"
                             aria-describedby="basic-addon1" @input="${this.addInputFilter}" .value="${this.selectedVariables?.[variableSet.id]?.[variable.id]?.value || ""}"/>
                     </div>`}
-                    
-                        
+
+
                     `;
                 break;
             case "TEXT":
@@ -407,19 +407,19 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
                     margin: 5px 0;
                     border: 1px solid #d2d2d2;
                     border-radius: 3px;
-                } 
+                }
                 .variable-object-title {
                     font-size: 1.5em;
                 }
-                
+
                 .annotation-modal .tab-pane {
                     padding-top: 20px;
                 }
-                
+
                 .variable-set-description {
                     margin: 5px 0 20px 0;
                 }
-                
+
                 .numeric-variable .operator-select {
                     width: 20% !important;
                 }
@@ -427,7 +427,7 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
                     width: 78% !important;
                 }
             </style>
-           
+
             ${this.variableSets?.length ? html`
                 <button type="button" class="btn btn-default" @click="${this.showModal}"> Annotation </button>
                 <div class="modal fade annotation-modal" id="${this._prefix}annotation-modal" role="dialog"
@@ -446,7 +446,7 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
                                     </li>
                                 `)}
                             </ul>
-                            
+
                             <div class="tab-content">
                                 ${this.variableSets.map((variableSet, i) => html`
                                     <div role="tabpanel" class="tab-pane ${classMap({"active": i === 0})}" id="${variableSet.id}_tab">
@@ -458,14 +458,14 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
                                 `)}
                             </div>
                         </div>
-            
+
                         <div class="modal-footer">
                             <button type="button" class="btn btn-primary ripple" @click="${this.closeModal}">OK</button>
                         </div>
                     </div>
                 </div>
             </div>
-            ` : html`<p>No variableSets defined in the study</p>`} 
+            ` : html`<p>No variableSets defined in the study</p>`}
         `;
     }
 

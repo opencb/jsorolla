@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../utilsNew.js";
+import UtilsNew from "../../core/utilsNew.js";
 import GridCommons from "../commons/grid-commons.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import "../commons/opencb-grid-toolbar.js";
@@ -350,7 +350,7 @@ export default class OpencgaJobGrid extends LitElement {
                                                         <th>Creation Date</th>
                                                         <th>Visited</th>
                                                     </tr>
-                                                </thead>                    
+                                                </thead>
                                                 <tbody>
                                                     ${row.dependsOn.map(job => `
                                                         <tr class="detail-view-row">

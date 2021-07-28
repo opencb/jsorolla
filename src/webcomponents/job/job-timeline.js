@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../utilsNew.js";
+import UtilsNew from "../../core/utilsNew.js";
 
 
 export default class JobTimeline extends LitElement {
@@ -307,39 +307,39 @@ export default class JobTimeline extends LitElement {
                 font-family: sans-serif;
                 font-size: 12px;
             }
-            
+
             #jobs-timeline .slide-container {
                 text-align: center;
                 height: 45px;
                 display: inline-block;
             }
-            
+
             #jobs-timeline .slide-container:first-child {
                 margin-right: 10px;
             }
-            
+
             #jobs-timeline .slide-container span {
-                display: block;   
+                display: block;
             }
-            
+
             #jobs-timeline .toolbar {
                 /* width: 480px;*/
                 float: right;
                 margin-bottom: 10px;
             }
-            
+
             #svg-timeline {
                 overflow: auto;
                 clear: both;
             }
-            
+
             #jobs-timeline .edge-radio-container {
                 width: 210px;
                 display: inline-block;
                 vertical-align: middle;
                 text-align: center;
             }
-            
+
         </style>
         <div id="jobs-timeline">
             <div class="toolbar">
@@ -352,7 +352,7 @@ export default class JobTimeline extends LitElement {
                     <label for="edge-onclick" ><span class="${this._prefix}-text">On click</span></label>
                     <a class="btn btn-primary ripple btn-small"></a>
                 </div>-->
-            </fieldset>      
+            </fieldset>
                 <div class="slide-container">
                     <label>Height</label>
                     <input type="range" min="30" max="150" value="40" class="slider" step="10" id="svg-height" @change="${this.setHeight}" @mousedown="${this.resizing}" @mouseup="${this.resizing}">
@@ -364,7 +364,7 @@ export default class JobTimeline extends LitElement {
             </div>
             <div id="loading" style="display: none">
                 <loading-spinner></loading-spinner>
-            </div> 
+            </div>
             <div id="svg-timeline">
             </div>
         </div>

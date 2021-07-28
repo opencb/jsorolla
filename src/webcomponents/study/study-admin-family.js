@@ -19,7 +19,7 @@ import DetailTabs from "../commons/view/detail-tabs.js";
 import "./../family/family-create.js";
 import "./../family/family-update.js";
 import "./../family/family-view.js";
-import UtilsNew from "./../../utilsNew.js";
+import UtilsNew from "./../../core/utilsNew.js";
 import FamilyForm from "./../family/family-create.js";
 
 export default class StudyAdminFamily extends LitElement {

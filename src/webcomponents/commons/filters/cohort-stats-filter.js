@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../../utilsNew.js";
+import UtilsNew from "../../../core/utilsNew.js";
 
 
 export default class CohortStatsFilter extends LitElement {
@@ -145,16 +145,16 @@ export default class CohortStatsFilter extends LitElement {
         }
 
         return html`
-            ${this.cohortsPerStudy 
+            ${this.cohortsPerStudy
             .map(study => html`
                 <div style="padding: 5px 0px">
                     <div style="padding-bottom: 5px">
                         <i id="${this._prefix}${this.getStudyIdFromFqn(study.fqn)}Icon" data-id="${this._prefix}${this.getStudyIdFromFqn(study.fqn)}"
                            data-cy="study-cohort-toggle" class="fa fa-plus" style="cursor: pointer;padding-right: 10px"
                            @click="${this.handleCollapseAction}"></i>
-                        <span class="break-word">Study <strong>${this.getStudyIdFromFqn(study.fqn)}</strong> cohorts</span> 
+                        <span class="break-word">Study <strong>${this.getStudyIdFromFqn(study.fqn)}</strong> cohorts</span>
                     </div>
-                    
+
                     <div class="form-horizontal" id="${this._prefix}${this.getStudyIdFromFqn(study.fqn)}" hidden>
                         ${study.cohorts
                                 .map(cohort => html`

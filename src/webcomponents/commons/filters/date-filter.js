@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../../utilsNew.js";
+import UtilsNew from "../../../core/utilsNew.js";
 import "./select-field-filter.js";
 
 
@@ -202,7 +202,7 @@ export default class DateFilter extends LitElement {
 
     render() {
         return html`
-        <style>            
+        <style>
             .range-box:nth-child(2) {
                 margin-top: 20px;
             }
@@ -210,14 +210,14 @@ export default class DateFilter extends LitElement {
             .date-field-wrapper .col-md-4 {
                 padding: 0 5px 0 0;
             }
-            
+
             .date-field-wrapper [data-type=recent] {
                 max-width: 70px;
             }
-            
+
             .date-field-wrapper .col-md-4:last-child {
                 padding: 0;
-            }            
+            }
         </style>
 
         <div class="form-group">
@@ -226,20 +226,20 @@ export default class DateFilter extends LitElement {
                     <div class="switch-toggle text-white">
                         <input type="radio" data-tab="all" name="selectionButtons" id="${this._prefix}allRadio" value="all" class="${this._prefix}FilterRadio" .checked="${this.activeTab === "all"}" @change="${this.onFilterChange}">
                         <label for="${this._prefix}allRadio" ><span class="${this._prefix}-text">All</span></label>
-                    
+
                         <input type="radio" data-tab="recent" name="selectionButtons" id="${this._prefix}recentlyRadio" value="recent" class="${this._prefix}FilterRadio" .checked="${this.activeTab === "recent"}" @change="${this.onFilterChange}">
                         <label for="${this._prefix}recentlyRadio" ><span class="${this._prefix}-text">Recent</span></label>
-                    
+
                         <input type="radio" data-tab="date" name="selectionButtons" id="${this._prefix}dateRadio" value="date" class="${this._prefix}FilterRadio" .checked="${this.activeTab === "date"}" @change="${this.onFilterChange}">
                         <label for="${this._prefix}dateRadio" ><span class="${this._prefix}-text">Date</span></label>
-             
+
                         <input type="radio" data-tab="range" name="selectionButtons" id="${this._prefix}rangesRadio" value="range" class="${this._prefix}FilterRadio" .checked="${this.activeTab === "range"}" @change="${this.onFilterChange}">
                         <label for="${this._prefix}rangesRadio" ><span class="${this._prefix}-text">Range</span></label>
-                        
+
                         <a class="btn btn-primary ripple btn-small"></a>
                     </div>
-                </fieldset>            
-            
+                </fieldset>
+
                 <div class="container-fluid">
                     ${this.activeTab === "recent" ? html`
                         <div data-cy="date-recent">
@@ -252,7 +252,7 @@ export default class DateFilter extends LitElement {
                             </form>
                         </div>
                     ` : null}
-                    
+
                     ${this.activeTab === "date" ? html`
                         <div data-cy="date-single">
                             <form class="row date-field-wrapper">
@@ -268,8 +268,8 @@ export default class DateFilter extends LitElement {
                             </form>
                         </div>
                     ` : null}
-    
-                    
+
+
                     ${this.activeTab === "range" ? html`
                         <div data-cy="date-range">
                             <div class="range-box">

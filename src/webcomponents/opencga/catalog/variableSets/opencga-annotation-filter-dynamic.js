@@ -1,5 +1,5 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../../../utilsNew.js";
+import UtilsNew from "../../../../core/utilsNew.js";
 import PolymerUtils from "../../../PolymerUtils.js";
 import {NotificationQueue} from "../../../Notification.js";
 import "./opencga-variable-selector.js";
@@ -393,7 +393,7 @@ export default class OpencgaAnnotationFilterDynamic extends LitElement {
             .plus-button:hover {
                 color: #009c2c;
             }
-            
+
             .annotation-filter-div label{
                 font-weight: bold;
                 font-size: .9em;
@@ -401,12 +401,12 @@ export default class OpencgaAnnotationFilterDynamic extends LitElement {
             .variable-set-wrapper {
                 padding-bottom: 10px;
             }
-            
+
             .variable-set-wrapper .variable {
                 margin: 15px 0;
             }
-            
-            
+
+
         </style>
         <div id="${this._prefix}-main-annotation-filter-div" class="${this._prefix}-annotation-filter-div">
         ${!this.variableSets.length ? html`
@@ -419,7 +419,7 @@ export default class OpencgaAnnotationFilterDynamic extends LitElement {
                                 @change="${e => this.onChangeSelectedVariable(e, variableSet.id)}" data-width="100%" ?multiple="${this._config.multiSelection}">
                         ${variableSet.variables.map((variable, i) => {
                             return html`
-                                <option data-tokens="${variable.tags}" data-index="${i}" 
+                                <option data-tokens="${variable.tags}" data-index="${i}"
                                         style="padding-left: ${variable.margin}px; cursor: ${variable.cursor};"
                                         ?disabled="${variable.disabled}">
                                     ${variable.id}

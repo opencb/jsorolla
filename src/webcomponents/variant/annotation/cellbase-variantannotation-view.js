@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../../utilsNew.js";
+import UtilsNew from "../../../core/utilsNew.js";
 import "./cellbase-variant-annotation-summary.js";
 import "./variant-consequence-type-view.js";
 import "./cellbase-population-frequency-grid.js";
@@ -179,7 +179,7 @@ export default class CellbaseVariantAnnotationView extends LitElement {
                             Trait Association (${this.numberGTA})</a></li>
                     </ul>
                 </div>` : null}
-        
+
             <!-- This renders a horizontal menu, this is controlled by the mode property -->
             ${this.checkHorizontal(this.mode) ? html`
                 <ul id="${this._prefix}myTabs" class="nav nav-tabs" role="tablist">
@@ -258,8 +258,8 @@ export default class CellbaseVariantAnnotationView extends LitElement {
                         </div>` : html`
                             <div>No ClinVar data available</div>
                         `}
-                        
-                        
+
+
                         <h4>Cosmic</h4>
                         ${this.variantAnnotation.variantTraitAssociation && this.variantAnnotation.variantTraitAssociation.cosmic ? html`
                             <table class="table table-hover table-bordered">
@@ -296,10 +296,10 @@ export default class CellbaseVariantAnnotationView extends LitElement {
                             No Cosmic data available
                         `}
                     ` : html`No ClinVar and Cosmic data available`}
-                    
+
                 </div>
             </div>
-            
+
         </div>` : null }
 </div>
         `;

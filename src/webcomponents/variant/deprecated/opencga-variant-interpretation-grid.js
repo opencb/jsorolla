@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../../utilsNew.js";
+import UtilsNew from "../../../core/utilsNew.js";
 import PolymerUtils from "../../PolymerUtils.js";
 import VariantGridFormatter from "../variant-grid-formatter.js";
 import VariantUtils from "../variant-utils.js";

@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../../utilsNew.js";
+import UtilsNew from "../../../core/utilsNew.js";
 import PolymerUtils from "../../PolymerUtils.js";
 
 export default class CaddFilter extends LitElement {
@@ -129,10 +129,10 @@ export default class CaddFilter extends LitElement {
                         <input type="number" value="" class="${this._prefix}FilterTextInput form-control input-sm"
                                id="${this._prefix}CaddRawInput" name="caddRaw" @input="${this.filterChange}">
                     </div>
-            
+
                 </div>
             </div>
-            
+
             <div style="padding-top: 10px">
                 <div class="row">
                     <span class="col-md-5 control-label" style="padding-right: 5px">Scaled</span>

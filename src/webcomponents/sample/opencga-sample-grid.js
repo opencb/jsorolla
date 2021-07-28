@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../utilsNew.js";
+import UtilsNew from "../../core/utilsNew.js";
 import GridCommons from "../commons/grid-commons.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import CatalogWebUtils from "../commons/catalog-web-utils.js";
@@ -334,27 +334,27 @@ export default class OpencgaSampleGrid extends LitElement {
                             </li>
                             <li role="separator" class="divider"></li>
                             <li>
-                                <a data-action="variantStats" class="btn force-text-left" 
+                                <a data-action="variantStats" class="btn force-text-left"
                                         href="#sampleVariantStatsBrowser/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}">
-                                    <i class="fas fa-user icon-padding" aria-hidden="true"></i> Variant Stats Browser 
+                                    <i class="fas fa-user icon-padding" aria-hidden="true"></i> Variant Stats Browser
                                 </a>
                             </li>
                             <li>
-                                <a data-action="cancerVariantStats" class="btn force-text-left ${row.somatic ? "" : "disabled"}" 
+                                <a data-action="cancerVariantStats" class="btn force-text-left ${row.somatic ? "" : "disabled"}"
                                         href="#sampleCancerVariantStatsBrowser/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}">
-                                    <i class="fas fa-user icon-padding" aria-hidden="true"></i> Cancer Variant Plots 
+                                    <i class="fas fa-user icon-padding" aria-hidden="true"></i> Cancer Variant Plots
                                 </a>
                             </li>
                             <li>
-                                <a data-action="qualityControl" class="btn force-text-left ${row.qualityControl?.metrics && row.qualityControl.metrics.length === 0 ? "" : "disabled"}" 
+                                <a data-action="qualityControl" class="btn force-text-left ${row.qualityControl?.metrics && row.qualityControl.metrics.length === 0 ? "" : "disabled"}"
                                         title="${row.qualityControl?.metrics && row.qualityControl.metrics.length === 0 ? "Launch a job to calculate Quality Control stats" : "Quality Control stats already calculated"}">
-                                    <i class="fas fa-rocket icon-padding" aria-hidden="true"></i> Calculate Quality Control 
+                                    <i class="fas fa-rocket icon-padding" aria-hidden="true"></i> Calculate Quality Control
                                 </a>
                             </li>
                             <li>
-                                <a data-action="interpreter" class="btn force-text-left ${row.attributes.OPENCGA_CLINICAL_ANALYSIS ? "" : "disabled"}" 
+                                <a data-action="interpreter" class="btn force-text-left ${row.attributes.OPENCGA_CLINICAL_ANALYSIS ? "" : "disabled"}"
                                         href="#interpreter/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.attributes.OPENCGA_CLINICAL_ANALYSIS?.id}">
-                                    <i class="fas fa-user-md icon-padding" aria-hidden="true"></i> Case Interpreter 
+                                    <i class="fas fa-user-md icon-padding" aria-hidden="true"></i> Case Interpreter
                                 </a>
                             </li>
                             <li role="separator" class="divider"></li>
@@ -447,7 +447,7 @@ export default class OpencgaSampleGrid extends LitElement {
                     </opencb-grid-toolbar>` :
                 null
             }
-    
+
             <div id="${this._prefix}GridTableDiv" class="force-overflow">
                 <table id="${this._prefix}SampleBrowserGrid"></table>
             </div>

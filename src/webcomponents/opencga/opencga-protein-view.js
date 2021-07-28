@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../utilsNew.js";
+import UtilsNew from "../../core/utilsNew.js";
 import PolymerUtils from "../PolymerUtils.js";
 import "../variant/variant-browser-grid.js";
 
@@ -315,7 +315,7 @@ export default class OpencgaProteinView extends LitElement {
                             <br>
                         </div>
                     </div>
-    
+
                 </div>
             ` : null}
             <!--SVG-->
@@ -360,7 +360,7 @@ export default class OpencgaProteinView extends LitElement {
                                         style="font-size: 12px"
                                         @selectvariant="onSelectVariant">
                 </variant-browser-grid>
-                
+
                  <!-- Bottom tabs with specific variant information -->
                 ${this.checkVariant(this.variant) ? html`
                     <div style="padding-top: 20px; height: 400px">

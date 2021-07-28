@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../utilsNew.js";
+import UtilsNew from "../../core/utilsNew.js";
 import "../commons/simple-chart.js";
 import "../commons/view/data-form.js";
 
@@ -291,7 +291,7 @@ class SampleVariantStatsView extends LitElement {
                                                 </div>
                                                 <div class="col-md-5 col-md-offset-1">
                                                     <simple-chart .active="${true}" type="pie" title="VCF Filter" .data="${variantStats.stats.filterCount}"></simple-chart>
-                                                </div>  
+                                                </div>
                                             </div>
                                         `;
                                     }

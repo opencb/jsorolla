@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../../utilsNew.js";
+import UtilsNew from "../../../core/utilsNew.js";
 import "./select-field-filter.js";
 
 export default class ConsequenceTypeSelectFilter extends LitElement {
@@ -435,20 +435,20 @@ export default class ConsequenceTypeSelectFilter extends LitElement {
                                 @click="${e => this.onPresetSelect(alias.name, e)}">
                             <label class="text" for="${this._prefix}${alias.name}" style="font-weight: normal">
                                 <span style="margin: 0px 5px">${alias.name}</span> (<span title="${alias.terms.join(", ")}" style="color: #286090"> ${alias.terms?.length} terms </span>)
-                            </label>                            
+                            </label>
                         </div>`)
                     }
                     ` : null
-                }    
+                }
             </div>
 
             <div class="form-group">
                 <div style="margin: 5px 0px">
                     <span>Custom consequence types selection:</span>
                 </div>
-                <select-field-filter multiple liveSearch=${"true"} .data="${this.options}" .value=${this._ct} 
+                <select-field-filter multiple liveSearch=${"true"} .data="${this.options}" .value=${this._ct}
                     @filterChange="${this.onFilterChange}">
-                </select-field-filter>            
+                </select-field-filter>
             </div>
         `;
     }

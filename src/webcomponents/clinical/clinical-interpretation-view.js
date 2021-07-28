@@ -17,13 +17,13 @@
 // todo check functionality (there is a _render() method and explicit calls to render())
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../utilsNew.js";
+import UtilsNew from "../../core/utilsNew.js";
 import PolymerUtils from "../PolymerUtils.js";
 
 import "../variant/annotation/cellbase-variantannotation-view.js";
 import "../variant/variant-beacon-network.js";
 import "../variant/variant-genome-browser.js";
-import "../../../genome-browser/webcomponent/genome-browser.js";
+import "../../genome-browser/webcomponent/genome-browser.js";
 
 export default class ClinicalInterpretationView extends LitElement {
 
@@ -645,7 +645,7 @@ export default class ClinicalInterpretationView extends LitElement {
                     font-size: 115%;
                     font-weight: bold;
                 }
-        
+
                 .file-metrics-table-FILTER {
                     border-bottom: 2px solid #ccc;
                 }
@@ -654,17 +654,17 @@ export default class ClinicalInterpretationView extends LitElement {
 
             <div class="container-fluid" id="${this._prefix}container-interpretation-view">
                 <div class="row">
-        
+
                     <div id="${this._prefix}mainIntepretation" class="">
-        
+
                         ${this.config.summary ? html`
                                 <!--<h2 style="border-bottom-width: 1px;border-bottom-style: solid;border-bottom-color: #ddd">-->
                                 <h2 style="">
                                     Interpretation Analysis: ${this.interpretation.name}
                                 </h2>
                                 <hr style="margin-top: 5px">
-            
-            
+
+
                                 <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
                                     <div class="panel panel-default">
                                         <div class="panel-heading" role="tab" id="headingTwo">
@@ -774,7 +774,7 @@ export default class ClinicalInterpretationView extends LitElement {
                                                                         `) : null}
                                                                     </span>
                                                             </div>
-            
+
                                                             <div class="form-group" style="margin: 0px 2px">
                                                                 <label class="col-md-4">Pedigree:</label>
                                                                 <span class="col-md-8">
@@ -790,7 +790,7 @@ export default class ClinicalInterpretationView extends LitElement {
                                                         </form>
                                                     </div>
                                                 </div>
-            
+
                                                 <div class="col-md-12">
                                                     <br>
                                                     <div class="col-md-4">
@@ -860,18 +860,18 @@ export default class ClinicalInterpretationView extends LitElement {
                                                     </div>
                                                 </div>
                                             </div>
-            
+
                                         </div>
                                     </div>
                                 </div>
                             ` : null }
-                        
-        
-        
+
+
+
                         <div style="padding-top: 5px">
                             <h2 style="border-bottom-width: 1px;border-bottom-style: solid;border-bottom-color: #ddd">Reported
                                 Variants</h2>
-        
+
                             <div class="panell panel--default">
                                 <div class="panel--body">
                                     <!--<div class="row">-->
@@ -891,7 +891,7 @@ export default class ClinicalInterpretationView extends LitElement {
                                             <!--SV-->
                                             <!--</button>-->
                                             <!--</div>-->
-        
+
                                             <!--<div class="btn-group btn-group-sm" role="group" aria-label="..." style="padding: 10px 0px">-->
                                             <!--<button type="button" class="btn btn-default btn-warning gene-ct-buttons active" on-click="updateQuery">-->
                                             <!--All-->
@@ -903,7 +903,7 @@ export default class ClinicalInterpretationView extends LitElement {
                                             <!--LoF-->
                                             <!--</button>-->
                                             <!--</div>-->
-        
+
                                             <!--<div class="btn-group btn-group-sm" role="group" aria-label="..." style="padding: 10px 0px">-->
                                             <!--<button type="button" class="btn btn-default btn-warning gene-ct-buttons active" on-click="updateQuery">-->
                                             <!--All-->
@@ -923,7 +923,7 @@ export default class ClinicalInterpretationView extends LitElement {
                                     <!--</div>-->
                                 </div>
                             </div>
-        
+
                             <!-- GRID HEADER TOOLBAR -->
                             <div class="col-md-15" style="padding: 12px 0px 0px 0px">
                                 <div id="${this._prefix}ToolbarLeft" class="col-md-6" style="padding: 15px 0px 0px 0px">
@@ -931,7 +931,7 @@ export default class ClinicalInterpretationView extends LitElement {
                                                 Showing <label>${this.from}-${this.to}</label> of <label>${this.numTotalResultsText}</label> variants
                                             </span>
                                 </div>
-        
+
                                 <div class="col-md-6" style="padding: 0px">
                                     <div class="form-inline">
                                         <div class="form-group" style="padding: 0px;float: right">
@@ -941,7 +941,7 @@ export default class ClinicalInterpretationView extends LitElement {
                                                 <!--<button type="button" class="btn btn-default"><i class="fa fa-search" aria-hidden="true"></i></button>-->
                                                 <!--</span>-->
                                             </div>
-        
+
                                             ${this.config.toolbar ? html`
                                                 <div class="btn-group">
                                                     <!--<button type="button" class="btn btn-primary">-->
@@ -960,15 +960,15 @@ export default class ClinicalInterpretationView extends LitElement {
                                     </div>
                                 </div>
                             </div>
-        
+
                             <div id="${this._prefix}GridTableDiv">
                                 <table id="${this._prefix}mainTable" data-pagination="true" data-page-list="[5, 10, 25]"
                                        data-show-export="true" data-detail-view="true" data-detail-formatter="detailFormatter">
                                 </table>
                             </div>
                         </div>
-        
-        
+
+
                         <div class="" style="padding-top: 10px">
                             <h3>Variant Detail View: ${this.variant}</h3>
                             <!-- Bottom TABs -->
@@ -1004,7 +1004,7 @@ export default class ClinicalInterpretationView extends LitElement {
                                         </a>
                                     </li>
                                 </ul>
-        
+
                                 <div class="tab-content" style="height: 680px">
                                     <!-- Current Annotation Tab -->
                                     <div role="tabpanel" class="tab-pane active" id="${this._prefix}Annotation">
@@ -1017,12 +1017,12 @@ export default class ClinicalInterpretationView extends LitElement {
                                                                         .proteinSubstitutionScores="${this.proteinSubstitutionScores}">
                                         </cellbase-variantannotation-view>
                                     </div>
-        
+
                                     <!--&lt;!&ndash; Genotypes & Files Tab &ndash;&gt;-->
                                     <!--<div id="${this._prefix}Genotype" role="tabpanel" class="tab-pane">-->
                                     <!--Under construction.-->
                                     <!--</div>-->
-        
+
                                     <!-- File Metrics Tab -->
                                     <div id="${this._prefix}FileMetrics" role="tabpanel" class="tab-pane">
                                         <div class="col-md-8 col-md-offset-1" style="padding-top: 20px;overflow: auto;">
@@ -1042,13 +1042,13 @@ export default class ClinicalInterpretationView extends LitElement {
                                                         ${attrs.values.map( attr => html`
                                                             <td>${attr}</td>
                                                         `) }
-                                                    </tr>  
+                                                    </tr>
                                                 `) }
                                                 </tbody>
                                             </table>
                                         </div>
                                     </div>
-        
+
                                     <!--Beacon network-->
                                     <div role="tabpanel" class="tab-pane" id="${this._prefix}BeaconNetwork">
                                         <br>
@@ -1061,10 +1061,10 @@ export default class ClinicalInterpretationView extends LitElement {
                                         </a>
                                         <br>
                                         <br>
-                                        <variant-beacon-network .variant="${this.variantToBeacon}" 
+                                        <variant-beacon-network .variant="${this.variantToBeacon}"
                                                                 .assembly="${this.opencgaSession.project.organism.assembly}"></variant-beacon-network>
                                     </div>
-        
+
                                     <!-- Genome Browser -->
                                     <div role="tabpanel" class="tab-pane" id="${this._prefix}GenomeBrowser">
                                         <div class="" style="padding: 0px 5px">
@@ -1083,7 +1083,7 @@ export default class ClinicalInterpretationView extends LitElement {
                                 </div>
                             </div>
                         </div>
-        
+
                     </div>
                 </div>
             </div>

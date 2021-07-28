@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../utilsNew.js";
+import UtilsNew from "../../core/utilsNew.js";
 import "./family-genotype-filter.js";
 
 
@@ -107,7 +107,7 @@ export default class FamilyGenotypeModal extends LitElement {
                     </button>
                 </div>
             </div>
-                        
+
             <div class="modal fade" id="${this._prefix}SampleGenotypeFilterModal" data-backdrop="static" data-keyboard="false"
                  tabindex="-1" role="dialog" aria-hidden="true" style="padding-top: 0%; overflow-y: visible">
                 <div class="modal-dialog" style="width: 1280px">

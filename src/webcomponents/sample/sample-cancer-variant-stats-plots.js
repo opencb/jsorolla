@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../utilsNew.js";
+import UtilsNew from "../../core/utilsNew.js";
 // import Circos from "./test/circos.js";
 import "../variant/opencga-variant-filter.js";
 import "../commons/opencga-active-filters.js";
@@ -247,7 +247,7 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
                                 </div>
                             </div>
                         </div>
-                    </div>                            
+                    </div>
                 </div>
             </div>
         `;

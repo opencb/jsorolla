@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../utilsNew.js";
+import UtilsNew from "../../core/utilsNew.js";
 import PolymerUtils from "../PolymerUtils.js";
 import "../opencga/catalog/variableSets/opencga-annotation-filter-modal.js";
 import "../commons/filters/date-filter.js";
@@ -263,7 +263,7 @@ export default class OpencgaFamilyFilter extends LitElement {
                     </button>
                 </div>
                 ` : null}
-    
+
             <div class="panel-group" id="${this._prefix}Accordion" role="tablist" aria-multiselectable="true">
                     <div class="">
                         ${this.config.sections && this.config.sections.length ? this.config.sections.map( section => this._createSection(section)) : html`No filter has been configured.`}

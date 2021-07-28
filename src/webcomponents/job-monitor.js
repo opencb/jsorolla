@@ -16,8 +16,8 @@
 
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import OpencgaCatalogUtils from "../clients/opencga/opencga-catalog-utils.js";
-import UtilsNew from "../utilsNew.js";
+import OpencgaCatalogUtils from "../core/clients/opencga/opencga-catalog-utils.js";
+import UtilsNew from "../core/utilsNew.js";
 import {NotificationQueue} from "./Notification.js";
 
 export class JobMonitor extends LitElement {
@@ -225,7 +225,7 @@ export class JobMonitor extends LitElement {
                             <button @click="${this.filterJobs}" class="btn btn-small btn-default ripple" data-type="PENDING,QUEUED,RUNNING,REGISTERING">Running</button>
                             <button @click="${this.filterJobs}" class="btn btn-small btn-default ripple" data-type="UNREGISTERED,DONE,ERROR,ABORTED">Finished</button>
                             <button @click="${this.forceRefresh}" class="btn btn-small btn-default ripple pull-right" title="Force immediate refresh"><i class="fas fa-sync-alt"></i></button>
-                            
+
                         </li>
                         ${this.filteredJobs.length ? this.filteredJobs.map(job => html`
                                 <li>
@@ -239,7 +239,7 @@ export class JobMonitor extends LitElement {
                                                 <h4 class="media-heading">${job.id}</h4>
                                                 <small>${job.tool.id}</small> |
                                                 <small>${moment(job.creationDate, "YYYYMMDDHHmmss").format("D MMM YYYY, h:mm:ss a")}</small>
-                                                <p>${UtilsNew.renderHTML(UtilsNew.jobStatusFormatter(job?.internal?.status))}</p> 
+                                                <p>${UtilsNew.renderHTML(UtilsNew.jobStatusFormatter(job?.internal?.status))}</p>
                                             </div>
                                         </div>
                                      </a>

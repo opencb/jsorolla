@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../../utilsNew.js";
+import UtilsNew from "../../../core/utilsNew.js";
 import PolymerUtils from "../../PolymerUtils.js";
 
 
@@ -160,7 +160,7 @@ export default class ProteinSubstitutionScoreFilter extends LitElement {
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="form-group polyphen">
                     <span style="padding-top: 10px;padding-left: 0px;">Polyphen</span>
                     <div class="row">
@@ -183,7 +183,7 @@ export default class ProteinSubstitutionScoreFilter extends LitElement {
                         </div>
                     </div>
                 </div>
-                                
+
                 <fieldset class="switch-toggle-wrapper">
                     <label style="font-weight: normal;">Logical Operator</label>
                     <div class="switch-toggle text-white alert alert-light">

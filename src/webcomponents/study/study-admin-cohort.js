@@ -19,7 +19,7 @@ import DetailTabs from "../commons/view/detail-tabs.js";
 import "../cohort/opencga-cohort-view.js";
 import "../cohort/cohort-create.js";
 import "../cohort/cohort-update.js";
-import "./../../utilsNew.js";
+import "./../../core/utilsNew.js";
 
 export default class StudyAdminCohort extends LitElement {
 

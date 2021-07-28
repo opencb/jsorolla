@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../utilsNew.js";
+import UtilsNew from "../../core/utilsNew.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import "../commons/phenotype/phenotype-list-update.js";
 import "../commons/annotationset/annotation-set-update.js";

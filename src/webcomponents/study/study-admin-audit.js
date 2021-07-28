@@ -15,9 +15,9 @@
  */
 
 import { html, LitElement } from "/web_modules/lit-element.js";
-import UtilsNew from "./../../utilsNew.js";
+import UtilsNew from "./../../core/utilsNew.js";
 import GridCommons from "../commons/grid-commons.js";
-import OpencgaCatalogUtils from "../../clients/opencga/opencga-catalog-utils.js"
+import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import PolymerUtils from "../PolymerUtils.js";
 
 export default class StudyAdminAudit extends LitElement {
@@ -357,7 +357,7 @@ export default class StudyAdminAudit extends LitElement {
 
     render() {
 
-        
+
         if(!OpencgaCatalogUtils.isAdmin(this.opencgaSession.study,this.opencgaSession.user.id)){
             return html`
             <div class="guard-page">
@@ -423,7 +423,7 @@ export default class StudyAdminAudit extends LitElement {
                             </select-field-filter>
                         </div>
                     ` : null}
-                    
+
                     <div class="btn-group">
                         <button type="button" id="${this._prefix}ClearAuditMenu" class="btn btn-default btn-xs ripple"
                                 aria-haspopup="true" aria-expanded="false" title="Clear filters"

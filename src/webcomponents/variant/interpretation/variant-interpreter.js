@@ -15,7 +15,7 @@
  */
 
 import {html, LitElement} from "/web_modules/lit-element.js";
-import UtilsNew from "../../../utilsNew.js";
+import UtilsNew from "../../../core/utilsNew.js";
 import "../../commons/tool-header.js";
 import "./variant-interpreter-landing.js";
 import "./variant-interpreter-qc.js";
@@ -255,7 +255,7 @@ class VariantInterpreter extends LitElement {
                 ` : html`
                     <tool-header .title="${this._config.title}" icon="${this._config.icon}"></tool-header>
                 `}
-            
+
                 <div class="col-md-10 col-md-offset-1">
                     <nav class="navbar" style="margin-bottom: 5px; border-radius: 0px">
                         <div class="container-fluid">
@@ -280,11 +280,11 @@ class VariantInterpreter extends LitElement {
                                     null}
                                 `)}
                                 </div>
-                            </div> 
-                        </div> 
-                    </nav> 
+                            </div>
+                        </div>
+                    </nav>
                 </div>
-                
+
                 <div id="${this._prefix}MainWindow" class="col-md-12">
                     <div>
                         ${this._config.tools ? html`
@@ -298,13 +298,13 @@ class VariantInterpreter extends LitElement {
                                     </variant-interpreter-landing>
                                 </div>
                             ` : null}
-                            
+
                             ${this.activeTab["qc"] ? html`
                                 <div id="${this._prefix}qc" class="clinical-portal-content">
                                     <variant-interpreter-qc .opencgaSession="${this.opencgaSession}"
                                                             .cellbaseClient="${this.cellbaseClient}"
                                                             .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                            .config="${this._config}" 
+                                                            .config="${this._config}"
                                                             @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
                                     </variant-interpreter-qc>
                                 </div>
@@ -318,7 +318,7 @@ class VariantInterpreter extends LitElement {
                                     </variant-interpreter-methods>
                                 </div>
                             ` : null}
-                            
+
                             ${this.activeTab["variant-browser"] ? html`
                                 <div id="${this._prefix}variant-browser" class="clinical-portal-content">
                                     <variant-interpreter-browser    .opencgaSession="${this.opencgaSession}"
@@ -355,8 +355,8 @@ class VariantInterpreter extends LitElement {
                         ` : null}
                     </div>
                 </div>
-            </div> 
-            
+            </div>
+
             <div class="v-space"></div>
         `;
     }

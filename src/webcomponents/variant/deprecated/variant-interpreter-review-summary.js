@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../../utilsNew.js";
+import UtilsNew from "../../../core/utilsNew.js";
 import PolymerUtils from "../../PolymerUtils.js";
 import "../../clinical/clinical-interpretation-view.js";
 
@@ -385,18 +385,18 @@ export default class VariantInterpreterReviewSummary extends LitElement {
             </div>
             <tool-header title="Interpretation Info" class="bg-white" icon="${this._config.icon}"></tool-header>
         </div>
-            
+
         <div class="row" style="padding: 0px 10px">
             <div id="${this._prefix}SaveInterpretation">
                 <div class="col-md-12">
-                    ${this.messageError ? html ` 
+                    ${this.messageError ? html `
                         <div class="alert alert-danger" role="alert" id="${this._prefix}messageError" style="margin:5px auto;">${this.messageErrorText}</div>
                     ` : null}
                     ${this.messageSuccess ? html `
                         <div class="alert alert-success" role="alert" id="${this._prefix}messageSuccess" style="margin:5px auto;">${this.messageSuccessText}</div>
                     ` : null}
                 </div>
-                
+
                 <div class="col-md-12">
                     <div>
                         <div id="${this._prefix}collapsibleInterpretation" class="form-horizontal collapse in" data-toggle="validator" data-feedback='{"success": "fa-check", "error": "fa-times"}' role="form">
@@ -418,7 +418,7 @@ export default class VariantInterpreterReviewSummary extends LitElement {
                                         </span>
                                         </div>
                                     `}
-                                    
+
                                 </div>
                             </div>
 

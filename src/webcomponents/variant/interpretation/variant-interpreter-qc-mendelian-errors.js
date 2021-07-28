@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../../utilsNew.js";
+import UtilsNew from "../../../core/utilsNew.js";
 import "../../individual/opencga-individual-mendelian-errors-view.js";
 
 class VariantInterpreterQcMendelianErrors extends LitElement {
@@ -106,8 +106,8 @@ class VariantInterpreterQcMendelianErrors extends LitElement {
         }
 
         return html`
-            <div style="margin: 20px 10px">         
-                <opencga-individual-mendelian-errors-view   .opencgaSession="${this.opencgaSession}" 
+            <div style="margin: 20px 10px">
+                <opencga-individual-mendelian-errors-view   .opencgaSession="${this.opencgaSession}"
                                                             .individual="${this.clinicalAnalysis.proband}">
                 </opencga-individual-mendelian-errors-view>
             </div>

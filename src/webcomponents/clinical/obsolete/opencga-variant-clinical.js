@@ -8,7 +8,7 @@
 <link rel="import" href="../../opencga-message-dialog.html">
 <link rel="import" href="../opencga-clinical-analysis-grid.html">*/
 
-import UtilsNew from "../../../utilsNew.js";
+import UtilsNew from "../../../core/utilsNew.js";
 
 
 class OpencgaVariantClinical extends LitElement {

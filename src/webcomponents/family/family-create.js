@@ -15,9 +15,9 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "./../../utilsNew.js";
+import UtilsNew from "./../../core/utilsNew.js";
 import "../commons/tool-header.js";
-import FormUtils from "../../form-utils.js";
+import FormUtils from "../../core/form-utils.js";
 
 export default class FamilyCreate extends LitElement {
 

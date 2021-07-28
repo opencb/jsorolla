@@ -15,8 +15,8 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../../utilsNew.js";
-import OpencgaCatalogUtils from "../../../clients/opencga/opencga-catalog-utils.js";
+import UtilsNew from "../../../core/utilsNew.js";
+import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
 import "./opencga-analysis-tool-form-field.js";
 
 
@@ -204,7 +204,7 @@ export default class OpencgaAnalysisToolForm extends LitElement {
                     <i class="fas fa-exclamation fa-5x"></i>
                     <h3>No valid Analysis form configuration provided. Please check form configuration:</h3>
                     <div style="padding: 10px">
-                        <pre>${JSON.stringify(this.config, null, 2)}</pre>              
+                        <pre>${JSON.stringify(this.config, null, 2)}</pre>
                     </div>
                 </div>
             `;
@@ -239,7 +239,7 @@ export default class OpencgaAnalysisToolForm extends LitElement {
                             </div>
                         </div>
                     `)}
-                    
+
                     <!-- Job Info section -->
                     ${(this.config.job.visible ?? true) ? html`
                         <div class="panel panel-default shadow-sm">

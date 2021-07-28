@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import {classMap} from "/web_modules/lit-html/directives/class-map.js";
-import UtilsNew from "../../../../utilsNew.js";
+import UtilsNew from "../../../../core/utilsNew.js";
 import AnalysisRegistry from "../analysis-registry.js";
 import GridCommons from "../../../commons/grid-commons.js";
 import knockoutDataGene from "../test/knockout.20201103172343.kFIvpr.gene.js";
@@ -219,7 +219,7 @@ export default class KnockoutGeneGrid extends LitElement {
             <div class="row">
                 <table id="${this.gridId}"></table>
             </div>
-            
+
         `;
     }
 

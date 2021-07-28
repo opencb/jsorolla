@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "./../../../utilsNew.js";
+import UtilsNew from "./../../../core/utilsNew.js";
 
 // TODO reorganize props multiple/forceSelection
 
@@ -167,7 +167,7 @@ export default class SelectFieldFilter extends LitElement {
                         ?required=${this.required}
                         data-live-search=${this.liveSearch ? "true" : "false"}
                         title="${this.placeholder ?? (this.multiple ? "Select option(s)" : "Select an option")}"
-                        data-max-options="${!this.multiple ? 1 : this.maxOptions ? this.maxOptions : false}" 
+                        data-max-options="${!this.multiple ? 1 : this.maxOptions ? this.maxOptions : false}"
                         @change="${this.filterChange}" data-width="100%" data-style="btn-default ${this.classes}">
                     ${this.data?.map(opt => html`
                         ${opt?.separator ?
@@ -184,7 +184,7 @@ export default class SelectFieldFilter extends LitElement {
                                                 `}
                                             `)}
                                         </optgroup>` :
-                                    html` 
+                                    html`
                                         ${UtilsNew.isObject(opt) ?
                                             html`
                                                 <option ?disabled="${opt.disabled}" ?selected="${opt.selected}" .value="${opt.id ?? opt.name}">${opt.name ?? opt.id}</option>` :

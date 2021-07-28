@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import "../commons/json-viewer.js";
-import UtilsNew from "../../utilsNew.js";
+import UtilsNew from "../../core/utilsNew.js";
 
 
 export default class OpencgaFilePreview extends LitElement {
@@ -178,13 +178,13 @@ export default class OpencgaFilePreview extends LitElement {
                 min-height: 150px;
             }
         </style>
-        
-        
+
+
         ${this.file ? html`
             <div class="row">
                 <div class="col-md-12">
 <!--                    ${this.title ? html`<h4>${this.title}</h4>` : ""}-->
-                
+
                     ${this.contentType === "unsupported" ? html`
                         <p class="alert alert-warning">${this.content}</p>` : null}
                     ${this.contentType === "text" ? html`

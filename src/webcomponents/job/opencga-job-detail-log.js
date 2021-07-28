@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../utilsNew.js";
+import UtilsNew from "../../core/utilsNew.js";
 
 export default class OpencgaJobDetailLog extends LitElement {
 
@@ -183,30 +183,30 @@ export default class OpencgaJobDetailLog extends LitElement {
 
     render() {
         return html`
-        <style>            
+        <style>
             .wrapper {
                 height: 35px;
                 margin-top: 5px;
             }
-            
+
             .log-wrapper {
                 min-height: 150px;
             }
-            
+
             .wrapper fieldset.log-type {
                 float: left;
                 width: 200px;
             }
-            
+
             .wrapper-label {
                 color: grey;
                 vertical-align: text-bottom;
             }
-            
+
             .jobs-details-log .content-pills {
                 margin: 10px 30px 10px 0;
             }
-            
+
             .cursor {
                 width: 7px;
                 height: 16px;
@@ -217,15 +217,15 @@ export default class OpencgaJobDetailLog extends LitElement {
                 -moz-animation: blink 1s infinite;
                 animation: blink 1s infinite;
             }
-            
+
             .jobs-details-log .fa-sync-alt {
                 margin-left: 10px;
             }
-            
+
             .jobs-details-log .fa-sync-alt.disabled {
                 color: #c5c5c5;
             }
-            
+
             @keyframes blink {
               0% {
                 opacity: 0;
@@ -245,7 +245,7 @@ export default class OpencgaJobDetailLog extends LitElement {
                         <i class="fas fa-align-left"></i> Head
                     </button>
                     <button type="button" class="btn btn-default btn-small ripple ${this._config.command === "tail" ? "active" : ""}" @click="${() => this.setCommand("tail")}">
-                        <i class="fas fa-align-left"></i> Tail <i class="fas fa-sync-alt ${this._config.command === "tail" && this.job.internal.status.name === "RUNNING" ? "anim-rotate" : "disabled"}"></i> 
+                        <i class="fas fa-align-left"></i> Tail <i class="fas fa-sync-alt ${this._config.command === "tail" && this.job.internal.status.name === "RUNNING" ? "anim-rotate" : "disabled"}"></i>
                     </button>
                 </div>
             </div>
@@ -259,7 +259,7 @@ export default class OpencgaJobDetailLog extends LitElement {
                         <i class="fas fa-info"></i> Stout
                     </button>
                 </div>
-            </div>                    
+            </div>
         </div>
         <pre class="cmd log-wrapper ${this._config.command}" @scroll="${this.onScroll}">${this.content}\n${this.loading || (this.content && this._config.command === "tail") ? html`<div class="cursor"></div>` : ""}</pre>
         `;

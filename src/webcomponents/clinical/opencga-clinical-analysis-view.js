@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../utilsNew.js";
+import UtilsNew from "../../core/utilsNew.js";
 import "../commons/view/data-form.js";
 import "../commons/view/pedigree-view.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
@@ -387,8 +387,8 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                                             showToolbar: false
                                         };
                                         return html`
-                                            <opencga-individual-grid .opencgaSession="${this.opencgaSession}" 
-                                                                     .individuals="${family.members}" 
+                                            <opencga-individual-grid .opencgaSession="${this.opencgaSession}"
+                                                                     .individuals="${family.members}"
                                                                      .config="${individualGridConfig}"
                                                                      @filterChange="${e => this.onFamilyChange(e)}">
                                             </opencga-individual-grid>

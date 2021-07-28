@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../utilsNew.js";
+import UtilsNew from "../../core/utilsNew.js";
 import PolymerUtils from "../PolymerUtils.js";
 import "./opencga-facet-result-view.js";
 import "./opencga-facet-view-selector.js";
@@ -417,7 +417,7 @@ export default class OpencgaFacetView extends LitElement {
             <div class="row" style="padding: 0px 15px">
                 <div class="col-md-12 panel panel-default">
                     <h3>Select Aggregation Stats</h3>
-    
+
                     <div class="col-md-12">
                         ${this._config && this._config.defaultStats && this._config.defaultStats.length ? html`
                             <h4 style="padding-top: 5px">Default Aggregation Stats</h4>
@@ -427,10 +427,10 @@ export default class OpencgaFacetView extends LitElement {
                             </span>
                             ` : null }
                     </div>
-    
+
                     <div class="col-md-12">
                         <h4 style="padding: 20px 0px 5px 0px">Select Custom Aggregation Fields</h4>
-    
+
                         <div class="row">
                             <div class="col-md-5" style="padding: 0px 30px 0px 10px">
                                 <opencga-facet-view-selector id="${this._prefix}-ofvs-first" .terms="${this.dataModelTerms}" .variableSets="${this.variableSets}"
@@ -443,13 +443,13 @@ export default class OpencgaFacetView extends LitElement {
                                                              ?disabled="${this.disableNestedSelector}">
                                 </opencga-facet-view-selector>
                             </div>
-    
+
                             <div class="col-md-1 col-md-offset-1" style="padding-top: 25px">
                                 <button type="button" class="btn btn-primary" @click="${this.addFacet}" style="cursor: pointer">Add</button>
                             </div>
                         </div>
                     </div>
-    
+
                     <div class="col-md-12">
                         <div style="padding: 35px 10px 15px 25px">
                             ${this.facetFilters.length ? html`
@@ -460,29 +460,29 @@ export default class OpencgaFacetView extends LitElement {
                                             ${item}
                                     </button>
                                `)}
-                               
+
                             ` : null}
-                                
+
                         </div>
                     </div>
-    
+
                     <div class="col-md-10 col-md-offset-2">
                         <div style="float: right; padding: 10px">
                             <button type="button" class="btn btn-primary btn-lg" @click="${this.fetchData}">Run</button>
                         </div>
-    
+
                         <div style="float: right; padding: 10px">
                             <button type="button" class="btn btn-primary btn-lg" @click="${this.clearAll}">Clear</button>
                         </div>
                     </div>
                 </div>
-    
+
                 <!-- RESULTS - Facet Plots -->
                 <h3>Results</h3>
                 ${this._showInitMessage ? html`
                     <h4 style="padding-left: 20px">No aggregation fields selected.</h4>
                 ` : null}
-    
+
                 <div id="facetResultsDiv">
                 ${this.facetResults && this.facetResults.length && this.facetResults.map(item => html`
                     <div style="padding: 20px">
@@ -491,9 +491,9 @@ export default class OpencgaFacetView extends LitElement {
                     </div>
                 `)}
                 </div>
-                
+
             </div>
-    
+
             <div class="modal fade" id="${this._prefix}LoadingModal" data-backdrop="static" data-keyboard="false" tabindex="-1"
                  role="dialog" aria-hidden="true" style="padding-top:15%; overflow-y:visible;">
                 <div class="modal-dialog">

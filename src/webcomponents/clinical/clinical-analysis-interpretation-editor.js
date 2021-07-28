@@ -16,7 +16,7 @@
 
 import {html, LitElement} from "/web_modules/lit-element.js";
 import {classMap} from "/web_modules/lit-html/directives/class-map.js";
-import UtilsNew from "../../utilsNew.js";
+import UtilsNew from "../../core/utilsNew.js";
 import GridCommons from "../commons/grid-commons.js";
 import ClinicalAnalysisManager from "../clinical/clinical-analysis-manager.js";
 
@@ -132,8 +132,8 @@ class ClinicalAnalysisInterpretationEditor extends LitElement {
         return html`
             <div class="interpretation-wrapper ${classMap({primary: interpretation.primary})}">
                 <div class="header">
-                    <div>${interpretation.primary 
-                        ? html`<span class="badge badge-dark-blue">PRIMARY</span>` 
+                    <div>${interpretation.primary
+                        ? html`<span class="badge badge-dark-blue">PRIMARY</span>`
                         : html`<span class="badge badge-light">SECONDARY</span>`
                     }
                     </div>
@@ -149,55 +149,55 @@ class ClinicalAnalysisInterpretationEditor extends LitElement {
                 <div class="row">
                     <div class="col-md-2"><label>Primary Findings</label></div>
                     <div class="col-md-10">${interpretation.primaryFindings?.length}</div>
-                                       
+
                 </div>
                 <div class="row status">
                     <div class="col-md-2"><label>Status</label></div>
                     <div class="col-md-10"><span class="${interpretation?.internal?.status?.name}">${interpretation?.internal?.status?.name}</span></div>
                 </div>
-                
+
                 <div class="dropdown action-dropdown">
                     <button class="btn btn-default btn-small ripple dropdown-toggle one-line" type="button" data-toggle="dropdown">Action
                         <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-right">
-                        
+
                         ${interpretation.primary ? html`
                             <li>
-                                <a href="javascript: void 0" class="btn disabled force-text-left" data-action="restorePrevious" data-interpretation-id="${interpretation.id}" 
+                                <a href="javascript: void 0" class="btn disabled force-text-left" data-action="restorePrevious" data-interpretation-id="${interpretation.id}"
                                         @click="${this.onActionClick}">
                                     <i class="fas fa-code-branch icon-padding" aria-hidden="true"></i> Restore previous version
                                 </a>
                             </li>
                             <li role="separator" class="divider"></li>
                             <li>
-                                <a href="javascript: void 0" class="btn force-text-left" data-action="clear" data-interpretation-id="${interpretation.id}" 
+                                <a href="javascript: void 0" class="btn force-text-left" data-action="clear" data-interpretation-id="${interpretation.id}"
                                             @click="${this.onActionClick}">
-                                    <i class="fas fa-eraser icon-padding" aria-hidden="true"></i> Clear 
+                                    <i class="fas fa-eraser icon-padding" aria-hidden="true"></i> Clear
                                 </a>
                             </li>
                         ` : html`
                             <li>
-                                <a href="javascript: void 0" class="btn force-text-left" data-action="setAsPrimary" data-interpretation-id="${interpretation.id}" 
+                                <a href="javascript: void 0" class="btn force-text-left" data-action="setAsPrimary" data-interpretation-id="${interpretation.id}"
                                         @click="${this.onActionClick}">
                                     <i class="fas fa-map-marker icon-padding" aria-hidden="true"></i> Set as primary
                                 </a>
                             </li>
                             <li>
-                                <a href="javascript: void 0" class="btn force-text-left" data-action="merge" data-interpretation-id="${interpretation.id}" 
+                                <a href="javascript: void 0" class="btn force-text-left" data-action="merge" data-interpretation-id="${interpretation.id}"
                                         @click="${this.onActionClick}">
                                     <i class="far fa-object-group icon-padding" aria-hidden="true"></i> Merge
                                 </a>
                             </li>
                             <li role="separator" class="divider"></li>
                             <li>
-                                <a href="javascript: void 0" class="btn force-text-left" data-action="clear" data-interpretation-id="${interpretation.id}" 
+                                <a href="javascript: void 0" class="btn force-text-left" data-action="clear" data-interpretation-id="${interpretation.id}"
                                             @click="${this.onActionClick}">
-                                    <i class="fas fa-eraser icon-padding" aria-hidden="true"></i> Clear 
+                                    <i class="fas fa-eraser icon-padding" aria-hidden="true"></i> Clear
                                 </a>
                             </li>
                             <li>
-                                <a href="javascript: void 0" class="btn force-text-left" data-action="delete" data-interpretation-id="${interpretation.id}" 
+                                <a href="javascript: void 0" class="btn force-text-left" data-action="delete" data-interpretation-id="${interpretation.id}"
                                         @click="${this.onActionClick}">
                                     <i class="fas fa-trash icon-padding" aria-hidden="true"></i> Delete</a>
                             </li>
@@ -308,32 +308,32 @@ class ClinicalAnalysisInterpretationEditor extends LitElement {
 
         return html`
             <div class="interpreter-content-tab">
-                ${this.interpretations?.length 
+                ${this.interpretations?.length
                     ? html`
                         <div class="row">
                             <div class="col-md-8" style="margin-bottom: 10px">
                                 <h3 style="padding-bottom: 5px">Interpretations</h3>
                                 <div class="pull-right">
-                                    <button class="btn btn-primary btn-small ripple" type="button" title="Create a new empty interpretation" data-action="create" 
+                                    <button class="btn btn-primary btn-small ripple" type="button" title="Create a new empty interpretation" data-action="create"
                                             @click="${this.onActionClick}">
                                         <span style="padding-right: 10px"><i class="fas fa-file-medical"></i></span>
                                         New Interpretation
                                     </button>
-                                </div>                            
+                                </div>
                             </div>
-                            
+
                             <div class="col-md-8" style="margin-bottom: 10px">
                                 ${this.interpretations.map(interpretation => this.renderInterpretation(interpretation))}
                             </div>
-                            
+
                             <div class="col-md-10">
                                 <h3>Main Interpretation History - ${this.clinicalAnalysis.interpretation.id}</h3>
                                 <table id="${this.gridId}"></table>
                             </div>
-                        </div>` 
+                        </div>`
                     : html`
                         <div class="alert alert-info"><i class="fas fa-3x fa-info-circle align-middle"></i> No interpretation available yet.</div>`
-                } 
+                }
             </div>
         `;
     }

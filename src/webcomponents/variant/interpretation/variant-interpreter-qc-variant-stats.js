@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import ClinicalAnalysisUtils from "../../clinical/clinical-analysis-utils.js";
-import UtilsNew from "../../../utilsNew.js";
+import UtilsNew from "../../../core/utilsNew.js";
 import "../../sample/sample-variant-stats-view.js";
 
 class VariantInterpreterQcVariantStats extends LitElement {
@@ -261,17 +261,17 @@ class VariantInterpreterQcVariantStats extends LitElement {
                 variant-interpreter-qc-variant-stats .select-field-filter {
                     display: inline-block;
                 }
-                
+
                 variant-interpreter-qc-variant-stats .gene-selector {
                     padding: 0 0 15px 0;
                 }
-                
+
                 variant-interpreter-qc-variant-stats .gene-selector label {
                     margin-right: 15px;
                 }
             </style>
 
-            <!--              
+            <!--
             <div style="margin: 20px 10px">
                 <div style="margin: 20px 10px">
                     <div class="form-horizontal">
@@ -281,12 +281,12 @@ class VariantInterpreterQcVariantStats extends LitElement {
                                 <select-field-filter forceSelection .data="${this.statsSelect}" .value=${this.sampleId} @filterChange="${this.onSampleChange}"></select-field-filter>
                             </div>
                         </div>
-                        
+
                     </div>
                 </div>
             </div>
             -->
-            
+
             ${this.samplesVariantStats?.length > 1 ?
                 html`
                     <div class="btn-group" role="group" aria-label="..." style="padding-top: 15px; padding-left: 5px">
@@ -297,8 +297,8 @@ class VariantInterpreterQcVariantStats extends LitElement {
                         `)}
                     </div>` :
                 null}
-            
-            
+
+
             <div style="margin: 20px 10px;padding-top: 10px">
 <!--                <h4>Sample Variant Stats - ${this.variantStats?.stats.id}</h4>-->
                 <div>

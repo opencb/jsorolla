@@ -18,14 +18,15 @@
 
 import {html, LitElement} from "/web_modules/lit-element.js";
 import {ifDefined} from "/web_modules/lit-html/directives/if-defined.js";
-import UtilsNew from "../../../utilsNew.js";
+// import UtilsNew from "../../../core/utilsNew.js";
+import UtilsNew from "../../../core/utilsNew.js";
 import "../simple-chart.js";
 import "../json-viewer.js";
 import "../../tree-viewer.js";
 import "../../download-button.js";
 import "../../commons/filters/text-field-filter.js";
-import "../../../form/controls/toggle-switch.js";
-import "../../../form/controls/toggle-buttons.js";
+import "../../../core/form/controls/toggle-switch.js";
+import "../../../core/form/controls/toggle-buttons.js";
 
 export default class DataForm extends LitElement {
 

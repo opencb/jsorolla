@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../../utilsNew.js";
+import UtilsNew from "../../../core/utilsNew.js";
 import "./select-field-filter.js";
 import "./number-field-filter.js";
 
@@ -234,7 +234,7 @@ export default class PopulationFrequencyFilter extends LitElement {
                                         </select-field-filter>
                                     </div>
                                     <div class="col-md-5" style="padding: 0 0 0 5px;">
-                                        <select-field-filter    .data="${allowedFrequenciesArray}" 
+                                        <select-field-filter    .data="${allowedFrequenciesArray}"
                                                                 .value="${this.state[study.id + ":" + popFreq.id]?.value}"
                                                                 placeholder="Frequency ..."
                                                                 @filterChange="${e => {
@@ -259,7 +259,7 @@ export default class PopulationFrequencyFilter extends LitElement {
                         padding: 0px 10px
                     }
                 </style>
-                
+
                 ${this._populationFrequencies.studies.map(study => html`
                     <div style="padding-top: 10px">
                         <div style="margin-bottom: 5px">

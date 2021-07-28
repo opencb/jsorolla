@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../utilsNew.js";
+import UtilsNew from "../../core/utilsNew.js";
 
 class AlignmentStatsView extends LitElement {
 
@@ -89,7 +89,7 @@ class AlignmentStatsView extends LitElement {
                         <tr>
                             <th></th>
                             ${// Read column name from configuration if exist, otherwise use sampleId from the stats object
-                                this._config?.columns?.length 
+                                this._config?.columns?.length
                                     ? this._config.columns.map( col => html`<th class="${col.classes}">${col.name}</th>`)
                                     : this.alignmentStats?.map( stat => {
                                             let splitFields = stat.fileId.split(":");
@@ -322,9 +322,9 @@ class AlignmentStatsView extends LitElement {
                         <i class="fa fa-download pad5" aria-hidden="true"></i> Download <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu btn-sm">
-                        ${this._config.download.length 
+                        ${this._config.download.length
                             ? this._config.download.map(item => html`
-                                <li><a href="javascript:;" data-download-option="${item}" @click="${this.onDownload}">${item}</a></li>`) 
+                                <li><a href="javascript:;" data-download-option="${item}" @click="${this.onDownload}">${item}</a></li>`)
                             : null
                         }
                     </ul>

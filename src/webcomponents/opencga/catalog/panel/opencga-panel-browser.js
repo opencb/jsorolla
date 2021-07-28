@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "./../../../../utilsNew.js";
+import UtilsNew from "./../../../../core/utilsNew.js";
 import "./opencga-panel-editor.js";
 import "./opencga-panel-grid.js";
 import "./opencga-panel-summary.js";
@@ -144,7 +144,7 @@ export default class OpencgaPanelBrowser extends LitElement {
                             </opencga-panel-filter>
                         </div>
                         <div class="col-md-10">
-    
+
                             <br>
                             <opencga-active-filters .opencgaSession="${this.opencgaSession}"
                                                     .query="${this.query}"

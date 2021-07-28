@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../../utilsNew.js";
+import UtilsNew from "../../../core/utilsNew.js";
 
 
 /**
@@ -145,19 +145,19 @@ export default class SelectFieldFilterRemote extends LitElement {
                         .disabled=${this.disabled}
                         .required=${this.required}
                         title="${this.placeholder ? this.placeholder : "Select an option"}"
-                        data-max-options="${!this.multiple ? 1 : this.maxOptions ? this.maxOptions : false}"  
+                        data-max-options="${!this.multiple ? 1 : this.maxOptions ? this.maxOptions : false}"
                         @change="${this.filterChange}" data-width="100%">
                     ${this.data.map(opt => html`
                         ${opt.fields ? html`
                             <optgroup label="${opt.name}">${opt.fields.map(subopt => html`
                                 ${this.isObject(subopt) ? html`
-                                    <option ?disabled="${subopt.disabled}" ?selected="${subopt.selected}" .value="${subopt.id ? subopt.id : subopt.name}">${subopt.name}</option>    
+                                    <option ?disabled="${subopt.disabled}" ?selected="${subopt.selected}" .value="${subopt.id ? subopt.id : subopt.name}">${subopt.name}</option>
                                 ` : html`
                                     <option>${subopt}</option>
                                 `}
                                 `)}
                             </optgroup>
-                            ` : html` 
+                            ` : html`
                                 ${this.isObject(opt) ? html`
                                     <option ?disabled="${opt.disabled}" ?selected="${opt.selected}" .value="${opt.id ? opt.id : opt.name}">${opt.name}</option>
                                 ` : html`

@@ -15,7 +15,7 @@
  */
 
 import { LitElement, html } from "/web_modules/lit-element.js";
-import UtilsNew from "../../../utilsNew.js";
+import UtilsNew from "../../../core/utilsNew.js";
 
 export default class DetailTabs extends LitElement {
 
@@ -80,7 +80,7 @@ export default class DetailTabs extends LitElement {
         this.activeTabs[tabId] = true;
         this.requestUpdate();
     }
-    
+
     renderTabTitle() {
         return html`
             ${this._config.items.length && this._config.items.map(item => {
@@ -170,7 +170,7 @@ export default class DetailTabs extends LitElement {
                         ${this.renderTabTitle()}
                     </ul>
                 ` : null}
-                
+
                 <!-- TAB CONTENT -->
                 <div class="${this._config.display?.contentClass}" style="${this._config.display?.contentStyle}">
                     ${this.renderTabContent()}

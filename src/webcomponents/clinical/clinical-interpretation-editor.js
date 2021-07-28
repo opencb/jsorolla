@@ -15,7 +15,7 @@
  */
 
 import {html, LitElement} from "/web_modules/lit-element.js";
-import UtilsNew from "../../utilsNew.js";
+import UtilsNew from "../../core/utilsNew.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import ClinicalAnalysisUtils from "./clinical-analysis-utils.js";
 import "./clinical-analysis-comment-editor.js";
@@ -119,10 +119,10 @@ class ClinicalInterpretationEditor extends LitElement {
         return html`
             <div class="">
                 <select-field-filter .data="${ClinicalAnalysisUtils.getInterpretationStatuses()}" .value="${status.id}"
-                                     .classes="${this.updateParams.status ? "updated" : ""}" 
+                                     .classes="${this.updateParams.status ? "updated" : ""}"
                                      @filterChange="${e => {e.detail.param = "interpretation.status.id"; this.onFieldChange(e)}}">
                 </select-field-filter>
-                ${status.description 
+                ${status.description
                         ? html`<span class="help-block" style="padding: 0px 5px">${status.description}</span>`
                         : null
                 }
@@ -197,8 +197,8 @@ class ClinicalInterpretationEditor extends LitElement {
                             type: "custom",
                             display: {
                                 render: interpretation => html`
-                                    <span style="font-weight: bold; margin-right: 10px">${interpretation.id}</span> 
-                                    <span style="color: grey; padding-right: 40px">version ${interpretation.version}</span> 
+                                    <span style="font-weight: bold; margin-right: 10px">${interpretation.id}</span>
+                                    <span style="color: grey; padding-right: 40px">version ${interpretation.version}</span>
                                     <span><i class="far fa-calendar-alt"></i> ${UtilsNew.dateFormatter(interpretation?.modificationDate)}</span>`
                             }
                         },
@@ -373,10 +373,10 @@ class ClinicalInterpretationEditor extends LitElement {
         }
 
         return html`
-            <data-form  .data="${this.clinicalAnalysis}" 
-                        .config="${this._config}" 
-                        @fieldChange="${e => this.onFieldChange(e)}" 
-                        @clear="${this.onClear}" 
+            <data-form  .data="${this.clinicalAnalysis}"
+                        .config="${this._config}"
+                        @fieldChange="${e => this.onFieldChange(e)}"
+                        @clear="${this.onClear}"
                         @submit="${this.onRun}">
             </data-form>
         `;

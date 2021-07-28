@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../utilsNew.js";
+import UtilsNew from "../../core/utilsNew.js";
 
 
 export default class VariantBeaconNetwork extends LitElement {
@@ -145,19 +145,19 @@ export default class VariantBeaconNetwork extends LitElement {
             flex-flow: column;
             transition: all .7s ease-in-out;
         }
-        
+
         .beacon-square.false {
             background: #e8e8e8;
         }
-        
+
         .beacon-square.true {
             background: #b7ff30;
         }
-        
+
         #variant-beacon-network .beacon-loading-spinner {
             display: none;
         }
-        
+
         </style>
         <div id="variant-beacon-network">
             <div>
@@ -171,7 +171,7 @@ export default class VariantBeaconNetwork extends LitElement {
                     <span id="${this._prefix}${item}" class="beaconResponse badge">
                     </span>
                     <i class="fa fa-spinner fa-spin beacon-loading-spinner" aria-hidden="true"></i>
-                </div> 
+                </div>
             `)}
         </div>
         `;

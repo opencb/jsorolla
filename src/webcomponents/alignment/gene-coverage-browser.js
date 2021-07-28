@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../utilsNew.js";
+import UtilsNew from "../../core/utilsNew.js";
 import {classMap} from "/web_modules/lit-html/directives/class-map.js";
 import "./gene-coverage-detail.js";
 import "./gene-coverage-grid.js";
@@ -188,10 +188,10 @@ export default class GeneCoverageBrowser extends LitElement {
                             display: {
                                 render: () => {
                                     return html`
-                                        <disease-panel-filter   .opencgaSession="${this.opencgaSession}" 
-                                                                .diseasePanels="${this.opencgaSession.study.panels}" 
+                                        <disease-panel-filter   .opencgaSession="${this.opencgaSession}"
+                                                                .diseasePanels="${this.opencgaSession.study.panels}"
                                                                 mode="gene"
-                                                                .config="${this.config}" 
+                                                                .config="${this.config}"
                                                                 @filterChange="${e => this.selectGene(e)}">
                                         </disease-panel-filter>`
                                 }
@@ -284,7 +284,7 @@ export default class GeneCoverageBrowser extends LitElement {
                         margin-left: 10px;
                     }
                 </style>
-                
+
                 <div class="row">
                     <div class="col-md-12">
                         <div class="panel">
@@ -308,7 +308,7 @@ export default class GeneCoverageBrowser extends LitElement {
                                     ${Object.entries(this.geneCoverageStats).map(([geneId, _]) => html`
                                         <div class="btn-group">
                                             <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab[geneId]})}" @click="${this.onClickPill}" data-id="${geneId}">
-                                                <i class="fa fa-table icon-padding" aria-hidden="true"></i> ${geneId} 
+                                                <i class="fa fa-table icon-padding" aria-hidden="true"></i> ${geneId}
                                                 <span class="coverage-table-close close" data-id="${geneId}" @click="${this.removeGene}"><i class="fa fa-times-circle"></i></span>
                                             </button>
                                         </div>

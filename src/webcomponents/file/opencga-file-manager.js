@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../utilsNew.js";
+import UtilsNew from "../../core/utilsNew.js";
 import "./opencga-file-view.js";
 import "../commons/view/data-form.js";
 import "../loading-spinner.js";
@@ -158,7 +158,7 @@ export default class OpencgaFileManager extends LitElement {
                     <i @click="${() => this.toggleFolder(domId, root)}" class="fas fa-angle-${root.exploded ? "down" : "right"}"></i> <a class="folder-name ${domId} ${root.exploded ? "exploded" : ""}" @click="${() => this.toggleFolder(domId, root)}"> ${root.file.name} </a>
                 ` : html`
                     <i class="fas fa-home"></i> <a class="home" @click="${this.reset}"> Home</a>`}
-            
+
             <ul class="">
                 ${children.map(node => {
                     if (node.file.type === "DIRECTORY") {
@@ -295,15 +295,15 @@ export default class OpencgaFileManager extends LitElement {
     }
 
     render() {
-        return html`           
+        return html`
             <div class="opencga-file-manager">
                 <tool-header title="${this._config.title}" icon="${this._config.icon}"></tool-header>
-            
+
                 <div class="row file-manager-full-height">
                     <div class="file-manager-tree left-menu col-md-3">
                         ${this.tree ? html`${this.renderTree(this.tree)}` : null}
                     </div>
-    
+
                     <div class="file-manager-grid col-md-9">
                     ${this.errorState ? html`
                         <div id="error" class="alert alert-danger" role="alert">

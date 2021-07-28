@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../../utilsNew.js";
+import UtilsNew from "../../../core/utilsNew.js";
 
 export default class CellbaseVariantAnnotationSummary extends LitElement {
 
@@ -198,19 +198,19 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
                                 <label class="col-md-3 label-title">Id</label>
                                 <span class="col-md-9"><a target="_blank" href="http://grch37.ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v=${this.variantAnnotation.id}">${this.variantAnnotation.id}</a></span>
                             </div>
-                            
+
                                 ${this.variantAnnotation?.hgvs?.length ? html`
                                 <div class="form-group">
                                     <label class="col-md-3 label-title">HGVS</label>
                                     <span class="col-md-9">${this.variantAnnotation.hgvs.map(item => html` ${item}<br> `)}</span>
                                 </div>
                                 ` : null}
-                                
+
                                 <div class="form-group">
                                     <label class="col-md-3 label-title">Alleles</label>
                                     <span class="col-md-9 break-word">${this.variantAnnotation.reference}/${this.variantAnnotation.alternate}</span>
                                 </div>
-                                
+
                                 <div class="form-group">
                                     <label class="col-md-3 label-title">Location</label>
                                     <span class="col-md-9">
@@ -224,28 +224,28 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
                                         `}
                                     </span>
                                 </div>
-                                
+
                                 ${this.variantAnnotation.type ? html`
                                     <div class="form-group">
                                         <label class="col-md-3 label-title">Type</label>
                                         <span class="col-md-9">${this.variantAnnotation.type}</span>
                                     </div>
                                 ` : null }
-                                
+
                                 ${this.variantAnnotation.ancestralAllele ? html`
                                     <div class="form-group">
                                         <label class="col-md-3 label-title">Ancestral Allele</label>
                                         <span class="col-md-9">${this.variantAnnotation.ancestralAllele}</span>
                                     </div>
                                 ` : null}
-                                
+
                                 ${this.variantAnnotation.minorAlleleFreq ? html`
                                     <div class="form-group">
                                         <label class="col-md-3 label-title">MAF</label>
                                         <span class="col-md-9">${this.variantAnnotation.minorAlleleFreq} (${this.variantAnnotation.minorAllele})</span>
                                     </div>
                                 ` : null}
-                                
+
                                 <div class="form-group">
                                     <label class="col-md-3 label-title">Most Severe Consequence Type</label>
                                     <span class="col-md-9">
@@ -255,7 +255,7 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
                                         ` : null }
                                     </span>
                                 </div>
-                                
+
                                 <div class="form-group">
                                     <label class="col-md-3 label-title">Most Severe Deleterious Score</label>
                                     <span class="col-md-9">
@@ -267,7 +267,7 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
                                         ` : null }
                                     </span>
                                 </div>
-                                
+
                                 <div class="form-group">
                                     <label class="col-md-3 label-title">Polyphen</label>
                                     <span class="col-md-9">
@@ -277,7 +277,7 @@ export default class CellbaseVariantAnnotationSummary extends LitElement {
                                         ` : null}
                                     </span>
                                 </div>
-                                                                    
+
                                 <div class="form-group">
                                     <label class="col-md-3 label-title">CADD Scaled</label>
                                     <span class="col-md-9"><span id="${this._prefix}Cadd">${this.caddScaled}</span></span>

@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../../utilsNew.js";
+import UtilsNew from "../../../core/utilsNew.js";
 
 export default class VariantFileFilter extends LitElement {
 
@@ -81,8 +81,8 @@ debugger
     render() {
                                     // .value=${this.genotypes}
         return html`
-            <select-field-filter    
-                    .data="${this.files}" 
+            <select-field-filter
+                    .data="${this.files}"
                     @filterChange="${this.filterChange}">
             </select-field-filter>
         `;

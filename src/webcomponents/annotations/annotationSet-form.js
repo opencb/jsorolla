@@ -15,7 +15,7 @@
  */
 
 import { LitElement, html } from "/web_modules/lit-element.js";
-import UtilsNew from "../../utilsNew.js";
+import UtilsNew from "../../core/utilsNew.js";
 import "../commons/tool-header.js";
 import "../commons/filters/variableset-id-autocomplete.js";
 
@@ -143,9 +143,9 @@ export default class AnnotationSetForm extends LitElement {
                         //     type: "custom",
                         //     display: {
                         //         render: (sample) => html`
-                        //             <variableset-id-autocomplete 
+                        //             <variableset-id-autocomplete
                         //                     .value="${sample?.variableSetId}"
-                        //                     .opencgaSession="${this.opencgaSession}" 
+                        //                     .opencgaSession="${this.opencgaSession}"
                         //                     @filterChange="${e => this.onFieldChange({ detail: { param: "variableSetId", value: e.detail.value } })}">
                         //             </variableset-id-autocomplete>`
                         //     }
@@ -227,7 +227,7 @@ export default class AnnotationSetForm extends LitElement {
                 </button>
             </div>
             <div class="clearfix"></div>
-            <hr style="margin:0px"> 
+            <hr style="margin:0px">
             <div class="col-md-12" style="padding: 10px 20px">
                 ${this.sample?.annotationSets?.map((item) => html`
                     <span class="label label-primary" style="font-size: 14px; margin:5px; padding-right:0px; display:inline-block">${item.name}
@@ -238,7 +238,7 @@ export default class AnnotationSetForm extends LitElement {
         </div>
 
         <div class="subform-test" style="${this.showSubForm ? "display:block" : "display:none"}">
-            <data-form  
+            <data-form
                 .data=${this.sample}
                 .config="${this._config}"
                 @fieldChange="${e => this.onFieldChange(e)}"

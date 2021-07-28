@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../utilsNew.js";
+import UtilsNew from "../../core/utilsNew.js";
 
 export default class FacetFilter extends LitElement {
 
@@ -323,7 +323,7 @@ export default class FacetFilter extends LitElement {
                     <div class="row facet-row nested">
                         <div class="col-md-12 text-center">
                             <a class="btn btn-small collapsed" role="button" data-collapse="#${facet.id}_nested" @click="${this.toggleCollapse}"> <i class="fas fa-arrow-alt-circle-down"></i> Nested Facet (optional) </a>
-                            <div class="collapse ${this.selectedFacet[facet.id].nested ? "in" : ""}" id="${facet.id}_nested"> 
+                            <div class="collapse ${this.selectedFacet[facet.id].nested ? "in" : ""}" id="${facet.id}_nested">
                                 <div class="">
                                     <select-field-filter
                                         .data="${this.config.sections.map(section => ({
@@ -335,7 +335,7 @@ export default class FacetFilter extends LitElement {
                                     </select-field-filter>
                                     <div class="row facet-row nested">
                                         ${this.renderNestedField(this.selectedFacet[facet.id].nested, facet.id)}
-                                    </div>                                
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -490,14 +490,14 @@ export default class FacetFilter extends LitElement {
                     <div class="text-center">
                         <p class="or-text">- or -</p>
                         <button class="btn btn-default btn-small ripple default-facets-button" @click="${this.addDefaultFacet}">Add default fields</button>
-                    </div> 
+                    </div>
                 </div>
-            
+
                 <div class="facet-list-container">
                     <label>Selected facets</label>
                     <div class="facet-list">
-                        <!-- this.selectedFacet <pre>${JSON.stringify(this.selectedFacet, null, "  ")}</pre> --> 
-                        
+                        <!-- this.selectedFacet <pre>${JSON.stringify(this.selectedFacet, null, "  ")}</pre> -->
+
                         ${Object.keys(this.selectedFacet).length > 0 ? Object.entries(this.selectedFacet).map(([, facet]) => html`
                             <div class="facet-box" id="${this._prefix}Heading">
                                 <div class="subsection-content form-group">

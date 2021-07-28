@@ -15,10 +15,10 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../utilsNew.js";
+import UtilsNew from "../../core/utilsNew.js";
 import {NotificationQueue} from "../Notification.js";
 import PolymerUtils from "../PolymerUtils.js";
-import {OpenCGAClient} from "../../clients/opencga/opencga-client.js";
+import {OpenCGAClient} from "../../core/clients/opencga/opencga-client.js";
 
 export default class OpencgaActiveFilters extends LitElement {
 
@@ -671,7 +671,7 @@ export default class OpencgaActiveFilters extends LitElement {
                                             <li role="separator" class="divider"></li>` :
                                         html`
                                             <li>
-                                                <a data-filter-id="${item.id}" class="filtersLink" style="cursor: pointer;color: ${!item.active ? "black" : "green"}" 
+                                                <a data-filter-id="${item.id}" class="filtersLink" style="cursor: pointer;color: ${!item.active ? "black" : "green"}"
                                                         @click="${this.onServerFilterChange}">
                                                     <span class="id-filter-button">${item.id}</span>
                                                     <span class="action-buttons">
@@ -687,12 +687,12 @@ export default class OpencgaActiveFilters extends LitElement {
                                         ) :
                                     html`<li><a class="help-block">No filters found</a></li>`
                                 }
-                                
+
                                 <li role="separator" class="divider"></li>
                                 <li>
                                     <a href="javascript: void 0" @click="${this.clear}" data-action="active-filter-clear">
                                         <i class="fa fa-eraser icon-padding" aria-hidden="true"></i> <strong>Clear</strong>
-                                    </a>    
+                                    </a>
                                 </li>
                                 ${this.isLoggedIn() ? html`
                                     <li>
@@ -701,14 +701,14 @@ export default class OpencgaActiveFilters extends LitElement {
                                 ` : null}
                             </ul>
                         </div>
-                    
+
                         ${this.queryList ? html`
                             ${this.queryList.length === 0 ?
                                 html`
                                     <label>No filters selected</label>` :
                                 html`
                                     ${this.queryList.map(item => !this._isMultiValued(item) ?
-                                        html` 
+                                        html`
                                             ${!item.locked ?
                                                 html`
                                                     <!-- No multi-valued filters -->
@@ -753,7 +753,7 @@ export default class OpencgaActiveFilters extends LitElement {
                                                             ${item.items.length && item.items.map(filterItem => html`
                                                                 <li class="small active-filter-button" style="cursor: pointer">
                                                                     <a @click="${this.onQueryFilterDelete}" data-filter-name="${item.name}" data-filter-value="${filterItem}">
-                                                                        ${filterItem} 
+                                                                        ${filterItem}
                                                                     </a>
                                                                 </li>
                                                             `)}
@@ -764,18 +764,18 @@ export default class OpencgaActiveFilters extends LitElement {
                                 `}
                             ` :
                         null}
-                    </div> 
-                        
+                    </div>
+
                     <div class="rhs">
                         <!--<button type="button" class="btn btn-primary btn-sm ripple" @click="${this.clear}">
                             <i class="fa fa-eraser icon-padding" aria-hidden="true"></i> Clear
                         </button>
                         -->
-                        
+
                         <!-- TODO we probably need a new property for this -->
                         ${false && this.showSelectFilters(this.opencgaClient._config) ? html`
                             <div class="dropdown saved-filter-wrapper">
-    
+
                                 <button type="button" class="btn btn-primary btn-sm dropdown-toggle ripple" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                     <i class="fa fa-filter icon-padding" aria-hidden="true"></i> Filters <span class="caret"></span>
                                 </button>
@@ -824,7 +824,7 @@ export default class OpencgaActiveFilters extends LitElement {
                     ` : null}
                 </div>
             </div>
-    
+
             <!-- Modal -->
             <div class="modal fade" id="${this._prefix}SaveModal" tabindex="-1" role="dialog"
                  aria-labelledby="${this._prefix}SaveModalLabel" aria-hidden="true">

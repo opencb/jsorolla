@@ -16,8 +16,8 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import {classMap} from "/web_modules/lit-html/directives/class-map.js";
-import OpencgaCatalogUtils from "../../clients/opencga/opencga-catalog-utils.js";
-import UtilsNew from "../../utilsNew.js";
+import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
+import UtilsNew from "../../core/utilsNew.js";
 import GridCommons from "../commons/grid-commons.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import "../commons/opencb-grid-toolbar.js";
@@ -353,9 +353,9 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
             html = "<span>0 variants</span>";
         }
 
-        return `<a class="btn force-text-left" data-action="interpreter" title="Go to Case Interpreter" 
+        return `<a class="btn force-text-left" data-action="interpreter" title="Go to Case Interpreter"
                         href="#interpreter/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}">
-                    ${html}   
+                    ${html}
                 </a>`;
     }
 
@@ -394,7 +394,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                                             ${priority.id === value.id ? "<i class=\"fas fa-check\"></i>" : ""}
                                         </a>
                                     </li>`;
-                        }).join("")}         
+                        }).join("")}
                     </ul>
                 </div>`;
         } else {
@@ -424,7 +424,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                                 </a>
                             </li>
                         `).join("")}
-                        
+
                     </ul>
                 </div>` :
             value.id;
@@ -661,9 +661,9 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                         <ul class="dropdown-menu dropdown-menu-right">
                             <li>
                                 <a class="btn force-text-left" data-action="interpreter" href="#interpreter/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${row.id}">
-                                    <i class="fas fa-user-md icon-padding" aria-hidden="true"></i> Case Interpreter 
+                                    <i class="fas fa-user-md icon-padding" aria-hidden="true"></i> Case Interpreter
                                 </a>
-                            </li> 
+                            </li>
                             <li>
                                 <a href="javascript: void 0" class="btn disabled force-text-left" data-action="report">
                                     <i class="fas fa-id-card icon-padding" aria-hidden="true"></i> Create Report</a>

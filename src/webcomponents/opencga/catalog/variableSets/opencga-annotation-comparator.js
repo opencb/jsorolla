@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../../../utilsNew.js";
+import UtilsNew from "../../../../core/utilsNew.js";
 
 /* TODO check functionality Polymer refs in it */
 
@@ -438,7 +438,7 @@ export default class OpencgaAnnotationComparator extends LitElement {
                 <p>No variableSets defined in the study</p>
             `}
 
-            
+
         </div>
         `;
     }

@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../../../utilsNew.js";
+import UtilsNew from "../../../../core/utilsNew.js";
 import PolymerUtils from "../../../PolymerUtils.js";
 
 // TODO check functionality and table _generateTable!
@@ -445,7 +445,7 @@ export default class OpencgaAnnotationViewer extends LitElement {
         return html`
         <div style="padding: 15px 20px">
             <div id="${this._prefix}-main-annotation-comparator-div">
-                
+
                 ${this.variableSets && this.variableSets.length ? html`
                 <!-- Annotations -->
                     ${this.multipleVariableSets ? html`
@@ -464,9 +464,9 @@ export default class OpencgaAnnotationViewer extends LitElement {
                                                        @variablechange="${this.onSelectedVariablesChange}">
                             </opencga-variable-selector>
                         </div>
-                    
+
                     ` : null }
-                    
+
                     <div id="${this._prefix}-table" style="padding: 25px 10px; max-height: 500px; overflow-x: auto; overflow-y: auto;"></div>
 
                 ` : html`

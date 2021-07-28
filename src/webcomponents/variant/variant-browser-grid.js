@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "./../../utilsNew.js";
+import UtilsNew from "./../../core/utilsNew.js";
 import VariantGridFormatter from "./variant-grid-formatter.js";
 import VariantInterpreterGridFormatter from "./interpretation/variant-interpreter-grid-formatter.js";
 import GridCommons from "../commons/grid-commons.js";
@@ -600,7 +600,7 @@ export default class VariantBrowserGrid extends LitElement {
                 {
                     title: `Clinical Info <a id="phenotypesInfoIcon" tooltip-title="Phenotypes" tooltip-text="
                                 <div>
-                                    <span style='font-weight: bold'>ClinVar</span> is a freely accessible, public archive of reports of the relationships among human variations 
+                                    <span style='font-weight: bold'>ClinVar</span> is a freely accessible, public archive of reports of the relationships among human variations
                                     and phenotypes, with supporting evidence.
                                 </div>
                                 <div style='padding-top: 10px'>
@@ -783,7 +783,7 @@ export default class VariantBrowserGrid extends LitElement {
                     </opencb-grid-toolbar>` :
                 null
             }
-                
+
             <div>
                 <table id="${this.gridId}"></table>
             </div>

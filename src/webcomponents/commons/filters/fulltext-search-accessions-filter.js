@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../../utilsNew.js";
+import UtilsNew from "../../../core/utilsNew.js";
 
 
 export default class FulltextSearchAccessionsFilter extends LitElement {
@@ -92,7 +92,7 @@ export default class FulltextSearchAccessionsFilter extends LitElement {
 
     render() {
         return html`
-            <textarea id="${this._prefix}TraitsTextarea" class="form-control clearable ${this._prefix}FilterTextInput" 
+            <textarea id="${this._prefix}TraitsTextarea" class="form-control clearable ${this._prefix}FilterTextInput"
                 rows="${this._config.rows}" name="traits" placeholder="${this._config.placeholder}" @keyup="${this.filterChange}"></textarea>
         `;
     }

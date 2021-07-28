@@ -17,7 +17,7 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import {classMap} from "/web_modules/lit-html/directives/class-map.js";
 import GridCommons from "../../commons/grid-commons.js";
-import UtilsNew from "./../../../utilsNew.js";
+import UtilsNew from "./../../../core/utilsNew.js";
 import "../../commons/analysis/opencga-analysis-tool.js";
 import AnalysisRegistry from "./analysis-registry.js";
 import "../../commons/filters/select-field-filter.js";

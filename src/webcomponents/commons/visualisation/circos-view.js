@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../../utilsNew.js";
+import UtilsNew from "../../../core/utilsNew.js";
 import "../../loading-spinner.js";
 
 export default class CircosView extends LitElement {
@@ -156,7 +156,7 @@ export default class CircosView extends LitElement {
         return html`
             <div>
                 <span id="${this._prefix}CircosMessage" style="display: inline"></span>
-                ${this.circosImage 
+                ${this.circosImage
                     ? html`
                         <img class="img-responsive" src="${this.circosImage}">`
                     : html`<loading-spinner description="Fetching image data, this can take few seconds..."></loading-spinner>`

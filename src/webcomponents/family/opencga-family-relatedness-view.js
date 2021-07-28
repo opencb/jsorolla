@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../utilsNew.js";
+import UtilsNew from "../../core/utilsNew.js";
 import "../commons/view/data-form.js";
 
 
@@ -205,7 +205,7 @@ export default class OpencgaFamilyRelatednessView extends LitElement {
                         `) : null}
                     </ul>
                 </div>
-                
+
                 <div class="row">
                     <div class="col-md-12">
                         <h4>Information</h4>

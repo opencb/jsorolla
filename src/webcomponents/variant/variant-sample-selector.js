@@ -18,7 +18,7 @@
 // TODO migrate to litelement import "../catalog/samples/opencga-family-editor-new.js";
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../utilsNew.js";
+import UtilsNew from "../../core/utilsNew.js";
 import PolymerUtils from "../PolymerUtils.js";
 import "../sample/sample-browser-filter.js";
 

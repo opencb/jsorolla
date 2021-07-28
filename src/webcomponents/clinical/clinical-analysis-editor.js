@@ -15,7 +15,7 @@
  */
 
 import {html, LitElement} from "/web_modules/lit-element.js";
-import UtilsNew from "../../utilsNew.js";
+import UtilsNew from "../../core/utilsNew.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import ClinicalAnalysisUtils from "./clinical-analysis-utils.js";
 import "./clinical-analysis-comment-editor.js";
@@ -144,7 +144,7 @@ class ClinicalAnalysisEditor extends LitElement {
         const selectedValues = selectedPanels?.map(panel => panel.id).join(",");
         return html`
             <div class="">
-                <select-field-filter .data="${panels}" 
+                <select-field-filter .data="${panels}"
                                      .value="${selectedValues}"
                                      .multiple="${true}"
                                      .classes="${this.updateParams.panels ? "updated" : ""}"
@@ -161,7 +161,7 @@ class ClinicalAnalysisEditor extends LitElement {
         const selectedValues = flags.map(flag => flag.id).join(",");
         return html`
             <div class="">
-                <select-field-filter .data="${studyFlags}" 
+                <select-field-filter .data="${studyFlags}"
                                      .value="${selectedValues}"
                                      .multiple="${true}"
                                      .classes="${this.updateParams.flags ? "updated" : ""}"
@@ -289,7 +289,7 @@ class ClinicalAnalysisEditor extends LitElement {
                             type: "custom",
                             display: {
                                 render: clinicalAnalysis => html`
-                                    <span style="font-weight: bold; padding-right: 40px">${clinicalAnalysis.id}</span> 
+                                    <span style="font-weight: bold; padding-right: 40px">${clinicalAnalysis.id}</span>
                                     <span><i class="far fa-calendar-alt"></i> ${UtilsNew.dateFormatter(clinicalAnalysis?.modificationDate)}</span>`
                             }
                         },
@@ -346,7 +346,7 @@ class ClinicalAnalysisEditor extends LitElement {
                             type: "custom",
                             display: {
                                 render: interpretation => html`
-                                    <span style="font-weight: bold; margin-right: 10px">${interpretation?.id}</span> 
+                                    <span style="font-weight: bold; margin-right: 10px">${interpretation?.id}</span>
                                     <span style="color: grey; padding-right: 40px">version ${interpretation?.version}</span>`
                             }
                         }
@@ -449,7 +449,7 @@ class ClinicalAnalysisEditor extends LitElement {
                             type: "custom",
                             display: {
                                 render: comments => html`
-                                    <clinical-analysis-comment-editor .comments="${comments}" 
+                                    <clinical-analysis-comment-editor .comments="${comments}"
                                                                       @commentChange="${e => this.onCommentChange(e)}">
                                     </clinical-analysis-comment-editor>`
                             }
@@ -537,10 +537,10 @@ class ClinicalAnalysisEditor extends LitElement {
         }
 
         return html`
-            <data-form  .data="${this.clinicalAnalysis}" 
-                        .config="${this._config}" 
-                        @fieldChange="${e => this.onFieldChange(e)}" 
-                        @clear="${this.onClear}" 
+            <data-form  .data="${this.clinicalAnalysis}"
+                        .config="${this._config}"
+                        @fieldChange="${e => this.onFieldChange(e)}"
+                        @clear="${this.onClear}"
                         @submit="${this.onRun}">
             </data-form>
         `;

@@ -15,8 +15,8 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../../utilsNew.js";
-import Pedigree from "../../../visualisation/pedigree.js";
+import UtilsNew from "../../../core/utilsNew.js";
+import Pedigree from "../../../core/visualisation/pedigree.js";
 
 
 export default class PedigreeView extends LitElement {

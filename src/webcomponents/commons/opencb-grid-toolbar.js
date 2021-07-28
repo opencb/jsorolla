@@ -15,8 +15,8 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import OpencgaCatalogUtils from "../../clients/opencga/opencga-catalog-utils.js";
-import UtilsNew from "./../../utilsNew.js";
+import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
+import UtilsNew from "./../../core/utilsNew.js";
 import "./opencga-export.js";
 
 export default class OpencbGridToolbar extends LitElement {
@@ -150,13 +150,13 @@ export default class OpencbGridToolbar extends LitElement {
                     margin-bottom: ${~this._config.buttons.indexOf("new") ? 10 : 5}px;
                 }
             </style>
-            
+
             <div class="opencb-grid-toolbar">
                 <div class="row">
                     <div id="${this._prefix}ToolbarLeft" class="col-md-6">
                         ${this._config.showCreate && (!this.opencgaSession || (this.opencgaSession && OpencgaCatalogUtils.checkPermissions(this.opencgaSession?.study, this.opencgaSession?.user?.id, "WRITE_CLINICAL_ANALYSIS"))) ? html`
                             <a type="button" class="btn btn-default ripple btn-sm text-black" href="${this._config.newButtonLink}">
-                                <i id="${this._prefix}ColumnIcon" class="fa fa-columns icon-padding" aria-hidden="true"></i> New </span> 
+                                <i id="${this._prefix}ColumnIcon" class="fa fa-columns icon-padding" aria-hidden="true"></i> New </span>
                             </a>
                         ` : null}
                     </div>
@@ -181,7 +181,7 @@ export default class OpencbGridToolbar extends LitElement {
                                 </div>
                             ` : null
                             }
-            
+
                             ${~this._config.buttons.indexOf("download") ? html`
                                 <div class="btn-group">
                                     <button type="button" class="btn btn-default ripple btn-sm dropdown-toggle" data-toggle="dropdown"
@@ -197,7 +197,7 @@ export default class OpencbGridToolbar extends LitElement {
                                 </div>
                             ` : null
                             }
-                            
+
                             ${~this._config.buttons.indexOf("export") ? html`
                                 <div class="btn-group">
                                     <button type="button" class="btn btn-default ripple btn-sm" @click="${this.openModal}">
@@ -206,7 +206,7 @@ export default class OpencbGridToolbar extends LitElement {
                                 </div>
                             ` : null}
 
-            
+
                             <!--Share URL-->
                             ${this.showShareLink ? html`
                                 <button type="button" class="btn btn-default btn-sm" data-toggle="popover" data-placement="bottom" @click="onShareLink">
@@ -214,7 +214,7 @@ export default class OpencbGridToolbar extends LitElement {
                                 </button>
                             ` : null
                             }
-                            
+
                             ${rightButtons && rightButtons.length > 0 ? rightButtons.map(rightButton => html`
                                 <div class="btn-group">
                                         ${rightButton}
@@ -225,7 +225,7 @@ export default class OpencbGridToolbar extends LitElement {
                     </div>
                 </div>
             </div>
-            
+
             <div class="modal fade" tabindex="-1" id="${this._prefix}export-modal" role="dialog">
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
@@ -240,7 +240,7 @@ export default class OpencbGridToolbar extends LitElement {
                     </div>
                 </div>
             </div>
-        
+
         `;
     }
 

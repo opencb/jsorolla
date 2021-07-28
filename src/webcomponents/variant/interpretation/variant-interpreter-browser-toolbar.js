@@ -15,7 +15,7 @@
  */
 
 import {html, LitElement} from "/web_modules/lit-element.js";
-import UtilsNew from "../../../utilsNew.js";
+import UtilsNew from "../../../core/utilsNew.js";
 
 
 class VariantInterpreterBrowserToolbar extends LitElement {
@@ -140,7 +140,7 @@ class VariantInterpreterBrowserToolbar extends LitElement {
             <div class="btn-toolbar" role="toolbar" aria-label="toolbar" style="margin: 0px 5px 20px 0px">
                 <div class="pull-right" role="group">
                     <div class="btn-group" style="margin-right: 2px">
-                        <button type="button" class="btn btn-primary dropdown-toggle ripple" data-toggle="dropdown" aria-haspopup="true" 
+                        <button type="button" class="btn btn-primary dropdown-toggle ripple" data-toggle="dropdown" aria-haspopup="true"
                                     aria-expanded="false" title="Show saved variants">
                             <i class="fas fa-eye icon-padding" aria-hidden="true"></i> View
                         </button>
@@ -161,16 +161,16 @@ class VariantInterpreterBrowserToolbar extends LitElement {
                             <li role="separator" class="divider"></li>
                             <li style="margin: 5px 10px">
                                 <div style="float: right">
-                                    <button type="button" class="btn btn-primary ${this.clinicalAnalysis.interpretation.primaryFindings?.length ? "" : "disabled"}" 
+                                    <button type="button" class="btn btn-primary ${this.clinicalAnalysis.interpretation.primaryFindings?.length ? "" : "disabled"}"
                                         @click="${this.onFilterPrimaryFindingVariants}" style="margin: 5px">Filter
                                     </button>
                                 </div>
                             </li>
                         </ul>
                     </div>
-                    
+
                     <div class="btn-group" style="margin-right: 2px">
-                        <button type="button" id="${this._prefix}ResetMenu" class="btn btn-primary dropdown-toggle ripple" data-toggle="dropdown" aria-haspopup="true" 
+                        <button type="button" id="${this._prefix}ResetMenu" class="btn btn-primary dropdown-toggle ripple" data-toggle="dropdown" aria-haspopup="true"
                                     aria-expanded="false" title="Remove not saved variants">
                             <i class="fas fa-eraser icon-padding" aria-hidden="true"></i> Reset
                         </button>
@@ -205,21 +205,21 @@ class VariantInterpreterBrowserToolbar extends LitElement {
                             <li role="separator" class="divider"></li>
                             <li style="margin: 5px 10px">
                                 <div style="float: right">
-                                    <button type="button" class="btn btn-primary ${this.state.addedVariants?.length || this.state.removedVariants?.length ? "" : "disabled"}" 
+                                    <button type="button" class="btn btn-primary ${this.state.addedVariants?.length || this.state.removedVariants?.length ? "" : "disabled"}"
                                         @click="${this.onFilterModifiedVariants}" style="margin: 5px">Filter
                                     </button>
-                                    <button type="button" class="btn btn-primary ${this.state.addedVariants?.length || this.state.removedVariants?.length ? "" : "disabled"}" 
+                                    <button type="button" class="btn btn-primary ${this.state.addedVariants?.length || this.state.removedVariants?.length ? "" : "disabled"}"
                                         @click="${this.onResetModifiedVariants}" style="margin: 5px">Reset
                                     </button>
                                 </div>
                             </li>
                         </ul>
                     </div>
-                            
+
                     <div class="btn-group">
-                        <button type="button" id="${this._prefix}SaveMenu" class="btn btn-primary dropdown-toggle ripple" data-toggle="dropdown" aria-haspopup="true" 
+                        <button type="button" id="${this._prefix}SaveMenu" class="btn btn-primary dropdown-toggle ripple" data-toggle="dropdown" aria-haspopup="true"
                                     aria-expanded="false" title="Save variants in the server">
-                            <i class="fas fa-save icon-padding" aria-hidden="true"></i> Save 
+                            <i class="fas fa-save icon-padding" aria-hidden="true"></i> Save
                             ${this.state.addedVariants?.length || this.state.removedVariants?.length
                                 ? html`
                                     <span class="badge" style="margin-left: 5px">
@@ -259,7 +259,7 @@ class VariantInterpreterBrowserToolbar extends LitElement {
                             <li role="separator" class="divider"></li>
                             <li style="margin: 5px 10px">
                                 <div style="float: right">
-                                    <button type="button" class="btn btn-primary ${this.state.addedVariants?.length || this.state.removedVariants?.length ? "" : "disabled"}" 
+                                    <button type="button" class="btn btn-primary ${this.state.addedVariants?.length || this.state.removedVariants?.length ? "" : "disabled"}"
                                         @click="${this.onSaveInterpretation}" style="margin: 5px">Save
                                     </button>
                                 </div>

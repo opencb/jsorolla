@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../utilsNew.js";
+import UtilsNew from "../../core/utilsNew.js";
 import PolymerUtils from "../PolymerUtils.js";
 import "../variant/variant-browser-grid.js";
 import "../variant/variant-protein-view.js";
@@ -259,7 +259,7 @@ export default class OpencgaTranscriptView extends LitElement {
                     </div>
                 <br>
                 <br>
-                
+
                 <variant-browser-grid .opencgaSession="${this.opencgaSession}"
                                                   .query="${this.query}"
                                                   .populationFrequencies="${this.populationFrequencies}"
@@ -271,7 +271,7 @@ export default class OpencgaTranscriptView extends LitElement {
 
                 ${this.checkVariant(this.variantId) ? html`
                     <!-- Bottom tabs with specific variant information -->
-                        <opencga-variant-detail-view    .opencgaSession="${this.opencgaSession}" 
+                        <opencga-variant-detail-view    .opencgaSession="${this.opencgaSession}"
                                                     .cellbaseClient="${this.cellbaseClient}"
                                                     .variantId="${this.variantId}"
                                                     .config="${this._config?.filter?.detail}">

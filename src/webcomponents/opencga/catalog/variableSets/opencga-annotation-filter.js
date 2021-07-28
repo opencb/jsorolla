@@ -1,5 +1,21 @@
+/**
+ * Copyright 2015-2019 OpenCB
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../../../utilsNew.js";
+import UtilsNew from "../../../../core/utilsNew.js";
 import PolymerUtils from "../../../PolymerUtils.js";
 import {NotificationQueue} from "../../../Notification.js";
 import "./opencga-variable-selector.js";
@@ -283,13 +299,13 @@ export default class OpencgaAnnotationFilter extends LitElement {
             .plus-button:hover {
                 color: #009c2c;
             }
-            
+
             .annotation-filter-div label{
                 font-weight: normal;
                 font-size: .9em;
             }
-            
-            
+
+
         </style>
         <div id="${this._prefix}-main-annotation-filter-div" class="annotation-filter-div">
         ${!this.variableSets.length ? html`
@@ -301,11 +317,11 @@ export default class OpencgaAnnotationFilter extends LitElement {
                 <select-field-filter .data="${this.variableSets.map( _ => _.name)}" @filterChange="${this.onSelectedVariableSetChange}"></select-field-filter>
                ` :
         null}
-        
+
         <opencga-variable-selector .variableSet="${this.selectedVariableSet}"
                                    @variablechange="${this.onChangeSelectedVariable}">
         </opencga-variable-selector>
-                
+
         <!-- Show different value selector based on the type of the selected variable -->
         ${this.selectedVariable ? html`<div>
             <div class="input-group">

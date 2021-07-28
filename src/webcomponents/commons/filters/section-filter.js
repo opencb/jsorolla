@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../../utilsNew.js";
+import UtilsNew from "../../../core/utilsNew.js";
 
 /**
  * This is a wrapper component of a group of filters
@@ -67,7 +67,7 @@ export default class SectionFilter extends LitElement {
                             ${this.filters?.map(filter => html`${filter}`)}
                         </div>
                     </div>
-                </div>                    
+                </div>
         ` : "";
     }
 

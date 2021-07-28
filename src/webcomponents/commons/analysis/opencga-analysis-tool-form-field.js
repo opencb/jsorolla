@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../../utilsNew.js";
+import UtilsNew from "../../../core/utilsNew.js";
 import "../filters/select-field-filter.js";
 import "../filters/text-field-filter.js";
 import "../filters/cohort-id-autocomplete.js";
@@ -96,7 +96,7 @@ export default class OpencgaAnalysisToolFormField extends LitElement {
             case "CLINVAR_ACCESSION_FILTER":
                 return html`<clinvar-accessions-filter .config="${{clinvar: false}}" .clinicalSignificance="${fieldConfig.value}" @filterChange="${e => this.onFilterChange(fieldConfig.id, e?.detail?.value?.clinicalSignificance)}"></clinvar-accessions-filter>`
             case "COHORT_FREQUENCY_FILTER":
-                return html`<cohort-stats-filter .opencgaSession="${this.opencgaSession}" .onlyCohortAll=${true} .cohortStatsAlt="${fieldConfig.value}" 
+                return html`<cohort-stats-filter .opencgaSession="${this.opencgaSession}" .onlyCohortAll=${true} .cohortStatsAlt="${fieldConfig.value}"
                                     @filterChange="${e => this.onFilterChange(fieldConfig.id, e.detail.value)}">
                            </cohort-stats-filter>`;
            case "POPULATION_FREQUENCY_FILTER":

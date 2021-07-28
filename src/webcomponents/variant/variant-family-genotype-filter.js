@@ -15,9 +15,9 @@
  */
 
 import {html, LitElement} from "/web_modules/lit-element.js";
-import UtilsNew from "../../utilsNew.js";
+import UtilsNew from "../../core/utilsNew.js";
 import PolymerUtils from "../PolymerUtils.js";
-import Pedigree from "../../visualisation/pedigree.js";
+import Pedigree from "../../core/visualisation/pedigree.js";
 import "../commons/view/pedigree-view.js";
 import "../commons/filters/select-field-filter.js";
 
@@ -466,13 +466,13 @@ export default class VariantFamilyGenotypeFilter extends LitElement {
                 #segregation-select {
                     width: 200px;
                 }
-        
+
                 #opencga-variant-filter-clinical .mode-button > div {
                     margin-right: 20px;
                     display: inline-block;
                     vertical-align: top;
                 }
-                
+
                 #opencga-variant-filter-clinical .select-field-filter-wrapper {
                     display: inline-block;
                     width: 180px;
@@ -487,7 +487,7 @@ export default class VariantFamilyGenotypeFilter extends LitElement {
                         such as RECESSIVE OR COMPOUND HETEROZYGOUS.
                     </div>
                 </div>
-                
+
                 <div class="col-md-4">
                     <div class="form-check-label mode-button">
                                 <!--<select-field-filter ?multiple="${true}" ?disabled=${false} ?required=${true} .data="${["GT", "LT"]}" .value="${"LT"}" maxOptions="2" @filterChange="${e => console.log("ID", e.detail.value)}"></select-field-filter>-->
@@ -546,11 +546,11 @@ export default class VariantFamilyGenotypeFilter extends LitElement {
                                         </td>
                                         <!--
                                             <td style="padding-left: 20px">
-                                                ${sampleFilter.proband 
+                                                ${sampleFilter.proband
                                                     ? html`
                                                         <span data-toggle="tooltip" data-placement="bottom" title="Proband">
                                                             <i class='fa fa-check' style='color: green'></i>
-                                                        </span>` 
+                                                        </span>`
                                                     : html`
                                                         <span><i class='fa fa-times' style='color: red'></i></span>`
                                                 }
@@ -560,9 +560,9 @@ export default class VariantFamilyGenotypeFilter extends LitElement {
                                             <span>${sampleFilter.sex} (${sampleFilter.karyotypicSex})</span>
                                         </td>
                                         <td style="padding-left: 25px">
-                                            ${sampleFilter.affected 
+                                            ${sampleFilter.affected
                                                 ? html`
-                                                    <span data-toggle="tooltip" data-placement="bottom" title="Affected"><i class='fa fa-check' style='color: green'></i></span>` 
+                                                    <span data-toggle="tooltip" data-placement="bottom" title="Affected"><i class='fa fa-check' style='color: green'></i></span>`
                                                 : html`
                                                     <span><i class='fa fa-times' style='color: red'></i></span>`
                                             }
@@ -599,17 +599,17 @@ export default class VariantFamilyGenotypeFilter extends LitElement {
                     </div>
 <!--                    <div id="${this._prefix}BasicTableMessage" style="text-align: center"><span style="font-weight: bold">No Samples selected</span></div>-->
                 </div>
-                                
+
                 ${this.showModeOfInheritance && this.errorState? html`
                     <div class="col-md-12" style="padding: 10px 20px">
                         <div class="alert alert-danger" role="alert" id="${this._prefix}Warning">
                             <i class="fas fa-3x fa fa-exclamation-triangle align-middle"></i> The selected Mode of Inheritance is not compatible with the family pedigree.
                         </div>
-                    </div>    
+                    </div>
                 ` : null}
-            
-            
-            
+
+
+
                 ${this._config.showPedigree ? html`
                     <div class="col-md-12">
                         <h4 style="padding-top: 5px; padding-bottom: 10px">Pedigree</h4>

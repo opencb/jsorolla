@@ -15,8 +15,8 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import Utils from "./../../utils.js";
-import UtilsNew from "../../utilsNew.js";
+import Utils from "./../../core/utils.js";
+import UtilsNew from "../../core/utilsNew.js";
 import "./variant-beacon-network.js";
 
 
@@ -129,7 +129,7 @@ export default class VariantBeacon extends LitElement {
         return html`
             ${this.checkProjects ? html`
                 <tool-header title="GA4GH Beacon" icon="fa fa-share-alt"></tool-header>
-    
+
                 <div class="container">
                     <div class="row">
                         <div class="col-md-12">
@@ -179,7 +179,7 @@ export default class VariantBeacon extends LitElement {
                                     <button type="reset" class="btn btn-primary ripple" @click="${this.clearFields}" .disabled="${!this.resetEnabled}">Reset</button>
                                     <button type="submit" class="btn btn-primary ripple" @click="${this.execute}" .disabled="${!this.variant}">Submit</button>
                                 </div>
-            
+
                                 <!-- Result -->
                                 ${this.checkResult(this.result) ? html`
                                     <div class="col-xs-3" style="padding-left: 0px">
@@ -200,7 +200,7 @@ export default class VariantBeacon extends LitElement {
                         <div class="col-md-12">
                                 <h3>Beacon Network</h3>
                                 <div>
-                                    <variant-beacon-network .variant="${this.variant}" 
+                                    <variant-beacon-network .variant="${this.variant}"
                                                             .assembly="${this.opencgaSession.project.organism.assembly}"
                                                             .config="${this._config}">
                                     </variant-beacon-network>

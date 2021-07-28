@@ -15,10 +15,10 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import OpencgaCatalogUtils from "../../../clients/opencga/opencga-catalog-utils.js";
+import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
 import ClinicalAnalysisManager from "../../clinical/clinical-analysis-manager.js";
 import ClinicalAnalysisUtils from "../../clinical/clinical-analysis-utils.js";
-import UtilsNew from "../../../utilsNew.js";
+import UtilsNew from "../../../core/utilsNew.js";
 import "./variant-interpreter-browser-toolbar.js";
 import "./variant-interpreter-grid.js";
 import "./variant-interpreter-detail.js";

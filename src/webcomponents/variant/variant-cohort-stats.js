@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../utilsNew.js";
+import UtilsNew from "../../core/utilsNew.js";
 import "./variant-cohort-stats-grid.js";
 
 export default class VariantCohortStats extends LitElement {
@@ -94,7 +94,7 @@ export default class VariantCohortStats extends LitElement {
 
         return html`
             ${this.variant?.studies?.length > 0 && this.variant.studies.map(study => html`
-                <h3> 
+                <h3>
                     ${studyNames[study.studyId]}
                 </h3>
                 <div style="padding: 10px">

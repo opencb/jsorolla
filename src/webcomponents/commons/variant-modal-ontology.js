@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "./../../utilsNew.js";
+import UtilsNew from "./../../core/utilsNew.js";
 import PolymerUtils from "../PolymerUtils.js";
 
 
@@ -292,7 +292,7 @@ export default class VariantModalOntology extends LitElement {
                                         <div id="${this._prefix}TermsTree"></div>
                                     </div>
                                     <div class="col-sm-6" style="overflow-y: auto; height:400px;" id="${this._prefix}divDatalist">
-                                        
+
                                         ${this.selectedTerm ? html`
                                             <ul class="list-group infoHpo">
                                                 <li class="list-group-item"><strong>Label: </strong>${this.selectedTerm.label}</li>
@@ -303,7 +303,7 @@ export default class VariantModalOntology extends LitElement {
                                                 <li class="list-group-item"><button type="button" class="btn btn-info" @click="${this.addSelectedTermToList}">Add Term</button></li>
                                             </ul>
                                         ` : null}
-            
+
                                         <ul class="list-group">
                                             ${this.selectedTermsFull && this.selectedTermsFull.length ? this.selectedTermsFull.map(item => html`
                                                 <li class="list-group-item">${item.label}(${item.obo_id}) <button type="button" class="btn danger" @click="${this.deleteTermFromList}" data-selected-term-id="${item.obo_id}">X</button></li>
@@ -313,7 +313,7 @@ export default class VariantModalOntology extends LitElement {
                                 </div>
                             </div>
                         </div>
-            
+
                         <div class="modal-footer">
                             <button type="button" class="btn btn-primary" @click="${this.clickOkModal}">OK</button>
                         </div>

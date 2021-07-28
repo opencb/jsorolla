@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import {classMap} from "/web_modules/lit-html/directives/class-map.js";
-import UtilsNew from "../../../utilsNew.js";
+import UtilsNew from "../../../core/utilsNew.js";
 import "./variant-interpreter-browser-rd.js";
 import "./variant-interpreter-browser-cancer.js";
 import "./variant-interpreter-browser-rearrangement.js";
@@ -168,17 +168,17 @@ class VariantInterpreterBrowser extends LitElement {
                                 </li>` :
                             null
                         }
-                        
+
                         ${this.clinicalAnalysis.type.toUpperCase() === "CANCER" ?
                             html`
                                 <li role="presentation" class="content-pills ${classMap({active: this.activeTab["CancerSomaticVariantBrowser"]})}">
-                                    <a href="javascript: void 0" role="tab" data-id="CancerSomaticVariantBrowser" 
+                                    <a href="javascript: void 0" role="tab" data-id="CancerSomaticVariantBrowser"
                                        @click="${this._changeTab}" class="tab-title">Somatic Variant Browser</a>
                                 </li>
                                 ${this.showRearrangementBrowser ?
                                     html`
                                         <li role="presentation" class="content-pills ${classMap({active: this.activeTab["CancerSomaticRearrangementVariantBrowser"]})}">
-                                            <a href="javascript: void 0" role="tab" data-id="CancerSomaticRearrangementVariantBrowser" 
+                                            <a href="javascript: void 0" role="tab" data-id="CancerSomaticRearrangementVariantBrowser"
                                                @click="${this._changeTab}" class="tab-title">Somatic Rearrangement Variant Browser</a>
                                         </li>` :
                                     null
@@ -186,7 +186,7 @@ class VariantInterpreterBrowser extends LitElement {
                                 ${this._germlineSample ?
                                     html`
                                         <li role="presentation" class="content-pills ${classMap({active: this.activeTab["CancerGermlineVariantBrowser"]})}">
-                                            <a href="javascript: void 0" role="tab" data-id="CancerGermlineVariantBrowser" 
+                                            <a href="javascript: void 0" role="tab" data-id="CancerGermlineVariantBrowser"
                                                @click="${this._changeTab}" class="tab-title">Germline Variant Browser</a>
                                         </li>` :
                                     null
@@ -195,7 +195,7 @@ class VariantInterpreterBrowser extends LitElement {
                         }
                     </ul>
                 </div>
-                
+
                 <div class="content-tab-wrapper col-md-12">
                     ${this.clinicalAnalysis.type.toUpperCase() === "SINGLE" || this.clinicalAnalysis.type.toUpperCase() === "FAMILY" ?
                         html`
@@ -235,7 +235,7 @@ class VariantInterpreterBrowser extends LitElement {
                                     </div>` :
                                 null
                             }
-                            
+
                             ${this._germlineSample ? // Check Germline sample exist
                                 html`
                                     <div id="${this._prefix}CancerGermlineVariantBrowser" role="tabpanel" class="tab-pane content-tab">

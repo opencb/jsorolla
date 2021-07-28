@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../utilsNew.js";
+import UtilsNew from "../../core/utilsNew.js";
 import "../opencga/catalog/variableSets/opencga-annotation-filter.js";
 import "../commons/filters/date-filter.js";
 import "../commons/opencga-facet-view.js";
@@ -159,26 +159,26 @@ export default class SampleBrowserFilter extends LitElement {
                 content = html`
                     <!--<select-token-filter2 .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}" ></select-token-filter2>
                     <select-token-filter .config="${subsection}" resource="SAMPLE" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}" ></select-token-filter>-->
-                    <sample-id-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}" 
+                    <sample-id-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}"
                                             @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
                     </sample-id-autocomplete>`;
                 break;
             case "individualId":
                 content = html`
-                    <individual-id-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}" 
+                    <individual-id-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}"
                                                 @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
                     </individual-id-autocomplete>`;
                 break;
             case "fileIds":
                 content = html`
-                    <file-name-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}" 
+                    <file-name-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}"
                                             @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
                     </file-name-autocomplete>`;
                 break;
             case "source":
             case "phenotypes":
                 content = html`
-                    <text-field-filter placeholder="${subsection.placeholder}" .value="${this.preparedQuery[subsection.id]}" 
+                    <text-field-filter placeholder="${subsection.placeholder}" .value="${this.preparedQuery[subsection.id]}"
                                        @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
                     </text-field-filter>`;
                 break;
@@ -226,9 +226,9 @@ export default class SampleBrowserFilter extends LitElement {
                     </button>
                 </div>
                 ` : null}
-            
+
             <div class="panel-group" id="${this._prefix}Accordion" role="tablist" aria-multiselectable="true">
-                <div class="">            
+                <div class="">
                     ${this.config.sections && this.config.sections.length ? this.config.sections.map(section => this._createSection(section)) : html`No filter has been configured.`}
                 </div>
             </div>

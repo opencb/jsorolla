@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import BioinfoUtils from "../../bioinfo-utils.js";
+import BioinfoUtils from "../../core/bioinfo-utils.js";
 
 
 export default class VariantGridFormatter {
@@ -188,7 +188,7 @@ export default class VariantGridFormatter {
 
                     const tooltipText = `
                         ${geneViewMenuLink}
-                        
+
                         <div class='dropdown-header' style='padding-left: 5px;padding-top: 5px'>External Links</div>
                         <div style='padding: 5px'>
                              <a target='_blank' href='${BioinfoUtils.getEnsemblLink(geneName, "gene", opencgaSession.project.organism.assembly)}'>Ensembl</a>
@@ -199,7 +199,7 @@ export default class VariantGridFormatter {
                         <div style='padding: 5px'>
                              <a target='_blank' href='${BioinfoUtils.getUniprotLink(geneName)}'>UniProt</a>
                         </div>
-                       
+
                         <div class='dropdown-header' style='padding-left: 5px;padding-top: 5px'>Clinical Resources</div>
                         <div style='padding: 5px'>
                              <a target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "decipher")}'>Decipher</a>
@@ -546,13 +546,13 @@ export default class VariantGridFormatter {
             if (filter) {
                 // Create two different divs to 'show all' or 'apply filter' title
                 message = `<div class="${variantGrid._prefix}${row.id}Filtered">
-                                Showing <span style="font-weight: bold; color: red">${showArrayIndexes.length}</span> of 
-                                <span style="font-weight: bold; color: red">${row.annotation.consequenceTypes.length}</span> consequence types, 
+                                Showing <span style="font-weight: bold; color: red">${showArrayIndexes.length}</span> of
+                                <span style="font-weight: bold; color: red">${row.annotation.consequenceTypes.length}</span> consequence types,
                                 <a id="${variantGrid._prefix}${row.id}ShowCt" data-id="${row.id}" style="cursor: pointer">show all...</a>
                             </div>
                             <div class="${variantGrid._prefix}${row.id}Filtered" style="display: none">
-                                Showing <span style="font-weight: bold; color: red">${row.annotation.consequenceTypes.length}</span> of 
-                                <span style="font-weight: bold; color: red">${row.annotation.consequenceTypes.length}</span> consequence types, 
+                                Showing <span style="font-weight: bold; color: red">${row.annotation.consequenceTypes.length}</span> of
+                                <span style="font-weight: bold; color: red">${row.annotation.consequenceTypes.length}</span> consequence types,
                                 <a id="${variantGrid._prefix}${row.id}HideCt" data-id="${row.id}" style="cursor: pointer">apply filters...</a>
                             </div>
                             `;
@@ -623,8 +623,8 @@ export default class VariantGridFormatter {
                 for (const so of ct.sequenceOntologyTerms) {
                     const color = CONSEQUENCE_TYPES.style[CONSEQUENCE_TYPES.impact[so.name]] || "black";
                     soArray.push(`<div style="color: ${color}; margin-bottom: 5px">
-                                    <span style="padding-right: 5px">${so.name}</span> 
-                                    <a title="Go to Sequence Ontology ${so.accession} term" 
+                                    <span style="padding-right: 5px">${so.name}</span>
+                                    <a title="Go to Sequence Ontology ${so.accession} term"
                                             href="https://www.sequenceontology.org/browser/current_svn/term/${so.accession}" target="_blank">
                                         <i class="fas fa-external-link-alt"></i>
                                     </a>
@@ -694,11 +694,11 @@ export default class VariantGridFormatter {
                                 <td>${transcriptIdHtml}</td>
                                 <td>${soArray.join("")}</td>
                                 <td>${transcriptFlags.join("")}</td>
-                                
+
                                 <td>${ct.cdnaPosition || "-"} / ${ct.cdsPosition || "-"}</td>
                                 <td>${ct.codon || "-"}</td>
                                 <td>${exons.join("<br>")}</td>
-                                
+
                                 <td>${uniprotAccession}</td>
                                 <td>${pva.position !== undefined ? pva.position : "-"}</td>
                                 <td>${pva.reference !== undefined ? pva.reference + "/" + pva.alternate : "-"}</td>
@@ -712,8 +712,8 @@ export default class VariantGridFormatter {
     }
 
     static populationFrequenciesInfoTooltipContent(populationFrequencies) {
-        return `One coloured square is shown for each population. Frequencies are coded with colours which classify values 
-                into 'very rare', 'rare', 'average', 'common' or 'missing', see 
+        return `One coloured square is shown for each population. Frequencies are coded with colours which classify values
+                into 'very rare', 'rare', 'average', 'common' or 'missing', see
                 <a href='https://www.nature.com/scitable/topicpage/multifactorial-inheritance-and-genetic-disease-919' target='_blank'>
                     https://www.nature.com/scitable/topicpage/multifactorial-inheritance-and-genetic-disease-919
                 </a>. Please, leave the cursor over each square to display the actual frequency values. <br>

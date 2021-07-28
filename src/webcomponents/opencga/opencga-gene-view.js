@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../utilsNew.js";
+import UtilsNew from "../../core/utilsNew.js";
 import PolymerUtils from "../PolymerUtils.js";
 import "../variant/variant-browser-grid.js";
 import "../variant/variant-protein-view.js";
@@ -166,7 +166,7 @@ export default class OpencgaGeneView extends LitElement {
                             <i class="fa fa-hand-o-left" aria-hidden="true"></i> Variant Browser
                         </button>
                     </div>
-        
+
                     <div class="row" style="padding: 5px 0px 25px 0px">
                         <div class="col-md-4">
                             <h3 class="section-title">Summary</h3>
@@ -199,7 +199,7 @@ export default class OpencgaGeneView extends LitElement {
                                 </tr>
                             </table>
                         </div>
-        
+
                         <div class="col-md-8">
                             <h3 class="section-title">Transcripts</h3>
                             <table class="table table-bordered" width="100%">
@@ -253,7 +253,7 @@ export default class OpencgaGeneView extends LitElement {
                             </table>
                         </div>
                     </div>
-        
+
                     ${application.appConfig === "opencb" ? html`
                         <ul id="${this._prefix}ViewTabs" class="nav nav-tabs" role="tablist">
                             <li role="presentation" class="active">
@@ -264,7 +264,7 @@ export default class OpencgaGeneView extends LitElement {
                             </li>
                         </ul>
                     ` : null}
-            
+
                     <div class="tab-content" style="height: 1024px">
                         <div role="tabpanel" class="tab-pane active" id="${this._prefix}Variants">
                             <div class="btn-group pad15" role="group">
@@ -278,7 +278,7 @@ export default class OpencgaGeneView extends LitElement {
                                     LoF
                                 </button>
                             </div>
-            
+
                             <!--<br>-->
                             <br>
                             <variant-browser-grid .opencgaSession="${this.opencgaSession}"
@@ -290,10 +290,10 @@ export default class OpencgaGeneView extends LitElement {
                                                   .config="${this.config}"
                                                   @selectrow="${this.onSelectVariant}">
                             </variant-browser-grid>
-            
+
                             ${this.checkVariant(this.variantId) ? html`
                                 <!-- Bottom tabs with specific variant information -->
-                                    <opencga-variant-detail-view    .opencgaSession="${this.opencgaSession}" 
+                                    <opencga-variant-detail-view    .opencgaSession="${this.opencgaSession}"
                                                                 .cellbaseClient="${this.cellbaseClient}"
                                                                 .variantId="${this.variantId}"
                                                                 .config="${this._config?.filter?.detail}">
@@ -310,7 +310,7 @@ export default class OpencgaGeneView extends LitElement {
                                     </cellbase-variantannotation-view> -->
                             ` : null}
                         </div>
-            
+
                         <div role="tabpanel" class="tab-pane" id="${this._prefix}Protein">
                             <variant-protein-view .opencgaSession="${this.opencgaSession}"
                                                   .opencgaClient="${this.opencgaClient}"

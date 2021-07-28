@@ -15,10 +15,10 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../utilsNew.js";
+import UtilsNew from "../../core/utilsNew.js";
 import "../commons/view/data-form.js";
 import {NotificationQueue} from "../Notification.js";
-import OpencgaCatalogUtils from "../../clients/opencga/opencga-catalog-utils.js"
+import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import "../commons/filters/clinical-priority-filter.js";
 
 export default class OpencgaClinicalAnalysisWriter extends LitElement {
@@ -217,7 +217,7 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
         const selectedValues = selectedPanels?.map(panel => panel.id).join(",");
         return html`
             <div class="">
-                <select-field-filter .data="${panels}" 
+                <select-field-filter .data="${panels}"
                                      .value="${selectedValues}"
                                      .multiple="${true}"
                                      @filterChange="${e => {
@@ -332,7 +332,7 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                                 visible: data => this.mode === "create",
                                 render: data => {
                                     return html`
-                                        <individual-id-autocomplete 
+                                        <individual-id-autocomplete
                                             .opencgaSession="${this.opencgaSession}" ?disabled=${this.mode === "update"} .config=${{
                                                     addButton: false,
                                                     multiple: false
@@ -396,7 +396,7 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                                 visible: data => this.mode === "create",
                                 render: data => {
                                     return html`
-                                        <family-id-autocomplete 
+                                        <family-id-autocomplete
                                             .opencgaSession="${this.opencgaSession}" ?disabled=${this.mode === "update"} .config=${{
                                         addButton: false,
                                         multiple: false
@@ -603,9 +603,9 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                             defaultValue: "MEDIUM",
                             display: {
                                 render: priority => html`
-                                    <clinical-priority-filter   .config=${{multiple: false}} 
-                                                                .priorities="${[...Object.values(this.opencgaSession.study.configuration?.clinical?.priorities)]}" 
-                                                                @filterChange="${e => this.onCustomFieldChange("priority", e)}" 
+                                    <clinical-priority-filter   .config=${{multiple: false}}
+                                                                .priorities="${[...Object.values(this.opencgaSession.study.configuration?.clinical?.priorities)]}"
+                                                                @filterChange="${e => this.onCustomFieldChange("priority", e)}"
                                                                 .priority="${priority}">
                                     </clinical-priority-filter>`
                             }
@@ -714,10 +714,10 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
 
     render() {
         return this.checkProjects ? html`
-           <data-form   .data="${this.clinicalAnalysis}" 
-                        .config="${this._config}" 
-                        @fieldChange="${e => this.onFieldChange(e)}" 
-                        @clear="${this.onClear}" 
+           <data-form   .data="${this.clinicalAnalysis}"
+                        .config="${this._config}"
+                        @fieldChange="${e => this.onFieldChange(e)}"
+                        @clear="${this.onClear}"
                         @submit="${this.onRun}">
             </data-form>
         ` : html`

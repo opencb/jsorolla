@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import ClinicalAnalysisUtils from "../../clinical/clinical-analysis-utils.js";
-import UtilsNew from "../../../utilsNew.js";
+import UtilsNew from "../../../core/utilsNew.js";
 import PolymerUtils from "../../PolymerUtils.js";
 import "../../commons/tool-header.js";
 import "../interpretation/variant-interpreter-grid.js";
@@ -190,7 +190,7 @@ class InterpretationHistory extends LitElement {
                         <ul class="dropdown-menu dropdown-menu-right">
                             <li>
                                 <a href="javascript: void 0" class="btn force-text-left" data-action="restore">
-                                    <i class="fas fa-file-upload icon-padding" aria-hidden="true"></i> Restore 
+                                    <i class="fas fa-file-upload icon-padding" aria-hidden="true"></i> Restore
                                 </a>
                             </li>
                         </ul>

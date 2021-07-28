@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../../../utilsNew.js";
+import UtilsNew from "../../../../core/utilsNew.js";
 import "./../../../commons/view/detail-tabs.js";
 import knockoutDataIndividuals from "../test/knockout.20201103172343.kFIvpr.individuals.js";
 
@@ -137,7 +137,7 @@ export default class KnockoutVariantAllelePairs extends LitElement {
     }
 
     render() {
-        return html`   
+        return html`
             <div class="row">
                 <table id="${this.gridId}"></table>
             </div>

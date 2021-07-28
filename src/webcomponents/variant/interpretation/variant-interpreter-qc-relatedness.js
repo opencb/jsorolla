@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../../utilsNew.js";
+import UtilsNew from "../../../core/utilsNew.js";
 import "../../family/opencga-family-relatedness-view.js";
 
 class VariantInterpreterQcRelatedness extends LitElement {
@@ -110,7 +110,7 @@ class VariantInterpreterQcRelatedness extends LitElement {
 
         return html`
             <div style="margin: 20px 10px">
-                <opencga-family-relatedness-view    .opencgaSession="${this.opencgaSession}" 
+                <opencga-family-relatedness-view    .opencgaSession="${this.opencgaSession}"
                                                     .family="${this.clinicalAnalysis.family}">
                 </opencga-family-relatedness-view>
             </div>

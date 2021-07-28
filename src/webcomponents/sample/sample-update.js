@@ -15,10 +15,10 @@
  */
 
 import {html, LitElement} from "/web_modules/lit-element.js";
-import UtilsNew from "../../utilsNew.js";
+import UtilsNew from "../../core/utilsNew.js";
 // import "../commons/manager/phenotype-manager.js";
 import "../annotations/annotationSet-form.js";
-import FormUtils from "../../form-utils.js";
+import FormUtils from "../../core/form-utils.js";
 
 export default class SampleUpdate extends LitElement {
 

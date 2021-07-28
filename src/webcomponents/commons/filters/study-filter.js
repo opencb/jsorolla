@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "./../../../utilsNew.js";
+import UtilsNew from "./../../../core/utilsNew.js";
 import "./select-field-filter.js";
 
 
@@ -127,15 +127,15 @@ export default class StudyFilter extends LitElement {
                     <input id="${this._prefix}${study.alias}Checkbox" type="checkbox" @change="${this.onChangeStudy}" value="${study.alias}" data-id="${study.fqn}" class="${this._prefix}FilterCheckBox" .checked="${~this.selectedStudies.indexOf(study.fqn)}" >
                      ${study.alias}
                  `) : null}
-           --> 
-                
+           -->
+
             <div id="${this._prefix}DifferentStudies" class="form-group">
                 <select multiple class="form-control input-sm selectpicker" id="${this._prefix}includeOtherStudy"
                     @change="${this.onChangeSelectedStudy}">
                     <option value="${this.opencgaSession.study.fqn}" selected="selected" disabled>${this.opencgaSession.study.name}</option>
-                    ${this.differentStudies.length > 0 
+                    ${this.differentStudies.length > 0
                         ? this.differentStudies.map(study => html`
-                            <option value="${study.fqn}">${study.name}</option>`) 
+                            <option value="${study.fqn}">${study.name}</option>`)
                         : null
                     }
                 </select>

@@ -16,8 +16,8 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import {classMap} from "/web_modules/lit-html/directives/class-map.js";
-import OpencgaCatalogUtils from "../../../clients/opencga/opencga-catalog-utils.js";
-import UtilsNew from "../../../utilsNew.js";
+import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
+import UtilsNew from "../../../core/utilsNew.js";
 import "../../clinical/clinical-analysis-editor.js";
 import "../../clinical/opencga-clinical-analysis-writer.js";
 import "../../clinical/clinical-analysis-interpretation-editor.js";
@@ -358,30 +358,30 @@ class VariantInterpreterLanding extends LitElement {
                     <ul class="nav nav-tabs nav-center tablist" role="tablist" aria-label="toolbar">
                         ${OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS") ? html`
                             <li role="presentation" class="content-pills ${classMap({active: this.activeTab["General"] || UtilsNew.isEmpty(this.activeTab)})}">
-                                <a href="javascript: void 0" role="tab" data-id="General" 
+                                <a href="javascript: void 0" role="tab" data-id="General"
                                     @click="${e => this.editMode && this._changeTab(e)}" class="tab-title ${classMap({disabled: !this.editMode})}">General</a>
                             </li>
                             <li role="presentation" class="content-pills ${classMap({active: this.activeTab["Clinical"]})}">
-                                <a href="javascript: void 0" role="tab" data-id="Clinical" 
+                                <a href="javascript: void 0" role="tab" data-id="Clinical"
                                     @click="${e => this.editMode && this._changeTab(e)}" class="tab-title ${classMap({disabled: !this.editMode})}">Clinical</a>
                             </li>
                             <li role="presentation" class="content-pills ${classMap({active: this.activeTab["Interpretations"]})}">
-                                <a href="javascript: void 0" role="tab" data-id="Interpretations" 
+                                <a href="javascript: void 0" role="tab" data-id="Interpretations"
                                     @click="${e => this.editMode && this._changeTab(e)}" class="tab-title ${classMap({disabled: !this.editMode})}">Interpretation Manager</a>
                             </li>
                             <li role="presentation" class="content-pills ${classMap({active: this.activeTab["Consent"]})}">
-                                <a href="javascript: void 0" role="tab" data-id="Consent" 
+                                <a href="javascript: void 0" role="tab" data-id="Consent"
                                     @click="${e => this.editMode && this._changeTab(e)}" class="tab-title ${classMap({disabled: !this.editMode})}">Consent</a>
-                            </li>                                                        
+                            </li>
                             <li role="presentation" class="content-pills ${classMap({active: this.activeTab["Audit"]})}">
-                                <a href="javascript: void 0" role="tab" data-id="Audit" 
+                                <a href="javascript: void 0" role="tab" data-id="Audit"
                                     @click="${e => this.editMode && this._changeTab(e)}" class="tab-title ${classMap({disabled: !this.editMode})}">Audit</a>
                             </li>
                             ` : null
                         }
                         ${this.clinicalAnalysis ? html`
                             <li role="presentation" class="content-pills active ${classMap({active: this.activeTab["Overview"]})}">
-                                <a href="javascript: void 0" role="tab" data-id="Overview" 
+                                <a href="javascript: void 0" role="tab" data-id="Overview"
                                     @click="${this._changeTab}" class="tab-title">Case Overview</a>
                             </li>
                         ` : html`
@@ -391,7 +391,7 @@ class VariantInterpreterLanding extends LitElement {
                         }
                     </ul>
                 </div>
-                
+
                 <div class="content-tab-wrapper">
                     ${this.activeTab["General"] ? html`
                         <div id="${this._prefix}General" role="tabpanel" class="active tab-pane content-tab col-md-10 col-md-offset-1">
@@ -428,10 +428,10 @@ class VariantInterpreterLanding extends LitElement {
                         <div id="${this._prefix}Consent" role="tabpanel" class="active tab-pane content-tab col-md-10 col-md-offset-1">
                             <tool-header title="Consent - ${this.clinicalAnalysis?.proband.id}" class="bg-white"></tool-header>
                             <div style="padding: 0px 20px">
-                                <clinical-analysis-consent-editor   .opencgaSession=${this.opencgaSession} 
+                                <clinical-analysis-consent-editor   .opencgaSession=${this.opencgaSession}
                                                                     .clinicalAnalysis="${this.clinicalAnalysis}">
                                 </clinical-analysis-consent-editor>
-                            </div>                    
+                            </div>
                         </div>
                     ` : null}
                     ${this.activeTab["Audit"] ? html`
@@ -456,11 +456,11 @@ class VariantInterpreterLanding extends LitElement {
                                 </div>
                             ` : null}
                         </div>
-                    ` : null} 
+                    ` : null}
                     ${this.activeTab["Select"] ? html`
                         <div id="${this._prefix}Overview" role="tabpanel" class="active tab-pane content-tab col-md-10 col-md-offset-1">
-                            <data-form  .data="${{}}" 
-                                        .config="${this.getSearchConfig()}" 
+                            <data-form  .data="${{}}"
+                                        .config="${this.getSearchConfig()}"
                                         @fieldChange="${this.onSearchFieldChange}"
                                         @clear="${this.onClinicalAnalysisChange}"
                                         @submit="${this.onClinicalAnalysisChange}">

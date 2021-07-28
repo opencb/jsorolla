@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../../utilsNew.js";
+import UtilsNew from "../../../core/utilsNew.js";
 import "../../alignment/gene-coverage-browser.js";
 
 class VariantInterpreterQcGeneCoverage extends LitElement {
@@ -161,8 +161,8 @@ class VariantInterpreterQcGeneCoverage extends LitElement {
                     </button>
                 </div>
             ` : null}
-            
-            
+
+
             <div style="padding: 0px 15px">
                 <gene-coverage-browser  .opencgaSession="${this.opencgaSession}"
                                         .clinicalAnalysis="${this.clinicalAnalysis}"

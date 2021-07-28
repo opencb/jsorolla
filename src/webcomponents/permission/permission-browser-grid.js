@@ -15,7 +15,7 @@
  */
 
 import { LitElement, html } from "/web_modules/lit-element.js";
-import UtilsNew from "./../../utilsNew.js";
+import UtilsNew from "./../../core/utilsNew.js";
 import GridCommons from "../commons/grid-commons.js";
 
 export default class PermissionBrowserGrid extends LitElement {
@@ -216,14 +216,14 @@ export default class PermissionBrowserGrid extends LitElement {
 
     renderPermission() {
         return html`
-            <!-- SEARCH Permission -->  
+            <!-- SEARCH Permission -->
             <div class="pull-left" style="margin: 10px 0px">
                 <div class="form-inline">
                     <div class="form-group">
-                        <input type="text" 
-                            .value="${this.searchPermission || ""}" 
-                            class="form-control" 
-                            list="${this._prefix}Permissions" placeholder="Search by Permission ..." 
+                        <input type="text"
+                            .value="${this.searchPermission || ""}"
+                            class="form-control"
+                            list="${this._prefix}Permissions" placeholder="Search by Permission ..."
                             @change="${this.onPermissionFieldChange}">
                     </div>
                     <button type="button" id="${this._prefix}ClearPermissionMenu" class="btn btn-default btn-xs ripple"

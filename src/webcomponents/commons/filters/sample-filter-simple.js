@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../../utilsNew.js";
+import UtilsNew from "../../../core/utilsNew.js";
 
 /*
 * TODO handle GENES
@@ -173,7 +173,7 @@ export default class SampleFilterSimple extends LitElement {
                 <div class="input-group-addon btn" @click="${this.addFeatureId}"> <i class="fa fa-plus"></i> </div>
                 </div>
             </div>
-  
+
             <div class="form-group">
                 <textarea id="${this._prefix}FeatureTextarea" name="geneSnp"
                     class="form-control clearable ${this._prefix}FilterTextInput"

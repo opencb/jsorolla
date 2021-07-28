@@ -18,7 +18,7 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import "../../commons/filters/text-field-filter.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
-import UtilsNew from "../../../utilsNew.js";
+import UtilsNew from "../../../core/utilsNew.js";
 import "./disorder-manager.js";
 
 export default class DisorderListUpdate extends LitElement {

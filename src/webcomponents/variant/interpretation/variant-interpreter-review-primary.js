@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../../utilsNew.js";
+import UtilsNew from "../../../core/utilsNew.js";
 import PolymerUtils from "../../PolymerUtils.js";
 import "./variant-interpreter-grid.js";
 import "./variant-interpreter-detail.js";
@@ -526,19 +526,19 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
             <div class="row">
                 <div id="${this._prefix}SaveInterpretation">
                     <div class="col-md-12">
-                        ${this.messageError ? html ` 
+                        ${this.messageError ? html `
                             <div class="alert alert-danger" role="alert" id="${this._prefix}messageError" style="margin:5px auto;">${this.messageErrorText}</div>
                         ` : null}
                         ${this.messageSuccess ? html `
                             <div class="alert alert-success" role="alert" id="${this._prefix}messageSuccess" style="margin:5px auto;">${this.messageSuccessText}</div>
                         ` : null}
                     </div>
-    
+
                     <div class="col-md-12">
                         <div style="padding-top: 5px">
-    
+
                             <div id="${this._prefix}collapsibleVariants" class="collapse in">
-                                ${this.clinicalAnalysis && this.clinicalAnalysis.interpretation 
+                                ${this.clinicalAnalysis && this.clinicalAnalysis.interpretation
                                     ? html`
                                         <variant-interpreter-grid .opencgaSession="${this.opencgaSession}"
                                                                   .clinicalAnalysis="${this.clinicalAnalysis}"
@@ -550,7 +550,7 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                                                                   @reviewvariant="${this.onReviewVariant}"
                                                                   @setgenomebrowserposition="${this.onGenomeBrowserPositionChange}">
                                         </variant-interpreter-grid>
-        
+
                                         <variant-interpreter-detail .opencgaSession="${this.opencgaSession}"
                                                                     .variant="${this.variant}"
                                                                     .cellbaseClient="${this.cellbaseClient}"
@@ -558,14 +558,14 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                                                                     .consequenceTypes="${this.consequenceTypes}"
                                                                     .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
                                                                     .config="${this._config.detail}">
-                                        </variant-interpreter-detail>` 
+                                        </variant-interpreter-detail>`
                                     : html`
                                         <div class="alert alert-info"><i class="fas fa-3x fa-info-circle align-middle"></i> No Selected variants yet.</div>`
                                 }
                             </div>
                         </div>
                     </div>
-    
+
                     <div class="col-md-12">
                         ${this.interpretationView ? html`
                             <clinical-interpretation-view id="id"
@@ -581,7 +581,7 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
                 </div>
             </div>
         </div>
-        
+
          <div class="modal fade" id="${this._prefix}PreviewModal" tabindex="-1"
                  role="dialog" aria-hidden="true" style="padding-top:0; overflow-y: visible">
                 <div class="modal-dialog" style="width: 1024px">

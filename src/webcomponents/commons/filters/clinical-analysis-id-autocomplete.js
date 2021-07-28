@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import Utils from "./../../../utils.js";
+import Utils from "./../../../core/utils.js";
 import "../../commons/filters/select-field-filter-autocomplete.js";
 
 export default class ClinicalAnalysisIdAutocomplete extends LitElement {

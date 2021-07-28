@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../utilsNew.js";
+import UtilsNew from "../../core/utilsNew.js";
 import "./opencga-facet-result-view.js";
 import "./opencga-active-filters.js";
 import "./filters/select-field-filter.js";
@@ -297,7 +297,7 @@ export default class OpencgaBrowser extends LitElement {
             <div id="facet-tab" class="content-tab">
                 <opencb-facet-results
                                 resource="${this.resource}"
-                                .opencgaSession="${this.opencgaSession}" 
+                                .opencgaSession="${this.opencgaSession}"
                                 .active="${this.activeTab["facet-tab"]}"
                                 .query="${this.facetQuery}"
                                 .data="${this.facetResults}">
@@ -455,7 +455,7 @@ export default class OpencgaBrowser extends LitElement {
                             </li>
                             ${this._config.aggregation ? html`<li role="presentation"><a href="#facet_tab" aria-controls="home" role="tab" data-toggle="tab">Aggregation</a></li>` : null}
                         </ul>
-                        
+
                         <div class="tab-content">
                             <div role="tabpanel" class="tab-pane active" id="filters_tab">
                                 ${this.resource === "FILE" ? html`
@@ -466,7 +466,7 @@ export default class OpencgaBrowser extends LitElement {
                                                             @querySearch="${this.onQueryFilterSearch}">
                                     </opencga-file-filter>
                                 ` : null}
-                                
+
                                 ${this.resource === "SAMPLE" ? html`
                                     <sample-browser-filter  .opencgaSession="${this.opencgaSession}"
                                                             .config="${this._config.filter}"
@@ -475,7 +475,7 @@ export default class OpencgaBrowser extends LitElement {
                                                             @querySearch="${this.onQueryFilterSearch}">
                                     </sample-browser-filter>
                                 ` : null}
-                                
+
                                 ${this.resource === "INDIVIDUAL" ? html`
                                     <opencga-individual-filter  .opencgaSession="${this.opencgaSession}"
                                                                 .config="${this._config.filter}"
@@ -483,8 +483,8 @@ export default class OpencgaBrowser extends LitElement {
                                                                 @queryChange="${this.onQueryFilterChange}"
                                                                 @querySearch="${this.onQueryFilterSearch}">
                                     </opencga-individual-filter>
-                                ` : null}                            
-                                
+                                ` : null}
+
                                 ${this.resource === "FAMILY" ? html`
                                     <opencga-family-filter  .opencgaSession="${this.opencgaSession}"
                                                             .config="${this._config.filter}"
@@ -493,7 +493,7 @@ export default class OpencgaBrowser extends LitElement {
                                                             @querySearch="${this.onQueryFilterSearch}">
                                     </opencga-family-filter>
                                 ` : null}
-                                
+
                                 ${this.resource === "COHORT" ? html`
                                     <opencga-cohort-filter  .opencgaSession="${this.opencgaSession}"
                                                             .config="${this._config.filter}"
@@ -503,7 +503,7 @@ export default class OpencgaBrowser extends LitElement {
                                                             @querySearch="${this.onQueryFilterSearch}">
                                     </opencga-cohort-filter>
                                 ` : null}
-                                
+
                                 ${this.resource === "CLINICAL_ANALYSIS" ? html`
                                     <opencga-clinical-analysis-filter   .opencgaSession="${this.opencgaSession}"
                                                                         .config="${this._config.filter}"
@@ -512,7 +512,7 @@ export default class OpencgaBrowser extends LitElement {
                                                                         @querySearch="${this.onQueryFilterSearch}">
                                     </opencga-clinical-analysis-filter>
                                 ` : null}
-                                
+
                                 ${this.resource === "JOB" ? html`
                                     <opencga-job-filter .opencgaSession="${this.opencgaSession}"
                                                         .config="${this._config.filter}"
@@ -522,9 +522,9 @@ export default class OpencgaBrowser extends LitElement {
                                                         @queryChange="${this.onQueryFilterChange}"
                                                         @querySearch="${this.onQueryFilterSearch}">
                                     </opencga-job-filter>
-                                ` : null}                                
+                                ` : null}
                             </div>
-                            
+
                             ${this._config.aggregation ? html`
                                 <div role="tabpanel" class="tab-pane" id="facet_tab" aria-expanded="true">
                                     <facet-filter .config="${this._config.aggregation}"
@@ -535,7 +535,7 @@ export default class OpencgaBrowser extends LitElement {
                             ` : null}
                         </div>
                     </div>
-    
+
                     <div class="col-md-10">
                         <!-- tabs buttons -->
                         <div class="btn-group content-pills" role="toolbar" aria-label="toolbar">
@@ -547,9 +547,9 @@ export default class OpencgaBrowser extends LitElement {
                                 `) : html`No view has been configured`}
                             </div>
                         </div>
-                        
+
                         <div>
-                            <opencga-active-filters facetActive 
+                            <opencga-active-filters facetActive
                                                     .resource="${this.resource}"
                                                     .opencgaSession="${this.opencgaSession}"
                                                     .defaultStudy="${this.opencgaSession?.study?.fqn}"
@@ -568,7 +568,7 @@ export default class OpencgaBrowser extends LitElement {
                             <div class="main-view">
                                 ${this.renderView(this.resource)}
                             </div>
-                            
+
                             <!-- Other option: return an {string, TemplateResult} map ${this.renderView(this.resource).facetView} -->
                             <div class="v-space"></div>
                         </div>

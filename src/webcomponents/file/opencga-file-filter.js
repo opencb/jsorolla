@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../utilsNew.js";
+import UtilsNew from "../../core/utilsNew.js";
 import "../opencga/catalog/variableSets/opencga-annotation-filter.js";
 import "../opencga/catalog/variableSets/opencga-annotation-filter-dynamic.js";
 import "../opencga/catalog/variableSets/opencga-annotation-filter-modal.js";

@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../../utilsNew.js";
+import UtilsNew from "../../../core/utilsNew.js";
 import "../../alignment/alignment-stats-view.js";
 import "../../commons/view/data-form.js";
 
@@ -319,9 +319,9 @@ class VariantInterpreterQcAlignment extends LitElement {
 <!--                <div>-->
 <!--                    <h2>QC Alignment Stats</h2>-->
 <!--                </div>-->
-                ${this.alignmentStats 
+                ${this.alignmentStats
                     ? html`
-                       <data-form .data="${this.alignmentStats[0]}" .config="${this._config}"></data-form>` 
+                       <data-form .data="${this.alignmentStats[0]}" .config="${this._config}"></data-form>`
                     : html`No Stats available.`
                 }
             </div>

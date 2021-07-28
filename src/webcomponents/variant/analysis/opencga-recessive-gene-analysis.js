@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import "./opencga-knockout-analysis-result.js";
-import UtilsNew from "../../../utilsNew.js";
+import UtilsNew from "../../../core/utilsNew.js";
 
 // this class will be in config folder
 class OpencgaRecessiveGeneAnalysisConfig {

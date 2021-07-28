@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import {classMap} from "/web_modules/lit-html/directives/class-map.js";
-import UtilsNew from "../../../utilsNew.js";
+import UtilsNew from "../../../core/utilsNew.js";
 import "./variant-interpreter-qc-overview.js";
 import "./variant-interpreter-qc-alignment.js";
 import "./variant-interpreter-qc-gene-coverage.js";
@@ -157,23 +157,23 @@ class VariantInterpreterQc extends LitElement {
             <div id="${this._prefix}QcTabs">
                 <div class="">
                     <ul class="nav nav-tabs nav-center tablist" role="tablist" aria-label="toolbar">
-                        
+
                         <li role="presentation" class="content-pills ${classMap({active: this.activeTab["Overview"]})}">
                             <a href="javascript: void 0" role="tab" data-id="Overview" @click="${this._changeTab}" class="tab-title">
                                 Overview
                             </a>
                         </li>
-                        
+
                         ${this.clinicalAnalysis.type.toUpperCase() === "SINGLE"
                             ? html`
                                 <li role="presentation" class="content-pills ${classMap({active: this.activeTab["SampleVariantStats"]})}">
                                     <a href="javascript: void 0" role="tab" data-id="SampleVariantStats" @click="${this._changeTab}" class="tab-title">
                                         Sample Variant Stats
                                     </a>
-                                </li>` 
+                                </li>`
                             : null
                         }
-                        
+
                         ${this.clinicalAnalysis.type.toUpperCase() === "FAMILY"
                             ? html`
                                 <li role="presentation" class="content-pills ${classMap({active: this.activeTab["SampleVariantStats"]})}">
@@ -207,39 +207,39 @@ class VariantInterpreterQc extends LitElement {
                                         Somatic Variant Stats
                                     </a>
                                 </li>
-                                ${this.sample 
+                                ${this.sample
                                     ? html`
                                         <li role="presentation" class="content-pills ${classMap({active: this.activeTab["SampleVariantStats"]})}">
                                             <a href="javascript: void 0" role="tab" data-id="SampleVariantStats" @click="${this._changeTab}" class="tab-title">
                                                 Germline Variant Stats
                                             </a>
-                                        </li>` 
+                                        </li>`
                                     : null
                                 }
                             `
                             : null
-                        }                        
-                        
-                        ${application.appConfig === "opencb" 
+                        }
+
+                        ${application.appConfig === "opencb"
                             ? html`
                                 <li role="presentation" class="content-pills ${classMap({active: this.activeTab["GeneCoverage"]})}">
                                     <a href="javascript: void 0" role="tab" data-id="GeneCoverage" @click="${this._changeTab}" class="tab-title">Gene Coverage Stats
                                     </a>
-                                </li>` 
+                                </li>`
                             : null
                         }
                     </ul>
                 </div>
-                
+
                 <div class="content-tab-wrapper col-md-12">
                     <div id="${this._prefix}Overview" role="tabpanel" class="tab-pane active content-tab">
                         <tool-header title="Quality Control Overview - ${this.clinicalAnalysis.proband.id}" class="bg-white"></tool-header>
-                        <variant-interpreter-qc-overview .opencgaSession="${this.opencgaSession}" 
+                        <variant-interpreter-qc-overview .opencgaSession="${this.opencgaSession}"
                                                          .clinicalAnalysis="${this.clinicalAnalysis}"
                                                          .active="${this.activeTab["Overview"]}">
                         </variant-interpreter-qc-overview>
                     </div>
-                    
+
                     ${this.clinicalAnalysis.type.toUpperCase() === "SINGLE"
                         ? html`
                             <div id="${this._prefix}SampleVariantStats" role="tabpanel" class="tab-pane content-tab">
@@ -253,7 +253,7 @@ class VariantInterpreterQc extends LitElement {
                              </div>`
                         : null
                     }
-                    
+
                     ${this.clinicalAnalysis.type.toUpperCase() === "FAMILY"
                         ? html`
                             <div id="${this._prefix}SampleVariantStats" role="tabpanel" class="tab-pane content-tab">
@@ -270,15 +270,15 @@ class VariantInterpreterQc extends LitElement {
                             </div>`
                         : ""
                     }
-                    
-                    ${application.appConfig === "opencb" && this.clinicalAnalysis.type.toUpperCase() === "CANCER" 
+
+                    ${application.appConfig === "opencb" && this.clinicalAnalysis.type.toUpperCase() === "CANCER"
                         ? html`
                             <div id="${this._prefix}VariantQcCancer" role="tabpanel" class="tab-pane content-tab">
                                 <tool-header title="Cancer QC Plots - ${this.clinicalAnalysis.proband.id} (${this.somaticSample?.id})" class="bg-white"></tool-header>
                                 <sample-cancer-variant-stats-browser    .opencgaSession="${this.opencgaSession}"
                                                                         .cellbaseClient="${this.cellbaseClient}"
                                                                         .sample="${this.somaticSample}"
-                                                                        .active="${this.activeTab["VariantQcCancer"]}" 
+                                                                        .active="${this.activeTab["VariantQcCancer"]}"
                                                                         .config="${{showTitle: false}}">
                                 </sample-cancer-variant-stats-browser>
                             </div>` : ""}
@@ -306,13 +306,13 @@ class VariantInterpreterQc extends LitElement {
                                     </div>`
                                 : null
                             }
-                        ` 
+                        `
                         : null
                     }
-                    
+
                     <div id="${this._prefix}GeneCoverage" role="tabpanel" class="tab-pane content-tab">
                         <tool-header title="Gene Coverage Stats - ${this.clinicalAnalysis.proband.id}" class="bg-white"></tool-header>
-                        <variant-interpreter-qc-gene-coverage   .opencgaSession="${this.opencgaSession}" 
+                        <variant-interpreter-qc-gene-coverage   .opencgaSession="${this.opencgaSession}"
                                                                 .cellbaseClient="${this.cellbaseClient}"
                                                                 .clinicalAnalysis="${this.clinicalAnalysis}"
                                                                 .active="${this.activeTab["Coverage"]}">

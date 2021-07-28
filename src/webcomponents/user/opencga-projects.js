@@ -16,12 +16,12 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import {classMap} from "/web_modules/lit-html/directives/class-map.js";
-import UtilsNew from "../../utilsNew.js";
+import UtilsNew from "../../core/utilsNew.js";
 import "../commons/tool-header.js";
 import {CountUp} from "/node_modules/countup.js/dist/countUp.min.js";
 import "../commons/simple-chart.js";
 import {NotificationQueue} from "../Notification.js";
-import {RestResponse} from "../../clients/rest-response.js";
+import {RestResponse} from "../../core/clients/rest-response.js";
 
 export default class OpencgaProjects extends LitElement {
 
@@ -286,7 +286,7 @@ export default class OpencgaProjects extends LitElement {
                         ${Object.entries(project).map(([fqn, _]) => html`<th>${fqn}</th>`)}
                     </tr>
                 </thead>
-                
+
                     ${Object.entries(this.tableRows[resource]).map(([field, fieldConfig]) => html`
                         <tbody>
                             <tr>
@@ -301,7 +301,7 @@ export default class OpencgaProjects extends LitElement {
                                         <td>
                                             ${data[resource]?.results.find(r => r.name === field).buckets.find(stat => stat.value === type.id)?.count}
                                         </td>
-                                    `) }                           
+                                    `) }
                                 </tr>
                             `)}
                         </tbody>
@@ -530,8 +530,8 @@ export default class OpencgaProjects extends LitElement {
                     </div>
                 </div>
             </div>
-            
-          
+
+
             <div class="v-space"></div>
             <div class="detail-tabs">
                 <ul class="nav nav-tabs nav-center tablist" role="tablist">
@@ -541,14 +541,14 @@ export default class OpencgaProjects extends LitElement {
                         </li>
                     `) : null}
                 </ul>
-                <pre id="errors" class="alert alert-warning" role="alert" style="display: ${this.errors ? "block" : "none"}">${this.errors}</pre>      
+                <pre id="errors" class="alert alert-warning" role="alert" style="display: ${this.errors ? "block" : "none"}">${this.errors}</pre>
                 <div class="content-tab-wrapper">
-                
+
                     ${this.data ? Object.entries(this.data).map(([projectId, project], i) => html`
                         <div role="tabpanel" class="content-tab project-tab tab-pane ${classMap({active: this.activeTab[projectId] || (UtilsNew.isEmpty(this.activeTab) && i === 0)})}" id="${projectId}-tab">
                             <div class="row">
                                 <div class="col-md-10 col-md-offset-1">
-                                    <h3 class="project-name">Project <span class="inverse">${projectId}</span></h3>                               
+                                    <h3 class="project-name">Project <span class="inverse">${projectId}</span></h3>
                                     <div class="col-md-2 list-group projects-side-nav side-tabs side-nav">
                                         ${this.sideNavItems.map((item, sideNavIndx) => html`
                                             <button type="button" class="list-group-item ${classMap({active: this.activeTab[projectId]?.[item] || (UtilsNew.isEmpty(this.activeTab) && sideNavIndx === 0)})}"
@@ -564,7 +564,7 @@ export default class OpencgaProjects extends LitElement {
                                                 </div>`
                                                 : ""
                                             }
-                                            
+
                                             ${~this.sideNavItems.indexOf("Variants") ? html`
                                                 <div id="${this._prefix}${project.id}Variants" role="tabpanel" class="tab-pane content-tab ${classMap({active: this.activeTab[projectId]?.["Variants"]})}">
                                                     <h3>Variants</h3>

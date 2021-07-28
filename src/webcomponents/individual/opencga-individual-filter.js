@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../utilsNew.js";
+import UtilsNew from "../../core/utilsNew.js";
 import "../opencga/catalog/variableSets/opencga-annotation-filter.js";
 import "../commons/filters/text-field-filter.js";
 import "../commons/filters/select-field-filter.js";
@@ -210,9 +210,9 @@ export default class OpencgaIndividualFilter extends LitElement {
             ` : null}
 
             <div class="panel-group" id="${this._prefix}Accordion" role="tablist" aria-multiselectable="true">
-    
+
                 <!-- Individual field attributes -->
-                    <div class="">            
+                    <div class="">
                         ${this.config.sections && this.config.sections.length ? this.config.sections.map(section => this._createSection(section)) : html`No filter has been configured.`}
                     </div>
                 </div>
