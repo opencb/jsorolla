@@ -198,11 +198,11 @@ export class RestClientXmlhttp {
 
             }
             if (this.requests[key]) {
-                console.log("FULL LIST", Object.entries(this.requests))
+                // console.log("FULL LIST", Object.entries(this.requests))
                 // console.log("this.requests[key]", this.requests[key]);
 
                 if (this.requests[key].pending) {
-                    console.error("aborting", this.requests[key].url);
+                    console.warn("aborting request", this.requests[key].url);
                     this.requests[key].request.abort();
                     delete this.requests[key];
                 } else {
