@@ -17,8 +17,8 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import Utils from "../../core/utils.js";
 import UtilsNew from "../../core/utilsNew.js";
-import "../../core/webcomponents/commons/tool-header.js";
-import "../../core/webcomponents/text-icon.js";
+import "../../webcomponents/commons/tool-header.js";
+import "../../webcomponents/text-icon.js";
 
 // TODO the property "disabled" in config have to be renamed in active (boolean for an user or an usergroup)
 

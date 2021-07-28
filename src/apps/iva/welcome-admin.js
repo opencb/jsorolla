@@ -15,7 +15,7 @@
  */
 import { LitElement, html } from "/web_modules/lit-element.js";
 import UtilsNew from "./../../core/utilsNew.js";
-import "../../core/webcomponents/project/projects-admin.js";
+import "../../webcomponents/project/projects-admin.js";
 
 export default class WelcomeAdmin extends LitElement {
 

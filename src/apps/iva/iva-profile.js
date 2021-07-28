@@ -16,8 +16,8 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../core/utilsNew.js";
-import "../../core/webcomponents/commons/view/data-form.js";
-import "../../core/webcomponents/commons/tool-header.js";
+import "../../webcomponents/commons/view/data-form.js";
+import "../../webcomponents/commons/tool-header.js";
 
 export default class IvaProfile extends LitElement {
 

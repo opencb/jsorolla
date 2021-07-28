@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import "../../core/webcomponents/commons/tool-header.js";
+import "../../webcomponents/commons/tool-header.js";
 
 
 export default class AboutWeb extends LitElement {
