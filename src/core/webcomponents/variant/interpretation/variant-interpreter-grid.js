@@ -747,12 +747,10 @@ export default class VariantInterpreterGrid extends LitElement {
 
         // update columns dynamically
         this._columns = this._updateTableColumns(this._columns);
-        console.log("before this._columns", this._columns)
 
-        this._columns = UtilsNew.mergeTable(this._columns, this._config.columns);
-
-        console.log("_CONFIG", this._config)
-        console.log("after this._columns", this._columns)
+        // debugger
+        this._columns = UtilsNew.mergeTable(this._columns, this._config.columns || this._config.hiddenColumns, !!this._config.hiddenColumns);
+        // console.log("after mergeTable", this._columns)
 
         return this._columns;
     }

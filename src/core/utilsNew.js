@@ -524,32 +524,43 @@ export default class UtilsNew {
      * At the moment it manages the visibility of the fields at the first level.
      * The fields at the second level are hidden iff the corresponding field at the first level is hidden.
      * At the moment it doesn't handle >2D arrays.
-     * // TODO add support to hiddenColumns list. (we use clinical-analysis-grid with no action column in individual-browser)
+     * // TODO. DONE. add support to hiddenColumns list. (we use clinical-analysis-grid with no action column in individual-browser)
      *
      *
      * @param {Array} internal 1D or 2D array
      * @param {Array} external plain array of strings.
+     * @param {Boolean} subtractive set true if the external array lists the field to hide
      * @returns {Array} filtered array.
      */
-    static mergeTable(internal, external) {
+    static mergeTable(internal, external, subtractive = false) {
         // single array
         if (external) {
             if (internal instanceof Array && !(internal[0] instanceof Array)) {
                 const columns = [];
-                external.forEach(c => {
-                    const field = internal.find(f => {
+                if (!subtractive) {
+                    external.forEach(c => {
+                        const field = internal.find(f => {
+                            if (!f.id) {
+                                console.error("Column fields must have an id to be merged", f);
+                            }
+                            return f.id === c;
+                        });
+                        if (field) {
+                            columns.push(field);
+                        } else {
+                            // console.error("Field not found", c);
+                        }
+                    });
+                    return columns;
+                } else {
+                    return internal.filter(f => {
                         if (!f.id) {
                             console.error("Column fields must have an id to be merged", f);
                         }
-                        return f.id === c;
+                        return !~external.indexOf(f.id);
                     });
-                    if (field) {
-                        columns.push(field);
-                    } else {
-                        // console.error("Field not found", c);
-                    }
-                });
-                return columns;
+                }
+
             }
             // double array
 
@@ -566,7 +577,7 @@ export default class UtilsNew {
                     if (!c.id) {
                         console.error("Column fields must have an id to be merged", c);
                     }
-                    if (~external.indexOf(c.id)) {
+                    if (!subtractive && !!~external.indexOf(c.id) || (subtractive && !~external.indexOf(c.id))) {
                         // debugger
                         result[0].push(c);
                         // rowspan = 1

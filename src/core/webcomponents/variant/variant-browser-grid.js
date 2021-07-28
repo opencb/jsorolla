@@ -114,7 +114,7 @@ export default class VariantBrowserGrid extends LitElement {
         this.toolbarConfig = {
             ...this._config.toolbar,
             resource: "VARIANT",
-            columns: this._createDefaultColumns()
+            columns: this._getDefaultColumns()
                 .flat()
                 .filter(f => f.title && !fieldToHide.includes(f.field) && (f.visible ?? true))
         };
@@ -136,7 +136,7 @@ export default class VariantBrowserGrid extends LitElement {
 
     renderRemoteVariants() {
         if (this.opencgaSession?.study) {
-            this._columns = this._createDefaultColumns();
+            this._columns = this._getDefaultColumns();
 
             this.table = $("#" + this.gridId);
             this.table.bootstrapTable("destroy");
@@ -259,7 +259,7 @@ export default class VariantBrowserGrid extends LitElement {
         $("#" + this.gridId).bootstrapTable("destroy");
         $("#" + this.gridId).bootstrapTable({
             data: this.variants,
-            columns: this._createDefaultColumns(),
+            columns: this._getDefaultColumns(),
             sidePagination: "local",
 
             // Set table properties, these are read from config property
@@ -448,7 +448,7 @@ export default class VariantBrowserGrid extends LitElement {
         }
     }
 
-    _createDefaultColumns() {
+    _getDefaultColumns() {
         // IMPORTANT: empty columns are not supported in boostrap-table,
         let sampleColumns = [{visible: false}];
         if (this._columns && this.samples && this.samples.length > 0) {
@@ -713,7 +713,7 @@ export default class VariantBrowserGrid extends LitElement {
             ]
         ];
 
-        this._columns = UtilsNew.mergeTable(this._columns, this._config.columns);
+        this._columns = UtilsNew.mergeTable(this._columns, this._config.columns || this._config.hiddenColumns, !!this._config.hiddenColumns);
         return this._columns;
     }
 

@@ -313,7 +313,7 @@ export default class OpencgaJobGrid extends LitElement {
             }
         ];
 
-        _columns = UtilsNew.mergeTable(_columns, this._config.columns);
+        _columns = UtilsNew.mergeTable(_columns, this._config.columns || this._config.hiddenColumns, !!this._config.hiddenColumns);
         return _columns;
     }
 

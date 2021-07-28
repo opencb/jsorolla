@@ -479,7 +479,9 @@ export default class OpencgaIndividualGrid extends LitElement {
                 eligible: false
             });
         }
-        _columns = UtilsNew.mergeTable(_columns, this._config.columns);
+
+        _columns = UtilsNew.mergeTable(_columns, this._config.columns || this._config.hiddenColumns, !!this._config.hiddenColumns);
+
         return _columns;
     }
 
