@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Fetch first 10 variants (with JWT)</title>
+</head>
+<body>
+<h2>Fetch first 10 variants (with JWT)</h2>
+
+<script type="module">
+    import {OpenCGAClient} from "../opencga-client.js";
+    import {RestResponse} from "../../rest-response.js";
+
+    /**
+     *  Add Opencga host, username, study, and auth token
+     */
+    const host = "OPENCGA_HOST";
+    const user = "OPENCGA_USERNAME";
+    const study = "OPENCGA_STUDY";
+    const token = "AUTH_TOKEN";
+
+    /**
+     *  Query using a token. No Opencga Session is created.
+    */
+    (async () => {
+        try {
+            const client = new OpenCGAClient({
+                host: host,
+                version: "v2",
+                cookies: {active: false},
+                token: token
+            });
+
+            const restResponse = await client.variants().query({limit:10, study: study});
+            console.table(restResponse.getResults());
+        } catch (response) {
+            if (response instanceof RestResponse) {
+                console.error(response.getEvents());
+            } else {
+                console.error(response);
+            }
+        }
+    })();
+</script>
+</body>
+</html>
+
+

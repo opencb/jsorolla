@@ -20,7 +20,7 @@ import ClinicalAnalysisManager from "../../clinical/clinical-analysis-manager.js
 import ClinicalAnalysisUtils from "../../clinical/clinical-analysis-utils.js";
 import UtilsNew from "../../../utilsNew.js";
 import "./variant-interpreter-browser-toolbar.js";
-import "./variant-interpreter-grid.js";
+import "./variant-interpreter-rearrangement-grid.js";
 import "./variant-interpreter-detail.js";
 import "../opencga-variant-filter.js";
 import "../../commons/tool-header.js";
@@ -28,7 +28,7 @@ import "../../commons/opencga-active-filters.js";
 import "../../commons/filters/sample-genotype-filter.js";
 import "../../commons/filters/variant-caller-info-filter.js";
 
-class VariantInterpreterBrowserCancer extends LitElement {
+class VariantInterpreterBrowserRearrangement extends LitElement {
 
     constructor() {
         super();
@@ -123,7 +123,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
             if (!this.query?.sample) {
                 this.query = {
                     ...this.query,
-                    sample: this._sample.id + ":0/1,1/1,NA"
+                    sample: this._sample.id
                 };
                 // this.predefinedFilter = {...this.query};
             }
@@ -339,60 +339,51 @@ class VariantInterpreterBrowserCancer extends LitElement {
                     hiddenFields: [],
                     lockedFields: [{id: "sample"}]
                 },
-                callers: [
-                    {
-                        id: "caveman",
-                        queryString: "FILTER=PASS;CLPM>=0;ASMD>=140"
-                    },
-                    {
-                        id: "pindel",
-                        queryString: "FILTER=PASS;QUAL>=250;REP<=9"
-                    }
-                ],
+                callers: [],
                 sections: [ // sections and subsections, structure and order is respected
                     {
                         title: "Sample And File",
                         collapsed: false,
                         fields: [
-                            {
-                                id: "sample-genotype",
-                                title: "Sample Genotype",
-                                params: {
-                                    genotypes: [
-                                        {
-                                            id: "0/1", name: "HET"
-                                        },
-                                        {
-                                            id: "1/1", name: "HOM ALT"
-                                        },
-                                        {
-                                            separator: true
-                                        },
-                                        {
-                                            id: "NA", name: "NA"
-                                        }
-                                    ]
-                                }
-                            },
-                            {
-                                id: "variant-file",
-                                title: "VCF File",
-                                params: {
-                                    files: this.callerToFile
-                                }
-                            },
-                            {
-                                id: "file-quality",
-                                title: "Quality Filters",
-                                tooltip: "VCF file based FILTER and QUAL filters",
-                                visible: UtilsNew.isEmpty(this.callerToFile)
-                            },
-                            ...callerFilters
+                            // {
+                            //     id: "sample-genotype",
+                            //     title: "Sample Genotype",
+                            //     params: {
+                            //         genotypes: [
+                            //             {
+                            //                 id: "0/1", name: "HET"
+                            //             },
+                            //             {
+                            //                 id: "1/1", name: "HOM ALT"
+                            //             },
+                            //             {
+                            //                 separator: true
+                            //             },
+                            //             {
+                            //                 id: "NA", name: "NA"
+                            //             }
+                            //         ]
+                            //     }
+                            // },
+                            // {
+                            //     id: "variant-file",
+                            //     title: "VCF File",
+                            //     params: {
+                            //         files: this.callerToFile
+                            //     }
+                            // },
+                            // {
+                            //     id: "file-quality",
+                            //     title: "Quality Filters",
+                            //     tooltip: "VCF file based FILTER and QUAL filters",
+                            //     visible: UtilsNew.isEmpty(this.callerToFile)
+                            // },
+                            // ...callerFilters
                         ]
                     },
                     {
                         title: "Genomic",
-                        collapsed: true,
+                        collapsed: false,
                         fields: [
                             {
                                 id: "region",
@@ -404,11 +395,11 @@ class VariantInterpreterBrowserCancer extends LitElement {
                                 title: "Feature IDs (gene, SNPs, ...)",
                                 tooltip: tooltips.feature
                             },
-                            // {
-                            //     id: "diseasePanels",
-                            //     title: "Disease Panels",
-                            //     tooltip: tooltips.diseasePanels
-                            // },
+                            {
+                                id: "diseasePanels",
+                                title: "Disease Panels",
+                                tooltip: tooltips.diseasePanels
+                            },
                             {
                                 id: "biotype",
                                 title: "Gene Biotype",
@@ -416,127 +407,20 @@ class VariantInterpreterBrowserCancer extends LitElement {
                                 tooltip: tooltips.biotype
                             },
                             {
-                                id: "type",
-                                title: "Variant Type",
-                                types: ["SNV", "INDEL", "COPY_NUMBER", "INSERTION", "DELETION", "DUPLICATION", "MNV", "BREAKEND"],
-                                tooltip: tooltips.type
-                            }
-                        ]
-                    },
-                    {
-                        title: "Clinical",
-                        collapsed: true,
-                        fields: [
-                            {
-                                id: "diseasePanels",
-                                title: "Disease Panels",
-                                tooltip: tooltips.diseasePanels
-                            },
-                            // {
-                            //     id: "clinvar",
-                            //     title: "ClinVar Accession",
-                            //     tooltip: tooltips.clinvar
-                            // },
-                            {
-                                id: "clinical-annotation",
-                                title: "Clinical Annotation",
-                                tooltip: tooltips.clinical
-                            }
-                        ]
-                    },
-                    {
-                        title: "Consequence Type",
-                        collapsed: true,
-                        fields: [
-                            {
-                                id: "consequenceTypeSelect",
-                                title: "Select SO terms",
-                                tooltip: tooltips.consequenceTypeSelect
-                            }
-                        ]
-                    },
-                    {
-                        title: "Population Frequency",
-                        collapsed: true,
-                        fields: [
-                            {
-                                id: "populationFrequency",
-                                title: "Select Population Frequency",
-                                allowedFrequencies: "0.001,0.005,0.01",
-                                tooltip: tooltips.populationFrequencies,
-                                showSetAll: false,
-                                // TODO read this from the StudyConfiguration in OpenCGA 2.1
-                                populationFrequencies: {
-                                    studies: [
-                                        {
-                                            id: "1kG_phase3",
-                                            title: "1000 Genomes",
-                                            populations: [
-                                                {
-                                                    id: "ALL", title: "All populations [ALL]"
-                                                }
-                                            ]
-                                        },
-                                        {
-                                            id: "GNOMAD_GENOMES",
-                                            title: "gnomAD Genomes",
-                                            populations: [
-                                                {
-                                                    id: "ALL", title: "gnomAD [ALL]"
-                                                }
-                                            ]
-                                        }
-                                    ]
+                                id: "ext-svtype",
+                                title: "SVTYPE",
+                                types: ["TRANSLOCATION", "DUPLICATION", "INVERSION", "DELETION"],
+                                tooltip: tooltips.type,
+                                params: {
+                                    fileId: `${this.callerToFile ? this.callerToFile["brass"]?.name : null}`
                                 }
                             }
-                        ]
-                    },
-                    {
-                        title: "Phenotype",
-                        collapsed: true,
-                        fields: [
                             // {
-                            //     id: "clinvar",
-                            //     title: "ClinVar Accessions",
-                            //     tooltip: tooltips.clinvar
-                            // },
-                            {
-                                id: "go",
-                                title: "GO Accessions (max. 100 terms)",
-                                tooltip: tooltips.go
-                            },
-                            {
-                                id: "hpo",
-                                title: "HPO Accessions",
-                                tooltip: tooltips.hpo
-                            }
-                        ]
-                    },
-                    {
-                        title: "Deleteriousness",
-                        collapsed: true,
-                        fields: [
-                            {
-                                id: "proteinSubstitutionScore",
-                                title: "Protein Substitution Score",
-                                tooltip: tooltips.proteinSubstitutionScore
-                            },
-                            {
-                                id: "cadd",
-                                title: "CADD",
-                                tooltip: tooltips.cadd
-                            }
-                        ]
-                    },
-                    {
-                        title: "Conservation",
-                        collapsed: true,
-                        fields: [
-                            {
-                                id: "conservation",
-                                title: "Conservation Score",
-                                tooltip: tooltips.conservation
-                            }
+                            //     id: "type",
+                            //     title: "Variant Type",
+                            //     types: ["SNV", "INDEL", "COPY_NUMBER", "INSERTION", "DELETION", "DUPLICATION", "MNV", "BREAKEND"],
+                            //     tooltip: tooltips.type
+                            // }
                         ]
                     }
                 ],
@@ -556,18 +440,6 @@ class VariantInterpreterBrowserCancer extends LitElement {
                             ct: "lof,missense_variant"
                         }
                     },
-                    {
-                        id: "Full Example",
-                        query: {
-                            "xref": "BRCA1,TP53",
-                            "biotype": "protein_coding",
-                            "type": "SNV,INDEL",
-                            "ct": "lof",
-                            "populationFrequencyAlt": "GNOMAD_GENOMES:ALL<0.1",
-                            "protein_substitution": "sift>5,polyphen>4",
-                            "conservation": "phylop>1;phastCons>2;gerp<=3"
-                        }
-                    }
                 ],
                 result: {
                     grid: {
@@ -581,12 +453,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                         showSelectCheckbox: true,
                         multiSelection: false,
                         nucleotideGenotype: true,
-                        alleleStringLengthMax: 10,
-
-                        genotype: {
-                            type: "VAF"
-                        },
-
+                        alleleStringLengthMax: 25,
                         header: {
                             horizontalAlign: "center",
                             verticalAlign: "bottom"
@@ -806,13 +673,13 @@ class VariantInterpreterBrowserCancer extends LitElement {
 
                         <div class="main-view">
                             <div id="${this._prefix}TableResult" class="variant-interpretation-content active">
-                                <variant-interpreter-grid .opencgaSession="${this.opencgaSession}"
-                                                          .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                          .query="${this.executedQuery}"
-                                                          .config="${this._config.filter.result.grid}"
-                                                          @selectrow="${this.onSelectVariant}"
-                                                          @checkrow="${this.onCheckVariant}">
-                                </variant-interpreter-grid>
+                                <variant-interpreter-rearrangement-grid .opencgaSession="${this.opencgaSession}"
+                                                                        .clinicalAnalysis="${this.clinicalAnalysis}"
+                                                                        .query="${this.executedQuery}"
+                                                                        .config="${this._config.filter.result.grid}"
+                                                                        @selectrow="${this.onSelectVariant}"
+                                                                        @checkrow="${this.onCheckVariant}">
+                                </variant-interpreter-rearrangement-grid>
 
                                 <!-- Bottom tabs with detailed variant information -->
                                 <variant-interpreter-detail .opencgaSession="${this.opencgaSession}"
@@ -831,4 +698,4 @@ class VariantInterpreterBrowserCancer extends LitElement {
 
 }
 
-customElements.define("variant-interpreter-browser-cancer", VariantInterpreterBrowserCancer);
+customElements.define("variant-interpreter-browser-rearrangement", VariantInterpreterBrowserRearrangement);

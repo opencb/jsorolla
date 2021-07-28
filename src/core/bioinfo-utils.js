@@ -35,7 +35,6 @@ export default class BioinfoUtils {
     }
 
 
-
     static getGeneNameLink(geneName) {
         return "https://www.genenames.org/tools/search/#!/all?query=" + geneName;
     }
@@ -173,6 +172,14 @@ export default class BioinfoUtils {
                 return `http://www.ensembl.org/Homo_sapiens/Transcript/Summary?db=core;p=${proteinId}`;
             case "REFSEQ":
                 return `https://www.ncbi.nlm.nih.gov/gene/?term=${proteinId}`;
+        }
+    }
+
+    static getPubmedLink(id) {
+        if (id.startsWith("PMID")) {
+            return `https://pubmed.ncbi.nlm.nih.gov/${id.split(":")[1]}/`;
+        } else {
+            return `https://pubmed.ncbi.nlm.nih.gov/${id}/`;
         }
     }
 

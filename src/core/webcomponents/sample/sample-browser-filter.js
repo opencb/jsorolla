@@ -27,6 +27,8 @@ import "../commons/filters/select-token-filter.js";
 import "../commons/filters/select-field-filter-autocomplete.js";
 import "../commons/filters/sample-id-autocomplete.js";
 import "../commons/filters/individual-id-autocomplete.js";
+import "../commons/filters/select-token-filter2.js";
+import "../commons/filters/select-token-filter.js";
 
 
 export default class SampleBrowserFilter extends LitElement {
@@ -96,6 +98,8 @@ export default class SampleBrowserFilter extends LitElement {
         }
     }
 
+    // TODO review
+    // this is used only in case of Search button inside filter component.
     onSearch() {
         this.notifySearch(this.preparedQuery);
     }
@@ -131,9 +135,7 @@ export default class SampleBrowserFilter extends LitElement {
         this.dispatchEvent(new CustomEvent("queryChange", {
             detail: {
                 query: query
-            },
-            bubbles: true,
-            composed: true
+            }
         }));
     }
 
@@ -141,9 +143,7 @@ export default class SampleBrowserFilter extends LitElement {
         this.dispatchEvent(new CustomEvent("querySearch", {
             detail: {
                 query: query
-            },
-            bubbles: true,
-            composed: true
+            }
         }));
     }
 
@@ -157,6 +157,8 @@ export default class SampleBrowserFilter extends LitElement {
         switch (subsection.id) {
             case "id":
                 content = html`
+                    <!--<select-token-filter2 .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}" ></select-token-filter2>
+                    <select-token-filter .config="${subsection}" resource="SAMPLE" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}" ></select-token-filter>-->
                     <sample-id-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}" 
                                             @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
                     </sample-id-autocomplete>`;
@@ -217,7 +219,7 @@ export default class SampleBrowserFilter extends LitElement {
 
     render() {
         return html`
-            ${this.searchButton ? html`
+            ${this.config?.searchButton ? html`
                 <div class="search-button-wrapper">
                     <button type="button" class="btn btn-primary ripple" @click="${this.onSearch}">
                         <i class="fa fa-search" aria-hidden="true"></i> Search

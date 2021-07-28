@@ -17,8 +17,6 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
 import {NotificationQueue} from "../Notification.js";
-import PolymerUtils from "../PolymerUtils.js";
-import {OpenCGAClient} from "../../clients/opencga/opencga-client.js";
 
 export default class OpencgaActiveFilters extends LitElement {
 
@@ -36,6 +34,9 @@ export default class OpencgaActiveFilters extends LitElement {
             query: {
                 type: Object
             },
+            executedQuery: {
+                type: Object
+            },
             // this is included in config param in case of variant-browser (it can be different somewhere else)
             filters: {
                 type: Array
@@ -49,9 +50,6 @@ export default class OpencgaActiveFilters extends LitElement {
             defaultStudy: {
                 type: String
             },
-            refresh: {
-                type: Object
-            },
             config: {
                 type: Object
             },
@@ -59,6 +57,9 @@ export default class OpencgaActiveFilters extends LitElement {
                 type: Boolean
             },
             facetQuery: {
+                type: Object
+            },
+            executedFacetQuery: {
                 type: Object
             }
         };
@@ -82,7 +83,6 @@ export default class OpencgaActiveFilters extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
-        this.opencgaClient = this.opencgaSession.opencgaClient;
     }
 
     firstUpdated() {
@@ -113,12 +113,15 @@ export default class OpencgaActiveFilters extends LitElement {
             this.opencgaSessionObserver();
         }
 
+        // this is before queryObserver because in searchClicked() updates this._jsonPrevQuery which is being used in queryObserver()
+        if (changedProperties.has("executedQuery") || changedProperties.has("executedFacetQuery")) {
+            this.searchClicked();
+        }
+
         if (changedProperties.has("query")) {
             this.queryObserver();
         }
-        if (changedProperties.has("refresh")) {
-            this.searchClicked();
-        }
+
         if (changedProperties.has("config")) {
             this.configObserver();
         }
@@ -130,7 +133,7 @@ export default class OpencgaActiveFilters extends LitElement {
     }
 
     opencgaSessionObserver() {
-        if (this.opencgaClient instanceof OpenCGAClient && UtilsNew.isNotUndefined(this.opencgaSession.token)) {
+        if (this.opencgaSession.token && this.opencgaSession?.study?.fqn) {
             this.refreshFilters();
         }
     }
@@ -138,18 +141,20 @@ export default class OpencgaActiveFilters extends LitElement {
     queryObserver() {
         const _queryList = [];
         const keys = Object.keys(this.query);
+
+        if (!this._prevQuery || !UtilsNew.objectCompare(this.query, this._prevQuery)) {
+            this._prevQuery = {...this.query};
+            $("#" + this._prefix + "Warning").fadeIn();
+            // console.log("query has changed")
+        } else {
+            // query not changed OR changed via onQueryFacetDelete() so this._jsonPrevFacetQuery was already updated
+            // console.log("query has not changed or changed in active-filters")
+            $("#" + this._prefix + "Warning").hide();
+        }
+
         for (const keyIdx in keys) {
             const key = keys[keyIdx];
             if (UtilsNew.isNotEmpty(this.query[key]) && (!this._config.hiddenFields || (this._config.hiddenFields && !this._config.hiddenFields.includes(key)))) {
-
-                // TODO review. why is this in a loop?
-                const queryString = JSON.stringify(UtilsNew.objectSort(this.query));
-                const prevQueryString = JSON.stringify(UtilsNew.objectSort(this._previousQuery));
-                if (queryString !== prevQueryString) {
-                    this.querySelector("#" + this._prefix + "Warning").style.display = "block";
-                } else {
-                    this.querySelector("#" + this._prefix + "Warning").style.display = "none";
-                }
 
                 // We use the alias to rename the key
                 let title = key;
@@ -212,9 +217,30 @@ export default class OpencgaActiveFilters extends LitElement {
         this.requestUpdate();
     }
 
+    facetQueryObserver() {
+        // this just handle the visibility of the warning message and store a serialised this.facetQuery into this._jsonPrevFacetQuery.
+        // we use the same logic as queryObserver() for show/hide the warning message, but here we store a json string in _jsonPrevFacetQuery.
+        if (Object.keys(this.facetQuery).length) {
+            // check if this.facetQuery has changed
+            if (!this._jsonPrevFacetQuery || !UtilsNew.objectCompare(this.facetQuery, JSON.parse(this._jsonPrevFacetQuery))) {
+                this._jsonPrevFacetQuery = JSON.stringify(this.facetQuery); // this.facetQuery is a complex object, {...this.facetQuery} won't work
+                $("#" + this._prefix + "Warning").fadeIn();
+
+            } else {
+                // query not changed OR changed via onQueryFacetDelete() so this._jsonPrevFacetQuery was already updated
+                $("#" + this._prefix + "Warning").hide();
+            }
+        } else {
+            // TODO handle warning alert here too
+            this._jsonPrevFacetQuery = null;
+        }
+    }
+
     searchClicked() {
+        // console.log("searchClicked")
         $("#" + this._prefix + "Warning").hide();
-        this._previousQuery = this.query;
+        this._prevQuery = {...this.query};
+        this._jsonPrevFacetQuery = JSON.stringify(this.executedFacetQuery);
     }
 
     configObserver() {
@@ -229,38 +255,15 @@ export default class OpencgaActiveFilters extends LitElement {
         }
     }
 
-    facetQueryObserver() {
-
-        // TODO in progress https://github.com/opencb/jsorolla/issues/150
-        // console.log("facetQueryObserver")
-        // console.log("this.facetQuery", JSON.stringify(this.facetQuery))
-        // console.log("this._JsonSelectedFacet", this._JsonSelectedFacet)
-        if (Object.keys(this.facetQuery).length) {
-            if (!this._JsonSelectedFacet || !UtilsNew.objectCompare(this.facetQuery, JSON.parse(this._JsonSelectedFacet))) {
-                this._JsonSelectedFacet = JSON.stringify(this.facetQuery); // this.selectedFacet is a complex object, {...this.selectedFacet} won't work
-                this.querySelector("#" + this._prefix + "Warning").style.display = "block";
-                // console.log("showing warn")
-
-            } else {
-                this.querySelector("#" + this._prefix + "Warning").style.display = "none";
-                // console.log("hiding warn")
-            }
-        } else {
-            this._JsonSelectedFacet = null;
-        }
-    }
-
     clear() {
-        PolymerUtils.addStyleByClass("filtersLink", "color", "black");
-
         // TODO do not trigger event if there are no active filters
         // Trigger clear event
-        this.dispatchEvent(new CustomEvent("activeFilterClear", {detail: {}, bubbles: true, composed: true}));
+        this.dispatchEvent(new CustomEvent("activeFilterClear", {detail: {}, /*bubbles: true, composed: true*/}));
     }
 
     clearFacet() {
-        this.querySelector("#" + this._prefix + "Warning").style.display = "none";
-        this.dispatchEvent(new CustomEvent("activeFacetClear", {detail: {}, bubbles: true, composed: true}));
+        $("#" + this._prefix + "Warning").hide();
+        this.dispatchEvent(new CustomEvent("activeFacetClear", {detail: {}, /*bubbles: true, composed: true*/}));
     }
 
     launchModal() {
@@ -276,7 +279,7 @@ export default class OpencgaActiveFilters extends LitElement {
     }
 
     refreshFilters() {
-        this.opencgaClient.users().filters(this.opencgaSession.user.id).then(restResponse => {
+        this.opencgaSession.opencgaClient.users().filters(this.opencgaSession.user.id).then(restResponse => {
             const result = restResponse.getResults();
 
             // (this.filters || []) in case this.filters (prop) is undefined
@@ -313,7 +316,7 @@ export default class OpencgaActiveFilters extends LitElement {
             }
         }
 
-        this.opencgaClient.users().filters(this.opencgaSession.user.id)
+        this.opencgaSession.opencgaClient.users().filters(this.opencgaSession.user.id)
             .then(restResponse => {
                 console.log("GET filters", restResponse);
                 const savedFilters = restResponse.getResults() || [];
@@ -339,7 +342,7 @@ export default class OpencgaActiveFilters extends LitElement {
                         confirmButtonText: "Yes"
                     }).then(result => {
                         if (result.value) {
-                            this.opencgaClient.users().updateFilter(this.opencgaSession.user.id, filterName, data)
+                            this.opencgaSession.opencgaClient.users().updateFilter(this.opencgaSession.user.id, filterName, data)
                                 .then(restResponse => {
                                     if (!restResponse?.getEvents?.("ERROR")?.length) {
                                         for (const i in this._filters) {
@@ -383,7 +386,7 @@ export default class OpencgaActiveFilters extends LitElement {
                         query: query,
                         options: {}
                     };
-                    this.opencgaClient.users().updateFilters(this.opencgaSession.user.id, data, {action: "ADD"})
+                    this.opencgaSession.opencgaClient.users().updateFilters(this.opencgaSession.user.id, data, {action: "ADD"})
                         .then(restResponse => {
                             if (!restResponse.getEvents?.("ERROR")?.length) {
                                 this._filters = [...this._filters, data];
@@ -435,7 +438,7 @@ export default class OpencgaActiveFilters extends LitElement {
             return;
         }
 
-        this.querySelector("#" + this._prefix + "Warning").style.display = "none";
+        $("#" + this._prefix + "Warning").hide();
         if (!UtilsNew.isUndefinedOrNull(this._filters)) {
             // We look for the filter name in the filters array
             for (const filter of this._filters) {
@@ -513,8 +516,6 @@ export default class OpencgaActiveFilters extends LitElement {
 
     onQueryFilterDelete(e) {
         const _queryList = Object.assign({}, this.query);
-        // Reset selected filters to none
-        PolymerUtils.addStyleByClass("filtersLink", "color", "black");
 
         const {filterName: name, filterValue: value} = e.target.dataset;
         console.log("onQueryFilterDelete", name, value);
@@ -564,35 +565,28 @@ export default class OpencgaActiveFilters extends LitElement {
             }
         }
 
-        // When you delete any query filter we are not longer using any known Filter
-        if (UtilsNew.isNotUndefined(PolymerUtils.getElementById("filtersList"))) {
-            // TODO Refactor
-            $("#filtersList option[value='none']").prop("selected", true);
-        }
-
+        this._jsonPrevQuery = JSON.stringify(_queryList);
 
         this.dispatchEvent(new CustomEvent("activeFilterChange", {
             detail: _queryList,
-            bubbles: true,
-            composed: true
+            /* bubbles: true,
+            composed: true*/
         }));
     }
 
     onQueryFacetDelete(e) {
-        console.log("hiding warn")
-
-        this.querySelector("#" + this._prefix + "Warning").style.display = "none";
-
-        console.log("onQueryFacetDelete", e.target.dataset.filterName);
+        $("#" + this._prefix + "Warning").hide();
         delete this.facetQuery[e.target.dataset.filterName];
         // NOTE we don't update this.facetQuery reference because facetQueryObserver() is being called already by this chain:
         // `activeFacetChange` event triggers onActiveFacetChange() => onRun() in opencga-browser => [...] => facetQueryObserver() in opencga-active-filters
         // this.facetQuery = {...this.facetQuery};
 
+        this._jsonPrevFacetQuery = JSON.stringify(this.facetQuery);
+
         this.dispatchEvent(new CustomEvent("activeFacetChange", {
             detail: this.facetQuery,
-            bubbles: true,
-            composed: true
+            /* bubbles: true,
+            composed: true*/
         }));
     }
 
@@ -767,7 +761,7 @@ export default class OpencgaActiveFilters extends LitElement {
                         -->
                         
                         <!-- TODO we probably need a new property for this -->
-                        ${false && this.showSelectFilters(this.opencgaClient._config) ? html`
+                        ${false && this.showSelectFilters(this.opencgaSession.opencgaClient._config) ? html`
                             <div class="dropdown saved-filter-wrapper">
     
                                 <button type="button" class="btn btn-primary btn-sm dropdown-toggle ripple" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">

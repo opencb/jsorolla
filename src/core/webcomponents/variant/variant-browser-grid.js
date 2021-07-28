@@ -65,7 +65,7 @@ export default class VariantBrowserGrid extends LitElement {
         this.checkedVariants = new Map();
 
         // Set colors
-        this.consequenceTypeColors = VariantGridFormatter.assignColors(consequenceTypes, proteinSubstitutionScore);
+        this.consequenceTypeColors = VariantGridFormatter.assignColors(CONSEQUENCE_TYPES, PROTEIN_SUBSTITUTION_SCORE);
 
         // TODO move to the configuration?
         this.maxNumberOfPages = 1000000;
@@ -113,7 +113,7 @@ export default class VariantBrowserGrid extends LitElement {
         // Config for the grid toolbar
         this.toolbarConfig = {
             resource: "VARIANT",
-            buttons: ["columns", "download"],
+            buttons: ["columns", "download", "export"],
             columns: this._createDefaultColumns()
                 .flat()
                 .filter(f => f.title && !fieldToHide.includes(f.field) && (f.visible ?? true))
@@ -299,10 +299,11 @@ export default class VariantBrowserGrid extends LitElement {
         let result = "<div class='row' style='padding-bottom: 20px'>";
         let detailHtml = "";
 
-        if (typeof row !== "undefined" && typeof row.annotation !== "undefined") {
+        if (row?.annotation) {
             detailHtml = "<div style='padding: 10px 0px 5px 25px'><h4>Consequence Types</h4></div>";
             detailHtml += "<div style='padding: 5px 40px'>";
-            detailHtml += VariantGridFormatter.consequenceTypeDetailFormatter(index, row, this.variantGrid, this.variantGrid.query, this.variantGrid._config, this.variantGrid.opencgaSession.project.organism.assembly);
+            detailHtml += VariantGridFormatter
+                .consequenceTypeDetailFormatter(index, row, this.variantGrid, this.variantGrid.query, this.variantGrid._config, this.variantGrid.opencgaSession.project.organism.assembly);
             detailHtml += "</div>";
 
             detailHtml += "<div style='padding: 10px 0px 5px 25px'><h4>Clinical Phenotypes</h4></div>";
@@ -533,7 +534,7 @@ export default class VariantBrowserGrid extends LitElement {
                     field: "gene",
                     rowspan: 2,
                     colspan: 1,
-                    formatter: (value, row, index) => VariantGridFormatter.geneFormatter(row, index, this.query, this.opencgaSession),
+                    formatter: (value, row, index) => VariantGridFormatter.geneFormatter(row, index, this.query, this.opencgaSession, this._config),
                     halign: "center"
                 },
                 {
@@ -549,7 +550,7 @@ export default class VariantBrowserGrid extends LitElement {
                     field: "consequenceType",
                     rowspan: 2,
                     colspan: 1,
-                    formatter: (value, row, index) => VariantGridFormatter.consequenceTypeFormatter(value, row, index, this._config, this.consequenceTypeColors),
+                    formatter: (value, row, index) => VariantGridFormatter.consequenceTypeFormatter(value, row, this.query.ct, this._config),
                     halign: "center"
                 },
                 {
@@ -756,8 +757,9 @@ export default class VariantBrowserGrid extends LitElement {
             },
             consequenceType: {
                 maneTranscript: true,
-                gencodeBasicTranscript: true,
+                gencodeBasicTranscript: false,
                 ensemblCanonicalTranscript: true,
+                refseqTranscript: true,
                 ccdsTranscript: false,
                 ensemblTslTranscript: false,
                 proteinCodingTranscript: false,

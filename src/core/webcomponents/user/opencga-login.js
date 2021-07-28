@@ -215,7 +215,7 @@ export default class OpencgaLogin extends LitElement {
                                 <span class="input-group-addon " id="password">
                                     <i class="fa fa-key"></i>
                                 </span>
-                                <input id="opencgaPassword" value="${this.password}" type="password" maxlength="30" class="form-control input-login"
+                                <input id="opencgaPassword" value="${this.password}" type="password" maxlength="256" class="form-control input-login"
                                        placeholder="Password" aria-describedby="password" required>
                             </div>
                         </div>

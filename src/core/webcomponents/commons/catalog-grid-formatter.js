@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-import UtilsNew from "../../utilsNew.js";
-
 
 export default class CatalogGridFormatter {
 
@@ -23,8 +21,8 @@ export default class CatalogGridFormatter {
         if (value && value.length === 0) {
             return "-";
         }
-
-        const tooltip = [...value].sort((a, b) => a.status === "OBSERVED" ? -1 : 1).map(phenotype => {
+        const status = ["OBSERVED", "NOT_OBSERVED", "UNKNOWN"];
+        const tooltip = [...value].sort((a, b) => status.indexOf(a.status) - status.indexOf(b.status)).map(phenotype => {
             return `
                     <p>
                         ${phenotype.source && phenotype.source.toUpperCase() === "HPO" ?
@@ -32,7 +30,6 @@ export default class CatalogGridFormatter {
                 `<span>${phenotype.id} - ${phenotype.status}</span>`}
                     </p>`;
         }).join("");
-
         if (value && value.length > 0) {
             return `<a tooltip-title="Phenotypes" tooltip-text='${tooltip}'> ${value.length} term${value.length > 1 ? "s" : ""} found</a>`;
         } else {
@@ -72,7 +69,23 @@ export default class CatalogGridFormatter {
         }
     }
 
-    /**
+    static panelFormatter(panels) {
+        let panelHtml = "-";
+        if (panels?.length > 0) {
+            panelHtml = "";
+            for (const panel of panels) {
+                panelHtml += `
+                    <div style="margin: 5px 0px">
+                        <a href="https://panelapp.genomicsengland.co.uk/panels/${panel.source.id}/" target="_blank">
+                            ${panel.name} (${panel.source.project} v${panel.source.version})
+                        </a>
+                    </div>`;
+            }
+        }
+        return panelHtml;
+    }
+
+        /**
      *  Formats the files for the Catalog grids
      * @param {Array} files Either a list of fileIds or file objects
      * @param {Array} extensions A list of file extensions. If it is defined, only the file with extensions are returned.
@@ -113,8 +126,8 @@ export default class CatalogGridFormatter {
             for (const clinicalAnalysis of clinicalAnalysisArray) {
                 result += `
                     <div>
-                        <a href="#interpreter/${opencgaSession.project.id}/${opencgaSession.study.id}/${clinicalAnalysis.id}">
-                            ${clinicalAnalysis.id} ${clinicalAnalysis.proband.id === individualId ? "(proband)" : ""}
+                        <a title="Go to Case Interpreter" class="btn btn-default btn-small ripple dropdown-toggle one-line" href="#interpreter/${opencgaSession.project.id}/${opencgaSession.study.id}/${clinicalAnalysis.id}">
+                            <i aria-hidden="true" class="fas fa-user-md"></i> ${clinicalAnalysis.id} ${clinicalAnalysis.proband.id === individualId ? "(proband)" : ""}
                        </a>              
                     </div>
                 `;
