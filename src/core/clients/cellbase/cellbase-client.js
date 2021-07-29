@@ -33,6 +33,7 @@ export class CellBaseClient {
             this.indexedDBCache = new IndexedDBCache(this._config.cache.database);
             this._initCache();
         }
+        this.restClient = new RestClient();
         this.check();
     }
 
@@ -104,13 +105,14 @@ export class CellBaseClient {
         //     if (++count < hosts.length) {
         //         // we need a new URL
         //         url = "http://" + hosts[count] + "/webservices/rest/" + version + "/" + "meta" + "/" + param;
-        //         response = RestClient.call(url, options);
+        //         response = this.restClient.call(url, options);
         //     } else {
         //         userError(this);
         //     }
         // };
-        // response = RestClient.call(url, options);
-        return RestClient.call(url, options);
+        // response = this.restClient.call(url, options);
+        const k = this.generateKey(param);
+        return this.restClient.call(url, options, k);
     }
 
     getFiles(folderId, resource, params, options = {}) {
@@ -132,7 +134,8 @@ export class CellBaseClient {
         if (typeof queryParamsUrl !== "undefined" && queryParamsUrl !== null && queryParamsUrl !== "") {
             url += `?${queryParamsUrl}`;
         }
-        return RestClient.call(url, options);
+        const k = this.generateKey();
+        return this.restClient.call(url, options, k);
     }
 
     getGeneClient(id, resource, params, options) {
@@ -275,12 +278,13 @@ export class CellBaseClient {
             if (++count < hosts.length) {
                 // we need a new URL
                 url = _this._createRestUrl(hosts[count], version, species, category, subcategory, ids, resource, params);
-                response = RestClient.call(url, options);
+                response = this.restClient.call(url, options);
             } else {
                 userError(this);
             }
         };*/
-        return RestClient.call(url, options);
+        const k = this.generateKey();
+        return this.restClient.call(url, options, k);
     }
 
 
@@ -334,6 +338,10 @@ export class CellBaseClient {
     setConfig(config) {
         this._config = {...this.getDefaultConfig(), ...config};
         // this.clients = new Map();
+    }
+
+    generateKey(params) {
+        return `${new Error().stack.split("\n    at ").slice(0, 5).join("|")}`;
     }
 
 }

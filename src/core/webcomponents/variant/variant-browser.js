@@ -60,15 +60,13 @@ export default class VariantBrowser extends LitElement {
             query: {
                 type: Object
             },
+            // query object sent to Opencga client (includes this.selectedFacet serialised)
             facetQuery: {
                 type: Object
             },
-            selectedFacet: { // TODO naming change: preparedQueryFacet (selectedFacet), preparedQueryFacetFormatted (selectedFacetFormatted), executedQueryFacet (queryFacet) (also in opencga-browser)
+            // complex object that keeps track of the values of all facets
+            selectedFacet: {
                 type: Object
-            },
-            // Deprecated: cohorts are now fetched during login and stored in opencgaSession, no need to allow external configuration
-            cohorts: {
-                type: Array
             },
             settings: {
                 type: Object
@@ -80,11 +78,11 @@ export default class VariantBrowser extends LitElement {
         this._prefix = UtilsNew.randomString(8);
 
         // These are for making the queries to server
-        this.facetFields = [];
+        /*this.facetFields = [];
         this.facetRanges = [];
 
         this.facetFieldsName = [];
-        this.facetRangeFields = [];
+        this.facetRangeFields = [];*/
 
         this.results = [];
         this._showInitMessage = true;
@@ -94,7 +92,7 @@ export default class VariantBrowser extends LitElement {
         this.preparedQuery = {};
         this.executedQuery = {};
         this.selectedFacet = {};
-        this.selectedFacetFormatted = {};
+        this.preparedFacetQueryFormatted = {};
         this.errorState = false;
 
         this.activeTab = {};
@@ -118,9 +116,6 @@ export default class VariantBrowser extends LitElement {
         if (changedProperties.has("query")) {
             this.queryObserver();
         }
-        /*if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
-        }*/
         if (changedProperties.has("selectedFacet")) {
             this.facetQueryBuilder();
         }
@@ -158,7 +153,7 @@ export default class VariantBrowser extends LitElement {
              */
             this.preparedQuery = {study: this.opencgaSession.study.fqn};
             this.facetQuery = null;
-            this.selectedFacetFormatted = null;
+            this.preparedFacetQueryFormatted = null;
             // this.requestUpdate();
             // this.onRun();
 
@@ -180,7 +175,7 @@ export default class VariantBrowser extends LitElement {
                     this.preparedQuery = {study: this.opencgaSession.study.fqn};
                     this.executedQuery = {study: this.opencgaSession.study.fqn};
                 }
-                // onServerFilterChange() in opencga-active-filters drops a filterchange event when the Filter dropdown is used
+                // onServerFilterChange() in opencga-active-filters fires an activeFilterChange event when the Filter dropdown is used
                 this.dispatchEvent(new CustomEvent("queryChange", {
                     detail: this.preparedQuery
                 }
@@ -194,12 +189,15 @@ export default class VariantBrowser extends LitElement {
     }
 
     facetQueryBuilder() {
+        // facetQuery is the query object sent to the client in <opencb-facet-results>
         if (Object.keys(this.selectedFacet).length) {
+            this.executedFacetQueryFormatted = {...this.preparedFacetQueryFormatted};
+
             this.facetQuery = {
                 ...this.preparedQuery,
                 study: this.opencgaSession.study.fqn,
                 // FIXME rename fields to field
-                fields: Object.values(this.selectedFacetFormatted).map(v => v.formatted).join(";")
+                fields: Object.values(this.preparedFacetQueryFormatted).map(v => v.formatted).join(";")
             };
             this._changeView("facet-tab");
         } else {
@@ -230,7 +228,7 @@ export default class VariantBrowser extends LitElement {
                 ...this.preparedQuery,
                 study: this.opencgaSession.study.fqn,
                 timeout: 60000,
-                fields: Object.values(this.selectedFacetFormatted).map(v => v.formatted).join(";")
+                fields: Object.values(this.preparedFacetQueryFormatted).map(v => v.formatted).join(";")
             };
             this._changeView("facet-tab");
         } else {
@@ -279,13 +277,15 @@ export default class VariantBrowser extends LitElement {
 
     onFacetQueryChange(e) {
         // console.log("onFacetQueryChange");
-        this.selectedFacetFormatted = e.detail.value;
+        this.preparedFacetQueryFormatted = e.detail.value;
         this.requestUpdate();
     }
 
     onActiveFacetChange(e) {
         this.selectedFacet = {...e.detail};
-        this.onRun();
+        this.preparedFacetQueryFormatted = {...e.detail};
+        // this.onRun();
+        this.facetQueryBuilder();
         this.requestUpdate();
     }
 
@@ -597,7 +597,7 @@ export default class VariantBrowser extends LitElement {
                             id: "json-view",
                             name: "JSON Data",
                             render: (variant, active) => {
-                                return html`<json-viewer .data="${variant}" .active="${active}"></json-viewer>`;
+                                return html`<json-viewer .data="${variant.annotation.traitAssociation}" .active="${active}"></json-viewer>`;
                             }
                         }
                         // TODO Think about Neeworks
@@ -752,8 +752,9 @@ export default class VariantBrowser extends LitElement {
                                                 .opencgaSession="${this.opencgaSession}"
                                                 .defaultStudy="${this.opencgaSession.study.fqn}"
                                                 .query="${this.preparedQuery}"
-                                                .refresh="${this.executedQuery}"
-                                                .facetQuery="${this.selectedFacetFormatted}"
+                                                .executedQuery="${this.executedQuery}"
+                                                .facetQuery="${this.preparedFacetQueryFormatted}"
+                                                .executedFacetQuery="${this.executedFacetQueryFormatted}"
                                                 .alias="${this._config.filter.activeFilters.alias}"
                                                 .filters="${this._config.filter.examples}"
                                                 .config="${this._config.filter.activeFilters}"

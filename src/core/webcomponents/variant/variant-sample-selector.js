@@ -311,7 +311,7 @@ export default class VariantSampleSelector extends LitElement {
                                         .query="${this.query}"
                                         .defaultStudy="${this.study.alias}"
                                         alias="${this.activeFilterAlias}"
-                                        .refresh="${this.search}"
+                                        .executedQuery="${this.search}"
                                         @activeFilterClear="${this.onClear}"
                                         @activeFilterChange="${this.onFilterChange}">
                 </opencga-active-filters>

@@ -72,9 +72,11 @@ export default class OpencgaBrowser extends LitElement {
             query: {
                 type: Object
             },
+            // query object sent to Opencga client (includes this.selectedFacet serialised)
             facetQuery: {
                 type: Object
             },
+            // complex object that keeps track of the values of all facets
             selectedFacet: {
                 type: Object
             },
@@ -97,7 +99,7 @@ export default class OpencgaBrowser extends LitElement {
         };
 
         this.selectedFacet = {};
-        this.selectedFacetFormatted = {};
+        this.preparedFacetQueryFormatted = {};
         this.activeTab = {};
         this.detail = {};
     }
@@ -130,13 +132,9 @@ export default class OpencgaBrowser extends LitElement {
             this.checkProjects = true;
             this.query = {study: this.opencgaSession.study.fqn};
 
-            // TODO FIXME
-            /** temp fix this.onRun(): when you switch study this.facetQuery contains the old study when you perform a new Aggregation query.
-             *  As a consequence, we need to update preparedQuery as this.onRun() uses it (without it the old study is in query in table result as well)
-             */
             this.preparedQuery = {study: this.opencgaSession.study.fqn};
             this.facetQuery = null;
-            this.selectedFacetFormatted = null;
+            this.preparedFacetQueryFormatted = null;
             // this.requestUpdate();
             // this.onRun();
 
@@ -158,7 +156,7 @@ export default class OpencgaBrowser extends LitElement {
                     this.preparedQuery = {study: this.opencgaSession.study.fqn};
                     this.executedQuery = {study: this.opencgaSession.study.fqn};
                 }
-                // onServerFilterChange() in opencga-active-filters drops a filterchange event when the Filter dropdown is used
+                // onServerFilterChange() in opencga-active-filters fires an activeFilterChange event when the Filter dropdown is used
                 this.dispatchEvent(new CustomEvent("queryChange", {
                     detail: this.preparedQuery
                 }
@@ -173,11 +171,13 @@ export default class OpencgaBrowser extends LitElement {
 
     facetQueryBuilder() {
         if (Object.keys(this.selectedFacet).length) {
+            this.executedFacetQueryFormatted = {...this.preparedFacetQueryFormatted};
+
             this.facetQuery = {
                 ...this.preparedQuery,
                 study: this.opencgaSession.study.fqn,
                 // timeout: 60000,
-                field: Object.values(this.selectedFacetFormatted).map(v => v.formatted).join(";")
+                field: Object.values(this.preparedFacetQueryFormatted).map(v => v.formatted).join(";")
             };
             this._changeView("facet-tab");
         } else {
@@ -198,6 +198,7 @@ export default class OpencgaBrowser extends LitElement {
     async onRun() {
         // NOTE notifySearch() triggers this chain: notifySearch -> onQueryFilterSearch() on iva-app.js -> this.queries updated -> queryObserver() in opencga-browser
         // queryObserver() here stops the repetition of the remote request by checking if it has changed
+        // TODO do the same with facetQuery
         this.query = {...this.preparedQuery};
         // updates this.queries in iva-app
         this.notifySearch(this.preparedQuery);
@@ -210,7 +211,7 @@ export default class OpencgaBrowser extends LitElement {
                 ...this.preparedQuery,
                 study: this.opencgaSession.study.fqn,
                 // timeout: 60000,
-                field: Object.values(this.selectedFacetFormatted).map(v => v.formatted).join(";")
+                field: Object.values(this.preparedFacetQueryFormatted).map(v => v.formatted).join(";")
             };
             this._changeView("facet-tab");
         } else {
@@ -268,13 +269,16 @@ export default class OpencgaBrowser extends LitElement {
 
     onFacetQueryChange(e) {
         // console.log("onFacetQueryChange");
-        this.selectedFacetFormatted = e.detail.value;
+        this.preparedFacetQueryFormatted = e.detail.value;
+        // this.facetQueryBuilder();
         this.requestUpdate();
     }
 
     onActiveFacetChange(e) {
         this.selectedFacet = {...e.detail};
-        this.onRun(); // TODO the query should be repeated every action on active-filter (delete, clear, load from Saved filter)
+        this.preparedFacetQueryFormatted = {...e.detail};
+        //this.onRun(); // TODO the query should be repeated every action on active-filter (delete, clear, load from Saved filter)
+        this.facetQueryBuilder();
         this.requestUpdate();
     }
 
@@ -290,7 +294,7 @@ export default class OpencgaBrowser extends LitElement {
     }
 
     renderView(entity) {
-        // TODO be sure to EXECUTE this function each template update, otherwise props in the following components won't be updated.
+        // TODO be sure to execute this function each template update, otherwise props in the following components won't be updated.
         // possible modular solution (which still doesn't solve the update filter issue): map of TemplateResult: renderView(entity).mainView
         const facetView = html`
             <div id="facet-tab" class="content-tab">
@@ -328,7 +332,6 @@ export default class OpencgaBrowser extends LitElement {
                                                      .query="${this.executedQuery}"
                                                      .config="${this.config.filter.result.grid}"
                                                      .active="${true}"
-                                                     @selectsample="${this.onSelectSample}"
                                                      @selectrow="${e => this.onClickRow(e, "sample")}">
                             </opencga-sample-grid>
                             <opencga-sample-detail  .opencgaSession="${this.opencgaSession}"
@@ -553,15 +556,16 @@ export default class OpencgaBrowser extends LitElement {
                                                     .opencgaSession="${this.opencgaSession}"
                                                     .defaultStudy="${this.opencgaSession?.study?.fqn}"
                                                     .query="${this.preparedQuery}"
-                                                    .refresh="${this.executedQuery}"
-                                                    .facetQuery="${this.selectedFacetFormatted}"
+                                                    .executedQuery="${this.executedQuery}"
+                                                    .facetQuery="${this.preparedFacetQueryFormatted}"
+                                                    .executedFacetQuery="${this.executedFacetQueryFormatted}"
                                                     .alias="${this.activeFilterAlias}"
                                                     .config="${this.config.activeFilters}"
                                                     .filters="${this.config.filter.examples}"
-                                                    @activeFacetChange="${this.onActiveFacetChange}"
-                                                    @activeFacetClear="${this.onActiveFacetClear}"
                                                     @activeFilterChange="${this.onActiveFilterChange}"
-                                                    @activeFilterClear="${this.onActiveFilterClear}">
+                                                    @activeFilterClear="${this.onActiveFilterClear}"
+                                                    @activeFacetChange="${this.onActiveFacetChange}"
+                                                    @activeFacetClear="${this.onActiveFacetClear}">
                             </opencga-active-filters>
 
                             <div class="main-view">
