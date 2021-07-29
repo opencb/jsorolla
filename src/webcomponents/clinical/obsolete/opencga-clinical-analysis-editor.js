@@ -21,7 +21,7 @@ import CatalogUIUtils from "../../commons/CatalogUIUtils.js";
 import "../../individual/opencga-individual-browser.js";
 import "../opencga/catalog/family/opencga-family-editor.js";
 import "../opencga/catalog/family/opencga-family-browser.js";
-import {NotificationQueue} from "../Notification.js";
+import {NotificationQueue} from "../../core/NotificationQueue.js";
 
 // TODO recheck functionality
 //TODO CHECK on-dom-change="renderDomRepeat"

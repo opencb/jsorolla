@@ -42,7 +42,7 @@ import {ReactomeClient} from "../../core/clients/reactome/reactome-client.js";
 
 import UtilsNew from "../../core/utilsNew.js";
 import NotificationUtils from "../../core/NotificationUtils.js";
-import {NotificationQueue} from "../../webcomponents/Notification.js";
+import {NotificationQueue} from "../../core/NotificationQueue.js";
 import AnalysisRegistry from "../../webcomponents/variant/analysis/analysis-registry.js";
 import "../../webcomponents/clinical/opencga-clinical-analysis-browser.js";
 import "../../webcomponents/clinical/opencga-clinical-review-cases.js";
@@ -91,6 +91,7 @@ import "../../webcomponents/job-monitor.js";
 import "../../webcomponents/loading-spinner.js";
 import "../../webcomponents/project/projects-admin.js";
 import "../../webcomponents/study/study-admin.js";
+import "../../webcomponents/Notification.js";
 // import "../../webcomponents/clinical/rga/rga-browser.js";
 
 // import "./loading-bar.js";

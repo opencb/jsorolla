@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../core/utilsNew.js";
-import {NotificationQueue} from "../Notification.js";
+import {NotificationQueue} from "../../core/NotificationQueue.js";
 import PolymerUtils from "../PolymerUtils.js";
 import {OpenCGAClient} from "../../core/clients/opencga/opencga-client.js";
 

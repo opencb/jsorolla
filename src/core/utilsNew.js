@@ -1,4 +1,4 @@
-import {NotificationQueue} from "../webcomponents/Notification.js";
+import {NotificationQueue} from "./NotificationQueue.js";
 
 export default class UtilsNew {
 

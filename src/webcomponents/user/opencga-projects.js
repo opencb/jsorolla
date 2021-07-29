@@ -20,7 +20,7 @@ import UtilsNew from "../../core/utilsNew.js";
 import "../commons/tool-header.js";
 import {CountUp} from "/node_modules/countup.js/dist/countUp.min.js";
 import "../commons/simple-chart.js";
-import {NotificationQueue} from "../Notification.js";
+import {NotificationQueue} from "../../core/NotificationQueue.js";
 import {RestResponse} from "../../core/clients/rest-response.js";
 
 export default class OpencgaProjects extends LitElement {

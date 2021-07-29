@@ -1,7 +1,7 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../../core/utilsNew.js";
 import PolymerUtils from "../../../PolymerUtils.js";
-import {NotificationQueue} from "../../../Notification.js";
+import {NotificationQueue} from "../../../../core/NotificationQueue.js";
 import "./opencga-variable-selector.js";
 import "./../../../commons/filters/select-field-filter.js";
 

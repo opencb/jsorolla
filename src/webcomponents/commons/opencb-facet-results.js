@@ -17,7 +17,7 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import {RestResponse} from "../../core/clients/rest-response.js";
 import UtilsNew from "../../core/utilsNew.js";
-import {NotificationQueue} from "../Notification.js";
+import {NotificationQueue} from "../../core/NotificationQueue.js";
 import PolymerUtils from "../PolymerUtils.js";
 import "./opencga-facet-result-view.js";
 import "../loading-spinner.js";
