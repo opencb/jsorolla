@@ -78,13 +78,13 @@ export default class OpencgaSampleBrowser extends LitElement {
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
-    updated(changedProperties) {
-        /* if (changedProperties.has("opencgaSession")) {
-            this.opencgaSessionObserver();
-        }*/
+    // NOTE turn updated into update here reduces the number of remote requests from 2 to 1 as in the grid components propertyObserver()
+    // is executed twice in case there is external settings
+    update(changedProperties) {
         if (changedProperties.has("settings")) {
             this.settingsObserver();
         }
+        super.update(changedProperties);
     }
 
     settingsObserver() {
@@ -100,7 +100,6 @@ export default class OpencgaSampleBrowser extends LitElement {
         if (this.settings?.table?.toolbar) {
             this._config.filter.result.grid.toolbar = {...this._config.filter.result.grid.toolbar, ...this.settings.table.toolbar};
         }
-        this.requestUpdate();
     }
 
     getDefaultConfig() {
@@ -204,28 +203,32 @@ export default class OpencgaSampleBrowser extends LitElement {
                             name: "Overview",
                             active: true,
                             render: (sample, active, opencgaSession) => {
-                                return html`<opencga-sample-view .sample="${sample}" .active="${active}" .opencgaSession="${opencgaSession}"></opencga-sample-view>`;
+                                return html`
+                                    <opencga-sample-view .sample="${sample}" .active="${active}" .opencgaSession="${opencgaSession}"></opencga-sample-view>`;
                             }
                         },
                         {
                             id: "sample-variant-stats-view",
                             name: "Variant Stats",
                             render: (sample, active, opencgaSession) => {
-                                return html`<sample-variant-stats-view .sampleId="${sample.id}" .active="${active}" .opencgaSession="${opencgaSession}"></sample-variant-stats-view>`;
+                                return html`
+                                    <sample-variant-stats-view .sampleId="${sample.id}" .active="${active}" .opencgaSession="${opencgaSession}"></sample-variant-stats-view>`;
                             }
                         },
                         {
                             id: "samtools-flags-stats-view",
                             name: "Samtools Flagstat",
                             render: (sample, active, opencgaSession) => {
-                                return html`<samtools-flagstats-view .sample="${sample}" .opencgaSession="${opencgaSession}"></samtools-flagstats-view>`;
+                                return html`
+                                    <samtools-flagstats-view .sample="${sample}" .opencgaSession="${opencgaSession}"></samtools-flagstats-view>`;
                             }
                         },
                         {
                             id: "individual-view",
                             name: "Individual",
                             render: (sample, active, opencgaSession) => {
-                                return html`<opencga-individual-view .individualId="${sample?.individualId}" .opencgaSession="${opencgaSession}"></opencga-individual-view>`;
+                                return html`
+                                    <opencga-individual-view .individualId="${sample?.individualId}" .opencgaSession="${opencgaSession}"></opencga-individual-view>`;
                             }
                         },
                         {
@@ -233,7 +236,8 @@ export default class OpencgaSampleBrowser extends LitElement {
                             name: "Files",
                             render: (sample, active, opencgaSession) => {
                                 return html`
-                                    <opencga-file-grid .query="${{sampleIds: sample.id}}" .active="${active}" .config="${{downloadFile: this._config.downloadFile}}" .opencgaSession="${opencgaSession}" ></opencga-file-grid>`;
+                                    <opencga-file-grid .query="${{sampleIds: sample.id}}" .active="${active}" .config="${{downloadFile: this._config.downloadFile}}"
+                                                       .opencgaSession="${opencgaSession}"></opencga-file-grid>`;
                             }
                         },
                         {
@@ -241,7 +245,8 @@ export default class OpencgaSampleBrowser extends LitElement {
                             name: "JSON Data",
                             mode: "development",
                             render: (sample, active, opencgaSession) => {
-                                return html`<json-viewer .data="${sample}" .active="${active}"></json-viewer>`;
+                                return html`
+                                    <json-viewer .data="${sample}" .active="${active}"></json-viewer>`;
                             }
                         }
                     ]
@@ -390,11 +395,11 @@ export default class OpencgaSampleBrowser extends LitElement {
 
     render() {
         return this.opencgaSession && this._config ? html`
-            <opencga-browser  resource="SAMPLE"
-                              .opencgaSession="${this.opencgaSession}"
-                              .query="${this.query}"
-                              .config="${this._config}">
-            </opencga-browser>` :
+                    <opencga-browser resource="SAMPLE"
+                                     .opencgaSession="${this.opencgaSession}"
+                                     .query="${this.query}"
+                                     .config="${this._config}">
+                    </opencga-browser>` :
             "";
     }
 

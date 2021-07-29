@@ -77,10 +77,13 @@ export default class OpencgaCohortBrowser extends LitElement {
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
-    updated(changedProperties) {
+    // NOTE turn updated into update here reduces the number of remote requests from 2 to 1 as in the grid components propertyObserver()
+    // is executed twice in case there is external settings
+    update(changedProperties) {
         if (changedProperties.has("settings")) {
             this.settingsObserver();
         }
+        super.update(changedProperties);
     }
 
     settingsObserver() {
@@ -96,7 +99,6 @@ export default class OpencgaCohortBrowser extends LitElement {
         if (this.settings?.table?.toolbar) {
             this._config.filter.result.grid.toolbar = {...this._config.filter.result.grid.toolbar, ...this.settings.table.toolbar};
         }
-        this.requestUpdate();
     }
 
     getDefaultConfig() {
@@ -187,7 +189,8 @@ export default class OpencgaCohortBrowser extends LitElement {
                             name: "Overview",
                             active: true,
                             render: (cohort, active, opencgaSession) => {
-                                return html`<opencga-cohort-view .opencgaSession="${opencgaSession}" .cohort="${cohort}"></opencga-cohort-view>`;
+                                return html`
+                                    <opencga-cohort-view .opencgaSession="${opencgaSession}" .cohort="${cohort}"></opencga-cohort-view>`;
                             }
                         },
                         {
@@ -208,7 +211,8 @@ export default class OpencgaCohortBrowser extends LitElement {
                             name: "JSON Data",
                             mode: "development",
                             render: (cohort, active, opencgaSession) => {
-                                return html`<json-viewer .data="${cohort}" .active="${active}"></json-viewer>`;
+                                return html`
+                                    <json-viewer .data="${cohort}" .active="${active}"></json-viewer>`;
                             }
                         }
                     ]
@@ -308,11 +312,11 @@ export default class OpencgaCohortBrowser extends LitElement {
 
     render() {
         return this.opencgaSession && this._config ? html`
-            <opencga-browser  resource="COHORT"
-                            .opencgaSession="${this.opencgaSession}"
-                            .query="${this.query}"
-                            .config="${this._config}">
-            </opencga-browser>` :
+                    <opencga-browser resource="COHORT"
+                                     .opencgaSession="${this.opencgaSession}"
+                                     .query="${this.query}"
+                                     .config="${this._config}">
+                    </opencga-browser>` :
             "";
     }
 

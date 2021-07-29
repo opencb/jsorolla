@@ -84,10 +84,13 @@ export default class OpencgaIndividualBrowser extends LitElement {
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
-    updated(changedProperties) {
+    // NOTE turn updated into update here reduces the number of remote requests from 2 to 1 as in the grid components propertyObserver()
+    // is executed twice in case there is external settings
+    update(changedProperties) {
         if (changedProperties.has("settings")) {
             this.settingsObserver();
         }
+        super.update(changedProperties);
     }
 
     settingsObserver() {
@@ -102,7 +105,6 @@ export default class OpencgaIndividualBrowser extends LitElement {
         if (this.settings?.table?.toolbar) {
             this._config.filter.result.grid.toolbar = {...this._config.filter.result.grid.toolbar, ...this.settings.table.toolbar};
         }
-        this.requestUpdate();
     }
 
     getDefaultConfig() {
@@ -269,7 +271,7 @@ export default class OpencgaIndividualBrowser extends LitElement {
                             render: (individual, active, opencgaSession) => {
                                 const config = {
                                     readOnlyMode: true
-                                }
+                                };
                                 return html`
                             <p class="alert"> <i class="fas fa-info-circle align-middle"></i> Clinical Analysis in which the individual is the proband.</p>
                             <opencga-clinical-analysis-grid .config=${config} .query="${{"family.members": individual.id}}" .opencgaSession="${opencgaSession}"></opencga-clinical-analysis-grid>`;

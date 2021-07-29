@@ -46,8 +46,7 @@ export default class OpencgaFamilyBrowser extends LitElement {
             selectedFacet: {
                 type: Object
             },*/
-            settings: {
-            }
+            settings: {}
         };
     }
 
@@ -77,10 +76,13 @@ export default class OpencgaFamilyBrowser extends LitElement {
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
-    updated(changedProperties) {
+    // NOTE turn updated into update here reduces the number of remote requests from 2 to 1 as in the grid components propertyObserver()
+    // is executed twice in case there is external settings
+    update(changedProperties) {
         if (changedProperties.has("settings")) {
             this.settingsObserver();
         }
+        super.update(changedProperties);
     }
 
     settingsObserver() {
@@ -96,7 +98,6 @@ export default class OpencgaFamilyBrowser extends LitElement {
         if (this.settings?.table?.toolbar) {
             this._config.filter.result.grid.toolbar = {...this._config.filter.result.grid.toolbar, ...this.settings.table.toolbar};
         }
-        this.requestUpdate();
     }
 
     getDefaultConfig() {

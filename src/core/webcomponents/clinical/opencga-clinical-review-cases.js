@@ -73,17 +73,17 @@ export default class OpencgaClinicalReviewCases extends LitElement {
 
     }
 
-    updated(changedProperties) {
+    update(changedProperties) {
         if (changedProperties.has("settings")) {
             this.settingsObserver();
         }
-
         if (changedProperties.has("opencgaSession")) {
             this.opencgaSessionObserver();
         }
         if (changedProperties.has("opencgaSession") || changedProperties.has("query") || changedProperties.has("config")) {
             this.propertyObserver();
         }
+        super.update(changedProperties);
     }
 
     opencgaSessionObserver() {
@@ -104,7 +104,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
         if (UtilsNew.isNotUndefinedOrNull(this.query)) {
             this._query = {...this.query};
         }
-        this.requestUpdate();
+        // this.requestUpdate();
     }
 
     settingsObserver() {
@@ -121,7 +121,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
             this._config.grid.toolbar = {...this._config.grid.toolbar, ...this.settings.table.toolbar};
         }
 
-        this.requestUpdate();
+        // this.requestUpdate();
     }
 
     isLoggedIn() {
@@ -179,14 +179,14 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                         );
                         this.refreshFilters();
                     }).catch(restResponse => {
-                        if (restResponse.getEvents?.("ERROR")?.length) {
-                            const msg = restResponse.getEvents("ERROR").map(error => error.message).join("<br>");
-                            new NotificationQueue().push("Error deleting filter", msg, "error");
-                        } else {
-                            new NotificationQueue().push("Error deleting filter", "", "error");
-                        }
-                        console.error(restResponse);
-                    });
+                    if (restResponse.getEvents?.("ERROR")?.length) {
+                        const msg = restResponse.getEvents("ERROR").map(error => error.message).join("<br>");
+                        new NotificationQueue().push("Error deleting filter", msg, "error");
+                    } else {
+                        new NotificationQueue().push("Error deleting filter", "", "error");
+                    }
+                    console.error(restResponse);
+                });
             }
         });
     }
@@ -269,13 +269,13 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                     PolymerUtils.setValue(this._prefix + "filterName", "");
                                     PolymerUtils.setValue(this._prefix + "filterDescription", "");
                                 }).catch(restResponse => {
-                                    console.error(restResponse);
-                                    Swal.fire(
-                                        "Server Error!",
-                                        "Filter has not been correctly saved.",
-                                        "error"
-                                    );
-                                });
+                                console.error(restResponse);
+                                Swal.fire(
+                                    "Server Error!",
+                                    "Filter has not been correctly saved.",
+                                    "error"
+                                );
+                            });
                         }
                     });
 
@@ -310,13 +310,13 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                             }
                             this.requestUpdate();
                         }).catch(restResponse => {
-                            console.error(restResponse);
-                            Swal.fire(
-                                "Server Error!",
-                                "Filter has not been correctly saved.",
-                                "error"
-                            );
-                        });
+                        console.error(restResponse);
+                        Swal.fire(
+                            "Server Error!",
+                            "Filter has not been correctly saved.",
+                            "error"
+                        );
+                    });
                 }
 
             })
@@ -473,9 +473,9 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                                 </li>
                                             
                                                 ${this._filters.map(item => item.separator ?
-                                                    html`
+                html`
                                                         <li role="separator" class="divider"></li>` :
-                                                                html`
+                html`
                                                         <li>
                                                             <a data-filter-id="${item.id}" class="filtersLink" style="cursor: pointer;color: ${!item.active ? "black" : "green"}" 
                                                                     @click="${this.onServerFilterChange}">
@@ -490,10 +490,10 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                                                 </span>
                                                             </a>
                                                         </li>`
-                                                    )}
+            )}
                                                 <li role="separator" class="divider"></li>
                                                 ` :
-                                            "" }
+            ""}
                                             
                                             
                                             <li>
@@ -646,7 +646,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                             <ul class="dropdown-menu">
                                                 <li><a style="font-weight: bold">Saved Filters</a></li>
                                                 ${this._filters && this._filters.length ?
-                                                    this._filters.map(item => item.separator ? html`
+            this._filters.map(item => item.separator ? html`
                                                         <li role="separator" class="divider"></li>
                                                     ` : html`
                                                         <li>
@@ -655,7 +655,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                                                 <span class="delete-filter-button" title="Delete filter" data-filter-id="${item.id}" @click="${this.serverFilterDelete}"><i class="fas fa-times"></i></span>
                                                             </a>
                                                         </li>`) :
-                                                    null }
+            null}
     
                                                 ${this.opencgaSession?.token ? html`
                                                     <li role="separator" class="divider"></li>
@@ -749,7 +749,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
         </div>
         ` : html`
             <div class="guard-page">
-               <i class="fas fa-lock fa-5x"></i>
+                <i class="fas fa-lock fa-5x"></i>
                 <h3>No public projects available to browse. Please login to continue</h3>
             </div>
         `;
