@@ -81,7 +81,7 @@ export default class DetailTabs extends LitElement {
             ${this._config.showTitle ?
                 html`
                     <div class="panel">
-                        <h3>&nbsp;${this._config.title} ${this.data?.id}</h3>
+                        <h3 class="break-word">&nbsp;${this._config.title} ${this.data?.id}</h3>
                     </div>` :
                 null
             }
