@@ -113,7 +113,7 @@ export default class VariantBrowserGrid extends LitElement {
         // Config for the grid toolbar
         this.toolbarConfig = {
             resource: "VARIANT",
-            buttons: ["columns", "download", "export"],
+            buttons: ["columns", "download"],
             columns: this._createDefaultColumns()
                 .flat()
                 .filter(f => f.title && !fieldToHide.includes(f.field) && (f.visible ?? true))
@@ -773,7 +773,7 @@ export default class VariantBrowserGrid extends LitElement {
     render() {
         return html`
             ${this._config.showToolbar ?
-                html`
+            html`
                     <opencb-grid-toolbar  .config="${this.toolbarConfig}"
                                           .query="${this.query}"
                                           .opencgaSession="${this.opencgaSession}"
@@ -781,8 +781,8 @@ export default class VariantBrowserGrid extends LitElement {
                                           @download="${this.onDownload}"
                                           @export="${this.onDownload}">
                     </opencb-grid-toolbar>` :
-                null
-            }
+            null
+        }
                 
             <div>
                 <table id="${this.gridId}"></table>
