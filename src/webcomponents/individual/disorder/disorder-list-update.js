@@ -55,6 +55,14 @@ export default class DisorderListUpdate extends LitElement {
     }
 
     onShowDisorderManager(e, manager) {
+        if (UtilsNew.isEmptyArray(this.evidences)) {
+            return Swal.fire(
+                "Message",
+                "You must create phenotype first!",
+                "warning"
+            );
+        }
+
         this._manager = manager;
         if (manager.action === "ADD") {
             this.disorder = {};
@@ -68,7 +76,9 @@ export default class DisorderListUpdate extends LitElement {
     onActionDisorder(e) {
         e.stopPropagation();
         if (this._manager.action === "ADD") {
-            this.addDisorder(e.detail.value);
+            // TODO: rename addEvidenceAsObject
+            const disorder = this.addEvidencesAsObject(e.detail.value);
+            this.addDisorder(disorder);
         } else {
             this.editDisorders(e.detail.value);
         }
@@ -76,7 +86,16 @@ export default class DisorderListUpdate extends LitElement {
         this.requestUpdate();
     }
 
+    addEvidencesAsObject(oldDisorder) {
+        const disorder = oldDisorder;
+        const evidencesIds = oldDisorder.evidences.split(",");
+        const evidences = evidencesIds.map(evidenceId => this.evidences.find(evidence => evidence.id === evidenceId));
+        disorder.evidence = evidences;
+        return disorder;
+    }
+
     addDisorder(disorder) {
+        console.log("AddDiosrder with evidences object", disorder);
         this.disorders = [...this.disorders, disorder];
         LitUtils.dispatchEventCustom(this, "changeDisorders", this.disorders);
     }

@@ -44,6 +44,15 @@ export default class AnnotationSetUpdate extends LitElement {
         };
     }
 
+    connectedCallback() {
+        super.connectedCallback();
+        if (UtilsNew.isUndefined(this.annotationSets)) {
+            console.log("It's Undefined");
+            this.annotationSets = [];
+        }
+    }
+
+
     _init() {
         this._prefix = UtilsNew.randomString(8);
         this.annotationSet = {};

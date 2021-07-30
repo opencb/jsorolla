@@ -86,18 +86,43 @@ export default class DisorderManager extends LitElement {
                 {
                     elements: [
                         {
+                            name: "Id",
+                            field: "id",
+                            type: "input-text",
+                            display: {
+                                placeholder: "add a description..."
+                            }
+                        },
+                        {
+                            name: "Name",
+                            field: "name",
+                            type: "input-text",
+                            display: {
+                                placeholder: "add a description..."
+                            }
+                        },
+                        {
+                            name: "Source",
+                            field: "source",
+                            type: "input-text",
+                            display: {
+                                placeholder: "add a description..."
+                            }
+                        },
+                        {
                             name: "Description",
                             field: "description",
                             type: "input-text",
                             display: {
-                                placeholder: "Name ...",
+                                placeholder: "add a description..."
                             }
                         },
                         {
                             name: "Evidences", // Phenotypes List
                             field: "evidences",
                             type: "select",
-                            allowedValues: this.evidences?.map(evidence => evidence.name),
+                            multiple: true,
+                            allowedValues: this.evidences?.map(evidence => evidence.id),
                             display: {
                                 visible: this.evidences?.length > 0,
                                 placeholder: "select an evidence...",
