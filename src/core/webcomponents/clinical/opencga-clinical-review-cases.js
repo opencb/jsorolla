@@ -115,7 +115,6 @@ export default class OpencgaClinicalReviewCases extends LitElement {
             this._config.filter = UtilsNew.mergeFiltersAndDetails(this._config?.filter, this.settings);
         }
 
-
         if (this.settings?.table) {
             this._config.grid = {...this._config.grid, ...this.settings.table};
         }

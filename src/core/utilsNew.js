@@ -422,6 +422,11 @@ export default class UtilsNew {
 
     /**
      * It merges external filter list with internal one.
+     * It handles:
+     *  - filters components
+     *  - canned filters
+     *  - detail tabs
+     *
      * It doesn't support sections reorder and fields reorganisation among sections. Sections are fixed from the internal config.
      *
      * @param {Array} internal Filter object
@@ -450,14 +455,14 @@ export default class UtilsNew {
         }
         // merge canned filters
         if (external?.menu?.examples?.length) {
-            examples = UtilsNew.joinArray(internal.examples, external.menu.examples);
+            examples = UtilsNew.mergeExampleFilters(internal.examples, external.menu.examples);
         }
 
         // merge detail tab
-        // it doesn't check for external.details.length because it supports empty array
+        // it doesn't check for external.details.length and external.hiddenDetails.length because it supports empty array
         if (detail?.items) {
             if (external?.details || external?.hiddenDetails) {
-                detail.items = UtilsNew.mergeArray(internal.detail.items, external.details, !external.details?.length && external.hiddenDetails?.length);
+                detail.items = UtilsNew.mergeArray(internal.detail.items, external.details || external.hiddenDetails, !!external.hiddenDetails);
             }
         }
         return {...internal, sections, examples, detail};
@@ -473,18 +478,19 @@ export default class UtilsNew {
      * @returns {Array} resulting array
      */
     static mergeArray(internal, external, subtractive = false) {
+
         if (external) {
             if (!subtractive) {
                 const results = [];
                 external.forEach(c => {
                     const field = internal.find(f => {
-                        if (typeof f === "object") {
-                            if (!f.id) {
-                                console.error("fields must have an id to be merged", f);
+                        if (typeof c === "object") {
+                            if (!f.id || !c.id) {
+                                console.error("fields must have an id to be merged. Check internal and external configuration", f, c);
                             }
+                            return f.id === c.id;
+                        } else if (typeof c === "string") {
                             return f.id === c;
-                        } else if (typeof f === "string") {
-                            return f === c;
                         } else {
                             console.error("array format unexpected");
                         }
@@ -497,6 +503,8 @@ export default class UtilsNew {
                 });
                 return results;
             } else {
+
+                // in case of subtractive settings we only support `external` as plain array of string IDs
                 return internal.filter(f => {
                     if (!f.id) {
                         console.error("fields must have an id to be merged", f);
@@ -671,7 +679,7 @@ export default class UtilsNew {
      * @param {Array} external plain array of strings.
      * @returns {Array} filtered array.
      */
-    static joinArray(internal, external) {
+    static mergeExampleFilters(internal, external) {
         if (external?.length) {
             // convert both arrays in map
             const results = [];
