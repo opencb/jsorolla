@@ -56,7 +56,7 @@ export default class DetailTabs extends LitElement {
         // this makes "active" field in config consistent with this.activeTab state. this.activeTab is the unique source of truth.
         this.activeTab = Object.assign({}, ...this._config.items.map(item => ({[item.id]: item.active ?? false})));
 
-        // in case there are items configured to be active, activate the first one
+        // in case there are no items configured to be active, activate the first one
         if (this._config.items.length && !Object.values(this.activeTab).some(Boolean)) {
             this.activeTab[this._config.items[0].id] = true;
         }
