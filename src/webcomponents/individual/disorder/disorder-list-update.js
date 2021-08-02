@@ -44,6 +44,16 @@ export default class DisorderListUpdate extends LitElement {
         };
     }
 
+    connectedCallback() {
+        super.connectedCallback();
+        if (UtilsNew.isUndefined(this.disorders)) {
+            this.disorders = [];
+        }
+
+        if (UtilsNew.isUndefined(this.evidences)) {
+            this.evidences = [];
+        }
+    }
 
     _init() {
         this._prefix = UtilsNew.randomString(8);
@@ -90,7 +100,7 @@ export default class DisorderListUpdate extends LitElement {
         const disorder = oldDisorder;
         const evidencesIds = oldDisorder.evidences.split(",");
         const evidences = evidencesIds.map(evidenceId => this.evidences.find(evidence => evidence.id === evidenceId));
-        disorder.evidence = evidences;
+        disorder.evidences = evidences;
         return disorder;
     }
 
