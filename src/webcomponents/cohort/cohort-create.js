@@ -18,6 +18,7 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "./../../core/utilsNew.js";
 import "../commons/tool-header.js";
 import FormUtils from "../../core/form-utils.js";
+import "../commons/annotationset/annotation-set-update.js";
 
 export default class CohortCreate extends LitElement {
 
@@ -43,7 +44,7 @@ export default class CohortCreate extends LitElement {
 
     _init() {
         this.cohort = {
-            samples: []
+            samples: [],
         };
         this.sampleId = "";
     }
@@ -91,6 +92,12 @@ export default class CohortCreate extends LitElement {
             )
         };
         this.requestUpdate();
+    }
+
+    onSyncAnnotationSets(e) {
+        e.stopPropagation();
+        console.log("Updated list ", this);
+        this.cohort = {...this.cohort, annotationSets: e.detail.value};
     }
 
     dispatchSessionUpdateRequest() {
@@ -155,7 +162,6 @@ export default class CohortCreate extends LitElement {
                                     text: "short Sample id for thehis as;lsal"
                                 },
                                 validation: {
-
                                 }
                             }
                         },
@@ -211,7 +217,29 @@ export default class CohortCreate extends LitElement {
                             }
                         }
                     ]
-                }
+                },
+                // {
+                //     title: "Annotations Sets",
+                //     elements: [
+                //         {
+                //             field: "annotationSets",
+                //             type: "custom",
+                //             display: {
+                //                 layout: "vertical",
+                //                 defaultLayout: "vertical",
+                //                 width: 12,
+                //                 style: "padding-left: 0px",
+                //                 render: () => html`
+                //                     <annotation-set-update
+                //                         .annotationSets="${this.cohort?.annotationSets}"
+                //                         .opencgaSession="${this.opencgaSession}"
+                //                         @changeAnnotationSets="${e => this.onSyncAnnotationSets(e)}">
+                //                     </annotation-set-update>
+                //                 `
+                //             }
+                //         }
+                //     ]
+                // }
             ]
         };
     }
