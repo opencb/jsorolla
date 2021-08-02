@@ -79,12 +79,12 @@ export default class DetailTabs extends LitElement {
 
     render() {
         return html`
-            ${this._config.showTitle ?
+            ${this._config.showTitle && this._config.items.length ?
                 html`
                     <div class="panel">
                         <h3 class="break-word">&nbsp;${this._config.title} ${this.data?.id}</h3>
                     </div>` :
-                null
+                ""
             }
 
             <div class="detail-tabs">

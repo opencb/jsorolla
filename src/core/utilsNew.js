@@ -503,20 +503,27 @@ export default class UtilsNew {
      *
      * @param {Array} internal Array of objects
      * @param {Array} external List of IDs
+     * @param {Boolean} subtractive set true if the external array lists the fields to hide
      * @returns {Array} hydrated array
      */
-    static mergeConfigById(internal, external) {
+    static mergeConfigById(internal, external, subtractive = false) {
         // console.log("internal, external", internal, external)
         // it doesn't check for external.length because it supports empty array
         if (external) {
-            return external.map(id => {
-                const obj = internal.find(e => id === e.id);
-                if (!obj) {
-                    console.error(`Config Merge failed. ${id} not found in internal config`);
-                } else {
-                    return {...obj};
-                }
-            });
+            if (!subtractive) {
+                return external.map(id => {
+                    const obj = internal.find(e => id === e.id);
+                    if (!obj) {
+                        console.error(`Config Merge failed. ${id} not found in internal config`);
+                    } else {
+                        return {...obj};
+                    }
+                });
+            } else {
+                return internal.filter(f => {
+                    return !~external.indexOf(f.id);
+                });
+            }
         }
         console.warn("external config not available");
         return internal;
@@ -532,7 +539,7 @@ export default class UtilsNew {
      *
      * @param {Array} internal 1D or 2D array
      * @param {Array} external plain array of strings.
-     * @param {Boolean} subtractive set true if the external array lists the field to hide
+     * @param {Boolean} subtractive set true if the external array lists the fields to hide
      * @returns {Array} filtered array.
      */
     static mergeTable(internal, external, subtractive = false) {

@@ -90,7 +90,7 @@ class VariantInterpreter extends LitElement {
     }
 
     settingsObserver() {
-        this._config.tools = UtilsNew.mergeConfigArray(this._config.tools, this.settings?.tools);
+        this._config.tools = UtilsNew.mergeArray(this._config.tools, this.settings?.tools);
         this._config = {...this._config};
         this.requestUpdate();
     }
@@ -249,7 +249,7 @@ class VariantInterpreter extends LitElement {
             <div class="variant-interpreter-tool">
                 ${this.clinicalAnalysis && this.clinicalAnalysis.id ? html`
                     <tool-header icon="${this._config.icon}"
-                                 .title="${`${this._config.title}<span class="inverse"> Case ${this.clinicalAnalysis?.id} </span>` }"
+                                 .title="${`${this._config.title}<span class="inverse"> Case ${this.clinicalAnalysis?.id} </span>`}"
                                  .rhs="${html`
                                     <download-button .json="${this.clinicalAnalysis}" title="Download Clinical Analysis"></download-button>
                                     <a class="btn btn-default ripple text-black" title="Close Case" href="#clinicalAnalysisPortal/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}"><i class="fas fa-times"></i> Close</a>
@@ -263,13 +263,13 @@ class VariantInterpreter extends LitElement {
                 ` : html`
                     <tool-header .title="${this._config.title}" icon="${this._config.icon}"></tool-header>
                 `}
-            
+
                 <div class="col-md-10 col-md-offset-1">
                     <nav class="navbar" style="margin-bottom: 5px; border-radius: 0px">
                         <div class="container-fluid">
                             <!-- Brand and toggle get grouped for better mobile display -->
                             <div class="navbar-header">
-                                <!--
+                                    <!--
                                     <a class="navbar-brand" href="#home" @click="${this.changeTool}">
                                         <b>${this._config.title} <sup>${this._config.version}</sup></b>
                                     </a>
@@ -285,14 +285,14 @@ class VariantInterpreter extends LitElement {
                                             <p>${item.title}</p>
                                             <span class="smaller"></span>
                                         </a>` :
-                                    null}
+                                    "" }
                                 `)}
                                 </div>
-                            </div> 
-                        </div> 
-                    </nav> 
+                            </div>
+                        </div>
+                    </nav>
                 </div>
-                
+
                 <div id="${this._prefix}MainWindow" class="col-md-12">
                     <div>
                         ${this._config.tools ? html`
@@ -363,8 +363,8 @@ class VariantInterpreter extends LitElement {
                         ` : null}
                     </div>
                 </div>
-            </div> 
-            
+            </div>
+
             <div class="v-space"></div>
         `;
     }
