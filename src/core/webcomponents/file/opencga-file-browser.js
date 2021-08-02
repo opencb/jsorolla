@@ -91,7 +91,7 @@ export default class OpencgaFileBrowser extends LitElement {
         this._config = {...this.getDefaultConfig()};
         // merge filter list, canned filters, detail tabs
         if (this.settings?.menu) {
-            this._config.filter = UtilsNew.mergeFilters(this._config?.filter, this.settings);
+            this._config.filter = UtilsNew.mergeFiltersAndDetails(this._config?.filter, this.settings);
         }
         if (this.settings?.table) {
             this._config.filter.result.grid = {...this._config.filter.result.grid, ...this.settings.table};
@@ -213,7 +213,8 @@ export default class OpencgaFileBrowser extends LitElement {
                             name: "Overview",
                             active: true,
                             render: (file, active, opencgaSession) => {
-                                return html` <opencga-file-view .opencgaSession="${opencgaSession}" .file="${file}"></opencga-file-view>`;
+                                return html`
+                                    <opencga-file-view .opencgaSession="${opencgaSession}" .file="${file}"></opencga-file-view>`;
                             }
                         },
                         {
@@ -240,7 +241,8 @@ export default class OpencgaFileBrowser extends LitElement {
                             name: "JSON Data",
                             mode: "development",
                             render: (file, active, opencgaSession) => {
-                                return html`<json-viewer .data="${file}" .active="${active}"></json-viewer>`;
+                                return html`
+                                    <json-viewer .data="${file}" .active="${active}"></json-viewer>`;
                             }
                         }
                     ]
@@ -457,10 +459,10 @@ export default class OpencgaFileBrowser extends LitElement {
 
     render() {
         return this.opencgaSession && this._config ? html`
-            <opencga-browser  resource="FILE"
-                            .opencgaSession="${this.opencgaSession}"
-                            .query="${this.query}"
-                            .config="${this._config}">
+            <opencga-browser resource="FILE"
+                             .opencgaSession="${this.opencgaSession}"
+                             .query="${this.query}"
+                             .config="${this._config}">
             </opencga-browser>` : "";
     }
 

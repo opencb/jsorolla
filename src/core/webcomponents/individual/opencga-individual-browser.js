@@ -97,7 +97,7 @@ export default class OpencgaIndividualBrowser extends LitElement {
         this._config = {...this.getDefaultConfig()};
         // merge filter list, canned filters, detail tabs
         if (this.settings?.menu) {
-            this._config.filter = UtilsNew.mergeFilters(this._config?.filter, this.settings);
+            this._config.filter = UtilsNew.mergeFiltersAndDetails(this._config?.filter, this.settings);
         }
         if (this.settings?.table) {
             this._config.filter.result.grid = {...this._config.filter.result.grid, ...this.settings.table};

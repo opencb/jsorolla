@@ -143,6 +143,7 @@ export default class UtilsNew {
         function pad2(n) { // always returns a string
             return (n < 10 ? "0" : "") + n;
         }
+
         const date = timestamp ? new Date(timestamp) : new Date();
         return date.getFullYear() +
             pad2(date.getMonth() + 1) +
@@ -164,7 +165,8 @@ export default class UtilsNew {
                     target: "mouse",
                     adjust: {x: 2, y: 2, mouse: false},
                     my: $(this).attr("tooltip-position-my") ?? "top left",
-                    at: $(this).attr("tooltip-position-at") ?? "bottom right"},
+                    at: $(this).attr("tooltip-position-at") ?? "bottom right"
+                },
                 style: {width: true, classes: "qtip-light qtip-rounded qtip-shadow"},
                 // show: {delay: 200},
                 show: {
@@ -182,7 +184,7 @@ export default class UtilsNew {
     }
 
     static arrayDimension(array) {
-        const shape = (array, i) => Array.isArray(array) ? shape(array[0], i+1) : i;
+        const shape = (array, i) => Array.isArray(array) ? shape(array[0], i + 1) : i;
         return shape(array, 0);
     }
 
@@ -426,7 +428,7 @@ export default class UtilsNew {
      * @param {Array} external Simplified filter object
      * @returns {Object} hydrated array
      */
-    static mergeFilters(internal, external) {
+    static mergeFiltersAndDetails(internal, external) {
         // console.log("internal, external", internal, external);
         let sections = internal.sections;
         let examples = internal.examples;
@@ -452,11 +454,12 @@ export default class UtilsNew {
         }
 
         // merge detail tab
-        // it doesn't check for external.detail.length because it supports empty array
-        if (external?.detail && detail.items) {
-            detail.items = UtilsNew.mergeConfigById(internal.detail.items, external.detail);
+        // it doesn't check for external.details.length because it supports empty array
+        if (detail?.items) {
+            if (external?.details || external?.hiddenDetails) {
+                detail.items = UtilsNew.mergeArray(internal.detail.items, external.details, !external.details?.length && external.hiddenDetails?.length);
+            }
         }
-
         return {...internal, sections, examples, detail};
     }
 

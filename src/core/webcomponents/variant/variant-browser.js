@@ -130,7 +130,7 @@ export default class VariantBrowser extends LitElement {
         this._config = {...this.getDefaultConfig(), ...this.config};
         // filter list, canned filters, detail tabs
         if (this.settings?.menu) {
-            this._config.filter = UtilsNew.mergeFilters(this._config?.filter, this.settings);
+            this._config.filter = UtilsNew.mergeFiltersAndDetails(this._config?.filter, this.settings);
         }
 
         if (this.settings?.table) {
