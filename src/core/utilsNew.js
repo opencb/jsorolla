@@ -463,6 +463,51 @@ export default class UtilsNew {
         return {...internal, sections, examples, detail};
     }
 
+    /**
+     * Filters internal array using external array.
+     * It either uses external array as list to add or remove from the result array.
+     *
+     * @param {Array} internal
+     * @param {Array} external can be either a plain array of string or an array of object with IDs
+     * @param {Boolean} subtractive set true if the external array lists the fields to hide
+     * @returns {Array} resulting array
+     */
+    static mergeArray(internal, external, subtractive = false) {
+        if (external) {
+            if (!subtractive) {
+                const results = [];
+                external.forEach(c => {
+                    const field = internal.find(f => {
+                        if (typeof f === "object") {
+                            if (!f.id) {
+                                console.error("fields must have an id to be merged", f);
+                            }
+                            return f.id === c;
+                        } else if (typeof f === "string") {
+                            return f === c;
+                        } else {
+                            console.error("array format unexpected");
+                        }
+                    });
+                    if (field) {
+                        results.push(field);
+                    } else {
+                        // console.error("Field not found", c);
+                    }
+                });
+                return results;
+            } else {
+                return internal.filter(f => {
+                    if (!f.id) {
+                        console.error("fields must have an id to be merged", f);
+                    }
+                    return !~external.indexOf(f.id);
+                });
+            }
+        } else {
+            return internal;
+        }
+    }
 
     /**
      * Hydrates `external` array of objects with `internal` one. The merge is based on id.
