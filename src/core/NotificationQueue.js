@@ -28,7 +28,7 @@ export class NotificationQueue {
 
     // temp fix
     pushRemainingTime(remainingMinutes, opencgaClient) {
-        const msg = html`Your session is close to expire. <strong>${remainingMinutes} minutes remaining</strong> <a href="javascript:void 0" @click="${() => {
+        const msg = `Your session is close to expire. <strong>${remainingMinutes} minutes remaining</strong> <a href="javascript:void 0" @click="${() => {
  this.refreshToken(opencgaClient);
 }}"> Click here to refresh </a>`;
         this.push(msg);

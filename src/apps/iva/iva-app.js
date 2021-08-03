@@ -523,7 +523,7 @@ class IvaApp extends LitElement {
 
                 // _message = html`Your session is close to expire. <strong>${remainingMinutes}
                 // minutes remaining</strong> <a href="javascript:void 0" @click="${() => this.notifySession.refreshToken()}"> Click here to refresh </a>`
-                new NotificationQueue().pushRemainingTime(remainingMinutes, this.opencgaClient);
+                html `${new NotificationQueue().pushRemainingTime(remainingMinutes, this.opencgaClient)}`;
 
             } else {
                 // TODO remove NotificationUtils
