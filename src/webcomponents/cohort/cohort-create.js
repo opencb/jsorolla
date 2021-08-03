@@ -19,6 +19,7 @@ import UtilsNew from "./../../core/utilsNew.js";
 import "../commons/tool-header.js";
 import FormUtils from "../../core/form-utils.js";
 import "../commons/annotationset/annotation-set-update.js";
+import LitUtils from "../commons/utils/lit-utils.js";
 
 export default class CohortCreate extends LitElement {
 
@@ -31,8 +32,16 @@ export default class CohortCreate extends LitElement {
         return this;
     }
 
+    // 'attribute:false' is to "simulate" as a internal property.
+    //  if the cohort is not declare as a property it not render the change
+    // and not update the data-form to enable the save button.
+    // Note: In the recent version of lit it has to be changed to "state:true"
     static get properties() {
         return {
+            cohort: {
+                type: Object,
+                attribute: false
+            },
             opencgaSession: {
                 type: Object
             },
@@ -43,33 +52,39 @@ export default class CohortCreate extends LitElement {
     }
 
     _init() {
-        this.cohort = {
-            samples: [],
-        };
+        this.cohort = {};
         this.sampleId = "";
     }
 
     connectedCallback() {
         super.connectedCallback();
         this._config = {...this.getDefaultConfig(), ...this.config};
+        if (UtilsNew.isUndefined(this.cohort)) {
+            this.cohort = {};
+        }
     }
 
     onFieldChange(e) {
+        e.stopPropagation();
         const [field, prop] = e.detail.param.split(".");
-        switch (e.detail.param) {
-            case "id":
-            case "name":
-            case "description":
-            case "type":
-                this.cohort[field] = e.detail.value;
-                break;
-            case "status.name":
-            case "status.description":
+        if (e.detail.value) {
+            if (prop) {
                 this.cohort[field] = {
                     ...this.cohort[field],
                     [prop]: e.detail.value
                 };
-                break;
+            } else {
+                this.cohort = {
+                    ...this.cohort,
+                    [field]: e.detail.value
+                };
+            }
+        } else {
+            if (prop) {
+                delete this.cohort[field][prop];
+            } else {
+                delete this.cohort[field];
+            }
         }
         console.log("changeValue: ", this.cohort);
     }
@@ -100,31 +115,28 @@ export default class CohortCreate extends LitElement {
         this.cohort = {...this.cohort, annotationSets: e.detail.value};
     }
 
-    dispatchSessionUpdateRequest() {
-        this.dispatchEvent(new CustomEvent("sessionUpdateRequest", {
-            detail: {
-            },
-            bubbles: true,
-            composed: true
-        }));
-    }
 
     onSubmit(e) {
+        e.stopPropagation();
         this.opencgaSession.opencgaClient.cohorts().create(this.cohort, {study: this.opencgaSession.study.fqn})
             .then(res => {
-                this.cohort = { };
-                this.requestUpdate();
-
-                // this.dispatchSessionUpdateRequest();
+                this.cohort = {};
+                LitUtils.dispatchEventCustom(this, "sessionUpdateRequest");
                 FormUtils.showAlert("New Cohort", "New Cohort created correctly", "success");
             })
             .catch(err => {
                 console.error(err);
+                FormUtils.showAlert(
+                    "New Cohort",
+                    `Could not save cohort ${err}`,
+                    "error"
+                );
             });
     }
 
     onClear() {
-
+        this.cohort = {};
+        LitUtils.dispatchEventCustom(this, "sessionUpdateRequest");
     }
 
     getDefaultConfig() {
@@ -188,7 +200,7 @@ export default class CohortCreate extends LitElement {
                             display: {
                                 render: () => html `
                                     <div class="col-md-12" style="padding: 10px 20px">
-                                        ${this.cohort.samples?.map(item => html`
+                                        ${this.cohort?.samples?.map(item => html`
                                             <span class="label label-primary" style="font-size: 14px; margin:5px; padding-right:0px; display:inline-block">${item}
                                                 <span class="badge" style="cursor:pointer" @click=${e => this.onRemoveItem(e, item)}>X</span>
                                             </span>`

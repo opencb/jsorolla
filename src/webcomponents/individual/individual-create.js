@@ -34,6 +34,9 @@ export default class IndividualCreate extends LitElement {
 
     static get properties() {
         return {
+            individual: {
+                type: Object
+            },
             opencgaSession: {
                 type: Object
             },
@@ -50,9 +53,14 @@ export default class IndividualCreate extends LitElement {
     connectedCallback() {
         super.connectedCallback();
         this._config = {...this.getDefaultConfig(), ...this.config};
+
+        if (UtilsNew.isUndefined(this.individual)) {
+            this.individual = {};
+        }
     }
 
     onFieldChange(e) {
+        e.stopPropagation();
         const [field, prop] = e.detail.param.split(".");
         if (e.detail.value) {
             if (prop) {
@@ -73,7 +81,7 @@ export default class IndividualCreate extends LitElement {
                 delete this.individual[field];
             }
         }
-        console.log("New Individual: ", this.individual);
+        // this.requestUpdate();
     }
 
     onClear(e) {
