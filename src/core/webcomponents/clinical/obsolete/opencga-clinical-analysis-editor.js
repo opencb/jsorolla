@@ -17,11 +17,7 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../utilsNew.js";
 import PolymerUtils from "../../PolymerUtils.js";
-import CatalogUIUtils from "../../commons/CatalogUIUtils.js";
 import "../../individual/opencga-individual-browser.js";
-import "../opencga/catalog/family/opencga-family-editor.js";
-import "../opencga/catalog/family/opencga-family-browser.js";
-import {NotificationQueue} from "../Notification.js";
 
 // TODO recheck functionality
 //TODO CHECK on-dom-change="renderDomRepeat"
@@ -63,7 +59,6 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
         this.isCreate = false;
         this.notifyEnabled = true;
 
-        this.catalogUiUtils = new CatalogUIUtils();
 
         this.createButtonStatus = "disabled";
 

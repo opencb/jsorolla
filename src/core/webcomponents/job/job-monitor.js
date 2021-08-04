@@ -16,9 +16,9 @@
 
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import OpencgaCatalogUtils from "../clients/opencga/opencga-catalog-utils.js";
-import UtilsNew from "../utilsNew.js";
-import {NotificationQueue} from "./Notification.js";
+import OpencgaCatalogUtils from "../../clients/opencga/opencga-catalog-utils.js";
+import UtilsNew from "../../utilsNew.js";
+import {NotificationQueue} from "../Notification.js";
 
 export class JobMonitor extends LitElement {
 
