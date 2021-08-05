@@ -34,7 +34,7 @@ export default class SelectFieldFilterAutocomplete extends LitElement {
 
     static get properties() {
         return {
-            /*opencgaSession: {
+            /* opencgaSession: {
                 type: Object
             },*/
             value: {
@@ -92,10 +92,11 @@ export default class SelectFieldFilterAutocomplete extends LitElement {
             },
             highlighter: Object,
             afterSelect: item => {
-                this.input.val(item.name).change();
+                console.log("afterSelect input");
+                // this.input.val(item.name).change();
             }
         });
-        this.input.change(() => {
+        this.input.on("change", () => {
             const current = this.input.typeahead("getActive");
             if (current) {
                 if (current.name === this.input.val()) {
@@ -103,6 +104,7 @@ export default class SelectFieldFilterAutocomplete extends LitElement {
 
                     //simple mode: no add button
                     if (!this._config.addButton) {
+                        console.log("addButton");
                         this.addTerm();
                     }
 
@@ -152,6 +154,7 @@ export default class SelectFieldFilterAutocomplete extends LitElement {
     }
 
     addTerm() {
+        console.log("searching addTerm");
         if (this.input.val()) {
             if(this._config.multiple) {
                 const selection = [...this.selectionList, ...this.input.val().split(new RegExp("[,;]")).filter(Boolean)];

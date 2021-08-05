@@ -93,14 +93,13 @@ export default class FamilyCreate extends LitElement {
 
     onSync(e) {
         e.stopPropagation();
-        console.log("individual inside family:", e.detail.value);
+        // debugger;
         // this.family.members.push(e.detail.value);
         this.family["members"] = [...this.family["members"], e.detail.value];
         // this.family = {...this.family, members: e.detail.value};
         // this._config = {...this.getDefaultConfig(), ...this.config};
         // this.requestUpdate();
-        console.log("Result family:", this.family);
-        console.log("Result family:", this);
+        console.log("Result family:", this.family, this);
     }
 
 
@@ -189,9 +188,9 @@ export default class FamilyCreate extends LitElement {
                                 placeholder: "e.g. Homo sapiens, ...",
                                 render: () => html`
                                 <div class="col-md-12" style="padding: 10px 20px">
-                                        ${this.cohort?.samples?.map(item => html`
+                                        ${this.family?.members?.map(item => html`
                                             <span class="label label-primary" style="font-size: 14px; margin:5px; padding-right:0px; display:inline-block">${item}
-                                                <span class="badge" style="cursor:pointer" @click=${e => this.onRemoveItem(e, item)}>X</span>
+                                                <span class="badge" style="cursor:pointer" >X</span>
                                             </span>`
                                         )}
                                     </div>

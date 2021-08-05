@@ -82,7 +82,8 @@ export default class IndividualIdAutocomplete extends LitElement {
         return html`
             <select-field-filter-autocomplete
                 .opencgaSession="${this.opencgaSession}"
-                .config=${this._config} .value="${this.value}"
+                .config=${this._config}
+                .value="${this.value}"
                 @filterChange="${e => this.onFilterChange("id", e.detail.value)}">
             </select-field-filter-autocomplete>
         `;
