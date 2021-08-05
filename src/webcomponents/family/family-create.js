@@ -18,6 +18,7 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "./../../core/utilsNew.js";
 import "../commons/tool-header.js";
 import FormUtils from "../../core/form-utils.js";
+import "../commons/filters/individual-id-autocomplete.js";
 
 export default class FamilyCreate extends LitElement {
 
@@ -48,6 +49,11 @@ export default class FamilyCreate extends LitElement {
     connectedCallback() {
         super.connectedCallback();
         this._config = {...this.getDefaultConfig(), ...this.config};
+        if (UtilsNew.isUndefined(this.family)) {
+            this.family = {
+                members: []
+            };
+        }
     }
 
     dispatchSessionUpdateRequest() {
@@ -62,13 +68,39 @@ export default class FamilyCreate extends LitElement {
 
     // TODO: Complete the attr to create a family.
     onFieldChange(e) {
-        switch (e.detail.param) {
-            case "id":
-            case "name":
-            case "description":
-                this.family[e.detail.param] = e.detail.value;
-                break;
+        e.stopPropagation();
+        const [field, prop] = e.detail.param.split(".");
+        if (e.detail.value) {
+            if (prop) {
+                this.family[field] = {
+                    ...this.family[field],
+                    [prop]: e.detail.value
+                };
+            } else {
+                this.family = {
+                    ...this.family,
+                    [field]: e.detail.value
+                };
+            }
+        } else {
+            if (prop) {
+                delete this.family[field][prop];
+            } else {
+                delete this.family[field];
+            }
         }
+    }
+
+    onSync(e) {
+        e.stopPropagation();
+        console.log("individual inside family:", e.detail.value);
+        // this.family.members.push(e.detail.value);
+        this.family["members"] = [...this.family["members"], e.detail.value];
+        // this.family = {...this.family, members: e.detail.value};
+        // this._config = {...this.getDefaultConfig(), ...this.config};
+        // this.requestUpdate();
+        console.log("Result family:", this.family);
+        console.log("Result family:", this);
     }
 
 
@@ -147,6 +179,27 @@ export default class FamilyCreate extends LitElement {
                             display: {
                                 rows: 3,
                                 placeholder: "Family name...",
+                            }
+                        },
+                        {
+                            name: "Individual ID",
+                            field: "individualId",
+                            type: "custom",
+                            display: {
+                                placeholder: "e.g. Homo sapiens, ...",
+                                render: () => html`
+                                <div class="col-md-12" style="padding: 10px 20px">
+                                        ${this.cohort?.samples?.map(item => html`
+                                            <span class="label label-primary" style="font-size: 14px; margin:5px; padding-right:0px; display:inline-block">${item}
+                                                <span class="badge" style="cursor:pointer" @click=${e => this.onRemoveItem(e, item)}>X</span>
+                                            </span>`
+                                        )}
+                                    </div>
+                                    <individual-id-autocomplete
+                                        .value="${this.family?.members}"
+                                        .opencgaSession="${this.opencgaSession}"
+                                        @filterChange="${e => this.onSync(e)}">
+                                    </individual-id-autocomplete>`
                             }
                         },
                         {
