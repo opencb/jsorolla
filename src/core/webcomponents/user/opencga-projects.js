@@ -289,6 +289,9 @@ export default class OpencgaProjects extends LitElement {
 
     renderTable(project, resource) {
         // console.log(project)
+
+        // TODO move structure transposition from template to facetQuery()
+
         return html`
             <div class="v-space"></div>
             <table class="table table-no-bordered opencga-project-table">
