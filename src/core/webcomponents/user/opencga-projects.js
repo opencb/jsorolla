@@ -98,6 +98,18 @@ export default class OpencgaProjects extends LitElement {
                     values: [
                         {id: "false", name: "Somatic: false"}
                     ]
+                },
+                status: {
+                    name: "status",
+                    values: [
+                        {id: "READY", name: "Ready"}
+                    ]
+                },
+                creationYear: {
+                    name: "creationYear",
+                    // TODO we dont want to list all years
+                    //  values: []
+
                 }
             },
             individual: {
@@ -188,7 +200,8 @@ export default class OpencgaProjects extends LitElement {
         try {
             // NOTE queries for all the projects in once
             const catalogProjectResponse = await this.opencgaSession.opencgaClient.projects().aggregationStats(projectIds, {
-                individualFields: "lifeStatus,sex"
+                individualFields: "lifeStatus,sex",
+                sampleFields: "creationMonth,status"
             });
             /*const f = await fetch("/lib/jsorolla/src/core/webcomponents/user/projects.json");
             const catalogProjectResponse = new RestResponse(await f.json());*/
@@ -289,21 +302,53 @@ export default class OpencgaProjects extends LitElement {
                 
                     ${Object.entries(this.tableRows[resource]).map(([field, fieldConfig]) => html`
                         <tbody>
-                            <tr>
-                                <td rowspan="${fieldConfig.values.length + 1}">
-                                    ${fieldConfig.name}
-                                </td>
-                            </tr>
-                            ${fieldConfig?.values?.map(type => html`
+                            
+                            <!--
+                                this works either with an explicit list of fields to show in the table (this.tableRows)
+                                or ALL the values of "field" returned in response
+                            -->
+                        
+                            ${fieldConfig?.values?.length ? html`
+                                <tr>
+                                    <td rowspan="${fieldConfig.values.length + 1}">
+                                        ${fieldConfig.name}
+                                    </td>
+                                </tr>
+                                ${fieldConfig?.values?.map(type => html`
                                 <tr>
                                     <td>${type.name}</td>
                                     ${Object.entries(project).map(([fqn, data]) => html`
                                         <td>
                                             ${data[resource]?.results.find(r => r.name === field).buckets.find(stat => stat.value === type.id)?.count}
                                         </td>
-                                    `) }                           
+                                    `) }                                    
                                 </tr>
-                            `)}
+                                `)}
+                            ` : html`
+                                <tr>
+                                    <td rowspan="${ // the max number of values `field` (e.g. creationYear: [JANUARY,FEBRAURY,...]) can assume in a project
+                                        Math.max(...Object.entries(project).map(([fqn, data]) => {
+                                            const projectData = data[resource].results.find(r => r.name === field)
+                                            console.log("projectData.buckets.length", projectData.buckets.length)
+                                            return projectData.buckets.length
+                                        })) + 1}">
+                                        ${fieldConfig.name} ${Math.max(...Object.entries(project).map(([fqn, data]) => {
+                                        const projectData = data[resource].results.find(r => r.name === field)
+                                        return projectData.buckets.length
+                                    }))}
+                                    </td>
+                                
+                                    ${Object.entries(project).map(([fqn, data]) => {
+                                        const projectData = data[resource].results.find(r => r.name === field)
+                                        // TODO in progress
+                                        return html`
+                                                ${projectData.buckets.map(stat => {
+                                                    return html`<tr><td>${stat.value}</td><td>${stat.count}</td></tr>`
+                                        })}
+                                        `
+                                    })}
+                                </tr>
+                            `}
                         </tbody>
                     `) }
             </table>`;
@@ -530,8 +575,8 @@ export default class OpencgaProjects extends LitElement {
                     </div>
                 </div>
             </div>
-            
-          
+
+
             <div class="v-space"></div>
             <div class="detail-tabs">
                 <ul class="nav nav-tabs nav-center tablist" role="tablist">
@@ -541,9 +586,9 @@ export default class OpencgaProjects extends LitElement {
                         </li>
                     `) : null}
                 </ul>
-                <pre id="errors" class="alert alert-warning" role="alert" style="display: ${this.errors ? "block" : "none"}">${this.errors}</pre>      
+                <pre id="errors" class="alert alert-warning" role="alert" style="display: ${this.errors ? "block" : "none"}">${this.errors}</pre>
                 <div class="content-tab-wrapper">
-                
+
                     ${this.data ? Object.entries(this.data).map(([projectId, project], i) => html`
                         <div role="tabpanel" class="content-tab project-tab tab-pane ${classMap({active: this.activeTab[projectId] || (UtilsNew.isEmpty(this.activeTab) && i === 0)})}" id="${projectId}-tab">
                             <div class="row">
