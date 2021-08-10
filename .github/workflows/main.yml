@@ -2,16 +2,17 @@ name: "Develop CI/CD"
 
 on:
   push:
-    branches: [suite-menu]
+    branches:
+      - develop
     tags:
       - "*"
 
 jobs:
   build:
-    name: IVA Build
+    name: JSorolla Build
     runs-on: ubuntu-20.04
     steps:
-      - name: Clone IVA repository with JSOrolla
+      - name: Clone JSOrolla
         uses: actions/checkout@v2
         with:
           submodules: recursive
@@ -29,11 +30,11 @@ jobs:
             ${{ runner.os }}-
       - name: Install bower dependecy
         run: npm install bower
-      - name: Run npm ci 
+      - name: Run npm ci
         run: npm ci --only-production --ignore-scripts
       - name: Run npm install
         run: npm init -y && npm install
-      - name: Build IVA app
+      - name: Build JSorolla
         run: npm run build
       - name: Upload webpack artifact
         uses: actions/upload-artifact@v2
@@ -43,7 +44,7 @@ jobs:
           retention-days: 2
 
   test:
-    name: IVA Tests
+    name: JSorolla Tests
     runs-on: ubuntu-20.04
     needs: build
     strategy:

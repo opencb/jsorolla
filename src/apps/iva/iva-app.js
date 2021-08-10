@@ -27,7 +27,7 @@ import "./contact.js";
 import "./faq.js";
 import "./terms.js";
 import "./getting-started.js";
-import "./opencga-breadcrumb.js";
+import "./obsolete/opencga-breadcrumb.js";
 import "./category-page.js";
 import "./iva-profile.js";
 import "./iva-settings.js";
