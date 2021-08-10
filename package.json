@@ -31,14 +31,10 @@
     "package": "mv build iva-$npm_package_version && tar zcvf iva-$npm_package_version.tar.gz iva-$npm_package_version && mv iva-$npm_package_version build",
     "deploy": "npx webpack && ./docker/docker-build.py push",
     "eslint": "eslint -c .eslintrc.json . --ignore-pattern '/web_modules/'",
-    "e2e": "./credentials.sh npx cypress open",
-    "e2e-win": "credentials.bat npx cypress open",
-    "e2e-report-spec": "rm -rf mochawesome-report/ && ./credentials.sh npx cypress run --headless --spec 'cypress/integration/002-login.js'; npm run mocha:report && rm -rf 'mochawesome-report/'",
-    "e2e-report-win-spec": "(if exist mochawesome-report rmdir /S/Q mochawesome-report)&& credentials.bat npx cypress run --headless --spec \"cypress/integration/login.js\"& npm run mocha:report && (if exist mochawesome-report rmdir /S/Q mochawesome-report)",
-    "e2e-report": "rm -rf mochawesome-report/ && ./credentials.sh npx cypress run --headless --spec 'cypress/integration/*.js'; npm run mocha:report && rm -rf 'mochawesome-report/'",
-    "e2e-report-win": "(if exist mochawesome-report rmdir /S/Q mochawesome-report)&& credentials.bat npx cypress run --headless --spec \"cypress/integration/*.js\"& npm run mocha:report && (if exist mochawesome-report rmdir /S/Q mochawesome-report)",
-    "mocha:merge-reports": "mochawesome-merge mochawesome-report/*.json -o mochawesome-report/cypress-combined-report.json",
-    "mocha:report": "npm run mocha:merge-reports && marge --reportFilename report.html --charts --timestamp _HH-MM_dd-mm-yyyy --reportPageTitle IVA --reportTitle IVA --reportDir ./report mochawesome-report/cypress-combined-report.json; spd-say 'end to end test completed'"
+    "e2e": "./cypress/credentials.sh npx cypress open",
+    "e2e-win": "crypress/credentials.bat npx cypress open",
+    "e2e-report": "./cypress/e2e-runner.sh",
+    "e2e-report-win": "cypress/e2e-runner.bat"
   },
   "license": "Apache-2.0",
   "dependencies": {
@@ -106,7 +102,7 @@
     "copy-webpack-plugin": "^5.1.1",
     "crisper": "~2.1.1",
     "css-loader": "^3.4.2",
-    "cypress": "^7.7.0",
+    "cypress": "^8.0.0",
     "cypress-wait-until": "^1.7.1",
     "esinstall": "^1.0.2",
     "core-js": "^3.6.4",

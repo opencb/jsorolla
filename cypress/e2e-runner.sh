@@ -1,7 +1,14 @@
 #!/bin/bash
 # @file test_runner.sh
 # @brief This script launches IVA e2e tests over one or more Opencga studies
-# @description It takes Opencga username, password, and a comma-separated list of studies (params or prompt)
+# @description
+#
+# Options:
+# -u     Opencga username.
+# -s     Comma-separated list of studies.
+# -h     Prints command description
+#
+# It takes Opencga username, password, and a comma-separated list of studies (either via params or prompt)
 
 #declare -a studies=(
 #  "re-opencgahadoop@100k_genomes_grch37_germline:RD37"

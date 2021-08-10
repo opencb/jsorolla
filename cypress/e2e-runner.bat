@@ -2,6 +2,11 @@
 setlocal EnableExtensions EnableDelayedExpansion
 
 rem This script launches IVA e2e tests over one or more Opencga studies in Windows env
+rem Params:
+rem -u     Opencga username.
+rem -s     Comma-separated list of studies. Please wrap the list in quotes in case of more that one study
+rem -h     Prints command description
+rem
 rem If -u (username) and -s (studies) params are not provided, it prompts for Opencga username, password, and a comma-separated list of studies
 
 
@@ -49,7 +54,7 @@ set study=!tmp::=!
 echo STUDY: %%~a DIR: !study!
 rem mkdir !study! && dir !study!
 (if exist mochawesome-report rmdir /S/Q mochawesome-report)^
- && call npx cypress run --env username=%opencgaUser%,password=%opencgaPassword%,study=%%~a --config videosFolder="cypress/videos/!study!",screenshotsFolder="cypress/screenshots/!study!" --headless --spec "cypress/integration/001-header-bar-pre-login.spec.js"^
+ && call npx cypress run --env username=%opencgaUser%,password=%opencgaPassword%,study=%%~a --config videosFolder="cypress/videos/!study!",screenshotsFolder="cypress/screenshots/!study!" --headless --spec "cypress/integration/*.js"^
  & call npx mochawesome-merge mochawesome-report/*.json -o mochawesome-report/cypress-combined-report.json^
  && call npx marge --reportFilename !study!.html --charts --timestamp _HH-MM_dd-mm-yyyy --reportPageTitle IVA_%%~a --reportTitle IVA__%%~a --reportDir report mochawesome-report/cypress-combined-report.json^
  && (if exist mochawesome-report rmdir /S/Q mochawesome-report)
