@@ -23,7 +23,7 @@ import {goTo} from "../plugins/utils.js";
  */
 context("1 - Header bar (pre-login): checks on Header Bar elements", () => {
     before(() => {
-        cy.visit("http://localhost:3000/src/");
+        cy.visit("http://localhost:3000/src/apps/iva/");
 
     });
 

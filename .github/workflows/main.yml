@@ -43,7 +43,6 @@ jobs:
 
   test:
     name: Jsorolla tests
-    if: "false"
     runs-on: ubuntu-20.04
     needs: build
     strategy:

@@ -20,11 +20,11 @@ import {goTo} from "../plugins/utils.js";
 
 context("2 - Login", () => {
     beforeEach(() => {
-        cy.visit("http://localhost:3000/src/#login");
+        cy.visit("http://localhost:3000/src/apps/iva/#login");
     });
 
     it("2.1 - login unsuccessful", () => {
-        cy.get("#opencgaUser").type("demo2");
+        cy.get("#opencgaUser").type("demouser");
         cy.get("#opencgaPassword").type("demo2");
         cy.get("form#formLogin").submit();
         cy.get("#error").should("be.visible");
