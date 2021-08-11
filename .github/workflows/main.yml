@@ -27,8 +27,8 @@ jobs:
             ${{ runner.os }}-build-
             ${{ runner.os }}-
       - name: Install bower dependecy
-      - name: Run npm ci
         run: npm install bower
+      - name: Run npm ci
         run: npm ci --only-production --ignore-scripts
       - name: Run npm install
         run: npm init -y && npm install
@@ -43,7 +43,7 @@ jobs:
 
   test:
     name: Jsorolla tests
-    if: false
+    if: "false"
     runs-on: ubuntu-20.04
     needs: build
     strategy:
@@ -104,7 +104,7 @@ jobs:
 
   docker:
     name: Publish Docker image in Docker Hub repository
-    if: false
+    if: "false"
     runs-on: ubuntu-20.04
     needs: test
     steps:
@@ -124,7 +124,7 @@ jobs:
 
   deploy-ucam:
     name: Deploy Web App in UCam
-    if: false
+    if: "false"
     runs-on: ubuntu-20.04
     needs: test
     steps:
