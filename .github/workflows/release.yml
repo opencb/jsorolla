@@ -7,13 +7,11 @@ on:
 
 jobs:
   build:
-    name: IVA Build
+    name: Jsorolla Build
     runs-on: ubuntu-20.04
     steps:
-      - name: Clone IVA repository with JSOrolla
+      - name: Clone Jsorolla repository
         uses: actions/checkout@v2
-        with:
-          submodules: recursive
       - name: Cache dependencies
         uses: actions/cache@v2
         env:
@@ -32,7 +30,7 @@ jobs:
         run: npm ci
       - name: Run npm install
         run: npm init -y && npm install
-      - name: Build IVA app
+      - name: Build Jsorolla
         run: npm run build
       - name: Read package.json
         uses: "tyankatsu0105/read-package-version-actions@v1"
@@ -41,11 +39,11 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: release-artifact
-          path: iva-${{ steps.package-version.outputs.version }}.tar.gz
+          path: jsorolla-${{ steps.package-version.outputs.version }}.tar.gz
           retention-days: 2
 
   release:
-    name: release Iva
+    name: release jsorolla
     runs-on: ubuntu-20.04
     needs: build
     steps:
@@ -66,4 +64,4 @@ jobs:
           title: "v${{ steps.package-version.outputs.version }}"
           prerelease: false
           files: |
-            iva-${{ steps.package-version.outputs.version }}.tar.gz
+            jsorolla-${{ steps.package-version.outputs.version }}.tar.gz

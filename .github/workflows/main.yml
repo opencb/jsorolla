@@ -3,7 +3,7 @@ name: "Develop CI/CD"
 on:
   push:
     branches:
-      - develop
+      - issue-160
     tags:
       - "*"
 
@@ -12,10 +12,8 @@ jobs:
     name: JSorolla Build
     runs-on: ubuntu-20.04
     steps:
-      - name: Clone JSOrolla
+      - name: Clone Jsorolla
         uses: actions/checkout@v2
-        with:
-          submodules: recursive
       - name: Cache dependencies
         uses: actions/cache@v2
         env:
@@ -29,12 +27,12 @@ jobs:
             ${{ runner.os }}-build-
             ${{ runner.os }}-
       - name: Install bower dependecy
-        run: npm install bower
       - name: Run npm ci
+        run: npm install bower
         run: npm ci --only-production --ignore-scripts
       - name: Run npm install
         run: npm init -y && npm install
-      - name: Build JSorolla
+      - name: Build Jsorolla
         run: npm run build
       - name: Upload webpack artifact
         uses: actions/upload-artifact@v2
@@ -44,7 +42,8 @@ jobs:
           retention-days: 2
 
   test:
-    name: JSorolla Tests
+    name: Jsorolla tests
+    if: false
     runs-on: ubuntu-20.04
     needs: build
     strategy:
@@ -52,10 +51,8 @@ jobs:
         node-version: [12.x, 14.x]
         browsers: [chrome, firefox]
     steps:
-      - name: Clone IVA repository with JSOrolla
+      - name: Clone Jsorolla repository
         uses: actions/checkout@v2
-        with:
-          submodules: recursive
       - name: Install Nodejs ${{ matrix.node-version }}
         uses: actions/setup-node@v1
         with:
@@ -76,7 +73,7 @@ jobs:
         run: npm install bower
       - name: Run npm install
         run: npm init -y && npm install
-      - name: Test Iva - Cypress run
+      - name: Test IVA - Cypress run
         uses: cypress-io/github-action@v2
         with:
           start: npm run serve
@@ -107,6 +104,7 @@ jobs:
 
   docker:
     name: Publish Docker image in Docker Hub repository
+    if: false
     runs-on: ubuntu-20.04
     needs: test
     steps:
@@ -126,6 +124,7 @@ jobs:
 
   deploy-ucam:
     name: Deploy Web App in UCam
+    if: false
     runs-on: ubuntu-20.04
     needs: test
     steps:
@@ -142,7 +141,7 @@ jobs:
         uses: garygrossgarten/github-action-scp@release
         with:
           local: build
-          remote: /mnt/data/WEB-APPS/dev/iva-${{ steps.package-version.outputs.version }}
+          remote: /mnt/data/WEB-APPS/dev/jsorolla-${{ steps.package-version.outputs.version }}
           rmRemote: true
           host: ${{ secrets.SSH_SWDEV_IP }}
           username: ${{ secrets.SSH_SWDEV_USER }}
