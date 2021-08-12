@@ -80,9 +80,8 @@ module.exports = {
                 "assets/css/styles.css": [
                     "./styles/css/global.css",
                     "./styles/css/style.css",
-                    ivaPath + "/styles/toggle-switch.css",
-                    ivaPath + "/styles/magic-check.css",
-                    ivaPath + "/styles/global.css"
+                    "/styles/toggle-switch.css",
+                    "/styles/magic-check.css"
                 ],
                 "assets/css/vendor.css": [
                     "./node_modules/bootstrap/dist/css/bootstrap.min.css",
