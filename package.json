@@ -27,7 +27,6 @@
     "test": "jest",
     "clean": "rm -rf build",
     "serve": "node live-server.js",
-    "serve-browser-sync": "browser-sync start --config bs-config.js",
     "package": "mv build iva-$npm_package_version && tar zcvf iva-$npm_package_version.tar.gz iva-$npm_package_version && mv iva-$npm_package_version build",
     "deploy": "npx webpack && ./docker/docker-build.py push",
     "eslint": "eslint -c .eslintrc.json . --ignore-pattern '/web_modules/'",
