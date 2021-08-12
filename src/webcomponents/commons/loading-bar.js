@@ -38,20 +38,20 @@ export default class LoadingBar extends LitElement {
             config: {
                 type: Object
             }
-        }
+        };
     }
 
-    _init(){
+    _init() {
         /* The total number of requests made */
         this.reqsTotal = 0;
 
-        /*The number of requests completed (either successfully or not)*/
+        /* The number of requests completed (either successfully or not)*/
         this.reqsCompleted = 0;
 
         /* The amount of time spent fetching before showing the loading bar*/
-        this.latencyThreshold = 1000 //ProgressBar.latencyThreshold;
+        this.latencyThreshold = 1000; // ProgressBar.latencyThreshold;
 
-        /*$timeout handle for latencyThreshold*/
+        /* $timeout handle for latencyThreshold*/
         this.startTimeout = null;
 
         this.startTimeout = null;
@@ -66,24 +66,24 @@ export default class LoadingBar extends LitElement {
                 }, 1000);
             }
             this.reqsTotal++;
-            //ProgressBar.set(this.reqsCompleted / this.reqsTotal);
-            console.log("SET", this.reqsCompleted / this.reqsTotal)
+            // ProgressBar.set(this.reqsCompleted / this.reqsTotal);
+            console.log("SET", this.reqsCompleted / this.reqsTotal);
             this.requestUpdate();
         }, false);
 
         globalThis.addEventListener("response", () => {
             this.reqsCompleted++;
             if (this.reqsCompleted >= this.reqsTotal) {
-                //$rootScope.$broadcast('cfpLoadingBar:loaded', {url: response.config.url, result: response});
+                // $rootScope.$broadcast('cfpLoadingBar:loaded', {url: response.config.url, result: response});
                 this.setComplete();
             } else {
-                //ProgressBar.set(this.reqsCompleted / this.reqsTotal);
-                console.log("SET", this.reqsCompleted / this.reqsTotal)
+                // ProgressBar.set(this.reqsCompleted / this.reqsTotal);
+                console.log("SET", this.reqsCompleted / this.reqsTotal);
             }
             this.requestUpdate();
         }, false);
 
-        /*onResponseError() {
+        /* onResponseError() {
             this.reqsCompleted++;
             if (this.reqsCompleted >= this.reqsTotal) {
                 //$rootScope.$broadcast('cfpLoadingBar:loaded', {url: rejection.config.url, result: rejection});
@@ -104,23 +104,23 @@ export default class LoadingBar extends LitElement {
         this.loadingBarTemplate = "<div id=\"loading-bar\"><div class=\"bar\"><div class=\"peg\"></div></div></div>";
 
 
-        /*var $animate;
+        /* var $animate;
         var $parentSelector = this.parentSelector,
             loadingBarContainer = angular.element(this.loadingBarTemplate),
             loadingBar = loadingBarContainer.find("div").eq(0),
             spinner = angular.element(this.spinnerTemplate);*/
 
-        var incTimeout,
-            completeTimeout,
-            started = false,
-            status = 0;
+        let incTimeout,
+            completeTimeout;
+        const started = false;
+        const status = 0;
 
-        var autoIncrement = this.autoIncrement;
-        var includeSpinner = this.includeSpinner;
-        var includeBar = this.includeBar;
-        var startSize = this.startSize;
+        const autoIncrement = this.autoIncrement;
+        const includeSpinner = this.includeSpinner;
+        const includeBar = this.includeBar;
+        const startSize = this.startSize;
 
-        /*return {
+        /* return {
             start            : _start,
             set              : _set,
             status           : _status,
@@ -140,7 +140,7 @@ export default class LoadingBar extends LitElement {
     }
 
     updated(changedProperties) {
-        if(changedProperties.has("property")) {
+        if (changedProperties.has("property")) {
             this.propertyObserver();
         }
     }
@@ -157,7 +157,7 @@ export default class LoadingBar extends LitElement {
             return;
         }
 
-        /*var document = $document[0];
+        /* var document = $document[0];
         var parent = document.querySelector ?
             document.querySelector($parentSelector)
             : $document.find($parentSelector)[0]
@@ -170,16 +170,16 @@ export default class LoadingBar extends LitElement {
         var $parent = angular.element(parent);
         var $after = parent.lastChild && angular.element(parent.lastChild);*/
 
-        //$rootScope.$broadcast("cfpLoadingBar:started");
+        // $rootScope.$broadcast("cfpLoadingBar:started");
 
         this.started = true;
 
         if (this.includeBar) {
-            //$animate.enter(loadingBarContainer, $parent, $after);
+            // $animate.enter(loadingBarContainer, $parent, $after);
         }
 
         if (this.includeSpinner) {
-            //$animate.enter(spinner, $parent, loadingBarContainer);
+            // $animate.enter(spinner, $parent, loadingBarContainer);
         }
 
         this._set(this.startSize);
@@ -195,7 +195,7 @@ export default class LoadingBar extends LitElement {
         }
         this.WIDTH = (n * 100) + "%";
         await this.requestUpdate();
-        //loadingBar.css("width", pct);
+        // loadingBar.css("width", pct);
 
         this.status = n;
 
@@ -219,11 +219,11 @@ export default class LoadingBar extends LitElement {
             return;
         }
 
-        var rnd = 0;
+        let rnd = 0;
 
         // TODO: do this mathmatically instead of through conditions
 
-        var stat = this._status();
+        const stat = this._status();
         if (stat >= 0 && stat < 0.25) {
             // Start out between 3 - 6% increments
             rnd = (Math.random() * (5 - 3 + 1) + 3) / 100;
@@ -241,7 +241,7 @@ export default class LoadingBar extends LitElement {
             rnd = 0;
         }
 
-        var pct = this._status() + rnd;
+        const pct = this._status() + rnd;
         this._set(pct);
     }
 
@@ -255,7 +255,7 @@ export default class LoadingBar extends LitElement {
     }
 
     _complete() {
-        /*if (!$animate) {
+        /* if (!$animate) {
             $animate = $injector.get("$animate");
         }*/
 
@@ -265,7 +265,7 @@ export default class LoadingBar extends LitElement {
         this._completeAnimation();
 
         // Attempt to aggregate any start/complete calls within 500ms:
-        /*this.completeTimeout = setTimeout(function() {
+        /* this.completeTimeout = setTimeout(function() {
             var promise = $animate.leave(loadingBarContainer, _completeAnimation);
             if (promise && promise.then) {
                 promise.then(_completeAnimation);
@@ -284,11 +284,11 @@ export default class LoadingBar extends LitElement {
 
     getDefaultConfig() {
         return {
-        }
+        };
     }
 
     render() {
-        return html`           
+        return html`
             <div id="loading-bar"><div class="bar" style="width:${this.WIDTH}"><div class="peg"></div></div></div>
         `;
     }
@@ -303,24 +303,24 @@ class RequestInterceptor {
         /* The total number of requests made */
         this.reqsTotal = 0;
 
-        /*The number of requests completed (either successfully or not)*/
+        /* The number of requests completed (either successfully or not)*/
         this.reqsCompleted = 0;
 
         /* The amount of time spent fetching before showing the loading bar*/
-        this.latencyThreshold = 1000 //ProgressBar.latencyThreshold;
+        this.latencyThreshold = 1000; // ProgressBar.latencyThreshold;
 
-        /*$timeout handle for latencyThreshold*/
+        /* $timeout handle for latencyThreshold*/
         this.startTimeout = null;
     }
 
-    /*calls cfpLoadingBar.complete() which removes the loading bar from the DOM.*/
+    /* calls cfpLoadingBar.complete() which removes the loading bar from the DOM.*/
     setComplete() {
         clearTimeout(this.startTimeout);
         LoadingBar.complete();
         this.reqsCompleted = 0;
         this.reqsTotal = 0;
     }
-/*
+    /*
     onRequest() {
         //$rootScope.$broadcast('cfpLoadingBar:loading', {url: config.url});
         if (this.reqsTotal === 0) {

@@ -92,6 +92,7 @@ import "../../webcomponents/loading-spinner.js";
 import "../../webcomponents/project/projects-admin.js";
 import "../../webcomponents/study/study-admin.js";
 import "../../webcomponents/Notification.js";
+// import "../../webcomponents/commons/loading-bar.js";
 // import "../../webcomponents/clinical/rga/rga-browser.js";
 
 // import "./loading-bar.js";
@@ -1092,7 +1093,7 @@ class IvaApp extends LitElement {
                 }*/
             </style>
 
-            <loading-bar></loading-bar>
+            <!-- <loading-bar></loading-bar> -->
 
             <!-- Left Sidebar: we only display this if more than 1 visible app exist -->
             ${this.config.apps?.filter(app => this.isVisible(app)).length > 0 ? html`
