@@ -31,8 +31,8 @@
     "package": "mv build iva-$npm_package_version && tar zcvf iva-$npm_package_version.tar.gz iva-$npm_package_version && mv iva-$npm_package_version build",
     "deploy": "npx webpack && ./docker/docker-build.py push",
     "eslint": "eslint -c .eslintrc.json . --ignore-pattern '/web_modules/'",
-    "e2e": "./cypress/credentials.sh npx cypress open",
-    "e2e-win": "crypress/credentials.bat npx cypress open",
+    "e2e": "./cypress/credentials.sh npx cypress open --config-file ./cypress/cypress.json",
+    "e2e-win": "crypress/credentials.bat npx cypress open --config-file ./cypress/cypress.json",
     "e2e-report": "./cypress/e2e-runner.sh",
     "e2e-report-win": "cypress/e2e-runner.bat"
   },
