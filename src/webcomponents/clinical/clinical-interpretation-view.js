@@ -691,11 +691,11 @@ export default class ClinicalInterpretationView extends LitElement {
                                                                         ${this.interpretation.clinicalAnalysis.subjects[0].samples[0].name}
                                                                     </span>
                                                             </div>
-                                                            <!--<div class="form-group" style="margin: 0px 2px">-->
+                                                            <!--<div class="forms-group" style="margin: 0px 2px">-->
                                                             <!--<label class="col-md-4">File:</label>-->
                                                             <!--<span class="col-md-8">${this.interpretation.clinicalAnalysis.germline.name}</span>-->
                                                             <!--</div>-->
-                                                            <!--<div class="form-group" style="margin: 0px 2px">-->
+                                                            <!--<div class="forms-group" style="margin: 0px 2px">-->
                                                             <!--<label class="col-md-4">Genome Assembly:</label>-->
                                                             <!--<span class="col-md-8">${this.interpretation.clinicalAnalysis.germline.assembly}</span>-->
                                                             <!--</div>-->
@@ -711,7 +711,7 @@ export default class ClinicalInterpretationView extends LitElement {
                                                                     `) }
                                                                 </span>
                                                             </div>
-                                                            <!--<div class="form-group" style="margin: 0px 2px">-->
+                                                            <!--<div class="forms-group" style="margin: 0px 2px">-->
                                                             <!--<label class="col-md-4">Description:</label>-->
                                                             <!--<span class="col-md-8">${this.interpretation.clinicalAnalysis.subjects[0].samples[0].description}</span>-->
                                                             <!--</div>-->
@@ -751,7 +751,7 @@ export default class ClinicalInterpretationView extends LitElement {
                                                                         </template>
                                                                     </span>
                                                             </div>
-                                                            <!--<div class="form-group" style="margin: 0px 2px">-->
+                                                            <!--<div class="forms-group" style="margin: 0px 2px">-->
                                                             <!--<label class="col-md-4">Description:</label>-->
                                                             <!--<span class="col-md-8">${this.interpretation.clinicalAnalysis.subjects[0].description}</span>-->
                                                             <!--</div>-->
@@ -936,7 +936,7 @@ export default class ClinicalInterpretationView extends LitElement {
                                     <div class="form-inline">
                                         <div class="form-group" style="padding: 0px;float: right">
                                             <div class="input-group">
-                                                <!--<input type="text" class="form-control" name="date" size="20" placeholder="Search for...">-->
+                                                <!--<input type="text" class="forms-control" name="date" size="20" placeholder="Search for...">-->
                                                 <!--<span class="input-group-btn">-->
                                                 <!--<button type="button" class="btn btn-default"><i class="fa fa-search" aria-hidden="true"></i></button>-->
                                                 <!--</span>-->

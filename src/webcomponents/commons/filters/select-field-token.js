@@ -97,7 +97,7 @@ export default class SelectFieldToken extends LitElement {
 
     tokenizeObserver() {
         console.log("Updating disabled value:", this.disabled);
-        this.querySelector(".tokenize.form-control").disabled = this.disabled;
+        this.querySelector(".tokenize.forms-control").disabled = this.disabled;
     }
 
     onSendValues(e) {

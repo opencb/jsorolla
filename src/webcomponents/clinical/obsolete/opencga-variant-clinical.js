@@ -178,7 +178,7 @@ class OpencgaVariantClinical extends LitElement {
         //         </select>
         //         <div style="padding-top: 5px">
         //             <textarea id="${prefix}PanelAppsTextarea" name="panelAppsTextarea"
-        //                       class="form-control clearable ${prefix}FilterTextInput"
+        //                       class="forms-control clearable ${prefix}FilterTextInput"
         //                       rows="3" placeholder="No panel selected"></textarea>
         //         </div>
         //     `;
@@ -570,7 +570,7 @@ class OpencgaVariantClinical extends LitElement {
                                             on-click="clearSelectedAnalysis" class="btn btn-sm btn-primary" style="display: inline; float:right; margin:0 25%;">
                                         Clear
                                     </button>
-                                    <div class="form-group">
+                                    <div class="forms-group">
                                         <div class="">
                                             <span for="{{prefix}}SelectOtherAnalysis">Select a recent analysis from the table (last 5 analysis) or select a clinical analysis </span>
                                             <button id="{{prefix}}SelectOtherAnalysis" data-toggle="modal" role="button" data-placement="bottom"
@@ -602,7 +602,7 @@ class OpencgaVariantClinical extends LitElement {
                             <div class="col-md-12" style="padding-top: 20px">
                                 <h3>Interpretation Algorithm</h3>
                                 <hr style="width: 80%; margin: 2px 0px;border-top: 2px solid #eee">
-                                <div class="form-group" style="padding: 10px 10px">
+                                <div class="forms-group" style="padding: 10px 10px">
                                     <p>Several prioritization and interpretation algorithms are available, you can choose an <span style="font-weight: bold">interactive</span> tool:</p>
                                     <template is="dom-repeat" items="{{config.interpretation.algorithms}}" as="algorithm">
                                         <div id="{{prefix}}{{algorithm.id}}ModeDiv">
@@ -667,7 +667,7 @@ class OpencgaVariantClinical extends LitElement {
                                 on-click="clearSelectedAnalysis" class="btn btn-sm btn-primary" style="display: inline; float:right; margin:0 25%;">
                             Clear
                         </button>
-                        <div class="form-group">
+                        <div class="forms-group">
                             <div class="">
                                 <span for="{{prefix}}SelectOtherAnalysisInterpretation">Select a recent analysis from the table (last 5 analysis) or select a clinical analysis </span>
                                 <button id="{{prefix}}SelectOtherAnalysisInterpretation" data-toggle="modal" role="button" data-placement="bottom"
@@ -696,7 +696,7 @@ class OpencgaVariantClinical extends LitElement {
                     <h3>Clinical Interpretation</h3>
                     <div class="col-md-12" style="padding: 10px 15px">
 
-                        <div class="form-group col-md-12" id="{{prefix}}selectInterpretationType">
+                        <div class="forms-group col-md-12" id="{{prefix}}selectInterpretationType">
                             <h4>Select Interpretation:</h4>
                             <div style="padding: 10px 20px">
                                 <template is="dom-if" if="{{!checkExistsRecentInterpretations}}">

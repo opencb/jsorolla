@@ -217,7 +217,7 @@ export default class OpencgaRecessiveGeneAnalysis { // extends LitElement
 
     // render() {
     //     if () {
-    //         return this.form();
+    //         return this.forms();
     //     } else {
     //         return this.result();
     //     }

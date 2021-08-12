@@ -405,7 +405,7 @@ export default class OpencgaVariantFamilyAnalysis extends LitElement {
 
         <div class="row">
             <div class="col-md-12">
-                <h4 id="${this._prefix}Title" class="form-section-title" style="margin: 5px 0px;padding: 0px 10px">
+                <h4 id="${this._prefix}Title" class="forms-section-title" style="margin: 5px 0px;padding: 0px 10px">
                     ${this._config.title}
                     <span id="${this._prefix}family-info-icon" style="color: #337ab7; padding-left: 20px">
                         <i class='fa fa-info-circle' aria-hidden='true'></i>

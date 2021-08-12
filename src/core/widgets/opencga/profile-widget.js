@@ -93,7 +93,7 @@ ProfileWidget.prototype = {
             id: this.id + 'labelPass',
             html: 'Modify your password or email.'
         });
-        var changePasswordForm = Ext.create('Ext.form.Panel', {
+        var changePasswordForm = Ext.create('Ext.forms.Panel', {
             title: 'Change password',
             bodyPadding: 15,
             width: 350,
@@ -139,7 +139,7 @@ ProfileWidget.prototype = {
                 }
             ]
         });
-        var changeEmailForm = Ext.create('Ext.form.Panel', {
+        var changeEmailForm = Ext.create('Ext.forms.Panel', {
             title: 'Change email',
             bodyPadding: 15,
             width: 350,

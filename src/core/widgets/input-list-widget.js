@@ -21,29 +21,29 @@
 
 function InputListWidget(args) {
 	this.id = "InputListWidget" + Math.round(Math.random()*10000000);
-		
+
 	this.title = "List";
 	this.width = 500;
 	this.height = 350;
 	this.headerInfo = 'Write a list separated only by lines';
-	
+
 	this.args=args;
-	
+
 	if (args != null){
         if (args.title!= null){
-        	this.title = args.title;       
+        	this.title = args.title;
         }
         if (args.width!= null){
-        	this.width = args.width;       
+        	this.width = args.width;
         }
         if (args.height!= null){
-        	this.height = args.height;       
+        	this.height = args.height;
         }
         if (args.headerInfo!= null){
-        	this.headerInfo = args.headerInfo;       
+        	this.headerInfo = args.headerInfo;
         }
         if (args.viewer!= null){
-        	this.viewer = args.viewer;       
+        	this.viewer = args.viewer;
         }
     }
 	this.onOk = new Event(this);
@@ -52,18 +52,18 @@ function InputListWidget(args) {
 
 InputListWidget.prototype.draw = function(text){
 	var _this = this;
-	
+
 	if (text == null){
 		text = new String();
 	}
-	
+
 	if (this.panel == null){
 		this.infobar = Ext.create('Ext.toolbar.Toolbar',{cls:"bio-border-false"});
 		this.infoLabel = Ext.create('Ext.toolbar.TextItem', {
 				text:this.headerInfo
 		});
 		this.infobar.add(this.infoLabel);
-		this.editor = Ext.create('Ext.form.field.TextArea', {
+		this.editor = Ext.create('Ext.forms.field.TextArea', {
 				id:this.id + "genelist_preview",
 	       	 	xtype: 'textarea',
 	        	name: 'file',
@@ -82,14 +82,14 @@ InputListWidget.prototype.draw = function(text){
 //				       			this.infoLabel.setText('<span class="ok">'+i+'</span> <span class="info"> Features detected</span>',false);
 				       			this.validate();
 				       }
-				       
+
 		        }
 		});
 		var form = Ext.create('Ext.panel.Panel', {
 			border : false,
 			items : [this.infobar,this.editor]
 		});
-		
+
 		this.okButton = Ext.create('Ext.button.Button', {
 			 text: 'Ok',
 			 disabled:true,
@@ -101,8 +101,8 @@ InputListWidget.prototype.draw = function(text){
 							_this.panel.close();
 			       		}
 	        }
-		});  
-		
+		});
+
 		this.panel = Ext.create('Ext.ux.Window', {
 			title : this.title,
 			taskbar:Ext.getCmp(this.viewer.id+'uxTaskbar'),
@@ -122,7 +122,7 @@ InputListWidget.prototype.draw = function(text){
 		});
 	}
 	this.panel.show();
-	
+
 };
 
 InputListWidget.prototype.validate = function (){

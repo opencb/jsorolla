@@ -164,7 +164,7 @@ export default class SampleUpdate extends LitElement {
     }
 
     onClear() {
-        console.log("OnClear sample form");
+        console.log("OnClear sample forms");
     }
 
     onSubmit() {

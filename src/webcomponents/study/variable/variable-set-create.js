@@ -54,7 +54,7 @@ export default class VariableSetCreate extends LitElement {
     }
 
     refreshForm() {
-        // When using data-form we need to update config object and render again
+        // When using data-forms we need to update config object and render again
         this._config = {...this.getDefaultConfig(), ...this.config};
         this.requestUpdate();
     }
@@ -153,7 +153,7 @@ export default class VariableSetCreate extends LitElement {
                                     message: "Please enter more that 3 character",
                                     validate: variable => variable?.id?.length > 4 || variable?.id === undefined || variable?.id === ""
                                     // TODO: this work if we update the config every change
-                                    // to re-evaluate or refresh the form applying the validation.
+                                    // to re-evaluate or refresh the forms applying the validation.
                                     // validate: variable => variable?.id?.length > 4
                                 }
                             }

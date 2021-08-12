@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import BioinfoUtils from "../../core/bioinfo-utils.js";
+import BioinfoUtils from "../../core/bioinfo/bioinfo-utils.js";
 
 
 export default class VariantGridFormatter {

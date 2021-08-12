@@ -325,7 +325,7 @@ export default class OpencgaFacetView extends LitElement {
             this.facets.add(facet);
             this.facetFilters = Array.from(this.facets);
 
-            // Clear form controls
+            // Clear forms controls
             this.clearSelectedOptions = true;
             this.clearSelectedOptions = false;
 

@@ -274,7 +274,7 @@ input[type="number"] {
     padding: 5px;
 }
 
-/* plain text in form-group (instead of input text) */
+/* plain text in forms-group (instead of input text) */
 .form-group .text {
     padding-top: 7px;
     margin-bottom: 0;

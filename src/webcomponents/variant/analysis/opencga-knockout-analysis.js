@@ -217,7 +217,7 @@ export default class OpencgaKnockoutAnalysis { // extends LitElement
 
     // render() {
     //     if () {
-    //         return this.form();
+    //         return this.forms();
     //     } else {
     //         return this.result();
     //     }

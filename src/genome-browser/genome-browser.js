@@ -1,4 +1,4 @@
-import Region from "../core/region.js";
+import Region from "../core/bioinfo/region.js";
 import Utils from "../core/utils.js";
 import TrackListPanel from "./tracks/tracklist-panel.js";
 import FeatureTrack from "./tracks/feature-track.js";

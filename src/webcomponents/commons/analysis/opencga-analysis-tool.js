@@ -73,7 +73,7 @@ export default class OpencgaAnalysisTool extends LitElement {
             console.error(`No execute() function provided for analysis: ${this._config.id}`)
         }*/
 
-        //TODO NOTE onAnalysisRun at the moment just forwards the `analysisRun` event fired in opencga-analysis-tool-form
+        //TODO NOTE onAnalysisRun at the moment just forwards the `analysisRun` event fired in opencga-analysis-tool-forms
         this.dispatchEvent(new CustomEvent("execute", {
             detail: e.detail
         }));

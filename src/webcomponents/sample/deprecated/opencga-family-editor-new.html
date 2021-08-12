@@ -333,7 +333,7 @@
 
                         if (UtilsNew.isNotUndefinedOrNull(sample.attributes) && UtilsNew.isNotUndefinedOrNull(sample.attributes.individual)
                             && sample.attributes.individual.id > 0) {
-                            // Fetch every individual from Webservices to get every ontologyTerm and create array of custom diseases and array of selected diseases from create individual form.
+                            // Fetch every individual from Webservices to get every ontologyTerm and create array of custom diseases and array of selected diseases from create individual forms.
                             this.opencgaClient.individuals().info(sample.attributes.individual.id, params, {method: "GET"})
                                 .then(function (response) {
                                     if (response.response[0].numResults >= 1) {

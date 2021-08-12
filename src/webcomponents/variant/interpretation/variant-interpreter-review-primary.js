@@ -301,7 +301,7 @@ export default class VariantInterpreterReviewPrimary extends LitElement {
     //         this.opencgaSession.opencgaClient.interpretations().create(this.clinicalAnalysis.id, params, interpretation)
     //             .then(response => {
     //                 console.log(response);
-    //                 // TODO We should update here clinicalAnalysis and add to interpretation list this file with its name from save interpertation form.
+    //                 // TODO We should update here clinicalAnalysis and add to interpretation list this file with its name from save interpertation forms.
     //                 console.error("interpretation ref is not defined");
     //                 if (UtilsNew.isNotUndefinedOrNull(this.interpretation) && UtilsNew.isNotUndefinedOrNull(this.interpretation.clinicalAnalysis)) {
     //                     if (UtilsNew.isEmptyArray(this.interpretation.clinicalAnalysis.interpretations)) {

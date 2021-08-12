@@ -104,7 +104,7 @@ export default class FamilyCreate extends LitElement {
 
 
     onClear(e) {
-        console.log("OnClear family form", this);
+        console.log("OnClear family forms", this);
     }
 
     onSubmit(e) {

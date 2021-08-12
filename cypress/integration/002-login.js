@@ -26,7 +26,7 @@ context("2 - Login", () => {
     it("2.1 - login unsuccessful", () => {
         cy.get("#opencgaUser").type("demouser");
         cy.get("#opencgaPassword").type("demo2");
-        cy.get("form#formLogin").submit();
+        cy.get("forms#formLogin").submit();
         cy.get("#error").should("be.visible");
         cy.get("#error").contains("Incorrect user or password.");
     });
@@ -40,7 +40,7 @@ context("2 - Login", () => {
         expect(password, "password was set").to.be.a("string").and.not.be.empty;
         cy.get("#opencgaUser").type(username);
         cy.get("#opencgaPassword").type(password);
-        cy.get("form#formLogin").submit();
+        cy.get("forms#formLogin").submit();
 
         cy.get(".login-overlay", {timeout: TIMEOUT}).should("be.visible");
         cy.get(".login-overlay", {timeout: TIMEOUT}).should("not.exist");

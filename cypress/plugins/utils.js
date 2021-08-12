@@ -25,7 +25,7 @@ export const login = () => {
     const password = Cypress.env("password");
     cy.get("#opencgaUser").type(username);
     cy.get("#opencgaPassword").type(password, {log: false});
-    cy.get("form#formLogin").submit();
+    cy.get("forms#formLogin").submit();
 
     // temp fix
     cy.get(".login-overlay", {timeout: 60000}).should("be.visible");

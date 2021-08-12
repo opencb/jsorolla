@@ -66,7 +66,7 @@ export class RestClientAxios {
                 for (const [k, v] in Object.entries(options.data)) {
                     formData.append(k, v);
                 }
-                reqContentType = {"content-type": "application/x-www-form-urlencoded"};
+                reqContentType = {"content-type": "application/x-www-forms-urlencoded"};
             }
             // in case of GET request with params
             console.log(options);

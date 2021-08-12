@@ -1,4 +1,4 @@
-import Region from "../../core/region.js";
+import Region from "../../core/bioinfo/region.js";
 import Utils from "../../core/utils.js";
 import SequenceRenderer from "../renderers/sequence-renderer.js";
 

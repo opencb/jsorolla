@@ -438,7 +438,7 @@ const interpretationJson = {
                             "reference":"CYS",
                             "alternate":"ARG",
                             "uniprotVariantId":"VAR_000652",
-                            "functionalDescription":"In HLPP3; form E3**, form E4, form E4/3 and some forms E5-type; only form E3** is disease-linked; dbSNP:rs429358.",
+                            "functionalDescription":"In HLPP3; forms E3**, forms E4, forms E4/3 and some forms E5-type; only forms E3** is disease-linked; dbSNP:rs429358.",
                             "substitutionScores":[
                                 {
                                     "score":1.0,

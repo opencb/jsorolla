@@ -132,7 +132,7 @@ LoginWidget.prototype = {
             padding: 3,
             text: '<span class="info">Type your user ID and password</span>'
         });
-        var pan = Ext.create('Ext.form.Panel', {
+        var pan = Ext.create('Ext.forms.Panel', {
             id: this.id + "formPanel",
             bodyPadding: 20,
             height: 225,

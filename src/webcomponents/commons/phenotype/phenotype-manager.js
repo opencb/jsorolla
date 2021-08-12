@@ -47,7 +47,7 @@ export default class PhenotypeManager extends LitElement {
     }
 
     refreshForm() {
-        // When using data-form we need to update config object and render again
+        // When using data-forms we need to update config object and render again
         this._config = {...this.getDefaultConfig(), ...this.config};
         this.requestUpdate();
     }

@@ -1,6 +1,6 @@
 import Utils from "../core/utils.js";
 import UtilsNew from "../core/utilsNew.js";
-import Region from "../core/region.js";
+import Region from "../core/bioinfo/region.js";
 import {SVG} from "../core/svg.js";
 
 

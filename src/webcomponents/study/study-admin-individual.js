@@ -166,7 +166,7 @@ export default class StudyAdminIndividual extends LitElement {
         };
     }
 
-    //  TODO: Move for a new component as modal form
+    //  TODO: Move for a new component as modal forms
     actionModal(modalId, action, individual = {}, mode = "CREATE") {
         // action: show or hide
         // mode: CREATE or UPDATE
@@ -180,7 +180,7 @@ export default class StudyAdminIndividual extends LitElement {
         $(`#${modalId}`).modal(action);
     }
 
-    //  TODO: Move for a new component as modal form
+    //  TODO: Move for a new component as modal forms
     renderModal(modalId, name) {
         return html`
             <div id="${modalId}" class="modal fade" tabindex="-1" role="dialog">
@@ -212,7 +212,7 @@ export default class StudyAdminIndividual extends LitElement {
                 </detail-tabs>
             </div>
 
-            <!-- TODO: Move for a new component as modal form -->
+            <!-- TODO: Move for a new component as modal forms -->
             <!-- <div class="pull-right" style="margin: 10px 0px">
                 <div style="display:inline-block; margin: 0px 20px">
                     <button class="btn-custom btn btn-primary"

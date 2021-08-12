@@ -15,14 +15,13 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "../../utilsNew.js";
-
+import UtilsNew from "../../../core/utilsNew.js";
 
 /**
  *  Usage:
- * <toggle-switch .value="true" .onText="YES" .offText="NO"></toggle-switch>
+ * <toggle-buttons .value="true" .onText="YES" .offText="NO"></toggle-buttons>
  */
-export default class ToggleSwitch extends LitElement {
+export default class ToggleButtons extends LitElement {
 
     constructor() {
         super();
@@ -37,13 +36,10 @@ export default class ToggleSwitch extends LitElement {
 
     static get properties() {
         return {
+            names: {
+                type: Array
+            },
             value: {
-                type: Boolean
-            },
-            onText: {
-                type: String
-            },
-            offText: {
                 type: String
             },
             activeClass: {
@@ -63,27 +59,21 @@ export default class ToggleSwitch extends LitElement {
 
     _init() {
         this._prefix = UtilsNew.randomString(8);
+        this._nameClass = {};
 
         // Default values
-        this.onText = "ON";
-        this.offText = "OFF";
         this.activeClass = "btn-primary";
         this.inactiveClass = "btn-default";
         this.classes = "";
     }
 
     updated(changedProperties) {
+        if (changedProperties.has("names")) {
+            this._propertyObserver();
+        }
         if (changedProperties.has("value")) {
             this._propertyObserver();
             this._value = this.value;
-        }
-        if (changedProperties.has("onText")) {
-            this.onText = this.onText ? this.onText : "ON";
-            // this._propertyObserver();
-        }
-        if (changedProperties.has("offText")) {
-            this.offText = this.offText ? this.offText : "OFF";
-            // this._propertyObserver();
         }
         if (changedProperties.has("activeClass")) {
             this.activeClass = this.activeClass ? this.activeClass : "btn-primary";
@@ -96,21 +86,22 @@ export default class ToggleSwitch extends LitElement {
     }
 
     _propertyObserver() {
-        if (typeof this.value !== "undefined" && this.activeClass && this.inactiveClass) {
-            if (this.value) {
-                this._onClass = this.activeClass + " active";
-                this._offClass = this.inactiveClass;
-            } else {
-                this._onClass = this.inactiveClass;
-                this._offClass = this.activeClass + " active";
+        if (this.names && this.value && this.activeClass && this.inactiveClass) {
+            this._nameClass = {};
+            for (let name of this.names) {
+                if (name === this.value) {
+                    this._nameClass[name] = this.activeClass + " active";
+                } else {
+                    this._nameClass[name] = this.inactiveClass;
+                }
             }
             this.requestUpdate();
         }
     }
 
-    onToggleClick(buttonId, e) {
+    onToggleClick(buttonName, e) {
         // Check if there is anything to do
-        if ((this.value && buttonId === "ON") || (!this.value && buttonId === "OFF")) {
+        if (this.value === buttonName) {
             return;
         }
 
@@ -121,21 +112,16 @@ export default class ToggleSwitch extends LitElement {
         // Fetch and reset buttons status
         let buttons = this.getElementsByClassName("btn-toggle-" + this._prefix);
         buttons.forEach(button => button.classList.remove(...activeClasses, ...inactiveClasses, "active"));
-        let onIndex = 0;
-        let offIndex = 1;
-        if (buttons[0].dataset.id === "OFF") {
-            onIndex = 1;
-            offIndex = 0;
-        }
 
         // Set proper classes
-        this.value = buttonId === "ON";
-        if (this.value) {
-            buttons[onIndex].classList.add(...activeClasses, "active");
-            buttons[offIndex].classList.add(...inactiveClasses);
-        } else {
-            buttons[onIndex].classList.add(...inactiveClasses);
-            buttons[offIndex].classList.add(...activeClasses, "active");
+        this.value = buttonName;
+        for (let button of buttons) {
+            debugger
+            if (button.dataset.id === this.value) {
+                button.classList.add(...activeClasses, "active");
+            } else {
+                button.classList.add(...inactiveClasses);
+            }
         }
 
         // Set the field status
@@ -154,18 +140,22 @@ export default class ToggleSwitch extends LitElement {
     }
 
     render() {
+        if (!this.names) {
+            return;
+        }
+
         return html`
             <div class="">
-                <div class="btn-group"> 
-                    <button type="button" class="btn ${this._onClass} btn-toggle-${this._prefix} ${this.classes}" data-id="ON" 
-                        @click="${e => this.onToggleClick("ON", e)}">${this.onText}</button>
-                    <button type="button" class="btn ${this._offClass} btn-toggle-${this._prefix} ${this.classes}" data-id="OFF" 
-                        @click="${e => this.onToggleClick("OFF", e)}">${this.offText}</button>
+                <div class="btn-group">
+                    ${this.names?.map(name => html`
+                        <button type="button" class="btn ${this._nameClass[name]} btn-toggle-${this._prefix} ${this.classes}" data-id="${name}"
+                                @click="${e => this.onToggleClick(name, e)}">${name}</button>`
+                    )}
                 </div>
-             </div>
+            </div>
         `;
     }
 
 }
 
-customElements.define("toggle-switch", ToggleSwitch);
+customElements.define("toggle-buttons", ToggleButtons);

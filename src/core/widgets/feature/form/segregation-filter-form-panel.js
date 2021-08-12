@@ -67,7 +67,7 @@ SegregationFilterFormPanel.prototype = {
     _createPanel: function () {
 
 
-        var header = Ext.create('Ext.form.FieldContainer', {
+        var header = Ext.create('Ext.forms.FieldContainer', {
             margin: '0 0 0 100',
             flex: 1,
             layout: {
@@ -88,7 +88,7 @@ SegregationFilterFormPanel.prototype = {
             var name = this.samples[i];
 
             items.push(
-                Ext.create('Ext.form.FieldContainer', {
+                Ext.create('Ext.forms.FieldContainer', {
                     fieldLabel: name,
                     labelWidth: 100,
                     flex: 1,
@@ -107,7 +107,7 @@ SegregationFilterFormPanel.prototype = {
         }
 
 
-        return Ext.create('Ext.form.Panel', {
+        return Ext.create('Ext.forms.Panel', {
             title: this.title,
             border: this.border,
             collapsible: this.collapsible,

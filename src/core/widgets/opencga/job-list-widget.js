@@ -203,7 +203,7 @@ JobListWidget.prototype = {
         });
 
         /**TEXT SEARCH FILTER**/
-        this.searchField = Ext.create('Ext.form.field.Text', {
+        this.searchField = Ext.create('Ext.forms.field.Text', {
             emptyText: 'search...',
             enableKeyEvents: true,
             flex: 1,

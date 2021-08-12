@@ -97,7 +97,7 @@ StudyFilterFormPanel.prototype = {
 //            data: []
 //        });
 
-//        var cbg = Ext.create('Ext.form.CheckboxGroup', {
+//        var cbg = Ext.create('Ext.forms.CheckboxGroup', {
 ////            layout: 'hbox',
 //            autoScroll: true,
 //            defaultType: 'checkboxfield'
@@ -107,7 +107,7 @@ StudyFilterFormPanel.prototype = {
 //
 //        for (var i = 0; i < this.studies.length; i++) {
 //            var study = this.studies[i];
-//            cbgItems.push(Ext.create('Ext.form.field.Checkbox', {
+//            cbgItems.push(Ext.create('Ext.forms.field.Checkbox', {
 //                boxLabel: study.studyName,
 //                name: 'studies',
 //                inputValue: study.studyId,
@@ -118,7 +118,7 @@ StudyFilterFormPanel.prototype = {
 //
 //        cbg.add(cbgItems);
 
-//        this.tagField = Ext.create('Ext.form.field.Tag', {
+//        this.tagField = Ext.create('Ext.forms.field.Tag', {
 ////            fieldLabel: 'Select a study',
 ////                    labelAlign: 'top',
 //            store: this.studiesStore,
@@ -134,9 +134,9 @@ StudyFilterFormPanel.prototype = {
 //            name: 'studies',
 //            listeners: {
 //                change: function () {
-//                    var form = this.up();
-//                    if (form) {
-//                        form.update();
+//                    var forms = this.up();
+//                    if (forms) {
+//                        forms.update();
 //                    }
 //                }
 //            }
@@ -155,7 +155,7 @@ StudyFilterFormPanel.prototype = {
 //            autoLoad: false
 //        });
 
-        var studySearchField = Ext.create('Ext.form.field.Text', {
+        var studySearchField = Ext.create('Ext.forms.field.Text', {
             emptyText: 'search',
             listeners: {
                 change: function () {
@@ -235,7 +235,7 @@ StudyFilterFormPanel.prototype = {
         );
 
 
-        var form = Ext.create('Ext.form.Panel', {
+        var form = Ext.create('Ext.forms.Panel', {
             bodyPadding: "5",
             margin: "0 0 5 0",
             buttonAlign: 'center',

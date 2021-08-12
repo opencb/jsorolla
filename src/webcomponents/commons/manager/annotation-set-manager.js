@@ -193,7 +193,7 @@ export default class AnnotationSetManager extends BaseManagerMixin(LitElement) {
     }
 
     onClearForm(e) {
-        console.log("Clear form");
+        console.log("Clear forms");
         this.onShow();
         e.stopPropagation();
     }

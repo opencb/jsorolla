@@ -452,7 +452,7 @@ export default class OpencgaAnnotationViewer extends LitElement {
                         <div style="width: 40%">
                             <label for="${this._prefix}-variableSetSelect">Select Variable Set</label>
                             <select class="selectpicker" id="${this._prefix}-variableSetSelect" @change="${this.entryIdsObserver}" data-width="40%">
-                                <!--<select class="form-control" id="variableSetSelect" style="width: 100%"-->
+                                <!--<select class="forms-control" id="variableSetSelect" style="width: 100%"-->
                                 <!--on-change="onSelectedVariableSetChange">-->
                                 ${this.variableSets && this.variableSets.length && this.variableSets.map( item => html`
                                     <option data-variable="${item}">${item.id}</option>

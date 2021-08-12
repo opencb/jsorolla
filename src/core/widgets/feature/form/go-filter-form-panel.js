@@ -133,7 +133,7 @@ GoFilterFormPanel.prototype = {
 //        });
 //
 //        return treePanel;
-        var goField = Ext.create('Ext.form.field.TextArea', {
+        var goField = Ext.create('Ext.forms.field.TextArea', {
             id: this.id + "go",
             name: "go",
             margin: '0 0 0 5',
@@ -143,7 +143,7 @@ GoFilterFormPanel.prototype = {
             labelAlign: 'top'
         });
 
-        return Ext.create('Ext.form.Panel', {
+        return Ext.create('Ext.forms.Panel', {
             bodyPadding: "5",
             margin: "0 0 5 0",
             buttonAlign: 'center',

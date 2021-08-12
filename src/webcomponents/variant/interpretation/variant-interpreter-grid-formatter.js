@@ -17,7 +17,7 @@
 import {html} from "/web_modules/lit-element.js";
 import VariantGridFormatter from "../variant-grid-formatter.js";
 import UtilsNew from "../../../core/utilsNew.js";
-import BioinfoUtils from "../../../core/bioinfo-utils.js";
+import BioinfoUtils from "../../../core/bioinfo/bioinfo-utils.js";
 
 
 export default class VariantInterpreterGridFormatter {

@@ -221,7 +221,7 @@ UploadWidget.prototype.render = function (dataTypes) {
         var pan1Width = 250;
         var pan1 = Ext.create('Ext.tree.Panel', {
             header: {
-                baseCls: 'header-form'
+                baseCls: 'header-forms'
             },
             title: 'Select your data type <span style="color:gray">(req)</span>',
             bodyPadding: '10 0 0 0',
@@ -248,7 +248,7 @@ UploadWidget.prototype.render = function (dataTypes) {
             }
         });
 
-        this.nameField = Ext.create('Ext.form.field.Text', {
+        this.nameField = Ext.create('Ext.forms.field.Text', {
             name: 'datalabel',
             fieldLabel: 'Data name',
             labelWidth: 110,
@@ -267,25 +267,25 @@ UploadWidget.prototype.render = function (dataTypes) {
                 }
             }
         });
-        this.textArea = Ext.create('Ext.form.field.TextArea', {
+        this.textArea = Ext.create('Ext.forms.field.TextArea', {
             name: 'datadescription',
             fieldLabel: 'Data description',
             labelWidth: 110,
             msgTarget: 'side'
         });
-        this.organizationField = Ext.create('Ext.form.field.Text', {
+        this.organizationField = Ext.create('Ext.forms.field.Text', {
             name: 'organization',
             fieldLabel: 'Organization',
             labelWidth: 110,
             msgTarget: 'side'
         });
-        this.responsableField = Ext.create('Ext.form.field.Text', {
+        this.responsableField = Ext.create('Ext.forms.field.Text', {
             name: 'responsable',
             fieldLabel: 'Responsible',
             labelWidth: 110,
             msgTarget: 'side'
         });
-        this.acquisitiondate = Ext.create('Ext.form.field.Text', {
+        this.acquisitiondate = Ext.create('Ext.forms.field.Text', {
             name: 'acquisitiondate',
             fieldLabel: 'Acquisition date',
             labelWidth: 110,
@@ -296,7 +296,7 @@ UploadWidget.prototype.render = function (dataTypes) {
         var pan2 = Ext.create('Ext.panel.Panel', {
             title: 'Aditional information',
             header: {
-                baseCls: 'header-form'
+                baseCls: 'header-forms'
             },
             width: pan2Width,
             border: false,
@@ -316,7 +316,7 @@ UploadWidget.prototype.render = function (dataTypes) {
         this.dataFieldLabel = Ext.create('Ext.Component', {
             html: '<span class="info">Select a data file</span>'
         });
-        this.originCheck = Ext.create('Ext.form.field.Checkbox', {
+        this.originCheck = Ext.create('Ext.forms.field.Checkbox', {
             xtype: 'checkbox',
             hidden: !this.enableTextMode,
             boxLabel: 'Text mode',
@@ -358,7 +358,7 @@ UploadWidget.prototype.render = function (dataTypes) {
         });
 
 
-        this.editor = Ext.create('Ext.form.field.TextArea', {
+        this.editor = Ext.create('Ext.forms.field.TextArea', {
             xtype: 'textarea',
             emptyText: 'Paste or write your file directly',
             hidden: true,
@@ -381,7 +381,7 @@ UploadWidget.prototype.render = function (dataTypes) {
         this.pan3 = Ext.create('Ext.panel.Panel', {
             title: 'Data file',
             header: {
-                baseCls: 'header-form'
+                baseCls: 'header-forms'
             },
             colspan: 2,
             border: false,
@@ -460,7 +460,7 @@ UploadWidget.prototype.render = function (dataTypes) {
 
 
 UploadWidget.prototype.createUploadField = function () {
-    this.uploadField = Ext.create('Ext.form.field.File', {
+    this.uploadField = Ext.create('Ext.forms.field.File', {
         id: this.uploadFieldId,
         xtype: 'filefield',
         name: 'file',

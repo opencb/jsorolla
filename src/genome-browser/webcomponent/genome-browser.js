@@ -240,7 +240,7 @@ export default class GenomeBrowserComponent extends LitElement {
 
         const elements = document.createElement("div");
         elements.id = `${this._prefix}collapsibleFilter`;
-        elements.classList.add("form-horizontal", "collapse", "in");
+        elements.classList.add("forms-horizontal", "collapse", "in");
         colDiv.appendChild(elements);
 
         for (let i = 0; i < myFilter.filters.length; i++) {
@@ -272,7 +272,7 @@ export default class GenomeBrowserComponent extends LitElement {
 
         // Add buttons
         const formGroupDiv = document.createElement("div");
-        formGroupDiv.classList.add("form-group");
+        formGroupDiv.classList.add("forms-group");
 
         const colButtonDiv = document.createElement("div");
         colButtonDiv.classList.add("col-md-offset-3", "col-md-9");
@@ -293,7 +293,7 @@ export default class GenomeBrowserComponent extends LitElement {
         colButtonDiv.appendChild(submitButton);
 
         elements.appendChild(formGroupDiv);
-        // elements.appendChild($(`<div class="form-group">
+        // elements.appendChild($(`<div class="forms-group">
         //             <div class="col-md-offset-3 col-md-9">
         //                 <button type="submit" class="btn btn-primary" on-click="onClear">Clear</button>
         //                 <button type="submit" class="btn btn-primary" on-click="showSelectionInGenomeBrowser">Render</button>
@@ -346,12 +346,12 @@ export default class GenomeBrowserComponent extends LitElement {
     //
     //     colDiv.appendChild($(`<div style="display: block; cursor:pointer;" on-click="toggleCollapsedFilter"
     //                              data-toggle="collapse" href$="#${this._prefix}collapsibleFilter">
-    //                             <h3 class="form-section-title">${myFilter.title}</h3>
+    //                             <h3 class="forms-section-title">${myFilter.title}</h3>
     //                         </div>`)[0]);
     //
     //     let elements = document.createElement("div");
     //     elements.id = `${this._prefix}collapsibleFilter`;
-    //     elements.classList.add("form-horizontal", "collapse", "in");
+    //     elements.classList.add("forms-horizontal", "collapse", "in");
     //     colDiv.appendChild(elements);
     //
     //     for (let i = 0; i < myFilter.filters.length; i++) {
@@ -383,7 +383,7 @@ export default class GenomeBrowserComponent extends LitElement {
     //
     //     // Add buttons
     //     let formGroupDiv = document.createElement("div");
-    //     formGroupDiv.classList.add("form-group");
+    //     formGroupDiv.classList.add("forms-group");
     //
     //     let colButtonDiv = document.createElement("div");
     //     colButtonDiv.classList.add("col-md-offset-3", "col-md-9");
@@ -404,7 +404,7 @@ export default class GenomeBrowserComponent extends LitElement {
     //     colButtonDiv.appendChild(submitButton);
     //
     //     elements.appendChild(formGroupDiv);
-    //     // elements.appendChild($(`<div class="form-group">
+    //     // elements.appendChild($(`<div class="forms-group">
     //     //             <div class="col-md-offset-3 col-md-9">
     //     //                 <button type="submit" class="btn btn-primary" on-click="onClear">Clear</button>
     //     //                 <button type="submit" class="btn btn-primary" on-click="showSelectionInGenomeBrowser">Render</button>
@@ -430,11 +430,11 @@ export default class GenomeBrowserComponent extends LitElement {
         }
 
         const div = document.createElement("div");
-        div.classList.add("form-group");
+        div.classList.add("forms-group");
         div.appendChild($(`<label class="control-label col-md-1 jso-label-title">${filter.title}</label>`)[0]);
 
         const innerDiv = document.createElement("div");
-        innerDiv.classList.add("col-md-3", "form-check");
+        innerDiv.classList.add("col-md-3", "forms-check");
         div.appendChild(innerDiv);
 
         for (let i = 0; i < tracks.length; i++) {
@@ -444,12 +444,12 @@ export default class GenomeBrowserComponent extends LitElement {
 
             const checkbox = document.createElement("input");
             checkbox.type = "checkbox";
-            checkbox.classList.add("form-check-input", `${this._prefix}-checkbox`);
+            checkbox.classList.add("forms-check-input", `${this._prefix}-checkbox`);
             checkbox.id = `${tracks[i]["id"]}`;
             checkbox.setAttribute("data-track", tracks[i]["id"]);
 
             const label = document.createElement("label");
-            label.classList.add("form-check-label");
+            label.classList.add("forms-check-label");
             label.setAttribute("for", `${tracks[i]["id"]}`);
             label.innerText = tracks[i]["title"];
 
@@ -484,7 +484,7 @@ export default class GenomeBrowserComponent extends LitElement {
         // cellbase.addEventListener("genechange", this.onInputGeneChange.bind(this));
 
         const div = document.createElement("div");
-        div.classList.add("form-group");
+        div.classList.add("forms-group");
         div.appendChild($(`<label class="control-label col-md-1 jso-label-title">${filter.title}</label>`)[0]);
 
         const innerDiv = document.createElement("div");

@@ -87,7 +87,7 @@ export default class OpencgaAnalysisToolForm extends LitElement {
     firstUpdated(_changedProperties) {
         $(`#${this._prefix}analysis-form`).validator().on("submit", e => {
             if (e.isDefaultPrevented()) {
-                // handle the invalid form...
+                // handle the invalid forms...
             } else {
                 // everything looks good!
                 const params = this.config.sections.reduce((acc, curr) => [...acc, ...curr.parameters], []);

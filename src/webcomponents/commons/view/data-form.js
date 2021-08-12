@@ -25,8 +25,8 @@ import "../json-viewer.js";
 import "../../tree-viewer.js";
 import "../../download-button.js";
 import "../../commons/filters/text-field-filter.js";
-import "../../../core/form/controls/toggle-switch.js";
-import "../../../core/form/controls/toggle-buttons.js";
+import "../forms/toggle-switch.js";
+import "../forms/toggle-buttons.js";
 
 export default class DataForm extends LitElement {
 
@@ -239,10 +239,10 @@ export default class DataForm extends LitElement {
                     ${this.config?.display.layout.map(section => section.id ?
                         html`
                             <div class="${section.classes}" style="${section.style}">
-                                ${this.config.type === "form" ?
+                                ${this.config.type === "forms" ?
                                     html`
                                         <section>
-                                            <form class="${this.config?.display?.defaultLayout === "horizontal" ? "form-horizontal" : ""} ${classes}" style="${style}">
+                                            <form class="${this.config?.display?.defaultLayout === "horizontal" ? "forms-horizontal" : ""} ${classes}" style="${style}">
                                                 ${this._createSection(this.config.sections.find(s => s.id === section.id))}
                                             </form>
                                         </section>` :
@@ -259,10 +259,10 @@ export default class DataForm extends LitElement {
                                 ${section.sections.map(subsection => subsection.id ?
                                     html`
                                         <div class="${subsection.classes}">
-                                            ${this.config.type === "form" ?
+                                            ${this.config.type === "forms" ?
                                                 html`
                                                     <section>
-                                                        <form class="${this.config?.display?.defaultLayout === "horizontal" ? "form-horizontal" : ""} ${classes}" style="${style}">
+                                                        <form class="${this.config?.display?.defaultLayout === "horizontal" ? "forms-horizontal" : ""} ${classes}" style="${style}">
                                                             ${this._createSection(this.config.sections.find(s => s.id === subsection.id))}
                                                         </form>
                                                     </section>` :
@@ -285,7 +285,7 @@ export default class DataForm extends LitElement {
         if (this.config.type === "form") {
             return html`
                 <section>
-                    <form class="${this.config?.display?.defaultLayout === "horizontal" ? "form-horizontal" : ""} ${classes}" style="${style}">
+                    <form class="${this.config?.display?.defaultLayout === "horizontal" ? "forms-horizontal" : ""} ${classes}" style="${style}">
                         ${this.config.sections.map(section => this._createSection(section))}
                     </form>
                 </section>
@@ -449,7 +449,7 @@ export default class DataForm extends LitElement {
         let width = this._getWidth(element);
         width = width ? width : 12;
 
-        // When forms we return a form-group
+        // When forms we return a forms-group
         if (this.config.type && this.config.type === "form") {
             if (layout === "horizontal") {
                 return html`
@@ -1104,7 +1104,7 @@ export default class DataForm extends LitElement {
                 null
             }
 
-            <!-- Render data form -->
+            <!-- Render data forms -->
             ${this.data ? this.renderData() : null}
 
             <!-- Render buttons -->

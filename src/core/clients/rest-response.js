@@ -89,7 +89,7 @@ export class RestResponse {
     getParams = () => this.params;
 
     /**
-     *  Return all results out of all responses (or from a single node in case 'responsePos' is defined) in form of Iterator
+     *  Return all results out of all responses (or from a single node in case 'responsePos' is defined) in forms of Iterator
      * @param {Number} responsePos The index of the response
      *  Consumer-side usage examples:
      *
