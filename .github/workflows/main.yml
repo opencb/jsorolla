@@ -76,6 +76,7 @@ jobs:
         uses: cypress-io/github-action@v2
         with:
           start: npm run serve
+          config-file: cypress/cypress.json
           browser: ${{ matrix.browsers }}
           spec: |
             cypress/integration/001-header-bar-pre-login.spec.js
