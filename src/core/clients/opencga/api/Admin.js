@@ -42,7 +42,7 @@ export default class Admin extends OpenCGAParentClass {
     * @param {String} [params.before] - Object before update.
     * @param {String} [params.after] - Object after update.
     * @param {String} [params.date] - Date <,<=,>,>=(Format: yyyyMMddHHmmss) and yyyyMMddHHmmss-yyyyMMddHHmmss.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     groupByAudit(fields, entity, params) {
         return this._get("admin", null, "audit", null, "groupBy", {fields, entity, ...params});
@@ -52,7 +52,7 @@ export default class Admin extends OpenCGAParentClass {
     * @param {Object} [params] - The Object containing the following optional parameters:
     * @param {String} [params.collection] - Collection to be indexed (file, sample, individual, family, cohort and/or job). If not provided,
     *     all of them will be indexed.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     indexStatsCatalog(params) {
         return this._post("admin", null, "catalog", null, "indexStats", params);
@@ -60,7 +60,7 @@ export default class Admin extends OpenCGAParentClass {
 
     /** Install OpenCGA database
     * @param {Object} data - JSON containing the mandatory parameters.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     installCatalog(data) {
         return this._post("admin", null, "catalog", null, "install", data);
@@ -68,7 +68,7 @@ export default class Admin extends OpenCGAParentClass {
 
     /** Change JWT secret key
     * @param {Object} data - JSON containing the parameters.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     jwtCatalog(data) {
         return this._post("admin", null, "catalog", null, "jwt", data);
@@ -76,7 +76,7 @@ export default class Admin extends OpenCGAParentClass {
 
     /** Create a new user
     * @param {Object} data - JSON containing the parameters.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     createUsers(data) {
         return this._post("admin", null, "users", null, "create", data);
@@ -84,7 +84,7 @@ export default class Admin extends OpenCGAParentClass {
 
     /** Import users or a group of users from LDAP or AAD
     * @param {Object} data - JSON containing the parameters.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     importUsers(data) {
         return this._post("admin", null, "users", null, "import", data);
@@ -101,7 +101,7 @@ export default class Admin extends OpenCGAParentClass {
     * @param {String} [params.user] - User ID.
     * @param {String} [params.account] - Account type [GUEST, FULL, ADMINISTRATOR].
     * @param {String} [params.authenticationId] - Authentication origin ID.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     searchUsers(params) {
         return this._get("admin", null, "users", null, "search", params);
@@ -109,7 +109,7 @@ export default class Admin extends OpenCGAParentClass {
 
     /** Synchronise a group of users from an authentication origin with a group in a study from catalog
     * @param {Object} data - JSON containing the parameters.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     syncUsers(data) {
         return this._post("admin", null, "users", null, "sync", data);

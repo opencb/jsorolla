@@ -40,7 +40,7 @@ export default class Clinical extends OpenCGAParentClass {
     * @param {String} [params.study] - Study [[user@]project:]study where study and project can be either the ID or UUID.
     * @param {Boolean} [params.propagate = "false"] - Propagate permissions to related families, individuals, samples and files. The default
     *     value is false.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     updateAcl(members, action, data, params) {
         return this._post("analysis", null, "clinical/acl", members, "update", data, {action, ...params});
@@ -52,7 +52,7 @@ export default class Clinical extends OpenCGAParentClass {
     * @param {String} [params.study] - Study [[user@]project:]study where study and project can be either the ID or UUID.
     * @param {Boolean} [params.createDefaultInterpretation] - Flag to create and initialise a default primary interpretation (Id will be
     *     '{clinicalAnalysisId}.1').
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     create(data, params) {
         return this._post("analysis", null, "clinical", null, "create", data, params);
@@ -80,7 +80,7 @@ export default class Clinical extends OpenCGAParentClass {
     * @param {String} [params.flags] - Flags.
     * @param {String} [params.release] - Release value.
     * @param {String} [params.attributes] - Text attributes (Format: sex=male,age>20 ...).
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     distinct(field, params) {
         return this._get("analysis", null, "clinical", null, "distinct", {field, ...params});
@@ -99,7 +99,7 @@ export default class Clinical extends OpenCGAParentClass {
     * @param {String} [params.status] - Interpretation status.
     * @param {String} [params.creationDate] - Creation date.
     * @param {String} [params.modificationDate] - Modification date.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     distinctInterpretation(field, params) {
         return this._get("analysis", null, "clinical/interpretation", null, "distinct", {field, ...params});
@@ -122,7 +122,7 @@ export default class Clinical extends OpenCGAParentClass {
     * @param {String} [params.status] - Interpretation status.
     * @param {String} [params.creationDate] - Creation date.
     * @param {String} [params.modificationDate] - Modification date.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     searchInterpretation(params) {
         return this._get("analysis", null, "clinical/interpretation", null, "search", params);
@@ -137,7 +137,7 @@ export default class Clinical extends OpenCGAParentClass {
     * @param {String} [params.version] - Comma separated list of interpretation versions. 'all' to get all the interpretation versions. Not
     *     supported if multiple interpretation ids are provided.
     * @param {Boolean} [params.deleted = "false"] - Boolean to retrieve deleted entries. The default value is false.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     infoInterpretation(interpretations, params) {
         return this._get("analysis", null, "clinical/interpretation", interpretations, "info", params);
@@ -152,7 +152,7 @@ export default class Clinical extends OpenCGAParentClass {
     * @param {String} [params.jobDescription] - Job description.
     * @param {String} [params.jobDependsOn] - Comma separated list of existing job IDs the job will depend on.
     * @param {String} [params.jobTags] - Job tags.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     runInterpreterCancerTiering(data, params) {
         return this._post("analysis", null, "clinical/interpreter/cancerTiering", null, "run", data, params);
@@ -167,7 +167,7 @@ export default class Clinical extends OpenCGAParentClass {
     * @param {String} [params.jobDescription] - Job description.
     * @param {String} [params.jobDependsOn] - Comma separated list of existing job IDs the job will depend on.
     * @param {String} [params.jobTags] - Job tags.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     runInterpreterTeam(data, params) {
         return this._post("analysis", null, "clinical/interpreter/team", null, "run", data, params);
@@ -182,7 +182,7 @@ export default class Clinical extends OpenCGAParentClass {
     * @param {String} [params.jobDescription] - Job description.
     * @param {String} [params.jobDependsOn] - Comma separated list of existing job IDs the job will depend on.
     * @param {String} [params.jobTags] - Job tags.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     runInterpreterTiering(data, params) {
         return this._post("analysis", null, "clinical/interpreter/tiering", null, "run", data, params);
@@ -197,7 +197,7 @@ export default class Clinical extends OpenCGAParentClass {
     * @param {String} [params.jobDescription] - Job description.
     * @param {String} [params.jobDependsOn] - Comma separated list of existing job IDs the job will depend on.
     * @param {String} [params.jobTags] - Job tags.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     runInterpreterZetta(data, params) {
         return this._post("analysis", null, "clinical/interpreter/zetta", null, "run", data, params);
@@ -229,7 +229,7 @@ export default class Clinical extends OpenCGAParentClass {
     * @param {String} [params.populationFrequency] - Filter by population frequency.
     * @param {String} [params.consequenceType] - Filter by consequence type.
     * @param {String} [params.study] - Study [[user@]project:]study where study and project can be either the ID or UUID.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     aggregationStatsRga(field, params) {
         return this._get("analysis", null, "clinical/rga", null, "aggregationStats", {field, ...params});
@@ -265,7 +265,7 @@ export default class Clinical extends OpenCGAParentClass {
     * @param {String} [params.populationFrequency] - Filter by population frequency.
     * @param {String} [params.consequenceType] - Filter by consequence type.
     * @param {String} [params.study] - Study [[user@]project:]study where study and project can be either the ID or UUID.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     queryRgaGene(params) {
         return this._get("analysis", null, "clinical/rga/gene", null, "query", params);
@@ -296,7 +296,7 @@ export default class Clinical extends OpenCGAParentClass {
     * @param {String} [params.populationFrequency] - Filter by population frequency.
     * @param {String} [params.consequenceType] - Filter by consequence type.
     * @param {String} [params.study] - Study [[user@]project:]study where study and project can be either the ID or UUID.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     summaryRgaGene(params) {
         return this._get("analysis", null, "clinical/rga/gene", null, "summary", params);
@@ -311,7 +311,7 @@ export default class Clinical extends OpenCGAParentClass {
     * @param {String} [params.jobDescription] - Job description.
     * @param {String} [params.jobDependsOn] - Comma separated list of existing job IDs the job will depend on.
     * @param {String} [params.jobTags] - Job tags.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     runRgaIndex(data, params) {
         return this._post("analysis", null, "clinical/rga/index", null, "run", data, params);
@@ -344,7 +344,7 @@ export default class Clinical extends OpenCGAParentClass {
     * @param {String} [params.populationFrequency] - Filter by population frequency.
     * @param {String} [params.consequenceType] - Filter by consequence type.
     * @param {String} [params.study] - Study [[user@]project:]study where study and project can be either the ID or UUID.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     queryRgaIndividual(params) {
         return this._get("analysis", null, "clinical/rga/individual", null, "query", params);
@@ -375,7 +375,7 @@ export default class Clinical extends OpenCGAParentClass {
     * @param {String} [params.populationFrequency] - Filter by population frequency.
     * @param {String} [params.consequenceType] - Filter by consequence type.
     * @param {String} [params.study] - Study [[user@]project:]study where study and project can be either the ID or UUID.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     summaryRgaIndividual(params) {
         return this._get("analysis", null, "clinical/rga/individual", null, "summary", params);
@@ -411,7 +411,7 @@ export default class Clinical extends OpenCGAParentClass {
     * @param {String} [params.populationFrequency] - Filter by population frequency.
     * @param {String} [params.consequenceType] - Filter by consequence type.
     * @param {String} [params.study] - Study [[user@]project:]study where study and project can be either the ID or UUID.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     queryRgaVariant(params) {
         return this._get("analysis", null, "clinical/rga/variant", null, "query", params);
@@ -442,7 +442,7 @@ export default class Clinical extends OpenCGAParentClass {
     * @param {String} [params.populationFrequency] - Filter by population frequency.
     * @param {String} [params.consequenceType] - Filter by consequence type.
     * @param {String} [params.study] - Study [[user@]project:]study where study and project can be either the ID or UUID.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     summaryRgaVariant(params) {
         return this._get("analysis", null, "clinical/rga/variant", null, "summary", params);
@@ -476,7 +476,7 @@ export default class Clinical extends OpenCGAParentClass {
     * @param {Boolean} [params.deleted = "false"] - Boolean to retrieve deleted entries. The default value is false.
     * @param {String} [params.release] - Release value.
     * @param {String} [params.attributes] - Text attributes (Format: sex=male,age>20 ...).
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     search(params) {
         return this._get("analysis", null, "clinical", null, "search", params);
@@ -486,7 +486,7 @@ export default class Clinical extends OpenCGAParentClass {
     * @param {Object} [params] - The Object containing the following optional parameters:
     * @param {String} [params.study] - Study [[user@]project:]study where study and project can be either the ID or UUID.
     * @param {String} [params.sample] - Sample ID.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     actionableVariant(params) {
         return this._get("analysis", null, "clinical/variant", null, "actionable", params);
@@ -520,7 +520,7 @@ export default class Clinical extends OpenCGAParentClass {
     *     [{file}:]{key}{op}{value}[,;]* . If no file is specified, will use all files from "file" filter. e.g. AN>200 or
     *     file_1.vcf:AN>200;file_2.vcf:AN<10 . Many fields can be combined. e.g. file_1.vcf:AN>200;DB=true;file_2.vcf:AN<10,FILTER=PASS,LowDP.
     * @param {String} [params.sample] - Filter variants by sample genotype. This will automatically set 'includeSample' parameter when not
-    *     provided. This filter accepts multiple 3 forms: 1) List of samples: Samples that contain the main variant. Accepts AND (;) and OR (,)
+    *     provided. This filter accepts multiple 3 form: 1) List of samples: Samples that contain the main variant. Accepts AND (;) and OR (,)
     *     operators.  e.g. HG0097,HG0098 . 2) List of samples with genotypes: {sample}:{gt1},{gt2}. Accepts AND (;) and OR (,) operators.  e.g.
     *     HG0097:0/0;HG0098:0/1,1/1 . Unphased genotypes (e.g. 0/1, 1/1) will also include phased genotypes (e.g. 0|1, 1|0, 1|1), but not vice
     *     versa. When filtering by multi-allelic genotypes, any secondary allele will match, regardless of its position e.g. 1/2 will match with
@@ -578,7 +578,7 @@ export default class Clinical extends OpenCGAParentClass {
     * @param {String} [params.customAnnotation] - Custom annotation: {key}[<|>|<=|>=]{number} or {key}[~=|=]{text}.
     * @param {String} [params.panel] - Filter by genes from the given disease panel.
     * @param {String} [params.trait] - List of traits, based on ClinVar, HPO, COSMIC, i.e.: IDs, histologies, descriptions,...
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     queryVariant(params) {
         return this._get("analysis", null, "clinical/variant", null, "query", params);
@@ -591,7 +591,7 @@ export default class Clinical extends OpenCGAParentClass {
     * @param {String} [params.member] - User or group ID.
     * @param {Boolean} [params.silent = "false"] - Boolean to retrieve all possible entries that are queried for, false to raise an
     *     exception whenever one of the entries looked for cannot be shown for whichever reason. The default value is false.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     acl(clinicalAnalyses, params) {
         return this._get("analysis", null, "clinical", clinicalAnalyses, "acl", params);
@@ -603,7 +603,7 @@ export default class Clinical extends OpenCGAParentClass {
     * @param {String} [params.study] - Study [[user@]project:]study where study and project can be either the ID or UUID.
     * @param {Boolean} [params.force = "false"] - Force deletion if the ClinicalAnalysis contains interpretations or is locked. The default
     *     value is false.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     delete(clinicalAnalyses, params) {
         return this._delete("analysis", null, "clinical", clinicalAnalyses, "delete", params);
@@ -620,7 +620,7 @@ export default class Clinical extends OpenCGAParentClass {
     *     default value is ADD.
     * @param {"ADD"|"SET"|"REMOVE"} [params.filesAction = "ADD"] - Action to be performed if the array of files is being updated. The
     *     default value is ADD.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     update(clinicalAnalyses, data, params) {
         return this._post("analysis", null, "clinical", clinicalAnalyses, "update", data, params);
@@ -633,7 +633,7 @@ export default class Clinical extends OpenCGAParentClass {
     * @param {String} [params.exclude] - Fields excluded in the response, whole JSON path must be provided.
     * @param {String} [params.study] - Study [[user@]project:]study where study and project can be either the ID or UUID.
     * @param {Boolean} [params.deleted = "false"] - Boolean to retrieve deleted entries. The default value is false.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     info(clinicalAnalysis, params) {
         return this._get("analysis", null, "clinical", clinicalAnalysis, "info", params);
@@ -645,7 +645,7 @@ export default class Clinical extends OpenCGAParentClass {
     * @param {Object} [params] - The Object containing the following optional parameters:
     * @param {String} [params.study] - [[user@]project:]study id.
     * @param {"PRIMARY"|"SECONDARY"} [params.setAs = "SECONDARY"] - Set interpretation as. The default value is SECONDARY.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     createInterpretation(clinicalAnalysis, data, params) {
         return this._post("analysis/clinical", clinicalAnalysis, "interpretation", null, "create", data, params);
@@ -656,7 +656,7 @@ export default class Clinical extends OpenCGAParentClass {
     * @param {String} [clinicalAnalysis] - Clinical analysis ID.
     * @param {Object} [params] - The Object containing the following optional parameters:
     * @param {String} [params.study] - [[user@]project:]study ID.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     clearInterpretation(clinicalAnalysis, interpretations, params) {
         return this._post("analysis/clinical", clinicalAnalysis, "interpretation", interpretations, "clear", params);
@@ -669,7 +669,7 @@ export default class Clinical extends OpenCGAParentClass {
     * @param {String} [params.study] - [[user@]project:]study ID.
     * @param {String} [params.setAsPrimary] - Interpretation id to set as primary from the list of secondaries in case of deleting the
     *     actual primary one.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     deleteInterpretation(clinicalAnalysis, interpretations, params) {
         return this._delete("analysis/clinical", clinicalAnalysis, "interpretation", interpretations, "delete", params);
@@ -683,7 +683,7 @@ export default class Clinical extends OpenCGAParentClass {
     * @param {String} [params.study] - [[user@]project:]study ID.
     * @param {String} [params.secondaryInterpretationId] - Secondary Interpretation ID to merge from.
     * @param {String} [params.findings] - Comma separated list of findings to merge. If not provided, all findings will be merged.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     mergeInterpretation(clinicalAnalysis, interpretation, data, params) {
         return this._post("analysis/clinical", clinicalAnalysis, "interpretation", interpretation, "merge", data, params);
@@ -695,7 +695,7 @@ export default class Clinical extends OpenCGAParentClass {
     * @param {Number} version - Version to revert to.
     * @param {Object} [params] - The Object containing the following optional parameters:
     * @param {String} [params.study] - [[user@]project:]study ID.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     revertInterpretation(clinicalAnalysis, interpretation, version, params) {
         return this._post("analysis/clinical", clinicalAnalysis, "interpretation", interpretation, "revert", {version, ...params});
@@ -716,7 +716,7 @@ export default class Clinical extends OpenCGAParentClass {
     * @param {"ADD"|"REMOVE"|"REPLACE"} [params.commentsAction = "ADD"] - Action to be performed if the array of comments is being updated.
     *     To REMOVE or REPLACE, the date will need to be provided to identify the comment. The default value is ADD.
     * @param {"PRIMARY"|"SECONDARY"} [params.setAs] - Set interpretation as.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     updateInterpretation(clinicalAnalysis, interpretation, data, params) {
         return this._post("analysis/clinical", clinicalAnalysis, "interpretation", interpretation, "update", data, params);

@@ -1151,7 +1151,7 @@ class IvaApp extends LitElement {
                         ` : null}
                     </div>
 
-                    <!-- Collect the nav links, forms, and other content for toggling -->
+                    <!-- Collect the nav links, form, and other content for toggling -->
                     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                         <!-- Controls aligned to the LEFT -->
                         <ul class="nav navbar-nav">

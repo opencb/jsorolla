@@ -82,7 +82,7 @@ export default class Variant extends OpenCGAParentClass {
     * @param {String} [params.trait] - List of traits, based on ClinVar, HPO, COSMIC, i.e.: IDs, histologies, descriptions,...
     * @param {String} [params.field] - List of facet fields separated by semicolons, e.g.: studies;type. For nested faceted fields use >>,
     *     e.g.: chromosome>>type;percentile(gerp).
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     aggregationStats(params) {
         return this._get("analysis", null, "variant", null, "aggregationStats", params);
@@ -92,7 +92,7 @@ export default class Variant extends OpenCGAParentClass {
     * @param {Object} [params] - The Object containing the following optional parameters:
     * @param {String} [params.annotationId] - Annotation identifier.
     * @param {String} [params.project] - Project [user@]project where project can be either the ID or the alias.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     metadataAnnotation(params) {
         return this._get("analysis", null, "variant/annotation", null, "metadata", params);
@@ -109,7 +109,7 @@ export default class Variant extends OpenCGAParentClass {
     * @param {Number} [params.limit] - Number of results to be returned.
     * @param {Number} [params.skip] - Number of results to skip.
     * @param {String} [params.annotationId] - Annotation identifier.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     queryAnnotation(params) {
         return this._get("analysis", null, "variant/annotation", null, "query", params);
@@ -121,7 +121,7 @@ export default class Variant extends OpenCGAParentClass {
     *     REARRANGEMENT and SNV. In addition, each track can contain a specific query.
     * @param {Object} [params] - The Object containing the following optional parameters:
     * @param {String} [params.study] - study.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     runCircos(data, params) {
         return this._post("analysis", null, "variant/circos", null, "run", data, params);
@@ -131,7 +131,7 @@ export default class Variant extends OpenCGAParentClass {
     * @param {Object} [params] - The Object containing the following optional parameters:
     * @param {String} [params.study] - study.
     * @param {String} [params.cohort] - Cohort ID or name.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     deleteCohortStats(params) {
         return this._delete("analysis", null, "variant/cohort/stats", null, "delete", params);
@@ -141,7 +141,7 @@ export default class Variant extends OpenCGAParentClass {
     * @param {String} cohort - Comma separated list of cohort names or IDs up to a maximum of 100.
     * @param {Object} [params] - The Object containing the following optional parameters:
     * @param {String} [params.study] - study.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     infoCohortStats(cohort, params) {
         return this._get("analysis", null, "variant/cohort/stats", null, "info", {cohort, ...params});
@@ -156,7 +156,7 @@ export default class Variant extends OpenCGAParentClass {
     * @param {String} [params.jobDescription] - Job description.
     * @param {String} [params.jobDependsOn] - Comma separated list of existing job IDs the job will depend on.
     * @param {String} [params.jobTags] - Job tags.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     runCohortStats(data, params) {
         return this._post("analysis", null, "variant/cohort/stats", null, "run", data, params);
@@ -174,7 +174,7 @@ export default class Variant extends OpenCGAParentClass {
     * @param {String} [params.jobDescription] - Job description.
     * @param {String} [params.jobDependsOn] - Comma separated list of existing job IDs the job will depend on.
     * @param {String} [params.jobTags] - Job tags.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     runExport(data, params) {
         return this._post("analysis", null, "variant/export", null, "run", data, params);
@@ -188,7 +188,7 @@ export default class Variant extends OpenCGAParentClass {
     * @param {String} [params.clinicalAnalysis] - Clinical analysis id.
     * @param {String} [params.penetrance = "COMPLETE"] - Penetrance. The default value is COMPLETE.
     * @param {String} [params.disorder] - Disorder id.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     genotypesFamily(modeOfInheritance, params) {
         return this._get("analysis", null, "variant/family", null, "genotypes", {modeOfInheritance, ...params});
@@ -204,7 +204,7 @@ export default class Variant extends OpenCGAParentClass {
     * @param {String} [params.jobDescription] - Job description.
     * @param {String} [params.jobDependsOn] - Comma separated list of existing job IDs the job will depend on.
     * @param {String} [params.jobTags] - Job tags.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     runFamilyQc(data, params) {
         return this._post("analysis", null, "variant/family/qc", null, "run", data, params);
@@ -220,7 +220,7 @@ export default class Variant extends OpenCGAParentClass {
     * @param {String} [params.study] - Study [[user@]project:]study where study and project can be either the ID or UUID.
     * @param {String} [params.file] - Files to remove.
     * @param {Boolean} [params.resume] - Resume a previously failed indexation.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     deleteFile(params) {
         return this._delete("analysis", null, "variant/file", null, "delete", params);
@@ -235,7 +235,7 @@ export default class Variant extends OpenCGAParentClass {
     * @param {String} [params.jobDescription] - Job description.
     * @param {String} [params.jobDependsOn] - Comma separated list of existing job IDs the job will depend on.
     * @param {String} [params.jobTags] - Job tags.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     runGatk(data, params) {
         return this._post("analysis", null, "variant/gatk", null, "run", data, params);
@@ -250,7 +250,7 @@ export default class Variant extends OpenCGAParentClass {
     * @param {String} [params.jobDescription] - Job description.
     * @param {String} [params.jobDependsOn] - Comma separated list of existing job IDs the job will depend on.
     * @param {String} [params.jobTags] - Job tags.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     runGwas(data, params) {
         return this._post("analysis", null, "variant/gwas", null, "run", data, params);
@@ -265,7 +265,7 @@ export default class Variant extends OpenCGAParentClass {
     * @param {String} [params.jobDependsOn] - Comma separated list of existing job IDs the job will depend on.
     * @param {String} [params.jobDescription] - Job description.
     * @param {String} [params.jobTags] - Job tags.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     runIndex(data, params) {
         return this._post("analysis", null, "variant/index", null, "run", data, params);
@@ -280,7 +280,7 @@ export default class Variant extends OpenCGAParentClass {
     * @param {String} [params.jobDescription] - Job description.
     * @param {String} [params.jobDependsOn] - Comma separated list of existing job IDs the job will depend on.
     * @param {String} [params.jobTags] - Job tags.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     runIndividualQc(data, params) {
         return this._post("analysis", null, "variant/individual/qc", null, "run", data, params);
@@ -295,7 +295,7 @@ export default class Variant extends OpenCGAParentClass {
     * @param {String} [params.jobDescription] - Job description.
     * @param {String} [params.jobDependsOn] - Comma separated list of existing job IDs the job will depend on.
     * @param {String} [params.jobTags] - Job tags.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     runInferredSex(data, params) {
         return this._post("analysis", null, "variant/inferredSex", null, "run", data, params);
@@ -307,7 +307,7 @@ export default class Variant extends OpenCGAParentClass {
     * @param {Number} [params.skip] - Number of results to skip.
     * @param {String} [params.study] - study.
     * @param {String} [params.job] - Job ID or UUID.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     queryKnockoutGene(params) {
         return this._get("analysis", null, "variant/knockout/gene", null, "query", params);
@@ -319,7 +319,7 @@ export default class Variant extends OpenCGAParentClass {
     * @param {Number} [params.skip] - Number of results to skip.
     * @param {String} [params.study] - study.
     * @param {String} [params.job] - Job ID or UUID.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     queryKnockoutIndividual(params) {
         return this._get("analysis", null, "variant/knockout/individual", null, "query", params);
@@ -334,7 +334,7 @@ export default class Variant extends OpenCGAParentClass {
     * @param {String} [params.jobDescription] - Job description.
     * @param {String} [params.jobDependsOn] - Comma separated list of existing job IDs the job will depend on.
     * @param {String} [params.jobTags] - Job tags.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     runKnockout(data, params) {
         return this._post("analysis", null, "variant/knockout", null, "run", data, params);
@@ -349,7 +349,7 @@ export default class Variant extends OpenCGAParentClass {
     * @param {String} [params.jobDescription] - Job description.
     * @param {String} [params.jobDependsOn] - Comma separated list of existing job IDs the job will depend on.
     * @param {String} [params.jobTags] - Job tags.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     runMendelianError(data, params) {
         return this._post("analysis", null, "variant/mendelianError", null, "run", data, params);
@@ -362,7 +362,7 @@ export default class Variant extends OpenCGAParentClass {
     *     format user@project:study.
     * @param {String} [params.file] - Filter variants from the files specified. This will set includeFile parameter when not provided.
     * @param {String} [params.sample] - Filter variants by sample genotype. This will automatically set 'includeSample' parameter when not
-    *     provided. This filter accepts multiple 3 forms: 1) List of samples: Samples that contain the main variant. Accepts AND (;) and OR (,)
+    *     provided. This filter accepts multiple 3 form: 1) List of samples: Samples that contain the main variant. Accepts AND (;) and OR (,)
     *     operators.  e.g. HG0097,HG0098 . 2) List of samples with genotypes: {sample}:{gt1},{gt2}. Accepts AND (;) and OR (,) operators.  e.g.
     *     HG0097:0/0;HG0098:0/1,1/1 . Unphased genotypes (e.g. 0/1, 1/1) will also include phased genotypes (e.g. 0|1, 1|0, 1|1), but not vice
     *     versa. When filtering by multi-allelic genotypes, any secondary allele will match, regardless of its position e.g. 1/2 will match with
@@ -375,7 +375,7 @@ export default class Variant extends OpenCGAParentClass {
     * @param {String} [params.includeSample] - List of samples to be included in the result. Accepts 'all' and 'none'.
     * @param {String} [params.include] - Fields included in the response, whole JSON path must be provided.
     * @param {String} [params.exclude] - Fields excluded in the response, whole JSON path must be provided.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     metadata(params) {
         return this._get("analysis", null, "variant", null, "metadata", params);
@@ -402,7 +402,7 @@ export default class Variant extends OpenCGAParentClass {
     * @param {String} [params.panel] - Filter by genes from the given disease panel.
     * @param {Boolean} [params.fitting = "false"] - Compute the relative proportions of the different mutational signatures demonstrated by
     *     the tumour. The default value is false.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     queryMutationalSignature(params) {
         return this._get("analysis", null, "variant/mutationalSignature", null, "query", params);
@@ -417,7 +417,7 @@ export default class Variant extends OpenCGAParentClass {
     * @param {String} [params.jobDescription] - Job description.
     * @param {String} [params.jobDependsOn] - Comma separated list of existing job IDs the job will depend on.
     * @param {String} [params.jobTags] - Job tags.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     runMutationalSignature(data, params) {
         return this._post("analysis", null, "variant/mutationalSignature", null, "run", data, params);
@@ -432,7 +432,7 @@ export default class Variant extends OpenCGAParentClass {
     * @param {String} [params.jobDescription] - Job description.
     * @param {String} [params.jobDependsOn] - Comma separated list of existing job IDs the job will depend on.
     * @param {String} [params.jobTags] - Job tags.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     runPlink(data, params) {
         return this._post("analysis", null, "variant/plink", null, "run", data, params);
@@ -471,7 +471,7 @@ export default class Variant extends OpenCGAParentClass {
     *     [{file}:]{key}{op}{value}[,;]* . If no file is specified, will use all files from "file" filter. e.g. AN>200 or
     *     file_1.vcf:AN>200;file_2.vcf:AN<10 . Many fields can be combined. e.g. file_1.vcf:AN>200;DB=true;file_2.vcf:AN<10,FILTER=PASS,LowDP.
     * @param {String} [params.sample] - Filter variants by sample genotype. This will automatically set 'includeSample' parameter when not
-    *     provided. This filter accepts multiple 3 forms: 1) List of samples: Samples that contain the main variant. Accepts AND (;) and OR (,)
+    *     provided. This filter accepts multiple 3 form: 1) List of samples: Samples that contain the main variant. Accepts AND (;) and OR (,)
     *     operators.  e.g. HG0097,HG0098 . 2) List of samples with genotypes: {sample}:{gt1},{gt2}. Accepts AND (;) and OR (,) operators.  e.g.
     *     HG0097:0/0;HG0098:0/1,1/1 . Unphased genotypes (e.g. 0/1, 1/1) will also include phased genotypes (e.g. 0|1, 1|0, 1|1), but not vice
     *     versa. When filtering by multi-allelic genotypes, any secondary allele will match, regardless of its position e.g. 1/2 will match with
@@ -547,7 +547,7 @@ export default class Variant extends OpenCGAParentClass {
     * @param {String} [params.customAnnotation] - Custom annotation: {key}[<|>|<=|>=]{number} or {key}[~=|=]{text}.
     * @param {String} [params.panel] - Filter by genes from the given disease panel.
     * @param {String} [params.trait] - List of traits, based on ClinVar, HPO, COSMIC, i.e.: IDs, histologies, descriptions,...
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     query(params) {
         return this._get("analysis", null, "variant", null, "query", params);
@@ -562,7 +562,7 @@ export default class Variant extends OpenCGAParentClass {
     * @param {String} [params.jobDescription] - Job description.
     * @param {String} [params.jobDependsOn] - Comma separated list of existing job IDs the job will depend on.
     * @param {String} [params.jobTags] - Job tags.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     runRelatedness(data, params) {
         return this._post("analysis", null, "variant/relatedness", null, "run", data, params);
@@ -577,7 +577,7 @@ export default class Variant extends OpenCGAParentClass {
     * @param {String} [params.jobDescription] - Job description.
     * @param {String} [params.jobDependsOn] - Comma separated list of existing job IDs the job will depend on.
     * @param {String} [params.jobTags] - Job tags.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     runRvtests(data, params) {
         return this._post("analysis", null, "variant/rvtests", null, "run", data, params);
@@ -597,7 +597,7 @@ export default class Variant extends OpenCGAParentClass {
     * @param {String} [params.filter] - Specify the FILTER for any of the files. If 'file' filter is provided, will match the file and the
     *     filter. e.g.: PASS,LowGQX.
     * @param {String} [params.sample] - Filter variants by sample genotype. This will automatically set 'includeSample' parameter when not
-    *     provided. This filter accepts multiple 3 forms: 1) List of samples: Samples that contain the main variant. Accepts AND (;) and OR (,)
+    *     provided. This filter accepts multiple 3 form: 1) List of samples: Samples that contain the main variant. Accepts AND (;) and OR (,)
     *     operators.  e.g. HG0097,HG0098 . 2) List of samples with genotypes: {sample}:{gt1},{gt2}. Accepts AND (;) and OR (,) operators.  e.g.
     *     HG0097:0/0;HG0098:0/1,1/1 . Unphased genotypes (e.g. 0/1, 1/1) will also include phased genotypes (e.g. 0|1, 1|0, 1|1), but not vice
     *     versa. When filtering by multi-allelic genotypes, any secondary allele will match, regardless of its position e.g. 1/2 will match with
@@ -627,7 +627,7 @@ export default class Variant extends OpenCGAParentClass {
     * @param {String} [params.field] - List of facet fields separated by semicolons, e.g.: studies;type. For nested faceted fields use >>,
     *     e.g.: chromosome>>type . Accepted values: chromosome, type, genotype, consequenceType, biotype, clinicalSignificance, dp, qual,
     *     filter.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     aggregationStatsSample(params) {
         return this._get("analysis", null, "variant/sample", null, "aggregationStats", params);
@@ -642,7 +642,7 @@ export default class Variant extends OpenCGAParentClass {
     * @param {String} [params.jobDescription] - Job description.
     * @param {String} [params.jobDependsOn] - Comma separated list of existing job IDs the job will depend on.
     * @param {String} [params.jobTags] - Job tags.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     runSampleEligibility(data, params) {
         return this._post("analysis", null, "variant/sample/eligibility", null, "run", data, params);
@@ -658,7 +658,7 @@ export default class Variant extends OpenCGAParentClass {
     * @param {String} [params.jobDescription] - Job description.
     * @param {String} [params.jobDependsOn] - Comma separated list of existing job IDs the job will depend on.
     * @param {String} [params.jobTags] - Job tags.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     runSampleQc(data, params) {
         return this._post("analysis", null, "variant/sample/qc", null, "run", data, params);
@@ -671,7 +671,7 @@ export default class Variant extends OpenCGAParentClass {
     * @param {String} [params.variant] - Variant.
     * @param {String} [params.study] - Study where all the samples belong to.
     * @param {String} [params.genotype] - Genotypes that the sample must have to be selected.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     querySample(params) {
         return this._get("analysis", null, "variant/sample", null, "query", params);
@@ -686,7 +686,7 @@ export default class Variant extends OpenCGAParentClass {
     * @param {String} [params.jobDescription] - Job description.
     * @param {String} [params.jobDependsOn] - Comma separated list of existing job IDs the job will depend on.
     * @param {String} [params.jobTags] - Job tags.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     runSample(data, params) {
         return this._post("analysis", null, "variant/sample", null, "run", data, params);
@@ -711,7 +711,7 @@ export default class Variant extends OpenCGAParentClass {
     * @param {String} [params.populationFrequencyAlt] - Alternate Population Frequency: {study}:{population}[<|>|<=|>=]{number}. e.g.
     *     1kG_phase3:ALL<0.01.
     * @param {String} [params.clinicalSignificance] - Clinical significance: benign, likely_benign, likely_pathogenic, pathogenic.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     querySampleStats(sample, params) {
         return this._get("analysis", null, "variant/sample/stats", null, "query", {sample, ...params});
@@ -727,7 +727,7 @@ export default class Variant extends OpenCGAParentClass {
     * @param {String} [params.jobDescription] - Job description.
     * @param {String} [params.jobDependsOn] - Comma separated list of existing job IDs the job will depend on.
     * @param {String} [params.jobTags] - Job tags.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     runSampleStats(data, params) {
         return this._post("analysis", null, "variant/sample/stats", null, "run", data, params);
@@ -743,7 +743,7 @@ export default class Variant extends OpenCGAParentClass {
     * @param {String} [params.jobDescription] - Job description.
     * @param {String} [params.jobDependsOn] - Comma separated list of existing job IDs the job will depend on.
     * @param {String} [params.jobTags] - Job tags.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     runStatsExport(data, params) {
         return this._post("analysis", null, "variant/stats/export", null, "run", data, params);
@@ -758,7 +758,7 @@ export default class Variant extends OpenCGAParentClass {
     * @param {String} [params.jobDescription] - Job description.
     * @param {String} [params.jobDependsOn] - Comma separated list of existing job IDs the job will depend on.
     * @param {String} [params.jobTags] - Job tags.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     runStats(data, params) {
         return this._post("analysis", null, "variant/stats", null, "run", data, params);

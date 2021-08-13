@@ -63,7 +63,7 @@ InputListWidget.prototype.draw = function(text){
 				text:this.headerInfo
 		});
 		this.infobar.add(this.infoLabel);
-		this.editor = Ext.create('Ext.forms.field.TextArea', {
+		this.editor = Ext.create('Ext.form.field.TextArea', {
 				id:this.id + "genelist_preview",
 	       	 	xtype: 'textarea',
 	        	name: 'file',

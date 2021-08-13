@@ -34,7 +34,7 @@ export default class Meta extends OpenCGAParentClass {
 
     /** Returns info about current OpenCGA code.
     *
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     about() {
         return this._get("meta", null, null, null, "about");
@@ -43,7 +43,7 @@ export default class Meta extends OpenCGAParentClass {
     /** API
     * @param {Object} [params] - The Object containing the following optional parameters:
     * @param {String} [params.category] - List of categories to get API from.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     api(params) {
         return this._get("meta", null, null, null, "api", params);
@@ -51,7 +51,7 @@ export default class Meta extends OpenCGAParentClass {
 
     /** Ping Opencga webservices.
     *
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     fail() {
         return this._get("meta", null, null, null, "fail");
@@ -59,7 +59,7 @@ export default class Meta extends OpenCGAParentClass {
 
     /** Ping Opencga webservices.
     *
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     ping() {
         return this._get("meta", null, null, null, "ping");
@@ -67,7 +67,7 @@ export default class Meta extends OpenCGAParentClass {
 
     /** Database status.
     *
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     status() {
         return this._get("meta", null, null, null, "status");

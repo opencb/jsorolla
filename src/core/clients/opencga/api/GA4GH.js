@@ -34,7 +34,7 @@ export default class GA4GH extends OpenCGAParentClass {
 
     /** Description
     *
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     searchReads() {
         return this._post("ga4gh", null, "reads", null, "search");
@@ -48,7 +48,7 @@ export default class GA4GH extends OpenCGAParentClass {
     * @param {Number} [params.start] - The start position of the range on the reference, 0-based, inclusive.
     * @param {Number} [params.end] - The end position of the range on the reference, 0-based, exclusive.
     * @param {String} [params.referenceGenome] - Reference genome.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     fetchReads(study, file, params) {
         return this._get("ga4gh/reads", study, null, file, null, params);
@@ -65,7 +65,7 @@ export default class GA4GH extends OpenCGAParentClass {
     * @param {Object} [params] - The Object containing the following optional parameters:
     * @param {String} [params.ref] - Genome ID. If not specified, all the genomes supported by the given beacons are queried. Note: For
     *     compatibility with conventions set by some of the existing beacons, both GRC or HG notation are accepted, case insensitive.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     responses(chrom, pos, allele, beacon, params) {
         return this._get("ga4gh", null, null, null, "responses", {chrom, pos, allele, beacon, ...params});
@@ -73,7 +73,7 @@ export default class GA4GH extends OpenCGAParentClass {
 
     /** Description
     *
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     searchVariants() {
         return this._post("ga4gh", null, "variants", null, "search");

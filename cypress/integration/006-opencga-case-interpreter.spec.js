@@ -58,13 +58,13 @@ context("6 - Case Interpreter", () => {
                      */
                     cy.get(".variant-interpreter-wizard a.variant-interpreter-step").contains("Case Info").click();
                     // check Case ID in Overview
-                    cy.get("opencga-clinical-analysis-view > data-forms .detail-row:nth-child(1)").contains("Case ID");
-                    cy.get("opencga-clinical-analysis-view > data-forms .detail-row:nth-child(1)").then($div => {
+                    cy.get("opencga-clinical-analysis-view > data-form .detail-row:nth-child(1)").contains("Case ID");
+                    cy.get("opencga-clinical-analysis-view > data-form .detail-row:nth-child(1)").then($div => {
                         expect($div.first().text()).to.include(caseId);
                     });
                     // check Case Type in Overview
-                    cy.get("opencga-clinical-analysis-view > data-forms .detail-row:nth-child(4)").contains("Analysis Type");
-                    cy.get("opencga-clinical-analysis-view > data-forms .detail-row:nth-child(4)").then($div => {
+                    cy.get("opencga-clinical-analysis-view > data-form .detail-row:nth-child(4)").contains("Analysis Type");
+                    cy.get("opencga-clinical-analysis-view > data-form .detail-row:nth-child(4)").then($div => {
                         expect($div.first().text()).to.include("FAMILY");
                     });
 

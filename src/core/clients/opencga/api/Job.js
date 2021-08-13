@@ -36,7 +36,7 @@ export default class Job extends OpenCGAParentClass {
     * @param {String} members - Comma separated list of user or group ids.
     * @param {Object} data - JSON containing the parameters to add ACLs.
     * @param {String} action = "ADD" - Action to be performed [ADD, SET, REMOVE or RESET]. The default value is ADD.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     updateAcl(members, action, data) {
         return this._post("jobs", null, "acl", members, "update", data, action);
@@ -63,7 +63,7 @@ export default class Job extends OpenCGAParentClass {
     * @param {Boolean} [params.default = "false"] - Calculate default stats. The default value is false.
     * @param {String} [params.field] - List of fields separated by semicolons, e.g.: studies;type. For nested fields use >>, e.g.:
     *     studies>>biotype;type;numSamples[0..10]:1.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     aggregationStats(params) {
         return this._get("jobs", null, null, null, "aggregationStats", params);
@@ -73,7 +73,7 @@ export default class Job extends OpenCGAParentClass {
     * @param {Object} data - job.
     * @param {Object} [params] - The Object containing the following optional parameters:
     * @param {String} [params.study] - Study [[user@]project:]study where study and project can be either the ID or UUID.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     create(data, params) {
         return this._post("jobs", null, null, null, "create", data, params);
@@ -103,7 +103,7 @@ export default class Job extends OpenCGAParentClass {
     *     Example: acl=john:WRITE,WRITE_ANNOTATIONS will return all entries for which user john has both WRITE and WRITE_ANNOTATIONS
     *     permissions. Only study owners or administrators can query by this field. .
     * @param {String} [params.release] - Release when it was created.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     distinct(field, params) {
         return this._get("jobs", null, null, null, "distinct", {field, ...params});
@@ -118,7 +118,7 @@ export default class Job extends OpenCGAParentClass {
     * @param {String} [params.jobDependsOn] - Comma separated list of existing job IDs the job will depend on.
     * @param {String} [params.jobTags] - Job tags.
     * @param {String} [params.study] - Study [[user@]project:]study where study and project can be either the ID or UUID.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     retry(data, params) {
         return this._post("jobs", null, null, null, "retry", data, params);
@@ -154,7 +154,7 @@ export default class Job extends OpenCGAParentClass {
     *     permissions. Only study owners or administrators can query by this field. .
     * @param {String} [params.release] - Release when it was created.
     * @param {Boolean} [params.deleted = "false"] - Boolean to retrieve deleted entries. The default value is false.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     search(params) {
         return this._get("jobs", null, null, null, "search", params);
@@ -168,7 +168,7 @@ export default class Job extends OpenCGAParentClass {
     * @param {String} [params.priority] - Priority of the job.
     * @param {String} [params.userId] - User that created the job.
     * @param {String} [params.toolId] - Tool ID executed by the job.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     top(params) {
         return this._get("jobs", null, null, null, "top", params);
@@ -180,7 +180,7 @@ export default class Job extends OpenCGAParentClass {
     * @param {String} [params.member] - User or group id.
     * @param {Boolean} [params.silent = "false"] - Boolean to retrieve all possible entries that are queried for, false to raise an
     *     exception whenever one of the entries looked for cannot be shown for whichever reason. The default value is false.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     acl(jobs, params) {
         return this._get("jobs", jobs, null, null, "acl", params);
@@ -190,7 +190,7 @@ export default class Job extends OpenCGAParentClass {
     * @param {String} [jobs] - Comma separated list of job ids.
     * @param {Object} [params] - The Object containing the following optional parameters:
     * @param {String} [params.study] - Study [[user@]project:]study where study and project can be either the ID or UUID.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     delete(jobs, params) {
         return this._delete("jobs", jobs, null, null, "delete", params);
@@ -203,7 +203,7 @@ export default class Job extends OpenCGAParentClass {
     * @param {String} [params.exclude] - Fields excluded in the response, whole JSON path must be provided.
     * @param {String} [params.study] - Study [[user@]project:]study where study and project can be either the ID or UUID.
     * @param {Boolean} [params.deleted = "false"] - Boolean to retrieve deleted jobs. The default value is false.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     info(jobs, params) {
         return this._get("jobs", jobs, null, null, "info", params);
@@ -214,7 +214,7 @@ export default class Job extends OpenCGAParentClass {
     * @param {Object} [data] - body.
     * @param {Object} [params] - The Object containing the following optional parameters:
     * @param {String} [params.study] - Study [[user@]project:]study where study and project can be either the ID or UUID.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     update(jobs, data, params) {
         return this._post("jobs", jobs, null, null, "update", data, params);
@@ -227,7 +227,7 @@ export default class Job extends OpenCGAParentClass {
     * @param {Number} [params.offset] - Starting byte from which the file will be read.
     * @param {Number} [params.lines = "20"] - Maximum number of lines to be returned. The default value is 20.
     * @param {String} [params.type] - Log file to be shown (stdout or stderr).
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     headLog(job, params) {
         return this._get("jobs", job, "log", null, "head", params);
@@ -239,7 +239,7 @@ export default class Job extends OpenCGAParentClass {
     * @param {String} [params.study] - Study [[user@]project:]study where study and project can be either the ID or UUID.
     * @param {Number} [params.lines = "20"] - Maximum number of lines to be returned. The default value is 20.
     * @param {String} [params.type] - Log file to be shown (stdout or stderr).
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     tailLog(job, params) {
         return this._get("jobs", job, "log", null, "tail", params);

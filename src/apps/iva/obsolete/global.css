@@ -274,7 +274,7 @@ input[type="number"] {
     padding: 5px;
 }
 
-/* plain text in forms-group (instead of input text) */
+/* plain text in form-group (instead of input text) */
 .form-group .text {
     padding-top: 7px;
     margin-bottom: 0;
@@ -2457,7 +2457,7 @@ interpretation-editor .status-wrapper .row > div:last-child {
     font-weight: bold;
 }
 
-/************  Analysis forms  ************/
+/************  Analysis form  ************/
 .opencga-analysis-tool-form-field {
     margin: 0 0 20px 0;
 }

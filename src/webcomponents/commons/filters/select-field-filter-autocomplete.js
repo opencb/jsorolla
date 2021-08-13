@@ -181,7 +181,7 @@ export default class SelectFieldFilterAutocomplete extends LitElement {
             const plain = reader.result;
             //it handles split on ",", ";", "CR", "LF" and "CRLF"
             this.selectionList.push(plain.split(/\r\n|\r|\n|,|;/).filter(Boolean));
-            $("#file-forms").collapse("toggle");
+            $("#file-form").collapse("toggle");
             this.filterChange();
         };
         reader.readAsText(e.target.files[0] /*|| e.dataTransfer.files[0]*/);

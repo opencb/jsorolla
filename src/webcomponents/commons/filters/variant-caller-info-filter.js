@@ -79,7 +79,7 @@ export default class VariantCallerInfoFilter extends LitElement {
     // }
 
     /**
-     * This observer process the fileData string and prepares the query object for data-forms
+     * This observer process the fileData string and prepares the query object for data-form
      * and stores some variables for notifying the new fileData.
      */
     fileDataObserver() {

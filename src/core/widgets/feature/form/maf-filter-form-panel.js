@@ -67,7 +67,7 @@ MafFilterFormPanel.prototype = {
     _createPanel: function () {
 
 
-        var thousandContainer = Ext.create('Ext.forms.FieldContainer', {
+        var thousandContainer = Ext.create('Ext.form.FieldContainer', {
             layout: {
                 type: 'vbox',
                 align: 'stretch'
@@ -91,7 +91,7 @@ MafFilterFormPanel.prototype = {
             ]
         });
 
-        var populationsContainer = Ext.create('Ext.forms.FieldContainer', {
+        var populationsContainer = Ext.create('Ext.form.FieldContainer', {
 //            fieldLabel: '<span style="color:gray">1000G Populations</span>',
 //            labelAlign: 'top',
             layout: {
@@ -135,7 +135,7 @@ MafFilterFormPanel.prototype = {
             ]
         });
 
-        return Ext.create('Ext.forms.Panel', {
+        return Ext.create('Ext.form.Panel', {
             title: this.title,
             border: this.border,
             collapsible: this.collapsible,

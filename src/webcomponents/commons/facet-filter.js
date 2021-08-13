@@ -373,7 +373,7 @@ export default class FacetFilter extends LitElement {
                                     <input type="text" class="form-control" placeholder="Step" id="${this._prefix}${facet.id}_range_step" .disabled="${facet.fn}" data-id="${facet.id}" data-type="range_step" .value="${nstep || ""}" @input="${this.onFacetRangeChange}" />
                                 </div>
                             </div>
-                            <!--<input type="text" class="forms-control" placeholder="Include values or set range" id="${this._prefix}${facet.id}_text" data-id="${facet.id}" .value="${num_value || ""}" @input="${this.onFacetValueChange}" />-->
+                            <!--<input type="text" class="form-control" placeholder="Include values or set range" id="${this._prefix}${facet.id}_text" data-id="${facet.id}" .value="${num_value || ""}" @input="${this.onFacetValueChange}" />-->
                         </div>
                         <div class="col-md-4">
                             <select-field-filter .data="${this.selectFns}" .value="${facet.fn ?? "range"}" id="${this._prefix}${facet.id}_FnSelect" data-facet="${facet.id}" @filterChange="${this.onFacetFnChange}"></select-field-filter>
@@ -447,7 +447,7 @@ export default class FacetFilter extends LitElement {
                                     <input type="text" class="form-control" placeholder="Step" data-parent-facet="${parent}" id="${this._prefix}${parent}_Nested_range_step" .disabled="${facet.fn}" data-id="${facet.id}" data-type="range_step" .value="${nstep || ""}" @input="${this.onNestedFacetRangeChange}" />
                                 </div>
                             </div>
-                            <!--<input type="text" class="forms-control" placeholder="Include values or set range" data-parent-facet="${parent}" .disabled="${!(facet.facet)}" id="${this._prefix}${parent}_NestedValue" .value="${num_value || ""}"  @input="${this.onNestedFacetValueChange}"  />-->
+                            <!--<input type="text" class="form-control" placeholder="Include values or set range" data-parent-facet="${parent}" .disabled="${!(facet.facet)}" id="${this._prefix}${parent}_NestedValue" .value="${num_value || ""}"  @input="${this.onNestedFacetValueChange}"  />-->
                         </div>
                         <div class="col-md-4">
                             <select-field-filter .disabled="${false}" .data="${this.selectFns}" .value="${facet.fn ?? "range"}" id="${parent}_NestedFnSelect" data-parent-facet="${parent}" @filterChange="${this.onNestedFacetFnChange}"></select-field-filter>

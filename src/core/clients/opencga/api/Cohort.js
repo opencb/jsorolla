@@ -38,7 +38,7 @@ export default class Cohort extends OpenCGAParentClass {
     * @param {String} action = "ADD" - Action to be performed [ADD, SET, REMOVE or RESET]. The default value is ADD.
     * @param {Object} [params] - The Object containing the following optional parameters:
     * @param {String} [params.study] - Study [[user@]project:]study where study and project can be either the ID or UUID.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     updateAcl(members, action, data, params) {
         return this._post("cohorts", null, "acl", members, "update", data, {action, ...params});
@@ -60,7 +60,7 @@ export default class Cohort extends OpenCGAParentClass {
     * @param {Boolean} [params.default = "false"] - Calculate default stats. The default value is false.
     * @param {String} [params.field] - List of fields separated by semicolons, e.g.: studies;type. For nested fields use >>, e.g.:
     *     studies>>biotype;type;numSamples[0..10]:1.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     aggregationStats(params) {
         return this._get("cohorts", null, null, null, "aggregationStats", params);
@@ -75,7 +75,7 @@ export default class Cohort extends OpenCGAParentClass {
     * @param {Boolean} [params.parents] - Flag indicating whether to create parent directories if they don't exist (only when TSV file was
     *     not previously associated).
     * @param {String} [params.annotationSetId] - Annotation set id. If not provided, variableSetId will be used.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     loadAnnotationSets(variableSetId, path, data, params) {
         return this._post("cohorts", null, "annotationSets", null, "load", data, {variableSetId, path, ...params});
@@ -87,7 +87,7 @@ export default class Cohort extends OpenCGAParentClass {
     * @param {String} [params.study] - Study [[user@]project:]study where study and project can be either the ID or UUID.
     * @param {String} [params.variableSet] - Deprecated: Use /generate web service and filter by annotation.
     * @param {String} [params.variable] - Deprecated: Use /generate web service and filter by annotation.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     create(data, params) {
         return this._post("cohorts", null, null, null, "create", data, params);
@@ -111,7 +111,7 @@ export default class Cohort extends OpenCGAParentClass {
     * @param {String} [params.samples] - Sample list.
     * @param {String} [params.numSamples] - Number of samples.
     * @param {String} [params.release] - Release value.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     distinct(field, params) {
         return this._get("cohorts", null, null, null, "distinct", {field, ...params});
@@ -137,7 +137,7 @@ export default class Cohort extends OpenCGAParentClass {
     *     permissions. Only study owners or administrators can query by this field. .
     * @param {String} [params.release] - Release when it was created.
     * @param {Number} [params.snapshot] - Snapshot value (Latest version of the entry in the specified release).
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     generate(data, params) {
         return this._post("cohorts", null, null, null, "generate", data, params);
@@ -168,7 +168,7 @@ export default class Cohort extends OpenCGAParentClass {
     * @param {String} [params.samples] - Sample list.
     * @param {String} [params.numSamples] - Number of samples.
     * @param {String} [params.release] - Release value.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     search(params) {
         return this._get("cohorts", null, null, null, "search", params);
@@ -181,7 +181,7 @@ export default class Cohort extends OpenCGAParentClass {
     * @param {String} [params.member] - User or group id.
     * @param {Boolean} [params.silent = "false"] - Boolean to retrieve all possible entries that are queried for, false to raise an
     *     exception whenever one of the entries looked for cannot be shown for whichever reason. The default value is false.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     acl(cohorts, params) {
         return this._get("cohorts", cohorts, null, null, "acl", params);
@@ -191,7 +191,7 @@ export default class Cohort extends OpenCGAParentClass {
     * @param {String} [cohorts] - Comma separated list of cohort ids.
     * @param {Object} [params] - The Object containing the following optional parameters:
     * @param {String} [params.study] - Study [[user@]project:]study where study and project can be either the ID or UUID.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     delete(cohorts, params) {
         return this._delete("cohorts", cohorts, null, null, "delete", params);
@@ -205,7 +205,7 @@ export default class Cohort extends OpenCGAParentClass {
     * @param {Boolean} [params.flattenAnnotations = "false"] - Flatten the annotations?. The default value is false.
     * @param {String} [params.study] - Study [[user@]project:]study where study and project can be either the ID or UUID.
     * @param {Boolean} [params.deleted = "false"] - Boolean to retrieve deleted cohorts. The default value is false.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     info(cohorts, params) {
         return this._get("cohorts", cohorts, null, null, "info", params);
@@ -220,7 +220,7 @@ export default class Cohort extends OpenCGAParentClass {
     *     default value is ADD.
     * @param {"ADD"|"SET"|"REMOVE"} [params.annotationSetsAction = "ADD"] - Action to be performed if the array of annotationSets is being
     *     updated. The default value is ADD.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     update(cohorts, data, params) {
         return this._post("cohorts", cohorts, null, null, "update", data, params);
@@ -238,7 +238,7 @@ export default class Cohort extends OpenCGAParentClass {
     *     to replace the value of an already existing annotation; SET to set the new list of annotations removing any possible old annotations;
     *     REMOVE to remove some annotations; RESET to set some annotations to the default value configured in the corresponding variables of the
     *     VariableSet if any. The default value is ADD.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     updateAnnotations(cohort, annotationSet, data, params) {
         return this._post("cohorts", cohort, "annotationSets", annotationSet, "annotations/update", data, params);

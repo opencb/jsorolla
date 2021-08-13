@@ -49,7 +49,7 @@ export default class VariableTypeValue extends LitElement {
     }
 
     onClearForm(e) {
-        console.log("OnClear forms ", this.nameValue);
+        console.log("OnClear form ", this.nameValue);
         this.nameValue = "";
         this.requestUpdate();
     }

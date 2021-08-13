@@ -130,8 +130,8 @@ FormPanel.prototype = {
 //
 //                            for (var i = 0; i < _this.filters.length; i++) {
 //                                var filter = _this.filters[i];
-//                                var forms = filter.filter.getForm();
-//                                _.extend(values, forms);
+//                                var form = filter.filter.getForm();
+//                                _.extend(values, form);
 //
 //                            }
 
@@ -172,7 +172,7 @@ FormPanel.prototype = {
                 break;
         }
 
-        var form = Ext.create('Ext.forms.Panel', {
+        var form = Ext.create('Ext.form.Panel', {
             border: this.border,
             height: this.height,
             width: this.width,

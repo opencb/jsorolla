@@ -66,7 +66,7 @@ PositionFilterFormPanel.prototype = {
         this.panel.render(this.div);
     },
     _createPanel: function () {
-        var snp = Ext.create('Ext.forms.field.TextArea', {
+        var snp = Ext.create('Ext.form.field.TextArea', {
             id: this.id + "snp",
             name: "snp",
             margin: '0 0 0 5',
@@ -77,7 +77,7 @@ PositionFilterFormPanel.prototype = {
             regex: /^[rs]s\d+$/
         });
 
-        var regionList = Ext.create('Ext.forms.field.TextArea', {
+        var regionList = Ext.create('Ext.form.field.TextArea', {
             id: this.id + "region",
             name: "region",
             emptyText:  this.emptyText,
@@ -89,7 +89,7 @@ PositionFilterFormPanel.prototype = {
             value: this.testRegion
         });
 
-        var gene = Ext.create('Ext.forms.field.TextArea', {
+        var gene = Ext.create('Ext.form.field.TextArea', {
             id: this.id + "gene",
             name: "gene",
             margin: '0 0 0 5',
@@ -99,7 +99,7 @@ PositionFilterFormPanel.prototype = {
             labelAlign: 'top'
         });
 
-        return Ext.create('Ext.forms.Panel', {
+        return Ext.create('Ext.form.Panel', {
             bodyPadding: "5",
             margin: "0 0 5 0",
             buttonAlign: 'center',

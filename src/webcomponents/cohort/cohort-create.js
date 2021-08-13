@@ -34,7 +34,7 @@ export default class CohortCreate extends LitElement {
 
     // 'attribute:false' is to "simulate" as a internal property.
     //  if the cohort is not declare as a property it not render the change
-    // and not update the data-forms to enable the save button.
+    // and not update the data-form to enable the save button.
     // Note: In the recent version of lit it has to be changed to "state:true"
     static get properties() {
         return {

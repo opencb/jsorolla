@@ -40,7 +40,7 @@ export default class Individual extends OpenCGAParentClass {
     * @param {Object} [params] - The Object containing the following optional parameters:
     * @param {String} [params.study] - Study [[user@]project:]study where study and project can be either the ID or UUID.
     * @param {Boolean} [params.propagate = "false"] - Propagate individual permissions to related samples. The default value is false.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     updateAcl(members, action, data, params) {
         return this._post("individuals", null, "acl", members, "update", data, {action, ...params});
@@ -71,7 +71,7 @@ export default class Individual extends OpenCGAParentClass {
     * @param {Boolean} [params.default = "false"] - Calculate default stats. The default value is false.
     * @param {String} [params.field] - List of fields separated by semicolons, e.g.: studies;type. For nested fields use >>, e.g.:
     *     studies>>biotype;type;numSamples[0..10]:1.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     aggregationStats(params) {
         return this._get("individuals", null, null, null, "aggregationStats", params);
@@ -86,7 +86,7 @@ export default class Individual extends OpenCGAParentClass {
     * @param {Boolean} [params.parents] - Flag indicating whether to create parent directories if they don't exist (only when TSV file was
     *     not previously associated).
     * @param {String} [params.annotationSetId] - Annotation set id. If not provided, variableSetId will be used.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     loadAnnotationSets(variableSetId, path, data, params) {
         return this._post("individuals", null, "annotationSets", null, "load", data, {variableSetId, path, ...params});
@@ -97,7 +97,7 @@ export default class Individual extends OpenCGAParentClass {
     * @param {Object} [params] - The Object containing the following optional parameters:
     * @param {String} [params.study] - Study [[user@]project:]study where study and project can be either the ID or UUID.
     * @param {String} [params.samples] - Comma separated list of sample ids to be associated to the created individual.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     create(data, params) {
         return this._post("individuals", null, null, null, "create", data, params);
@@ -135,7 +135,7 @@ export default class Individual extends OpenCGAParentClass {
     *     permissions. Only study owners or administrators can query by this field. .
     * @param {String} [params.release] - Release value (Current release from the moment the individuals were first created).
     * @param {Number} [params.snapshot] - Snapshot value (Latest version of individuals in the specified release).
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     distinct(field, params) {
         return this._get("individuals", null, null, null, "distinct", {field, ...params});
@@ -180,7 +180,7 @@ export default class Individual extends OpenCGAParentClass {
     *     permissions. Only study owners or administrators can query by this field. .
     * @param {String} [params.release] - Release value (Current release from the moment the individuals were first created).
     * @param {Number} [params.snapshot] - Snapshot value (Latest version of individuals in the specified release).
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     search(params) {
         return this._get("individuals", null, null, null, "search", params);
@@ -193,7 +193,7 @@ export default class Individual extends OpenCGAParentClass {
     * @param {String} [params.member] - User or group id.
     * @param {Boolean} [params.silent = "false"] - Boolean to retrieve all possible entries that are queried for, false to raise an
     *     exception whenever one of the entries looked for cannot be shown for whichever reason. The default value is false.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     acl(individuals, params) {
         return this._get("individuals", individuals, null, null, "acl", params);
@@ -205,7 +205,7 @@ export default class Individual extends OpenCGAParentClass {
     * @param {Boolean} [params.force = "false"] - Force the deletion of individuals that already belong to families. The default value is
     *     false.
     * @param {String} [params.study] - Study [[user@]project:]study where study and project can be either the ID or UUID.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     delete(individuals, params) {
         return this._delete("individuals", individuals, null, null, "delete", params);
@@ -221,7 +221,7 @@ export default class Individual extends OpenCGAParentClass {
     * @param {String} [params.version] - Comma separated list of individual versions. 'all' to get all the individual versions. Not
     *     supported if multiple individual ids are provided.
     * @param {Boolean} [params.deleted = "false"] - Boolean to retrieve deleted individuals. The default value is false.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     info(individuals, params) {
         return this._get("individuals", individuals, null, null, "info", params);
@@ -239,7 +239,7 @@ export default class Individual extends OpenCGAParentClass {
     * @param {Boolean} [params.incVersion = "false"] - Create a new version of individual. The default value is false.
     * @param {Boolean} [params.updateSampleVersion = "false"] - Update all the sample references from the individual to point to their
     *     latest versions. The default value is false.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     update(individuals, data, params) {
         return this._post("individuals", individuals, null, null, "update", data, params);
@@ -260,7 +260,7 @@ export default class Individual extends OpenCGAParentClass {
     * @param {Boolean} [params.incVersion = "false"] - Create a new version of individual. The default value is false.
     * @param {Boolean} [params.updateSampleVersion = "false"] - Update all the sample references from the individual to point to their
     *     latest versions. The default value is false.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     updateAnnotations(individual, annotationSet, data, params) {
         return this._post("individuals", individual, "annotationSets", annotationSet, "annotations/update", data, params);
@@ -274,7 +274,7 @@ export default class Individual extends OpenCGAParentClass {
     * @param {Boolean} [params.flattenAnnotations = "false"] - Flatten the annotations?. The default value is false.
     * @param {String} [params.study] - Study [[user@]project:]study where study and project can be either the ID or UUID.
     * @param {Number} [params.degree = "2"] - Pedigree degree. The default value is 2.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     relatives(individual, params) {
         return this._get("individuals", individual, null, null, "relatives", params);

@@ -34,7 +34,7 @@ export default class Project extends OpenCGAParentClass {
 
     /** Create a new project
     * @param {Object} data - JSON containing the mandatory parameters.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     create(data) {
         return this._post("projects", null, null, null, "create", data);
@@ -57,7 +57,7 @@ export default class Project extends OpenCGAParentClass {
     * @param {String} [params.modificationDate] - Modification date. Format: yyyyMMddHHmmss. Examples: >2018, 2017-2018, <201805.
     * @param {String} [params.internalStatus] - Filter by internal status.
     * @param {String} [params.attributes] - Attributes.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     search(params) {
         return this._get("projects", null, null, null, "search", params);
@@ -79,7 +79,7 @@ export default class Project extends OpenCGAParentClass {
     *     e.g.: studies>>biotype;type.
     * @param {String} [params.jobFields] - List of job fields separated by semicolons, e.g.: studies;type. For nested fields use >>, e.g.:
     *     studies>>biotype;type.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     aggregationStats(projects, params) {
         return this._get("projects", projects, null, null, "aggregationStats", params);
@@ -90,7 +90,7 @@ export default class Project extends OpenCGAParentClass {
     * @param {Object} [params] - The Object containing the following optional parameters:
     * @param {String} [params.include] - Fields included in the response, whole JSON path must be provided.
     * @param {String} [params.exclude] - Fields excluded in the response, whole JSON path must be provided.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     info(projects, params) {
         return this._get("projects", projects, null, null, "info", params);
@@ -98,7 +98,7 @@ export default class Project extends OpenCGAParentClass {
 
     /** Increment current release number in the project
     * @param {String} project - Project [user@]project where project can be either the ID or the alias.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     incRelease(project) {
         return this._post("projects", project, null, null, "incRelease");
@@ -111,7 +111,7 @@ export default class Project extends OpenCGAParentClass {
     * @param {String} [params.exclude] - Fields excluded in the response, whole JSON path must be provided.
     * @param {Number} [params.limit] - Number of results to be returned.
     * @param {Number} [params.skip] - Number of results to skip.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     studies(project, params) {
         return this._get("projects", project, null, null, "studies", params);
@@ -121,7 +121,7 @@ export default class Project extends OpenCGAParentClass {
     * @param {String} project - Project [user@]project where project can be either the ID or the alias.
     * @param {Object} data - JSON containing the params to be updated. It will be only possible to update organism fields not previously
     *     defined.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     update(project, data) {
         return this._post("projects", project, null, null, "update", data);

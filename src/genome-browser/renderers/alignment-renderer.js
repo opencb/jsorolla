@@ -667,7 +667,7 @@ export default class AlignmentRenderer extends Renderer {
     }
 
     /**
-     * Taking an array of alignments as an input that can have any possible order, it will return an object of the forms
+     * Taking an array of alignments as an input that can have any possible order, it will return an object of the form
      * {
          *  alignmentId: [read, mate] (or just [read] where no mate was found)
          * }

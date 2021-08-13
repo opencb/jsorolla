@@ -298,7 +298,7 @@ export default class StudyAdmin extends LitElement {
                             <a class="navbar-brand">${this.study?.name}</a>
                         </div>
 
-                        <!-- Collect the nav links, forms, and other content for toggling -->
+                        <!-- Collect the nav links, form, and other content for toggling -->
                         <div class="collapse navbar-collapse navbar-ex1-collapse admin-side-navbar">
                             <ul class="nav navbar-nav left">
                                 <li>

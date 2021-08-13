@@ -695,7 +695,7 @@ export default class OpencgaVariantInterpretationGrid extends LitElement {
                 for (const formatField in row.studies[0].sampleDataKeys) {
                     // GT fields is treated separately
                     if (row.studies[0].sampleDataKeys[formatField] !== "GT") {
-                        const html = `<div class="forms-group" style="margin: 0px 2px">
+                        const html = `<div class="form-group" style="margin: 0px 2px">
                                             <label class="col-md-5">${row.studies[0].sampleDataKeys[formatField]}</label>
                                             <div class="col-md-7">${sampleFormat[formatField]}</div>
                                         </div>`;
@@ -743,21 +743,21 @@ export default class OpencgaVariantInterpretationGrid extends LitElement {
 
                 // Third, prepare the tooltip information
                 const tooltipText = `<div class="col-md-12" style="padding: 0px">
-                                                <forms class="forms-horizontal">
-                                                    <div class="forms-group" style="margin: 0px 2px">
+                                                <form class="form-horizontal">
+                                                    <div class="form-group" style="margin: 0px 2px">
                                                         <label class="col-md-5">GT</label>
                                                         <div class="col-md-7">${sampleGT}</div>
                                                     </div>
-                                                    <div class="forms-group" style="margin: 0px 2px">
+                                                    <div class="form-group" style="margin: 0px 2px">
                                                         <label class="col-md-5">QUAL</label>
                                                         <div class="col-md-7">${qual}</div>
                                                     </div>
-                                                    <div class="forms-group" style="margin: 0px 2px">
+                                                    <div class="form-group" style="margin: 0px 2px">
                                                         <label class="col-md-5">FILTER</label>
                                                         <div class="col-md-7">${filter}</div>
                                                     </div>
                                                     ${formatFields.join("")}
-                                                </forms>
+                                                </form>
                                            </div>`;
 
                 // Last, put everything together and display
@@ -777,20 +777,20 @@ export default class OpencgaVariantInterpretationGrid extends LitElement {
     pathogeniticyFormatter(value, row, index) {
         // TODO we must call to PathDB to get the frequency of each variant, next code is just an example
         const val = `<div class="col-md-12" style="padding: 0px">
-                                <forms class="forms-horizontal">
+                                <form class="form-horizontal">
                                     <div class="col-md-12" style="padding: 0px">
-                                        <forms class="forms-horizontal">
-                                            <div class="forms-group" style="margin: 0px 2px">
+                                        <form class="form-horizontal">
+                                            <div class="form-group" style="margin: 0px 2px">
                                                 <label class="col-md-5">HP:00${Math.floor((Math.random() * 1000) + 1)}</label>
                                                 <div class="col-md-7">${Number(Math.random()).toFixed(2)}</div>
                                             </div>
-                                             <div class="forms-group" style="margin: 0px 2px">
+                                             <div class="form-group" style="margin: 0px 2px">
                                                 <label class="col-md-5">HP:00${Math.floor((Math.random() * 1000) + 1)}</label>
                                                 <div class="col-md-7">${Number(Math.random()).toFixed(2)}</div>
                                              </div>
-                                         </forms>
+                                         </form>
                                       </div>
-                                </forms>
+                                </form>
                            </div>`;
 
         return val;
@@ -898,16 +898,16 @@ export default class OpencgaVariantInterpretationGrid extends LitElement {
                 }
                 clinicalSignificanceHtml = `<span style="color: ${clinicalSignificanceCodes[re.classification.clinicalSignificance].color}">${clinicalSignificance}</span>`;
                 clinicalSignificanceTooltipText = `<div class="predictionTooltip-inner col-md-12" style="padding: 0px">
-                                                                <forms class="forms-horizontal">
-                                                                    <div class="forms-group" style="margin: 0px 2px">
+                                                                <form class="form-horizontal">
+                                                                    <div class="form-group" style="margin: 0px 2px">
                                                                         <label class="col-md-5">ACMG</label>
                                                                         <div class="col-md-7">${re.classification.acmg.join(", ")}</div>
                                                                     </div>
-                                                                    <div class="forms-group" style="margin: 0px 2px">
+                                                                    <div class="form-group" style="margin: 0px 2px">
                                                                         <label class="col-md-5">ACMG Tier</label>
                                                                         <div class="col-md-7">${re.classification.tier}</div>
                                                                     </div>
-                                                                </forms>
+                                                                </form>
                                                             </div>`;
             }
         }

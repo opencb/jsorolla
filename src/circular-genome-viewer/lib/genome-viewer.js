@@ -3704,7 +3704,7 @@ NavigationBar.prototype = {
             '   <div class="btn-group btn-group-xs" style="margin:0px 0px 0px 15px;">' +
             '       <div class="pull-left" style="height:22px;line-height: 22px;font-size:14px;">Position:&nbsp;</div>' +
             '       <div class="input-group pull-left">' +
-            '           <input id="regionField" style="width:200px;height:22px" type="text" class="forms-control">' +
+            '           <input id="regionField" style="width:200px;height:22px" type="text" class="form-control">' +
             '       </div>' +
             '       <button id="goButton" class="btn btn-default btn-xs" type="button">Go!</button>' +
             '   </div>' +
@@ -3720,7 +3720,7 @@ NavigationBar.prototype = {
             '   <div class="btn-group pull-right">' +
             '       <div class="pull-left" style="height:22px;line-height: 22px;font-size:14px;">Search:&nbsp;</div>' +
             '       <div class="input-group pull-left">' +
-            '           <input id="searchField"  type="text" class="forms-control" placeholder="gene, snp..." style="height:22px;width:100px">' +
+            '           <input id="searchField"  type="text" class="form-control" placeholder="gene, snp..." style="height:22px;width:100px">' +
             '       </div>' +
             '       <ul id="quickSearchMenu" class="dropdown-menu" role="menu">' +
             '       </ul>' +
@@ -11053,7 +11053,7 @@ UrlWidget.prototype.draw = function () {
 UrlWidget.prototype.render = function () {
     var _this = this;
 
-    this.urlField = Ext.create('Ext.forms.field.Text', {
+    this.urlField = Ext.create('Ext.form.field.Text', {
         margin: "0 2 2 0",
         labelWidth: 30,
         width: this.width - 55,
@@ -11076,12 +11076,12 @@ UrlWidget.prototype.render = function () {
 //			});
 //			dasDataAdapter.successed.addEventListener(function() {
 //				_this.contentArea.setValue(dasDataAdapter.xml);
-//				_this.forms.setLoading(false);
+//				_this.form.setLoading(false);
 //			});
 //
 //			dasDataAdapter.onError.addEventListener(function() {
 //				_this.contentArea.setValue("XMLHttpRequest cannot load. This server is not allowed by Access-Control-Allow-Origin");
-//				_this.forms.setLoading(false);
+//				_this.form.setLoading(false);
 //			});
 //			dasDataAdapter.fill(1, 1, 1);
 
@@ -11109,7 +11109,7 @@ UrlWidget.prototype.render = function () {
             dasAdapter.checkUrl();
         }
     });
-    this.trackNameField = Ext.create('Ext.forms.field.Text', {
+    this.trackNameField = Ext.create('Ext.form.field.Text', {
         name: 'file',
 //        fieldLabel: 'Track name',
         allowBlank: false,
@@ -11126,7 +11126,7 @@ UrlWidget.prototype.render = function () {
         width: this.width - 2,
         items: [this.trackNameField]
     });
-    this.contentArea = Ext.create('Ext.forms.field.TextArea', {
+    this.contentArea = Ext.create('Ext.form.field.TextArea', {
         margin: "-1",
         width: this.width,
         height: this.height
@@ -11222,7 +11222,7 @@ FileWidget.prototype.loadFileFromLocal = function(){
 
 FileWidget.prototype.getFileUpload = function(){
 	var _this = this;
-	this.uploadField = Ext.create('Ext.forms.field.File', {
+	this.uploadField = Ext.create('Ext.form.field.File', {
 		msgTarget : 'side',
 		flex:1,
         padding:1,
@@ -11285,7 +11285,7 @@ FileWidget.prototype.draw = function(){
 	//	        }
 	//	    }
 	//	});
-		this.trackNameField = Ext.create('Ext.forms.field.Text',{
+		this.trackNameField = Ext.create('Ext.form.field.Text',{
 			name: 'file',
             fieldLabel: 'Track Name',
             allowBlank: false,

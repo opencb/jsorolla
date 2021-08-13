@@ -589,7 +589,7 @@ export default class VariantFamilyGenotypeFilter extends LitElement {
                                         </td>
                                         <!--<td style="padding-left: 10px">
                                             <input id="${this._prefix}${sampleFilter.id}DP" type="text" value="${sampleFilter.dp !== undefined && sampleFilter.dp > 0 ? sampleFilter.dp : ""}"
-                                                   class="forms-control input-sm sample-dp-textbox" aria-label="..." placeholder="e.g. 15" data-sample-id="${sampleFilter.id}"
+                                                   class="form-control input-sm sample-dp-textbox" aria-label="..." placeholder="e.g. 15" data-sample-id="${sampleFilter.id}"
                                                    style="width: 60px" @input="${this.onSampleTableChange}">
                                         </td>-->
                                     </tr>

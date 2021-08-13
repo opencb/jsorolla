@@ -41,7 +41,7 @@ export default class Alignment extends OpenCGAParentClass {
     * @param {String} [params.jobDependsOn] - Comma separated list of existing job IDs the job will depend on.
     * @param {String} [params.jobDescription] - Job description.
     * @param {String} [params.jobTags] - Job tags.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     runBwa(data, params) {
         return this._post("analysis", null, "alignment/bwa", null, "run", data, params);
@@ -56,7 +56,7 @@ export default class Alignment extends OpenCGAParentClass {
     * @param {String} [params.jobDependsOn] - Comma separated list of existing job IDs the job will depend on.
     * @param {String} [params.jobDescription] - Job description.
     * @param {String} [params.jobTags] - Job tags.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     runCoverageIndex(data, params) {
         return this._post("analysis", null, "alignment/coverage/index", null, "run", data, params);
@@ -75,7 +75,7 @@ export default class Alignment extends OpenCGAParentClass {
     *     that value.
     * @param {Number} [params.windowSize] - Window size for the region coverage (if a coverage range is provided, window size must be 1).
     * @param {Boolean} [params.splitResults] - Split results into regions (or gene/exon regions).
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     queryCoverage(file, params) {
         return this._get("analysis", null, "alignment/coverage", null, "query", {file, ...params});
@@ -93,7 +93,7 @@ export default class Alignment extends OpenCGAParentClass {
     * @param {Boolean} [params.onlyExons] - Only exons are taking into account when genes are specified.
     * @param {Number} [params.windowSize] - Window size for the region coverage (if a coverage range is provided, window size must be 1).
     * @param {Boolean} [params.splitResults] - Split results into regions (or gene/exon regions).
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     ratioCoverage(file1, file2, params) {
         return this._get("analysis", null, "alignment/coverage", null, "ratio", {file1, file2, ...params});
@@ -105,7 +105,7 @@ export default class Alignment extends OpenCGAParentClass {
     * @param {Object} [params] - The Object containing the following optional parameters:
     * @param {String} [params.study] - Study [[user@]project:]study where study and project can be either the ID or UUID.
     * @param {Number} [params.threshold] - Only regions whose coverage depth is under this threshold will be reported.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     statsCoverage(file, gene, params) {
         return this._get("analysis", null, "alignment/coverage", null, "stats", {file, gene, ...params});
@@ -121,7 +121,7 @@ export default class Alignment extends OpenCGAParentClass {
     * @param {String} [params.jobDependsOn] - Comma separated list of existing job IDs the job will depend on.
     * @param {String} [params.jobDescription] - Job description.
     * @param {String} [params.jobTags] - Job tags.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     runDeeptools(data, params) {
         return this._post("analysis", null, "alignment/deeptools", null, "run", data, params);
@@ -136,7 +136,7 @@ export default class Alignment extends OpenCGAParentClass {
     * @param {String} [params.jobDependsOn] - Comma separated list of existing job IDs the job will depend on.
     * @param {String} [params.jobDescription] - Job description.
     * @param {String} [params.jobTags] - Job tags.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     runFastqc(data, params) {
         return this._post("analysis", null, "alignment/fastqc", null, "run", data, params);
@@ -151,7 +151,7 @@ export default class Alignment extends OpenCGAParentClass {
     * @param {String} [params.jobDependsOn] - Comma separated list of existing job IDs the job will depend on.
     * @param {String} [params.jobDescription] - Job description.
     * @param {String} [params.jobTags] - Job tags.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     runIndex(data, params) {
         return this._post("analysis", null, "alignment/index", null, "run", data, params);
@@ -167,7 +167,7 @@ export default class Alignment extends OpenCGAParentClass {
     * @param {String} [params.jobDependsOn] - Comma separated list of existing job IDs the job will depend on.
     * @param {String} [params.jobDescription] - Job description.
     * @param {String} [params.jobTags] - Job tags.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     runPicard(data, params) {
         return this._post("analysis", null, "alignment/picard", null, "run", data, params);
@@ -182,7 +182,7 @@ export default class Alignment extends OpenCGAParentClass {
     * @param {String} [params.jobDependsOn] - Comma separated list of existing job IDs the job will depend on.
     * @param {String} [params.jobDescription] - Job description.
     * @param {String} [params.jobTags] - Job tags.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     genecoveragestatsQc(data, params) {
         return this._post("analysis", null, "alignment/qc", null, "genecoveragestats", data, params);
@@ -198,7 +198,7 @@ export default class Alignment extends OpenCGAParentClass {
     * @param {String} [params.jobDependsOn] - Comma separated list of existing job IDs the job will depend on.
     * @param {String} [params.jobDescription] - Job description.
     * @param {String} [params.jobTags] - Job tags.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     runQc(data, params) {
         return this._post("analysis", null, "alignment/qc", null, "run", data, params);
@@ -227,7 +227,7 @@ export default class Alignment extends OpenCGAParentClass {
     * @param {Boolean} [params.forceMDField] - Force SAM MD optional field to be set with the alignments.
     * @param {Boolean} [params.binQualities] - Compress the nucleotide qualities by using 8 quality levels.
     * @param {Boolean} [params.splitResults] - Split results into regions (or gene/exon regions).
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     query(file, params) {
         return this._get("analysis", null, "alignment", null, "query", {file, ...params});
@@ -243,7 +243,7 @@ export default class Alignment extends OpenCGAParentClass {
     * @param {String} [params.jobDependsOn] - Comma separated list of existing job IDs the job will depend on.
     * @param {String} [params.jobDescription] - Job description.
     * @param {String} [params.jobTags] - Job tags.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     runSamtools(data, params) {
         return this._post("analysis", null, "alignment/samtools", null, "run", data, params);

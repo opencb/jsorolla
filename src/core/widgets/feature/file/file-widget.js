@@ -76,7 +76,7 @@ FileWidget.prototype.loadFileFromLocal = function(){
 
 FileWidget.prototype.getFileUpload = function(){
 	var _this = this;
-	this.uploadField = Ext.create('Ext.forms.field.File', {
+	this.uploadField = Ext.create('Ext.form.field.File', {
 		msgTarget : 'side',
 		flex:1,
         padding:1,
@@ -138,7 +138,7 @@ FileWidget.prototype.draw = function(){
 	//	        }
 	//	    }
 	//	});
-		this.trackNameField = Ext.create('Ext.forms.field.Text',{
+		this.trackNameField = Ext.create('Ext.form.field.Text',{
 			name: 'file',
             fieldLabel: 'Track Name',
             allowBlank: false,

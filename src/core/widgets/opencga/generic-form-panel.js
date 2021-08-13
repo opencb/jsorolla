@@ -144,7 +144,7 @@ GenericFormPanel.prototype.getForm = function () {
         var items = this.getPanels();
         items.push(this.getJobPanel());
 
-        this.form = Ext.create('Ext.forms.Panel', {
+        this.form = Ext.create('Ext.form.Panel', {
             border: 0,
             width: this.width,
             height: this.height,
@@ -176,7 +176,7 @@ GenericFormPanel.prototype.getPanels = function () {
 
 GenericFormPanel.prototype.getJobPanel = function () {
     var _this = this;
-    this.jobNameField = Ext.create('Ext.forms.field.Text', {
+    this.jobNameField = Ext.create('Ext.form.field.Text', {
         id: this.id + "jobname",
         name: "jobname",
         fieldLabel: 'Name',
@@ -185,7 +185,7 @@ GenericFormPanel.prototype.getJobPanel = function () {
         allowBlank: false
     });
 
-    this.jobDescriptionField = Ext.create('Ext.forms.field.TextArea', {
+    this.jobDescriptionField = Ext.create('Ext.form.field.TextArea', {
         id: this.id + "jobdescription",
         name: "jobdescription",
         labelWidth: this.labelWidth,
@@ -230,7 +230,7 @@ GenericFormPanel.prototype.getRunButton = function () {
         height: this.buttonConfig.height,
         disabled: true,
         cls: 'btn btn-default',
-        formBind: true, // only enabled if the forms is valid
+        formBind: true, // only enabled if the form is valid
         handler: function () {
             _this.paramsWS = {};
             var formParams = _this.getForm().getForm().getValues();
@@ -294,7 +294,7 @@ GenericFormPanel.prototype.clean = function () {
 /////////////////////////////////////////
 /////////////////////////////////////////
 GenericFormPanel.prototype.createCombobox = function (name, label, data, defaultValue, labelWidth, margin) {
-    return Ext.create('Ext.forms.field.ComboBox', {
+    return Ext.create('Ext.form.field.ComboBox', {
         id: name,
         name: name,
         fieldLabel: label,
@@ -311,7 +311,7 @@ GenericFormPanel.prototype.createCombobox = function (name, label, data, default
 };
 
 GenericFormPanel.prototype.createCheckBox = function (name, label, checked, margin, disabled, handler) {
-    return Ext.create('Ext.forms.field.Checkbox', {
+    return Ext.create('Ext.form.field.Checkbox', {
         id: name,
         name: name,
         boxLabel: label,
@@ -322,7 +322,7 @@ GenericFormPanel.prototype.createCheckBox = function (name, label, checked, marg
 };
 
 GenericFormPanel.prototype.createRadio = function (name, group, checked, hidden) {
-    var cb = Ext.create('Ext.forms.field.Radio', {
+    var cb = Ext.create('Ext.form.field.Radio', {
         id: name + "_" + this.id,
         boxLabel: name,
         inputValue: name,
@@ -334,7 +334,7 @@ GenericFormPanel.prototype.createRadio = function (name, group, checked, hidden)
 };
 
 GenericFormPanel.prototype.createLabel = function (text, margin) {
-    var label = Ext.create('Ext.forms.Label', {
+    var label = Ext.create('Ext.form.Label', {
         id: text + "_" + this.id,
         margin: (margin || "15 0 0 0"),
         html: '<span class="emph">' + text + '</span>'
@@ -342,7 +342,7 @@ GenericFormPanel.prototype.createLabel = function (text, margin) {
     return label;
 };
 GenericFormPanel.prototype.createTextFields = function (name) {
-    var tb = Ext.create('Ext.forms.field.Text', {
+    var tb = Ext.create('Ext.form.field.Text', {
         id: name + "_" + this.id,
         fieldLabel: name,
         name: name
@@ -355,7 +355,7 @@ GenericFormPanel.prototype.createTextFields = function (name) {
 GenericFormPanel.prototype.createOpencgaBrowserCmp = function (args) {//fieldLabel, dataParamName, mode, btnMargin, defaultFileLabel
     var _this = this;
 
-    var field = Ext.create('Ext.forms.field.Text', {
+    var field = Ext.create('Ext.form.field.Text', {
         id: args.id,
         fieldLabel: args.fieldLabel,
         labelAlign: args.labelAlign,
@@ -385,7 +385,7 @@ GenericFormPanel.prototype.createOpencgaBrowserCmp = function (args) {//fieldLab
     });
 
     //not shown, just for validation
-    var hiddenField = Ext.create('Ext.forms.field.Text', {
+    var hiddenField = Ext.create('Ext.form.field.Text', {
         id: args.id + 'hidden',
         editable: false,
         hidden: true,
@@ -394,7 +394,7 @@ GenericFormPanel.prototype.createOpencgaBrowserCmp = function (args) {//fieldLab
         allowBlank: (args.allowBlank || false)
     });
 
-    return Ext.create('Ext.forms.FieldContainer', {
+    return Ext.create('Ext.form.FieldContainer', {
         hidden: args.hidden,
         items: [
             field,

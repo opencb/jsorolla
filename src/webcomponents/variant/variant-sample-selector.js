@@ -176,7 +176,7 @@ export default class VariantSampleSelector extends LitElement {
     }
 
     /**
-     * If filters have been removed, clean the values from the forms.
+     * If filters have been removed, clean the values from the form.
      */
     onFilterUpdate() {
         this.updateForms(this.filters);
@@ -217,7 +217,7 @@ export default class VariantSampleSelector extends LitElement {
     }
 
     /**
-     * Read from the values in the forms, and sets the filters.
+     * Read from the values in the form, and sets the filters.
      */
     calculateFilters() {
         const filters = {};

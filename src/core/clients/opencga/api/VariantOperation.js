@@ -41,7 +41,7 @@ export default class VariantOperation extends OpenCGAParentClass {
     * @param {String} [params.jobDependsOn] - Comma separated list of existing job IDs the job will depend on.
     * @param {String} [params.jobTags] - Job tags.
     * @param {String} [params.study] - Study [[user@]project:]study where study and project can be either the ID or UUID.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     aggregateVariant(data, params) {
         return this._post("operation", null, "variant", null, "aggregate", data, params);
@@ -56,7 +56,7 @@ export default class VariantOperation extends OpenCGAParentClass {
     * @param {String} [params.jobTags] - Job tags.
     * @param {String} [params.project] - Project [user@]project where project can be either the ID or the alias.
     * @param {String} [params.annotationId] - Annotation identifier.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     deleteVariantAnnotation(params) {
         return this._delete("operation", null, "variant/annotation", null, "delete", params);
@@ -72,7 +72,7 @@ export default class VariantOperation extends OpenCGAParentClass {
     * @param {String} [params.jobTags] - Job tags.
     * @param {String} [params.project] - Project [user@]project where project can be either the ID or the alias.
     * @param {String} [params.study] - Study [[user@]project:]study where study and project can be either the ID or UUID.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     indexVariantAnnotation(data, params) {
         return this._post("operation", null, "variant/annotation", null, "index", data, params);
@@ -87,7 +87,7 @@ export default class VariantOperation extends OpenCGAParentClass {
     * @param {String} [params.jobDependsOn] - Comma separated list of existing job IDs the job will depend on.
     * @param {String} [params.jobTags] - Job tags.
     * @param {String} [params.project] - Project [user@]project where project can be either the ID or the alias.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     saveVariantAnnotation(data, params) {
         return this._post("operation", null, "variant/annotation", null, "save", data, params);
@@ -98,7 +98,7 @@ export default class VariantOperation extends OpenCGAParentClass {
     * @param {Object} [params] - The Object containing the following optional parameters:
     * @param {String} [params.project] - Project [user@]project where project can be either the ID or the alias.
     * @param {String} [params.study] - Study [[user@]project:]study where study and project can be either the ID or UUID.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     configureVariant(data, params) {
         return this._post("operation", null, "variant", null, "configure", data, params);
@@ -113,7 +113,7 @@ export default class VariantOperation extends OpenCGAParentClass {
     * @param {String} [params.jobDependsOn] - Comma separated list of existing job IDs the job will depend on.
     * @param {String} [params.jobTags] - Job tags.
     * @param {String} [params.study] - Study [[user@]project:]study where study and project can be either the ID or UUID.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     aggregateVariantFamily(data, params) {
         return this._post("operation", null, "variant/family", null, "aggregate", data, params);
@@ -128,7 +128,7 @@ export default class VariantOperation extends OpenCGAParentClass {
     * @param {String} [params.jobDependsOn] - Comma separated list of existing job IDs the job will depend on.
     * @param {String} [params.jobTags] - Job tags.
     * @param {String} [params.study] - Study [[user@]project:]study where study and project can be either the ID or UUID.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     indexVariantFamily(data, params) {
         return this._post("operation", null, "variant/family", null, "index", data, params);
@@ -143,7 +143,7 @@ export default class VariantOperation extends OpenCGAParentClass {
     * @param {String} [params.jobDependsOn] - Comma separated list of existing job IDs the job will depend on.
     * @param {String} [params.jobTags] - Job tags.
     * @param {String} [params.study] - Study [[user@]project:]study where study and project can be either the ID or UUID.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     launcherVariantIndex(data, params) {
         return this._post("operation", null, "variant/index", null, "launcher", data, params);
@@ -158,7 +158,7 @@ export default class VariantOperation extends OpenCGAParentClass {
     * @param {String} [params.jobDependsOn] - Comma separated list of existing job IDs the job will depend on.
     * @param {String} [params.jobTags] - Job tags.
     * @param {String} [params.project] - project.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     runVariantJulie(data, params) {
         return this._post("operation", null, "variant/julie", null, "run", data, params);
@@ -172,7 +172,7 @@ export default class VariantOperation extends OpenCGAParentClass {
     * @param {String} [params.jobDescription] - Job description.
     * @param {String} [params.jobDependsOn] - Comma separated list of existing job IDs the job will depend on.
     * @param {String} [params.jobTags] - Job tags.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     repairVariantMetadata(data, params) {
         return this._post("operation", null, "variant/metadata", null, "repair", data, params);
@@ -187,7 +187,7 @@ export default class VariantOperation extends OpenCGAParentClass {
     * @param {String} [params.jobDependsOn] - Comma separated list of existing job IDs the job will depend on.
     * @param {String} [params.jobTags] - Job tags.
     * @param {String} [params.study] - Study [[user@]project:]study where study and project can be either the ID or UUID.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     synchronizeVariantMetadata(data, params) {
         return this._post("operation", null, "variant/metadata", null, "synchronize", data, params);
@@ -202,7 +202,7 @@ export default class VariantOperation extends OpenCGAParentClass {
     * @param {String} [params.jobDependsOn] - Comma separated list of existing job IDs the job will depend on.
     * @param {String} [params.jobTags] - Job tags.
     * @param {String} [params.study] - Study [[user@]project:]study where study and project can be either the ID or UUID.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     indexVariantSample(data, params) {
         return this._post("operation", null, "variant/sample", null, "index", data, params);
@@ -212,7 +212,7 @@ export default class VariantOperation extends OpenCGAParentClass {
     * @param {Object} [data] - New SampleIndexConfiguration.
     * @param {Object} [params] - The Object containing the following optional parameters:
     * @param {String} [params.study] - Study [[user@]project:]study where study and project can be either the ID or UUID.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     configureSampleIndex(data, params) {
         return this._post("operation", null, "variant/sample/index", null, "configure", data, params);
@@ -229,7 +229,7 @@ export default class VariantOperation extends OpenCGAParentClass {
     * @param {String} [params.name] - Unique name of the score within the study.
     * @param {Boolean} [params.resume] - Resume a previously failed remove.
     * @param {Boolean} [params.force] - Force remove of partially indexed scores.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     deleteVariantScore(params) {
         return this._delete("operation", null, "variant/score", null, "delete", params);
@@ -251,7 +251,7 @@ export default class VariantOperation extends OpenCGAParentClass {
     * @param {String} [params.jobDependsOn] - Comma separated list of existing job IDs the job will depend on.
     * @param {String} [params.jobTags] - Job tags.
     * @param {String} [params.study] - Study [[user@]project:]study where study and project can be either the ID or UUID.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     indexVariantScore(data, params) {
         return this._post("operation", null, "variant/score", null, "index", data, params);
@@ -267,7 +267,7 @@ export default class VariantOperation extends OpenCGAParentClass {
     * @param {String} [params.jobTags] - Job tags.
     * @param {String} [params.project] - Project [user@]project where project can be either the ID or the alias.
     * @param {String} [params.study] - Study [[user@]project:]study where study and project can be either the ID or UUID.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     secondaryIndexVariant(data, params) {
         return this._post("operation", null, "variant", null, "secondaryIndex", data, params);
@@ -282,7 +282,7 @@ export default class VariantOperation extends OpenCGAParentClass {
     * @param {String} [params.jobTags] - Job tags.
     * @param {String} [params.study] - Study [[user@]project:]study where study and project can be either the ID or UUID.
     * @param {String} [params.samples] - Samples to remove. Needs to provide all the samples in the secondary index.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     deleteVariantSecondaryIndex(params) {
         return this._delete("operation", null, "variant/secondaryIndex", null, "delete", params);
@@ -297,7 +297,7 @@ export default class VariantOperation extends OpenCGAParentClass {
     * @param {String} [params.jobDescription] - Job description.
     * @param {String} [params.jobDependsOn] - Comma separated list of existing job IDs the job will depend on.
     * @param {String} [params.jobTags] - Job tags.
-    * @returns {Promise} Promise object in the forms of RestResponse instance.
+    * @returns {Promise} Promise object in the form of RestResponse instance.
     */
     indexVariantStats(data, params) {
         return this._post("operation", null, "variant/stats", null, "index", data, params);

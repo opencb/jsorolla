@@ -159,14 +159,14 @@ export default class AnnotationSetForm extends LitElement {
     onFieldChange(e) {
         console.log(e.detail.param, e.detail.value)
         if (e.detail.param === "variableSetId") {
-            let self_dataForm = this.querySelector("data-forms")
+            let self_dataForm = this.querySelector("data-form")
             this.showAnnotation = true;
             self_dataForm.requestUpdate()
         }
     }
 
     onSubmit(e) {
-        let parentForm = document.querySelector("sample-forms")
+        let parentForm = document.querySelector("sample-form")
 
         if (!this.sample.annotationSets) {
             this.sample.annotationSets = []
@@ -189,13 +189,13 @@ export default class AnnotationSetForm extends LitElement {
         console.log("Cancel Subform annotation")
         this.onShowForm()
         //to clear input text..
-        // TODO: look how to binding property with data-forms to avoid use querySelector
+        // TODO: look how to binding property with data-form to avoid use querySelector
         // document.querySelector(".subform-test select-field-filter").value = ""
         // document.querySelector(".subform-test text-field-filter").value = ""
         console.log(this.annotationSets)
 
         // avoid to execute other components listen this function too
-        // sample-forms has this function too.. without e.stopPropagation both function are called
+        // sample-form has this function too.. without e.stopPropagation both function are called
         e.stopPropagation()
     }
 

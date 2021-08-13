@@ -46,7 +46,7 @@ UrlWidget.prototype.draw = function () {
 UrlWidget.prototype.render = function () {
     var _this = this;
 
-    this.urlField = Ext.create('Ext.forms.field.Text', {
+    this.urlField = Ext.create('Ext.form.field.Text', {
         margin: "0 2 2 0",
         labelWidth: 30,
         width: this.width - 55,
@@ -69,12 +69,12 @@ UrlWidget.prototype.render = function () {
 //			});
 //			dasDataAdapter.successed.addEventListener(function() {
 //				_this.contentArea.setValue(dasDataAdapter.xml);
-//				_this.forms.setLoading(false);
+//				_this.form.setLoading(false);
 //			});
 //
 //			dasDataAdapter.onError.addEventListener(function() {
 //				_this.contentArea.setValue("XMLHttpRequest cannot load. This server is not allowed by Access-Control-Allow-Origin");
-//				_this.forms.setLoading(false);
+//				_this.form.setLoading(false);
 //			});
 //			dasDataAdapter.fill(1, 1, 1);
 
@@ -102,7 +102,7 @@ UrlWidget.prototype.render = function () {
             dasAdapter.checkUrl();
         }
     });
-    this.trackNameField = Ext.create('Ext.forms.field.Text', {
+    this.trackNameField = Ext.create('Ext.form.field.Text', {
         name: 'file',
 //        fieldLabel: 'Track name',
         allowBlank: false,
@@ -119,7 +119,7 @@ UrlWidget.prototype.render = function () {
         width: this.width - 2,
         items: [this.trackNameField]
     });
-    this.contentArea = Ext.create('Ext.forms.field.TextArea', {
+    this.contentArea = Ext.create('Ext.form.field.TextArea', {
         margin: "-1",
         width: this.width,
         height: this.height

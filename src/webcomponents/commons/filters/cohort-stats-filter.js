@@ -129,7 +129,7 @@ export default class CohortStatsFilter extends LitElement {
         } else {
             delete this.state[study];
         }
-        // serialize this.state in the forms of "STUDY_ID:COHORT_ID<VALUE;.."
+        // serialize this.state in the form of "STUDY_ID:COHORT_ID<VALUE;.."
         const value = Object.entries(this.state).filter(([, v]) => v.value).map(([studyId, v]) => `${studyId}:${v.cohort}${v.comparator}${v.value}`).join(";");
         const event = new CustomEvent("filterChange", {
             detail: {

@@ -40,7 +40,7 @@ export default class ClinicalInterpretationVariantReview extends LitElement {
                 type: Object,
             },
             mode: {
-                type: String    // Values: forms, modal
+                type: String    // Values: form, modal
             }
         }
     }

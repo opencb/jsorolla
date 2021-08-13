@@ -124,7 +124,7 @@ export default class FamilyUpdate extends LitElement {
     }
 
     onClear() {
-        console.log("OnClear family forms");
+        console.log("OnClear family form");
     }
 
     onSubmit() {

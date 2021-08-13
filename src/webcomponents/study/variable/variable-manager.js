@@ -54,7 +54,7 @@ export default class VariableManager extends LitElement {
     }
 
     refreshForm() {
-        // When using data-forms we need to update config object and render again
+        // When using data-form we need to update config object and render again
         this._config = {...this.getDefaultConfig(), ...this.config};
         this.requestUpdate();
     }
@@ -71,7 +71,7 @@ export default class VariableManager extends LitElement {
             delete this.variable[field];
         }
 
-        // When we change 'type' we might need to enable/disable some parts of the forms
+        // When we change 'type' we might need to enable/disable some parts of the form
         if (field === "type") {
             console.log("changed type variable");
             this.refreshForm();
@@ -242,7 +242,7 @@ export default class VariableManager extends LitElement {
 
     onClearForm(e) {
         e.stopPropagation();
-        console.log("Close Forms");
+        console.log("Close form");
         LitUtils.dispatchEventCustom(this, "closeForm");
     }
 

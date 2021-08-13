@@ -244,7 +244,7 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
 
         this.notifyEnabled = false;
 
-        // We must first clear the forms
+        // We must first clear the form
         this.clear();
 
         // Calculate some internal data and render the sample table
@@ -877,7 +877,7 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
     render() {
         return html`
         <style>
-            .forms-section-title {
+            .form-section-title {
                 padding: 5px 0px;
                 width: 80%;
                 border-bottom-width: 1px;
@@ -909,20 +909,20 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
 
                         <div style="padding: 10px 10px;">
                             <div>
-                                <h4 class="forms-section-title">Case Information</h4>
+                                <h4 class="form-section-title">Case Information</h4>
                             </div>
 
-                            <div class="forms-horizontal" style="padding: 5px 10px">
+                            <div class="form-horizontal" style="padding: 5px 10px">
 
-                                <div class="forms-group" style="padding-top: 10px">
+                                <div class="form-group" style="padding-top: 10px">
                                     <label class="control-label col-md-1 jso-label-title">Analysis ID</label>
                                     <div class="col-md-3">
                                         ${this.isCreate ? html`
-                                            <input type="text" id="${this._prefix}Id" class="${this._prefix}Input forms-control"
+                                            <input type="text" id="${this._prefix}Id" class="${this._prefix}Input form-control"
                                                    placeholder="ID of the case" data-field="id" @input="${this.onInputChange}" value="${this._clinicalAnalysis.id || ""}">
                                         ` : html`
                                             <div class="input-group">
-                                                <input type="text" id="${this._prefix}Id" class="${this._prefix}Input forms-control"
+                                                <input type="text" id="${this._prefix}Id" class="${this._prefix}Input form-control"
                                                        placeholder="ID of the case" data-field="id" @input="${this.onInputChange}">
                                                 <span class="input-group-btn">
                                                 <button class="btn btn-default" type="button">
@@ -934,7 +934,7 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
                                     </div>
                                 </div>
 
-                                <div class="forms-group">
+                                <div class="form-group">
                                     <label class="control-label col-md-1 jso-label-title">Analysis Type</label>
                                     <div class="col-md-3">
                                         <select class="selectpicker" data-width="100%" id="${this._prefix}Type" data-field="type" data-field-type="string"
@@ -948,7 +948,7 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
                                     </div>
                                 </div>
 
-                                <div class="forms-group">
+                                <div class="form-group">
                                     <label class="control-label col-md-1 jso-label-title">Interpretation Flags</label>
                                     <div class="col-md-3">
                                         <select class="selectpicker" data-width="100%" id="${this._prefix}Flags" data-field="flags" data-field-type="array"
@@ -960,7 +960,7 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
                                     </div>
                                 </div>
 
-                                <div class="forms-group">
+                                <div class="form-group">
                                     <label class="control-label col-md-1 jso-label-title">Priority</label>
                                     <div class="col-md-3">
                                         <select class="selectpicker" data-width="100%" id="${this._prefix}Priority" data-field="priority" data-field-type="string"
@@ -973,7 +973,7 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
                                     </div>
                                 </div>
 
-                                <div class="forms-group">
+                                <div class="form-group">
                                     <label class="control-label col-md-1 jso-label-title">Assigned To</label>
                                     <div class="col-md-3">
                                         <select class="selectpicker" data-width="100%" id="${this._prefix}Assigned" data-field="assigned" data-field-type="string"
@@ -985,11 +985,11 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
                                     </div>
                                 </div>
 
-                                <div class="forms-group">
+                                <div class="form-group">
                                     <label class="control-label col-md-1 jso-label-title">Due Date</label>
                                     <div class="date col-md-3">
                                         <div class='input-group date' id="${this._prefix}DuePickerDate">
-                                            <input type='text' id="${this._prefix}DueDate" class="${this._prefix}Input forms-control" data-field="dueDate" @input="${this.onInputChange}" />
+                                            <input type='text' id="${this._prefix}DueDate" class="${this._prefix}Input form-control" data-field="dueDate" @input="${this.onInputChange}" />
                                             <span class="input-group-addon">
                                                 <span class="fa fa-calendar"></span>
                                             </span>
@@ -997,10 +997,10 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
                                     </div>
                                 </div>
 
-                                <div class="forms-group">
+                                <div class="form-group">
                                     <label class="control-label col-md-1 jso-label-title">Description</label>
                                     <div class="col-md-3">
-                                        <textarea id="${this._prefix}Description" class="${this._prefix}Input forms-control"
+                                        <textarea id="${this._prefix}Description" class="${this._prefix}Input form-control"
                                                   placeholder="Description of the case" data-field="description" @input="${this.onInputChange}"></textarea>
                                     </div>
                                 </div>
@@ -1008,12 +1008,12 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
 
 
                             <div>
-                                <h4 class="forms-section-title">Proband and Disease</h4>
+                                <h4 class="form-section-title">Proband and Disease</h4>
                             </div>
 
-                            <div class="forms-horizontal" style="padding: 10px 10px">
+                            <div class="form-horizontal" style="padding: 10px 10px">
                                 ${this.isFamilyAnalysis(this._clinicalAnalysis.type) ? html`
-                                    <div class="forms-group" style="padding-top: 10px">
+                                    <div class="form-group" style="padding-top: 10px">
                                         <label class="control-label col-md-1 jso-label-title">Search Family</label>
                                         <div class="col-md-1">
                                             <!--Search family-->
@@ -1028,7 +1028,7 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
                                         </div>
                                     </div>
                                 ` : html`
-                                    <div class="forms-group" style="padding-top: 10px">
+                                    <div class="form-group" style="padding-top: 10px">
                                         <label class="control-label col-md-1 jso-label-title">Search Proband</label>
                                         <div class="col-md-1">
                                             <button id="${this._prefix}-browseIndividual2" class="btn btn-sm btn-primary"
@@ -1038,7 +1038,7 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
                                     </div>
                                 `}
 
-                                <div class="forms-group">
+                                <div class="form-group">
                                     <label class="control-label col-md-1 jso-label-title">Disorder</label>
                                     <div class="col-md-3">
                                         <!-- TODO CHECK on-dom-change="renderDomRepeat"-->
@@ -1051,7 +1051,7 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
                                     </div>
                                 </div>
 
-                                <div class="forms-group">
+                                <div class="form-group">
                                     <label class="control-label col-md-1 jso-label-title">Sample Configuration:</label>
                                     <div id="${this._prefix}GridTableDiv" class="col-md-11 col-md-offset-1" style="padding: 10px 20px">
                                         <table id="${this._prefix}IndividualBrowserGrid">
@@ -1065,7 +1065,7 @@ export default class OpencgaClinicalAnalysisEditor extends LitElement {
                     </div>
 
                     <div class="col-md-2 col-md-offset-2">
-                        <!--<div class="forms-group">-->
+                        <!--<div class="form-group">-->
                         <!--<div class="col-md-2" style="float: right">-->
                         <button id="${this._prefix}Clear" class="btn btn-primary" @click="${this.onClear}">Clear</button>
                         <button id="${this._prefix}Ok" class="btn btn-primary" @click="${this.onCreate}">Create</button>

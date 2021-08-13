@@ -277,7 +277,7 @@
 
                                     <template is="dom-if" if="{{checkSubType(variable, 'TEXT')}}" >
                                         <!-- String subtype: include a text area and add suitable regular expression for text-->
-                                        <!-- We use restamp=true in dom-if to remove from validation of forms when they are hide -->
+                                        <!-- We use restamp=true in dom-if to remove from validation of form when they are hide -->
                                             <template is="dom-if" if="{{variable.required}}" on-dom-change="_updateValidateFormFields" restamp="true">
                                                 <textarea class="form-control"
                                                           id="{{prefix}}{{variable.name}}" name="{{variable.name}}"
@@ -518,7 +518,7 @@
                     return elem;
                 });
 
-                // we force to reset validation of the forms
+                // we force to reset validation of the form
                 if (destroy) {
                     $(PolymerUtils.getElementById(this.prefix + "uploadForm"))[0].reset();
                     $(PolymerUtils.getElementById(this.prefix + "uploadForm")).validator('destroy').validator();
@@ -666,7 +666,7 @@
 
             submitForm(e, _this) {
                 if (e.isDefaultPrevented()) {
-                    // handle the invalid forms...
+                    // handle the invalid form...
                     return;
                 } else {
                     // everything looks good!
@@ -722,7 +722,7 @@
                                 }
                                 i++;
                             }
-                            // Register the forms in openCGA through different steps
+                            // Register the form in openCGA through different steps
                             if (isNaN(sampleName)) {
                                 _this.openCGAsteps(formFields, sampleName, vcfFile);
                             } else {
@@ -777,7 +777,7 @@
             }
 
             openCGAsteps(formFields, sampleName, vcfFile) {
-                // The following steps are run to register the forms in openCGA:
+                // The following steps are run to register the form in openCGA:
                 if (this.opencgaClient instanceof OpenCGAClient) {
                     let isSomatic = (formFields.cellLine === "somatic");
                     let hasParentalConsanguinity = (formFields.parentalConsanguinity === "true");

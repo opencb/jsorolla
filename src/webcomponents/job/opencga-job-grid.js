@@ -203,7 +203,7 @@ export default class OpencgaJobGrid extends LitElement {
     }
 
     /* /!**
-     * If filters have been removed, clean the values from the forms.
+     * If filters have been removed, clean the values from the form.
      *!/
     onFilterUpdate() {
         this.updateForms(this.filters); //TODO recheck, this shouldn't be necessary anymore (and it seems not)

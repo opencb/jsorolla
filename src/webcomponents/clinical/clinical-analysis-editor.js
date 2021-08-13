@@ -280,7 +280,7 @@ class ClinicalAnalysisEditor extends LitElement {
                     title: "Summary",
                     display: {
                         style: "background-color: #f3f3f3; border-left: 4px solid #0c2f4c; margin: 15px 0px; padding-top: 10px",
-                        elementLabelStyle: "padding-top: 0px", // forms add control-label which has an annoying top padding
+                        elementLabelStyle: "padding-top: 0px", // form add control-label which has an annoying top padding
                     },
                     elements: [
                         {
