@@ -80,8 +80,8 @@ module.exports = {
                 "assets/css/styles.css": [
                     "./styles/css/global.css",
                     "./styles/css/style.css",
-                    "/styles/toggle-switch.css",
-                    "/styles/magic-check.css"
+                    "./styles/css/toggle-switch.css",
+                    "./styles/css/magic-check.css"
                 ],
                 "assets/css/vendor.css": [
                     "./node_modules/bootstrap/dist/css/bootstrap.min.css",
