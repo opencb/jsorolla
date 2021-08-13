@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-import { html, LitElement } from "/web_modules/lit-element.js";
+import {html, LitElement} from "/web_modules/lit-element.js";
 import UtilsNew from "./../../core/utilsNew.js";
 import GridCommons from "../commons/grid-commons.js";
-import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js"
-import "../permission/permission-browser-grid.js";
+import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
+import "./permission/permission-browser-grid.js";
 
 
 export default class StudyAdminPermissions extends LitElement {
@@ -56,7 +56,7 @@ export default class StudyAdminPermissions extends LitElement {
     connectedCallback() {
         super.connectedCallback();
 
-        this._config = { ...this.getDefaultConfig(), ...this.config };
+        this._config = {...this.getDefaultConfig(), ...this.config};
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
         // console.log("Rendering permission table connectedCallback:", document.querySelector(`#${this.gridId}`))
     }
@@ -78,7 +78,7 @@ export default class StudyAdminPermissions extends LitElement {
             for (const project of this.opencgaSession.projects) {
                 for (const study of project.studies) {
                     if (study.id === this.studyId || study.fqn === this.studyId) {
-                        this.study = { ...study };
+                        this.study = {...study};
                         break;
                     }
                 }
@@ -134,7 +134,7 @@ export default class StudyAdminPermissions extends LitElement {
             <div class="guard-page">
                 <i class="fas fa-lock fa-5x"></i>
                 <h3>No permission to view this page</h3>
-            </div>`
+            </div>`;
         }
 
         return html`
@@ -148,6 +148,7 @@ export default class StudyAdminPermissions extends LitElement {
             </div>
             `;
     }
+
 }
 
 customElements.define("study-admin-permissions", StudyAdminPermissions);

@@ -41,7 +41,7 @@ import {ReactomeClient} from "../../core/clients/reactome/reactome-client.js";
 
 
 import UtilsNew from "../../core/utilsNew.js";
-import NotificationUtils from "../../core/NotificationUtils.js";
+import NotificationUtils from "../../webcomponents/NotificationUtils.js";
 import {NotificationQueue} from "../../core/NotificationQueue.js";
 import AnalysisRegistry from "../../webcomponents/variant/analysis/analysis-registry.js";
 import "../../webcomponents/clinical/opencga-clinical-analysis-browser.js";

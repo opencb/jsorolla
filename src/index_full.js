@@ -177,7 +177,7 @@ import "./core/validator/vcf-validator.js";
 import "./core/validator/bed-validator.js";
 import "./core/validator/validator.js";
 import "./core/validator/experimental-design-validator.js";
-import "./core/NotificationUtils.js";
+import "./webcomponents/NotificationUtils.js";
 import "./core/widgets/input-list-widget.js";
 import "./core/widgets/chart-widget.js";
 import "./core/widgets/feature/info/tf-info-widget.js";

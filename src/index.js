@@ -22,6 +22,6 @@ export VariantCancerInterpreter from "./webcomponents/variant/interpretation/var
 
 export Utils from "./core/utils.js";
 export UtilsNew from "./core/utilsNew.js";
-export NotificationUtils from "./core/NotificationUtils.js";
+export NotificationUtils from " ./webcomponents/NotificationUtils.js";
 
-//export NotificationUtils from "./core/NotificationUtils.js"; we don't need it since it is not directly called from iva-app, it's a 2rd level dep.
+//export NotificationUtils from "./webcomponents/NotificationUtils.js"; we don't need it since it is not directly called from iva-app, it's a 2rd level dep.
