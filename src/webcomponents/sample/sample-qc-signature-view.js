@@ -17,7 +17,7 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../core/utilsNew.js";
 import "../commons/view/signature-view.js";
-import "../commons/view/data-form.js";
+import "../commons/forms/data-form.js";
 import "../commons/simple-chart.js";
 
 class SampleQcSignatureView extends LitElement {

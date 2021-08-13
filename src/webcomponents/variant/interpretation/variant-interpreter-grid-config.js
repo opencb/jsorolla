@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import "../../commons/view/data-form.js";
+import "../../commons/forms/data-form.js";
 
 
 export default class VariantInterpreterGridConfig extends LitElement {
@@ -192,8 +192,8 @@ export default class VariantInterpreterGridConfig extends LitElement {
 
     render() {
         return html`
-            <data-form  .data="${this.config}" 
-                        .config="${this.getConfigForm()}" 
+            <data-form  .data="${this.config}"
+                        .config="${this.getConfigForm()}"
                         @fieldChange="${e => this.onFieldChange(e)}">
             </data-form>
         `;

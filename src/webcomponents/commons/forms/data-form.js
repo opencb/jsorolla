@@ -24,9 +24,9 @@ import "../simple-chart.js";
 import "../json-viewer.js";
 import "../../tree-viewer.js";
 import "../../download-button.js";
-import "../../commons/filters/text-field-filter.js";
-import "../forms/toggle-switch.js";
-import "../forms/toggle-buttons.js";
+import "../filters/text-field-filter.js";
+import "./toggle-switch.js";
+import "./toggle-buttons.js";
 
 export default class DataForm extends LitElement {
 

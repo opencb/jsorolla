@@ -19,7 +19,7 @@ import UtilsNew from "./../../core/utilsNew.js";
 import "../commons/phenotype/phenotype-list-update.js";
 import "../commons/annotationset/annotation-set-update.js";
 import "../individual/disorder/disorder-list-update.js";
-import FormUtils from "../../core/form-utils.js";
+import FormUtils from "../../webcomponents/commons/forms/form-utils.js";
 
 export default class IndividualCreate extends LitElement {
 

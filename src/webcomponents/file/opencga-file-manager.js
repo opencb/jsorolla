@@ -17,7 +17,7 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../core/utilsNew.js";
 import "./opencga-file-view.js";
-import "../commons/view/data-form.js";
+import "../commons/forms/data-form.js";
 import "../loading-spinner.js";
 
 export default class OpencgaFileManager extends LitElement {

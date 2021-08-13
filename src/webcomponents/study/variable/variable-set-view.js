@@ -17,7 +17,7 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import UtilsNew from "../../../core/utilsNew.js";
-import "../../commons/view/data-form.js";
+import "../../commons/forms/data-form.js";
 
 export default class VariableSetView extends LitElement {
 

@@ -17,7 +17,7 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../core/utilsNew.js";
 import "../commons/simple-chart.js";
-import "../commons/view/data-form.js";
+import "../commons/forms/data-form.js";
 
 /**
  * This component can work on two different ways:

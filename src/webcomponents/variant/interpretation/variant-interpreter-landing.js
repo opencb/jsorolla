@@ -22,7 +22,7 @@ import "../../clinical/clinical-analysis-editor.js";
 import "../../clinical/opencga-clinical-analysis-writer.js";
 import "../../clinical/clinical-analysis-interpretation-editor.js";
 import "../../commons/filters/clinical-analysis-id-autocomplete.js";
-import "../../commons/view/data-form.js";
+import "../../commons/forms/data-form.js";
 import "../../clinical/clinical-analysis-audit-browser.js";
 import "../../clinical/clinical-analysis-consent-editor.js";
 

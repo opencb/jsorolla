@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../core/utilsNew.js";
-import "../commons/view/data-form.js";
+import "../commons/forms/data-form.js";
 import "../commons/view/pedigree-view.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 

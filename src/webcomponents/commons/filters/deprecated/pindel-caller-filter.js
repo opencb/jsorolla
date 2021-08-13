@@ -17,7 +17,7 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../../core/utilsNew.js";
-import "../../view/data-form.js";
+import "../../forms/data-form.js";
 
 
 export default class PindelCallerFilter extends LitElement {

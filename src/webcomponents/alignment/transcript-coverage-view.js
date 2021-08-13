@@ -15,7 +15,7 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import "../commons/view/data-form.js";
+import "../commons/forms/data-form.js";
 
 
 export default class TranscriptCoverageView extends LitElement {

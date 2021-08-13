@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../core/utilsNew.js";
-import "../commons/view/data-form.js";
+import "../commons/forms/data-form.js";
 import {NotificationQueue} from "../../core/NotificationQueue.js";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import "../commons/filters/clinical-priority-filter.js";
