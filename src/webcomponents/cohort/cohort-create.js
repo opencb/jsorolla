@@ -18,7 +18,7 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "./../../core/utilsNew.js";
 import "../commons/tool-header.js";
 import FormUtils from "../../webcomponents/commons/forms/form-utils.js";
-import "../commons/annotationset/annotation-set-update.js";
+import "../study/annotationset/annotation-set-update.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 
 export default class CohortCreate extends LitElement {

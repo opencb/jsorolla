@@ -16,8 +16,8 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "./../../core/utilsNew.js";
-import "../commons/phenotype/phenotype-list-update.js";
-import "../commons/annotationset/annotation-set-update.js";
+import "../study/phenotype/phenotype-list-update.js";
+import "../study/annotationset/annotation-set-update.js";
 import "../individual/disorder/disorder-list-update.js";
 import FormUtils from "../../webcomponents/commons/forms/form-utils.js";
 
