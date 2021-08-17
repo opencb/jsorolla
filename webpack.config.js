@@ -14,7 +14,7 @@ const packageJson = require("./package.json");
 const DIST_PATH = path.resolve(__dirname, "build/");
 // const revision = require("./rev-info.js");
 const execSync = require("child_process").execSync;
-const ivaPath = path.resolve(__dirname, "src/apps/iva");
+const ivaPath = path.resolve(__dirname, "src/sites/iva");
 const revision = () => {
     try {
         const jsorollaBranch = execSync("git rev-parse --abbrev-ref HEAD").toString();

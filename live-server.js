@@ -4,7 +4,7 @@ const params = {
     port: 3000,
     host: "localhost",
     // open: "/src",
-    open: "/src/apps/iva",
+    open: "/src/sites/iva",
     // watch: ["src", "lib/jsorolla/src", "lib/jsorolla/styles"],
     watch: ["src", "styles"],
     // ignore: "cypress,report,build,docker",

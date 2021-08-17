@@ -20,7 +20,7 @@ import {goTo} from "../plugins/utils.js";
 
 context("2 - Login", () => {
     beforeEach(() => {
-        cy.visit("http://localhost:3000/src/apps/iva/#login");
+        cy.visit("http://localhost:3000/src/sites/iva/#login");
     });
 
     it("2.1 - login unsuccessful", () => {

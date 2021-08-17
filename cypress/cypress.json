@@ -1,5 +1,5 @@
 {
-  "baseUrl": "http://localhost:3000/src/apps/iva/",
+  "baseUrl": "http://localhost:3000/src/sites/iva/",
   "chromeWebSecurity": false,
   "viewportWidth": 1600,
   "viewportHeight": 660,

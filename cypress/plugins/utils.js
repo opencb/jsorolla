@@ -20,7 +20,7 @@ Cypress.Commands.add("getAttached", selector => {
 });
 
 export const login = () => {
-    cy.visit("http://localhost:3000/src/apps/iva/#login");
+    cy.visit("http://localhost:3000/src/sites/iva/#login");
     const username = Cypress.env("username");
     const password = Cypress.env("password");
     cy.get("#opencgaUser").type(username);
