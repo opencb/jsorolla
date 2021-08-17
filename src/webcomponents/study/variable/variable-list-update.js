@@ -16,7 +16,7 @@
 
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import "../../commons/filters/text-field-filter.js";
+import "../../commons/forms/text-field-filter.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
 import "./variable-manager.js";
 

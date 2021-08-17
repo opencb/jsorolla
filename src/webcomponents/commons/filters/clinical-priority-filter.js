@@ -17,7 +17,7 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../core/utilsNew.js";
-import "./select-field-filter.js";
+import "../forms/select-field-filter.js";
 
 export default class ClinicalPriorityFilter extends LitElement {
 

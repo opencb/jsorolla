@@ -17,8 +17,8 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../core/utilsNew.js";
 import "../opencga/catalog/variableSets/opencga-annotation-filter.js";
-import "../commons/filters/date-filter.js";
-import "../commons/filters/text-field-filter.js";
+import "../commons/forms/date-filter.js";
+import "../commons/forms/text-field-filter.js";
 import "../commons/filters/jobs-id-autocomplete.js";
 import "../commons/filters/analysis-tool-id-autocomplete.js";
 

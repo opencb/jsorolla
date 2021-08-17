@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import Utils from "../../../core/utils.js";
-import "./select-field-filter-autocomplete.js";
+import "../forms/select-field-filter-autocomplete.js";
 
 export default class VariableSetIdAutocomplete extends LitElement {
 

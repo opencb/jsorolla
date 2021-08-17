@@ -20,7 +20,7 @@ import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import ClinicalAnalysisUtils from "./clinical-analysis-utils.js";
 import "./clinical-analysis-comment-editor.js";
 import "../commons/forms/data-form.js";
-import "../commons/filters/text-field-filter.js";
+import "../commons/forms/text-field-filter.js";
 
 
 class ClinicalAnalysisEditor extends LitElement {

@@ -16,7 +16,7 @@
 
 import {html, LitElement} from "/web_modules/lit-element.js";
 import "../../commons/filters/variableset-id-autocomplete.js";
-import "../../commons/filters/select-field-token.js";
+import "../../commons/forms/select-field-token.js";
 import LitUtils from "../../commons/utils/lit-utils.js";
 
 // eslint-disable-next-line new-cap

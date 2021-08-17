@@ -15,8 +15,8 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import "../../commons/filters/select-field-filter.js";
-import "../../commons/filters/checkbox-field-filter.js";
+import "../../commons/forms/select-field-filter.js";
+import "../../commons/forms/checkbox-field-filter.js";
 
 export default class ClinicalAnnotationFilter extends LitElement {
 
@@ -103,12 +103,12 @@ export default class ClinicalAnnotationFilter extends LitElement {
                 <div style="padding: 2px 0px">
                     <select-field-filter multiple
                                          .data="${this._config.clinicalDatabases}"
-                                         .value=${this.clinical} 
+                                         .value=${this.clinical}
                                          @filterChange="${e => this.filterChange(e, "clinical")}">
                     </select-field-filter>
                 </div>
             </div>
-            
+
             <div style="margin: 15px 0px">
                 <span>Select Clinical Significance</span>
                 <div style="padding: 2px 0px">

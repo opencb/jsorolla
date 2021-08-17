@@ -18,7 +18,7 @@ import {html, LitElement} from "/web_modules/lit-element.js";
 import UtilsNew from "../../core/utilsNew.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
 import "../commons/forms/data-form.js";
-import "../commons/filters/text-field-filter.js";
+import "../commons/forms/text-field-filter.js";
 
 
 class ClinicalAnalysisConsentEditor extends LitElement {

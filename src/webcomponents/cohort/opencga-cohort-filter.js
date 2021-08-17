@@ -19,9 +19,9 @@ import UtilsNew from "../../core/utilsNew.js";
 import PolymerUtils from "../PolymerUtils.js";
 import "../opencga/catalog/variableSets/opencga-annotation-filter.js";
 import "../opencga/catalog/variableSets/opencga-annotation-filter-dynamic.js";
-import "../commons/filters/date-filter.js";
-import "../commons/filters/text-field-filter.js";
-import "../commons/filters/select-field-filter.js";
+import "../commons/forms/date-filter.js";
+import "../commons/forms/text-field-filter.js";
+import "../commons/forms/select-field-filter.js";
 import "../commons/filters/cohort-id-autocomplete.js";
 
 

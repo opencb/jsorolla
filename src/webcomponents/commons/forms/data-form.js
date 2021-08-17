@@ -24,7 +24,7 @@ import "../simple-chart.js";
 import "../json-viewer.js";
 import "../../tree-viewer.js";
 import "../../download-button.js";
-import "../filters/text-field-filter.js";
+import "../forms/text-field-filter.js";
 import "./toggle-switch.js";
 import "./toggle-buttons.js";
 

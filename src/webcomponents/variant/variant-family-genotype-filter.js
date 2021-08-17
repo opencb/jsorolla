@@ -19,7 +19,7 @@ import UtilsNew from "../../core/utilsNew.js";
 import PolymerUtils from "../PolymerUtils.js";
 import Pedigree from "../../core/visualisation/pedigree.js";
 import "../commons/view/pedigree-view.js";
-import "../commons/filters/select-field-filter.js";
+import "../commons/forms/select-field-filter.js";
 
 
 /**

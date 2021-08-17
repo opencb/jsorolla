@@ -16,14 +16,14 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../core/utilsNew.js";
-import "../filters/select-field-filter.js";
-import "../filters/text-field-filter.js";
+import "../forms/select-field-filter.js";
+import "../forms/text-field-filter.js";
 import "../filters/cohort-id-autocomplete.js";
 import "../filters/sample-id-autocomplete.js";
 import "../filters/family-id-autocomplete.js";
 import "../filters/population-frequency-filter.js";
 import "../filters/clinvar-accessions-filter.js";
-import "../filters/checkbox-field-filter.js";
+import "../forms/checkbox-field-filter.js";
 
 export default class OpencgaAnalysisToolFormField extends LitElement {
 

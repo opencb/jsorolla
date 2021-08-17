@@ -18,7 +18,7 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../core/utilsNew.js";
 import "./opencga-facet-result-view.js";
 import "./opencga-active-filters.js";
-import "./filters/select-field-filter.js";
+import "./forms/select-field-filter.js";
 import "./opencb-facet-results.js";
 import "./facet-filter.js";
 import "../loading-spinner.js";

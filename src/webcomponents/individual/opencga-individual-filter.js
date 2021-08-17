@@ -17,12 +17,12 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../core/utilsNew.js";
 import "../opencga/catalog/variableSets/opencga-annotation-filter.js";
-import "../commons/filters/text-field-filter.js";
-import "../commons/filters/select-field-filter.js";
+import "../commons/forms/text-field-filter.js";
+import "../commons/forms/select-field-filter.js";
 import "../commons/filters/individual-id-autocomplete.js";
 import "../commons/filters/disorder-id-autocomplete.js";
 import "../commons/filters/phenotype-id-autocomplete.js";
-import "../commons/filters/date-filter.js";
+import "../commons/forms/date-filter.js";
 
 
 export default class OpencgaIndividualFilter extends LitElement {

@@ -18,7 +18,7 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../core/utilsNew.js";
 import PolymerUtils from "../PolymerUtils.js";
 import "../opencga/catalog/variableSets/opencga-annotation-filter-modal.js";
-import "../commons/filters/date-filter.js";
+import "../commons/forms/date-filter.js";
 import "../commons/filters/family-id-autocomplete.js";
 
 export default class OpencgaFamilyFilter extends LitElement {

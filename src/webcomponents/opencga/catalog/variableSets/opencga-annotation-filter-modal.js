@@ -18,7 +18,7 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import {classMap} from "/web_modules/lit-html/directives/class-map.js";
 import UtilsNew from "../../../../core/utilsNew.js";
-import "./../../../commons/filters/select-field-filter.js";
+import "./../../../commons/forms/select-field-filter.js";
 
 export default class OpencgaAnnotationFilterModal extends LitElement {
 
