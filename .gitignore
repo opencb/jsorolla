@@ -44,3 +44,10 @@ local.properties
 # PDT-specific
 .buildpath
 
+# Cypress
+fixtures
+screenshots
+support
+videos
+mochawesome-report
+
