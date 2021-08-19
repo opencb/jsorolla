@@ -1,5 +1,5 @@
 const path = require("path");
-const {webpack, IgnorePlugin} = require("webpack");
+const webpack = require("webpack");
 const {CleanWebpackPlugin} = require("clean-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const HtmlReplaceWebpackPlugin = require("html-replace-webpack-plugin");
@@ -190,7 +190,7 @@ module.exports = {
         // ignore is not the best way to externalize a resource, but webpack don't support external ES modules yet.
         // ignore makes sense because iva-app bundle will be an ES module on its own, so import X from "/jsorolla.min.js" won't be a problem if not processed by webpack
         // why do whe need to bundle iva-app in webpack at all then? Because we need to process litElement imports
-        new IgnorePlugin({
+        new webpack.IgnorePlugin({
             checkResource(resource) {
                 // console.log("res", resource)
                 // if (resource === "./conf/opencga-variant-browser.config.js") return true;
@@ -236,7 +236,7 @@ module.exports = {
                 use: "null-loader"
             },*/
             {
-                test: /\.html$/i,
+                test: /\.html$/,
                 use: ["html-loader"] // rewrite html content (replace automatically <img src="img.jpg"/> in require("img.jpg"))
             },
             {
