@@ -15,8 +15,8 @@
  */
 
 
-import {LitElement, html} from "/web_modules/lit-element.js";
-import {classMap} from "/web_modules/lit-html/directives/class-map.js";
+import {LitElement, html} from "lit";
+import {classMap} from "lit/directives/class-map.js";
 import UtilsNew from "../../../../core/utilsNew.js";
 import "./../../../commons/forms/select-field-filter.js";
 

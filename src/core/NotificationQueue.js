@@ -1,5 +1,5 @@
 import UtilsNew from "./utilsNew.js";
-import {html} from "/web_modules/lit-element.js";
+import {html} from "lit-html";
 
 export class NotificationQueue {
 

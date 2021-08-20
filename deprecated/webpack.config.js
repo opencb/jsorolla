@@ -17,9 +17,6 @@ const ivaPath = path.resolve(__dirname, "src/sites/iva");
 // const ESLintPlugin = require("eslint-webpack-plugin");
 // const revision = require("./rev-info.js");
 
-// New Configuration
-// html, copy, node-resolve (bare-module),terser,minify-html-literals, summary
-
 const revision = () => {
     try {
         const jsorollaBranch = execSync("git rev-parse --abbrev-ref HEAD").toString();

@@ -15,7 +15,7 @@
  */
 
 
-import {LitElement, html} from "/web_modules/lit-element.js";
+import {LitElement, html} from "lit";
 export class NotificationElement extends LitElement {
 
     constructor() {

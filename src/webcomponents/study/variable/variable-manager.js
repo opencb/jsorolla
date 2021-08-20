@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {html, LitElement} from "/web_modules/lit-element.js";
+import {LitElement, html} from "lit";
 import "../../commons/filters/variableset-id-autocomplete.js";
 import "../../commons/forms/select-field-token.js";
 import LitUtils from "../../commons/utils/lit-utils.js";

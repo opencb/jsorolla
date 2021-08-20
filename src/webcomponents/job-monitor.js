@@ -15,7 +15,7 @@
  */
 
 
-import {LitElement, html} from "/web_modules/lit-element.js";
+import {LitElement, html} from "lit";
 import OpencgaCatalogUtils from "../core/clients/opencga/opencga-catalog-utils.js";
 import UtilsNew from "../core/utilsNew.js";
 import {NotificationQueue} from "../core/NotificationQueue.js";

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {html, LitElement} from "/web_modules/lit-element.js";
+import {LitElement, html} from "lit";
 // import {directive} from "/web_modules/lit-html.js";
 import UtilsNew from "../../../core/utilsNew.js";
 import "../simple-chart.js";

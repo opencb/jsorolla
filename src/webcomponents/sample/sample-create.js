@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "/web_modules/lit-element.js";
+import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
 import LitUtils from "../commons/utils/lit-utils.js";
 import "../study/phenotype/phenotype-list-update.js";

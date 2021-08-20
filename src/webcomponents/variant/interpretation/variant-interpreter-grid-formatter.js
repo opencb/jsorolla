@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {html} from "/web_modules/lit-element.js";
+import {html} from "lit-html"
 import VariantGridFormatter from "../variant-grid-formatter.js";
 import UtilsNew from "../../../core/utilsNew.js";
 import BioinfoUtils from "../../../core/bioinfo/bioinfo-utils.js";
