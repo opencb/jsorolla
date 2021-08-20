@@ -18,7 +18,8 @@ import {LitElement, html} from "lit";
 import {classMap} from "lit/directives/class-map.js";
 import UtilsNew from "../../core/utilsNew.js";
 import "../commons/tool-header.js";
-import {CountUp} from "/node_modules/countup.js/dist/countUp.min.js";
+// import {CountUp} from "/node_modules/countup.js/dist/countUp.min.js";
+import {CountUp} from "countup.js";
 import "../commons/simple-chart.js";
 import {NotificationQueue} from "../../core/NotificationQueue.js";
 import {RestResponse} from "../../core/clients/rest-response.js";
@@ -113,7 +114,7 @@ export default class OpencgaProjects extends LitElement {
                         {id: "UNKNOWN", name: "UNKNOWN"}
                     ]
                 },
-                /*ethnicity: []*/},
+                /* ethnicity: []*/},
             cohort: {}
         };
 
@@ -190,14 +191,14 @@ export default class OpencgaProjects extends LitElement {
             const catalogProjectResponse = await this.opencgaSession.opencgaClient.projects().aggregationStats(projectIds, {
                 individualFields: "lifeStatus,sex"
             });
-            /*const f = await fetch("/lib/jsorolla/src/core/webcomponents/user/projects.json");
+            /* const f = await fetch("/lib/jsorolla/src/core/webcomponents/user/projects.json");
             const catalogProjectResponse = new RestResponse(await f.json());*/
 
             if (catalogProjectResponse.getResults().length) {
 
                 // iterates over projects
                 Object.entries(catalogProjectResponse.getResult(0)).forEach(([projectId, studiesObj]) => {
-                    //console.log(projectId, studiesObj)
+                    // console.log(projectId, studiesObj)
                     this.chartData[projectId] = {};
 
                     // iterates over studies
@@ -228,7 +229,6 @@ export default class OpencgaProjects extends LitElement {
                         };
 
 
-
                     });
 
 
@@ -239,7 +239,7 @@ export default class OpencgaProjects extends LitElement {
                         charts.forEach(field => {
 
                             // Object.values(this.data[projectId].stats) contains the map of the entities for each study. I pick the first study as they are (expected) to be the same for all studies.
-                            console.log(Object.values(this.data[projectId].stats))
+                            console.log(Object.values(this.data[projectId].stats));
                             const categories = Object.values(this.data[projectId].stats)[0][entity].results.find(result => result.name === field).buckets.map(_ => _.value);
 
                             // building chart data
@@ -316,7 +316,7 @@ export default class OpencgaProjects extends LitElement {
         // reset this.activeTab and enable just the active project with the first side nav item.
         this.activeTab = {
             [projectId]: {[this.sideNavItems[0]]: true}
-        }
+        };
         this.requestUpdate();
     }
 
@@ -325,7 +325,7 @@ export default class OpencgaProjects extends LitElement {
         // Remove button focus highlight
         e.currentTarget.blur();
         const {menuItemId, projectId} = e.currentTarget.dataset;
-        /*$(".projects-side-nav > button", this).removeClass("active");
+        /* $(".projects-side-nav > button", this).removeClass("active");
         $(`.projects-side-nav > button[data-menu-item-id=${menuItemId}][data-project-id=${projectId}]`, this).addClass("active");
         $(".projects-content-tab." + projectId + " > div[role=tabpanel]", this).hide();
         $("#" + this._prefix + projectId + menuItemId, this).show();*/
@@ -352,7 +352,7 @@ export default class OpencgaProjects extends LitElement {
             xAxis: {},
             yAxis: {
                 min: 0,
-                /*plotLines: [{
+                /* plotLines: [{
                     color: "green",
                     // TODO temp solution. It shows the total count for the first project only (replace this point with a line (no splined))
                     value: facetData.find(point => point.name === "count").data[0],
@@ -561,15 +561,15 @@ export default class OpencgaProjects extends LitElement {
                                                 <div id="${this._prefix}${project.id}Summary" role="tabpanel" class="tab-pane content-tab ${classMap({active: this.activeTab[projectId]?.["Summary"] || UtilsNew.isEmpty(this.activeTab)})}" data-project-id="${project.id}" data-menu-item-id="${project.id}">
                                                     <h3>Summary</h3>
                                                     <data-form .data=${project} .config="${this.getProjectConfig()}"></data-form>
-                                                </div>`
-                                                : ""
+                                                </div>` :
+                                                ""
                                             }
 
                                             ${~this.sideNavItems.indexOf("Variants") ? html`
                                                 <div id="${this._prefix}${project.id}Variants" role="tabpanel" class="tab-pane content-tab ${classMap({active: this.activeTab[projectId]?.["Variants"]})}">
                                                     <h3>Variants</h3>
-                                                </div>`
-                                            : ""}
+                                                </div>` :
+                                            ""}
 
                                             ${~this.sideNavItems.indexOf("Files") ? html`
                                                 <div id="${this._prefix}${project.id}Files" role="tabpanel" class="tab-pane content-tab ${classMap({active: this.activeTab[projectId]?.["Files"]})}">
@@ -580,8 +580,8 @@ export default class OpencgaProjects extends LitElement {
                                                         `)}
                                                     </div>
                                                     ${this.renderTable(project.stats, "file")}
-                                                </div>`
-                                            : ""}
+                                                </div>` :
+                                            ""}
 
                                             ${~this.sideNavItems.indexOf("Samples") ? html`
                                                 <div id="${this._prefix}${project.id}Samples" role="tabpanel" class="tab-pane content-tab ${classMap({active: this.activeTab[projectId]?.["Samples"]})}">
