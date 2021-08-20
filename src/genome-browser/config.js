@@ -104,7 +104,7 @@ const SNP_BIOTYPE_COLORS = {
     "other": "#000000"
 };
 
-const SEQUENCE_COLORS = {A: "#009900", C: "#0000FF", G: "#857A00", T: "#aa0000", N: "#555555"};
+export const SEQUENCE_COLORS = {A: "#009900", C: "#0000FF", G: "#857A00", T: "#aa0000", N: "#555555"};
 
 const SAM_FLAGS = [
     ["read paired", 0x1],
@@ -120,7 +120,7 @@ const SAM_FLAGS = [
     ["read is PCR or optical duplicate", 0x400]
 ];
 
-const FEATURE_TYPES = {
+export const FEATURE_TYPES = {
 
     //methods
     formatTitle: function (str) {

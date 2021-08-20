@@ -1,6 +1,8 @@
 import {CellBaseClient} from "../../core/clients/cellbase/cellbase-client.js";
 import FeatureTrack from "./feature-track.js";
 import HistogramRenderer from "../renderers/histogram-renderer.js";
+import CellBaseAdapter from "../../core/data-adapter/cellbase-adapter.js";
+import GeneRenderer from "../renderers/gene-renderer.js";
 
 
 export default class GeneTrack extends FeatureTrack {

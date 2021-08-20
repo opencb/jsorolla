@@ -16,6 +16,7 @@
 
 import UtilsNew from "../../utilsNew.js";
 import {RestClient} from "../rest-client.js";
+import "../../cache/indexeddb-cache.js";
 
 
 export class CellBaseClient {
@@ -96,7 +97,7 @@ export class CellBaseClient {
         let url = `${hosts[count]}/webservices/rest/${version}/` + "meta" + `/${param}`;
 
         // By default we assume https protocol instead of http
-        if (!url.startsWith("https://") && !url.startsWith("http://")) {
+        if (!url.startsWith("http://") && !url.startsWith("http://")) {
             url = `https://${url}`;
         }
 

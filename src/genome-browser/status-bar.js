@@ -1,5 +1,6 @@
 import Utils from "../core/utils.js";
 import Region from "../core/bioinfo/region.js";
+import {SEQUENCE_COLORS} from "./config.js";
 
 export default class StatusBar {
 
