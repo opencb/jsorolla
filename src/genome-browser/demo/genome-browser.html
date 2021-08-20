@@ -59,6 +59,8 @@
 
     // We first parse URL to check (and overwrite) if a CellBase Host and Version have been provided
     //if we do not provide the CellbaseHost then you will get those configured in the file "config.js"
+    var CELLBASE_HOST = "http://bioinfo.hpc.cam.ac.uk/cellbase";
+    var CELLBASE_VERSION = "v4";
 
     let queryParams = URI.parseQuery(window.location.search);
     if (typeof queryParams.CELLBASE_HOST !== "undefined") {
@@ -71,9 +73,9 @@
     }
 
     console.log("CellBase Host: " + CELLBASE_HOST, " - CellBase Version: " + CELLBASE_VERSION)
-    let cellBaseClientConfig = new CellBaseClientConfig(hosts = CELLBASE_HOST, version = CELLBASE_VERSION);
-    cellBaseClientConfig.cache.active = false;
-    let cellbaseClient = new CellBaseClient(cellBaseClientConfig);
+    // let cellBaseClientConfig = new CellBaseClientConfig(hosts = CELLBASE_HOST, version = CELLBASE_VERSION);
+    // cellBaseClientConfig.cache.active = false;
+    let cellbaseClient = new CellBaseClient();
 
 
     //GenomeBrowser, Region and Species:

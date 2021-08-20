@@ -21,11 +21,11 @@ import {RestClient} from "../rest-client.js";
 export class CellBaseClient {
 
     constructor(config) {
-        // if (typeof config === "undefined") {
-        //     this._config = new CellBaseClientConfig();
-        // } else {
-        //     this._config = config;
-        // }
+        if (config) {
+            this._config = config;
+        } else {
+            this._config = this.getDefaultConfig();
+        }
 
         // this._config = config;
         this.setConfig(config);
