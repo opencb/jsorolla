@@ -20,7 +20,6 @@
 
 // import { LitElement, html } from 'lit-element'; // bare import by name doesn't work yet in browser,
 // see: https://www.polymer-project.org/blog/2018-02-26-3.0-preview-paths-and-names
-// import {LitElement, html} from "/web_modules/lit-element.js";
 import {LitElement, html} from "lit";
 import "./welcome.js";
 import "./about.js";

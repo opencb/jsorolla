@@ -17,8 +17,7 @@
  */
 
 import {LitElement, html} from "lit";
-import {ifDefined} from "/web_modules/lit-html/directives/if-defined.js";
-// import UtilsNew from "../../../core/utilsNew.js";
+import {ifDefined} from "lit/directives/if-defined.js";
 import UtilsNew from "../../../core/utilsNew.js";
 import "../simple-chart.js";
 import "../json-viewer.js";
