@@ -39,7 +39,7 @@ export class CellBaseClient {
 
     getDefaultConfig() {
         return {
-            hosts: ["https://ws.opencb.org/cellbase-4.8.2"],
+            hosts: "https://ws.opencb.org/cellbase-4.8.2",
             version: "v4",
             species: "hsapiens",
             query: {
@@ -92,13 +92,13 @@ export class CellBaseClient {
     getMeta(param, options = {}) {
         const hosts = options.hosts || this._config.hosts;
         const version = options.version || this._config.version;
-        const count = 0;
+        // const count = 0;
         // let response;
-        let url = `${hosts[count]}/webservices/rest/${version}/` + "meta" + `/${param}`;
+        let url = `${hosts}/webservices/rest/${version}/` + "meta" + `/${param}`;
 
         // By default we assume https protocol instead of http
-        if (!url.startsWith("http://") && !url.startsWith("http://")) {
-            url = `https://${url}`;
+        if (!url.startsWith("http://") && !url.startsWith("https://")) {
+            url = `http://${url}`;
         }
 
         // options.error = function() {
