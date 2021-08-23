@@ -5,6 +5,7 @@ dist/
 *web_modules/
 bower_components/
 grunt/
+dist-genome/
 
 npm-debug.log
 
