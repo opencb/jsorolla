@@ -74,28 +74,20 @@ module.exports = {
                 }
             },
             {
-                test: /\.(woff(2)?|ttf|eot|svg|png)(\?v=\d+\.\d+\.\d+)?$/,
-                use: [
-                    {
-                        loader: "file-loader",
-                        options: {
-                            name: "[name].[ext]",
-                            outputPath: "fonts/"
-                        }
-                    }
-                ]
+                test: /\.(woff(2)?|ttf|eot|svg)(\?v=\d+\.\d+\.\d+)?$/,
+                type: "asset/resource",
+                generator: {
+                    filename: "fonts/[name].[ext]"
+                }
+            },
+            {
+                test: /\.(png|jpg|gif)$/,
+                include: path.resolve(__dirname, "styles/img"),
+                type: "asset/resource",
+                generator: {
+                    filename: "img/[hash][ext][query]"
+                }
             }
-            // {
-            //     test: /\.(png|jpg|gif)$/,
-            //     exclude: path.resolve(__dirname, "styles/img"),
-            //     use: [{
-            //         loader: "file-loader",
-            //         options: {
-            //             outputPath: "img/",
-            //             publicPath: "img/"
-            //         }
-            //     }]
-            // }
         ]
     },
     plugins: [
