@@ -7,6 +7,8 @@ const packageJson = require("./package.json");
 const DIST_PATH = path.resolve(__dirname, "build/");
 const execSync = require("child_process").execSync;
 const {option} = require("grunt");
+const CopyPlugin = require("copy-webpack-plugin");
+const MergeIntoFile = require("webpack-merge-and-include-globally");
 const ivaPath = path.resolve(__dirname, "src/sites/iva");
 
 // const StringReplacePlugin = require("string-replace-webpack-plugin"); webpack 2
@@ -30,6 +32,12 @@ const revision = () => {
         `);
     }
 };
+
+const handler = (percentage, message, ...args) => {
+    // e.g. Output each progress message directly to the console:
+    console.info(percentage, message, ...args);
+};
+
 
 module.exports = {
     mode: "production",
@@ -87,11 +95,28 @@ module.exports = {
                 generator: {
                     filename: "img/[hash][ext][query]"
                 }
-            }
+            },
+            {
+                test: /\.html$/,
+                use: ["html-loader"] // rewrite html content (replace automatically <img src="img.jpg"/> in require("img.jpg"))
+            },
         ]
     },
+    resolve: {
+        modules: ["node_modules"],
+    },
     plugins: [
+        new webpack.ProgressPlugin(handler),
         new CleanWebpackPlugin(),
+        new CopyPlugin({
+            patterns: [
+                {
+                    context: path.resolve(__dirname, "src/genome-browser"),
+                    from: "config.js",
+                    to: path.resolve(__dirname, "dist-genome")
+                }
+            ]
+        }),
         new MiniCssExtractPlugin({
             filename: "[name].css",
         }),
@@ -99,17 +124,29 @@ module.exports = {
             template: path.resolve(__dirname, "src/genome-browser/demo", "index.html")
         }),
         new webpack.ProvidePlugin({
-            URI: "urijs",
-            $: "jquery",
-            _: "underscore",
-            Backbone: "backbone"
+            "URI": "urijs",
+            "_": "underscore",
+            "Backbone": "backbone",
+        }),
+        new MergeIntoFile({
+            files: {
+                "assets/css/vendor.css": [
+                    "./node_modules/qtip2/dist/jquery.qtip.min.css",
+                ],
+                "assets/js/vendor.js": [
+                    "./node_modules/jquery/dist/jquery.js",
+                    "./node_modules/qtip2/dist/jquery.qtip.min.js",
+                ]},
+            transform: {
+                "assets/js/vendor.js": code => require("uglify-js").minify(code).code,
+                "assets/css/vendor.css": code => require("uglifycss").processString(code)
+            }
         })
     ],
-    entry: {
-        genome: path.resolve(__dirname, "src/genome-browser/demo", "demo-genome-browser.js"),
-    },
+    entry: path.resolve(__dirname, "src/genome-browser/demo", "index-genome-browser.js"),
     output: {
-        path: path.resolve(__dirname, "dist-genome")
+        path: path.resolve(__dirname, "dist-genome"),
+        filename: "genome_[contenthash].js"
     }
 };
 

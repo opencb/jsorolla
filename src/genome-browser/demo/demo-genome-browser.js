@@ -4,16 +4,11 @@ import Region from "../../core/bioinfo/region.js";
 import Utils from "../../core/utils.js";
 import GenomeBrowser from "../genome-browser.js";
 import FeatureRenderer from "../renderers/feature-renderer.js";
-import {FEATURE_TYPES} from "../config.js";
 import FeatureTrack from "../tracks/feature-track.js";
 import GeneTrack from "../tracks/gene-track.js";
 import CellBaseAdapter from "../../core/data-adapter/cellbase-adapter.js";
 import SequenceRenderer from "../renderers/sequence-renderer.js";
-
-import "../../../styles/css/global.css";
-import "../../../styles/css/magic-check.css";
-import "../../../styles/css/style.css";
-import "../../../styles/css/toggle-switch.css";
+import "../config.js";
 
 
 /** *************************************************************************/
@@ -22,12 +17,13 @@ import "../../../styles/css/toggle-switch.css";
 
 // We first parse URL to check (and overwrite) if a CellBase Host and Version have been provided
 // if we do not provide the CellbaseHost then you will get those configured in the file "config.js"
+
 let CELLBASE_HOST = "http://bioinfo.hpc.cam.ac.uk/cellbase";
 let CELLBASE_VERSION = "v4";
 let AVAILABLE_SPECIES;
 
 const cellBaseClientConfig = {
-    hosts: [CELLBASE_HOST],
+    hosts: CELLBASE_HOST,
     version: CELLBASE_VERSION,
     cache: {active: false}
 };
@@ -50,6 +46,7 @@ console.log("CellBase Host: " + CELLBASE_HOST, " - CellBase Version: " + CELLBAS
 const cellbaseClient = new CellBaseClient(cellBaseClientConfig);
 
 // GenomeBrowser, Region and Species:
+// let genomeBrowser;
 const region = new Region({chromosome: "13", start: 32996311, end: 32996450}); // initial region
 
 
@@ -202,11 +199,9 @@ function run() {
 
     genomeBrowser.addTrack(tracks);
     genomeBrowser.draw();
-
 }
 
 getSpecies(function (s) {
     AVAILABLE_SPECIES = s;
     run();
 });
-
