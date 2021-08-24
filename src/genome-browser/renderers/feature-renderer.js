@@ -1,5 +1,6 @@
 import Renderer from "./renderer.js";
-import {SVG} from "./../../core/svg.js";
+import {SVG} from "../../core/svg.js";
+import FeatureBinarySearchTree from "../feature-binary-search-tree.js";
 
 /**
  * Any object with chromosome, start and end
