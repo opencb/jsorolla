@@ -305,7 +305,7 @@ class IvaApp extends LitElement {
 
         // this.cellBaseClientConfig = new CellBaseClientConfig(this.config.cellbase.hosts, this.config.cellbase.version, "hsapiens");
         this.cellbaseClient = new CellBaseClient({
-            hosts: this.config.cellbase.hosts,
+            hosts: this.config.cellbase.host,
             version: this.config.cellbase.version,
             species: "hsapiens"
         });
