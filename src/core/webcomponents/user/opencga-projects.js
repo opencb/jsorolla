@@ -339,7 +339,7 @@ export default class OpencgaProjects extends LitElement {
                             ${Object.entries(fieldsObj).map(([fieldName, studiesObj]) => {
                                 return html`
                                     <tr>
-                                        <td class="border-right">${fieldName}</td>
+                                        <td>${fieldName}</td>
                                         ${projectData.studies.map(study => html`
                                             <td>${studiesObj[study.id]?.count}</td>
                                         `)}
