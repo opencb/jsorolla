@@ -35,6 +35,10 @@ const hosts = [
     {
         id: "local",
         url: "http://localhost:1234/opencga"
+    },
+    {
+        id: "gel",
+        url: "https://re-uat.opencga.gel.zone/opencga"
     }
 ];
 
@@ -106,7 +110,7 @@ const separator = {
 const suite = {
     name: "OpenCGA Suite",
     version: "v2.1.0-beta",
-    logo: "img/iva.svg",
+    logo: "img/iva-white.svg",
     footerLogo: "img/opencb-logo.png",
     mode: "development",
     appConfig: "opencb",
