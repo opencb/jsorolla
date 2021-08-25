@@ -92,6 +92,8 @@ import "../../webcomponents/loading-spinner.js";
 import "../../webcomponents/project/projects-admin.js";
 import "../../webcomponents/study/study-admin.js";
 import "../../webcomponents/Notification.js";
+
+import "../../webcomponents/commons/layouts/custom-footer.js";
 // import "../../webcomponents/commons/loading-bar.js";
 // import "../../webcomponents/clinical/rga/rga-browser.js";
 
@@ -1866,23 +1868,10 @@ class IvaApp extends LitElement {
                 ` : null}
             </div>
 
-            <div class="footer">
-                <div class="container">
-                    <img style="height: 25px;" src="${this.config.footerLogo}" alt="logo">
-                    <p class="footer-item">
-                        IVA <sup>${this.config.version}</sup>
-                    </p>
-                    <p class="footer-item">
-                        OpenCGA
-                        ${this.host?.opencga ? html`<sup>${this.host?.opencga}</sup>` : html`<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>`}
-                    </p>
-
-                    <p class="footer-item">
-                        CellBase
-                        ${this.host?.cellbase ? html`<sup>${this.host?.cellbase}</sup>` : html`<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>`}
-                    </p>
-                </div>
-            </div>
+            <custom-footer
+                .host=${this.host}
+                .config=${this.config}>
+            </custom-footer>
 
             <notification-element .queue="${new NotificationQueue().get()}"></notification-element>
         `;
