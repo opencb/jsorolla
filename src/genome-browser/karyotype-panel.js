@@ -23,10 +23,10 @@ export default class KaryotypePanel {
         this.collapsible = true;
         this.hidden = false;
 
-        //set instantiation args, must be last
+        // set instantiation args, must be last
         Object.assign(this, args);
 
-        //set own region object
+        // set own region object
         this.region = new Region(this.region);
 
         this.lastSpecies = this.species;
@@ -56,9 +56,9 @@ export default class KaryotypePanel {
 
     setVisible(bool) {
         if (bool) {
-            this.show()
+            this.show();
         } else {
-            this.hide()
+            this.hide();
         }
     }
 
@@ -102,7 +102,7 @@ export default class KaryotypePanel {
 
         if ('title' in this && this.title !== '') {
 
-            let titleDiv = $('<div id="tl-title" class="ocb-gv-panel-title unselectable"></div>')[0];
+            const titleDiv = $('<div id="tl-title" class="ocb-gv-panel-title unselectable"></div>')[0];
             $(this.div).append(titleDiv);
 
             if (this.collapsible == true) {
@@ -135,7 +135,9 @@ export default class KaryotypePanel {
         this.markGroup = SVG.addChild(this.svg, "g", {"cursor": "pointer"});
         $(this.div).addClass('unselectable');
 
-        this.colors = {gneg: "white", stalk: "#666666", gvar: "#CCCCCC", gpos25: "silver", gpos33: "lightgrey", gpos50: "gray", gpos66: "dimgray", gpos75: "darkgray", gpos100: "black", gpos: "gray", acen: "blue"};
+        this.colors = {
+            gneg: "white", stalk: "#666666", gvar: "#CCCCCC", gpos25: "silver", gpos33: "lightgrey", gpos50: "gray", gpos66: "dimgray", gpos75: "darkgray", gpos100: "black", gpos: "gray", acen: "blue"
+        };
 
 
         this.setVisible(!this.hidden);
@@ -143,7 +145,7 @@ export default class KaryotypePanel {
         this.rendered = true;
     }
 
-    setSpecies (species) {
+    setSpecies(species) {
         this.lastSpecies = this.species;
         this.species = species;
     }
@@ -152,9 +154,9 @@ export default class KaryotypePanel {
         $(this.svg).empty();
     }
 
-    draw () {
+    draw() {
         let _this = this;
-        this.targetDiv = ( this.target instanceof HTMLElement ) ? this.target : document.querySelector('#' + this.target);
+        this.targetDiv = (this.target instanceof HTMLElement) ? this.target : document.querySelector('#' + this.target);
         if (!this.targetDiv) {
             console.log('target not found');
             return;
@@ -163,7 +165,7 @@ export default class KaryotypePanel {
 
         this.clean();
 
-        let sortfunction = function (a, b) {
+        const sortfunction = function (a, b) {
             let IsNumber = true;
             for (let i = 0; i < a.name.length && IsNumber == true; i++) {
                 if (isNaN(a.name[i])) {
@@ -193,7 +195,6 @@ export default class KaryotypePanel {
         let xOffset = _this.width / chromosomeList.length;
         let yMargin = 2;
 
-        ///////////
         let biggerChr = 0;
         for (let i = 0, len = chromosomeList.length; i < len; i++) {
             let size = chromosomeList[i].size;
@@ -218,13 +219,8 @@ export default class KaryotypePanel {
             let group = SVG.addChild(_this.svg, "g", {"cursor": "pointer", "chr": chromosome.name});
             $(group).click(function (event) {
                 let chrClicked = this.getAttribute("chr");
-                //			for ( var k=0, len=chromosomeList.length; k<len; k++) {
-                //			var offsetX = (event.pageX - $(_this.svg).offset().left);
-                //			if(offsetX > _this.chrOffsetX[chromosomeList[k]]) chrClicked = chromosomeList[k];
-                //			}
 
                 let offsetY = (event.pageY - $(_this.svg).offset().top);
-                //			var offsetY = event.originalEvent.layerY - 3;
 
                 let clickPosition = parseInt((offsetY - _this.chrOffsetY[chrClicked]) / _this.pixelBase);
                 let region = new Region({
@@ -347,16 +343,6 @@ export default class KaryotypePanel {
         this.updateRegionControls();
     }
 
-
-//    updatePositionBox: function () {
-//        this.positionBox.setAttribute("x1", this.chrOffsetX[this.region.chromosome] - 10);
-//        this.positionBox.setAttribute("x2", this.chrOffsetX[this.region.chromosome] + 23);
-//
-//        var centerPosition = Utils.centerPosition(this.region);
-//        var pointerPosition = centerPosition * this.pixelBase + this.chrOffsetY[this.region.chromosome];
-//        this.positionBox.setAttribute("y1", pointerPosition);
-//        this.positionBox.setAttribute("y2", pointerPosition);
-//    },
 
     addMark (item) {//item.chromosome, item.position
         let _this = this;

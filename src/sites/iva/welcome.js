@@ -128,7 +128,7 @@ export default class WelcomeWeb extends LitElement {
                     ${this.config.apps.filter(this.isVisible).map(item => html`
                         <a class="icon-wrapper" href="#home" data-id="${item.id}" @click="${this.onChangeApp}">
                             <div class="hi-icon">
-                                <img alt="${item.name}" src="${item.id == 'clinical'? item.logo2 : item.logo}" width=80px height=80px />
+                                <img alt="${item.name}" src="${item.id == "clinical"? item.logo2 : item.logo}" width=80px height=80px />
                             </div>
                             <div><span style="font-weight: bold">${item.name}</span></div>
                         </a>
@@ -166,15 +166,15 @@ export default class WelcomeWeb extends LitElement {
                     ${this.renderWelcome(this.app)}
                 </div>
 
-                <footer>
-                    ${UtilsNew.renderHTML(this.config.welcomePageFooter)}
+                <!--<footer>
+                    UtilsNew.renderHTML(this.config.welcomePageFooter)
                     <small>
                         IVA web application makes an intensive use of the HTML5 standard and other cutting-edge web technologies such as
                         Web Components,
                         so only modern web browsers are fully supported, these include Chrome 49+, Firefox 45+, Microsoft Edge 14+,
                         Safari 10+ and Opera 36+.
-                    </small>-->
-                </footer>
+                    </small>
+                </footer>-->
             </div>
         `;
     }

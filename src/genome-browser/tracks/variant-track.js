@@ -1,5 +1,5 @@
 import UtilsNew from "../../core/utilsNew.js";
-
+import FeatureTrack from "./feature-track.js";
 
 export default class VariantTrack extends FeatureTrack {
 

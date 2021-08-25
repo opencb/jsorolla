@@ -1,4 +1,5 @@
 import UtilsNew from "../../core/utilsNew.js";
+import FeatureTrack from "./feature-track.js";
 
 export default class AlignmentTrack extends FeatureTrack {
 
@@ -90,7 +91,7 @@ export default class AlignmentTrack extends FeatureTrack {
 
     getDataHandler(event) {
         let features = event;
-        this.renderedArea = {}; //<- this is only in Alignments
+        this.renderedArea = {}; // <- this is only in Alignments
         this.renderer.render(features, {
             config: this.config.display,
             // covHeight: this.dataType === "features" ? 50 : 500,

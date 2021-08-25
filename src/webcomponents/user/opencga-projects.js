@@ -99,6 +99,18 @@ export default class OpencgaProjects extends LitElement {
                     values: [
                         {id: "false", name: "Somatic: false"}
                     ]
+                },
+                status: {
+                    name: "status",
+                    values: [
+                        {id: "READY", name: "Ready"}
+                    ]
+                },
+                creationYear: {
+                    name: "creationYear",
+                    // TODO we dont want to list all years
+                    //  values: []
+
                 }
             },
             individual: {
@@ -121,16 +133,13 @@ export default class OpencgaProjects extends LitElement {
         this.chartData = {};
     }
 
-    firstUpdated(_changedProperties) {
+    firstUpdated() {
 
     }
 
     updated(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
             this.opencgaSessionObserver();
-        }
-        if (changedProperties.has("studySummaries")) {
-            this.summariesChanged();
         }
     }
 
@@ -175,7 +184,6 @@ export default class OpencgaProjects extends LitElement {
         for (const project of this.opencgaSession.projects) {
             // let studyPromises = [];
 
-            console.log("prj", project);
             // init structure
             this.data[project.id] = {
                 name: project.name,
@@ -189,10 +197,11 @@ export default class OpencgaProjects extends LitElement {
         try {
             // NOTE queries for all the projects in once
             const catalogProjectResponse = await this.opencgaSession.opencgaClient.projects().aggregationStats(projectIds, {
-                individualFields: "lifeStatus,sex"
+                individualFields: "lifeStatus,sex",
+                sampleFields: "creationMonth,status"
             });
             /* const f = await fetch("/lib/jsorolla/src/core/webcomponents/user/projects.json");
-            const catalogProjectResponse = new RestResponse(await f.json());*/
+            const catalogProjectResponse = new RestResponse(await f.json()); */
 
             if (catalogProjectResponse.getResults().length) {
 
@@ -211,7 +220,6 @@ export default class OpencgaProjects extends LitElement {
                         this.individualsCount.update(this.totalCount.individuals += stats.individual.results[0]?.count);
                         this.cohortsCount.update(this.totalCount.cohorts += stats.cohort.results[0]?.count);
 
-
                         // prepare main data (it will be used for both charts and tables)
                         this.data[projectId].stats[studyId] = {
                             file: {
@@ -227,43 +235,48 @@ export default class OpencgaProjects extends LitElement {
                                 results: stats.cohort.results
                             }
                         };
-
-
                     });
-
 
                     // once main data is ready, build chartData based on this.charts (which contains the list of charts we want to show per entity)
                     for (const entity in this.charts) {
-                        const charts = this.charts[entity];
-                        this.chartData[projectId][entity] = [];
-                        charts.forEach(field => {
+                        if (Object.prototype.isPrototypeOf.call(this.charts, entity)) {
+                            const charts = this.charts[entity];
+                            this.chartData[projectId][entity] = [];
+                            charts.forEach(field => {
 
-                            // Object.values(this.data[projectId].stats) contains the map of the entities for each study. I pick the first study as they are (expected) to be the same for all studies.
-                            console.log(Object.values(this.data[projectId].stats));
-                            const categories = Object.values(this.data[projectId].stats)[0][entity].results.find(result => result.name === field).buckets.map(_ => _.value);
+                                // Object.values(this.data[projectId].stats) contains the map of the entities for each study. I pick the first study as they are (expected) to be the same for all studies.
+                                // console.log(Object.values(this.data[projectId].stats))
+                                const categories = Object.values(this.data[projectId].stats)[0][entity].results.find(result => result.name === field).buckets.map(_ => _.value);
 
-                            // building chart data
-                            // I need the structure project->entity->field to plot-> aggregated data for all the studies
-                            const data = {};
-                            Object.entries(this.data[projectId].stats).forEach(([studyFqn, entitiesMap]) => {
-                                data[studyFqn] = entitiesMap[entity].results.find(result => result.name === field).buckets.map(_ => _.count);
-                            });
-                            this.chartData[projectId][entity].push({
-                                name: field,
-                                data: data,
-                                config: {
-                                    xAxis: {
-                                        categories: categories
+                                // building chart data
+                                // I need the structure project->entity->field to plot-> aggregated data for all the studies
+                                const data = {};
+                                Object.entries(this.data[projectId].stats).forEach(([studyFqn, entitiesMap]) => {
+                                    data[studyFqn] = entitiesMap[entity].results.find(result => result.name === field).buckets.map(_ => _.count);
+                                });
+                                this.chartData[projectId][entity].push({
+                                    name: field,
+                                    data: data,
+                                    config: {
+                                        xAxis: {
+                                            categories: categories
+                                        }
                                     }
-                                }
+                                });
+                                // console.log(this.chartData)
                             });
-                            // console.log(this.chartData)
-                        });
+                        }
+
                     }
                 });
+
+                // pivot data on field names
+                // TODO avoid extra step and build data straight this way?
+                this.data = this.prepareData(this.data);
+
             } else if (catalogProjectResponse.getEvents("ERROR").length) {
                 const msg = catalogProjectResponse.getEvents("ERROR").map(error => error.message).join("<br>");
-                new NotificationQueue().push("Error saving the filter", msg, "error");
+                new NotificationQueue().push("Error", msg, "error");
             }
         } catch (e) {
             console.error(e);
@@ -273,8 +286,81 @@ export default class OpencgaProjects extends LitElement {
         this.querySelector("#loading").style.display = "none";
     }
 
+    prepareData(data) {
+        const r = {};
+        // console.log("data", data)
+        Object.entries(data).map(([projectId, projectObj]) => {
+            r[projectId] = {
+                ...projectObj,
+                entities: {}
+            };
+            // console.log(projectObj)
+            Object.entries(projectObj.stats).map(([studyId, entitiesObj]) => {
+                Object.entries(entitiesObj).map(([entityId, fieldsObj]) => {
+                    // console.log(entityId, fieldsObj)
+                    if (!r[projectId]["entities"][entityId]) {
+                        r[projectId]["entities"][entityId] = {};
+                    }
+                    // field is: creationYear
+                    fieldsObj.results.map(field => {
+                        if (!r[projectId]["entities"][entityId][field.name]) {
+                            r[projectId]["entities"][entityId][field.name] = {};
+                        }
+                        field.buckets.map(fieldData => {
+                            if (!r[projectId]["entities"][entityId][field.name][fieldData.value]) {
+                                r[projectId]["entities"][entityId][field.name][fieldData.value] = {};
+                            }
+                            r[projectId]["entities"][entityId][field.name][fieldData.value][studyId] = fieldData;
+                        });
 
-    renderTable(project, resource) {
+                    });
+                });
+            });
+        });
+        // console.log("r", r)
+        return r;
+    }
+
+    renderTable(projectData, resource) {
+        return html`
+            <div class="v-space"></div>
+            <table class="table table-no-bordered opencga-project-table">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th></th>
+                        ${projectData.studies.map(study => html`<th>${study.id}</th>`)}
+                    </tr>
+                </thead>
+                ${Object.entries(projectData.entities[resource]).map(([entityId, fieldsObj]) => {
+                    return !UtilsNew.isEmpty(fieldsObj) ? html`
+                        <tbody>
+                            <tr>
+                                <td rowspan="${Object.keys(fieldsObj).length + 1}">
+                                    ${entityId}
+                                </td>
+                            </tr>
+                            ${Object.entries(fieldsObj).map(([fieldName, studiesObj]) => {
+                                return html`
+                                    <tr>
+                                        <td>${fieldName}</td>
+                                        ${projectData.studies.map(study => html`
+                                            <td>${studiesObj[study.id]?.count}</td>
+                                        `)}
+                                    </tr>
+                                `;
+                            })}
+                        </tbody>
+                    ` : "";
+                })}
+            </table>
+        `;
+    }
+
+
+    // TODO move structure transposition from template to facetQuery()
+    // OLD render table
+    /* renderTabOld(project, resource) {
         // console.log(project)
         return html`
             <div class="v-space"></div>
@@ -283,31 +369,63 @@ export default class OpencgaProjects extends LitElement {
                     <tr>
                         <th></th>
                         <th></th>
-                        ${Object.entries(project).map(([fqn, _]) => html`<th>${fqn}</th>`)}
+                        ${Object.entries(project).map(([fqn]) => html`<th>${fqn}</th>`)}
                     </tr>
                 </thead>
 
                     ${Object.entries(this.tableRows[resource]).map(([field, fieldConfig]) => html`
                         <tbody>
-                            <tr>
-                                <td rowspan="${fieldConfig.values.length + 1}">
-                                    ${fieldConfig.name}
-                                </td>
-                            </tr>
-                            ${fieldConfig?.values?.map(type => html`
+
+                            <!--
+                                this works either with an explicit list of fields to show in the table (this.tableRows)
+                                or ALL the values of "field" returned in response
+                            -->
+
+                            ${fieldConfig?.values?.length ? html`
+                                <tr>
+                                    <td rowspan="${fieldConfig.values.length + 1}">
+                                        ${fieldConfig.name}
+                                    </td>
+                                </tr>
+                                ${fieldConfig?.values?.map(type => html`
                                 <tr>
                                     <td>${type.name}</td>
-                                    ${Object.entries(project).map(([fqn, data]) => html`
+                                    ${Object.entries(project).map(([, data]) => html`
                                         <td>
                                             ${data[resource]?.results.find(r => r.name === field).buckets.find(stat => stat.value === type.id)?.count}
                                         </td>
                                     `) }
                                 </tr>
-                            `)}
+                                `)}
+                            ` : html`
+                                <tr>
+                                    <td rowspan="${ // the max number of values `field` (e.g. creationYear: [JANUARY,FEBRAURY,...]) can assume in a project
+                                        Math.max(...Object.entries(project).map(([, data]) => {
+                                            const projectData = data[resource].results.find(r => r.name === field);
+                                            console.log("projectData.buckets.length", projectData.buckets.length);
+                                            return projectData.buckets.length;
+                                        })) + 1}">
+                                        ${fieldConfig.name} ${Math.max(...Object.entries(project).map(([, data]) => {
+                                            const projectData = data[resource].results.find(r => r.name === field);
+                                            return projectData.buckets.length;
+                                        }))}
+                                    </td>
+
+                                    ${Object.entries(project).map(([, data]) => {
+                                        const projectData = data[resource].results.find(r => r.name === field);
+                                        // TODO in progress
+                                        return html`
+                                                                            ${projectData.buckets.map(stat => {
+                                            return html`<tr><td>${stat.value}</td><td>${stat.count}</td></tr>`;
+                                        })}
+                                        `
+                                    })}
+                                </tr>
+                            `}
                         </tbody>
                     `) }
             </table>`;
-    }
+    }*/
 
     onChangeProjectTab(e) {
         e.stopPropagation();
@@ -328,10 +446,14 @@ export default class OpencgaProjects extends LitElement {
         /* $(".projects-side-nav > button", this).removeClass("active");
         $(`.projects-side-nav > button[data-menu-item-id=${menuItemId}][data-project-id=${projectId}]`, this).addClass("active");
         $(".projects-content-tab." + projectId + " > div[role=tabpanel]", this).hide();
-        $("#" + this._prefix + projectId + menuItemId, this).show();*/
+        $("#" + this._prefix + projectId + menuItemId, this).show(); */
 
         // TODO continue using activeTab as global state for active project and active menu item
-        for (const tab in this.activeTab) this.activeTab[tab] = false;
+        for (const tab in this.activeTab) {
+            if (Object.prototype.isPrototypeOf.call(this.activeTab, tab)) {
+                this.activeTab[tab] = false;
+            }
+        }
         this.activeTab[projectId] = {[menuItemId]: true};
         this.requestUpdate();
     }
@@ -352,13 +474,6 @@ export default class OpencgaProjects extends LitElement {
             xAxis: {},
             yAxis: {
                 min: 0,
-                /* plotLines: [{
-                    color: "green",
-                    // TODO temp solution. It shows the total count for the first project only (replace this point with a line (no splined))
-                    value: facetData.find(point => point.name === "count").data[0],
-                    width: 1,
-                    zIndex: 2
-                }]*/
             },
             tooltip: {
                 headerFormat: "<span style=\"font-size:10px\">{point.key}</span><table>",
@@ -541,29 +656,42 @@ export default class OpencgaProjects extends LitElement {
                         </li>
                     `) : null}
                 </ul>
-                <pre id="errors" class="alert alert-warning" role="alert" style="display: ${this.errors ? "block" : "none"}">${this.errors}</pre>
+                <pre id="errors" class="alert alert-warning" role="alert" style="display: ${this.errors ? "block" : "none"}">
+                    ${this.errors}
+                </pre>
                 <div class="content-tab-wrapper">
 
                     ${this.data ? Object.entries(this.data).map(([projectId, project], i) => html`
-                        <div role="tabpanel" class="content-tab project-tab tab-pane ${classMap({active: this.activeTab[projectId] || (UtilsNew.isEmpty(this.activeTab) && i === 0)})}" id="${projectId}-tab">
+                        <div role="tabpanel"
+                             id="${projectId}-tab"
+                             class="content-tab project-tab tab-pane ${classMap({active: this.activeTab[projectId] || (UtilsNew.isEmpty(this.activeTab) && i === 0)})}">
                             <div class="row">
                                 <div class="col-md-10 col-md-offset-1">
                                     <h3 class="project-name">Project <span class="inverse">${projectId}</span></h3>
                                     <div class="col-md-2 list-group projects-side-nav side-tabs side-nav">
                                         ${this.sideNavItems.map((item, sideNavIndx) => html`
-                                            <button type="button" class="list-group-item ${classMap({active: this.activeTab[projectId]?.[item] || (UtilsNew.isEmpty(this.activeTab) && sideNavIndx === 0)})}"
-                                                    data-project-id="${project.id}" data-menu-item-id="${item}" @click="${this.onSideNavChange}">${item}</button>
+                                            <button
+                                                    type="button"
+                                                    class="list-group-item ${classMap({active: this.activeTab[projectId]?.[item] || (UtilsNew.isEmpty(this.activeTab) && sideNavIndx === 0)})}"
+                                                    data-project-id="${project.id}"
+                                                    data-menu-item-id="${item}"
+                                                    @click="${this.onSideNavChange}">
+                                                ${item}
+                                            </button>
                                         `)}
                                     </div>
                                     <div class="col-md-10">
                                         <div class="content-tab-wrapper projects-content-tab ${project.id}">
                                             ${~this.sideNavItems.indexOf("Summary") ? html`
-                                                <div id="${this._prefix}${project.id}Summary" role="tabpanel" class="tab-pane content-tab ${classMap({active: this.activeTab[projectId]?.["Summary"] || UtilsNew.isEmpty(this.activeTab)})}" data-project-id="${project.id}" data-menu-item-id="${project.id}">
+                                                <div id="${this._prefix}${project.id}Summary"
+                                                     role="tabpanel"
+                                                     class="tab-pane content-tab ${classMap({active: this.activeTab[projectId]?.["Summary"] || UtilsNew.isEmpty(this.activeTab)})}"
+                                                     data-project-id="${project.id}"
+                                                     data-menu-item-id="${project.id}">
                                                     <h3>Summary</h3>
                                                     <data-form .data=${project} .config="${this.getProjectConfig()}"></data-form>
                                                 </div>` :
-                                                ""
-                                            }
+                                            ""}
 
                                             ${~this.sideNavItems.indexOf("Variants") ? html`
                                                 <div id="${this._prefix}${project.id}Variants" role="tabpanel" class="tab-pane content-tab ${classMap({active: this.activeTab[projectId]?.["Variants"]})}">
@@ -576,33 +704,35 @@ export default class OpencgaProjects extends LitElement {
                                                     <h3>Files</h3>
                                                     <div class="row">
                                                         ${this.chartData[project.id]?.["file"]?.map?.(chart => html`
-                                                        <div class="col-md-6"><simple-chart .active="${true}" type="column" title="${chart.name}" .config=${chart.config} .data="${chart.data}"></simple-chart></div>
+                                                        <div class="col-md-6">
+                                                            <simple-chart .active="${true}" type="column" title="${chart.name}" .config=${chart.config} .data="${chart.data}"></simple-chart>
+                                                        </div>
                                                         `)}
                                                     </div>
-                                                    ${this.renderTable(project.stats, "file")}
+                                                    ${this.renderTable(project, "file")}
                                                 </div>` :
-                                            ""}
+                                                    ""}
 
                                             ${~this.sideNavItems.indexOf("Samples") ? html`
                                                 <div id="${this._prefix}${project.id}Samples" role="tabpanel" class="tab-pane content-tab ${classMap({active: this.activeTab[projectId]?.["Samples"]})}">
                                                     <h3>Samples</h3>
-                                                    ${this.renderTable(project.stats, "sample")}
-                                                </div>
-                                            ` : ""}
+                                                    ${this.renderTable(project, "sample")}
+                                                </div>` :
+                                                    ""}
 
                                             ${~this.sideNavItems.indexOf("Individuals") ? html`
                                                 <div id="${this._prefix}${project.id}Individuals" role="tabpanel" class="tab-pane content-tab ${classMap({active: this.activeTab[projectId]?.["Individuals"]})}">
                                                     <h3>Individuals</h3>
-                                                    ${this.renderTable(project.stats, "individual")}
-                                                </div>
-                                            ` : ""}
+                                                    ${this.renderTable(project, "individual")}
+                                                </div>` :
+                                                    ""}
 
                                             ${~this.sideNavItems.indexOf("Cohorts") ? html`
                                                 <div id="${this._prefix}${project.id}Cohorts" role="tabpanel" class="tab-pane content-tab ${classMap({active: this.activeTab[projectId]?.["Cohorts"]})}">
                                                     <h3>Cohorts</h3>
-                                                    ${this.renderTable(project.stats, "cohort")}
-                                                </div>
-                                            ` : ""}
+                                                    ${this.renderTable(project, "cohort")}
+                                                </div>` :
+                                                    ""}
                                         </div>
                                     </div>
                                 </div>

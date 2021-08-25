@@ -1,4 +1,4 @@
-import {SVG} from "./../../core/svg.js";
+import {SVG} from "../../core/svg.js";
 
 
 //Parent class for all renderers

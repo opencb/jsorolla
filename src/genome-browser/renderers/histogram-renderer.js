@@ -1,6 +1,7 @@
 import UtilsNew from "../../core/utilsNew.js";
 import Renderer from "./renderer.js";
-import {SVG} from "./../../core/svg.js";
+import {SVG} from "../../core/svg.js";
+
 
 
 /**

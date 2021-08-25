@@ -1,7 +1,7 @@
 import UtilsNew from "../../core/utilsNew.js";
 import Renderer from "./renderer.js";
 import Region from "../../core/bioinfo/region.js";
-import {SVG} from "./../../core/svg.js";
+import {SVG} from "../../core/svg.js";
 
 
 export default class SequenceRenderer extends Renderer {
