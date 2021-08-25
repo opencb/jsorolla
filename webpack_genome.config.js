@@ -96,14 +96,7 @@ module.exports = {
                     filename: "img/[hash][ext][query]"
                 }
             },
-            {
-                test: /\.html$/,
-                use: ["html-loader"] // rewrite html content (replace automatically <img src="img.jpg"/> in require("img.jpg"))
-            },
         ]
-    },
-    resolve: {
-        modules: ["node_modules"],
     },
     plugins: [
         new webpack.ProgressPlugin(handler),
@@ -118,10 +111,10 @@ module.exports = {
             ]
         }),
         new MiniCssExtractPlugin({
-            filename: "[name].css",
+            filename: "[name][contenthash].css",
         }),
         new HtmlWebpackPlugin({
-            template: path.resolve(__dirname, "src/genome-browser/demo", "index.html")
+            template: path.resolve(__dirname, "src/genome-browser/demo", "template-genome-browser.html")
         }),
         new webpack.ProvidePlugin({
             "URI": "urijs",
