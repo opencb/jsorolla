@@ -87,7 +87,7 @@ import "../../webcomponents/variant/interpretation/variant-interpreter.js";
 import "../../webcomponents/clinical/analysis/opencga-rd-tiering-analysis.js";
 import "../../webcomponents/clinical/opencga-clinical-analysis-writer.js";
 import "../../webcomponents/file/opencga-file-manager.js";
-import "../../webcomponents/job-monitor.js";
+import "../../webcomponents/job/job-monitor.js";
 import "../../webcomponents/loading-spinner.js";
 import "../../webcomponents/project/projects-admin.js";
 import "../../webcomponents/study/study-admin.js";

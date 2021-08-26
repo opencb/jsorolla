@@ -40,12 +40,12 @@ export default class OpencgaFileBrowser extends LitElement {
             query: {
                 type: Object
             },
-            facetQuery: {
+            /* facetQuery: {
                 type: Object
             },
             selectedFacet: {
                 type: Object
-            },
+            },*/
             config: {
                 type: Object
             }
@@ -56,7 +56,7 @@ export default class OpencgaFileBrowser extends LitElement {
         this._prefix = "fb" + UtilsNew.randomString(6);
 
         // These are for making the queries to server
-        this.facetFields = [];
+        /* this.facetFields = [];
         this.facetRanges = [];
 
         this.facetFieldsName = [];
@@ -68,7 +68,7 @@ export default class OpencgaFileBrowser extends LitElement {
         this.facetActive = true;
         this.selectedFacet = {};
         this.selectedFacetFormatted = {};
-        this.errorState = false;
+        this.errorState = false;*/
 
         this._config = this.getDefaultConfig();
     }
@@ -88,7 +88,7 @@ export default class OpencgaFileBrowser extends LitElement {
     getDefaultConfig() {
         return {
             title: "File Browser",
-            //active: false,
+            // active: false,
             icon: "fab fa-searchengin",
             description: "",
             views: [
@@ -124,7 +124,7 @@ export default class OpencgaFileBrowser extends LitElement {
                                 type: "string",
                                 placeholder: "HG01879, HG01880, HG01881...",
                                 description: ""
-                            },/*
+                            }, /*
                             {
                                 id: "path",
                                 name: "Path",

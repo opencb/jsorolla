@@ -105,7 +105,7 @@ export default class FacetFilter extends LitElement {
     }
 
     addDefaultFacet() {
-        // NOTE default values for facet can be defined in config both in `default` array (list of default facets) and `fields` array too (defaultValue prop)
+        // NOTE default values for facet can be defined in config both in `aggregation.default` array in each browser config (list of default facets) and `fields` array too in `defaultValue` prop for each field.
         // NOTE default values of type Avg() or Percentile() can be defined in `default` array only at the moment
 
         for (const defaultFacetId of this.config.default) {
@@ -202,7 +202,7 @@ export default class FacetFilter extends LitElement {
         this.selectedFacet[id].value = value ?? "";
         this.selectedFacet = {...this.selectedFacet};
         // NOTE this is commented this to avoid immediate reset of all 3 fields in case one is changed to be empty
-        // So onFacetRangeChange() the data-mode changes, but it is not immediately reflected to the view IF one of start, stop, step is undefined
+        // So onFacetRangeChange() the data model changes, but it is not immediately reflected to the view IF one of start, stop, step is undefined
         // this.requestUpdate();
     }
 
@@ -215,7 +215,7 @@ export default class FacetFilter extends LitElement {
         this.selectedFacet[parentFacet].nested.value = value ?? "";
         this.selectedFacet = {...this.selectedFacet};
         // NOTE this is commented to avoid immediate reset of all 3 fields in case one is changed to be empty
-        // So onFacetRangeChange() the data-mode changes, but it is not immediately reflected to the view IF one of start, stop, step is undefined
+        // So onFacetRangeChange() the data model changes, but it is not immediately reflected to the view IF one of start, stop, step is undefined
         // this.requestUpdate();
     }
 

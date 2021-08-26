@@ -31,6 +31,7 @@ export class CellBaseClient {
             this.indexedDBCache = new IndexedDBCache(this._config.cache.database);
             this._initCache();
         }
+        this.restClient = new RestClient();
         this.check();
     }
 
@@ -95,7 +96,19 @@ export class CellBaseClient {
         if (!url.startsWith("http://") && !url.startsWith("https://")) {
             url = `http://${url}`;
         }
-        return RestClient.call(url, options);
+
+        // options.error = function() {
+        //     if (++count < hosts.length) {
+        //         // we need a new URL
+        //         url = "http://" + hosts[count] + "/webservices/rest/" + version + "/" + "meta" + "/" + param;
+        //         response = this.restClient.call(url, options);
+        //     } else {
+        //         userError(this);
+        //     }
+        // };
+        // response = this.restClient.call(url, options);
+        const k = this.generateKey(param);
+        return this.restClient.call(url, options, k);
     }
 
     getFiles(folderId, resource, params, options = {}) {
@@ -115,7 +128,8 @@ export class CellBaseClient {
         if (typeof queryParamsUrl !== "undefined" && queryParamsUrl !== null && queryParamsUrl !== "") {
             url += `?${queryParamsUrl}`;
         }
-        return RestClient.call(url, options);
+        const k = this.generateKey();
+        return this.restClient.call(url, options, k);
     }
 
     getGeneClient(id, resource, params, options) {
@@ -240,8 +254,26 @@ export class CellBaseClient {
     _callRestWebService(host, category, subcategory, ids, resource, params, options) {
         const version = options.version || this._config.version;
         const species = options.species || this._config.species;
-        const url = this._createRestUrl(host, version, species, category, subcategory, ids, resource, params);
-        return RestClient.call(url, options);
+
+        const count = 0;
+        const url = this._createRestUrl(hosts[count], version, species, category, subcategory, ids, resource, params);
+        /*
+        let response;
+        const userError = options.error;
+        const _this = this;
+        // if the URL query fails we try with next host
+
+         options.error = function () {
+            if (++count < hosts.length) {
+                // we need a new URL
+                url = _this._createRestUrl(hosts[count], version, species, category, subcategory, ids, resource, params);
+                response = this.restClient.call(url, options);
+            } else {
+                userError(this);
+            }
+        };*/
+        const k = this.generateKey();
+        return this.restClient.call(url, options, k);
     }
 
 
@@ -294,6 +326,10 @@ export class CellBaseClient {
 
     setConfig(config) {
         this._config = {...this.getDefaultConfig(), ...config};
+    }
+
+    generateKey(params) {
+        return `${new Error().stack.split("\n    at ").slice(0, 5).join("|")}`;
     }
 
 }
