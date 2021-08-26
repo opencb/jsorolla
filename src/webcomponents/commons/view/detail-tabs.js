@@ -148,7 +148,7 @@ export default class DetailTabs extends LitElement {
         }
 
         return html`
-            ${this._config.title && this._items.length ?
+            ${this._config.title ?
                 html`
                     <div class="panel ${this._config?.display?.titleClass}" style="${this._config?.display?.titleStyle}">
                         <h3>&nbsp;${this._config.title} ${this.data?.id}</h3>
