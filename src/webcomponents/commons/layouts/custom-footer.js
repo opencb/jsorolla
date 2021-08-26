@@ -37,18 +37,6 @@ export default class CustomFooter extends LitElement {
         };
     }
 
-    update(changedProperties) {
-        if (changedProperties.has("host")) {
-            console.log("changed host...");
-        }
-
-        if (changedProperties.has("config")) {
-            console.log("changed config...");
-        }
-        super.update(changedProperties);
-
-    }
-
     render() {
         return html `
             <div class="footer">
