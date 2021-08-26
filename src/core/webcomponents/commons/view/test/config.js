@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {html} from "../../../../../../../../web_modules/lit-element";
+import {html} from "/web_modules/lit-element.js";
 
 const individual = {
     title: "Summary",

@@ -17,6 +17,7 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
 import "../commons/view/data-form.js";
+import "../commons/annotation-sets-view.js";
 
 
 export default class OpencgaSampleView extends LitElement {
@@ -172,7 +173,15 @@ export default class OpencgaSampleView extends LitElement {
                         {
                             name: "Description",
                             field: "description"
-                        }
+                        },
+                        /*{
+                            name: "Annotation sets",
+                            field: "annotationSets",
+                            type: "custom",
+                            display: {
+                                render: field => html`<annotation-sets-view .annotationSets="${field}"></annotation-sets-view>`
+                            }
+                        }*/
                     ]
                 }
             ]

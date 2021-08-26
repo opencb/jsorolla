@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
-//import Circos from "./test/circos.js";
+// import Circos from "./test/circos.js";
 import "../variant/opencga-variant-filter.js";
 import "../commons/opencga-active-filters.js";
 import "../commons/visualisation/circos-view.js";
@@ -55,14 +55,14 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
             config: {
                 type: Object
             }
-        }
+        };
     }
 
-    _init(){
+    _init() {
         this._prefix = UtilsNew.randomString(8);
 
         this.preparedQuery = {};
-        //this.base64 = "data:image/png;base64, " + Circos.base64;
+        // this.base64 = "data:image/png;base64, " + Circos.base64;
     }
 
     connectedCallback() {
@@ -83,66 +83,122 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
 
         this.signatureQuery();
         this.statsQuery();
+        this.deletionsStats();
     }
 
     signatureQuery() {
-        console.log(this.queries)
-        debugger
+        console.log(this.queries);
         this.opencgaSession.opencgaClient.variants().queryMutationalSignature({
             study: this.opencgaSession.study.fqn,
             fitting: false,
             sample: this.sampleId,
             ...this.query,
             ...this.queries?.["SNV"]
-        }).then( restResult => {
+        }).then(restResult => {
             this.signature = restResult.getResult(0).signature;
             this.dispatchEvent(new CustomEvent("changeSignature", {
                 detail: {
-                    signature: this.signature,
+                    signature: this.signature
                 },
                 bubbles: true,
                 composed: true
             }));
-        }).catch( restResponse => {
+        }).catch(restResponse => {
             this.signature = {
                 errorState: "Error from Server " + restResponse.getEvents("ERROR").map(error => error.message).join(" \n ")
             };
-        }).finally( () => {
+            UtilsNew.notifyError(restResponse);
+        }).finally(() => {
             this.requestUpdate();
         });
     }
 
-    statsQuery() {
-        let params = {
+    deletionsStats() {
+        const params = {
             study: this.opencgaSession.study.fqn,
-            fields: "type",
+            fields: "EXT_INS_DEL_TYPE",
             sample: this.sampleId,
-            ...this.query
+            // fileData: "AR2.10039966-01T_vs_AR2.10039966-01G.annot.pindel.vcf.gz:FILTER=PASS;QUAL>=250;REP<=9"
+            fileData: "AR2.10039966-01T_vs_AR2.10039966-01G.annot.pindel.vcf.gz:FILTER=PASS;QUAL>=250;REP<=9"
+            // ...this.query
         };
-        this.opencgaSession.opencgaClient.variants().aggregationStats(params)
+        this.opencgaSession.opencgaClient.variants().aggregationStatsSample(params)
             .then(response => {
-                this.aggregationStatsResults = response.responses[0].results;
-                this.dispatchEvent(new CustomEvent("changeAggregationStatsResults", {
+                this.deletionAggregationStatsResults = response.responses[0].results;
+
+                // Remove "other"
+                // const otherIndex = this.deletionAggregationStatsResults[0].buckets.findIndex(item => item.value === "other");
+                // this.deletionAggregationStatsResults[0].count -= this.deletionAggregationStatsResults[0].buckets[otherIndex].count;
+                // this.deletionAggregationStatsResults[0].buckets.splice(otherIndex, 1);
+
+                this.deletionTypeStats = {};
+                for (const bucket of this.deletionAggregationStatsResults[0].buckets) {
+                    this.deletionTypeStats[bucket.value] = bucket.count;
+                }
+
+                this.dispatchEvent(new CustomEvent("changeDeletionAggregationStatsResults", {
                     detail: {
-                        aggregationStatsResults: this.aggregationStatsResults,
+                        deletionAggregationStatsResults: this.deletionAggregationStatsResults
                     },
                     bubbles: true,
                     composed: true
                 }));
             })
-            .catch( restResponse => {
+            .catch(restResponse => {
+                this.stats = {
+                    errorState: "Error from Server " + restResponse.getEvents("ERROR").map(error => error.message).join(" \n ")
+                };
+                UtilsNew.notifyError(restResponse);
+            })
+            .finally(() => {
+                this.requestUpdate();
+            });
+    }
+
+    statsQuery() {
+        const params = {
+            study: this.opencgaSession.study.fqn,
+            fields: "EXT_REARR",
+            sample: this.sampleId,
+            fileData: "AR2.10039966-01T_vs_AR2.10039966-01G.annot.brass.vcf.gz:BAS>=0"
+            // ...this.query
+        };
+        this.opencgaSession.opencgaClient.variants().aggregationStatsSample(params)
+            .then(response => {
+                this.aggregationStatsResults = response.responses[0].results;
+
+                // Remove "other"
+                // const otherIndex = this.aggregationStatsResults[0].buckets.findIndex(item => item.value === "other");
+                // this.aggregationStatsResults[0].count -= this.aggregationStatsResults[0].buckets[otherIndex].count;
+                // this.aggregationStatsResults[0].buckets.splice(otherIndex, 1);
+
+                this.aggregationStatsResults[0].count /= 2;
+                this.typeStats = {};
+                for (const bucket of this.aggregationStatsResults[0].buckets) {
+                    this.typeStats[bucket.value] = bucket.count / 2;
+                }
+
+                this.dispatchEvent(new CustomEvent("changeAggregationStatsResults", {
+                    detail: {
+                        aggregationStatsResults: this.aggregationStatsResults
+                    },
+                    bubbles: true,
+                    composed: true
+                }));
+            })
+            .catch(restResponse => {
                 this.stats = {
                     errorState: "Error from Server " + restResponse.getEvents("ERROR").map(error => error.message).join(" \n ")
                 };
             })
-            .finally( () => {
+            .finally(() => {
                 this.requestUpdate();
             });
     }
 
     getDefaultConfig() {
         return {
-        }
+        };
     }
 
     render() {
@@ -163,57 +219,40 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
                                             <!--<img width="480" src="https://cancer.sanger.ac.uk/signatures_v2/Signature-3.png">-->
                                 </div>
                                 <div style="padding-top: 20px">
-                                    <h2>Sample Stats</h2>
+                                    <h2>Deletions</h2>
+                                    <div class="">
+                                        <h3>${this.deletionAggregationStatsResults?.[0].count} deletions and insertions</h3>
+                                        <simple-chart  .title="Type"
+                                                       .xAxisTitle="types"
+                                                       .type="${"bar"}"
+                                                       .data="${this.deletionTypeStats}"
+                                                       .config="${this.facetConfig}"
+                                                       ?active="${true}">
+                                        </simple-chart>
+                                    </div>
+                                </div>
+                                 <div style="padding-top: 20px">
+                                    <h2>Rearrangements Stats</h2>
                                     <!--<img width="480" src="https://www.ensembl.org/img/vep_stats_2.png">-->
                                     <div class="">
-                                        <h3>Type</h3>
-                                        <opencga-facet-result-view  .title="Type" .xAxisTitle="types" .showButtons=${false} 
-                                                                    .facetResult="${this.aggregationStatsResults?.[0]}"
-                                                                    .config="${this.facetConfig}"
-                                                                    ?active="${true}">
-                                        </opencga-facet-result-view>
+                                        <h3>${this.aggregationStatsResults?.[0].count} rearrangements</h3>
+                                        <simple-chart  .title="Type"
+                                                       .xAxisTitle="types"
+                                                       .type="${"bar"}"
+                                                       .data="${this.typeStats}"
+                                                       .config="${this.facetConfig}"
+                                                       ?active="${true}">
+                                        </simple-chart>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <!--
-                        <div class="col-md-12">
-                            <h2>Other Sample Stats</h2>
-                            <div class="">
-                                <h3>Biotype</h3>
-                                <opencga-facet-result-view title="Biotype" xAxisTitle="biotypes" type="pie" .facetResult="${this.aggregationStatsResults?.[2]}"
-                                                            .config="${{title: "Biotype", xAxisTitle: "biotypes"}}"
-                                                            ?active="${true}">
-                                </opencga-facet-result-view>
-                            </div>
-                            <div class="">
-                                <h3>Consequence Type</h3>
-                                <opencga-facet-result-view .facetResult="${this.aggregationStatsResults?.[3]}"
-                                        .config="${this.facetConfig}"
-                                        ?active="${this.facetActive}">
-                                </opencga-facet-result-view>
-                            </div>
-                            <div class="">
-                                <h3>Clinical Signficance</h3>
-                                <opencga-facet-result-view .facetResult="${this.aggregationStatsResults?.[4]}"
-                                        .config="${this.facetConfig}"
-                                        ?active="${this.facetActive}">
-                                </opencga-facet-result-view>
-                            </div>
-                            <div class="">
-                                <h3>Depth</h3>
-                                <opencga-facet-result-view .facetResult="${this.aggregationStatsResults?.[5]}"
-                                        .config="${this.facetConfig}"
-                                        ?active="${this.facetActive}">
-                                </opencga-facet-result-view>
-                            </div>
-                        </div>
-                        -->
                     </div>                            
                 </div>
             </div>
         `;
     }
+
 }
 
 customElements.define("sample-cancer-variant-stats-plots", SampleCancerVariantStatsPlots);

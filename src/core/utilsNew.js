@@ -190,25 +190,26 @@ export default class UtilsNew {
         return document.createRange().createContextualFragment(`${html}`);
     }
 
-    static jobStatusFormatter(status) {
-        switch (status) {
+    static jobStatusFormatter(status, appendDescription = false) {
+        const description = appendDescription && status.description ? `<br>${status.description}` : "";
+        switch (status.name) {
             case "PENDING":
             case "QUEUED":
             case "REGISTERING":
             case "UNREGISTERED":
-                return `<span class="text-primary"><i class="far fa-clock"></i> ${status}</span>`;
+                return `<span class="text-primary"><i class="far fa-clock"></i> ${status.name}${description}</span>`;
             case "RUNNING":
-                return `<span class="text-primary"><i class="fas fa-sync-alt anim-rotate"></i> ${status}</span>`;
+                return `<span class="text-primary"><i class="fas fa-sync-alt anim-rotate"></i> ${status.name}${description}</span>`;
             case "DONE":
-                return `<span class="text-success"><i class="fas fa-check-circle"></i> ${status}</span>`;
+                return `<span class="text-success"><i class="fas fa-check-circle"></i> ${status.name}${description}</span>`;
             case "ERROR":
-                return `<span class="text-danger"><i class="fas fa-exclamation-circle"></i> ${status}</span>`;
+                return `<span class="text-danger"><i class="fas fa-exclamation-circle"></i> ${status.name}${description}</span>`;
             case "UNKNOWN":
-                return `<span class="text-danger"><i class="fas fa-exclamation-circle"></i> ${status}</span>`;
+                return `<span class="text-danger"><i class="fas fa-exclamation-circle"></i> ${status.name}${description}</span>`;
             case "ABORTED":
-                return `<span class="text-warning"><i class="fas fa-ban"></i> ${status}</span>`;
+                return `<span class="text-warning"><i class="fas fa-ban"></i> ${status.name}${description}</span>`;
             case "DELETED":
-                return `<span class="text-primary"><i class="fas fa-trash-alt"></i> ${status}</span>`;
+                return `<span class="text-primary"><i class="fas fa-trash-alt"></i> ${status.name}${description}</span>`;
         }
         return "-";
     }
@@ -386,6 +387,12 @@ export default class UtilsNew {
 
     static sleep(ms) {
         return new Promise(resolve => setTimeout(() => resolve(), ms));
+    }
+
+    static encodeObject(obj) {
+        return Object.entries(obj).map(([k, v]) => {
+            return `${encodeURIComponent(k)}=${encodeURIComponent(v)}`;
+        }).join("&");
     }
 
 }

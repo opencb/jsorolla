@@ -32,9 +32,6 @@ export default class SampleGenotypeFilter extends LitElement {
 
     static get properties() {
         return {
-            // opencgaSession: {
-            //     type: Object
-            // },
             sample: {
                 type: String
             },
@@ -56,25 +53,27 @@ export default class SampleGenotypeFilter extends LitElement {
         this._config = this.getDefaultConfig();
     }
 
-    updated(changedProperties) {
-        if (changedProperties.has("sample")) {
-            if (this.sample) {
-                let keyValue = this.sample.split(":");
-                if (keyValue.length === 2) {
-                    this.sampleId = keyValue[0];
-                    this.genotypes = keyValue[1].split(",");
-                } else {
-                    // No genotypes provided
-                    this.sampleId = keyValue[0];
-                    this.genotypes = ["0/1", "1/1", "NA"];
-                }
-                this.requestUpdate();
+    update(changedProperties) {
+        if (changedProperties.has("sample") && this.sample) {
+            let keyValue = this.sample.split(":");
+            if (keyValue.length === 2) {
+                this.sampleId = keyValue[0];
+                this.genotypes = keyValue[1].split(",");
+            } else {
+                // No genotypes provided
+                this.sampleId = keyValue[0];
+                this.genotypes = ["0/1", "1/1", "NA"];
             }
         }
+
+        if (changedProperties.has("config")) {
+            this._config = {...this.getDefaultConfig(), ...this.config};
+        }
+
+        super.update(changedProperties)
     }
 
     filterChange(e) {
-        debugger
         //select-field-filter already emits a bubbled filterChange event.
 
         // Prepare sample query filter
@@ -118,11 +117,12 @@ export default class SampleGenotypeFilter extends LitElement {
 
     render() {
         return html`
-            <select-field-filter    multiple 
-                                    .data="${this._config.genotypes}" 
-                                    .value=${this.genotypes} 
-                                    .multiple="true" 
-                                    @filterChange="${this.filterChange}">
+            <select-field-filter
+                    multiple
+                    .data="${this._config.genotypes}"
+                    .value=${this.genotypes}
+                    .multiple="true"
+                    @filterChange="${this.filterChange}">
             </select-field-filter>
         `;
     }

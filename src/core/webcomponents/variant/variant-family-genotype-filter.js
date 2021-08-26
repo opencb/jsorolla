@@ -22,6 +22,9 @@ import "../commons/view/pedigree-view.js";
 import "../commons/filters/select-field-filter.js";
 
 
+/**
+ * @deprecated
+ */
 export default class VariantFamilyGenotypeFilter extends LitElement {
 
     constructor() {
@@ -183,6 +186,14 @@ export default class VariantFamilyGenotypeFilter extends LitElement {
                     // TODO recheck individual?.disorders?.length. It seems it silently fails in case disorders is undefined.
                     // There should be just one sample per individual in the Clinical Analysis
                     const sample = individual.samples[0];
+
+                    // Proband must be "0/1", "1/1" by default
+                    let genotypes;
+                    if (_sampleFiltersMap[sample.id]) {
+                        genotypes = _sampleFiltersMap[sample.id];
+                    } else {
+                        genotypes = this.clinicalAnalysis?.proband?.id === individual.id ? ["0/1", "1/1"] : this._config.defaultGenotypes;
+                    }
                     const _sampleFilter = {
                         id: sample.id,
                         proband: this.clinicalAnalysis.proband && individual.id === this.clinicalAnalysis.proband.id,
@@ -190,9 +201,8 @@ export default class VariantFamilyGenotypeFilter extends LitElement {
                         sex: individual.sex,
                         karyotypicSex: individual.karyotypicSex,
                         role: this.clinicalAnalysis?.family?.roles[this.clinicalAnalysis.proband.id][individual.id] || "PROBAND",
-                        // father: fatherId,
-                        // mother: motherId,
-                        genotypes: (UtilsNew.isNotUndefinedOrNull(_sampleFiltersMap[sample.id])) ? _sampleFiltersMap[sample.id].genotypes : this._config.defaultGenotypes,
+                        // genotypes: _sampleFiltersMap[sample.id] ? _sampleFiltersMap[sample.id].genotypes : this._config.defaultGenotypes,
+                        genotypes: genotypes,
                         dp: (UtilsNew.isNotUndefinedOrNull(_sampleFiltersMap[sample.id])) ? _sampleFiltersMap[sample.id].dp : ""
                     };
                     _sampleFilters.push(_sampleFilter);
@@ -435,7 +445,7 @@ export default class VariantFamilyGenotypeFilter extends LitElement {
     }
     getDefaultConfig() {
         return {
-            defaultGenotypes: ["0/1", "1/1"],
+            defaultGenotypes: ["0/0", "0/1", "1/1"],
             // defaultGenotypes: [],
             showPedigree: false,
             sexIconMap: {

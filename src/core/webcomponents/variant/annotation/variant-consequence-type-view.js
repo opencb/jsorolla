@@ -41,7 +41,7 @@ export default class VariantConsequenceTypeView extends LitElement {
     }
 
     _init() {
-        this._prefix = "vctv" + UtilsNew.randomString(6);
+        this._prefix = UtilsNew.randomString(8);
 
         this._consequenceTypeColorMap = this._getConsequenceTypeColorMap();
     }
@@ -54,11 +54,11 @@ export default class VariantConsequenceTypeView extends LitElement {
 
     _getConsequenceTypeColorMap() {
         let consequenceTypeToColor = {};
-        if (consequenceTypes) {
-            for (let categoryIndex in consequenceTypes.categories) {
-                let terms = consequenceTypes.categories[categoryIndex].terms;
+        if (CONSEQUENCE_TYPES) {
+            for (let categoryIndex in CONSEQUENCE_TYPES.categories) {
+                let terms = CONSEQUENCE_TYPES.categories[categoryIndex].terms;
                 for (let termIndex in terms) {
-                    consequenceTypeToColor[terms[termIndex].name] = consequenceTypes.style[terms[termIndex].impact];
+                    consequenceTypeToColor[terms[termIndex].name] = CONSEQUENCE_TYPES.style[terms[termIndex].impact];
                 }
             }
         }
@@ -188,7 +188,7 @@ export default class VariantConsequenceTypeView extends LitElement {
         if (value) {
             for (let i in value) {
                 if (value[i].source === "sift") {
-                    let color = proteinSubstitutionScore.style.sift[value[i].description];
+                    let color = PROTEIN_SUBSTITUTION_SCORE.style.sift[value[i].description];
                     return `<span title="${value[i].score}" style="color: ${color}">${value[i].description}</span>`;
                 }
             }
@@ -201,7 +201,7 @@ export default class VariantConsequenceTypeView extends LitElement {
         if (value) {
             for (let i in value) {
                 if (value[i].source === "polyphen") {
-                    let color = proteinSubstitutionScore.style.polyphen[value[i].description];
+                    let color = PROTEIN_SUBSTITUTION_SCORE.style.polyphen[value[i].description];
                     return `<span title="${value[i].score}" style="color: ${color}">${value[i].description}</span>`;
                 }
             }

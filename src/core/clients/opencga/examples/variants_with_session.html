@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Fetch first 10 variants (with Login)</title>
+</head>
+<body>
+<h2>Fetch first 10 variants (with Login)</h2>
+
+<script type="module">
+
+    import {OpenCGAClient} from "../opencga-client.js";
+    import {RestResponse} from "../../rest-response.js";
+
+    /**
+     *  Add Opencga host and user credentials
+     */
+    const host = "OPENCGA_HOST";
+    const user = "OPENCGA_USERNAME";
+    const password = "OPENCGA_PASSWORD";
+
+    /**
+     *  Login and query (Opencga Session)
+     */
+    (async () => {
+        try {
+            const client = new OpenCGAClient({
+                host: host,
+                version: "v2",
+                cookies: {active: false},
+            });
+            await client.login(user, password);
+            const session = await client.createSession();
+            const restResponse = await session.opencgaClient.variants().query({limit:10, study: session.study.fqn});
+            console.table(restResponse.getResults());
+        } catch (response) {
+            if (response instanceof RestResponse) {
+                console.error(response.getEvents());
+            } else {
+                console.error(response);
+            }
+        }
+    })();
+</script>
+</body>
+</html>
+
+

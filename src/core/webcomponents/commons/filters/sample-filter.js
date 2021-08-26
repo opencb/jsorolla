@@ -19,6 +19,9 @@ import UtilsNew from "../../../utilsNew.js";
 import "../../variant/variant-family-genotype-filter.js";
 
 
+/**
+ * @deprecated
+ */
 export default class SampleFilter extends LitElement {
 
     constructor() {

@@ -44,18 +44,11 @@ export default class CheckboxFieldFilter extends LitElement {
     }
 
     _init() {
-        this._prefix = "tff-" + UtilsNew.randomString(6);
+        this._prefix = UtilsNew.randomString(8);
         this.state = {};
     }
 
     update(changedProperties) {
-        super.update(changedProperties);
-        /* if (changedProperties.has('firstName') || changedProperties.has('lastName') {
-            this.fullName = `${this.firstName} ${this.lastName}`.trim();
-        }*/
-    }
-
-    updated(changedProperties) {
         if (changedProperties.has("value")) {
             if (this.value) {
                 if (Array.isArray(this.value)) {
@@ -67,10 +60,8 @@ export default class CheckboxFieldFilter extends LitElement {
             } else {
                 this.state = {};
             }
-            this.requestUpdate();
         }
-        if (changedProperties.has("data")) {
-        }
+        super.update(changedProperties);
     }
 
     filterChange(e) {
@@ -93,7 +84,7 @@ export default class CheckboxFieldFilter extends LitElement {
                     return html`
                         <li>
                             <input class="magic-checkbox" type="checkbox" id="${this._prefix}checkbox${i}" .checked="${this.state[id]}" value="${id}" @click="${this.filterChange}">
-                            <label for="${this._prefix}checkbox${i}">
+                            <label for="${this._prefix}checkbox${i}" style="font-weight: normal; padding-top: 2px">
                                 ${name}
                             </label>
                         </li>

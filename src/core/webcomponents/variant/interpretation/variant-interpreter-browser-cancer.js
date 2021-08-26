@@ -67,7 +67,6 @@ class VariantInterpreterBrowserCancer extends LitElement {
     _init() {
         this._prefix = UtilsNew.randomString(8);
 
-        // this.samples = [];
         this.variant = null;
         this.reportedVariants = [];
 
@@ -91,12 +90,15 @@ class VariantInterpreterBrowserCancer extends LitElement {
         if (changedProperties.has("opencgaSession")) {
             this.clinicalAnalysisManager = new ClinicalAnalysisManager(this.clinicalAnalysis, this.opencgaSession);
         }
+
         if (changedProperties.has("clinicalAnalysis")) {
             this.clinicalAnalysisObserver();
         }
+
         if (changedProperties.has("clinicalAnalysisId")) {
             this.clinicalAnalysisIdObserver();
         }
+
         // if (changedProperties.has("query")) {
         //     this.queryObserver();
         // }
@@ -121,8 +123,8 @@ class VariantInterpreterBrowserCancer extends LitElement {
             if (!this.query?.sample) {
                 this.query = {
                     ...this.query,
-                    sample: this._sample.id + ":0/1,1/1,NA",
-                }
+                    sample: this._sample.id + ":0/1,1/1,NA"
+                };
                 // this.predefinedFilter = {...this.query};
             }
 
@@ -132,23 +134,24 @@ class VariantInterpreterBrowserCancer extends LitElement {
                     this.files = fileResponse.response[0].results;
                     // Prepare a map from caller to File
                     this.callerToFile = {};
-                    for (let file of this.files) {
+                    for (const file of this.files) {
                         if (file.software?.name) {
-                            let softwareName = file.software.name.toLowerCase();
+                            const softwareName = file.software.name.toLowerCase();
                             this.callerToFile[softwareName] = file;
                         }
                     }
 
                     // Init the default caller INFO filters
-                    let fileDataFilters = [];
-                    for (let caller of this._config.filter.callers) {
+                    const fileDataFilters = [];
+                    for (const caller of this._config.filter.callers) {
                         if (this.callerToFile[caller.id]) {
                             fileDataFilters.push(this.callerToFile[caller.id].name + ":" + caller.queryString);
                         }
                     }
+
                     this.query = {
                         ...this.query,
-                        fileData: fileDataFilters.join(","),
+                        fileData: fileDataFilters.join(",")
                         // populationFrequencyAlt: "1kG_phase3:ALL<=0.001",
                     };
                     // NOTE: We need to update the _config to update the dynamic VCF caller filters
@@ -160,12 +163,20 @@ class VariantInterpreterBrowserCancer extends LitElement {
                 });
         }
 
-        let sampleQc = ClinicalAnalysisUtils.getProbandSampleQc(this.clinicalAnalysis, 1);
+        const sampleQc = ClinicalAnalysisUtils.getProbandSampleQc(this.clinicalAnalysis, 1);
         let _activeFilterFilters = [];
-        if (sampleQc?.metrics?.length > 0) {
-            let variantStats = sampleQc.variantMetrics?.variantStats;
+        if (sampleQc) {
+            // TODO temp fix to support both Opencga 2.0.3 and Opencga 2.1.0-rc
+            if (sampleQc.variantMetrics) {
+                this._variantStatsPath = "variantMetrics";
+            } else if (sampleQc.variant) {
+                this._variantStatsPath = "variant";
+            } else {
+                console.error("unexpected QC data model");
+            }
+            const variantStats = sampleQc[this._variantStatsPath]?.variantStats;
             if (variantStats && variantStats.length > 0) {
-                _activeFilterFilters = variantStats.map(variantStat => ({id: variantStat.id, query: variantStat.query}))
+                _activeFilterFilters = variantStats.map(variantStat => ({id: variantStat.id, query: variantStat.query}));
             }
         }
 
@@ -221,7 +232,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
     }
 
     onFilterVariants(e) {
-        let variantIds = e.detail.variants.map(v => v.id);
+        const variantIds = e.detail.variants.map(v => v.id);
         this.preparedQuery = {...this.preparedQuery, id: variantIds.join(",")};
         this.executedQuery = {...this.executedQuery, id: variantIds.join(",")};
         this.requestUpdate();
@@ -240,8 +251,8 @@ class VariantInterpreterBrowserCancer extends LitElement {
     }
 
     onSaveVariants(e) {
-        let comment = e.detail.comment;
-        let saveCallback = () => {
+        const comment = e.detail.comment;
+        const saveCallback = () => {
             this.dispatchEvent(new CustomEvent("clinicalAnalysisUpdate", {
                 detail: {
                     clinicalAnalysis: this.clinicalAnalysis
@@ -254,9 +265,8 @@ class VariantInterpreterBrowserCancer extends LitElement {
     }
 
     onVariantFilterChange(e) {
-        console.trace(e)
+        console.trace(e);
         this.preparedQuery = e.detail.query;
-        debugger
         // TODO quick fix to avoid warning message on sample
         // if (!this.predefinedFilter) {
         //     this.executedQuery = e.detail.query;
@@ -291,10 +301,10 @@ class VariantInterpreterBrowserCancer extends LitElement {
 
     getDefaultConfig() {
         // Prepare dynamic Variant Caller INFO filters
-        let callers = ["Caveman", "strelka", "Pindel", "ASCAT", "Canvas", "BRASS", "Manta", "TNhaplotyper2"];
-        let callerFilters = [];
-        for (let caller of callers) {
-            let callerId = caller.toLowerCase();
+        const callers = ["Caveman", "strelka", "Pindel", "ASCAT", "Canvas", "BRASS", "Manta", "TNhaplotyper2", "Pisces", "CRAFT"];
+        const callerFilters = [];
+        for (const caller of callers) {
+            const callerId = caller.toLowerCase();
             callerFilters.push(
                 {
                     id: callerId,
@@ -302,7 +312,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                     description: () => html`File filters for <span style="font-style: italic; word-break: break-all">${this.callerToFile[callerId].name}</span>`,
                     visible: () => this.callerToFile && this.callerToFile[callerId],
                     params: {
-                        fileId: `${this.callerToFile ? this.callerToFile[callerId]?.name : null}`,
+                        fileId: `${this.callerToFile ? this.callerToFile[callerId]?.name : null}`
                     }
                 }
             );
@@ -323,23 +333,23 @@ class VariantInterpreterBrowserCancer extends LitElement {
                         // Example:
                         // "region": "Region",
                         // "gene": "Gene",
-                        "ct": "Consequence Types",
+                        "ct": "Consequence Types"
                     },
                     complexFields: ["sample", "fileData"],
                     hiddenFields: [],
                     lockedFields: [{id: "sample"}]
                 },
                 callers: [
-                    // {
-                    //     id: "caveman",
-                    //     queryString: "FILTER=PASS;CLPM=0;ASMD>=140"
-                    // },
-                    // {
-                    //     id: "pindel",
-                    //     queryString: "FILTER=PASS;QUAL>=250;REP<=9"
-                    // }
+                    {
+                        id: "caveman",
+                        queryString: "FILTER=PASS;CLPM>=0;ASMD>=140"
+                    },
+                    {
+                        id: "pindel",
+                        queryString: "FILTER=PASS;QUAL>=250;REP<=9"
+                    }
                 ],
-                sections: [     // sections and subsections, structure and order is respected
+                sections: [ // sections and subsections, structure and order is respected
                     {
                         title: "Sample And File",
                         collapsed: false,
@@ -347,6 +357,29 @@ class VariantInterpreterBrowserCancer extends LitElement {
                             {
                                 id: "sample-genotype",
                                 title: "Sample Genotype",
+                                params: {
+                                    genotypes: [
+                                        {
+                                            id: "0/1", name: "HET"
+                                        },
+                                        {
+                                            id: "1/1", name: "HOM ALT"
+                                        },
+                                        {
+                                            separator: true
+                                        },
+                                        {
+                                            id: "NA", name: "NA"
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                id: "variant-file",
+                                title: "VCF File",
+                                params: {
+                                    files: this.callerToFile
+                                }
                             },
                             {
                                 id: "file-quality",
@@ -354,7 +387,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                                 tooltip: "VCF file based FILTER and QUAL filters",
                                 visible: UtilsNew.isEmpty(this.callerToFile)
                             },
-                            ...callerFilters,
+                            ...callerFilters
                         ]
                     },
                     {
@@ -364,12 +397,12 @@ class VariantInterpreterBrowserCancer extends LitElement {
                             {
                                 id: "region",
                                 title: "Genomic Location",
-                                tooltip: tooltips.region,
+                                tooltip: tooltips.region
                             },
                             {
                                 id: "feature",
                                 title: "Feature IDs (gene, SNPs, ...)",
-                                tooltip: tooltips.feature,
+                                tooltip: tooltips.feature
                             },
                             // {
                             //     id: "diseasePanels",
@@ -385,7 +418,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                             {
                                 id: "type",
                                 title: "Variant Type",
-                                types: ["SNV", "INDEL", "COPY_NUMBER", "INSERTION", "DELETION", "BREAKEND"],
+                                types: ["SNV", "INDEL", "COPY_NUMBER", "INSERTION", "DELETION", "DUPLICATION", "MNV", "BREAKEND"],
                                 tooltip: tooltips.type
                             }
                         ]
@@ -399,11 +432,16 @@ class VariantInterpreterBrowserCancer extends LitElement {
                                 title: "Disease Panels",
                                 tooltip: tooltips.diseasePanels
                             },
+                            // {
+                            //     id: "clinvar",
+                            //     title: "ClinVar Accession",
+                            //     tooltip: tooltips.clinvar
+                            // },
                             {
-                                id: "clinvar",
-                                title: "ClinVar Accession",
-                                tooltip: tooltips.clinvar
-                            },
+                                id: "clinical-annotation",
+                                title: "Clinical Annotation",
+                                tooltip: tooltips.clinical
+                            }
                         ]
                     },
                     {
@@ -436,7 +474,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                                             populations: [
                                                 {
                                                     id: "ALL", title: "All populations [ALL]"
-                                                },
+                                                }
                                             ]
                                         },
                                         {
@@ -445,7 +483,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                                             populations: [
                                                 {
                                                     id: "ALL", title: "gnomAD [ALL]"
-                                                },
+                                                }
                                             ]
                                         }
                                     ]
@@ -471,7 +509,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                                 id: "hpo",
                                 title: "HPO Accessions",
                                 tooltip: tooltips.hpo
-                            },
+                            }
                         ]
                     },
                     {
@@ -500,7 +538,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                                 tooltip: tooltips.conservation
                             }
                         ]
-                    },
+                    }
                 ],
                 examples: [
                     {
@@ -509,6 +547,13 @@ class VariantInterpreterBrowserCancer extends LitElement {
                         query: {
                             gene: "BRCA2",
                             conservation: "phylop<0.001"
+                        }
+                    },
+                    {
+                        id: "LoF and missense",
+                        active: false,
+                        query: {
+                            ct: "lof,missense_variant"
                         }
                     },
                     {
@@ -537,6 +582,11 @@ class VariantInterpreterBrowserCancer extends LitElement {
                         multiSelection: false,
                         nucleotideGenotype: true,
                         alleleStringLengthMax: 10,
+
+                        genotype: {
+                            type: "VAF"
+                        },
+
                         header: {
                             horizontalAlign: "center",
                             verticalAlign: "bottom"
@@ -545,46 +595,108 @@ class VariantInterpreterBrowserCancer extends LitElement {
                         quality: {
                             qual: 30,
                             dp: 20
-                        },
+                        }
                         // populationFrequencies: ["1kG_phase3:ALL", "GNOMAD_GENOMES:ALL", "GNOMAD_EXOMES:ALL", "UK10K:ALL", "GONL:ALL", "ESP6500:ALL", "EXAC:ALL"]
                     }
                 },
                 detail: {
-                    title: "Selected Variant",
-                    views: [
+                    title: "Selected Variant:",
+                    showTitle: true,
+                    items: [
                         {
                             id: "annotationSummary",
-                            title: "Summary",
-                            active: true
+                            name: "Summary",
+                            active: true,
+                            render: variant => {
+                                return html`
+                                    <cellbase-variant-annotation-summary
+                                            .variantAnnotation="${variant.annotation}"
+                                            .consequenceTypes="${CONSEQUENCE_TYPES}"
+                                            .proteinSubstitutionScores="${PROTEIN_SUBSTITUTION_SCORE}">
+                                    </cellbase-variant-annotation-summary>`;
+                            }
                         },
                         {
                             id: "annotationConsType",
-                            title: "Consequence Type",
+                            name: "Consequence Type",
+                            render: (variant, active) => {
+                                return html`
+                                    <variant-consequence-type-view
+                                            .consequenceTypes="${variant.annotation.consequenceTypes}"
+                                            .active="${active}">
+                                    </variant-consequence-type-view>`;
+                            }
                         },
                         {
                             id: "annotationPropFreq",
-                            title: "Population Frequencies"
+                            name: "Population Frequencies",
+                            render: (variant, active) => {
+                                return html`
+                                    <cellbase-population-frequency-grid
+                                            .populationFrequencies="${variant.annotation.populationFrequencies}"
+                                            .active="${active}">
+                                    </cellbase-population-frequency-grid>`;
+                            }
                         },
                         {
                             id: "annotationClinical",
-                            title: "Clinical"
+                            name: "Clinical",
+                            render: variant => {
+                                return html`
+                                    <variant-annotation-clinical-view
+                                            .traitAssociation="${variant.annotation.traitAssociation}"
+                                            .geneTraitAssociation="${variant.annotation.geneTraitAssociation}">
+                                    </variant-annotation-clinical-view>`;
+                            }
                         },
                         {
                             id: "fileMetrics",
-                            title: "File Metrics"
+                            name: "File Metrics",
+                            render: (variant, active, opencgaSession) => {
+                                return html`
+                                    <opencga-variant-file-metrics
+                                            .opencgaSession="${opencgaSession}"
+                                            .variant="${variant}"
+                                            .files="${this.clinicalAnalysis}">
+                                    </opencga-variant-file-metrics>`;
+                            }
                         },
                         {
                             id: "cohortStats",
-                            title: "Cohort Stats",
-                            cohorts: this.cohorts
+                            name: "Cohort Stats",
+                            render: (variant, active, opencgaSession) => {
+                                return html`
+                                    <variant-cohort-stats
+                                            .opencgaSession="${opencgaSession}"
+                                            .variant="${variant}"
+                                            .active="${active}">
+                                    </variant-cohort-stats>`;
+                            }
                         },
                         {
                             id: "samples",
-                            title: "Samples"
+                            name: "Samples",
+                            render: (variant, active, opencgaSession) => {
+                                return html`
+                                    <opencga-variant-samples
+                                            .opencgaSession="${opencgaSession}"
+                                            .variantId="${variant.id}"
+                                            .active="${active}">
+                                    </opencga-variant-samples>`;
+                            }
                         },
                         {
                             id: "beacon",
-                            title: "Beacon"
+                            name: "Beacon",
+                            render: (variant, active, opencgaSession) => {
+                                return html`
+                                    <variant-beacon-network
+                                            .variant="${variant.id}"
+                                            .assembly="${opencgaSession.project.organism.assembly}"
+                                            .config="${this.beaconConfig}"
+                                            .active="${active}">
+                                    </variant-beacon-network>`;
+                            }
                         }
                     ]
                 }
@@ -596,7 +708,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
 
     render() {
         // Check Project exists
-        if (!this.opencgaSession || !this.opencgaSession.project) {
+        if (!this.opencgaSession?.study) {
             return html`
                 <div class="guard-page">
                     <i class="fas fa-lock fa-5x"></i>
@@ -605,15 +717,6 @@ class VariantInterpreterBrowserCancer extends LitElement {
             `;
         }
 
-        // if (!this.clinicalAnalysis) {
-        //     return html`
-        //         <variant-cancer-interpreter-landing .opencgaSession="${this.opencgaSession}"
-        //                                             .config="${this.config}"
-        //                                             @selectClinicalAnalysis="${this.onClinicalAnalysis}">
-        //         </variant-cancer-interpreter-landing>
-        //     `;
-        // }
-
         return html`
             <style>
                 .prioritization-center {
@@ -621,17 +724,17 @@ class VariantInterpreterBrowserCancer extends LitElement {
                     text-align: justify;
                     width: 95%;
                 }
-    
+
                 .browser-variant-tab-title {
                     font-size: 115%;
                     font-weight: bold;
                 }
-    
+
                 .prioritization-variant-tab-title {
                     font-size: 115%;
                     font-weight: bold;
                 }
-   
+
                 .form-section-title {
                     padding: 5px 0px;
                     width: 95%;
@@ -639,15 +742,15 @@ class VariantInterpreterBrowserCancer extends LitElement {
                     border-bottom-style: solid;
                     border-bottom-color: #ddd
                 }
-                
+
                 #clinicalAnalysisIdText {
                     padding: 10px;
                 }
-                
+
                 .clinical-analysis-id-wrapper {
                     padding: 20px;
                 }
-                
+
                 .clinical-analysis-id-wrapper .text-filter-wrapper {
                     margin: 20px 0;
                 }
@@ -670,21 +773,21 @@ class VariantInterpreterBrowserCancer extends LitElement {
                                             @querySearch="${this.onVariantFilterSearch}">
                     </opencga-variant-filter>
                 </div> <!-- Close col-md-2 -->
-                
+
                 <div class="col-md-10">
                     <div>
-                        ${OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS") 
-                            ? html`
-                                <variant-interpreter-browser-toolbar    .clinicalAnalysis="${this.clinicalAnalysis}" 
-                                                                        .state="${this.clinicalAnalysisManager.state}" 
-                                                                        @filterVariants="${this.onFilterVariants}"
-                                                                        @resetVariants="${this.onResetVariants}"
-                                                                        @saveInterpretation="${this.onSaveVariants}">
-                                </variant-interpreter-browser-toolbar>` 
-                            : null
+                        ${OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS") ?
+                                html`
+                                    <variant-interpreter-browser-toolbar    .clinicalAnalysis="${this.clinicalAnalysis}"
+                                                                            .state="${this.clinicalAnalysisManager.state}"
+                                                                            @filterVariants="${this.onFilterVariants}"
+                                                                            @resetVariants="${this.onResetVariants}"
+                                                                            @saveInterpretation="${this.onSaveVariants}">
+                                    </variant-interpreter-browser-toolbar>` :
+                                null
                         }
                     </div>
-                
+
                     <div id="${this._prefix}MainContent">
                         <div id="${this._prefix}ActiveFilters">
                             <opencga-active-filters resource="VARIANT"
@@ -692,7 +795,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                                                     .clinicalAnalysis="${this.clinicalAnalysis}"
                                                     .defaultStudy="${this.opencgaSession.study.fqn}"
                                                     .query="${this.preparedQuery}"
-                                                    .refresh="${this.executedQuery}"
+                                                    .executedQuery="${this.executedQuery}"
                                                     .filters="${this.activeFilterFilters}"
                                                     .alias="${this._config.activeFilterAlias}"
                                                     .config="${this._config.filter.activeFilters}"
@@ -700,17 +803,17 @@ class VariantInterpreterBrowserCancer extends LitElement {
                                                     @activeFilterClear="${this.onActiveFilterClear}">
                             </opencga-active-filters>
                         </div>
-                        
+
                         <div class="main-view">
                             <div id="${this._prefix}TableResult" class="variant-interpretation-content active">
                                 <variant-interpreter-grid .opencgaSession="${this.opencgaSession}"
                                                           .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                          .query="${this.executedQuery}" 
+                                                          .query="${this.executedQuery}"
                                                           .config="${this._config.filter.result.grid}"
                                                           @selectrow="${this.onSelectVariant}"
                                                           @checkrow="${this.onCheckVariant}">
                                 </variant-interpreter-grid>
-                
+
                                 <!-- Bottom tabs with detailed variant information -->
                                 <variant-interpreter-detail .opencgaSession="${this.opencgaSession}"
                                                             .clinicalAnalysis="${this.clinicalAnalysis}"
@@ -725,6 +828,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
             </div> <!-- Close row -->
         `;
     }
+
 }
 
 customElements.define("variant-interpreter-browser-cancer", VariantInterpreterBrowserCancer);

@@ -16,9 +16,9 @@
 
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import OpencgaCatalogUtils from "../clients/opencga/opencga-catalog-utils.js";
-import UtilsNew from "../utilsNew.js";
-import {NotificationQueue} from "./Notification.js";
+import OpencgaCatalogUtils from "../../clients/opencga/opencga-catalog-utils.js";
+import UtilsNew from "../../utilsNew.js";
+import {NotificationQueue} from "../Notification.js";
 
 export class JobMonitor extends LitElement {
 
@@ -87,7 +87,7 @@ export class JobMonitor extends LitElement {
     }
 
     async applyUpdated() {
-        //oldList and newList are always the same length
+        // oldList and newList are always the same length
         const oldList = this._jobs;
         const newList = this.jobs;
         // `index` is the position of the first job of oldList in newList (newly added jobs are index < k)
@@ -95,17 +95,17 @@ export class JobMonitor extends LitElement {
         const k = index > -1 ? index : newList.length; // -1 occurs iff the whole list is made of new jobs
         this.jobs = newList.map((job, i) => {
             if (i < k) {
-                //handle the new jobs
+                // handle the new jobs
                 new NotificationQueue().push(`${job.id}`, "The job has been added", "", "info");
                 return {...job, updated: true};
             } else {
-                //handle the change of state
+                // handle the change of state
                 if (job.internal.status.name !== oldList[i - k].internal.status.name) {
                     new NotificationQueue().push(`${job.id}`, `The job has now status ${job?.internal?.status?.name}`, "info");
                     return {...job, updated: true};
                 } else {
                     // if the ids are the same I want to keep the `updated` status
-                    //return {...job, updated: false};
+                    // return {...job, updated: false};
                     return {...oldList[i - k]};
                 }
             }
@@ -135,7 +135,7 @@ export class JobMonitor extends LitElement {
 
         this.opencgaSession.opencgaClient.jobs().search(query)
             .then(async restResponse => {
-                console.log("restResponse", restResponse);
+                // console.log("restResponse", restResponse);
                 // first call
                 if (!this._jobs.length) {
                     this._jobs = restResponse.getResults();
@@ -154,7 +154,7 @@ export class JobMonitor extends LitElement {
             });
 
         // mock server
-        /*fetch("http://localhost:5000/" + (this.restCnt % 3))
+        /* fetch("http://localhost:5000/" + (this.restCnt % 3))
             .then( async restResponse => {
                 restResponse = await restResponse.json()
                 console.log("restResponse num.", this.restCnt % 3)
@@ -181,7 +181,7 @@ export class JobMonitor extends LitElement {
 
     openJob(jobId) {
         // -> e.stopPropagation();
-        let job = this.jobs.find(job => job.id === jobId);
+        const job = this.jobs.find(job => job.id === jobId);
         job._visited = true;
         this.jobs = [...this.jobs];
         this.requestUpdate();
@@ -208,7 +208,7 @@ export class JobMonitor extends LitElement {
         return {
             limit: 10,
             interval: 30000
-        }
+        };
     }
 
     render() {
@@ -239,12 +239,12 @@ export class JobMonitor extends LitElement {
                                                 <h4 class="media-heading">${job.id}</h4>
                                                 <small>${job.tool.id}</small> |
                                                 <small>${moment(job.creationDate, "YYYYMMDDHHmmss").format("D MMM YYYY, h:mm:ss a")}</small>
-                                                <p>${UtilsNew.renderHTML(UtilsNew.jobStatusFormatter(job?.internal?.status?.name))}</p> 
+                                                <p>${UtilsNew.renderHTML(UtilsNew.jobStatusFormatter(job?.internal?.status))}</p> 
                                             </div>
                                         </div>
                                      </a>
-                                </li>`)
-                            : html`
+                                </li>`) :
+                            html`
                                 <li>
                                     <a> No jobs </a>
                                 </li>`

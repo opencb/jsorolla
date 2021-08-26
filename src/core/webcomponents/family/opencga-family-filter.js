@@ -17,7 +17,7 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
 import PolymerUtils from "../PolymerUtils.js";
-import "../opencga/catalog/variableSets/opencga-annotation-filter.js";
+import "../opencga/catalog/variableSets/opencga-annotation-filter-modal.js";
 import "../commons/filters/date-filter.js";
 import "../commons/filters/family-id-autocomplete.js";
 
@@ -100,21 +100,15 @@ export default class OpencgaFamilyFilter extends LitElement {
         this.notifySearch(this.preparedQuery);
     }
 
-    addAnnotation(e) {
-        if (typeof this._annotationFilter === "undefined") {
-            this._annotationFilter = {};
+    onAnnotationChange(e) {
+        if (e.detail.value) {
+            this.preparedQuery.annotation = e.detail.value
+        } else {
+            delete this.preparedQuery.annotation
         }
-        const split = e.detail.value.split("=");
-        this._annotationFilter[split[0]] = split[1];
-
-        const _query = {...this.query};
-        const annotations = [];
-        for (const key in this._annotationFilter) {
-            annotations.push(`${key}=${this._annotationFilter[key]}`);
-        }
-        _query["annotation"] = annotations.join(";");
-
-        this.query = _query;
+        this.preparedQuery = {...this.preparedQuery};
+        this.notifyQuery(this.preparedQuery);
+        this.requestUpdate();
     }
 
     renderQueryFilters() {
@@ -195,11 +189,12 @@ export default class OpencgaFamilyFilter extends LitElement {
                 content = html`<text-field-filter placeholder="${subsection.placeholder}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></text-field-filter>`;
                 break;
             case "annotations":
-                content = html`<opencga-annotation-filter .opencgaSession="${this.opencgaSession}"
-                                                      entity="FAMILY"
-                                                      .config="${this.annotationFilterConfig}"
-                                                      @filterannotation="${this.addAnnotation}">
-                           </opencga-annotation-filter>`;
+                content = html`<opencga-annotation-filter-modal .opencgaSession="${this.opencgaSession}"
+                                                             resource="FAMILY"
+                                                             .config="${this.annotationFilterConfig}"
+                                                             .selectedVariablesText="${this.preparedQuery.annotation}"
+                                                             @annotationChange="${this.onAnnotationChange}">
+                            </opencga-annotation-filter-modal>`;
                 break;
             case "date":
                 content = html`<date-filter .creationDate="${this.preparedQuery.creationDate}" @filterChange="${e => this.onFilterChange("creationDate", e.detail.value)}"></date-filter>`;
@@ -215,9 +210,9 @@ export default class OpencgaFamilyFilter extends LitElement {
                                     <a tooltip-title="${subsection.name}" tooltip-text="${subsection.description}"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
                                 </div>` : null }
                         </div>
-                        <div id="${this._prefix}${subsection.id}" class="subsection-content">
+                        <div id="${this._prefix}${subsection.id}" class="subsection-content" data-cy="${subsection.id}">
                             ${content}
-                         </div>
+                        </div>
                     </div>
                 `;
     }
@@ -260,19 +255,20 @@ export default class OpencgaFamilyFilter extends LitElement {
     }
 
     render() {
-        return html`${this.searchButton ? html`
-            <div class="search-button-wrapper">
-                <button type="button" class="btn btn-primary ripple" @click="${this.onSearch}">
-                    <i class="fa fa-search" aria-hidden="true"></i> Search
-                </button>
-            </div>
-            ` : null}
-
-        <div class="panel-group" id="${this._prefix}Accordion" role="tablist" aria-multiselectable="true">
-                <div class="">
-                    ${this.config.sections && this.config.sections.length ? this.config.sections.map( section => this._createSection(section)) : html`No filter has been configured.`}
+        return html`
+            ${this.config?.searchButton ? html`
+                <div class="search-button-wrapper">
+                    <button type="button" class="btn btn-primary ripple" @click="${this.onSearch}">
+                        <i class="fa fa-search" aria-hidden="true"></i> Search
+                    </button>
                 </div>
-        </div>
+                ` : null}
+    
+            <div class="panel-group" id="${this._prefix}Accordion" role="tablist" aria-multiselectable="true">
+                    <div class="">
+                        ${this.config.sections && this.config.sections.length ? this.config.sections.map( section => this._createSection(section)) : html`No filter has been configured.`}
+                    </div>
+            </div>
         `;
     }
 

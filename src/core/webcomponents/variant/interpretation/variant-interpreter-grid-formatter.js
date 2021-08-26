@@ -24,11 +24,11 @@ export default class VariantInterpreterGridFormatter {
 
     static roleInCancerFormatter(value, row, index) {
         if (value) {
-            let roles = new Set();
-            for (let evidenceIndex in value) {
-                let evidence = value[evidenceIndex];
+            const roles = new Set();
+            for (const evidenceIndex in value) {
+                const evidence = value[evidenceIndex];
                 if (evidence.roleInCancer && evidence.genomicFeature.geneName) {
-                    let roleInCancer = evidence.roleInCancer === "TUMOUR_SUPPRESSOR_GENE" || evidence.roleInCancer === "TUMOR_SUPPRESSOR_GENE" ? "TSG" : evidence.roleInCancer;
+                    const roleInCancer = evidence.roleInCancer === "TUMOUR_SUPPRESSOR_GENE" || evidence.roleInCancer === "TUMOR_SUPPRESSOR_GENE" ? "TSG" : evidence.roleInCancer;
                     roles.add(`${roleInCancer} (${evidence.genomicFeature.geneName})`);
                 }
             }
@@ -47,7 +47,7 @@ export default class VariantInterpreterGridFormatter {
                 const arr = study.studyId.split(":");
                 const s = arr[arr.length - 1] + ":ALL";
                 cohorts.push(s);
-                cohortMap.set(s, study.stats.length ? Number(study.stats[0].altAlleleFreq).toFixed(4) : "-");
+                cohortMap.set(s, study.stats.length ? Number(study.stats[0].altAlleleFreq).toPrecision(4) : "-");
             }
             return VariantGridFormatter.createPopulationFrequenciesTable(cohorts, cohortMap, populationFrequencies?.style);
         } else {
@@ -60,7 +60,7 @@ export default class VariantInterpreterGridFormatter {
             const popFreqMap = new Map();
             if (row.annotation.populationFrequencies?.length > 0) {
                 for (const popFreq of row.annotation.populationFrequencies) {
-                    popFreqMap.set(popFreq.study + ":" + popFreq.population, Number(popFreq.altAlleleFreq).toFixed(4));
+                    popFreqMap.set(popFreq.study + ":" + popFreq.population, Number(popFreq.altAlleleFreq).toPrecision(4));
                 }
             }
             return VariantGridFormatter.createPopulationFrequenciesTable(this._config.populationFrequencies, popFreqMap, populationFrequencies.style);
@@ -75,12 +75,12 @@ export default class VariantInterpreterGridFormatter {
         }
 
         const clinicalSignificanceCodes = {
-            BENIGN: {code: 5, color: "blue"},
-            LIKELY_BENIGN: {code: 5, color: "blue"},
-            UNCERTAIN_SIGNIFICANCE: {code: 5, color: "darkorange"},
-            LIKELY_PATHOGENIC: {code: 5, color: "red"},
-            PATHOGENIC: {code: 5, color: "red"},
-            NOT_ASSESSED: {code: 5, color: "black"},
+            NOT_ASSESSED: {id: "NA", code: 0, color: "black"},
+            BENIGN: {id: "B", code: 1, color: "green"},
+            LIKELY_BENIGN: {id: "LB", code: 2, color: "darkbrown"},
+            UNCERTAIN_SIGNIFICANCE: {id: "US", code: 3, color: "darkorange"},
+            LIKELY_PATHOGENIC: {id: "LP", code: 4, color: "darkred"},
+            PATHOGENIC: {id: "P", code: 5, color: "red"}
         };
 
         let clinicalSignificanceCode = 0;
@@ -93,15 +93,19 @@ export default class VariantInterpreterGridFormatter {
                 modeOfInheritances.push(re.modeOfInheritance);
             }
 
-            if (clinicalSignificanceCodes[re.classification.clinicalSignificance] && clinicalSignificanceCodes[re.classification.clinicalSignificance].code > clinicalSignificanceCode) {
+            if (clinicalSignificanceCodes[re.classification.clinicalSignificance]?.code > clinicalSignificanceCode) {
                 clinicalSignificanceCode = clinicalSignificanceCodes[re.classification.clinicalSignificance].code;
-                let clinicalSignificance = re.classification.clinicalSignificance.replace("_", " ");
-                clinicalSignificanceHtml = `<span style="color: ${clinicalSignificanceCodes[re.classification.clinicalSignificance].color}">${clinicalSignificance}</span>`;
+                // let clinicalSignificance = re.classification.clinicalSignificance.replace("_", " ");
+                const clinicalSignificance = clinicalSignificanceCodes[re.classification.clinicalSignificance].id;
+                clinicalSignificanceHtml = `
+                    <div style="margin: 5px 0px; color: ${clinicalSignificanceCodes[re.classification.clinicalSignificance].color}">${clinicalSignificance}</div>
+                    <div class="help-block">${re.classification.acmg.join(", ")}</div>
+                `;
                 clinicalSignificanceTooltipText = `<div class='col-md-12 predictionTooltip-inner' style='padding: 0px'>
                                                         <form class='form-horizontal'>
                                                             <div class='form-group' style='margin: 0px 2px'>
                                                                 <label class='col-md-5'>ACMG</label>
-                                                                <div class='col-md-7'>${re.classification.acmg.join(', ')}</div>
+                                                                <div class='col-md-7'>${re.classification.acmg.join(", ")}</div>
                                                             </div>
                                                             <div class='form-group' style='margin: 0px 2px'>
                                                                 <label class='col-md-5'>ACMG Tier</label>
@@ -117,10 +121,10 @@ export default class VariantInterpreterGridFormatter {
     }
 
 
-
     /*
     * File attributes formatters
     */
+    // DEPRECATED
     static variantAlleleFrequencyDetailFormatter(value, row, variantGrid) {
         let fileAttrHtml = "";
         if (row && row.studies?.length > 0) {
@@ -148,13 +152,14 @@ export default class VariantInterpreterGridFormatter {
             for (const sample of study.samples) {
                 const file = study.files?.length > sample.fileIndex ? study.files[sample.fileIndex] : null;
 
-                let referenceFreq; let referenceCount;
-                let alternateFreq; let alternateCount;
-                let secondaryAlternate = "-";
+                let referenceFreq, referenceCount, alternateFreq, alternateCount, secondaryAlternate = "-";
                 let secondaryAlternateFreq;
                 let originalCall;
 
-                let ad; let af; let dp;
+                let ad;
+                let af;
+                let dp;
+
                 // Get DP value
                 const dpIdx = study.sampleDataKeys.findIndex(e => e === "DP");
                 if (dpIdx !== -1) {
@@ -233,31 +238,11 @@ export default class VariantInterpreterGridFormatter {
     }
 
     static reportedEventDetailFormatter(value, row, variantGrid, query, review, config) {
-        debugger
         if (row && row.evidences.length > 0) {
-            // Sort by Tier level
-            row.evidences.sort(function (a, b) {
-                if (a.tier === null || b.tier !== null) {
-                    return 1;
-                }
-                if (a.tier !== null || b.tier === null) {
-                    return -1;
-                }
-                if (a.tier < b.tier) {
-                    return -1;
-                }
-                if (a.tier > b.tier) {
-                    return 1;
-                }
-                return 0;
-            });
+            // Sort and group CTs by Gene name
+            BioinfoUtils.sort(row.evidences, v => v.genomicFeature?.geneName);
 
-            // let selectColumnHtml = "";
-            // if (variantGrid._config.showSelectCheckbox) {
-            //     selectColumnHtml = "<th rowspan=\"2\">Select</th>";
-            // }
-
-            const showArrayIndexes = VariantGridFormatter._consequenceTypeDetailFormatterFilter(row.annotation.consequenceTypes, query, config);
+            const showArrayIndexes = VariantGridFormatter._consequenceTypeDetailFormatterFilter(row.annotation.consequenceTypes, config).indexes;
             let message = "";
             if (config) {
                 // Create two different divs to 'show all' or 'apply filter' title
@@ -283,7 +268,7 @@ export default class VariantInterpreterGridFormatter {
                                         <th rowspan="2">Gene</th>
                                         <th rowspan="2">Transcript</th>
                                         <th rowspan="2">Consequence Type</th>
-                                        <th rowspan="2">Gencode</th>
+                                        <th rowspan="2">Transcript Flags</th>
                                         <th rowspan="2">Panel</th>
                                         <th rowspan="2">Mode of Inheritance</th>
                                         <th rowspan="2">Actionable</th>
@@ -293,8 +278,8 @@ export default class VariantInterpreterGridFormatter {
                                         <th rowspan="1" style="padding-top: 5px">ACMG</th>
                                         <th rowspan="1">Clinical Significance</th>
                                         <th rowspan="1">Tier</th>
-                                        ${review ? `<th rowspan="1">Select</th>` : ""}
-                                        ${review ? `<th rowspan="1">Edit</th>` : ""}
+                                        ${review ? "<th rowspan=\"1\">Select</th>" : ""}
+                                        ${review ? "<th rowspan=\"1\">Edit</th>" : ""}
                                     </tr>
                                 </thead>
                                 <tbody>`;
@@ -304,7 +289,7 @@ export default class VariantInterpreterGridFormatter {
                                     <th rowspan="2">Gene</th>
                                     <th rowspan="2">Transcript</th>
                                     <th rowspan="2">Consequence Type</th>
-                                    <th rowspan="2">Gencode</th>
+                                    <th rowspan="2">Transcript Flags</th>
                                     <th rowspan="2">Panel</th>
                                     <th rowspan="2">Role in Cancer</th>
                                     <th rowspan="2">Actionable</th>
@@ -312,20 +297,16 @@ export default class VariantInterpreterGridFormatter {
                                 </tr>
                                 <tr>
                                     <th rowspan="1" style="text-align: center; padding-top: 5px">Tier</th>
-                                    ${review ? `<th rowspan="1">Select</th>` : ""}
-                                    ${review ? `<th rowspan="1">Edit</th>` : ""}
+                                    ${review ? "<th rowspan=\"1\">Select</th>" : ""}
+                                    ${review ? "<th rowspan=\"1\">Edit</th>" : ""}
                                 </tr>
                             </thead>
                             <tbody>`;
             }
 
             // FIXME Maybe this should happen in the server?
-            // let biotypeSet = new Set();
             let consequenceTypeSet = new Set();
             if (UtilsNew.isNotUndefinedOrNull(variantGrid.query)) {
-                // if (UtilsNew.isNotUndefinedOrNull(variantGrid.query.biotype)) {
-                //     biotypeSet = new Set(variantGrid.query.biotype.split(","));
-                // }
                 if (UtilsNew.isNotUndefinedOrNull(variantGrid.query.ct)) {
                     consequenceTypeSet = new Set(variantGrid.query.ct.split(","));
                 }
@@ -349,54 +330,49 @@ export default class VariantInterpreterGridFormatter {
                 }
 
                 // Prepare data info for columns
-                let gene = "-";
-                if (re.genomicFeature.id) {
-                    gene = `<div>
-                                <a href="${BioinfoUtils.getGeneNameLink(re.genomicFeature.geneName)}" target="_blank">
-                                    ${re.genomicFeature.geneName}
-                                </a>
-                            </div>
-                            <div style="margin: 5px 0px">
-                                <a href="${BioinfoUtils.getEnsemblLink(re.genomicFeature.id)}" target="_blank">
-                                    ${re.genomicFeature.id}
-                                </a>
-                            </div>`;
+                let geneHtml = "-";
+                if (re.genomicFeature.geneName) {
+                    geneHtml = `
+                        <div>
+                            <a href="${BioinfoUtils.getGeneNameLink(re.genomicFeature.geneName)}" target="_blank">
+                                ${re.genomicFeature.geneName}
+                            </a>
+                        </div>
+                        <div style="margin: 5px 0px">
+                            <a href="${BioinfoUtils.getGeneLink(re.genomicFeature.id)}" target="_blank">
+                                ${re.genomicFeature.id || ""}
+                            </a>
+                        </div>`;
                 }
 
+                // Get the CT for this transcript ID
+                const ct = row.annotation?.consequenceTypes
+                    ?.find(ct => ct.ensemblTranscriptId === re.genomicFeature.transcriptId || ct.transcriptId === re.genomicFeature.transcriptId);
 
-                let transcriptId = "-";
-                if (UtilsNew.isNotEmpty(re.genomicFeature.transcriptId)) {
-                    let biotype = "-";
-                    if (row.annotation && row.annotation.consequenceTypes) {
-                        let ct = row.annotation.consequenceTypes.find(ct => ct.ensemblTranscriptId === re.genomicFeature.transcriptId);
-                        biotype = ct?.biotype ?? "-";
-                    }
-
-                    let hgvsHtml = [];
-                    if (row.annotation && row.annotation.hgvs) {
-                        let hgvsArray = row.annotation.hgvs.filter(hgvs => hgvs.startsWith(re.genomicFeature.transcriptId));
-                        for (let hgvs of hgvsArray) {
-                            let hgvsTranscript = hgvs.split(new RegExp("[(:]"));
-                            let link = BioinfoUtils.getEnsemblLink(hgvsTranscript[0], "transcript");
-                            hgvsHtml.push(`<a href=${link}>${hgvsTranscript[0]}</a>:${hgvsTranscript[hgvsTranscript.length - 1]}`);
-                        }
-                    }
-
-                    transcriptId = `<div style="">
-                                        ${biotype}
+                let transcriptHtml = "-";
+                if (re.genomicFeature.transcriptId) {
+                    transcriptHtml = `
+                        <div style="">
+                            <span>${ct?.biotype ? ct.biotype : "-"}</span>
+                        </div>
+                        <div style="margin: 5px 0px">
+                            <span>
+                                ${re.genomicFeature.transcriptId ? `
+                                    <div style="margin: 5px 0px">
+                                        ${VariantGridFormatter.getHgvsLink(re.genomicFeature.transcriptId, row.annotation.hgvs) || ""}
                                     </div>
-                                    ${hgvsHtml.map(hgvs => `
-                                        <div style="margin: 5px 0px">${hgvs}</div>
-                                    `)}`;
+                                    <div style="margin: 5px 0px">
+                                        ${VariantGridFormatter.getHgvsLink(ct?.proteinVariantAnnotation?.proteinId, row.annotation.hgvs) || ""}
+                                    </div>` : ""
+                                }
+                            </span>
+                        </div>`;
                 }
 
                 const soArray = [];
                 if (re.genomicFeature.consequenceTypes && re.genomicFeature.consequenceTypes.length > 0) {
                     for (const so of re.genomicFeature.consequenceTypes) {
-                        let color = variantGrid.consequenceTypeColors?.consequenceTypeToColor[so.name] || "black";
-                        // if (variantGrid.consequenceTypeColors?.consequenceTypeToColor && variantGrid.consequenceTypeColors?.consequenceTypeToColor[so.name]) {
-                        //     color = variantGrid.consequenceTypeColors?.consequenceTypeToColor[so.name];
-                        // }
+                        const color = CONSEQUENCE_TYPES.style[CONSEQUENCE_TYPES.impact[so.name]] || "black";
                         soArray.push(`<div style="color: ${color}; margin-bottom: 5px">
                                         <span style="padding-right: 5px">${so.name}</span> 
                                         <a title="Go to Sequence Ontology ${so.accession} term" 
@@ -407,35 +383,20 @@ export default class VariantInterpreterGridFormatter {
                     }
                 }
 
-                let transcriptFlag = "";
-                let transcriptFlagChecked = false;
-                if (UtilsNew.isNotEmptyArray(row.annotation.consequenceTypes)) {
-                    for (const ct of row.annotation.consequenceTypes) {
-                        if (re.genomicFeature.transcriptId === ct.ensemblTranscriptId) {
-                            if (ct.transcriptAnnotationFlags !== undefined && ct.transcriptAnnotationFlags.includes("basic")) {
-                                transcriptFlag = `<span data-toggle="tooltip" data-placement="bottom" title="Proband">
-                                                    <i class='fa fa-check' style='color: green'></i>
-                                                  </span>`;
-                                transcriptFlagChecked = true;
-                            } else {
-                                if (re.genomicFeature.transcriptId) {
-                                    transcriptFlag = "<span><i class='fa fa-times' style='color: red'></i></span>";
-                                } else {
-                                    transcriptFlag = "-";
-                                }
-                            }
-                            break;
-                        }
-                    }
+                let transcriptFlagHtml = ["-"];
+                if ((ct?.transcriptId || ct?.ensemblTranscriptId) && (ct?.transcriptFlags?.length > 0 || ct?.transcriptAnnotationFlags?.length > 0)) {
+                    transcriptFlagHtml = ct.transcriptFlags ?
+                        ct.transcriptFlags.map(flag => `<div style="margin-bottom: 5px">${flag}</div>`) :
+                        ct.transcriptAnnotationFlags.map(flag => `<div style="margin-bottom: 5px">${flag}</div>`);
                 }
 
                 let panel = "-";
-                if (UtilsNew.isNotUndefinedOrNull(re.panelId)) {
+                if (re.panelId) {
                     panel = re.panelId;
                 }
 
                 let moi = "-";
-                if (UtilsNew.isNotUndefinedOrNull(re.modeOfInheritance)) {
+                if (re.modeOfInheritance) {
                     moi = re.modeOfInheritance;
                 }
 
@@ -456,11 +417,12 @@ export default class VariantInterpreterGridFormatter {
 
                 let tier = "-";
                 let color = "black";
-                if (UtilsNew.isNotUndefinedOrNull(re.tier)) {
-                    color = (re.tier === "Tier1" || re.tier === "Tier 1") ? "red" : color;
-                    color = (re.tier === "Tier2" || re.tier === "Tier 2") ? "darkorange" : color;
-                    color = (re.tier === "Tier3" || re.tier === "Tier 3") ? "blue" : color;
-                    tier = `<span style="color: ${color}">${re.tier}</span>`;
+                if (re.classification?.tier) {
+                    const tierClassification = re.classification.tier?.toUpperCase();
+                    color = (tierClassification === "TIER1" || tierClassification === "TIER 1") ? "red" : color;
+                    color = (tierClassification === "TIER2" || tierClassification === "TIER 2") ? "darkorange" : color;
+                    color = (tierClassification === "TIER3" || tierClassification === "TIER 3") ? "blue" : color;
+                    tier = `<span style="color: ${color}">${re.classification.tier}</span>`;
                 }
 
                 let clinicalSignificance = "-";
@@ -494,13 +456,13 @@ export default class VariantInterpreterGridFormatter {
 
                 let checboxHtml = "";
                 if (review) {
-                    let checked = "";
+                    const checked = "";
                     // if (transcriptFlagChecked && tier !== "-") {
                     //     checked = "checked";
                     // }
                     checboxHtml = `<input type="checkbox" ${checked}>`;
                 }
-                 let editButtonLink = `
+                const editButtonLink = `
                         <button class="btn btn-link reviewButton" data-variant-id="${row.id}">
                             <i class="fa fa-edit icon-padding reviewButton" aria-hidden="true"></i>Edit
                         </button>`;
@@ -513,10 +475,10 @@ export default class VariantInterpreterGridFormatter {
                 if (variantGrid.clinicalAnalysis.type.toUpperCase() !== "CANCER") {
                     ctHtml += `
                         <tr class="detail-view-row ${hideClass}" style="${displayStyle}">
-                            <td>${gene}</td>
-                            <td>${transcriptId}</td>
+                            <td>${geneHtml}</td>
+                            <td>${transcriptHtml}</td>
                             <td>${soArray.join("")}</td>
-                            <td>${transcriptFlag}</td>
+                            <td>${transcriptFlagHtml.join("")}</td>
                             <td>${panel}</td>
                             <td>${moi}</td>
                             <td>${actionable}</td>
@@ -528,10 +490,10 @@ export default class VariantInterpreterGridFormatter {
                 } else {
                     ctHtml += `
                         <tr class="detail-view-row ${hideClass}" style="${displayStyle}">
-                            <td>${gene}</td>
-                            <td>${transcriptId}</td>
+                            <td>${geneHtml}</td>
+                            <td>${transcriptHtml}</td>
                             <td>${soArray.join("")}</td>
-                            <td>${transcriptFlag}</td>
+                            <td>${transcriptFlagHtml.join("")}</td>
                             <td>${panel}</td>
                             <td>${roleInCancer}</td>
                             <td>${actionable}</td>
@@ -556,17 +518,21 @@ export default class VariantInterpreterGridFormatter {
             const sampleId = this.field.sampleId;
             let sampleEntries = [row.studies[0].samples.find(s => s.sampleId === sampleId)];
 
+            // If not sampleId is found and there is only one sample we take that one
+            if (!sampleEntries && row.studies[0].samples?.length === 1) {
+                sampleEntries = [row.studies[0].samples[0]];
+            }
+
             // Check if there are any DISCREPANCY issue for this sample and add it to the calls to be displayed
             if (row.studies[0]?.issues?.length > 0) {
                 const sampleIssues = row.studies[0].issues.filter(e => e.sample.sampleId === sampleId && e.type === "DISCREPANCY");
                 sampleEntries = sampleEntries.concat(sampleIssues.map(e => e.sample));
             }
-
-            for (let sampleEntry of sampleEntries) {
+            for (const sampleEntry of sampleEntries) {
                 // Get the file for this sample
                 let file;
                 if (row.studies[0].files) {
-                    let fileIdx = sampleEntry?.fileIndex ?? 0;
+                    const fileIdx = sampleEntry?.fileIndex ?? 0;
                     if (fileIdx >= 0) {
                         file = row.studies[0].files[fileIdx];
                     }
@@ -576,26 +542,32 @@ export default class VariantInterpreterGridFormatter {
                 let content;
                 switch (this.field.config.genotype.type.toUpperCase()) {
                     case "ALLELES":
-                        content = VariantInterpreterGridFormatter._alleleGenotypeRenderer(row, sampleEntry);
+                        content = VariantInterpreterGridFormatter.alleleGenotypeRenderer(row, sampleEntry, "alleles");
                         break;
-                    case "CIRCLE":
-                        content = VariantInterpreterGridFormatter._circleGenotypeRenderer(sampleEntry, file, 10);
+                    case "VCF_CALL":
+                        content = VariantInterpreterGridFormatter.alleleGenotypeRenderer(row, sampleEntry, "call");
+                        break;
+                    case "ZYGOSITY":
+                        content = VariantInterpreterGridFormatter.zygosityGenotypeRenderer(row, sampleEntry, this.field.clinicalAnalysis);
                         break;
                     case "VAF":
-                        let vaf = VariantInterpreterGridFormatter._getVariantAlleleFraction(row, sampleEntry, file);
+                        const vaf = VariantInterpreterGridFormatter._getVariantAlleleFraction(row, sampleEntry, file);
                         if (vaf && vaf.vaf >= 0 && vaf.depth >= 0) {
-                            content = VariantInterpreterGridFormatter._vafGenotypeRenderer(vaf.vaf, vaf.depth, file, {});
-                        } else {    // Just in case we cannot render freqs, this should never happen.
-                            content = VariantInterpreterGridFormatter._alleleGenotypeRenderer(row, sampleEntry);
+                            content = VariantInterpreterGridFormatter.vafGenotypeRenderer(vaf.vaf, vaf.depth, file, {});
+                        } else { // Just in case we cannot render freqs, this should never happen.
+                            content = VariantInterpreterGridFormatter.alleleGenotypeRenderer(row, sampleEntry);
                         }
                         break;
                     case "ALLELE_FREQUENCY":
-                        let alleleFreqs = VariantInterpreterGridFormatter._getAlleleFrequencies(row, sampleEntry, file);
+                        const alleleFreqs = VariantInterpreterGridFormatter._getAlleleFrequencies(row, sampleEntry, file);
                         if (alleleFreqs && alleleFreqs.ref >= 0 && alleleFreqs.alt >= 0) {
-                            content = VariantInterpreterGridFormatter._alleleFrequencyGenotypeRenderer(alleleFreqs.ref, alleleFreqs.alt, file, {width: 80});
-                        } else {    // Just in case we cannot render freqs, this should never happen.
-                            content = VariantInterpreterGridFormatter._alleleGenotypeRenderer(row, sampleEntry);
+                            content = VariantInterpreterGridFormatter.alleleFrequencyGenotypeRenderer(alleleFreqs.ref, alleleFreqs.alt, file, {width: 80});
+                        } else { // Just in case we cannot render freqs, this should never happen.
+                            content = VariantInterpreterGridFormatter.alleleGenotypeRenderer(row, sampleEntry);
                         }
+                        break;
+                    case "CIRCLE":
+                        content = VariantInterpreterGridFormatter.circleGenotypeRenderer(sampleEntry, file, 10);
                         break;
                     default:
                         console.error("No valid genotype render option:", this.field.config.genotype.type.toUpperCase());
@@ -613,26 +585,17 @@ export default class VariantInterpreterGridFormatter {
         return resultHtml;
     }
 
-    static _circleGenotypeRenderer(sampleEntry, file, radius = 10) {
-        const {left, right} = VariantInterpreterGridFormatter._getLeftRightColors(sampleEntry.data[0], file.data.FILTER);
-        return `
-            <div class="circle-genotype-render">
-                <div class="circle" style="width: ${radius *2}px;height: ${radius *2}px;background: ${left}"></div>
-                <div class="circle" style="width: ${radius *2}px;height: ${radius *2}px;background: ${right}"></div>
-            </div>`;
-    }
-
-    static _vafGenotypeRenderer(vaf, depth, file, config) {
+    static vafGenotypeRenderer(vaf, depth, file, config) {
         return `<span>${vaf.toFixed(4)} / ${depth}</span>`;
     }
 
-    static _alleleFrequencyGenotypeRenderer(refFreq, altFreq, file, config) {
-        let widthPx = config?.width ? config.width : 80;
-        let refWidth = Math.max(widthPx * refFreq, 1);
-        let refColor = refFreq !== 0 ? "blue" : "black";
-        let altWidth = widthPx - refWidth;
-        let altColor = altFreq !== 0 ? "red" : "black";
-        let opacity = file?.data && file.data.FILTER === "PASS" ? 100 : 60;
+    static alleleFrequencyGenotypeRenderer(refFreq, altFreq, file, config) {
+        const widthPx = config?.width ? config.width : 80;
+        const refWidth = Math.max(widthPx * refFreq, 1);
+        const refColor = refFreq !== 0 ? "blue" : "black";
+        const altWidth = widthPx - refWidth;
+        const altColor = altFreq !== 0 ? "red" : "black";
+        const opacity = file?.data && file.data.FILTER === "PASS" ? 100 : 60;
         return `<table style="width: ${widthPx}px">
                     <tr>
                         <td style="width: ${refWidth}px; background-color: ${refColor}; border-right: 1px solid white; opacity: ${opacity}%">&nbsp;</td>
@@ -641,67 +604,142 @@ export default class VariantInterpreterGridFormatter {
                 </table>`;
     }
 
-    static _alleleGenotypeRenderer(variant, sampleEntry) {
+    static alleleGenotypeRenderer(variant, sampleEntry, mode) {
         let res = "-";
+        if (variant?.studies?.length > 0 && sampleEntry?.data.length > 0) {
+            const genotype = sampleEntry.data[0];
 
-        if (variant && variant.studies?.length > 0) {
-            if (sampleEntry?.data && sampleEntry.data.length > 0) {
-                const genotype = sampleEntry.data[0];
+            // Check special cases
+            if (genotype === "NA") {
+                return `<span style='color: darkorange'>${genotype}</span>`;
+            }
+            if (genotype === "./." || genotype === ".|.") {
+                return `<span style='color: darkorange'>${genotype}</span>`;
+            }
 
-                // Check special cases
-                if (genotype === "NA") {
-                    return `<span style='color: darkorange'>${genotype}</span>`;
-                }
-                if (genotype === "./." || genotype === ".|.") {
-                    return `<span style='color: darkorange'>${genotype}</span>`;
-                }
-
-                let allelesArray = genotype.split(new RegExp("[/|]"));
-                let alleles = [];
-                for (let allele of allelesArray) {
-                    switch (allele) {
-                        case ".":
-                            alleles.push(".");
-                            break;
-                        case "0":
+            const alleles = [];
+            const allelesArray = genotype.split(new RegExp("[/|]"));
+            for (const allele of allelesArray) {
+                switch (allele) {
+                    case ".":
+                        alleles.push(".");
+                        break;
+                    case "0":
+                        if (mode === "alleles") {
                             alleles.push(variant.reference ? variant.reference : "-");
-                            break;
-                        case "1":
+                        } else {
+                            alleles.push(allele);
+                        }
+                        break;
+                    case "1":
+                        if (mode === "alleles") {
                             alleles.push(variant.alternate ? variant.alternate : "-");
-                            break;
-                    }
+                        } else {
+                            alleles.push(allele);
+                        }
+                        break;
                 }
+            }
 
-                let allelesSeq = [];
-                for (let allele of alleles) {
-                    let alleleSeq = allele;
+            const allelesSeq = [];
+            for (const allele of alleles) {
+                let alleleSeq = allele;
+                if (mode === "alleles") {
                     // Check size
                     if (allele.length > 10) {
                         alleleSeq = allele.substring(0, 4) + "...";
                     }
-                    // Ww need to escape < and > symbols from <INS>, <DEL>, ...
+                    // Escape < and > symbols for <INS>, <DEL>, ...
                     alleleSeq = alleleSeq.replaceAll("<", "&lt;").replaceAll(">", "&gt;");
-                    allelesSeq.push(alleleSeq);
                 }
+                allelesSeq.push(alleleSeq);
+            }
 
-                let allelesHtml = [];
-                for (let i = 0; i < allelesSeq.length; i++) {
-                    let color = allelesArray[i] === "0" ? "black" : "darkorange";
-                    allelesHtml.push(`<span style="color: ${color}">${allelesSeq[i]}</span>`);
-                }
+            const allelesHtml = [];
+            for (let i = 0; i < allelesSeq.length; i++) {
+                const color = allelesArray[i] === "0" ? "black" : "darkorange";
+                allelesHtml.push(`<span style="color: ${color}">${allelesSeq[i]}</span>`);
+            }
 
-                res = `<span>${allelesHtml[0]} / ${allelesHtml[1]}</span>`;
+            const bar = genotype.includes("/") ? "/" : "|";
+            res = `<span>${allelesHtml[0]} ${bar} ${allelesHtml[1]}</span>`;
+        }
+        return res;
+    }
+
+    static zygosityGenotypeRenderer(variant, sampleEntry, ca) {
+        let res = "-";
+        if (variant?.studies?.length > 0 && sampleEntry?.data.length > 0) {
+            let sex;
+            if (ca.type === "FAMILY") {
+                // we need to find the sex of each member of the family
+                const individual = ca.family.members.find(m => m.samples[0].id === sampleEntry.sampleId);
+                sex = individual.sex;
+            } else {
+                sex = ca?.proband?.sex !== "UNKOWN" ? ca.proband.sex : "";
+            }
+
+            const genotype = sampleEntry.data[0];
+            switch (genotype) {
+                case "NA":
+                    res = "<span style='color: darkorange'>NA</span>";
+                    break;
+                case "./.":
+                case ".|.":
+                    res = "<span style='color: darkorange'>MISSING</span>";
+                    break;
+                case "0/0":
+                case "0|0":
+                    res = "<span style='color: black'>HOM_REF</span>";
+                    break;
+                case "0/1":
+                case "0|1":
+                case "1|0":
+                    if (variant.chromosome === "MT" || variant.chromosome === "Mt") {
+                        res = "<span style='color: red'>HEMI</span>";
+                    } else {
+                        if (sex === "MALE" && (variant.chromosome === "X" || variant.chromosome === "Y")) {
+                            res = "<span style='color: red'>HEMI</span>";
+                        } else {
+                            res = "<span style='color: darkorange'>HET</span>";
+                        }
+                    }
+                    break;
+                case "1/1":
+                case "1|1":
+                    if (variant.chromosome === "MT" || variant.chromosome === "Mt") {
+                        res = "<span style='color: red'>HEMI</span>";
+                    } else {
+                        if (sex === "MALE" && (variant.chromosome === "X" || variant.chromosome === "Y")) {
+                            res = "<span style='color: red'>HEMI</span>";
+                        } else {
+                            res = "<span style='color: red'>HOM_ALT</span>";
+                        }
+                    }
+                    break;
+                case "1":
+                    res = "<span style='color: red'>HEMI</span>";
+                    break;
             }
         }
         return res;
     }
 
-    static _getLeftRightColors(gt, filter) {
-        let leftColor;
-        let rightColor;
+    static circleGenotypeRenderer(sampleEntry, file, radius = 10) {
+        const {left, right} = VariantInterpreterGridFormatter._getLeftRightColors(sampleEntry.data[0], file.data.FILTER);
+        return `
+            <div class="circle-genotype-render">
+                <div class="circle" style="width: ${radius *2}px;height: ${radius *2}px;background: ${left}"></div>
+                <div class="circle" style="width: ${radius *2}px;height: ${radius *2}px;background: ${right}"></div>
+            </div>`;
+    }
 
-        let noCallColor = "rgba(255, 0, 0, 0.5)";
-        let mutationColor = filter && filter === "PASS" ? "black" : "silver";
+    static _getLeftRightColors(gt, filter) {
+        let leftColor,
+            rightColor;
+
+        const noCallColor = "rgba(255, 0, 0, 0.5)";
+        const mutationColor = filter && filter === "PASS" ? "black" : "silver";
 
         const genotypeSplitRegExp = new RegExp("[/|]");
         switch (gt) {
@@ -751,9 +789,9 @@ export default class VariantInterpreterGridFormatter {
         // Try to guess the variant caller used.
         // Check if is Caveman by looking to specific sample FORMAT fields
         if (file.data.ASMD && file.data.CLPM) {
-            let set = new Set(["FAZ", "FCZ", "FGZ", "FTZ", "RAZ", "RCZ", "RGZ", "RTZ"]);
+            const set = new Set(["FAZ", "FCZ", "FGZ", "FTZ", "RAZ", "RCZ", "RGZ", "RTZ"]);
             depth = 0;
-            for (let i in variant.studies[0].sampleDataKeys) {
+            for (const i in variant.studies[0].sampleDataKeys) {
                 if (set.has(variant.studies[0].sampleDataKeys[i])) {
                     depth += Number.parseInt(sampleEntry.data[i]);
                 } else {
@@ -766,27 +804,27 @@ export default class VariantInterpreterGridFormatter {
 
         // Check if is Pindel by looking to specific sample FORMAT fields
         if (file.data.PC && file.data.VT) {
-            let values = {};
-            let fields = ["PU", "NU", "PR", "NR"];
-            for (let field of fields) {
-                let index = variant.studies[0].sampleDataKeys.findIndex(elem => elem === field);
+            const values = {};
+            const fields = ["PU", "NU", "PR", "NR"];
+            for (const field of fields) {
+                const index = variant.studies[0].sampleDataKeys.findIndex(elem => elem === field);
                 values[field] = Number.parseInt(sampleEntry.data[index]);
             }
             vaf = (values.PU + values.NU) / (values.PR + values.NR);
             depth = values.PR + values.NR;
         }
 
-        if (file?.fileId.includes("tnhaplotyper2")) {
-            // let index = variant.studies[0].sampleDataKeys.findIndex(key => key === "AF");
-            let index = variant.studies[0].sampleDataKeys.findIndex(key => key === "AD");
+        if (variant?.studies[0].sampleDataKeys.includes("AD")) {
+            const index = variant.studies[0].sampleDataKeys.findIndex(key => key === "AD");
             if (index >= 0) {
-                let AD = sampleEntry.data[index];
-                let ads = AD.split(",");
+                const AD = sampleEntry.data[index];
+                const ads = AD.split(",");
+                const alt = ads.length === 2 ? ads[1] : "0";
                 depth = 0;
-                for (let ad of ads) {
+                for (const ad of ads) {
                     depth += Number.parseInt(ad);
                 }
-                vaf = Number.parseInt(ads[1]) / depth;
+                vaf = Number.parseInt(alt) / depth;
             }
         }
 
@@ -794,10 +832,9 @@ export default class VariantInterpreterGridFormatter {
     }
 
     static _getAlleleFrequencies(variant, sampleEntry, file) {
-        let af, ad, dp;
-        let afIndex, adIndex, dpIndex;
-        let refFreq, altFreq;
-
+        let af, ad, dp,
+            afIndex, adIndex, dpIndex,
+            refFreq, altFreq;
 
         // Find and get the DP
         dpIndex = variant.studies[0].sampleDataKeys.findIndex(e => e === "DP");
@@ -811,7 +848,7 @@ export default class VariantInterpreterGridFormatter {
         adIndex = variant.studies[0].sampleDataKeys.findIndex(e => e === "AD");
         if (adIndex !== -1) {
             ad = sampleEntry.data[adIndex];
-            let adCounts = ad.split(",");
+            const adCounts = ad.split(",");
             if (!dp && adCounts.length > 1) {
                 dp = Number.parseInt(adCounts[0]) + Number.parseInt(adCounts[1]);
             }
@@ -841,7 +878,7 @@ export default class VariantInterpreterGridFormatter {
         // 1. Get INFO fields
         const infoFields = [];
         if (file && file.data) {
-            for (let key of Object.keys(file.data)) {
+            for (const key of Object.keys(file.data)) {
                 if (key !== "FILTER" && key !== "QUAL") {
                     const html = `<div class="form-group" style="margin: 2px 2px">
                                             <label class="col-md-5">${key}</label>
@@ -861,7 +898,7 @@ export default class VariantInterpreterGridFormatter {
             // GT field is treated separately
             let key = variant.studies[0].sampleDataKeys[formatFieldIndex];
             key = key !== "GT" ? key : `${key} (${variant.reference || "-"}/${variant.alternate || "-"})`;
-            let value = sampleFormat[formatFieldIndex] ? sampleFormat[formatFieldIndex] : "-";
+            const value = sampleFormat[formatFieldIndex] ? sampleFormat[formatFieldIndex] : "-";
             const html = `<div class="form-group" style="margin: 2px 2px">
                                     <label class="col-md-5">${key}</label>
                                     <div class="col-md-7">${value}</div>
@@ -903,8 +940,8 @@ export default class VariantInterpreterGridFormatter {
                                     </div>
                                     <div class="form-group" style="margin: 2px 2px">
                                         <label class="col-md-4">File VCF call</label>
-                                        <div class="col-md-8">${file?.call?.variantId ? file.call.variantId
-                                            : `${variant.chromosome}:${variant.start}:${variant.reference}:${variant.alternate}`}
+                                        <div class="col-md-8">${file?.call?.variantId ? file.call.variantId :
+                                            `${variant.chromosome}:${variant.start}:${variant.reference}:${variant.alternate}`}
                                         </div>
                                     </div>
                                     <div class="form-group" style="margin: 2px 2px">
@@ -918,13 +955,14 @@ export default class VariantInterpreterGridFormatter {
                                     <div class="form-group" style="margin: 2px 2px">
                                         <label class="col-md-12" style="color: darkgray;padding: 10px 0px 5px 0px">SECONDARY ALTERNATES</label>
                                     </div>
-                                    ${secondaryAlternates?.length > 0 ? secondaryAlternates.join("")
-                                        : `<div class="form-group" style="margin: 2px 2px">
+                                    ${secondaryAlternates?.length > 0 ? secondaryAlternates.join("") :
+                                        `<div class="form-group" style="margin: 2px 2px">
                                                 <label class="col-md-12">-</label>
                                            </div>`
-                                    }
+        }
                                 </form>
                              </div>`;
         return tooltipText;
     }
+
 }

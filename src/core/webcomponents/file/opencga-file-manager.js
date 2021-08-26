@@ -290,7 +290,7 @@ export default class OpencgaFileManager extends LitElement {
     getDefaultConfig() {
         return {
             title: "File Explorer",
-            icon: "file-explorer.svg"
+            icon: "file_explorer.svg"
         };
     }
 

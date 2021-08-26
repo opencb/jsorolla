@@ -68,32 +68,24 @@ export default class OpencgaSampleGrid extends LitElement {
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
     }
 
-    firstUpdated() {
-        this.table = $("#" + this.gridId);
-    }
-
     updated(changedProperties) {
         if (changedProperties.has("opencgaSession") ||
             changedProperties.has("query") ||
+            changedProperties.has("config") ||
             changedProperties.has("active")) {
             this.propertyObserver();
-        }
-
-        if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
         }
     }
 
     propertyObserver() {
         // With each property change we must updated config and create the columns again. No extra checks are needed.
-        // this._config = Object.assign(this.getDefaultConfig(), this.config);
-        // this._columns = this._initTableColumns();
-
+        this._config = {...this.getDefaultConfig(), ...this.config};
         // Config for the grid toolbar
         this.toolbarConfig = {
+            resource: "SAMPLE",
+            buttons: ["columns", "download"],
             columns: this._getDefaultColumns()
         };
-
         this.renderTable();
     }
 
@@ -141,7 +133,7 @@ export default class OpencgaSampleGrid extends LitElement {
                         limit: params.data.limit,
                         skip: params.data.offset || 0,
                         count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
-                        exclude: "qualityControl,annotationSets",
+                        exclude: "qualityControl",
                         ...filters
                     };
                     // Store the current filters
@@ -153,24 +145,24 @@ export default class OpencgaSampleGrid extends LitElement {
                             if (individualIds) {
                                 this.opencgaSession.opencgaClient.clinical().search(
                                     {
-                                        member: individualIds,
+                                        individual: individualIds,
                                         study: this.opencgaSession.study.fqn,
-                                        exclude: "proband.samples,family,interpretation,files"
+                                        include: "id,proband.id,family.members"
                                     })
                                     .then(caseResponse => {
-                                        // We store the Case ID in the individual attribute
-                                        // Note clinical search results are not sorted
-                                        // FIXME at the moment we only search by proband
-                                        const map = {};
-                                        for (const clinicalAnalysis of caseResponse.responses[0].results) {
-                                            if (!map[clinicalAnalysis.proband.id]) {
-                                                map[clinicalAnalysis.proband.id] = [];
+                                        sampleResponse.getResults().forEach(sample => {
+                                            for (const clinicalAnalysis of caseResponse.getResults()) {
+                                                if (clinicalAnalysis?.proband?.id === sample.individualId || clinicalAnalysis?.family?.members.find(member => member.id === sample.individualId)) {
+                                                    if (sample?.attributes?.OPENCGA_CLINICAL_ANALYSIS) {
+                                                        sample.attributes.OPENCGA_CLINICAL_ANALYSIS.push(clinicalAnalysis);
+                                                    } else {
+                                                        sample.attributes = {
+                                                            OPENCGA_CLINICAL_ANALYSIS: [clinicalAnalysis]
+                                                        };
+                                                    }
+                                                }
                                             }
-                                            map[clinicalAnalysis.proband.id].push(clinicalAnalysis);
-                                        }
-                                        for (const sample of sampleResponse.responses[0].results) {
-                                            sample.attributes.OPENCGA_CLINICAL_ANALYSIS = map[sample.individualId];
-                                        }
+                                        });
                                         params.success(sampleResponse);
                                     })
                                     .catch(e => {
@@ -393,6 +385,7 @@ export default class OpencgaSampleGrid extends LitElement {
         this.toolbarConfig = {...this.toolbarConfig, downloading: true};
         await this.requestUpdate();
         const params = {
+            study: this.opencgaSession.study.fqn,
             ...this.query,
             limit: 1000,
             skip: 0,
@@ -445,9 +438,12 @@ export default class OpencgaSampleGrid extends LitElement {
         return html`
             ${this._config.showToolbar ?
                 html`
-                    <opencb-grid-toolbar    .config="${this.toolbarConfig}"
-                                            @columnChange="${this.onColumnChange}"
-                                            @download="${this.onDownload}">
+                    <opencb-grid-toolbar  .config="${this.toolbarConfig}"
+                                          .query="${this.query}"
+                                          .opencgaSession="${this.opencgaSession}"
+                                          @columnChange="${this.onColumnChange}"
+                                          @download="${this.onDownload}"
+                                          @export="${this.onDownload}">
                     </opencb-grid-toolbar>` :
                 null
             }

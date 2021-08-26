@@ -39,6 +39,7 @@ export class OpenCGAClient {
     constructor(config) {
         // this._config = config;
         this.setConfig(config);
+        this.check();
     }
 
     getDefaultConfig() {
@@ -59,8 +60,26 @@ export class OpenCGAClient {
         };
     }
 
-    // TODO check OpeCGA URL and other variables.
-    check() {
+    async check() {
+        const globalEvent = (type, value) => {
+            globalThis.dispatchEvent(
+                new CustomEvent(type, {
+                    detail: value
+                }));
+        };
+        try {
+            const about = await this.meta().about();
+            if (about.getResult(0)) {
+                globalEvent("hostInit", {host: "opencga", value: "v" + about.getResult(0)["Version"]});
+            } else {
+                globalEvent("signingInError", {value: "Opencga host not available."});
+                globalEvent("hostInit", {host: "opencga", value: "NOT AVAILABLE"});
+            }
+        } catch (e) {
+            console.error(e);
+            globalEvent("signingInError", {value: "Opencga host not available."});
+            globalEvent("hostInit", {host: "opencga", value: "NOT AVAILABLE"});
+        }
     }
 
     /*
@@ -282,21 +301,25 @@ export class OpenCGAClient {
                 _this.users().info(_this._config.userId)
                     .then(async response => {
                         const session = {};
-                        session.user = response.getResult(0);
-                        session.token = _this._config.token;
-                        session.date = new Date().toISOString();
-                        session.server = {
-                            host: _this._config.host,
-                            version: _this._config.version,
-                            serverVersion: _this._config.serverVersion
-                        };
-                        session.opencgaClient = _this;
-
-                        _this._notifySessionEvent("signingIn", "Updating User config");
-                        await this.updateUserConfigs({
-                            ...session.user.configs.IVA,
-                            lastAccess: new Date().getTime()
-                        });
+                        try {
+                            session.user = response.getResult(0);
+                            session.token = _this._config.token;
+                            session.date = new Date().toISOString();
+                            session.server = {
+                                host: _this._config.host,
+                                version: _this._config.version,
+                                serverVersion: _this._config.serverVersion,
+                            };
+                            session.opencgaClient = _this;
+                            _this._notifySessionEvent("signingIn", "Updating User config");
+                            const userConfig = await this.updateUserConfigs({
+                                ...session.user.configs.IVA,
+                                lastAccess: new Date().getTime()
+                            });
+                            session.user.configs.IVA = userConfig.getResult(0);
+                        } catch (e) {
+                            console.error(e);
+                        }
 
                         // Fetch authorised Projects and Studies
                         _this._notifySessionEvent("signingIn", "Fetching Projects and Studies");
@@ -310,16 +333,6 @@ export class OpenCGAClient {
                                             // project.alias = project.alias || project.fqn || null;
                                             if (project.studies?.length > 0) {
                                                 for (const study of project.studies) {
-                                                    // TODO This MUST be removed now, no need to keep this backward compatability
-                                                    // If study.alias does not exist we are NOT in version 1.3, we set fqn from 1.4
-                                                    // if (study.alias === undefined || study.alias === "") {
-                                                    //     if (study.fqn.includes(":")) {
-                                                    //         study.alias = study.fqn.split(":")[1];
-                                                    //     } else {
-                                                    //         study.alias = study.fqn;
-                                                    //     }
-                                                    // }
-
                                                     // We need to store the user permission fr the all the studies fetched
                                                     _this._notifySessionEvent("signingIn", "Fetching User permissions");
                                                     let acl = null;
@@ -379,22 +392,26 @@ export class OpenCGAClient {
                                             }
                                         }
                                     }
+                                    // debugger
                                     resolve(session);
                                 } catch (e) {
                                     console.error("Error getting study permissions, cohorts or disease panels");
                                     console.error(e);
-                                    reject({message: "Error getting study permissions / study panels", value: e});
+                                    reject(new Error("Error getting study permissions / study panels"));
                                 }
                             })
-                            .catch(function (response) {
-                                reject({message: "An error when getting user projects", value: response});
+                            .catch(response => {
+                                console.error(response);
+                                reject(new Error("An error when getting user projects"));
                             });
                     })
-                    .catch(function (response) {
-                        reject({message: "An error getting user information", value: response});
+                    .catch(response => {
+                        console.error(response);
+                        reject(new Error("An error getting user information"));
                     });
             } else {
-                reject({message: "No valid token", value: _this._config.token});
+                console.error("No valid token:" + _this?._config?.token);
+                reject(new Error("No valid token:" + _this?._config?.token));
             }
         });
     }
@@ -427,13 +444,21 @@ export class OpenCGAClient {
     }
 
     updateUserConfigs(data) {
-        return this.users().updateConfigs(this._config.userId, {
+        // TODO remove this nasty nested bug fix
+        if (data?.IVA) {
+            delete data.IVA;
+        }
+        const userIvaConfig = this.users().updateConfigs(this._config.userId, {
             id: "IVA",
             configuration: {
                 ...data
-                // "lastAccess": new Date().getTime()
             }
         });
+        // Update opencgaSession object
+        // if (opencgaSession?.user?.configs) {
+        //     opencgaSession.user.configs.IVA = userIvaConfig.responses[0].results[0];
+        // }
+        return userIvaConfig;
     }
 
 }

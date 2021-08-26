@@ -150,7 +150,7 @@ export default class OpencgaJobView extends LitElement {
                             // field: "internal",
                             type: "custom",
                             display: {
-                                render: job => UtilsNew.renderHTML(UtilsNew.jobStatusFormatter(job.internal.status.name))
+                                render: job => UtilsNew.renderHTML(UtilsNew.jobStatusFormatter(job.internal.status, true))
                             }
                         },
                         {

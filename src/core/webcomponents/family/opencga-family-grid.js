@@ -79,10 +79,6 @@ export default class OpencgaFamilyGrid extends LitElement {
         }
     }
 
-    firstUpdated(_changedProperties) {
-        this.table = $("#" + this.gridId);
-    }
-
     propertyObserver() {
         // With each property change we must updated config and create the columns again. No extra checks are needed.
         this._config = {...this.getDefaultConfig(), ...this.config};
@@ -111,7 +107,7 @@ export default class OpencgaFamilyGrid extends LitElement {
                 method: "get",
                 sidePagination: "server",
                 uniqueId: "id",
-
+                silentSort: false,
                 // Table properties
                 pagination: this._config.pagination,
                 pageSize: this._config.pageSize,
@@ -121,11 +117,9 @@ export default class OpencgaFamilyGrid extends LitElement {
                 showExport: this._config.showExport,
                 detailView: this._config.detailView,
                 detailFormatter: this._config.detailFormatter,
-
                 // Make Polymer components available to table formatters
                 gridContext: this,
                 formatLoadingMessage: () => "<div><loading-spinner></loading-spinner></div>",
-
                 ajax: params => {
                     const sort = this.table.bootstrapTable("getOptions").sortName ? {
                         sort: this.table.bootstrapTable("getOptions").sortName,
@@ -142,28 +136,28 @@ export default class OpencgaFamilyGrid extends LitElement {
                     this.opencgaSession.opencgaClient.families().search(_filters)
                         .then(familyResponse => {
                             // Fetch Clinical Analysis ID per Family in 1 single query
-                            let familyIds = familyResponse.responses[0].results.map(family => family.id).join(",");
+                            const familyIds = familyResponse.responses[0].results.map(family => family.id).join(",");
                             if (familyIds) {
                                 this.opencgaSession.opencgaClient.clinical().search(
                                     {
                                         family: familyIds,
                                         study: this.opencgaSession.study.fqn,
-                                        exclude: "proband.samples,family.members,interpretation,files"
+                                        include: "id,proband.id,family.members,family.id"
                                     })
                                     .then(caseResponse => {
-                                        // We store the Case ID in the individual attribute
-                                        // Note clinical search results are not sorted
-                                        // FIXME at the moment we only search by proband
-                                        let map = {};
-                                        for (let clinicalAnalysis of caseResponse.responses[0].results) {
-                                            if (!map[clinicalAnalysis.family.id]) {
-                                                map[clinicalAnalysis.family.id] = [];
+                                        familyResponse.getResults().forEach(family => {
+                                            for (const clinicalAnalysis of caseResponse.getResults()) {
+                                                if (clinicalAnalysis?.family?.id === family.id) {
+                                                    if (family?.attributes?.OPENCGA_CLINICAL_ANALYSIS) {
+                                                        family.attributes.OPENCGA_CLINICAL_ANALYSIS.push(clinicalAnalysis);
+                                                    } else {
+                                                        family.attributes = {
+                                                            OPENCGA_CLINICAL_ANALYSIS: [clinicalAnalysis]
+                                                        };
+                                                    }
+                                                }
                                             }
-                                            map[clinicalAnalysis.family.id].push(clinicalAnalysis);
-                                        }
-                                        for (let family of familyResponse.responses[0].results) {
-                                            family.attributes.OPENCGA_CLINICAL_ANALYSIS = map[family.id];
-                                        }
+                                        });
                                         params.success(familyResponse);
                                     })
                                     .catch(e => {
@@ -211,7 +205,7 @@ export default class OpencgaFamilyGrid extends LitElement {
                     this.gridCommons.onLoadSuccess(data, 1);
                 },
                 onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse),
-                onPostBody: (data) => {
+                onPostBody: data => {
                 }
             });
         }
@@ -245,7 +239,7 @@ export default class OpencgaFamilyGrid extends LitElement {
                 this.from = result.from || this.from;
                 this.to = result.to || this.to;
             },
-            onPostBody: (data) => {
+            onPostBody: data => {
                 // We call onLoadSuccess to select first row
                 this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 1);
             }
@@ -350,7 +344,7 @@ export default class OpencgaFamilyGrid extends LitElement {
         const customAnnotationVisible = (UtilsNew.isNotUndefinedOrNull(this._config.customAnnotations) &&
             UtilsNew.isNotEmptyArray(this._config.customAnnotations.fields));
 
-        let _columns = [
+        const _columns = [
             {
                 title: "Family",
                 field: "id",
@@ -395,7 +389,7 @@ export default class OpencgaFamilyGrid extends LitElement {
                 sortable: true,
                 halign: this._config.header.horizontalAlign,
                 visible: application.appConfig === "opencb"
-            },
+            }
         ];
 
         if (this._config.showSelectCheckbox) {
@@ -415,8 +409,8 @@ export default class OpencgaFamilyGrid extends LitElement {
         this.toolbarConfig = {...this.toolbarConfig, downloading: true};
         await this.requestUpdate();
         const params = {
-            ...this.query,
             study: this.opencgaSession.study.fqn,
+            ...this.query,
             limit: 1000,
             skip: 0,
             count: false
@@ -427,8 +421,8 @@ export default class OpencgaFamilyGrid extends LitElement {
                 if (results) {
                     // Check if user clicked in Tab or JSON format
                     if (e.detail.option.toUpperCase() === "TAB") {
-                        let fields = ["id", "members.id", "disorders.id", "phenotypes.id", "creationDate"];
-                        let data = UtilsNew.toTableString(results, fields);
+                        const fields = ["id", "members.id", "disorders.id", "phenotypes.id", "creationDate"];
+                        const data = UtilsNew.toTableString(results, fields);
                         UtilsNew.downloadData(data, "families_" + this.opencgaSession.study.id + ".txt", "text/plain");
                     } else {
                         UtilsNew.downloadData(JSON.stringify(results, null, "\t"), this.opencgaSession.study.id + ".json", "application/json");
@@ -473,13 +467,13 @@ export default class OpencgaFamilyGrid extends LitElement {
 
     render() {
         return html`
-            ${this._config.showToolbar
-                ? html`
+            ${this._config.showToolbar ?
+                html`
                     <opencb-grid-toolbar    .config="${this.toolbarConfig}"
                                             @download="${this.onDownload}"
                                             @columnChange="${this.onColumnChange}">
-                    </opencb-grid-toolbar>`
-                : null
+                    </opencb-grid-toolbar>` :
+                null
             }
             <div id="${this._prefix}GridTableDiv">
                 <table id="${this._prefix}FamilyBrowserGrid"></table>

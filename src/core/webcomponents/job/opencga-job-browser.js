@@ -40,12 +40,12 @@ export default class OpencgaJobBrowser extends LitElement {
             query: {
                 type: Object
             },
-            facetQuery: {
+            /* facetQuery: {
                 type: Object
             },
             selectedFacet: {
                 type: Object
-            },
+            },*/
             config: {
                 type: Object
             }
@@ -56,7 +56,7 @@ export default class OpencgaJobBrowser extends LitElement {
         this._prefix = "jb" + UtilsNew.randomString(6);
 
         // These are for making the queries to server
-        this.facetFields = [];
+        /* this.facetFields = [];
         this.facetRanges = [];
 
         this.facetFieldsName = [];
@@ -68,7 +68,7 @@ export default class OpencgaJobBrowser extends LitElement {
         this.facetActive = true;
         this.selectedFacet = {};
         this.selectedFacetFormatted = {};
-        this.errorState = false;
+        this.errorState = false;*/
 
         this._config = this.getDefaultConfig();
     }
@@ -90,7 +90,6 @@ export default class OpencgaJobBrowser extends LitElement {
             title: "Jobs Browser",
             icon: "fab fa-searchengin",
             description: "",
-            searchButtonText: "Search",
             views: [
                 {
                     id: "table-tab",
@@ -102,7 +101,7 @@ export default class OpencgaJobBrowser extends LitElement {
                     id: "facet-tab",
                     name: "Aggregation stats",
                     icon: "fas fa-chart-bar"
-                },/*
+                }, /*
                 {
                     id: "comparator-tab",
                     name: "Comparator"
@@ -113,6 +112,7 @@ export default class OpencgaJobBrowser extends LitElement {
                 }
             ],
             filter: {
+                searchButton: false,
                 sections: [
                     {
                         title: "Section title",

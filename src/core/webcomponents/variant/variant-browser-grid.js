@@ -1,4 +1,4 @@
- /**
+/**
  * Copyright 2015-2019 OpenCB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -65,7 +65,7 @@ export default class VariantBrowserGrid extends LitElement {
         this.checkedVariants = new Map();
 
         // Set colors
-        this.consequenceTypeColors = VariantGridFormatter.assignColors(consequenceTypes, proteinSubstitutionScore);
+        this.consequenceTypeColors = VariantGridFormatter.assignColors(CONSEQUENCE_TYPES, PROTEIN_SUBSTITUTION_SCORE);
 
         // TODO move to the configuration?
         this.maxNumberOfPages = 1000000;
@@ -112,6 +112,8 @@ export default class VariantBrowserGrid extends LitElement {
         const fieldToHide = ["deleteriousness", "cohorts", "conservation", "popfreq", "phenotypes", "clinicalInfo"];
         // Config for the grid toolbar
         this.toolbarConfig = {
+            resource: "VARIANT",
+            buttons: ["columns", "download"],
             columns: this._createDefaultColumns()
                 .flat()
                 .filter(f => f.title && !fieldToHide.includes(f.field) && (f.visible ?? true))
@@ -127,14 +129,13 @@ export default class VariantBrowserGrid extends LitElement {
         if (this.variants && this.variants.length > 0) {
             this.renderFromLocal();
         } else {
-            this.renderRemoteVariants()
+            this.renderRemoteVariants();
         }
         this.requestUpdate();
     }
 
     renderRemoteVariants() {
-        // TODO quickfix. The check on query is required because the study is in the query object. A request without the study returns the error "Multiple projects found"
-        if (this.opencgaSession && this.opencgaSession.project && this.opencgaSession.study) {
+        if (this.opencgaSession?.study) {
             this._columns = this._createDefaultColumns();
 
             this.table = $("#" + this.gridId);
@@ -160,18 +161,19 @@ export default class VariantBrowserGrid extends LitElement {
                 variantGrid: this,
                 ajax: params => {
                     // TODO We must decide i this component support a porperty:  mode = {opencga | cellbase}
-                    let tableOptions = $(this.table).bootstrapTable("getOptions");
-                    let filters = {
+                    const tableOptions = $(this.table).bootstrapTable("getOptions");
+                    const filters = {
                         study: this.opencgaSession.study.fqn,
                         limit: params.data.limit || tableOptions.pageSize,
                         skip: params.data.offset || 0,
                         count: !tableOptions.pageNumber || tableOptions.pageNumber === 1,
+                        includeStudy: "all",
                         summary: !this.query.sample && !this.query.family,
                         ...this.query
                     };
                     this.opencgaSession.opencgaClient.variants().query(filters)
                         .then(res => {
-                            params.success(res)
+                            params.success(res);
                         })
                         .catch(e => {
                             console.error(e);
@@ -208,7 +210,7 @@ export default class VariantBrowserGrid extends LitElement {
                     this.gridCommons.onCheck(row.id, row, {rows: Array.from(this.checkedVariants.values()), timestamp: this._timestamp});
                 },
                 onCheckAll: rows => {
-                    for (let row of rows) {
+                    for (const row of rows) {
                         this.checkedVariants.set(row.id, row);
                     }
                     this._timestamp = new Date().getTime();
@@ -220,7 +222,7 @@ export default class VariantBrowserGrid extends LitElement {
                     this.gridCommons.onUncheck(row.id, row, {rows: Array.from(this.checkedVariants.values()), timestamp: this._timestamp});
                 },
                 onUncheckAll: rows => {
-                    for (let row of rows) {
+                    for (const row of rows) {
                         this.checkedVariants.delete(row.id);
                     }
                     this._timestamp = new Date().getTime();
@@ -247,7 +249,7 @@ export default class VariantBrowserGrid extends LitElement {
 
                     UtilsNew.initTooltip(this);
                 },
-                onPostBody: (data) => {
+                onPostBody: data => {
                 }
             });
         }
@@ -286,7 +288,7 @@ export default class VariantBrowserGrid extends LitElement {
 
                 UtilsNew.initTooltip(this);
             },
-            onPostBody: (data) => {
+            onPostBody: data => {
                 // We call onLoadSuccess to select first row, this is only needed when rendering from local
                 this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 2);
             }
@@ -297,10 +299,11 @@ export default class VariantBrowserGrid extends LitElement {
         let result = "<div class='row' style='padding-bottom: 20px'>";
         let detailHtml = "";
 
-        if (typeof row !== "undefined" && typeof row.annotation !== "undefined") {
+        if (row?.annotation) {
             detailHtml = "<div style='padding: 10px 0px 5px 25px'><h4>Consequence Types</h4></div>";
             detailHtml += "<div style='padding: 5px 40px'>";
-            detailHtml += VariantGridFormatter.consequenceTypeDetailFormatter(index, row, this.variantGrid, this.variantGrid.query, this.variantGrid._config, this.variantGrid.opencgaSession.project.organism.assembly);
+            detailHtml += VariantGridFormatter
+                .consequenceTypeDetailFormatter(index, row, this.variantGrid, this.variantGrid.query, this.variantGrid._config, this.variantGrid.opencgaSession.project.organism.assembly);
             detailHtml += "</div>";
 
             detailHtml += "<div style='padding: 10px 0px 5px 25px'><h4>Clinical Phenotypes</h4></div>";
@@ -319,7 +322,7 @@ export default class VariantBrowserGrid extends LitElement {
             for (let i = 0; i < row.annotation.consequenceTypes.length; i++) {
                 if (row.annotation.consequenceTypes[i]?.proteinVariantAnnotation?.substitutionScores) {
                     for (let j = 0; j < row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores.length; j++) {
-                        let substitutionScore = row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j];
+                        const substitutionScore = row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j];
                         if (substitutionScore.source === "sift" && substitutionScore.score < min) {
                             min = substitutionScore.score;
                             description = substitutionScore.description;
@@ -330,7 +333,7 @@ export default class VariantBrowserGrid extends LitElement {
         }
 
         if (min < 10) {
-            return `<span style="color: ${this.consequenceTypeColors.pssColor.get(description)}" title=${min}>${description}</span>`;
+            return `<span style="color: ${this.consequenceTypeColors.pssColor.get("sift")[description]}" title=${min}>${description}</span>`;
         }
         return "-";
     }
@@ -342,7 +345,7 @@ export default class VariantBrowserGrid extends LitElement {
             for (let i = 0; i < row.annotation.consequenceTypes.length; i++) {
                 if (row.annotation.consequenceTypes[i]?.proteinVariantAnnotation?.substitutionScores) {
                     for (let j = 0; j < row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores.length; j++) {
-                        let substitutionScore = row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j];
+                        const substitutionScore = row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j];
                         if (substitutionScore.source === "polyphen" && substitutionScore.score >= max) {
                             max = substitutionScore.score;
                             description = substitutionScore.description;
@@ -353,14 +356,35 @@ export default class VariantBrowserGrid extends LitElement {
         }
 
         if (max > 0) {
-            return `<span style="color: ${this.consequenceTypeColors.pssColor.get(description)}" title=${max}>${description}</span>`;
+            return `<span style="color: ${this.consequenceTypeColors.pssColor.get("polyphen")[description]}" title=${max}>${description}</span>`;
+        }
+        return "-";
+    }
+
+    revelProteinScoreFormatter(value, row, index) {
+        let max = 0;
+        if (row && row.annotation?.consequenceTypes?.length > 0) {
+            for (let i = 0; i < row.annotation.consequenceTypes.length; i++) {
+                if (row.annotation.consequenceTypes[i]?.proteinVariantAnnotation?.substitutionScores) {
+                    for (let j = 0; j < row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores.length; j++) {
+                        const substitutionScore = row.annotation.consequenceTypes[i].proteinVariantAnnotation.substitutionScores[j];
+                        if (substitutionScore.source === "revel" && substitutionScore.score >= max) {
+                            max = substitutionScore.score;
+                        }
+                    }
+                }
+            }
+        }
+
+        if (max > 0) {
+            return `<span style="color: ${max > 0.5 ? "darkorange" : "black"}" title=${max}>${max}</span>`;
         }
         return "-";
     }
 
     caddScaledFormatter(value, row, index) {
         if (row && row.type !== "INDEL" && row.annotation?.functionalScore?.length > 0) {
-            for (let functionalScore of row.annotation.functionalScore) {
+            for (const functionalScore of row.annotation.functionalScore) {
                 if (functionalScore.source === "cadd_scaled") {
                     const value = Number(functionalScore.score).toFixed(2);
                     if (value < 15) {
@@ -376,27 +400,28 @@ export default class VariantBrowserGrid extends LitElement {
     }
 
     conservationFormatter(value, row, index) {
-        if (row && row.annotation?.conservation?.length > 0) {
-            for (let conservation of row.annotation.conservation) {
+        if (row?.annotation?.conservation?.length > 0) {
+            for (const conservation of row.annotation.conservation) {
                 if (conservation.source === this.field) {
                     return Number(conservation.score).toFixed(3);
                 }
             }
+            return "-";
         } else {
             return "-";
         }
     }
 
     cohortFormatter(value, row, index) {
-        // TODO where does meta comes from?
-        //console.error(this.meta)
-
         if (row && row.studies?.length > 0 && row.studies[0].stats) {
             const cohortStats = new Map();
             for (const study of row.studies) {
-                if (study.studyId === this.meta.study) {
+                // Now we support both study.is and study.fqn
+                const metaStudy = study.studyId.includes("@") ? this.meta.study : this.meta.study.split(":")[1];
+                if (study.studyId === metaStudy) {
                     for (const cohortStat of study.stats) {
-                        cohortStats.set(cohortStat.cohortId, Number(cohortStat.altAlleleFreq).toFixed(4));
+                        const freq = Number(cohortStat.altAlleleFreq);
+                        cohortStats.set(cohortStat.cohortId, freq > 0 ? freq.toPrecision(4) : 0);
                     }
                     break;
                 }
@@ -413,7 +438,8 @@ export default class VariantBrowserGrid extends LitElement {
             for (const popFreqIdx in row.annotation.populationFrequencies) {
                 const popFreq = row.annotation.populationFrequencies[popFreqIdx];
                 if (this.meta.study === popFreq.study) { // && this.meta.populationMap[popFreq.population] === true
-                    popFreqMap.set(popFreq.population, Number(popFreq.altAlleleFreq).toFixed(4));
+                    const freq = Number(popFreq.altAlleleFreq);
+                    popFreqMap.set(popFreq.population, freq > 0 ? freq.toPrecision(4) : 0);
                 }
             }
             return VariantGridFormatter.createPopulationFrequenciesTable(this.meta.populations, popFreqMap, this.meta.context.populationFrequencies.style);
@@ -449,7 +475,7 @@ export default class VariantBrowserGrid extends LitElement {
                     title: study.id,
                     field: study.id,
                     meta: {
-                        study: study.id,
+                        study: study.fqn,
                         cohorts: study.cohorts,
                         colors: this.populationFrequencies.style,
                         context: this
@@ -508,7 +534,7 @@ export default class VariantBrowserGrid extends LitElement {
                     field: "gene",
                     rowspan: 2,
                     colspan: 1,
-                    formatter: (value, row, index) => VariantGridFormatter.geneFormatter(value, row, index, this.query, this.opencgaSession),
+                    formatter: (value, row, index) => VariantGridFormatter.geneFormatter(row, index, this.query, this.opencgaSession, this._config),
                     halign: "center"
                 },
                 {
@@ -524,7 +550,7 @@ export default class VariantBrowserGrid extends LitElement {
                     field: "consequenceType",
                     rowspan: 2,
                     colspan: 1,
-                    formatter:(value, row, index) => VariantGridFormatter.consequenceTypeFormatter(value, row, index, this._config.consequenceType, this.consequenceTypeColors),
+                    formatter: (value, row, index) => VariantGridFormatter.consequenceTypeFormatter(value, row, this.query.ct, this._config),
                     halign: "center"
                 },
                 {
@@ -536,15 +562,15 @@ export default class VariantBrowserGrid extends LitElement {
                         <i class="fa fa-info-circle" aria-hidden="true"></i></a>`,
                     field: "deleteriousness",
                     rowspan: 1,
-                    colspan: 3,
+                    colspan: 4,
                     align: "center"
                 },
                 {
-                    title: `Conservation  <a tooltip-title='Conservation' tooltip-text="Positive PhyloP scores measure conservation which is slower evolution than expected, at sites that are predicted to be conserved. Negative PhyloP scores measure acceleration, which is faster evolution than expected, at sites that are predicted to be fast-evolving. Absolute values of phyloP scores represent -log p-values under a null hypothesis of neutral evolution. The phastCons scores represent probabilities of negative selection and range between 0 and 1. Positive GERP scores represent a substitution deficit and thus indicate that a site may be under evolutionary constraint. Negative scores indicate that a site is probably evolving neutrally. Some authors suggest that a score threshold of 2 provides high sensitivity while still strongly enriching for truly constrained sites"><i class="fa fa-info-circle" aria-hidden="true"></i></a>`,
+                    // eslint-disable-next-line max-len
+                    title: "Conservation  <a tooltip-title='Conservation' tooltip-text=\"Positive PhyloP scores measure conservation which is slower evolution than expected, at sites that are predicted to be conserved. Negative PhyloP scores measure acceleration, which is faster evolution than expected, at sites that are predicted to be fast-evolving. Absolute values of phyloP scores represent -log p-values under a null hypothesis of neutral evolution. The phastCons scores represent probabilities of negative selection and range between 0 and 1. Positive GERP scores represent a substitution deficit and thus indicate that a site may be under evolutionary constraint. Negative scores indicate that a site is probably evolving neutrally. Some authors suggest that a score threshold of 2 provides high sensitivity while still strongly enriching for truly constrained sites\"><i class=\"fa fa-info-circle\" aria-hidden=\"true\"></i></a>",
                     field: "conservation",
                     rowspan: 1,
                     colspan: 3,
-                    // colspan: this.opencgaSession.project.organism.assembly.toUpperCase() === "GRCH37" ? 3 : 2,
                     align: "center"
                 },
                 {
@@ -556,7 +582,7 @@ export default class VariantBrowserGrid extends LitElement {
                     visible: sampleColumns.length > 0 && sampleColumns[0].visible === undefined
                 },
                 {
-                    title: `Cohort Stats <a id="cohortStatsInfoIcon" tooltip-title="Cohort Stats" tooltip-text="${VariantGridFormatter.cohortStatsInfoTooltipContent(this.populationFrequencies)}"><i class="fa fa-info-circle" aria-hidden="true"></i></a>`,
+                    title: `Cohort Stats <a id="cohortStatsInfoIcon" tooltip-title="Cohort Stats" tooltip-text="${VariantGridFormatter.populationFrequenciesInfoTooltipContent(this.populationFrequencies)}"><i class="fa fa-info-circle" aria-hidden="true"></i></a>`,
                     field: "cohorts",
                     rowspan: 1,
                     colspan: cohortColumns.length,
@@ -605,6 +631,14 @@ export default class VariantBrowserGrid extends LitElement {
                     halign: "center"
                 },
                 {
+                    title: "Revel",
+                    field: "revel",
+                    colspan: 1,
+                    rowspan: 1,
+                    formatter: this.revelProteinScoreFormatter.bind(this),
+                    halign: "center"
+                },
+                {
                     title: "CADD",
                     field: "cadd",
                     colspan: 1,
@@ -638,8 +672,8 @@ export default class VariantBrowserGrid extends LitElement {
                     rowspan: 1,
                     formatter: this.conservationFormatter,
                     align: "right",
-                    halign: "center",
-                    visible: this.opencgaSession.project.organism.assembly.toUpperCase() === "GRCH37"
+                    halign: "center"
+                    // visible: this.opencgaSession.project.organism.assembly.toUpperCase() === "GRCH37"
                 },
                 ...sampleColumns,
                 ...cohortColumns,
@@ -676,7 +710,7 @@ export default class VariantBrowserGrid extends LitElement {
     async onDownload(e) {
         this.toolbarConfig = {...this.toolbarConfig, downloading: true};
         await this.requestUpdate();
-        let params = {
+        const params = {
             study: this.opencgaSession.study.fqn,
             limit: 1000,
             summary: !this.query.sample && !this.query.family,
@@ -711,7 +745,7 @@ export default class VariantBrowserGrid extends LitElement {
             showExport: false,
             detailView: true,
             detailFormatter: this.detailFormatter,
-
+            showToolbar: true,
             showSelectCheckbox: false,
             multiSelection: false,
             nucleotideGenotype: true,
@@ -722,14 +756,14 @@ export default class VariantBrowserGrid extends LitElement {
                 verticalAlign: "bottom"
             },
             consequenceType: {
-                gencodeBasic: true,
-                filterByBiotype: true,
-                filterByConsequenceType: true,
-
-                canonicalTranscript: false,
-                highQualityTranscripts: false,
-                proteinCodingTranscripts: false,
-                worstConsequenceTypes: true,
+                maneTranscript: true,
+                gencodeBasicTranscript: false,
+                ensemblCanonicalTranscript: true,
+                refseqTranscript: true,
+                ccdsTranscript: false,
+                ensemblTslTranscript: false,
+                proteinCodingTranscript: false,
+                highImpactConsequenceTypeTranscript: false,
 
                 showNegativeConsequenceTypes: true
             }
@@ -737,20 +771,25 @@ export default class VariantBrowserGrid extends LitElement {
     }
 
     render() {
-        return html`           
-            <div>
-                <opencb-grid-toolbar    .config="${this.toolbarConfig}"
-                                        @columnChange="${this.onColumnChange}"
-                                        @download="${this.onDownload}"
-                                        @sharelink="${this.onShare}">
-                </opencb-grid-toolbar>
+        return html`
+            ${this._config.showToolbar ?
+            html`
+                    <opencb-grid-toolbar  .config="${this.toolbarConfig}"
+                                          .query="${this.query}"
+                                          .opencgaSession="${this.opencgaSession}"
+                                          @columnChange="${this.onColumnChange}"
+                                          @download="${this.onDownload}"
+                                          @export="${this.onDownload}">
+                    </opencb-grid-toolbar>` :
+            null
+        }
                 
-                <div>
-                    <table id="${this.gridId}"></table>
-                </div>
+            <div>
+                <table id="${this.gridId}"></table>
             </div>
         `;
     }
+
 }
 
 customElements.define("variant-browser-grid", VariantBrowserGrid);

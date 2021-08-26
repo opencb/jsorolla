@@ -122,7 +122,7 @@ export default class OpencgaIndividualGrid extends LitElement {
                 method: "get",
                 sidePagination: "server",
                 uniqueId: "id",
-
+                silentSort: false,
                 // Table properties
                 pagination: this._config.pagination,
                 pageSize: this._config.pageSize,
@@ -158,22 +158,22 @@ export default class OpencgaIndividualGrid extends LitElement {
                                     {
                                         individual: individualIds,
                                         study: this.opencgaSession.study.fqn,
-                                        exclude: "proband.samples,family,interpretation,files"
+                                        include: "id,proband.id,family.members"
                                     })
                                     .then(caseResponse => {
-                                        // We store the Case ID in the individual attribute
-                                        // Note clinical search results are not sorted
-                                        // FIXME at the moment we only search by proband
-                                        const map = {};
-                                        for (const clinicalAnalysis of caseResponse.responses[0].results) {
-                                            if (!map[clinicalAnalysis.proband.id]) {
-                                                map[clinicalAnalysis.proband.id] = [];
+                                        individualResponse.getResults().forEach(individual => {
+                                            for (const clinicalAnalysis of caseResponse.getResults()) {
+                                                if (clinicalAnalysis?.proband?.id === individual.id || clinicalAnalysis?.family?.members.find(member => member.id === individual.id)) {
+                                                    if (individual?.attributes?.OPENCGA_CLINICAL_ANALYSIS) {
+                                                        individual.attributes.OPENCGA_CLINICAL_ANALYSIS.push(clinicalAnalysis);
+                                                    } else {
+                                                        individual.attributes = {
+                                                            OPENCGA_CLINICAL_ANALYSIS: [clinicalAnalysis]
+                                                        };
+                                                    }
+                                                }
                                             }
-                                            map[clinicalAnalysis.proband.id].push(clinicalAnalysis);
-                                        }
-                                        for (const individual of individualResponse.responses[0].results) {
-                                            individual.attributes.OPENCGA_CLINICAL_ANALYSIS = map[individual.id];
-                                        }
+                                        });
                                         params.success(individualResponse);
                                     })
                                     .catch(e => {

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>OpenCGA Login</title>
+    <style>
+        form {
+            width: 420px;
+        }
+        label {
+            display: inline-block;
+            width: 100px;
+        }
+        input {
+            width: 300px;
+        }
+    </style>
+</head>
+<body>
+<h2>Opencga Login</h2>
+<form name="form">
+    <p><label>Host</label> <input type="text" name="host" placeholder="host" value="http://bioinfo.hpc.cam.ac.uk/opencga-prod"></p>
+    <p><label>User</label> <input type="text" name="user" placeholder="user"></p>
+    <p><label>Password</label> <input type="password" name="password" placeholder="password"></p>
+    <button type="button" id="submit">Submit</button>
+</form>
+
+<pre id="response"></pre>
+
+
+<script type="module">
+    import {OpenCGAClient} from "../opencga-client.js";
+    import {RestResponse} from "../../rest-response.js";
+
+    document.querySelector("#submit").addEventListener("click", () => {
+        login();
+    })
+
+    async function login() {
+        try {
+            const client = new OpenCGAClient({
+                host: document.querySelector("input[name=host]").value,
+                version: "v2",
+                cookies: {active: true, prefix: "standalone"}
+            });
+            const response = await client.users().login({
+                user: document.querySelector("input[name=user]").value,
+                password: document.querySelector("input[name=password]").value
+            })
+            document.querySelector("#response").innerHTML = "Login Successfull! Token:" + response.getResult(0).token;
+        } catch (response) {
+        if (response instanceof RestResponse) {
+            console.error(response.getEvents());
+            document.querySelector("#response").innerHTML = "Error: " + response.getEvents().map(event => event.message).join("\n");
+
+        } else {
+            console.error(response);
+        }
+    }
+    }
+
+</script>
+</body>
+</html>
+
+

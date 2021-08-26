@@ -40,12 +40,12 @@ export default class OpencgaSampleBrowser extends LitElement {
             query: {
                 type: Object
             },
-            facetQuery: {
+            /* facetQuery: {
                 type: Object
             },
             selectedFacet: {
                 type: Object
-            },
+            },*/
             config: {
                 type: Object
             }
@@ -56,7 +56,7 @@ export default class OpencgaSampleBrowser extends LitElement {
         this._prefix = UtilsNew.randomString(8);
 
         // These are for making the queries to server
-        this.facetFields = [];
+        /* this.facetFields = [];
         this.facetRanges = [];
 
         this.facetFieldsName = [];
@@ -68,7 +68,7 @@ export default class OpencgaSampleBrowser extends LitElement {
         this.facetActive = true;
         this.selectedFacet = {};
         this.selectedFacetFormatted = {};
-        this.errorState = false;
+        this.errorState = false;*/
 
         this._config = this.getDefaultConfig();
     }
@@ -80,7 +80,7 @@ export default class OpencgaSampleBrowser extends LitElement {
     }
 
     updated(changedProperties) {
-        /*if (changedProperties.has("opencgaSession")) {
+        /* if (changedProperties.has("opencgaSession")) {
             this.opencgaSessionObserver();
         }*/
         if (changedProperties.has("config")) {
@@ -93,7 +93,6 @@ export default class OpencgaSampleBrowser extends LitElement {
         return {
             title: "Sample Browser",
             icon: "fab fa-searchengin",
-            searchButtonText: "Search",
             views: [
                 {
                     id: "table-tab",
@@ -105,13 +104,14 @@ export default class OpencgaSampleBrowser extends LitElement {
                     id: "facet-tab",
                     name: "Aggregation stats",
                     icon: "fas fa-chart-bar"
-                },/*
+                }/*
                 {
                     id: "comparator-tab",
                     name: "Comparator"
                 }*/
             ],
             filter: {
+                searchButton: false,
                 sections: [
                     {
                         title: "Section title",
@@ -177,7 +177,7 @@ export default class OpencgaSampleBrowser extends LitElement {
                     pageSize: 10,
                     pageList: [10, 25, 50],
                     multiSelection: false,
-                    showSelectCheckbox: false,
+                    showSelectCheckbox: false
                 },
                 detail: {
                     title: "Sample",
@@ -188,7 +188,7 @@ export default class OpencgaSampleBrowser extends LitElement {
                             name: "Overview",
                             active: true,
                             render: (sample, active, opencgaSession) => {
-                                return html`<opencga-sample-view .sample="${sample}" .opencgaSession="${opencgaSession}"></opencga-sample-view>`;
+                                return html`<opencga-sample-view .sample="${sample}" .active="${active}" .opencgaSession="${opencgaSession}"></opencga-sample-view>`;
                             }
                         },
                         {
@@ -232,7 +232,7 @@ export default class OpencgaSampleBrowser extends LitElement {
                 }
             },
             aggregation: {
-                default: ["creationYear>>creationMonth", "status", "phenotypes", "somatic"],
+                default: ["creationYear>>creationMonth", "status", "somatic"],
                 result: {
                     numColumns: 2
                 },

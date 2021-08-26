@@ -57,13 +57,17 @@ export default class OpencgaFamilyView extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
-        this.family = {};
+        // this.family = {};
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
     updated(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
             // this.individualIdObserver();
+        }
+
+        if (changedProperties.has("family")) {
+            //console.log("family", this.family) // TODO will be empty if you decomment row #60. Investigate on this
         }
 
         if (changedProperties.has("familyId")) {
