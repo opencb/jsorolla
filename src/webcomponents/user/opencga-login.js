@@ -109,9 +109,9 @@ export default class OpencgaLogin extends LitElement {
                                     this.querySelector("#opencgaUser").value = "";
                                     this.querySelector("#opencgaPassword").value = "";
                                     const token = restResponse.getResult(0).token;
-                                    const decoded = jwt_decode(token); // TODO expose as module
+                                    const decoded = jwt_decode(token);
                                     const dateExpired = new Date(decoded.exp * 1000);
-                                    const validTimeSessionId = moment(dateExpired, "YYYYMMDDHHmmss").format("D MMM YY HH:mm:ss"); // TODO expose as module
+                                    const validTimeSessionId = moment(dateExpired, "YYYYMMDDHHmmss").format("D MMM YY HH:mm:ss");
                                     this.dispatchEvent(new CustomEvent("login", {
                                         detail: {
                                             userId: user,

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { LitElement, html } from "lit"
+import { LitElement, html } from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
 
 export default class DetailTabs extends LitElement {
@@ -43,7 +43,7 @@ export default class DetailTabs extends LitElement {
             data: {
                 type: Object
             },
-            mode: {     // accepted values:  tabs, pills
+            mode: {// accepted values:  tabs, pills
                 type: String
             },
             config: {
@@ -61,13 +61,13 @@ export default class DetailTabs extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
-
-        this._config = { ...this.getDefaultConfig(), ...this.config };
+        this._config = {...this.getDefaultConfig(), ...this.config};
 
         // Read active tabs from config, if not active tab is found then FIRST one is selected.
-        let _activeTabs = Object.assign({}, ...this._config.items.map(item => ({ [item.id]: item.active ?? false })));
+        const _activeTabs = Object.assign({}, ...this._config.items.map(item => ({[item.id]: item.active ?? false})));
+
         // Set default active tab
-        let activeIndex = this._config.items.findIndex(item => item.active);
+        const activeIndex = this._config.items.findIndex(item => item.active);
         if (activeIndex < 0) {
             _activeTabs[this._config.items[0].id] = true;
         }
@@ -75,7 +75,7 @@ export default class DetailTabs extends LitElement {
     }
 
     changeBottomTab(e) {
-        this.activeTabs = Object.assign({}, ...this._config.items.map(item => ({ [item.id]: false })));
+        this.activeTabs = Object.assign({}, ...this._config.items.map(item => ({[item.id]: false})));
         const tabId = e.currentTarget.dataset.id;
         this.activeTabs[tabId] = true;
         this.requestUpdate();

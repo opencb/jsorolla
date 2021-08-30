@@ -380,7 +380,6 @@ export default class OpencgaProjects extends LitElement {
                                 this works either with an explicit list of fields to show in the table (this.tableRows)
                                 or ALL the values of "field" returned in response
                             -->
-
                             ${fieldConfig?.values?.length ? html`
                                 <tr>
                                     <td rowspan="${fieldConfig.values.length + 1}">
@@ -600,7 +599,7 @@ export default class OpencgaProjects extends LitElement {
         return html`
         <!-- TODO check if logged in -->
         <div id="projects">
-             <tool-header title="Projects summary" icon="fa fa-search"></tool-header>
+            <tool-header title="Projects summary" icon="fa fa-search"></tool-header>
 
             <div class="panel-container">
                 <div class="panel panel-default shadow-sm">
@@ -663,8 +662,8 @@ export default class OpencgaProjects extends LitElement {
 
                     ${this.data ? Object.entries(this.data).map(([projectId, project], i) => html`
                         <div role="tabpanel"
-                             id="${projectId}-tab"
-                             class="content-tab project-tab tab-pane ${classMap({active: this.activeTab[projectId] || (UtilsNew.isEmpty(this.activeTab) && i === 0)})}">
+                            id="${projectId}-tab"
+                            class="content-tab project-tab tab-pane ${classMap({active: this.activeTab[projectId] || (UtilsNew.isEmpty(this.activeTab) && i === 0)})}">
                             <div class="row">
                                 <div class="col-md-10 col-md-offset-1">
                                     <h3 class="project-name">Project <span class="inverse">${projectId}</span></h3>
@@ -684,10 +683,10 @@ export default class OpencgaProjects extends LitElement {
                                         <div class="content-tab-wrapper projects-content-tab ${project.id}">
                                             ${~this.sideNavItems.indexOf("Summary") ? html`
                                                 <div id="${this._prefix}${project.id}Summary"
-                                                     role="tabpanel"
-                                                     class="tab-pane content-tab ${classMap({active: this.activeTab[projectId]?.["Summary"] || UtilsNew.isEmpty(this.activeTab)})}"
-                                                     data-project-id="${project.id}"
-                                                     data-menu-item-id="${project.id}">
+                                                    role="tabpanel"
+                                                    class="tab-pane content-tab ${classMap({active: this.activeTab[projectId]?.["Summary"] || UtilsNew.isEmpty(this.activeTab)})}"
+                                                    data-project-id="${project.id}"
+                                                    data-menu-item-id="${project.id}">
                                                     <h3>Summary</h3>
                                                     <data-form .data=${project} .config="${this.getProjectConfig()}"></data-form>
                                                 </div>` :
@@ -710,29 +709,29 @@ export default class OpencgaProjects extends LitElement {
                                                         `)}
                                                     </div>
                                                     ${this.renderTable(project, "file")}
-                                                </div>` :
-                                                    ""}
+                                                </div>`
+                                            : ""}
 
                                             ${~this.sideNavItems.indexOf("Samples") ? html`
                                                 <div id="${this._prefix}${project.id}Samples" role="tabpanel" class="tab-pane content-tab ${classMap({active: this.activeTab[projectId]?.["Samples"]})}">
                                                     <h3>Samples</h3>
                                                     ${this.renderTable(project, "sample")}
-                                                </div>` :
-                                                    ""}
+                                                </div>
+                                            ` : ""}
 
                                             ${~this.sideNavItems.indexOf("Individuals") ? html`
                                                 <div id="${this._prefix}${project.id}Individuals" role="tabpanel" class="tab-pane content-tab ${classMap({active: this.activeTab[projectId]?.["Individuals"]})}">
                                                     <h3>Individuals</h3>
                                                     ${this.renderTable(project, "individual")}
-                                                </div>` :
-                                                    ""}
+                                                </div>
+                                            ` : ""}
 
                                             ${~this.sideNavItems.indexOf("Cohorts") ? html`
                                                 <div id="${this._prefix}${project.id}Cohorts" role="tabpanel" class="tab-pane content-tab ${classMap({active: this.activeTab[projectId]?.["Cohorts"]})}">
                                                     <h3>Cohorts</h3>
                                                     ${this.renderTable(project, "cohort")}
-                                                </div>` :
-                                                    ""}
+                                                </div>
+                                            ` : ""}
                                         </div>
                                     </div>
                                 </div>

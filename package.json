@@ -40,7 +40,7 @@
   },
   "license": "Apache-2.0",
   "dependencies": {
-    "@fortawesome/fontawesome-free": "^5.11.2",
+    "@fortawesome/fontawesome-free": "5.15.4",
     "@highlightjs/cdn-assets": "^10.6.0",
     "@polymer/polymer": "2.6.1",
     "@svgdotjs/svg.js": "^3.0.16",
