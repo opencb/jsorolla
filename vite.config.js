@@ -8,6 +8,7 @@ import summary from "rollup-plugin-summary";
 import path from "path";
 import del from "rollup-plugin-delete";
 import {babel, getBabelOutputPlugin} from "@rollup/plugin-babel";
+import {terser} from "rollup-plugin-terser";
 
 
 const buildPath = path.resolve(__dirname, "build-vite");
@@ -24,14 +25,31 @@ export default defineConfig({
         watch: ["src", "styles"]
     },
     build: {
+        polyfillModulePreload: true,
         rollupOptions: {
             input: [`${ivaPath}/iva-index.html`, "src/genome-browser/demo/genome-browser.html"],
             preserveEntrySignatures: "strict",
             plugins: [
-                del({targets: "build-vite/*"}),
+                del({targets: "build-vite"}),
                 html(),
                 resolve(),
                 minifyHTML(),
+                babel({
+                    exclude: "node_modules/**",
+                    babelHelpers: "runtime",
+                    presets: ["@babel/preset-env"],
+                    plugins: [
+                        "@babel/plugin-proposal-export-default-from",
+                        "@babel/plugin-proposal-nullish-coalescing-operator",
+                        "@babel/transform-runtime",
+                        ["@babel/plugin-proposal-class-properties", {"loose": false}]
+                    ]
+                }),
+                terser({
+                    ecma: 2020,
+                    module: true,
+                    warnings: true
+                }),
                 summary(),
                 copy({
                     targets: [
@@ -52,24 +70,8 @@ export default defineConfig({
                         return "conf/[name][extname]";
                     }
                     return "assets/[name]-[hash][extname]";
-                },
-                plugins: [
-                    getBabelOutputPlugin({
-                        presets: ["@babel/preset-env"],
-                        plugins: [
-                            "@babel/plugin-proposal-export-default-from",
-                            "@babel/plugin-proposal-nullish-coalescing-operator",
-                            "@babel/transform-runtime",
-                            ["@babel/plugin-proposal-class-properties", {"loose": false}]
-                        ]
-                    })
-                ]
+                }
             }
         },
-        terserOptions: {
-            ecma: 2020,
-            module: true,
-            warnings: true
-        }
     }
 });
