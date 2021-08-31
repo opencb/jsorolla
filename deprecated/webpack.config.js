@@ -17,6 +17,9 @@ const ivaPath = path.resolve(__dirname, "src/sites/iva");
 // const ESLintPlugin = require("eslint-webpack-plugin");
 // const revision = require("./rev-info.js");
 
+// New Configuration
+// html, copy, node-resolve (bare-module),terser,minify-html-literals, summary
+
 const revision = () => {
     try {
         const jsorollaBranch = execSync("git rev-parse --abbrev-ref HEAD").toString();
@@ -51,6 +54,9 @@ module.exports = {
         filename: "[name][contenthash].js",
         path: DIST_PATH
     },
+    resolve: {
+        modules: ["node_modules"],
+    },
     plugins: [
         new CleanWebpackPlugin(),
         new HtmlWebpackPlugin({
@@ -58,7 +64,6 @@ module.exports = {
             minify: {
                 removeAttributeQuotes: true,
                 collapseWhitespace: true
-                // removeComments: true //cannot be uncommented because of HtmlReplaceWebpackPlugin depends on comments
             }
         }),
         new HtmlReplaceWebpackPlugin([
@@ -196,45 +201,17 @@ module.exports = {
                 // if (resource === "./conf/opencga-variant-browser.config.js") return true;
                 // return false;
             }
-
             // resourceRegExp: /import [\s\S]+? from "\.\/\.\.\/lib\/jsorolla\/dist\/main\.js";/
             // resourceRegExp: /import [\s\S]+? from "main\.js";/
             // resourceRegExp: /^\.\/locale$/,
             // contextRegExp: /moment$/
         })
-        // new ESLintPlugin({fix:false})
-
     ],
     optimization: {
         minimize: true
-        /* minimizer: [
-            new TerserPlugin({
-                terserOptions: {
-                    keep_classnames: true,
-                    keep_fnames: true
-                }
-            })
-        ]*/
     },
-    /* externals: [
-        {
-            "externalConfig": "./conf/external-config.js"
-        }
-    ],*/
     module: {
         rules: [
-            // es-lint check step
-            /* {
-                test: /\.js$/,
-                exclude: /node_modules/,
-                use: ["babel-loader", "eslint-loader"]
-            },*/
-            /* {
-                // Test for a polyfill (or any file) and it won't be included in your
-                // bundle
-                test: path.resolve(__dirname, "src/conf/external-config.js"),
-                use: "null-loader"
-            },*/
             {
                 test: /\.html$/,
                 use: ["html-loader"] // rewrite html content (replace automatically <img src="img.jpg"/> in require("img.jpg"))
@@ -245,63 +222,16 @@ module.exports = {
                 use: {
                     loader: "babel-loader",
                     options: {
-                        presets: [[
-                            "@babel/preset-env",
-                            {
-                                // useBuiltIns: "usage",
-                                // targets: ">20%, not dead, not ie 11" //browserslist query now defined in package.json
-                                // corejs: 3
-                            }
-                        ]],
+                        presets: ["@babel/preset-env"],
                         plugins: [
                             "@babel/plugin-proposal-export-default-from",
-                            // "@babel/regenerator-runtime/runtime",
                             "@babel/plugin-proposal-nullish-coalescing-operator",
                             "@babel/transform-runtime",
                             ["@babel/plugin-proposal-class-properties", {"loose": false}]
                         ]
                     }
                 }
-            },
-            {
-                test: /\.js$/,
-                loader: "string-replace-loader",
-                options: {
-                    multiple: [
-                        {
-                            search: "/web_modules/lit-element.js",
-                            replace: "lit-element"
-                        },
-                        {
-                            search: "/web_modules/lit-html.js",
-                            replace: "lit-html"
-                        },
-                        {
-                            search: "/web_modules/lit-html/directives/class-map.js",
-                            replace: "lit-html/directives/class-map.js"
-                        },
-                        {
-                            search: "/web_modules/lit-html/directives/if-defined.js",
-                            replace: "lit-html/directives/if-defined.js"
-                        },
-                        {
-                            search: "/node_modules/countup.js/dist/countUp.min.js",
-                            replace: "countup.js"
-                        }
-                        /* js string replacement
-                        {
-                            search: "// @dev\\[([\\s\\S]*?)\\][\\s\\S]*?// /@dev",
-                            replace: (match, p1, offset, string) => `import ${p1} from "main.js";`,
-                            //replace: (match, p1, offset, string) => `${p1}`,
-                            flags: "gim",
-                            strict: true
-                        }*/
-                    ]
-
-                }
             }
-
         ]
-
     }
 };
