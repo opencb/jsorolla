@@ -128,7 +128,7 @@ export class CellBaseClient {
         if (typeof queryParamsUrl !== "undefined" && queryParamsUrl !== null && queryParamsUrl !== "") {
             url += `?${queryParamsUrl}`;
         }
-        const k = this.generateKey();
+        const k = this.generateKey(params);
         return this.restClient.call(url, options, k);
     }
 
@@ -258,22 +258,9 @@ export class CellBaseClient {
         const species = options.species || this._config.species;
 
         const url = this._createRestUrl(host, version, species, category, subcategory, ids, resource, params);
-        /*
-        let response;
-        const userError = options.error;
-        const _this = this;
-        // if the URL query fails we try with next host
 
-         options.error = function () {
-            if (++count < hosts.length) {
-                // we need a new URL
-                url = _this._createRestUrl(hosts[count], version, species, category, subcategory, ids, resource, params);
-                response = this.restClient.call(url, options);
-            } else {
-                userError(this);
-            }
-        };*/
-        const k = this.generateKey();
+        // ids is not included
+        const k = this.generateKey({...params, species, category, subcategory, resource, params});
         return this.restClient.call(url, options, k);
     }
 
@@ -332,7 +319,9 @@ export class CellBaseClient {
     }
 
     generateKey(params) {
-        return `${new Error().stack.split("\n    at ").slice(0, 5).join("|")}`;
+        // params is added to the key to avoid unwanted request abort.
+        // We can do it because we don't have tables in IVA that queries Cellbase.
+        return `${new Error().stack.split("\n    at ").slice(0, 5).join("|") + JSON.stringify(params)}`;
     }
 
 }
