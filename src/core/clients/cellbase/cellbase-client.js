@@ -200,7 +200,9 @@ export class CellBaseClient {
                         // We make a copy of dataResponse
                         const query = {};
                         for (const i in dataResponse) {
-                            query[i] = dataResponse[i];
+                            if (Object.prototype.hasOwnProperty.call(dataResponse, i)) {
+                                query[i] = dataResponse[i];
+                            }
                         }
                         // And remove the key response
                         delete query["response"];
@@ -255,8 +257,7 @@ export class CellBaseClient {
         const version = options.version || this._config.version;
         const species = options.species || this._config.species;
 
-        const count = 0;
-        const url = this._createRestUrl(hosts[count], version, species, category, subcategory, ids, resource, params);
+        const url = this._createRestUrl(host, version, species, category, subcategory, ids, resource, params);
         /*
         let response;
         const userError = options.error;
@@ -310,7 +311,9 @@ export class CellBaseClient {
         const keyArray = _.keys(params).sort();
         const keyValueArray = [];
         for (const i in keyArray) {
-            keyValueArray.push(`${keyArray[i]}=${encodeURIComponent(params[keyArray[i]])}`);
+            if (Object.prototype.hasOwnProperty.call(keyArray, i)) {
+                keyValueArray.push(`${keyArray[i]}=${encodeURIComponent(params[keyArray[i]])}`);
+            }
         }
         let suffixKey = keyValueArray.join("&");
         // suffixKey is preceded by '_' if suffix is true. Else it is treated as queryParam that needs to be sorted
