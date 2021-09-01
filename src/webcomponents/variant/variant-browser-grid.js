@@ -709,7 +709,7 @@ export default class VariantBrowserGrid extends LitElement {
 
     async onDownload(e) {
         this.toolbarConfig = {...this.toolbarConfig, downloading: true};
-        await this.requestUpdate();
+        await this.updateComplete;
         const params = {
             study: this.opencgaSession.study.fqn,
             limit: 1000,

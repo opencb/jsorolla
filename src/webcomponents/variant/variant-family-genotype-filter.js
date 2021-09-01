@@ -365,7 +365,7 @@ export default class VariantFamilyGenotypeFilter extends LitElement {
         }*/
 
         // 'console.log("this.sampleFilters",this.sampleFilters);
-        await this.requestUpdate();
+        await this.updateComplete;
         this.notifySampleFilterChange();
     }
 

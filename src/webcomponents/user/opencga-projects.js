@@ -282,7 +282,7 @@ export default class OpencgaProjects extends LitElement {
             console.error(e);
             UtilsNew.notifyError(e);
         }
-        await this.requestUpdate();
+        await this.updateComplete;
         this.querySelector("#loading").style.display = "none";
     }
 

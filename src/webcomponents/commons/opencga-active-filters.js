@@ -288,7 +288,7 @@ export default class OpencgaActiveFilters extends LitElement {
             } else {
                 this._filters = [...(this.filters || [])];
             }
-            this.requestUpdate().then(() => UtilsNew.initTooltip(this));
+            this.updateComplete.then(() => UtilsNew.initTooltip(this));
         });
     }
 
@@ -355,7 +355,7 @@ export default class OpencgaActiveFilters extends LitElement {
                                             "Filter has been saved.",
                                             "success"
                                         );
-                                        this.requestUpdate().then(() => UtilsNew.initTooltip(this));
+                                        this.updateComplete.then(() => UtilsNew.initTooltip(this));
                                     } else {
                                         console.error(restResponse);
                                         Swal.fire(
@@ -397,7 +397,7 @@ export default class OpencgaActiveFilters extends LitElement {
                                     "Filter has been saved.",
                                     "success"
                                 );
-                                this.requestUpdate().then(() => UtilsNew.initTooltip(this));
+                                this.updateComplete.then(() => UtilsNew.initTooltip(this));
                             } else {
                                 console.error(restResponse);
                                 Swal.fire(

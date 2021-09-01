@@ -194,7 +194,7 @@ export default class LoadingBar extends LitElement {
             return;
         }
         this.WIDTH = (n * 100) + "%";
-        await this.requestUpdate();
+        await this.updateComplete;
         // loadingBar.css("width", pct);
 
         this.status = n;

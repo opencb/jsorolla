@@ -112,7 +112,7 @@ export class JobMonitor extends LitElement {
         });
         // accumulate all the updated (not visited) status
         this.updatedCnt = this.jobs.reduce((acc, job) => job.updated && !job._visited ? acc + 1 : acc, 0);
-        await this.requestUpdate();
+        await this.updateComplete;
         this._jobs = this.jobs;
     }
 

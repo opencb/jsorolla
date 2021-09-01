@@ -103,11 +103,11 @@ class OpencbFacetResults extends LitElement {
     async queryObserver() {
         // executedQuery in opencga-variant-browser has changed so, if requested,  we have to repeat the facet query
         this.facetResults = [];
-        await this.requestUpdate();
+        await this.updateComplete;
         if (this.query) {
             this.loading = true;
             this.errorState = false;
-            await this.requestUpdate();
+            await this.updateComplete;
             this.endpoint(this.resource).aggregationStats(this.query, {})
                 .then(restResponse => {
                     this.errorState = false;

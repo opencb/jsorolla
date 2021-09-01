@@ -342,7 +342,7 @@ class IvaApp extends LitElement {
 
     async _createOpenCGASession() {
         this.signingIn = "Creating session..";
-        await this.requestUpdate();
+        await this.updateComplete;
         const _this = this;
         const opencgaSession = this.opencgaClient.createSession()
             .then(response => {
@@ -398,6 +398,7 @@ class IvaApp extends LitElement {
             }).finally(() => {
                 this.signingIn = false;
                 this.requestUpdate();
+                // this.updateComplete;
             });
     }
 
@@ -1578,5 +1579,6 @@ class IvaApp extends LitElement {
     }
 
 }
+IvaApp.disableWarning("change-in-update");
 
-customElements.define("iva-app", IvaApp);
+

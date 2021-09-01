@@ -876,7 +876,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
     // TODO fix tab jsonToTabConvert isn't working!
     async onDownload(e) {
         this.toolbarConfig = {...this.toolbarConfig, downloading: true};
-        await this.requestUpdate();
+        await this.updateComplete;
         if (this.clinicalAnalysis.type.toUpperCase() === "FAMILY" && this.query?.sample) {
             const samples = this.query.sample.split(";");
             const sortedSamples = [];

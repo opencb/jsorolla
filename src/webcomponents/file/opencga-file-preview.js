@@ -82,7 +82,7 @@ export default class OpencgaFilePreview extends LitElement {
         this.content = null;
         // this.title = "";
         this.contentType = null;
-        await this.requestUpdate();
+        await this.updateComplete;
         switch (this.file.format) {
             case "PLAIN":
             case "VCF":
@@ -91,22 +91,22 @@ export default class OpencgaFilePreview extends LitElement {
                 this.contentType = "text";
                 // this.title = "Head";
                 this.opencgaSession.opencgaClient.files().head(this.file.id, params)
-                    .then( response => {
+                    .then(response => {
                         const {format, content} = response.getResult(0);
                         this.format = format;
                         this.content = content ?? "No content";
                         this.requestUpdate();
                     })
-                    .catch( response => {
+                    .catch(response => {
                         console.error(response);
-                        this.content = response.getEvents("ERROR").map( _ => _.message).join("\n");
+                        this.content = response.getEvents("ERROR").map(_ => _.message).join("\n");
                         this.requestUpdate();
                     });
                 break;
             case "JSON":
                 this.contentType = "json";
                 this.opencgaSession.opencgaClient.files().head(this.file.id, params)
-                    .then( response => {
+                    .then(response => {
                         const {content} = response.getResult(0);
                         try {
                             this.content = JSON.parse(content);
@@ -115,32 +115,32 @@ export default class OpencgaFilePreview extends LitElement {
                         }
                         this.requestUpdate();
                     })
-                    .catch( response => {
+                    .catch(response => {
                         console.error(response);
-                        this.content = response.getEvents("ERROR").map( _ => _.message).join("\n");
+                        this.content = response.getEvents("ERROR").map(_ => _.message).join("\n");
                         this.requestUpdate();
                     });
                 break;
             case "BAM":
                 this.contentType = "json";
                 this.opencgaSession.opencgaClient.files().info(this.file.id, {study: this.opencgaSession.study.fqn})
-                    .then( response => {
+                    .then(response => {
                         const {attributes} = response.getResult(0);
                         this.content = attributes?.alignmentHeader ?? {content: "No content"};
                         this.requestUpdate();
-                    })
+                    });
                 break;
             case "IMAGE":
                 this.contentType = "image";
                 // this.title = "Image";
                 this.opencgaSession.opencgaClient.files().image(this.file.id, params)
-                    .then( response => {
-                        this.requestUpdate().then( () => this.querySelector("#thumbnail").src = "data:image/png;base64, " + response.getResult(0).content);
+                    .then(response => {
+                        this.updateComplete.then(() => this.querySelector("#thumbnail").src = "data:image/png;base64, " + response.getResult(0).content);
                     })
-                    .catch( response => {
+                    .catch(response => {
                         console.error(response);
-                        //this.content = response.getEvents("ERROR").map( _ => _.message).join("\n");
-                        //this.requestUpdate();
+                        // this.content = response.getEvents("ERROR").map( _ => _.message).join("\n");
+                        // this.requestUpdate();
                     });
                 break;
             default:

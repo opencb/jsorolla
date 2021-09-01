@@ -262,7 +262,7 @@ export default class VariableSetCreate extends LitElement {
     async saveData() {
         // TODO: review requestUpdate();
         try {
-            await this.requestUpdate();
+            await this.updateComplete;
             const res = await this.opencgaSession.opencgaClient.studies()
                 .updateVariableSets(this.opencgaSession.study.fqn, this.variableSet, {action: "ADD"});
             this.variableSet = {
@@ -281,7 +281,7 @@ export default class VariableSetCreate extends LitElement {
                 "error"
             );
         } finally {
-            await this.requestUpdate();
+            await this.updateComplete;
         }
     }
 

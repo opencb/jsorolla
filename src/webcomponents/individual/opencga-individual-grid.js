@@ -477,7 +477,7 @@ export default class OpencgaIndividualGrid extends LitElement {
 
     async onDownload(e) {
         this.toolbarConfig = {...this.toolbarConfig, downloading: true};
-        await this.requestUpdate();
+        await this.updateComplete;
         const query = {
             ...this.query,
             study: this.opencgaSession.study.fqn,

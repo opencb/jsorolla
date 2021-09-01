@@ -19,11 +19,11 @@ export class NotificationQueue {
         const id = UtilsNew.randomString(6);
         const msg = {id, title, details, severity, dismissible, autoDismiss};
         this.queue = [...this.queue, msg];
-        await this.context.requestUpdate();
+        await this.context.updateComplete;
         if (autoDismiss) {
             await UtilsNew.sleep(5000);
             this.remove(id);
-            await this.context.requestUpdate();
+            await this.context.updateComplete;
         }
     }
 

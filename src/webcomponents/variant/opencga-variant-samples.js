@@ -344,7 +344,7 @@ export default class OpencgaVariantSamples extends LitElement {
     async onDownload(e) {
         try {
             this.toolbarConfig = {...this.toolbarConfig, downloading: true};
-            await this.requestUpdate();
+            await this.updateComplete;
             // batch size for sample query
             const BATCH_SIZE = 100;
             const query = {

@@ -124,7 +124,7 @@ class ClinicalAnalysisInterpretationEditor extends LitElement {
         }
 
         // We always refresh UI when clinicalAnalysisObserver is called
-        await this.requestUpdate();
+        await this.updateComplete;
         this.renderHistoryTable();
     }
 

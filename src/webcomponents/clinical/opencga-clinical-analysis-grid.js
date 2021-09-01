@@ -705,7 +705,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
 
         try {
             this.toolbarConfig = {...this.toolbarConfig, downloading: true};
-            await this.requestUpdate();
+            await this.updateComplete;
             const params = {
                 ...this.query,
                 exclude: "files",

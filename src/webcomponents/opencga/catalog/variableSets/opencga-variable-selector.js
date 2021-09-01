@@ -102,7 +102,7 @@ export default class OpencgaVariableSelector extends LitElement {
             const selectpicker = $(`#${this._prefix}-annotation-picker`);
             //console.log("selectpicker",selectpicker.val())
             //selectpicker.selectpicker("render");
-            await this.requestUpdate();
+            await this.updateComplete;
             selectpicker.selectpicker("refresh");
         }
     }

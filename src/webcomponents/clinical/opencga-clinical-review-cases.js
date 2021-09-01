@@ -177,7 +177,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
             } else {
                 this._filters = [...(this.filters || [])];
             }
-            this.requestUpdate().then(() => UtilsNew.initTooltip(this));
+            this.updateComplete.then(() => UtilsNew.initTooltip(this));
         });
     }
 
@@ -230,7 +230,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                                 this._filters[i] = restResponse.response[0].result[0];
                                             }
                                         }
-                                        this.requestUpdate().then(() => UtilsNew.initTooltip(this));
+                                        this.updateComplete.then(() => UtilsNew.initTooltip(this));
                                     } else {
                                         console.error(restResponse);
                                         Swal.fire(
@@ -272,7 +272,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                     "Filter has been saved.",
                                     "success"
                                 );
-                                this.requestUpdate().then(() => UtilsNew.initTooltip(this));
+                                this.updateComplete.then(() => UtilsNew.initTooltip(this));
                             } else {
                                 console.error(restResponse);
                                 Swal.fire(
