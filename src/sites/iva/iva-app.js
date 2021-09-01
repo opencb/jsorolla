@@ -1579,6 +1579,6 @@ class IvaApp extends LitElement {
     }
 
 }
-IvaApp.disableWarning("change-in-update");
 
+customElements.define("iva-app", IvaApp);
 
