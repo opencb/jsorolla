@@ -59,7 +59,6 @@ export default class JobsIdAutocomplete extends LitElement {
     getDefaultConfig() {
         return {
             addButton: false,
-            searchOn: "id",
             fields: item => ({
                 name: item.id
             }),
@@ -68,7 +67,7 @@ export default class JobsIdAutocomplete extends LitElement {
                     study: this.opencgaSession.study.fqn,
                     limit: 20,
                     count: false,
-                    // include: "id,individual.id",
+                    include: "id",
                     id: "~^" + query.toUpperCase()
                 };
                 this.opencgaSession.opencgaClient.jobs().search(filters).then(restResponse => {

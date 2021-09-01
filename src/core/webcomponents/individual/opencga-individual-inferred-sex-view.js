@@ -90,12 +90,8 @@ export default class OpencgaIndividualInferredSexView extends LitElement {
     }
 
     onDownload(e) {
-        let dataString = [];
-        let mimeType = "";
-        let extension = "";
         // Check if user clicked in Tab or JSON format
         if (e.currentTarget.dataset.downloadOption.toLowerCase() === "tab") {
-
             const data = this.individuals.map(individual => {
                 let inferredSex = individual?.qualityControl?.inferredSexReports[0];
                 return [
@@ -111,8 +107,7 @@ export default class OpencgaIndividualInferredSexView extends LitElement {
                         ] : ["-", "-", "-", "-"])
                 ].join("\t")
             });
-
-            dataString = [
+            const dataString = [
                 [
                     "Individual ID",
                     "Sample ID", "Sex",
@@ -125,9 +120,7 @@ export default class OpencgaIndividualInferredSexView extends LitElement {
                 ].join("\t"),
                 data.join("\n")
             ];
-            //console.log(dataString);
-            mimeType = "text/plain";
-            extension = ".txt";
+            UtilsNew.downloadData(dataString, "inferred_sex_" + this.opencgaSession.study.id + ".txt", "text/plain");
         } else {
             const data = this.individuals.map(individual => {
                 return {
@@ -137,22 +130,8 @@ export default class OpencgaIndividualInferredSexView extends LitElement {
                     ...individual?.qualityControl?.inferredSexReports[0]
                 };
             });
-            dataString = [JSON.stringify(data, null, "\t")];
-            mimeType = "application/json";
-            extension = ".json";
+            UtilsNew.downloadData(JSON.stringify(data, null, "\t"), this.opencgaSession.study.id + ".json", "application/json");
         }
-
-        // Build file and anchor link
-        const data = new Blob([dataString.join("\n")], {type: mimeType});
-        const file = window.URL.createObjectURL(data);
-        const a = document.createElement("a");
-        a.href = file;
-        a.download = this.opencgaSession.study.alias + extension;
-        document.body.appendChild(a);
-        a.click();
-        setTimeout(function() {
-            document.body.removeChild(a);
-        }, 0);
     }
 
     renderTable() {

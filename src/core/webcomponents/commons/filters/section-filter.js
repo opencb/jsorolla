@@ -39,10 +39,10 @@ export default class SectionFilter extends LitElement {
             filters: {
                 type: Object
             }
-        }
+        };
     }
 
-    _init(){
+    _init() {
         this._prefix = "sf-" + UtilsNew.randomString(6) + "_";
     }
 
@@ -52,7 +52,7 @@ export default class SectionFilter extends LitElement {
     }
 
     render() {
-        return this.config ? html`
+        return this.config && this.filters?.length ? html`
                 <div class="panel panel-default filter-section shadow-sm">
                     <div class="panel-heading" role="tab" id="${this._prefix}${this.id}Heading">
                             <h4 class="panel-title">
@@ -64,12 +64,13 @@ export default class SectionFilter extends LitElement {
                     </div>
                     <div id="${this._prefix}${this.id}" class="panel-collapse collapse ${this.config.collapsed ? "" : "in"}" role="tabpanel" aria-labelledby="${this._prefix}${this.id}Heading">
                         <div class="panel-body">
-                            ${this.filters.map( filter => html`${filter}`)}
+                            ${this.filters?.map(filter => html`${filter}`)}
                         </div>
                     </div>
                 </div>                    
-        ` : html`<div>No config</div>`;
+        ` : "";
     }
+
 }
 
 customElements.define("section-filter", SectionFilter);

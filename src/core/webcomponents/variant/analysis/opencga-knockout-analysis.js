@@ -15,57 +15,19 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import UtilsNew from "./../../../utilsNew.js";
-import "../../commons/analysis/opencga-analysis-tool.js";
+import "./opencga-knockout-analysis-result.js";
+import UtilsNew from "../../../utilsNew.js";
 
+// this class will be in config folder
+class OpencgaKnockoutAnalysisConfig {
 
-export default class OpencgaKnockoutAnalysis extends LitElement {
-
-    constructor() {
-        super();
-
-        this._init();
-    }
-
-    createRenderRoot() {
-        return this;
-    }
-
-    static get properties() {
-        return {
-            opencgaSession: {
-                type: Object
-            },
-            config: {
-                type: Object
-            }
-        };
-    }
-
-    _init() {
-        this._prefix = "oga-" + UtilsNew.randomString(6);
-
-        this._config = this.getDefaultConfig();
-    }
-
-    connectedCallback() {
-        super.connectedCallback();
-    }
-
-    updated(changedProperties) {
-        if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
-            this.requestUpdate();
-        }
-    }
-
-    getDefaultConfig() {
+    static get() {
         return {
             id: "knockout",
             title: "Knockout Analysis",
             icon: "",
             requires: "2.0.0",
-            description: "Sample Variant Stats description",
+            description: "Returns individuals with bialleic variants in a given gene, in either homozygous or compound heterozygous conformation. These patterns of variation often increase the risk of recessive disorders.”",
             links: [
                 {
                     title: "OpenCGA",
@@ -76,33 +38,95 @@ export default class OpencgaKnockoutAnalysis extends LitElement {
             form: {
                 sections: [
                     {
-                        title: "Input Parameters",
+                        title: "Select Gene",
                         collapsed: false,
                         parameters: [
-                            {
+                            /* {
                                 id: "sample",
                                 title: "Select samples",
                                 type: "SAMPLE_FILTER",
                                 addButton: true,
                                 showList: true,
                                 fileUpload: true
-                            },
+                            },*/
                             {
                                 id: "gene",
                                 title: "Select gene",
-                                type: "text"
-                            },
-                            {
-                                id: "panel",
-                                title: "Select panel",
-                                type: "DISEASE_PANEL_FILTER",
+                                type: "GENE_FILTER",
                                 addButton: true,
                                 showList: true,
                                 fileUpload: true
                             }
+                            /* {
+                                id: "panel",
+                                title: "Select disease panel",
+                                type: "DISEASE_PANEL_FILTER",
+                                addButton: true,
+                                showList: true,
+                                fileUpload: true
+                            }*/
                         ]
                     },
                     {
+                        title: "Variant Filters",
+                        collapsed: false,
+                        parameters: [
+                            {
+                                id: "cohortStatsAlt",
+                                title: "Alternate Allele Frequency",
+                                type: "COHORT_FREQUENCY_FILTER"
+                            },
+                            {
+                                id: "populationFrequencyAlt",
+                                title: "",
+                                type: "POPULATION_FREQUENCY_FILTER"
+                            },
+                            {
+                                id: "type",
+                                title: "Variant types",
+                                type: "VARIANT_TYPE_FILTER",
+                                types: ["SNV", "INDEL", "INSERTION", "DELETION"],
+                                tooltip: tooltips.type
+                                // layout: "horizontal"
+                            },
+                            {
+                                id: "consequenceType",
+                                title: "Consequence type",
+                                type: "CONSEQUENCE_TYPE_FILTER",
+                                tooltip: tooltips.consequenceTypeSelect,
+                                value: CONSEQUENCE_TYPES.lof
+                            },
+                            {
+                                id: "clinicalSignificance",
+                                title: "Clinical Significance",
+                                type: "CLINVAR_ACCESSION_FILTER"
+                            }
+                        ]
+                    },
+                    {
+                        title: "Sample filters",
+                        collapsed: false,
+                        parameters: [
+                            {
+                                id: "FAMILY_MEMBER_SELECTOR",
+                                title: "Include families with",
+                                type: "checkbox",
+                                defaultValue: "1,2",
+                                allowedValues:
+                                    [{id: 0, name: "No parents"}, {id: 1, name: "One Parents"}, {id: 2, name: "Two Parents"}]
+
+                            },
+                            {
+                                id: "PROBAND_ONLY",
+                                title: "Affected individuals (proband) only",
+                                type: "boolean",
+                                defaultValue: "no",
+                                tooltip: "other info here"
+                                // allowedValues: ["father", "mother"]
+                            }
+                        ]
+                    }
+                    /* {
                         title: "Configuration Parameters",
                         collapsed: false,
                         parameters: [
@@ -121,54 +145,82 @@ export default class OpencgaKnockoutAnalysis extends LitElement {
                                 ]
                             },
                             {
-                                id: "consequenceType",
-                                title: "Select consequence type",
-                                type: "text"
-                            },
-                            {
                                 id: "filter",
                                 title: "Select filter",
                                 type: "text"
-                            },
+                            }
                             // {
                             //     id: "qual",
                             //     title: "Select quality",
                             //     type: "number"
                             // }
                         ]
-                    }
+                    }*/
                 ],
                 job: {
                     title: "Job Info",
                     id: "knockout-$DATE",
                     tags: "",
+                    visible: false,
                     description: "",
                     button: "Run",
-                    validate: function(params) {
+                    validate: function (params) {
                         alert("test:" + params);
-                    },
+                    }
                 }
-            },
-            execute: (opencgaSession, data, params) => {
-                let body = {};
-                // data.sample ? body.sample = data.sample.join(",") : null;
-                data.sample ? body.sample = data.sample : null;
-                data.gene ? body.gene = data.gene.join(",") : null;
-                data.biotype ? body.biotype = data.biotype.join(",") : null;
-                data.consequenceType ? body.consequenceType = data.consequenceType.join(",") : null;
-                data.filter ? body.filter = data.filter.join(",") : null;
-                opencgaSession.opencgaClient.variants().runKnockout(body, params);
-            },
-            result: {
             }
         };
     }
 
-    render() {
-        return html`
-           <opencga-analysis-tool .opencgaSession="${this.opencgaSession}" .config="${this._config}" ></opencga-analysis-tool>
-        `;
-    }
 }
 
-customElements.define("opencga-knockout-analysis", OpencgaKnockoutAnalysis);
+
+export default class OpencgaKnockoutAnalysis { // extends LitElement
+
+    constructor(config) {
+        this._config = {...OpencgaKnockoutAnalysisConfig.get(), ...config};
+    }
+
+    get config() {
+        return this._config;
+    }
+
+    check() {
+
+    }
+
+    execute(e, opencgaSession) {
+        const {data, params} = e.detail;
+        const body = {};
+        // data.sample ? body.sample = data.sample.join(",") : null;
+        data.sample ? body.sample = data.sample : null;
+        data.gene ? body.gene = data.gene.join(",") : null;
+        data.biotype ? body.biotype = data.biotype.join(",") : null;
+        data.consequenceType ? body.consequenceType = data.consequenceType.join(",") : null;
+        data.filter ? body.filter = data.filter.join(",") : null;
+        opencgaSession.opencgaClient.variants().runKnockout(body, params)
+            .then(restResponse => {
+            })
+            .catch(e => UtilsNew.notifyError(e));
+    }
+
+    form(opencgaSession, cellbaseClient) {
+        return html`
+           <opencga-analysis-tool .opencgaSession="${opencgaSession}" .cellbaseClient="${cellbaseClient}" .config="${this.config}" @execute="${e => this.execute(e, opencgaSession)}"></opencga-analysis-tool>
+        `;
+    }
+
+    result(job, opencgaSession, cellbaseClient) {
+        // this.check(job);
+        return html`<opencga-knockout-analysis-result .jobId=${job?.id} .opencgaSession="${opencgaSession}" .cellbaseClient="${cellbaseClient}"></opencga-knockout-analysis-result>`;
+    }
+
+    // render() {
+    //     if () {
+    //         return this.form();
+    //     } else {
+    //         return this.result();
+    //     }
+    // }
+
+}

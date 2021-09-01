@@ -25,7 +25,8 @@ export default class OpencgaCatalogUtils {
      */
     static checkPermissions(study, user, permissions) {
         if (!study || !user || !permissions) {
-            console.log(`No valid parameters, study: ${study}, user: ${user}, permissions: ${permissions}`);
+            console.error(`No valid parameters, study: ${study}, user: ${user}, permissions: ${permissions}`);
+            return false;
         }
         // Check if user is the Study owner
         let _studyOwner = study.fqn.split("@")[0];
@@ -59,5 +60,6 @@ export default class OpencgaCatalogUtils {
         }
         return false;
     }
+
 
 }

@@ -43,30 +43,33 @@ export default class DetailTabs extends LitElement {
             config: {
                 type: Object
             }
-        }
+        };
     }
 
-    _init(){
+    _init() {
         this._prefix = "sf-" + UtilsNew.randomString(6) + "_";
     }
 
     connectedCallback() {
         super.connectedCallback();
         this._config = {...this.getDefaultConfig(), ...this.config};
-        this.activeTab = Object.assign({}, ...this._config.items.map( item => ({[item.id]: item.active ?? false}))); // this makes "active" field in config consistent with this.activeTab state. this.activeTab is the unique source of truth.
+        // this makes "active" field in config consistent with this.activeTab state. this.activeTab is the unique source of truth.
+        this.activeTab = Object.assign({}, ...this._config.items.map(item => ({[item.id]: item.active ?? false})));
+
+        // in case there are no items configured to be active, activate the first one
+        if (this._config.items.length && !Object.values(this.activeTab).some(Boolean)) {
+            this.activeTab[this._config.items[0].id] = true;
+        }
     }
 
     updated(changedProperties) {
-        if(changedProperties.has("property")) {
-            this.propertyObserver();
-        }
     }
 
     _changeBottomTab(e) {
         const tabId = e.currentTarget.dataset.id;
         $(".nav-tabs", this).removeClass("active");
         $(".tab-content div[role=tabpanel]", this).hide();
-        for (const tab in this.activeTab) this.activeTab[tab] = false;
+        this.activeTab = Object.assign({}, ...this._config.items.map(item => ({[item.id]: false})));
         $("#" + tabId + "-tab", this).show();
         this.activeTab[tabId] = true;
         this.requestUpdate();
@@ -76,44 +79,45 @@ export default class DetailTabs extends LitElement {
         return {
             title: "",
             showTitle: true
-        }
+        };
     }
 
     render() {
         return html`
-            ${this._config.showTitle 
-                ? html`
+            ${this._config.showTitle && this._config.items.length ?
+                html`
                     <div class="panel">
-                        <h3>&nbsp;${this._config.title} ${this.data.id}</h3>
-                    </div>` 
-                : null
+                        <h3 class="break-word">&nbsp;${this._config.title} ${this.data?.id}</h3>
+                    </div>` :
+                ""
             }
             <div class="detail-tabs">
                 <ul class="nav nav-tabs" role="tablist">
-                    ${this._config.items.length && this._config.items.map(item => {
+                    ${this._config.items.length ? this._config.items.map(item => {
                         if (typeof item.mode === "undefined" || item.mode === this.opencgaSession.mode) {
                             return html`
                                 <li role="presentation" class="${classMap({active: this.activeTab[item.id]})}">
                                     <a href="#${this._prefix}${item.id}" role="tab" data-toggle="tab" data-id="${item.id}" @click="${this._changeBottomTab}">
                                         <span>${item.name}</span>
                                     </a>
-                                </li>`
+                                </li>`;
                         }
-                    })}
+                    }) : ""}
                 </ul>
                 <div class="tab-content">
-                    ${this._config.items.length && this._config.items.map(item => {
+                    ${this._config.items.length ? this._config.items.map(item => {
                         if (typeof item.mode === "undefined" || item.mode === this.opencgaSession.mode) {
                             return html`
-                                <div id="${item.id}-tab" class="tab-pane ${classMap({active: item.active})}" role="tabpanel">
-                                    ${item.render(this.data, this.activeTab[item.id], this.opencgaSession)}
-                                </div>`
+                                <div id="${item.id}-tab" class="tab-pane ${classMap({active: this.activeTab[item.id]})}" role="tabpanel">
+                                    ${item.render(this.data, this.activeTab[item.id], this.opencgaSession, this.cellbaseClient)}
+                                </div>`;
                         }
-                    })}
+                    }) : ""}
                 </div>
             </div>
         `;
     }
+
 }
 
 customElements.define("detail-tabs", DetailTabs);

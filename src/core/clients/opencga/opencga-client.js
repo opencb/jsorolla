@@ -15,7 +15,6 @@
  */
 
 import {RestResponse} from "../rest-response.js";
-import UtilsNew from "../../utilsNew.js";
 import Admin from "./api/Admin.js";
 import Alignment from "./api/Alignment.js";
 import Clinical from "./api/Clinical.js";
@@ -40,6 +39,7 @@ export class OpenCGAClient {
     constructor(config) {
         // this._config = config;
         this.setConfig(config);
+        this.check();
     }
 
     getDefaultConfig() {
@@ -60,8 +60,26 @@ export class OpenCGAClient {
         };
     }
 
-    // TODO check OpeCGA URL and other variables.
-    check() {
+    async check() {
+        const globalEvent = (type, value) => {
+            globalThis.dispatchEvent(
+                new CustomEvent(type, {
+                    detail: value
+                }));
+        };
+        try {
+            const about = await this.meta().about();
+            if (about.getResult(0)) {
+                globalEvent("hostInit", {host: "opencga", value: "v" + about.getResult(0)["Version"]});
+            } else {
+                globalEvent("signingInError", {value: "Opencga host not available."});
+                globalEvent("hostInit", {host: "opencga", value: "NOT AVAILABLE"});
+            }
+        } catch (e) {
+            console.error(e);
+            globalEvent("signingInError", {value: "Opencga host not available."});
+            globalEvent("hostInit", {host: "opencga", value: "NOT AVAILABLE"});
+        }
     }
 
     /*
@@ -225,7 +243,7 @@ export class OpenCGAClient {
         this._config.token = response.getResult(0).token;
 
         await this.updateUserConfigs({
-            lastAccess: moment(new Date()).valueOf()
+            lastAccess: new Date().getTime()
         });
 
         if (this._config.cookies.active) {
@@ -278,49 +296,47 @@ export class OpenCGAClient {
         return new Promise((resolve, reject) => {
             // check that a session exists
             // TODO should we check the session has not expired?
-            //console.log("_this._config", _this._config);
-            if (UtilsNew.isNotUndefined(_this._config.token)) {
+            if (_this._config.token) {
+                _this._notifySessionEvent("signingIn", "Fetching User data");
                 _this.users().info(_this._config.userId)
                     .then(async response => {
                         const session = {};
-                        session.user = response.getResult(0);
-                        session.token = _this._config.token;
-                        session.date = new Date().toISOString();
-                        session.server = {
-                            host: _this._config.host,
-                            version: _this._config.version,
-                            serverVersion: _this._config.serverVersion
-                        };
-                        session.opencgaClient = _this;
-
-                        await this.updateUserConfigs({
-                            lastAccess: moment(new Date()).valueOf()
-                        });
+                        try {
+                            session.user = response.getResult(0);
+                            session.token = _this._config.token;
+                            session.date = new Date().toISOString();
+                            session.server = {
+                                host: _this._config.host,
+                                version: _this._config.version,
+                                serverVersion: _this._config.serverVersion,
+                            };
+                            session.opencgaClient = _this;
+                            _this._notifySessionEvent("signingIn", "Updating User config");
+                            const userConfig = await this.updateUserConfigs({
+                                ...session.user.configs.IVA,
+                                lastAccess: new Date().getTime()
+                            });
+                            session.user.configs.IVA = userConfig.getResult(0);
+                        } catch (e) {
+                            console.error(e);
+                        }
 
                         // Fetch authorised Projects and Studies
+                        _this._notifySessionEvent("signingIn", "Fetching Projects and Studies");
                         _this.projects().search({})
-                            .then(async function(response) {
-
+                            .then(async function (response) {
                                 try {
                                     session.projects = response.response[0].result;
-                                    if (UtilsNew.isNotEmptyArray(session.projects) && UtilsNew.isNotEmptyArray(session.projects[0].studies)) {
+                                    if (session.projects?.length && session?.projects[0]?.studies.length) {
                                         const studies = [];
-                                        // FIXME This is needed to keep backward compatibility with OpenCGA 1.3.x
                                         for (const project of session.projects) {
-                                            project.alias = project.alias || project.fqn || null;
-                                            if (project.studies !== undefined) {
+                                            // project.alias = project.alias || project.fqn || null;
+                                            if (project.studies?.length > 0) {
                                                 for (const study of project.studies) {
-                                                    // If study.alias does not exist we are NOT in version 1.3, we set fqn from 1.4
-                                                    if (study.alias === undefined || study.alias === "") {
-                                                        if (study.fqn.includes(":")) {
-                                                            study.alias = study.fqn.split(":")[1];
-                                                        } else {
-                                                            study.alias = study.fqn;
-                                                        }
-                                                    }
-                                                    // FIXME Undo this week
-                                                    let admins = study.groups.find(g => g.id === "@admins");
+                                                    // We need to store the user permission fr the all the studies fetched
+                                                    _this._notifySessionEvent("signingIn", "Fetching User permissions");
                                                     let acl = null;
+                                                    const admins = study.groups.find(g => g.id === "@admins");
                                                     if (admins.userIds?.includes(session.user.id)) {
                                                         acl = await _this.studies().acl(study.fqn, {});
                                                     } else {
@@ -328,27 +344,38 @@ export class OpenCGAClient {
                                                     }
                                                     study.acl = acl.getResult(0);
 
-                                                    // default study from config
-                                                    if (study.fqn === application.defaultStudy) {
+                                                    // Fetch all the cohort
+                                                    _this._notifySessionEvent("signingIn", "Fetching Cohorts");
+                                                    const cohortsResponse = await _this.cohorts()
+                                                        .search({study: study.fqn, internalStatus: "READY", include: "id,description,numSamples,internal", limit: 20});
+                                                    study.cohorts = cohortsResponse.responses[0].results;
+
+                                                    // Check if lastStudy form User Configuration matches
+                                                    if (session.user?.configs?.IVA?.lastStudy === study.fqn) {
                                                         session.project = project;
                                                         session.study = study;
                                                     }
-
                                                     // Keep track of the studies to fetch Disease Panels
                                                     studies.push(project.id + ":" + study.id);
                                                 }
                                             }
                                         }
 
-                                        // this sets the current active project and study (commented as application.defaultStudy is used now)
-                                        session.project = session.project ?? session.projects[0];
-                                        session.study = session.study ?? session.projects[0].studies[0];
+                                        /** if the user doesn't have his own Default study in User config then there the fallback is:
+                                         *  first study of the first project
+                                         */
+                                        // If no We select the first project and study as default
+                                        if (!session.project && !session.study) {
+                                            session.project = session.project ?? session.projects[0];
+                                            session.study = session.study ?? session.projects[0].studies[0];
+                                        }
 
                                         if (!session.project || !session.study) {
                                             throw new Error("Default study not found");
                                         }
 
                                         // Fetch the Disease Panels for each Study
+                                        _this._notifySessionEvent("signingIn", "Fetching Disease Panels");
                                         const panelPromises = [];
                                         for (const study of studies) {
                                             const promise = _this.panels().search({
@@ -363,35 +390,40 @@ export class OpenCGAClient {
                                             for (let x = 0; x < session.projects[i].studies.length; x++, t++) {
                                                 session.projects[i].studies[x].panels = panelResponses[t].getResults();
                                             }
-                                        }/*
-                                        for (const project of session.projects) {
-                                            project.studies = project.studies.map((study, i) => ({
-                                                ...study,
-                                                panels: panelResponses[i].getResults()
-                                            }));
-                                        }*/
+                                        }
                                     }
-                                    // _this.session = session;
+                                    // debugger
                                     resolve(session);
                                 } catch (e) {
-                                    console.error("Error getting study permissions / study panels");
+                                    console.error("Error getting study permissions, cohorts or disease panels");
                                     console.error(e);
-                                    reject({message: "Error getting study permissions / study panels", value: e});
+                                    reject(new Error("Error getting study permissions / study panels"));
                                 }
-
-
                             })
-                            .catch(function(response) {
-                                reject({message: "An error when getting user projects", value: response});
+                            .catch(response => {
+                                console.error(response);
+                                reject(new Error("An error when getting user projects"));
                             });
                     })
-                    .catch(function(response) {
-                        reject({message: "An error getting user information", value: response});
+                    .catch(response => {
+                        console.error(response);
+                        reject(new Error("An error getting user information"));
                     });
             } else {
-                reject({message: "No valid token", value: _this._config.token});
+                console.error("No valid token:" + _this?._config?.token);
+                reject(new Error("No valid token:" + _this?._config?.token));
             }
         });
+    }
+
+    _notifySessionEvent(id, message) {
+        globalThis.dispatchEvent(new CustomEvent(id,
+            {
+                detail: {
+                    value: message
+                }
+            }
+        ));
     }
 
     getConfig() {
@@ -412,14 +444,21 @@ export class OpenCGAClient {
     }
 
     updateUserConfigs(data) {
-        return this.users().updateConfigs(this._config.userId, {
+        // TODO remove this nasty nested bug fix
+        if (data?.IVA) {
+            delete data.IVA;
+        }
+        const userIvaConfig = this.users().updateConfigs(this._config.userId, {
             id: "IVA",
             configuration: {
                 ...data
-                //"lastAccess": moment(new Date()).valueOf()
             }
         });
-
+        // Update opencgaSession object
+        // if (opencgaSession?.user?.configs) {
+        //     opencgaSession.user.configs.IVA = userIvaConfig.responses[0].results[0];
+        // }
+        return userIvaConfig;
     }
 
 }

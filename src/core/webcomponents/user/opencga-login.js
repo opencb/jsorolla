@@ -19,14 +19,13 @@ import UtilsNew from "../../utilsNew.js";
 import {NotificationQueue} from "../Notification.js";
 import {RestResponse} from "../../clients/rest-response.js";
 
+
 export default class OpencgaLogin extends LitElement {
 
     constructor() {
         super();
-        this.userName = "";
-        this.password = "";
-        this.buttonText = "Sign in";
-        this.notifyEventMessage = "messageevent";
+
+        this._init();
     }
     createRenderRoot() {
         return this;
@@ -52,13 +51,38 @@ export default class OpencgaLogin extends LitElement {
         };
     }
 
+    _init() {
+        this.userName = "";
+        this.password = "";
+        this.buttonText = "Sign in";
+        this.signingIn = false;
+    }
+
     firstUpdated(changedProperties) {
         $("#formLogin").validator("update");
         $("#formLogin").validator().on("submit", e => this.submitLogin(e));
+        this.redirect();
+    }
+
+    updated(changedProperties) {
+        if (changedProperties.has("opencgaSession")) {
+            this.redirect();
+        }
+    }
+
+    redirect() {
+        if (this.opencgaSession?.study) {
+            // window.location.hash = "#home";
+            this.dispatchEvent(new CustomEvent("redirect", {
+                detail: {
+                    hash: "#home"
+                }
+            }));
+        }
     }
 
     submitLogin(e) {
-        //console.log("e", e);
+        // console.log("e", e);
         if (e.isDefaultPrevented()) {
             console.error("submitLogin() Error", e);
             // handle the invalid form...
@@ -66,12 +90,13 @@ export default class OpencgaLogin extends LitElement {
         } else {
             // everything looks good!
             e.preventDefault();
+            // this.dispatchEvent(new CustomEvent("signingIn"));
+
             const user = this.querySelector("#opencgaUser").value;
             const pass = this.querySelector("#opencgaPassword").value;
-            const _this = this;
 
             try {
-                //in case a previous error has prevented the creation of opencgaSession object (in opencgaClient.createSession()), this would be undefined
+                // in case a previous error has prevented the creation of opencgaSession object (in opencgaClient.createSession()), this would be undefined
                 if (this.opencgaSession) {
                     this.opencgaSession.opencgaClient.login(user, pass)
                         .then(restResponse => {
@@ -83,13 +108,10 @@ export default class OpencgaLogin extends LitElement {
                                 } else if (restResponse) {
                                     this.querySelector("#opencgaUser").value = "";
                                     this.querySelector("#opencgaPassword").value = "";
-                                    console.log("response", restResponse)
                                     const token = restResponse.getResult(0).token;
-                                    const decoded = jwt_decode(token); // TODO expose as module
+                                    const decoded = jwt_decode(token);
                                     const dateExpired = new Date(decoded.exp * 1000);
-                                    const validTimeSessionId = moment(dateExpired, "YYYYMMDDHHmmss").format("D MMM YY HH:mm:ss"); // TODO expose as module
-
-
+                                    const validTimeSessionId = moment(dateExpired, "YYYYMMDDHHmmss").format("D MMM YY HH:mm:ss");
                                     this.dispatchEvent(new CustomEvent("login", {
                                         detail: {
                                             userId: user,
@@ -98,19 +120,8 @@ export default class OpencgaLogin extends LitElement {
                                         bubbles: true,
                                         composed: true
                                     }));
+                                    new NotificationQueue().push("Welcome, " + user, "Your session is valid until " + validTimeSessionId, UtilsNew.MESSAGE_SUCCESS);
 
-                                    this.dispatchEvent(new CustomEvent(_this.notifyEventMessage, {
-                                        detail: {
-                                            title: "Welcome, " + user,
-                                            message: "Your session is valid until " + validTimeSessionId,
-                                            options: {
-                                                icon: "fa fa-user-circle"
-                                            },
-                                            type: UtilsNew.MESSAGE_SUCCESS
-                                        },
-                                        bubbles: true,
-                                        composed: true
-                                    }));
                                 }
                             } else {
                                 this.errorState = [{name: "Generic Server Error", message: "Unexpected response format. Please check your host is up and running."}];
@@ -122,20 +133,10 @@ export default class OpencgaLogin extends LitElement {
                             if (response instanceof RestResponse) {
                                 if (response.getEvents?.("ERROR")?.length) {
                                     this.errorState = response.getEvents("ERROR");
-                                    new NotificationQueue().push(this.errorState[0].name, this.errorState[0].message, "error");
+                                    this.errorState.forEach(error => new NotificationQueue().push(error.name, error.message, "ERROR"));
                                 } else {
                                     this.errorState = [{name: "Generic Server Error", message: JSON.stringify(response)}];
                                     new NotificationQueue().push(this.errorState[0].name, this.errorState[0].message, "error");
-
-                                    this.dispatchEvent(new CustomEvent(_this.notifyEventMessage, {
-                                        detail: {
-                                            title: this.errorState[0].name,
-                                            message: this.errorState[0].message,
-                                            type: UtilsNew.MESSAGE_ERROR
-                                        },
-                                        bubbles: true,
-                                        composed: true
-                                    }));
                                 }
                             } else if (response instanceof Error) {
                                 this.errorState = [{name: response.name, message: response.message}];
@@ -214,7 +215,7 @@ export default class OpencgaLogin extends LitElement {
                                 <span class="input-group-addon " id="password">
                                     <i class="fa fa-key"></i>
                                 </span>
-                                <input id="opencgaPassword" value="${this.password}" type="password" maxlength="30" class="form-control input-login"
+                                <input id="opencgaPassword" value="${this.password}" type="password" maxlength="256" class="form-control input-login"
                                        placeholder="Password" aria-describedby="password" required>
                             </div>
                         </div>
@@ -227,7 +228,7 @@ export default class OpencgaLogin extends LitElement {
         </div>
         ${this.errorState?.length ? html`
             <div id="error" class="alert alert-danger" role="alert">
-                ${this.errorState.map( error => html`<p><strong>${error.name}</strong></p><p>${error.message}</p>`)}
+                ${this.errorState.map(error => html`<p><strong>${error.name}</strong></p><p>${error.message}</p>`)}
             </div>
         ` : null}
         `;

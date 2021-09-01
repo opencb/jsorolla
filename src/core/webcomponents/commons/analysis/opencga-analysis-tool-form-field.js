@@ -21,7 +21,9 @@ import "../filters/text-field-filter.js";
 import "../filters/cohort-id-autocomplete.js";
 import "../filters/sample-id-autocomplete.js";
 import "../filters/family-id-autocomplete.js";
-
+import "../filters/population-frequency-filter.js";
+import "../filters/clinvar-accessions-filter.js";
+import "../filters/checkbox-field-filter.js";
 
 export default class OpencgaAnalysisToolFormField extends LitElement {
 
@@ -40,6 +42,9 @@ export default class OpencgaAnalysisToolFormField extends LitElement {
             opencgaSession: {
                 type: Object
             },
+            cellbaseClient: {
+                type: Object
+            },
             config: {
                 type: Object
             }
@@ -55,6 +60,7 @@ export default class OpencgaAnalysisToolFormField extends LitElement {
     }
 
     onFilterChange(fieldId, value) {
+        console.log(fieldId, value)
         this.dispatchEvent(new CustomEvent("fieldChange", {
             detail: {
                 param: fieldId,
@@ -65,11 +71,12 @@ export default class OpencgaAnalysisToolFormField extends LitElement {
         }));
     }
 
+    // TODO bind with this.data!
     renderField() {
         let fieldConfig = this.config;
         switch (fieldConfig.type) {
             case "category":
-                return html`<select-field-filter ?multiple="${fieldConfig.multiple}" ?disabled=${this.config.disabled} ?required=${this.config.required} .data="${fieldConfig.allowedValues}" .value="${fieldConfig.defaultValue}" maxOptions="2" @filterChange="${e => this.onFilterChange(fieldConfig.id, e.detail.value)}"></select-field-filter>`;
+                return html`<select-field-filter ?multiple="${fieldConfig.multiple}" ?disabled=${this.config.disabled} ?required=${this.config.required} .data="${fieldConfig.allowedValues}" .value="${fieldConfig.defaultValue}" @filterChange="${e => this.onFilterChange(fieldConfig.id, e.detail.value)}"></select-field-filter>`;
             case "string":
                 return html`<text-field-filter placeholder="${fieldConfig.placeholder || ""}" ?disabled=${this.config.disabled} ?required=${this.config.required} .value="${fieldConfig.defaultValue || ""}" @filterChange="${e => this.onFilterChange(fieldConfig.id, e.detail.value)}"></text-field-filter>`;
             case "number":
@@ -77,6 +84,8 @@ export default class OpencgaAnalysisToolFormField extends LitElement {
                 return html`<div id="${this._prefix}-wrapper" class="subsection-content form-group">
                                 <input type="number" min=${min} max=${max} step="0.01" .disabled=${this.config.disabled} ?required=${this.config.required} value="${fieldConfig.defaultValue || ""}" id="${this._prefix}-input-${fieldConfig.id}" class="form-control input-sm ${this._prefix}FilterTextInput" placeholder="${fieldConfig.placeholder || ""}" @input="${e => this.onFilterChange(fieldConfig.id, e.target.value)}">
                             </div>`;
+            case "checkbox":
+                return html`<checkbox-field-filter .value="${fieldConfig.value}" .data="${fieldConfig.allowedValues}" @filterChange="${e => this.onFilterChange(fieldConfig.id, e.detail.value)}"></checkbox-field-filter>`;
             case "boolean":
                 return html`<div class="form-horizontal">
                                 <div class="from-group form-inline">
@@ -84,24 +93,38 @@ export default class OpencgaAnalysisToolFormField extends LitElement {
                                     <input class="magic-radio" type="radio" name="${fieldConfig.id}" id="${this._prefix + fieldConfig.id}no" ?checked=${fieldConfig.value === "no"} value="no" @change="${e => this.onFilterChange(fieldConfig.id, "yes")}"> <label class="magic-horizontal-label" for="${this._prefix + fieldConfig.id}no"> No </label>
                                 </div>
                             </div>`;
+            case "CLINVAR_ACCESSION_FILTER":
+                return html`<clinvar-accessions-filter .config="${{clinvar: false}}" .clinicalSignificance="${fieldConfig.value}" @filterChange="${e => this.onFilterChange(fieldConfig.id, e?.detail?.value?.clinicalSignificance)}"></clinvar-accessions-filter>`
+            case "COHORT_FREQUENCY_FILTER":
+                return html`<cohort-stats-filter .opencgaSession="${this.opencgaSession}" .onlyCohortAll=${true} .cohortStatsAlt="${fieldConfig.value}" 
+                                    @filterChange="${e => this.onFilterChange(fieldConfig.id, e.detail.value)}">
+                           </cohort-stats-filter>`;
+           case "POPULATION_FREQUENCY_FILTER":
+                return html`<population-frequency-filter .populationFrequencyAlt="${fieldConfig.value}" @filterChange="${e => this.onFilterChange(fieldConfig.id, e.detail.value)}"></population-frequency-filter>`;
+            case "CONSEQUENCE_TYPE_FILTER":
+                return html`<consequence-type-select-filter .ct="${fieldConfig.value}" .config="${fieldConfig}" @filterChange="${e => this.onFilterChange(fieldConfig.id, e.detail.value)}"></consequence-type-select-filter>`;
+            case "VARIANT_TYPE_FILTER":
+                return html`<variant-type-filter .type="${fieldConfig.value}" .config="${fieldConfig}" @filterChange="${e => this.onFilterChange(fieldConfig.id, e.detail.value)}"></variant-type-filter>`;
             case "SAMPLE_FILTER":
-                return html`<sample-id-autocomplete .config="${fieldConfig}" .opencgaSession="${this.opencgaSession}" .value="${fieldConfig.defaultValue}" @filterChange="${e => this.onFilterChange("sample", e.detail.value)}"></sample-id-autocomplete>`;
+                return html`<sample-id-autocomplete .value="${fieldConfig.value ?? fieldConfig.defaultValue}" .config="${fieldConfig}" .opencgaSession="${this.opencgaSession}" @filterChange="${e => this.onFilterChange(fieldConfig.id, e.detail.value)}"></sample-id-autocomplete>`;
+            case "GENE_FILTER":
+                return html`<feature-filter .config="${fieldConfig}" .cellbaseClient="${this.cellbaseClient}" @filterChange="${e => this.onFilterChange(fieldConfig.id, e.detail.value)}"></feature-filter>`;
             case "INDIVIDUAL_FILTER":
-                return html`<individual-id-autocomplete .config="${fieldConfig}" .opencgaSession="${this.opencgaSession}" .value="${fieldConfig.defaultValue}" @filterChange="${e => this.onFilterChange("individual", e.detail.value)}"></individual-id-autocomplete>`;
+                return html`<individual-id-autocomplete .value="${fieldConfig.value ?? fieldConfig.defaultValue}" .config="${fieldConfig}" .opencgaSession="${this.opencgaSession}" @filterChange="${e => this.onFilterChange(fieldConfig.id, e.detail.value)}"></individual-id-autocomplete>`;
             case "COHORT_FILTER":
-                return html`<cohort-id-autocomplete .config="${fieldConfig}" .opencgaSession="${this.opencgaSession}" .value="${fieldConfig.defaultValue}" @filterChange="${e => this.onFilterChange("cohort", e.detail.value)}"></cohort-id-autocomplete>`;
+                return html`<cohort-id-autocomplete .value="${fieldConfig.value ?? fieldConfig.defaultValue}" .config="${fieldConfig}" .opencgaSession="${this.opencgaSession}" @filterChange="${e => this.onFilterChange(fieldConfig.id, e.detail.value)}"></cohort-id-autocomplete>`;
             case "FAMILY_FILTER":
-                return html`<family-id-autocomplete .config="${fieldConfig}" .opencgaSession="${this.opencgaSession}" .value="${fieldConfig.defaultValue}" @filterChange="${e => this.onFilterChange("family", e.detail.value)}"></family-id-autocomplete>`;
+                return html`<family-id-autocomplete .value="${fieldConfig.value ?? fieldConfig.defaultValue}" .config="${fieldConfig}" .opencgaSession="${this.opencgaSession}" @filterChange="${e => this.onFilterChange(fieldConfig.id, e.detail.value)}"></family-id-autocomplete>`;
             case "CLINICAL_ANALYSIS_FILTER":
-                return html`<clinical-analysis-id-autocomplete .config="${fieldConfig}" .opencgaSession="${this.opencgaSession}" .value="${fieldConfig.defaultValue}" @filterChange="${e => this.onFilterChange("sample", e.detail.value)}"></clinical-analysis-id-autocomplete>`;
+                return html`<clinical-analysis-id-autocomplete .value="${fieldConfig.value ?? fieldConfig.defaultValue}" .config="${fieldConfig}" .opencgaSession="${this.opencgaSession}" @filterChange="${e => this.onFilterChange(fieldConfig.id, e.detail.value)}"></clinical-analysis-id-autocomplete>`;
             default:
                 console.warn("field type "+fieldConfig.type+" not implemented. String type fallback");
-                return html`<text-field-filter placeholder="${fieldConfig.placeholder || ""}" ?disabled=${this.config.disabled} ?required=${this.config.required} .value="${fieldConfig.defaultValue || ""}" @filterChange="${e => this.onFilterChange(fieldConfig.id, e.detail.value)}"></text-field-filter>`;
+                return html`<text-field-filter .value="${fieldConfig.value ?? fieldConfig.defaultValue}" placeholder="${fieldConfig.placeholder || ""}" ?disabled=${this.config.disabled} ?required=${this.config.required} @filterChange="${e => this.onFilterChange(fieldConfig.id, e.detail.value)}"></text-field-filter>`;
         }
     }
 
     render() {
-        let width = "480px";
+        let width = "550px";
         let padding = "2px 20px";
         if (this.config.type === "category" || this.config.type === "string" || this.config.type === "number") {
             width = "320px";
@@ -109,8 +132,13 @@ export default class OpencgaAnalysisToolFormField extends LitElement {
         }
 
         return html`
-            <div style="padding: ${padding}; width: ${width}">
-                <label>${this.config.title ? this.config.title : this.config.id}</label>
+            <div class="opencga-analysis-tool-form-field" style="padding: ${padding}; width: ${width}">
+                ${this.config.title ? html`<label>${this.config.title}</label>` : null}
+                ${this.config.tooltip ? html`
+                    <div class="tooltip-div pull-right">
+                        <a tooltip-title="Info" tooltip-text="${this.config.tooltip}"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
+                    </div>
+                ` : null}
                 <div id="${this.config.id}-wrapper">
                     ${this.renderField()}
                 </div>

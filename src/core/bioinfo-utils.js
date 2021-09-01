@@ -16,6 +16,29 @@
 
 export default class BioinfoUtils {
 
+    static sort(consequenceTypes, field) {
+        consequenceTypes.sort((a, b) => {
+            if (field(a) === "" && field(b) !== "") {
+                return 1;
+            }
+            if (field(a) !== "" && field(b) === "") {
+                return -1;
+            }
+            if (field(a) < field(b)) {
+                return -1;
+            }
+            if (field(a) > field(b)) {
+                return 1;
+            }
+            return 0;
+        });
+    }
+
+
+    static getGeneNameLink(geneName) {
+        return "https://www.genenames.org/tools/search/#!/all?query=" + geneName;
+    }
+
     static getEnsemblLink(featureId, type = "gene", assembly = "GRCh38") {
         let ensemblLink;
         switch (type.toUpperCase()) {
@@ -27,11 +50,11 @@ export default class BioinfoUtils {
                 }
                 break;
             case "TRANSCRIPT":
-                    if (assembly.toUpperCase() === "GRCH38") {
-                        ensemblLink = "https://www.ensembl.org/Homo_sapiens/Transcript/Summary?db=core;t=" + featureId;
-                    } else {
-                        ensemblLink = "http://grch37.ensembl.org/Homo_sapiens/Transcript/Summary?db=core;t=" + featureId;
-                    }
+                if (assembly.toUpperCase() === "GRCH38") {
+                    ensemblLink = "https://www.ensembl.org/Homo_sapiens/Transcript/Summary?db=core;t=" + featureId;
+                } else {
+                    ensemblLink = "http://grch37.ensembl.org/Homo_sapiens/Transcript/Summary?db=core;t=" + featureId;
+                }
                 break;
             default:
                 break;
@@ -47,8 +70,117 @@ export default class BioinfoUtils {
         }
     }
 
+    static getCosmicVariantLink(variantId) {
+        return "https://cancer.sanger.ac.uk/cosmic/search?q=" + variantId;
+    }
+
+    static getClinvarVariationLink(variantId) {
+        return "https://www.ncbi.nlm.nih.gov/clinvar/variation/" + variantId;
+    }
+
     static getUniprotLink(featureId, species = "Homo sapiens") {
-        return "https://www.uniprot.org/uniprot/?sort=score&query=" + featureId + "+organism:" + species;
+        // return "https://www.uniprot.org/uniprot/?sort=score&query=" + featureId + "+organism:" + species;
+        return "https://www.uniprot.org/uniprot/" + featureId;
+    }
+
+    static getVariantLink(id, location, source, assembly) {
+        if (!source) {
+            return null;
+        }
+
+        // create +/- 5,000 bp region
+        const split = location.split(new RegExp("[:-]"));
+        const region = split[0] + ":" + Number(split[1]) - 5000 + "-" + Number(split[2]) + 5000;
+
+        switch (source.toUpperCase()) {
+            case "ENSEMBL_GENOME_BROWSER":
+                return `http://www.ensembl.org/Homo_sapiens/Location/View?r=${region}`;
+            case "UCSC_GENOME_BROWSER":
+                return `https://genome.ucsc.edu/cgi-bin/hgTracks?db=hg38&position=chr${region}`;
+
+        }
+    }
+
+    static getGeneLink(geneId, source, assembly = "GRCh38") {
+        if (!geneId) {
+            return null;
+        }
+
+        let s = source;
+        if (!s) {
+            s = geneId.startsWith("ENSG") ? "ENSEMBL" : "REFSEQ";
+        }
+
+        switch (s.toUpperCase()) {
+            case "ENSEMBL":
+                if (assembly.toUpperCase() === "GRCH38") {
+                    return `https://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=${geneId}`;
+                } else {
+                    return `https://grch37.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=${geneId}`;
+                }
+            case "LRG":
+                return `https://www.lrg-sequence.org/search/?query=${geneId}`;
+            case "DECIPHER":
+                return `https://www.deciphergenomics.org/gene/${geneId}`;
+            case "COSMIC":
+                if (assembly.toUpperCase() === "GRCH38") {
+                    return "https://cancer.sanger.ac.uk/cosmic/gene/analysis?ln=" + geneId;
+                } else {
+                    return "https://cancer.sanger.ac.uk/cosmic/gene/analysis?genome=37&ln=" + geneId;
+                }
+            case "OMIM":
+                return `https://omim.org/search?index=entry&sort=score+desc%2C+prefix_sort+desc&start=1&limit=10&search=${geneId}`;
+            case "REFSEQ":
+                return `https://www.ncbi.nlm.nih.gov/gene/${geneId}`;
+        }
+    }
+
+    static getTranscriptLink(transcriptId, source, assembly = "GRCh38") {
+        if (!transcriptId) {
+            return null;
+        }
+
+        let s = source;
+        if (!s) {
+            s = transcriptId.startsWith("ENST") ? "ENSEMBL" : "REFSEQ";
+        }
+
+        switch (s.toUpperCase()) {
+            case "ENSEMBL":
+                if (assembly.toUpperCase() === "GRCH38") {
+                    return `https://www.ensembl.org/Homo_sapiens/Transcript/Summary?db=core;t=${transcriptId}`;
+                } else {
+                    return `https://grch37.ensembl.org/Homo_sapiens/Transcript/Summary?db=core;t=${transcriptId}`;
+                }
+            case "REFSEQ":
+                return `https://www.ncbi.nlm.nih.gov/gene/?term=${transcriptId}`;
+        }
+    }
+
+    static getProteinLink(proteinId, source) {
+        if (!proteinId) {
+            return null;
+        }
+
+        let s = source;
+        if (!s) {
+            s = proteinId.startsWith("ENSP") ? "ENSEMBL" : "REFSEQ";
+        }
+
+        switch (s.toUpperCase()) {
+            case "ENSEMBL":
+                return `http://www.ensembl.org/Homo_sapiens/Transcript/Summary?db=core;p=${proteinId}`;
+            case "REFSEQ":
+                return `https://www.ncbi.nlm.nih.gov/gene/?term=${proteinId}`;
+        }
+    }
+
+    static getPubmedLink(id) {
+        if (id.startsWith("PMID")) {
+            return `https://pubmed.ncbi.nlm.nih.gov/${id.split(":")[1]}/`;
+        } else {
+            return `https://pubmed.ncbi.nlm.nih.gov/${id}/`;
+        }
     }
 
 }

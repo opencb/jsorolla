@@ -15,9 +15,8 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-// import {RestResponse} from "../../clients/rest-response.js";
 import UtilsNew from "../../utilsNew.js";
-import GridCommons from "../variant/grid-commons.js";
+import GridCommons from "../commons/grid-commons.js";
 import "../commons/opencb-grid-toolbar.js";
 import "../loading-spinner.js";
 // import DATA from "./data.js";
@@ -290,40 +289,19 @@ export default class GeneCoverageGrid extends LitElement {
     }
 
     onDownload(e) {
-        const result = this.transcriptCoverageStats;
-        let dataString = [];
-        let mimeType = "";
-        let extension = "";
+        const results = this.transcriptCoverageStats;
         // Check if user clicked in Tab or JSON format
         if (e.detail.option.toLowerCase() === "tab") {
-            dataString = [
+            const dataString = [
                 ["transcript Id", "> 1x", "> 5x", "> 10x", "> 15x", "> 20x", "> 25x", "> 30x", "> 40x", "> 50x", "> 60x", , "> 75x", , "> 100x"].join("\t"),
-                ...result.map(_ => [
+                ...results.map(_ => [
                     _.id,
                     ..._.depths
                 ].join("\t"))];
-            mimeType = "text/plain";
-            extension = ".txt";
+            UtilsNew.downloadData(dataString, "gene_coverage_" + this.opencgaSession.study.id + ".txt", "text/plain");
         } else {
-            for (const res of result) {
-                dataString.push(JSON.stringify(res, null, "\t"));
-            }
-            mimeType = "application/json";
-            extension = ".json";
+            UtilsNew.downloadData(JSON.stringify(results, null, "\t"), this.opencgaSession.study.id + ".json", "application/json");
         }
-
-        // Build file and anchor link
-        const data = new Blob([dataString.join("\n")], {type: mimeType});
-        const file = window.URL.createObjectURL(data);
-        const a = document.createElement("a");
-        a.href = file;
-        a.download = this.opencgaSession.study.alias + "[" + new Date().toISOString() + "]" + extension;
-        document.body.appendChild(a);
-        a.click();
-        setTimeout(function() {
-            document.body.removeChild(a);
-        }, 0);
-
     }
 
     getDefaultConfig() {

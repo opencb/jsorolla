@@ -16,6 +16,14 @@
 
 export default class ClinicalAnalysisUtils {
 
+    static getStatuses() {
+        return ["READY_FOR_INTERPRETATION", "READY_FOR_REPORT", "CLOSED", "REJECTED"];  // , "READY_FOR_REVIEW"
+    }
+
+    static getInterpretationStatuses() {
+        return ["IN_PROGRESS", "READY", "REJECTED"];
+    }
+
     static getProbandQc(clinicalAnalysis) {
         return clinicalAnalysis?.proband?.qualityControl;
     }
@@ -28,6 +36,9 @@ export default class ClinicalAnalysisUtils {
         return qc;
     }
 
+    /*
+        This can be REPLACED by using UtilsNew.objectKeySort and CHROMOSOMES constants.
+     */
     static chromosomeFilterSorter(chromosomeCount) {
         let filtered = Object.assign({}, ...Object.entries(chromosomeCount).map(([ch, val]) => {
             if (!isNaN(ch) || ["X", "Y", "MT"].includes(ch)) return {[ch]: val};
@@ -46,23 +57,7 @@ export default class ClinicalAnalysisUtils {
         return ordered;
     }
 
-    /* TODO individual-mendelian-errors-view and sample-variant-stats-view have different data strucutres for chromosome. Adapt the method for both
-    static chromosomeFilterSorter(chromAggregation) {
-        const filtered = chromAggregation.filter( ch => Boolean(parseInt(ch.chromosome)) || ["X", "Y", "MT"].includes(ch.chromosome));
-        filtered.sort( (a,b) => {
-            const chA = a.chromosome;
-            const chB = b.chromosome;
-            const A = Boolean(parseInt(chA))
-            const B = Boolean(parseInt(chB))
-            if(A && !B) return -1;
-            if(!A && B) return 1;
-            if(!A && !B) return chA.length < chB.length ? -1 : chA < chB ? -1 : 1
-            return chA - chB;
-        })
-        return filtered;
-    }*/
-
-    static updateInterpretation(clinicalAnalysis, opencgaSession, callback) {
+    static updateInterpretation(clinicalAnalysis, interpretation, opencgaSession, callback) {
         if (!clinicalAnalysis) {
             console.error("It is not possible have this error");
             return;
@@ -71,7 +66,7 @@ export default class ClinicalAnalysisUtils {
         let _interpretation = {
             primaryFindings: [],
             ...clinicalAnalysis.interpretation,
-            clinicalAnalysisId: clinicalAnalysis.id,
+            // clinicalAnalysisId: clinicalAnalysis.id,
             methods: [{name: "IVA"}]
         };
 
@@ -83,7 +78,7 @@ export default class ClinicalAnalysisUtils {
             }
         }
         clinicalAnalysis.interpretation = _interpretation;
-        opencgaSession.opencgaClient.clinical().updateInterpretation(clinicalAnalysis.id, clinicalAnalysis.interpretation,
+        opencgaSession.opencgaClient.clinical().updateInterpretation(clinicalAnalysis.id, clinicalAnalysis.interpretation.id, clinicalAnalysis.interpretation,
             {
                 study: opencgaSession.study.fqn,
                 primaryFindingsAction: "SET",
@@ -115,4 +110,5 @@ export default class ClinicalAnalysisUtils {
                 });
             });
     }
+
 }

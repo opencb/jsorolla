@@ -22,34 +22,30 @@ import "./filters/select-field-filter.js";
 import "./opencb-facet-results.js";
 import "./facet-filter.js";
 import "../loading-spinner.js";
-import "../tool-header.js";
-import "../files/opencga-file-grid.js";
-import "../files/opencga-file-filter.js";
-import "../files/opencga-file-detail.js";
-import "../samples/opencga-sample-grid.js";
-import "../samples/opencga-sample-filter.js";
-import "../samples/opencga-sample-detail.js";
+import "./tool-header.js";
+import "../file/opencga-file-grid.js";
+import "../file/opencga-file-filter.js";
+import "../file/opencga-file-detail.js";
+import "../sample/opencga-sample-grid.js";
+import "../sample/sample-browser-filter.js";
+import "../sample/opencga-sample-detail.js";
 import "../individual/opencga-individual-grid.js";
 import "../individual/opencga-individual-filter.js";
 import "../individual/opencga-individual-detail.js";
 import "../family/opencga-family-grid.js";
 import "../family/opencga-family-filter.js";
 import "../family/opencga-family-detail.js";
-import "../cohorts/opencga-cohort-grid.js";
-import "../cohorts/opencga-cohort-filter.js";
-import "../cohorts/opencga-cohort-detail.js";
-import "../jobs/opencga-jobs-grid.js";
-import "../jobs/opencga-jobs-filter.js";
-import "../jobs/opencga-jobs-detail.js";
-import "../jobs/opencga-jobs-browser.js";
-import "../jobs/jobs-timeline.js";
+import "../cohort/opencga-cohort-grid.js";
+import "../cohort/opencga-cohort-filter.js";
+import "../cohort/opencga-cohort-detail.js";
+import "../job/opencga-job-grid.js";
+import "../job/opencga-job-filter.js";
+import "../job/opencga-job-detail.js";
+import "../job/opencga-job-browser.js";
+import "../job/job-timeline.js";
 import "../clinical/opencga-clinical-analysis-grid.js";
 import "../clinical/opencga-clinical-analysis-filter.js";
 import "../clinical/opencga-clinical-analysis-detail.js";
-
-// TODO spring-cleaning the old code
-// TODO maybe remove this._config, this.config is enough here
-// TODO fix props in EACH opencga-x-filter
 
 
 export default class OpencgaBrowser extends LitElement {
@@ -76,9 +72,11 @@ export default class OpencgaBrowser extends LitElement {
             query: {
                 type: Object
             },
+            // query object sent to Opencga client (includes this.selectedFacet serialised)
             facetQuery: {
                 type: Object
             },
+            // complex object that keeps track of the values of all facets
             selectedFacet: {
                 type: Object
             },
@@ -93,6 +91,7 @@ export default class OpencgaBrowser extends LitElement {
 
         this.query = {};
         this.preparedQuery = {};
+        this.executedQuery = {};
 
         this.checkProjects = false;
 
@@ -100,14 +99,14 @@ export default class OpencgaBrowser extends LitElement {
         };
 
         this.selectedFacet = {};
-        this.selectedFacetFormatted = {};
+        this.preparedFacetQueryFormatted = {};
         this.activeTab = {};
         this.detail = {};
     }
 
     connectedCallback() {
         super.connectedCallback();
-        // TODO we don't need _config anymore
+        // TODO we don't need _config anymore, this.config is enough here
         this._config = {...this.config};
     }
 
@@ -116,7 +115,7 @@ export default class OpencgaBrowser extends LitElement {
         UtilsNew.initTooltip(this);
     }
 
-    updated(changedProperties) {
+    update(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
             this.opencgaSessionObserver();
         }
@@ -124,37 +123,67 @@ export default class OpencgaBrowser extends LitElement {
             this.queryObserver();
         }
         if (changedProperties.has("selectedFacet")) {
-            this.selectedFacetObserver();
+            this.facetQueryBuilder();
         }
+        super.update(changedProperties);
     }
 
     opencgaSessionObserver() {
-        if (this.opencgaSession && this.opencgaSession.project) {
+        if (this?.opencgaSession?.study?.fqn) {
             this.checkProjects = true;
             this.query = {study: this.opencgaSession.study.fqn};
-            //this.requestUpdate().then(() => $(".bootstrap-select", this).selectpicker());
+
+            this.preparedQuery = {study: this.opencgaSession.study.fqn};
+            this.facetQuery = null;
+            this.preparedFacetQueryFormatted = null;
+            // this.requestUpdate();
+            // this.onRun();
+
+            // this.requestUpdate().then(() => $(".bootstrap-select", this).selectpicker());
         } else {
             this.checkProjects = false;
         }
     }
 
     queryObserver() {
-          if (this.opencgaSession) {
-            if(this.query) {
-                this.preparedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
-                this.executedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
+        if (this?.opencgaSession?.study?.fqn) {
+            // NOTE UtilsNew.objectCompare avoid repeating remote requests.
+            if (!UtilsNew.objectCompare(this.query, this._query)) {
+                this._query = this.query;
+                if (this.query) {
+                    this.preparedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
+                    this.executedQuery = {study: this.opencgaSession.study.fqn, ...this.query};
+                } else {
+                    this.preparedQuery = {study: this.opencgaSession.study.fqn};
+                    this.executedQuery = {study: this.opencgaSession.study.fqn};
+                }
+                // onServerFilterChange() in opencga-active-filters fires an activeFilterChange event when the Filter dropdown is used
+                this.dispatchEvent(new CustomEvent("queryChange", {
+                    detail: this.preparedQuery
+                }
+                ));
+                this.detail = {};
             } else {
-                this.preparedQuery = {study: this.opencgaSession.study.fqn};
-                this.executedQuery = {study: this.opencgaSession.study.fqn};
+                // console.error("same queries")
             }
+            // this.requestUpdate();
         }
-        // onServerFilterChange() in opencga-active-filters drops a filterchange event when the Filter dropdown is used
-        this.dispatchEvent(new CustomEvent("queryChange", {
-                detail: this.preparedQuery
-            }
-        ));
-        this.detail = {};
-        this.requestUpdate();
+    }
+
+    facetQueryBuilder() {
+        if (Object.keys(this.selectedFacet).length) {
+            this.executedFacetQueryFormatted = {...this.preparedFacetQueryFormatted};
+
+            this.facetQuery = {
+                ...this.preparedQuery,
+                study: this.opencgaSession.study.fqn,
+                // timeout: 60000,
+                field: Object.values(this.preparedFacetQueryFormatted).map(v => v.formatted).join(";")
+            };
+            this._changeView("facet-tab");
+        } else {
+            this.facetQuery = null;
+        }
     }
 
     notifySearch(query) {
@@ -168,23 +197,27 @@ export default class OpencgaBrowser extends LitElement {
     }
 
     async onRun() {
-        // this event keeps in sync the query object in opencga-browser with the general one in iva-app (this.queries)
-        // it is also in charge of update executedQuery (notifySearch -> onQueryFilterSearch() on iva-app.js -> this.queries updated -> queryObserver() in opencga-browser).
-        // if we want to dismiss the general query feature (that is browsers remembering your last query even if you change view) replace the following line with:
-        // this.executedQuery = {...this.preparedQuery}; this.requestUpdate();
+        // NOTE notifySearch() triggers this chain: notifySearch -> onQueryFilterSearch() on iva-app.js -> this.queries updated -> queryObserver() in opencga-browser
+        // queryObserver() here stops the repetition of the remote request by checking if it has changed
+        // TODO do the same with facetQuery
+        this.query = {...this.preparedQuery};
+        // updates this.queries in iva-app
         this.notifySearch(this.preparedQuery);
 
-        if (Object.keys(this.selectedFacet).length) {
+        this.facetQueryBuilder();
+        // this.requestUpdate();
+
+        /* if (Object.keys(this.selectedFacet).length) {
             this.facetQuery = {
                 ...this.preparedQuery,
                 study: this.opencgaSession.study.fqn,
-                //timeout: 60000,
-                field: Object.values(this.selectedFacetFormatted).map(v => v.formatted).join(";")
+                // timeout: 60000,
+                field: Object.values(this.preparedFacetQueryFormatted).map(v => v.formatted).join(";")
             };
             this._changeView("facet-tab");
         } else {
-           this.facetQuery = null;
-        }
+            this.facetQuery = null;
+        }*/
     }
 
     onFilterChange(e) {
@@ -192,7 +225,6 @@ export default class OpencgaBrowser extends LitElement {
     }
 
     onClickPill(e) {
-        // e.preventDefault();
         this._changeView(e.currentTarget.dataset.id);
     }
 
@@ -207,29 +239,47 @@ export default class OpencgaBrowser extends LitElement {
     }
 
     onQueryFilterChange(e) {
+        // console.log("onQueryFilterChange")
         this.preparedQuery = e.detail.query;
         this.requestUpdate();
     }
 
+    // TODO review
+    // this is used only in case of Search button inside filter component. Only in Clinical Analysis Browser.
+    onQueryFilterSearch(e) {
+        this.dispatchEvent(new CustomEvent("querySearch", {
+            detail: {
+                query: e.detail.query
+            }
+        }));
+    }
+
     onActiveFilterChange(e) {
+        // console.log("onActiveFilterChange");
         this.preparedQuery = {study: this.opencgaSession.study.fqn, ...e.detail};
         this.query = {study: this.opencgaSession.study.fqn, ...e.detail};
+        this.facetQueryBuilder();
     }
 
     onActiveFilterClear() {
-        console.log("onActiveFilterClear");
+        // console.log("onActiveFilterClear");
         this.query = {study: this.opencgaSession.study.fqn};
         this.preparedQuery = {...this.query};
+        this.facetQueryBuilder();
     }
 
     onFacetQueryChange(e) {
-        this.selectedFacetFormatted = e.detail.value;
+        // console.log("onFacetQueryChange");
+        this.preparedFacetQueryFormatted = e.detail.value;
+        // this.facetQueryBuilder();
         this.requestUpdate();
     }
 
     onActiveFacetChange(e) {
         this.selectedFacet = {...e.detail};
-        this.onRun(); // TODO the query should be repeated every action on active-filter (delete, clear, load from Saved filter)
+        this.preparedFacetQueryFormatted = {...e.detail};
+        //this.onRun(); // TODO the query should be repeated every action on active-filter (delete, clear, load from Saved filter)
+        this.facetQueryBuilder();
         this.requestUpdate();
     }
 
@@ -245,7 +295,7 @@ export default class OpencgaBrowser extends LitElement {
     }
 
     renderView(entity) {
-        // TODO be sure to EXECUTE this function each template update, otherwise props in the following components won't be updated.
+        // TODO be sure to execute this function each template update, otherwise props in the following components won't be updated.
         // possible modular solution (which still doesn't solve the update filter issue): map of TemplateResult: renderView(entity).mainView
         const facetView = html`
             <div id="facet-tab" class="content-tab">
@@ -265,7 +315,6 @@ export default class OpencgaBrowser extends LitElement {
                                 <opencga-file-grid .opencgaSession="${this.opencgaSession}"
                                                    .config="${this._config.filter.grid}"
                                                    .query="${this.executedQuery}"
-                                                   .search="${this.executedQuery}"
                                                    .eventNotifyName="${this.eventNotifyName}"
                                                     @selectrow="${e => this.onClickRow(e, "file")}">
                                 </opencga-file-grid>
@@ -284,7 +333,6 @@ export default class OpencgaBrowser extends LitElement {
                                                      .query="${this.executedQuery}"
                                                      .config="${this._config.filter.grid}"
                                                      .active="${true}"
-                                                     @selectsample="${this.onSelectSample}"
                                                      @selectrow="${e => this.onClickRow(e, "sample")}">
                             </opencga-sample-grid>
                             <opencga-sample-detail  .opencgaSession="${this.opencgaSession}"
@@ -367,18 +415,18 @@ export default class OpencgaBrowser extends LitElement {
                 this.endpoint = this.opencgaSession.opencgaClient.jobs();
                 return html`
                     <div id="table-tab" class="content-tab active">
-                         <opencga-jobs-grid .opencgaSession="${this.opencgaSession}"
+                         <opencga-job-grid .opencgaSession="${this.opencgaSession}"
                                          .config="${this._config.filter.grid}"
                                          .query="${this.executedQuery}"
                                          .search="${this.executedQuery}"
                                          .eventNotifyName="${this.eventNotifyName}"
                                          .files="${this.files}"
                                          @selectrow="${e => this.onClickRow(e, "job")}">
-                         </opencga-jobs-grid>
-                         <opencga-jobs-detail   .opencgaSession="${this.opencgaSession}"
+                         </opencga-job-grid>
+                         <opencga-job-detail   .opencgaSession="${this.opencgaSession}"
                                                 .config="${this._config.filter.detail}"
                                                 .jobId="${this.detail.job?.id}">
-                         </opencga-jobs-detail>
+                         </opencga-job-detail>
                     </div>
                     ${facetView}
                     <div id="visual-browser-tab" class="content-tab">
@@ -395,13 +443,18 @@ export default class OpencgaBrowser extends LitElement {
 
     render() {
         return html`
+
+            <!--<div class="alert alert-info">selectedFacet: ${JSON.stringify(this.selectedFacet)}</div>
+            <div class="alert alert-info">preparedFacetQueryFormatted: ${JSON.stringify(this.preparedFacetQueryFormatted)}</div>
+            <div class="alert alert-info">executedFacetQueryFormatted:${JSON.stringify(this.executedFacetQueryFormatted)}</div>-->
+
             ${this.checkProjects ? html`
                 <tool-header title="${this._config.title}" icon="${this._config.icon}"></tool-header>
                 <div class="row">
                     <div class="col-md-2">
                         <div class="search-button-wrapper">
                             <button type="button" class="btn btn-primary ripple" @click="${this.onRun}">
-                                <i class="fa fa-arrow-circle-right" aria-hidden="true"></i> ${this._config.searchButtonText || "Run"}
+                                <i class="fa fa-arrow-circle-right" aria-hidden="true"></i> ${this._config.searchButtonText || "Search"}
                             </button>
                         </div>
                         <ul class="nav nav-tabs left-menu-tabs" role="tablist">
@@ -417,27 +470,24 @@ export default class OpencgaBrowser extends LitElement {
                                     <opencga-file-filter    .opencgaSession="${this.opencgaSession}"
                                                             .config="${this._config.filter}"
                                                             .query="${this.query}"
-                                                            .searchButton="${false}"
                                                             @queryChange="${this.onQueryFilterChange}"
                                                             @querySearch="${this.onQueryFilterSearch}">
                                     </opencga-file-filter>
                                 ` : null}
                                 
                                 ${this.resource === "SAMPLE" ? html`
-                                    <opencga-sample-filter  .opencgaSession="${this.opencgaSession}"
+                                    <sample-browser-filter  .opencgaSession="${this.opencgaSession}"
                                                             .config="${this._config.filter}"
                                                             .query="${this.query}"
-                                                            .searchButton="${false}"
                                                             @queryChange="${this.onQueryFilterChange}"
                                                             @querySearch="${this.onQueryFilterSearch}">
-                                    </opencga-sample-filter>
+                                    </sample-browser-filter>
                                 ` : null}
                                 
                                 ${this.resource === "INDIVIDUAL" ? html`
                                     <opencga-individual-filter  .opencgaSession="${this.opencgaSession}"
                                                                 .config="${this._config.filter}"
                                                                 .query="${this.query}"
-                                                                .searchButton="${false}"
                                                                 @queryChange="${this.onQueryFilterChange}"
                                                                 @querySearch="${this.onQueryFilterSearch}">
                                     </opencga-individual-filter>
@@ -447,7 +497,6 @@ export default class OpencgaBrowser extends LitElement {
                                     <opencga-family-filter  .opencgaSession="${this.opencgaSession}"
                                                             .config="${this._config.filter}"
                                                             .query="${this.query}"
-                                                            .searchButton="${false}"
                                                             @queryChange="${this.onQueryFilterChange}"
                                                             @querySearch="${this.onQueryFilterSearch}">
                                     </opencga-family-filter>
@@ -458,7 +507,6 @@ export default class OpencgaBrowser extends LitElement {
                                                             .config="${this._config.filter}"
                                                             .query="${this.query}"
                                                             .variableSets="${this.variableSets}"
-                                                            .searchButton="${false}"
                                                             @queryChange="${this.onQueryFilterChange}"
                                                             @querySearch="${this.onQueryFilterSearch}">
                                     </opencga-cohort-filter>
@@ -468,22 +516,20 @@ export default class OpencgaBrowser extends LitElement {
                                     <opencga-clinical-analysis-filter   .opencgaSession="${this.opencgaSession}"
                                                                         .config="${this._config.filter}"
                                                                         .query="${this.query}"
-                                                                        .searchButton="${false}"
                                                                         @queryChange="${this.onQueryFilterChange}"
                                                                         @querySearch="${this.onQueryFilterSearch}">
                                     </opencga-clinical-analysis-filter>
                                 ` : null}
                                 
                                 ${this.resource === "JOB" ? html`
-                                    <opencga-jobs-filter .opencgaSession="${this.opencgaSession}"
+                                    <opencga-job-filter .opencgaSession="${this.opencgaSession}"
                                                         .config="${this._config.filter}"
                                                         .files="${this.files}"
                                                         .query="${this.query}"
                                                         .variableSets="${this.variableSets}"
-                                                        .searchButton="${false}"
                                                         @queryChange="${this.onQueryFilterChange}"
                                                         @querySearch="${this.onQueryFilterSearch}">
-                                    </opencga-jobs-filter>
+                                    </opencga-job-filter>
                                 ` : null}                                
                             </div>
                             
@@ -502,7 +548,7 @@ export default class OpencgaBrowser extends LitElement {
                         <!-- tabs buttons -->
                         <div class="btn-group content-pills" role="toolbar" aria-label="toolbar">
                             <div class="btn-group" role="group" style="margin-left: 0px">
-                                ${this._config.views && this._config.views.length ? this._config.views.map( tab => html`
+                                ${this._config.views && this._config.views.length ? this._config.views.map(tab => html`
                                     <button type="button" class="btn btn-success ripple content-pills ${tab.active ? "active" : ""}" ?disabled=${tab.disabled} @click="${this.onClickPill}" data-id="${tab.id}">
                                         <i class="${tab.icon ?? "fa fa-table"} icon-padding" aria-hidden="true"></i> ${tab.name}
                                     </button>
@@ -514,19 +560,20 @@ export default class OpencgaBrowser extends LitElement {
                             <opencga-active-filters facetActive 
                                                     .resource="${this.resource}"
                                                     .opencgaSession="${this.opencgaSession}"
-                                                    .defaultStudy="${this.opencgaSession.study.fqn}"
+                                                    .defaultStudy="${this.opencgaSession?.study?.fqn}"
                                                     .query="${this.preparedQuery}"
-                                                    .refresh="${this.executedQuery}"
-                                                    .facetQuery="${this.selectedFacetFormatted}"
+                                                    .executedQuery="${this.executedQuery}"
+                                                    .facetQuery="${this.preparedFacetQueryFormatted}"
+                                                    .executedFacetQuery="${this.executedFacetQueryFormatted}"
                                                     .alias="${this.activeFilterAlias}"
                                                     .config="${this._config.activeFilters}"
                                                     .filters="${this._config.filter.examples}"
-                                                    @activeFacetChange="${this.onActiveFacetChange}"
-                                                    @activeFacetClear="${this.onActiveFacetClear}"
                                                     @activeFilterChange="${this.onActiveFilterChange}"
-                                                    @activeFilterClear="${this.onActiveFilterClear}">
+                                                    @activeFilterClear="${this.onActiveFilterClear}"
+                                                    @activeFacetChange="${this.onActiveFacetChange}"
+                                                    @activeFacetClear="${this.onActiveFacetClear}">
                             </opencga-active-filters>
-    
+
                             <div class="main-view">
                                 ${this.renderView(this.resource)}
                             </div>

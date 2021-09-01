@@ -15,6 +15,7 @@
  */
 
 import {html, LitElement} from "/web_modules/lit-element.js";
+import GridCommons from "../../commons/grid-commons.js";
 import UtilsNew from "./../../../utilsNew.js";
 
 export default class CellbasePopulationFrequencyGrid extends LitElement {
@@ -31,30 +32,66 @@ export default class CellbasePopulationFrequencyGrid extends LitElement {
 
     static get properties() {
         return {
+            cellbaseClient: {
+                type: Object
+            },
+            variantId: {
+                type: String
+            },
             populationFrequencies: {
                 type: Array
+            },
+            assembly: {
+                type: String
             },
             active: {
                 type: Boolean
             }
-        }
+        };
     }
 
     _init() {
-        this._prefix = "cpfg-" + UtilsNew.randomString(6);
+        this._prefix = UtilsNew.randomString(8);
+
         this.populationFrequencies = [];
         this.gridId = this._prefix + "populationFreqTable";
     }
+
+    connectedCallback() {
+        super.connectedCallback();
+
+        this.gridCommons = new GridCommons(this.gridId, this, {});
+    }
+
 
     updated(changedProperties) {
         if ((changedProperties.has("populationFrequencies") || changedProperties.has("active")) && this.active) {
             this.renderPlot();
             this.renderTable();
         }
+
+        if ((changedProperties.has("variantId") || changedProperties.has("active")) && this.active) {
+            this.variantIdObserver();
+        }
+    }
+
+    variantIdObserver() {
+        console.log("variantIdObserver", this.variantId, this.cellbaseClient);
+        if (this.cellbaseClient && this.variantId) {
+            this.cellbaseClient.get("genomic", "variant", this.variantId, "annotation", {assembly: this.assembly}, {})
+                .then(restResponse => {
+                    this.populationFrequencies = restResponse.getResult(0).populationFrequencies;
+                    this.requestUpdate();
+                });
+        } else {
+            // this.populationFrequencies = null;
+        }
     }
 
     alleleFormatter(value, row, index) {
-        return row.refAllele + "/" + row.altAllele;
+        let refAllele = row.refAllele ? row.refAllele : "-";
+        let altAllele = row.altAllele ? row.altAllele : "-";
+        return refAllele + "/" + altAllele;
     }
 
     freqFormatter(value, row, index) {
@@ -62,8 +99,8 @@ export default class CellbasePopulationFrequencyGrid extends LitElement {
     }
 
     renderPlot() {
-        let popArray = [];
-        let mafArray = [];
+        const popArray = [];
+        const mafArray = [];
         if (typeof this.populationFrequencies !== "undefined") {
             for (let i = 0; i < this.populationFrequencies.length; i++) {
                 popArray.push(this.populationFrequencies[i].study + "-" + this.populationFrequencies[i].population);
@@ -127,10 +164,10 @@ export default class CellbasePopulationFrequencyGrid extends LitElement {
     }
 
     renderTable() {
-        let _this = this;
-        $("#" + this.gridId).bootstrapTable("destroy");
-        $("#" + this.gridId).bootstrapTable({
-            data: _this.populationFrequencies,
+        this.table = $("#" + this.gridId);
+        this.table.bootstrapTable("destroy");
+        this.table.bootstrapTable({
+            data: this.populationFrequencies,
             pageSize: 5,
             showPaginationSwitch: true,
             search: true,
@@ -138,6 +175,7 @@ export default class CellbasePopulationFrequencyGrid extends LitElement {
             pagination: true,
             pageList: [5, 10, 25],
             showExport: true,
+            formatShowingRows: this.gridCommons.formatShowingRows,
             columns: [
                 [
                     {
@@ -151,28 +189,28 @@ export default class CellbasePopulationFrequencyGrid extends LitElement {
                         title: "Population",
                         field: "population",
                         rowspan: 2,
-                        colspan: 1,
+                        colspan: 1
                     },
                     {
                         title: "Ref/Alt",
-                        formatter: _this.alleleFormatter,
+                        formatter: this.alleleFormatter,
                         rowspan: 2,
-                        colspan: 1,
+                        colspan: 1
                     },
                     {
                         title: "Allele Frequency",
                         rowspan: 1,
                         colspan: 2,
-                        formatter: _this.alleleFormatter,
+                        formatter: this.alleleFormatter,
                         halign: "center"
                     },
                     {
                         title: "Genotype Frequency",
                         rowspan: 1,
                         colspan: 3,
-                        formatter: _this.alleleFormatter,
+                        formatter: this.alleleFormatter,
                         halign: "center"
-                    },
+                    }
                 ],
                 [
                     {
@@ -181,7 +219,7 @@ export default class CellbasePopulationFrequencyGrid extends LitElement {
                         rowspan: 1,
                         colspan: 1,
                         sortable: true,
-                        formatter: _this.freqFormatter,
+                        formatter: this.freqFormatter,
                         halign: "center",
                         align: "right"
                     },
@@ -191,7 +229,7 @@ export default class CellbasePopulationFrequencyGrid extends LitElement {
                         rowspan: 1,
                         colspan: 1,
                         sortable: true,
-                        formatter: _this.freqFormatter,
+                        formatter: this.freqFormatter,
                         halign: "center",
                         align: "right"
                     },
@@ -201,7 +239,7 @@ export default class CellbasePopulationFrequencyGrid extends LitElement {
                         rowspan: 1,
                         colspan: 1,
                         sortable: true,
-                        formatter: _this.freqFormatter,
+                        formatter: this.freqFormatter,
                         halign: "center",
                         align: "right"
                     },
@@ -211,7 +249,7 @@ export default class CellbasePopulationFrequencyGrid extends LitElement {
                         rowspan: 1,
                         colspan: 1,
                         sortable: true,
-                        formatter: _this.freqFormatter,
+                        formatter: this.freqFormatter,
                         halign: "center",
                         align: "right"
                     },
@@ -221,7 +259,7 @@ export default class CellbasePopulationFrequencyGrid extends LitElement {
                         rowspan: 1,
                         colspan: 1,
                         sortable: true,
-                        formatter: _this.freqFormatter,
+                        formatter: this.freqFormatter,
                         halign: "center",
                         align: "right"
                     }
@@ -234,6 +272,7 @@ export default class CellbasePopulationFrequencyGrid extends LitElement {
         if (!this.populationFrequencies) {
             return html`<div class="alert alert-info"><i class="fas fa-3x fa-info-circle align-middle"></i> No population frequencies found.</div>`;
         }
+
         return html`
             <div style="padding: 20px">
                 <table id="${this.gridId}"></table>
@@ -241,6 +280,7 @@ export default class CellbasePopulationFrequencyGrid extends LitElement {
             </div>
         `;
     }
+
 }
 
 customElements.define("cellbase-population-frequency-grid", CellbasePopulationFrequencyGrid);

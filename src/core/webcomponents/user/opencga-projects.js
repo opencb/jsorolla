@@ -15,11 +15,13 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
-import {RestResponse} from "../../clients/rest-response.js";
+import {classMap} from "/web_modules/lit-html/directives/class-map.js";
 import UtilsNew from "../../utilsNew.js";
-import "../tool-header.js";
+import "../commons/tool-header.js";
 import {CountUp} from "/node_modules/countup.js/dist/countUp.min.js";
-import "../simple-chart.js";
+import "../commons/simple-chart.js";
+import {NotificationQueue} from "../Notification.js";
+import {RestResponse} from "../../clients/rest-response.js";
 
 export default class OpencgaProjects extends LitElement {
 
@@ -45,7 +47,6 @@ export default class OpencgaProjects extends LitElement {
 
     _init() {
         this._prefix = "sf-" + UtilsNew.randomString(6) + "_";
-        this._studies = [];
         this.requestDone = false;
 
         this.totalCount = {
@@ -58,6 +59,9 @@ export default class OpencgaProjects extends LitElement {
         };
         this.data = {};
 
+        this.activeTab = {};
+
+        this.sideNavItems = ["Summary", "Variants", "Files", "Samples", "Individuals", "Cohorts"];
 
         this.charts = {
             variant: [],
@@ -70,34 +74,58 @@ export default class OpencgaProjects extends LitElement {
         this.tableRows = {
             variant: {},
             file: {
-                format: [
-                    {id: "VCF", name: "VCF files"},
-                    {id: "PLAIN", name: "PLAIN files"},
-                    {id: "BAI", name: "BAI files"},
-                    {id: "BAM", name: "BAM files"}
-                ],
-                bioformat: [
-                    {id: "ALIGNMENT", name: "ALIGNMENT"},
-                    {id: "VARIANT", name: "VARIANT"},
-                    {id: "NONE", name: "NONE"}
-                ]
+                format: {
+                    name: "Format",
+                    values: [
+                        {id: "VCF", name: "VCF files"},
+                        {id: "PLAIN", name: "PLAIN files"},
+                        {id: "BAI", name: "BAI files"},
+                        {id: "BAM", name: "BAM files"}
+                    ]
+                },
+                bioformat: {
+                    name: "Bioformat",
+                    values: [
+                        {id: "ALIGNMENT", name: "ALIGNMENT"},
+                        {id: "VARIANT", name: "VARIANT"},
+                        {id: "NONE", name: "NONE"}
+                    ]
+                }
             },
             sample: {
-                somatic: [
-                    {id: "false", name: "Somatic: false"}
-                ]
+                somatic: {
+                    name: "Somatic",
+                    values: [
+                        {id: "false", name: "Somatic: false"}
+                    ]
+                },
+                status: {
+                    name: "status",
+                    values: [
+                        {id: "READY", name: "Ready"}
+                    ]
+                },
+                creationYear: {
+                    name: "creationYear",
+                    // TODO we dont want to list all years
+                    //  values: []
+
+                }
             },
             individual: {
-                lifeStatus: [
-                    {id: "ALIVE", name: "ALIVE"},
-                    {id: "ABORTED", name: "ABORTED"},
-                    {id: "DECEASED", name: "DECEASED"},
-                    {id: "UNBORN", name: "UNBORN"},
-                    {id: "STILLBORN", name: "STILLBORN"},
-                    {id: "MISCARRIAGE", name: "MISCARRIAGE"},
-                    {id: "UNKNOWN", name: "UNKNOWN"}
-                ],
-                ethnicity: []},
+                lifeStatus: {
+                    name: "Life Status",
+                    values: [
+                        {id: "ALIVE", name: "ALIVE"},
+                        {id: "ABORTED", name: "ABORTED"},
+                        {id: "DECEASED", name: "DECEASED"},
+                        {id: "UNBORN", name: "UNBORN"},
+                        {id: "STILLBORN", name: "STILLBORN"},
+                        {id: "MISCARRIAGE", name: "MISCARRIAGE"},
+                        {id: "UNKNOWN", name: "UNKNOWN"}
+                    ]
+                },
+                /*ethnicity: []*/},
             cohort: {}
         };
 
@@ -112,22 +140,22 @@ export default class OpencgaProjects extends LitElement {
         if (changedProperties.has("opencgaSession")) {
             this.opencgaSessionObserver();
         }
-        if (changedProperties.has("studySummaries")) {
-            this.summariesChanged();
-        }
     }
 
     opencgaSessionObserver() {
         this.totalCount = {
-            variants: 0,
             files: 0,
+            family: 0,
             samples: 0,
             jobs: 0,
             individuals: 0,
-            cohorts: 0
+            cohorts: 0,
+            variants: 0
         };
         this.filesCount = new CountUp("files-count", 0);
         this.filesCount.start();
+        this.familyCount = new CountUp("files-count", 0);
+        this.familyCount.start();
         this.samplesCount = new CountUp("samples-count", 0);
         this.samplesCount.start();
         this.jobsCount = new CountUp("jobs-count", 0);
@@ -144,17 +172,6 @@ export default class OpencgaProjects extends LitElement {
         this.facetQuery();
     }
 
-    _changeBottomTab(e) {
-        const tabId = e.currentTarget.dataset.id;
-        console.log(tabId);
-        $(".nav-tabs", this).removeClass("active");
-        $(".tab-content div[role=tabpanel]", this).hide();
-        for (const tab in this.activeTab) this.activeTab[tab] = false;
-        $("#" + tabId + "-tab", this).show();
-        this.activeTab[tabId] = true;
-        this.requestUpdate();
-    }
-
     async facetQuery() {
         // this.clearPlots();
         console.log("this.opencgaSession", this.opencgaSession);
@@ -162,180 +179,274 @@ export default class OpencgaProjects extends LitElement {
         const sleep = s => new Promise(resolve => setTimeout(() => resolve(), s * 1000));
         this.errors = "";
 
-        const _this = this;
-
-        let done = 0;
+        const done = 0;
         for (const project of this.opencgaSession.projects) {
             // let studyPromises = [];
-            console.log("prj", project);
+
+            // init structure
             this.data[project.id] = {
                 name: project.name,
                 ...project,
                 stats: {}
             };
             this.chartData[project.id] = {};
-            for (let study of project.studies) {
-                try {
-                    const catalogStudyResponse = await this.opencgaSession.opencgaClient.studies().aggregationStats(study.fqn, {
-                        individualFields: "lifeStatus,sex"
-                    })
-
-                    //let f = await fetch("/lib/jsorolla/src/core/webcomponents/user/" + study.fqn + ".json")
-                    //const catalogStudyResponse = new RestResponse(await f.json());
-
-                    //console.error(study.fqn)
-                    //console.log(JSON.stringify(catalogStudyResponse))
-                    //console.log("catalogStudyResponse", catalogStudyResponse)
-                    const r = catalogStudyResponse.getResult(0).results ? catalogStudyResponse.getResult(0).results[0] : catalogStudyResponse.getResult(0);
-
-                    const stats = r[study.fqn];
-                    this.filesCount.update(this.totalCount.files += stats.file.results[0].count);
-                    this.samplesCount.update(this.totalCount.samples += stats.sample.results[0].count);
-                    this.jobsCount.update(this.totalCount.jobs += stats.job.results[0].count);
-                    this.individualsCount.update(this.totalCount.individuals += stats.individual.results[0].count);
-                    // this.variantCount.update(this.totalCount.variants += r.variants);
-                    this.cohortsCount.update(this.totalCount.cohorts += stats.cohort.results[0].count);
-
-                    this.data[project.id].stats[study.fqn] = {
-                        file: {
-                            results: stats.file.results
-                        },
-                        sample: {
-                            results: stats.sample.results
-                        },
-                        individual: {
-                            results: stats.individual.results
-                        },
-                        cohort: {
-                            results: stats.cohort.results
-                        }
-                    }
-
-
-                }
-                catch (e) {
-                    console.error(e)
-                    this.querySelector("#loading").style.display = "none";
-
-                }
-            }
-
-
-
-            let response = await this.opencgaSession.opencgaClient.variants().aggregationStats({project: project.id, fields: "studies"})
-
-            //let response = await fetch("/lib/jsorolla/src/core/webcomponents/user/" + project.id + ".json")
-            //response = new RestResponse(await response.json());
-
-            //console.error(project.id)
-            //console.log(JSON.stringify(response))
-            const r = response.getResult(0).results ? response.getResult(0).results[0] : response.getResult(0);
-            this.variantsCount.update(this.totalCount.variants += r.count);
-
-            this.chartData[project.id] = {};
-            /*for (let entity in this.charts) {
-                let charts = this.charts[entity];
-                charts.forEach( field => {
-
-                    console.error("stats", Object.values(this.data[project.id].stats).map( study => study))
-                    let studiesData = Object.entries(this.data[project.id].stats).map( study => study)
-                    console.error(this.data[project.id].stats)
-
-                })
-            }*/
-            for (let entity in this.charts) {
-                let charts = this.charts[entity];
-                this.chartData[project.id][entity] = [];
-                charts.forEach(field => {
-
-                    // Object.values(STATS) contains the map of the entities for each study. I pick the first element as they are expected to be the same
-                    const categories = Object.values(this.data[project.id].stats)[0][entity].results.find(result => result.name === field).buckets.map( _ => _.value);
-
-                    // building chart data
-                    // I need the structure project->entity->field to plot-> aggregated data for all the studies
-                    let data = {}
-                    Object.entries(this.data[project.id].stats).forEach( ([studyFqn, entitiesMap]) => {
-                        data[studyFqn] = entitiesMap[entity].results.find(result => result.name === field).buckets.map( _ => _.count)
-                        //let categories = entitiesMap[entity].results.find(result => result.name === field).buckets.map( _ => _.value)
-                        //console.log("studiesData", data, categories)
-                    })
-                    this.chartData[project.id][entity].push({
-                        name: field,
-                        data: data,
-                        config: {
-                            xAxis: {
-                                categories: categories
-                            }
-                        }
-                    })
-                    //console.log(this.chartData)
-                })
-            }
-
-
         }
+        const projectIds = this.opencgaSession.projects.map(project => project.id).join(",");
 
+        try {
+            // NOTE queries for all the projects in once
+            const catalogProjectResponse = await this.opencgaSession.opencgaClient.projects().aggregationStats(projectIds, {
+                individualFields: "lifeStatus,sex",
+                sampleFields: "creationMonth,status"
+            });
+            /*const f = await fetch("/lib/jsorolla/src/core/webcomponents/user/projects.json");
+            const catalogProjectResponse = new RestResponse(await f.json());*/
 
-        console.log(this.chartData)
+            if (catalogProjectResponse.getResults().length) {
+
+                // iterates over projects
+                Object.entries(catalogProjectResponse.getResult(0)).forEach(([projectId, studiesObj]) => {
+                    //console.log(projectId, studiesObj)
+                    this.chartData[projectId] = {};
+
+                    // iterates over studies
+                    Object.entries(studiesObj).forEach(([studyId, stats]) => {
+                        // updates CountUp counters
+                        this.filesCount.update(this.totalCount.files += stats.file.results[0]?.count);
+                        this.familyCount.update(this.totalCount.files += stats.family.results[0]?.count);
+                        this.samplesCount.update(this.totalCount.samples += stats.sample.results[0]?.count);
+                        this.jobsCount.update(this.totalCount.jobs += stats.job.results[0]?.count);
+                        this.individualsCount.update(this.totalCount.individuals += stats.individual.results[0]?.count);
+                        this.cohortsCount.update(this.totalCount.cohorts += stats.cohort.results[0]?.count);
+
+                        // prepare main data (it will be used for both charts and tables)
+                        this.data[projectId].stats[studyId] = {
+                            file: {
+                                results: stats.file.results
+                            },
+                            sample: {
+                                results: stats.sample.results
+                            },
+                            individual: {
+                                results: stats.individual.results
+                            },
+                            cohort: {
+                                results: stats.cohort.results
+                            }
+                        };
+                    });
+
+                    // once main data is ready, build chartData based on this.charts (which contains the list of charts we want to show per entity)
+                    for (const entity in this.charts) {
+                        const charts = this.charts[entity];
+                        this.chartData[projectId][entity] = [];
+                        charts.forEach(field => {
+
+                            // Object.values(this.data[projectId].stats) contains the map of the entities for each study. I pick the first study as they are (expected) to be the same for all studies.
+                            console.log(Object.values(this.data[projectId].stats))
+                            const categories = Object.values(this.data[projectId].stats)[0][entity].results.find(result => result.name === field).buckets.map(_ => _.value);
+
+                            // building chart data
+                            // I need the structure project->entity->field to plot-> aggregated data for all the studies
+                            const data = {};
+                            Object.entries(this.data[projectId].stats).forEach(([studyFqn, entitiesMap]) => {
+                                data[studyFqn] = entitiesMap[entity].results.find(result => result.name === field).buckets.map(_ => _.count);
+                            });
+                            this.chartData[projectId][entity].push({
+                                name: field,
+                                data: data,
+                                config: {
+                                    xAxis: {
+                                        categories: categories
+                                    }
+                                }
+                            });
+                            // console.log(this.chartData)
+                        });
+                    }
+                });
+
+                // pivot data on field names
+                // TODO avoid extra step and build data straight this way?
+                this.data = this.prepareData(this.data);
+
+            } else if (catalogProjectResponse.getEvents("ERROR").length) {
+                const msg = catalogProjectResponse.getEvents("ERROR").map(error => error.message).join("<br>");
+                new NotificationQueue().push("Error", msg, "error");
+            }
+        } catch (e) {
+            console.error(e);
+            UtilsNew.notifyError(e);
+        }
         await this.requestUpdate();
-
         this.querySelector("#loading").style.display = "none";
     }
 
+    prepareData(data) {
+        const r = {};
+        // console.log("data", data)
+        Object.entries(data).map(([projectId, projectObj]) => {
+            r[projectId] = {
+                ...projectObj,
+                entities: {}
+            }
+            // console.log(projectObj)
+            Object.entries(projectObj.stats).map(([studyId, entitiesObj]) => {
+                Object.entries(entitiesObj).map(([entityId, fieldsObj]) => {
+                    // console.log(entityId, fieldsObj)
+                    if (!r[projectId]["entities"][entityId]) {
+                        r[projectId]["entities"][entityId] = {};
+                    }
+                    // field is: creationYear
+                    fieldsObj.results.map(field => {
+                        if (!r[projectId]["entities"][entityId][field.name]) {
+                            r[projectId]["entities"][entityId][field.name] = {};
+                        }
+                        field.buckets.map(fieldData => {
+                            if (!r[projectId]["entities"][entityId][field.name][fieldData.value]) {
+                                r[projectId]["entities"][entityId][field.name][fieldData.value] = {};
+                            }
+                            r[projectId]["entities"][entityId][field.name][fieldData.value][studyId] = fieldData
+                        })
 
-    renderTable(project, resource) {
-        //console.log(project)
-        //debugger
+                    })
+                })
+            })
+        })
+        //console.log("r", r)
+        return r
+    }
+
+    renderTable(projectData, resource) {
         return html`
             <div class="v-space"></div>
-            <table class="table table-hover table-no-bordered">
+            <table class="table table-no-bordered opencga-project-table">
                 <thead>
                     <tr>
                         <th></th>
-                        ${Object.entries(project).map( ([fqn, _]) => html`<th>${fqn}</th>`)}
+                        <th></th>
+                        ${projectData.studies.map(study => html`<th>${study.id}</th>`)}
+                    </tr>
+                </thead>   
+                ${Object.entries(projectData.entities[resource]).map(([entityId, fieldsObj]) => {
+                    return !UtilsNew.isEmpty(fieldsObj) ? html`
+                        <tbody>
+                            <tr>
+                                <td rowspan="${Object.keys(fieldsObj).length + 1}">
+                                    ${entityId}
+                                </td>
+                            </tr>
+                            ${Object.entries(fieldsObj).map(([fieldName, studiesObj]) => {
+                                return html`
+                                    <tr>
+                                        <td>${fieldName}</td>
+                                        ${projectData.studies.map(study => html`
+                                            <td>${studiesObj[study.id]?.count}</td>
+                                        `)}
+                                    </tr>
+                                `
+                            })}
+                        </tbody>
+                    ` : ""
+                })}
+            </table>
+        `
+    }
+
+
+    // TODO move structure transposition from template to facetQuery()
+    // OLD render table
+    renderTab_old(project, resource) {
+        // console.log(project)
+        return html`
+            <div class="v-space"></div>
+            <table class="table table-no-bordered opencga-project-table">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th></th>
+                        ${Object.entries(project).map(([fqn, _]) => html`<th>${fqn}</th>`)}
                     </tr>
                 </thead>
-                <tbody>
-                    ${Object.entries(this.tableRows[resource]).map( ([key, types]) => html`
-                        <!-- <tr>
-                            <td><p>${key}</p>${types.map( type => html`<p>${type.id}</p>`)}</td>
-                            <td>
-                            ${types.map( type => html`
-                                
-                                ${Object.entries(project).map( ([fqn, data]) => html`
-                                    
-                                        ${data[resource]?.results.find( r => r.name === key).buckets.find( stat => stat.value === type.id)?.count}
-                                   
-                                `) }                           
-                             </td>
-                        `)}
-                        </tr>-->
-                        ${types.map( type => html`
-                            <tr>
-                                <td>${type.name}</td>
-                                ${Object.entries(project).map( ([fqn, data]) => html`
-                                    <td>
-                                        ${data[resource]?.results.find( r => r.name === key).buckets.find( stat => stat.value === type.id)?.count}
+                
+                    ${Object.entries(this.tableRows[resource]).map(([field, fieldConfig]) => html`
+                        <tbody>
+                            
+                            <!--
+                                this works either with an explicit list of fields to show in the table (this.tableRows)
+                                or ALL the values of "field" returned in response
+                            -->
+                        
+                            ${fieldConfig?.values?.length ? html`
+                                <tr>
+                                    <td rowspan="${fieldConfig.values.length + 1}">
+                                        ${fieldConfig.name}
                                     </td>
-                                `) }                           
-                            </tr>
-                        `)}
+                                </tr>
+                                ${fieldConfig?.values?.map(type => html`
+                                <tr>
+                                    <td>${type.name}</td>
+                                    ${Object.entries(project).map(([fqn, data]) => html`
+                                        <td>
+                                            ${data[resource]?.results.find(r => r.name === field).buckets.find(stat => stat.value === type.id)?.count}
+                                        </td>
+                                    `) }                                    
+                                </tr>
+                                `)}
+                            ` : html`
+                                <tr>
+                                    <td rowspan="${ // the max number of values `field` (e.g. creationYear: [JANUARY,FEBRAURY,...]) can assume in a project
+                                        Math.max(...Object.entries(project).map(([fqn, data]) => {
+                                            const projectData = data[resource].results.find(r => r.name === field)
+                                            console.log("projectData.buckets.length", projectData.buckets.length)
+                                            return projectData.buckets.length
+                                        })) + 1}">
+                                        ${fieldConfig.name} ${Math.max(...Object.entries(project).map(([fqn, data]) => {
+                                        const projectData = data[resource].results.find(r => r.name === field)
+                                        return projectData.buckets.length
+                                    }))}
+                                    </td>
+                                
+                                    ${Object.entries(project).map(([fqn, data]) => {
+                                        const projectData = data[resource].results.find(r => r.name === field)
+                                        // TODO in progress
+                                        return html`
+                                                ${projectData.buckets.map(stat => {
+                                                    return html`<tr><td>${stat.value}</td><td>${stat.count}</td></tr>`
+                                        })}
+                                        `
+                                    })}
+                                </tr>
+                            `}
+                        </tbody>
                     `) }
-                </tbody>
             </table>`;
     }
 
-    onSideNavClick(e) {
+    onChangeProjectTab(e) {
+        e.stopPropagation();
+        const {projectId} = e.currentTarget.dataset;
+        console.log(projectId);
+        // reset this.activeTab and enable just the active project with the first side nav item.
+        this.activeTab = {
+            [projectId]: {[this.sideNavItems[0]]: true}
+        }
+        this.requestUpdate();
+    }
+
+    onSideNavChange(e) {
         e.preventDefault();
         // Remove button focus highlight
         e.currentTarget.blur();
         const {menuItemId, projectId} = e.currentTarget.dataset;
-        $(".projects-side-nav > button", this).removeClass("active");
+        /*$(".projects-side-nav > button", this).removeClass("active");
         $(`.projects-side-nav > button[data-menu-item-id=${menuItemId}][data-project-id=${projectId}]`, this).addClass("active");
         $(".projects-content-tab." + projectId + " > div[role=tabpanel]", this).hide();
-        $("#" + this._prefix + projectId + menuItemId, this).show();
-        //for (const tab in this.activeTab) this.activeTab[tab] = false;
-        //this.activeTab[tabId] = true;
+        $("#" + this._prefix + projectId + menuItemId, this).show();*/
+
+        // TODO continue using activeTab as global state for active project and active menu item
+        for (const tab in this.activeTab) this.activeTab[tab] = false;
+        this.activeTab[projectId] = {[menuItemId]: true};
         this.requestUpdate();
     }
 
@@ -355,13 +466,13 @@ export default class OpencgaProjects extends LitElement {
             xAxis: {},
             yAxis: {
                 min: 0,
-                plotLines: [{
+                /*plotLines: [{
                     color: "green",
                     // TODO temp solution. It shows the total count for the first project only (replace this point with a line (no splined))
                     value: facetData.find(point => point.name === "count").data[0],
                     width: 1,
                     zIndex: 2
-                }]
+                }]*/
             },
             tooltip: {
                 headerFormat: "<span style=\"font-size:10px\">{point.key}</span><table>",
@@ -446,11 +557,11 @@ export default class OpencgaProjects extends LitElement {
                             type: "custom",
                             display: {
                                 render: studies => {
-                                    return studies.map( study => study.name).join(", ")
+                                    return studies.map(study => html`<li>${study.name}</li>`);
                                 }
                             }
                         }
-                        /*{
+                        /* {
                             name: "Project and studies",
                             field: "projects",
                             type: "table",
@@ -486,39 +597,6 @@ export default class OpencgaProjects extends LitElement {
 
     render() {
         return html`
-        <style>
-            .center {
-                margin: auto;
-                text-align: justify;
-            }
-            #projects .panel-container {
-                display: flex;
-                justify-content: center;
-            }
-            #projects .panel-container .panel{
-                flex-basis: 250px;
-                margin: 1em;
-                background: #f1f1f1;
-            }
-            #projects .panel-container .panel .counter {
-                font-size: 4em;
-                color: #204d74;
-            }
-
-            #projects .panel-container .panel .counter-title {
-                margin: -20px 0 0 0;
-                font-size: 15px;
-                text-transform: uppercase;
-                letter-spacing: 2px;
-            }
-
-            #projects .study-title {
-                font-size: 15px;
-                text-transform: uppercase;
-                letter-spacing: 2px;
-            }
-
-        </style>
         <!-- TODO check if logged in -->
         <div id="projects">
              <tool-header title="Projects summary" icon="fa fa-search"></tool-header>
@@ -566,67 +644,79 @@ export default class OpencgaProjects extends LitElement {
                     </div>
                 </div>
             </div>
-            
-          
+
+
             <div class="v-space"></div>
             <div class="detail-tabs">
                 <ul class="nav nav-tabs nav-center tablist" role="tablist">
                     ${this.data ? Object.entries(this.data).map(([projectId, project], i) => html`
-                        <li role="presentation" class="${i === 0 ? "active" : ""}"><a href="#${projectId}" @click="${e => console.log(e)}" aria-controls="profile" role="tab" data-toggle="tab">${project.name}</a></li>
+                        <li role="presentation" class="${classMap({active: this.activeTab[projectId] || (UtilsNew.isEmpty(this.activeTab) && i === 0)})}">
+                            <a href="javascript: void 0" @click="${this.onChangeProjectTab}" data-project-id="${projectId}" aria-controls="profile" role="tab" data-toggle="tab">${project.name}</a>
+                        </li>
                     `) : null}
                 </ul>
-                <pre id="errors" class="alert alert-warning" role="alert" style="display: ${this.errors ? "block" : "none"}">${this.errors}</pre>      
-                <div class="tab-content">
-                
+                <pre id="errors" class="alert alert-warning" role="alert" style="display: ${this.errors ? "block" : "none"}">${this.errors}</pre>
+                <div class="content-tab-wrapper">
+
                     ${this.data ? Object.entries(this.data).map(([projectId, project], i) => html`
-                        <div role="tabpanel" class="project-tab tab-pane ${i === 0 ? "active" : ""}" id="${projectId}">
+                        <div role="tabpanel" class="content-tab project-tab tab-pane ${classMap({active: this.activeTab[projectId] || (UtilsNew.isEmpty(this.activeTab) && i === 0)})}" id="${projectId}-tab">
                             <div class="row">
                                 <div class="col-md-10 col-md-offset-1">
                                     <h3 class="project-name">Project <span class="inverse">${projectId}</span></h3>                               
                                     <div class="col-md-2 list-group projects-side-nav side-tabs side-nav">
-                                        <button type="button" class="list-group-item active" 
-                                              data-project-id="${project.id}" data-menu-item-id="Summary" @click="${this.onSideNavClick}">Summary</button>
-                                        <button type="button" class="list-group-item" 
-                                              data-project-id="${project.id}" data-menu-item-id="Variants" @click="${this.onSideNavClick}">Variants</button>
-                                        <button type="button" class="list-group-item" 
-                                              data-project-id="${project.id}" data-menu-item-id="Files" @click="${this.onSideNavClick}">Files</button>
-                                        <button type="button" class="list-group-item" 
-                                              data-project-id="${project.id}" data-menu-item-id="Samples" @click="${this.onSideNavClick}">Samples</button>
-                                        <button type="button" class="list-group-item" 
-                                              data-project-id="${project.id}" data-menu-item-id="Individuals" @click="${this.onSideNavClick}">Individuals</button>
-                                        <button type="button" class="list-group-item" 
-                                              data-project-id="${project.id}" data-menu-item-id="Cohorts" @click="${this.onSideNavClick}">Cohorts</button>
+                                        ${this.sideNavItems.map((item, sideNavIndx) => html`
+                                            <button type="button" class="list-group-item ${classMap({active: this.activeTab[projectId]?.[item] || (UtilsNew.isEmpty(this.activeTab) && sideNavIndx === 0)})}"
+                                                    data-project-id="${project.id}" data-menu-item-id="${item}" @click="${this.onSideNavChange}">${item}</button>
+                                        `)}
                                     </div>
                                     <div class="col-md-10">
                                         <div class="content-tab-wrapper projects-content-tab ${project.id}">
-                                            <div id="${this._prefix}${project.id}Summary" role="tabpanel" class="tab-pane content-tab active">
-                                                <h3>Summary</h3>
-                                                <data-form .data=${project} .config="${this.getProjectConfig()}"></data-form>
-                                            </div>
-                                            <div id="${this._prefix}${project.id}Variants" role="tabpanel" class="tab-pane content-tab">
-                                                <h3>Variants</h3>
-                                            </div>
-                                            <div id="${this._prefix}${project.id}Files" role="tabpanel" class="tab-pane content-tab">
-                                                <h3>Files</h3>
-                                                <div class="row">
-                                                    ${this.chartData[project.id]?.["file"]?.map?.( chart => html`
+                                            ${~this.sideNavItems.indexOf("Summary") ? html`
+                                                <div id="${this._prefix}${project.id}Summary" role="tabpanel" class="tab-pane content-tab ${classMap({active: this.activeTab[projectId]?.["Summary"] || UtilsNew.isEmpty(this.activeTab)})}" data-project-id="${project.id}" data-menu-item-id="${project.id}">
+                                                    <h3>Summary</h3>
+                                                    <data-form .data=${project} .config="${this.getProjectConfig()}"></data-form>
+                                                </div>`
+                                                : ""
+                                            }
+                                            
+                                            ${~this.sideNavItems.indexOf("Variants") ? html`
+                                                <div id="${this._prefix}${project.id}Variants" role="tabpanel" class="tab-pane content-tab ${classMap({active: this.activeTab[projectId]?.["Variants"]})}">
+                                                    <h3>Variants</h3>
+                                                </div>`
+                                            : ""}
+
+                                            ${~this.sideNavItems.indexOf("Files") ? html`
+                                                <div id="${this._prefix}${project.id}Files" role="tabpanel" class="tab-pane content-tab ${classMap({active: this.activeTab[projectId]?.["Files"]})}">
+                                                    <h3>Files</h3>
+                                                    <div class="row">
+                                                        ${this.chartData[project.id]?.["file"]?.map?.(chart => html`
                                                         <div class="col-md-6"><simple-chart .active="${true}" type="column" title="${chart.name}" .config=${chart.config} .data="${chart.data}"></simple-chart></div>
-                                                    `)}
+                                                        `)}
+                                                    </div>
+                                                    ${this.renderTable(project, "file")}
+                                                </div>`
+                                            : ""}
+
+                                            ${~this.sideNavItems.indexOf("Samples") ? html`
+                                                <div id="${this._prefix}${project.id}Samples" role="tabpanel" class="tab-pane content-tab ${classMap({active: this.activeTab[projectId]?.["Samples"]})}">
+                                                    <h3>Samples</h3>
+                                                    ${this.renderTable(project, "sample")}
                                                 </div>
-                                                ${this.renderTable(project.stats, "file")}
-                                            </div>
-                                            <div id="${this._prefix}${project.id}Samples" role="tabpanel" class="tab-pane content-tab">
-                                                <h3>Samples</h3>
-                                                ${this.renderTable(project.stats, "sample")}
-                                            </div>
-                                            <div id="${this._prefix}${project.id}Individuals" role="tabpanel" class="tab-pane content-tab">
-                                                <h3>Individuals</h3>
-                                                ${this.renderTable(project.stats, "individual")}
-                                            </div>
-                                            <div id="${this._prefix}${project.id}Cohorts" role="tabpanel" class="tab-pane content-tab">
-                                                <h3>Cohorts</h3>
-                                                ${this.renderTable(project.stats, "cohort")}
-                                            </div>
+                                            ` : ""}
+
+                                            ${~this.sideNavItems.indexOf("Individuals") ? html`
+                                                <div id="${this._prefix}${project.id}Individuals" role="tabpanel" class="tab-pane content-tab ${classMap({active: this.activeTab[projectId]?.["Individuals"]})}">
+                                                    <h3>Individuals</h3>
+                                                    ${this.renderTable(project, "individual")}
+                                                </div>
+                                            ` : ""}
+
+                                            ${~this.sideNavItems.indexOf("Cohorts") ? html`
+                                                <div id="${this._prefix}${project.id}Cohorts" role="tabpanel" class="tab-pane content-tab ${classMap({active: this.activeTab[projectId]?.["Cohorts"]})}">
+                                                    <h3>Cohorts</h3>
+                                                    ${this.renderTable(project, "cohort")}
+                                                </div>
+                                            ` : ""}
                                         </div>
                                     </div>
                                 </div>

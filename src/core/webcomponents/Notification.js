@@ -38,31 +38,22 @@ export class NotificationQueue {
         this.queue = [...this.queue, msg];
         await this.context.requestUpdate();
         if (autoDismiss) {
-            //await this.sleep(1000);
-            //$(`#notifications-queue .alert[data-id=${id}]`).removeClass("slideInDown");
-            //await this.context.requestUpdate();
-            await this.sleep(5000);
-            /*$(`#notifications-queue .alert[data-id=${id}]`).addClass("slideOutUp");
-            await this.context.requestUpdate();
-            await this.sleep(500);
-            */
+            await UtilsNew.sleep(5000);
             this.remove(id);
             await this.context.requestUpdate();
         }
     }
 
-    //temp fix
+    // temp fix
     pushRemainingTime(remainingMinutes, opencgaClient) {
-        const msg = html`Your session is close to expire. <strong>${remainingMinutes} minutes remaining</strong> <a href="javascript:void 0" @click="${() => { this.refreshToken(opencgaClient)}}"> Click here to refresh </a>`
-        this.push(msg)
-    }
-
-    sleep(ms) {
-        return new Promise( resolve => setTimeout( () => resolve(), ms));
+        const msg = html`Your session is close to expire. <strong>${remainingMinutes} minutes remaining</strong> <a href="javascript:void 0" @click="${() => {
+ this.refreshToken(opencgaClient);
+}}"> Click here to refresh </a>`;
+        this.push(msg);
     }
 
     remove(id) {
-        this.queue = this.queue.filter( item => item.id !== id);
+        this.queue = this.queue.filter(item => item.id !== id);
         this.context.requestUpdate();
     }
 
@@ -105,7 +96,7 @@ export class NotificationElement extends LitElement {
     _init() {
         this.iconMap = {
             info: "fa fa-info-circle fa-2x",
-            success: "fa fa-thumbs-up fa-2x",
+            success: "fa fa-check fa-2x",
             warning: "fa fa-exclamation-triangle fa-2x",
             danger: "fa ffa fa-exclamation-circle fa-2x",
             error: "fa ffa fa-exclamation-circle fa-2x"
@@ -116,7 +107,7 @@ export class NotificationElement extends LitElement {
     render() {
         return html`
             <div id="notifications-queue" class="col-xs-11 col-sm-4">
-            ${this.queue.map( item => {
+            ${this.queue.map(item => {
                 return html`
                     <div class="alert animated slideInDown alert-${item.severity.toLowerCase() || "info"} ${item.dismissible ? "alert-dismissible" : ""}" data-id="${item.id}">
                         <div class="icon"><i class="${this.iconMap[item.severity.toLowerCase() || "info"]}"></i></div>
@@ -125,7 +116,7 @@ export class NotificationElement extends LitElement {
                             <p class="details">${item.details}</p>
                         </div>
                         ${item.dismissible ? html`<span class="close" data-dismiss="alert"><i class="fa fa-times-circle"></i></span>` : null}
-                    </div>`
+                    </div>`;
             })}
             </div>`;
     }

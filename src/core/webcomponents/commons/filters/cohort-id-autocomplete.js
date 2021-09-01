@@ -67,7 +67,7 @@ export default class CohortIdAutocomplete extends LitElement {
                     study: this.opencgaSession.study.fqn,
                     limit: 20,
                     count: false,
-                    // include: "id,individual.id",
+                    include: "id",
                     id: "~^" + query.toUpperCase()
                 };
                 this.opencgaSession.opencgaClient.cohorts().search(filters).then(restResponse => {

@@ -18,8 +18,9 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import {classMap} from "/web_modules/lit-html/directives/class-map.js";
 import UtilsNew from "../../../utilsNew.js";
 import PolymerUtils from "../../PolymerUtils.js";
-import "./variant-interpreter-review-summary.js";
+// import "./variant-interpreter-review-summary.js";
 import "./variant-interpreter-review-primary.js";
+import "../../clinical/clinical-interpretation-editor.js";
 
 
 export default class VariantInterpreterReview extends LitElement {
@@ -85,17 +86,6 @@ export default class VariantInterpreterReview extends LitElement {
         if (changedProperties.has("clinicalAnalysis") || changedProperties.has("interpretation")) {
             this.clinicalAnalysisObserver();
         }
-    }
-
-    firstUpdated(_changedProperties) {
-        // CellBase version
-        // this.cellbaseClient.getMeta("about").then(response => {
-        //     if (UtilsNew.isNotUndefinedOrNull(response) && UtilsNew.isNotEmptyArray(response.response)) {
-        //         if (UtilsNew.isNotUndefinedOrNull(response.response[0].result) && UtilsNew.isNotEmptyArray(response.response[0].result)) {
-        //             this.cellbaseVersion = response.response[0].result[0]["Version: "];
-        //         }
-        //     }
-        // });
     }
 
     propertyObserver(opencgaSession, mode, config) {
@@ -441,12 +431,15 @@ export default class VariantInterpreterReview extends LitElement {
                 
                 <div class="content-tab-wrapper">
                     <div id="${this._prefix}GeneralInfo" role="tabpanel" class="tab-pane active col-md-10 col-md-offset-1 content-tab">
-                        <variant-interpreter-review-summary .opencgaSession="${this.opencgaSession}" 
-                                                            .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                            .active="${this.activeTab["GeneralInfo"]}">
-                        </variant-interpreter-review-summary>
+                        <tool-header title="Interpretation - ${this.clinicalAnalysis?.interpretation?.id}" class="bg-white"></tool-header>
+                        <div style="padding: 0px 10px">
+                            <clinical-interpretation-editor .opencgaSession="${this.opencgaSession}" 
+                                                            .clinicalAnalysis="${this.clinicalAnalysis}">
+                            </clinical-interpretation-editor>
+                        </div>
                     </div>
-                    <div id="${this._prefix}PrimaryFindings" role="tabpanel" class="tab-pane col-md-12 content-tab">
+                    <div id="${this._prefix}PrimaryFindings" role="tabpanel" class="tab-pane col-md-10 col-md-offset-1 content-tab">
+                        <tool-header title="Primary Findings - ${this.clinicalAnalysis?.interpretation?.id}" class="bg-white"></tool-header>
                         <variant-interpreter-review-primary .opencgaSession="${this.opencgaSession}" 
                                                             .clinicalAnalysis="${this.clinicalAnalysis}"
                                                             .active="${this.activeTab["PrimaryFindings"]}">

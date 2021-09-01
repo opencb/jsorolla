@@ -188,12 +188,12 @@ export default class GeneCoverageBrowser extends LitElement {
                             display: {
                                 render: () => {
                                     return html`
-                                        <disease-filter .opencgaSession="${this.opencgaSession}" 
-                                                        .diseasePanels="${this.opencgaSession.study.panels}" 
-                                                        mode="gene"
-                                                        .config="${this.config}" 
-                                                        @filterChange="${e => this.selectGene(e)}">
-                                        </disease-filter>`
+                                        <disease-panel-filter   .opencgaSession="${this.opencgaSession}" 
+                                                                .diseasePanels="${this.opencgaSession.study.panels}" 
+                                                                mode="gene"
+                                                                .config="${this.config}" 
+                                                                @filterChange="${e => this.selectGene(e)}">
+                                        </disease-panel-filter>`
                                 }
                             }
                         },

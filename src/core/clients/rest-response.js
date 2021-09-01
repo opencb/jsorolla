@@ -34,7 +34,7 @@ export class RestResponse {
             // TODO This is a small hack that can be activated if backward compatibility is needed. This should be removed in next 2.1.
             this.queryOptions = this.params;
             this.response = [];
-            this.responses.forEach( (response, i) => {
+            this.responses.forEach((response, i) => {
                 this.response[i] = response;
                 if (response.results) {
                     this.response[i].result = response.results;
@@ -57,7 +57,7 @@ export class RestResponse {
     /**
      * Return the list of results of the responsePos response.
      * @param {Number} [responsePos=0] The index of the node to get the results from
-     * @return {Array} The list of results
+     * @returns {Array} The list of results
      **/
     getResults = (responsePos = 0) => this.responses[responsePos].results;
 
@@ -65,26 +65,26 @@ export class RestResponse {
      * Return the result object of the node specified by responsePos (default = 0) and the index specified by resultPos.
      * @param {Number} resultPos The index of the node to get the results from
      * @param {Number} [responsePos=0] The index of the result
-     * @return {Object} The result
+     * @returns {Object} The result
      **/
     getResult = (resultPos, responsePos = 0) => this.responses[responsePos].results[resultPos];
 
     /**
      * Return the list of responses
-     * @return {Object}
+     * @returns {Object}
      */
     getResponses = () => this.responses;
 
     /**
      * Return the response at the index responsePos
      * @param {Number} responsePos The index of the response
-     * @return {Object} The result
+     * @returns {Object} The result
      */
     getResponse = (responsePos = 0) => this.responses[responsePos];
 
     /**
      * Return the params of the request
-     * @return {Object} The params
+     * @returns {Object} The params
      */
     getParams = () => this.params;
 
@@ -130,24 +130,24 @@ export class RestResponse {
      *
      * @param {String} fields The properties of interest
      * @param {Number} responsePos The node index
-     * @return {Array} List of mapped result objects
+     * @returns {Array} List of mapped result objects
      */
     transformResults(fields, responsePos = 0) {
         /**
          * @param {Object} result Single result Object
          * @param {String} field Field to retrieve in dot notation
-         * @return {Object}
+         * @returns {Object}
          */
         const getField = (result, field) => field.split(".").reduce((o, i) => o ? o[i]: o, result);
 
-        return this.responses[responsePos].result.map( result => {
-            return Object.assign({}, ...fields.split(",").map( field => ({[field]: getField(result, field)})));
+        return this.responses[responsePos].result.map(result => {
+            return Object.assign({}, ...fields.split(",").map(field => ({[field]: getField(result, field)})));
         });
     }
 
     /**
      * @param {string} [eventType] The type of the event to be retrieved
-     * @return {Object | Array} The retrieved event object or the list of events in case of no eventType defined.
+     * @returns {Object | Array} The retrieved event object or the list of events in case of no eventType defined.
      */
     getEvents(eventType) {
         return this._filterEvents(this.events, eventType);
@@ -156,7 +156,7 @@ export class RestResponse {
     /**
      * @param {String} eventType The type of the event to retrieve
      * @param {Number} [responsePos = 0] The node index
-     * @return {Array} The list of the events
+     * @returns {Array} The list of the events
      * @throw {Error} in case of the param "eventType" is not a valid value
      */
     getResultEvents(eventType, responsePos = 0) {
@@ -168,7 +168,7 @@ export class RestResponse {
         if (!eventType) {
             return events || [];
         } else if (eventNames.includes(eventType)) {
-            return events ? events.filter( event => event.type === eventType) : [];
+            return events ? events.filter(event => event.type === eventType) : [];
         } else {
             throw new Error(`Argument "eventType" must be one of the following values: "${eventNames.join(", ")}"`);
         }
@@ -178,43 +178,43 @@ export class RestResponse {
      * Computes the sum for the given property. If 'responsePos' param is provided it counts on that node, it counts in all nodes otherwise.
      * @param {String} attribute The attribute to count
      * @param {Number} [responsePos] The node index
-     * @return {Number} The total number
+     * @returns {Number} The total number
      */
     count(attribute, responsePos) {
-        if (responsePos) {
+        if (responsePos !== undefined) {
             return this.responses[responsePos][attribute];
         } else {
-            return this.responses.reduce((acc, curr) => acc + curr[attribute]);
+            return this.responses.reduce((acc, curr) => acc + curr[attribute], 0);
         }
     }
 
     /**
      * @param {Number} [responsePos] The node index
-     * @return {Number} The total number of matches
+     * @returns {Number} The total number of matches
      */
     getNumMatches = responsePos => this.count("numMatches", responsePos);
 
     /**
      * @param {Number} [responsePos] The node index
-     * @return {Number} The total number of results
+     * @returns {Number} The total number of results
      */
     getNumResults = responsePos => this.count("numResults", responsePos);
 
     /**
      * @param {Number} [responsePos] The node index
-     * @return {Number} The total number of item inserted
+     * @returns {Number} The total number of item inserted
      */
     getNumInserted = responsePos => this.count("numInserted", responsePos);
 
     /**
      * @param {Number} [responsePos] The node index
-     * @return {Number} The total number of item updated
+     * @returns {Number} The total number of item updated
      */
     getNumUpdated = responsePos => this.count("numUpdated", responsePos);
 
     /**
      * @param {Number} [responsePos] The node index
-     * @return {Number} The total number of item deleted
+     * @returns {Number} The total number of item deleted
      */
     getNumDeleted = responsePos => this.count("numDeleted", responsePos);
 

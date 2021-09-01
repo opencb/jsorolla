@@ -14,43 +14,53 @@
  * limitations under the License.
  */
 
-import UtilsNew from "../../utilsNew.js";
-
 
 export default class CatalogGridFormatter {
 
-    constructor(opencgaSession, config) {
-        this.opencgaSession = opencgaSession;
-        this.config = config;
-
-        this._prefix = UtilsNew.randomString(8);
-    }
-
-    phenotypesFormatter(value, row) {
-        if (value && value.length > 0) {
-            const tooltip = [...value].sort( (a,b) => a.status === "OBSERVED" ? -1 : 1).map(phenotype => {
-                return `
+    static phenotypesFormatter(value, row) {
+        if (value && value.length === 0) {
+            return "-";
+        }
+        const status = ["OBSERVED", "NOT_OBSERVED", "UNKNOWN"];
+        const tooltip = [...value].sort((a, b) => status.indexOf(a.status) - status.indexOf(b.status)).map(phenotype => {
+            return `
                     <p>
-                        ${phenotype.source && phenotype.source.toUpperCase() === "HPO"
-                    ? `<span>${phenotype.name} (<a target="_blank" href="https://hpo.jax.org/app/browse/term/${phenotype.id}">${phenotype.id}</a>) - ${phenotype.status}</span>`
-                    : `<span>${phenotype.id} - ${phenotype.status}</span>`}
+                        ${phenotype.source && phenotype.source.toUpperCase() === "HPO" ?
+                `<span>${phenotype.name} (<a target="_blank" href="https://hpo.jax.org/app/browse/term/${phenotype.id}">${phenotype.id}</a>) - ${phenotype.status}</span>` :
+                `<span>${phenotype.id} - ${phenotype.status}</span>`}
                     </p>`;
-            }).join("");
+        }).join("");
+        if (value && value.length > 0) {
             return `<a tooltip-title="Phenotypes" tooltip-text='${tooltip}'> ${value.length} term${value.length > 1 ? "s" : ""} found</a>`;
         } else {
-            return "-";
+            // TODO Think about this
+            return `<div>${tooltip}</div>`;
         }
     }
 
-    disorderFormatter(value, row) {
+    static disorderFormatter(value, row) {
         if (value && value.id) {
-            let idHtml = value.id.startsWith("OMIM:")
-                ? `<a href="https://omim.org/entry/${value.id.split(":")[1]}" target="_blank">${value.id}
-                        <i class="fas fa-external-link-alt" aria-hidden="true" style="padding-left: 5px"></i>
-                   </a>`
-                : `${value.id}`;
+            let idHtml;
+            const split = value.id.split(":");
+            switch (split[0]) {
+                case "HP":
+                    idHtml = `
+                        <a href="https://hpo.jax.org/app/browse/term/${value.id}" target="_blank">${value.id}
+                            <i class="fas fa-external-link-alt" aria-hidden="true" style="padding-left: 5px"></i>
+                        </a>`;
+                    break;
+                case "OMIM":
+                    idHtml = `
+                        <a href="https://omim.org/entry/${split[1]}" target="_blank">${value.id}
+                            <i class="fas fa-external-link-alt" aria-hidden="true" style="padding-left: 5px"></i>
+                        </a>`;
+                    break;
+                default:
+                    idHtml = value.id;
+                    break;
+            }
             if (value.name) {
-                return `${value.name} <span style="white-space: nowrap">(${idHtml})</span>`;
+                return `<span data-cy="disorder-name">${value.name}</span> <span style="white-space: nowrap">(${idHtml})</span>`;
             } else {
                 return `${idHtml}`;
             }
@@ -59,54 +69,65 @@ export default class CatalogGridFormatter {
         }
     }
 
-    fileFormatter(fileIds, extensions) {
-        if (fileIds && fileIds.length > 0) {
-            let results = [];
-            for (let fileId of fileIds) {
-                if (extensions && extensions.length > 0) {
-                    for (let extension of extensions) {
-                        if (fileId.endsWith(extension)) {
-                            let fields = fileId.split(":");
-                            results.push(fields[fields.length - 1]);
-                            break;
+    static panelFormatter(panels) {
+        let panelHtml = "-";
+        if (panels?.length > 0) {
+            panelHtml = "";
+            for (const panel of panels) {
+                panelHtml += `
+                    <div style="margin: 5px 0px">
+                        <a href="https://panelapp.genomicsengland.co.uk/panels/${panel.source.id}/" target="_blank">
+                            ${panel.name} (${panel.source.project} v${panel.source.version})
+                        </a>
+                    </div>`;
+            }
+        }
+        return panelHtml;
+    }
+
+        /**
+     *  Formats the files for the Catalog grids
+     * @param {Array} files Either a list of fileIds or file objects
+     * @param {Array} extensions A list of file extensions. If it is defined, only the file with extensions are returned.
+     * @param {String} key The property to map onto in case `files` is an array of objects.
+     * @returns {string} html code
+     */
+    static fileFormatter(files, extensions, key) {
+        let results = [];
+        if (files && files.length > 0) {
+            if (extensions && extensions.length > 0) {
+                files.forEach(file => {
+                    const f = key ? file[key] : file;
+                    for (const extension of extensions) {
+                        if (f.endsWith(extension)) {
+                            results.push(f);
                         }
                     }
-                } else {
-                    let fields = fileId.split(":");
-                    results.push(fields[fields.length - 1]);
-                }
+                });
+            } else {
+                results = key ? files.map(file => file?.name) : files;
             }
-            return results.join("<br>");
+            return results.length > 20 ? results.length + " files" : `<ul class="pad-left-15">${results.map(file => `<li>${file}</li>`).join("")}</ul>`;
         } else {
             return "-";
         }
-        // return values?.length
-        //     ? values
-        //         // .filter(fileId => fileId.endsWith("vcf") || fileId.endsWith("vcf.gz") || fileId.endsWith("bam"))
-        //         .filter(fileId => fileId.endsWith("vcf") || fileId.endsWith("vcf.gz") || fileId.endsWith("bam"))
-        //         .map(fileId => {
-        //             let fields = fileId.split(":");
-        //             return fields[fields.length - 1];
-        //         })
-        //         .join("<br>")
-        //     : "-";
     }
 
-    dateFormatter(value, row) {
+    static dateFormatter(value, row) {
         if (value) {
             return moment(value, "YYYYMMDDHHmmss").format("D MMM YYYY");
         }
         return "-";
     }
 
-    caseFormatter(clinicalAnalysisArray, row, individualId, opencgaSession) {
+    static caseFormatter(clinicalAnalysisArray, row, individualId, opencgaSession) {
         if (clinicalAnalysisArray && clinicalAnalysisArray.length > 0) {
             let result = "";
-            for (let clinicalAnalysis of clinicalAnalysisArray) {
+            for (const clinicalAnalysis of clinicalAnalysisArray) {
                 result += `
                     <div>
-                        <a href="#interpreter/${opencgaSession.project.id}/${opencgaSession.study.id}/${clinicalAnalysis.id}">
-                            ${clinicalAnalysis.id} ${clinicalAnalysis.proband.id === individualId ? "(proband)" : ""}
+                        <a title="Go to Case Interpreter" class="btn btn-default btn-small ripple dropdown-toggle one-line" href="#interpreter/${opencgaSession.project.id}/${opencgaSession.study.id}/${clinicalAnalysis.id}">
+                            <i aria-hidden="true" class="fas fa-user-md"></i> ${clinicalAnalysis.id} ${clinicalAnalysis.proband.id === individualId ? "(proband)" : ""}
                        </a>              
                     </div>
                 `;
@@ -115,25 +136,6 @@ export default class CatalogGridFormatter {
         } else {
             return "-";
         }
-    }
-
-    addTooltip(selector, title, content, config) {
-        $(selector).qtip({
-            content: {
-                title: title,
-                text: function (event, api) {
-                    if (UtilsNew.isNotEmpty(content)) {
-                        return content;
-                    } else {
-                        return $(this).attr("data-tooltip-text");
-                    }
-                }
-            },
-            position: {target: "mouse", adjust: {x: 2, y: 2, mouse: false}},
-            style: {width: true, classes: "qtip-light qtip-rounded qtip-shadow qtip-custom-class"},
-            show: {delay: 200},
-            hide: {fixed: true, delay: 300}
-        });
     }
 
 }

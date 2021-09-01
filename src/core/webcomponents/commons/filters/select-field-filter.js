@@ -67,6 +67,9 @@ export default class SelectFieldFilter extends LitElement {
             forceSelection: {
                 type: Boolean
             },
+            classes: {
+                type: String
+            },
             // the expected format is either an array of string or an array of objects {id, name}
             data: {
                 type: Object
@@ -75,10 +78,11 @@ export default class SelectFieldFilter extends LitElement {
     }
 
     _init() {
-        this._prefix = "sff-" + UtilsNew.randomString(6);
+        this._prefix = UtilsNew.randomString(8);
 
         this.multiple = false;
         this.data = [];
+        this.classes = "";
         this.elm = this._prefix + "selectpicker";
     }
 
@@ -87,19 +91,18 @@ export default class SelectFieldFilter extends LitElement {
         this.selectPicker.selectpicker("val", "");
     }
 
-    updated(_changedProperties) {
-        if (_changedProperties.has("data")) {
+    updated(changedProperties) {
+        if (changedProperties.has("data")) {
             // TODO check why lit-element execute this for all existing select-field-filter instances..wtf
-            // console.log("data",this.data)
             this.data = this.data ?? [];
             this.selectPicker.selectpicker("refresh");
         }
-        if (_changedProperties.has("value")) {
+        if (changedProperties.has("value")) {
             let val = "";
             if (this.value) {
-                if(this.multiple) {
-                    if(Array.isArray(this.value)) {
-                        val = this.value
+                if (this.multiple) {
+                    if (Array.isArray(this.value)) {
+                        val = this.value;
                     } else {
                         val = this.value.split(",");
                     }
@@ -108,15 +111,20 @@ export default class SelectFieldFilter extends LitElement {
                 }
             }
             this.selectPicker.selectpicker("val", val);
-
-            //console.log("value changes")
-            //this.filterChange();
-
-            //this.requestUpdate()
-            //$(".selectpicker", this).selectpicker("refresh");
         }
-        if (_changedProperties.has("disabled")) {
+
+        if (changedProperties.has("disabled")) {
             this.selectPicker.selectpicker("refresh");
+        }
+
+        if (changedProperties.has("classes")) {
+            if (this.classes) {
+                this.selectPicker.selectpicker('setStyle', this.classes, 'add');
+            } else {
+                // if classes os removed then we need to removed the old assigned classes
+                this.selectPicker.selectpicker('setStyle', changedProperties.get("classes"), 'remove');
+                this.selectPicker.selectpicker('setStyle', "btn-default", 'add');
+            }
         }
     }
 
@@ -125,25 +133,26 @@ export default class SelectFieldFilter extends LitElement {
         let val;
         if (selection && selection.length) {
             if (this.multiple) {
-                val = selection.join(",")
-            } else if (this.forceSelection) {
-                // single mode that DOESN'T allow deselection
-                // forceSelection means multiple flag in selectpicker is false, this is the only case `selection` is not an array
-                val = selection;
+                val = selection.join(",");
             } else {
-                // single mode that allows deselection
-                val = selection[0];
+                if (this.forceSelection) {
+                    // single mode that DOESN'T allow deselection
+                    // forceSelection means multiple flag in selectpicker is false, this is the only case `selection` is not an array
+                    val = selection;
+                } else {
+                    // single mode that allows deselection
+                    val = selection[0];
+                }
             }
         }
-        //console.error("filterChange val", val)
 
-        //this.value = val ? val : null; // this allow users to get the selected values using DOMElement.value
+        // this.value = val ? val : null; // this allow users to get the selected values using DOMElement.value
         const event = new CustomEvent("filterChange", {
             detail: {
                 value: val ? val : null
             },
-            bubbles: true,
-            composed: true
+            // bubbles: true,
+            // composed: true
         });
         this.dispatchEvent(event);
     }
@@ -157,27 +166,32 @@ export default class SelectFieldFilter extends LitElement {
                         ?disabled=${this.disabled}
                         ?required=${this.required}
                         data-live-search=${this.liveSearch ? "true" : "false"}
-                        title="${this.placeholder ?? this.multiple ? "Select option(s)" : "Select an option"}"
+                        title="${this.placeholder ?? (this.multiple ? "Select option(s)" : "Select an option")}"
                         data-max-options="${!this.multiple ? 1 : this.maxOptions ? this.maxOptions : false}" 
-                        @change="${this.filterChange}" data-width="100%">
+                        @change="${this.filterChange}" data-width="100%" data-style="btn-default ${this.classes}">
                     ${this.data?.map(opt => html`
-                        ${opt.separator ? html`<option data-divider="true"></option>` : html`
-                            ${opt.fields ? html`
-                                <optgroup label="${opt.id ?? opt.name}">${opt.fields.map(subopt => html`
-                                    ${UtilsNew.isObject(subopt) ? html`
-                                        <option ?disabled="${subopt.disabled}" ?selected="${subopt.selected}" .value="${subopt.id ?? subopt.name}">${subopt.name}</option>    
-                                    ` : html`
-                                        <option>${subopt}</option>
-                                    `}
-                                    `)}
-                                </optgroup>
-                                ` : html` 
-                                    ${UtilsNew.isObject(opt) ? html`
-                                        <option ?disabled="${opt.disabled}" ?selected="${opt.selected}" .value="${opt.id ?? opt.name}">${opt.name ?? opt.id}</option>
-                                    ` : html`
-                                        <option>${opt}</option>
+                        ${opt?.separator ?
+                            html`<option data-divider="true"></option>` :
+                            html`
+                                ${opt.fields ?
+                                    html`
+                                        <optgroup label="${opt.id ?? opt.name}">${opt.fields.map(subopt => html`
+                                            ${UtilsNew.isObject(subopt) ?
+                                                html`
+                                                    <option ?disabled="${subopt.disabled}" ?selected="${subopt.selected}" .value="${subopt.id ?? subopt.name}">${subopt.name}</option>` :
+                                                html`
+                                                    <option>${subopt}</option>
+                                                `}
+                                            `)}
+                                        </optgroup>` :
+                                    html` 
+                                        ${UtilsNew.isObject(opt) ?
+                                            html`
+                                                <option ?disabled="${opt.disabled}" ?selected="${opt.selected}" .value="${opt.id ?? opt.name}">${opt.name ?? opt.id}</option>` :
+                                            html`
+                                                <option>${opt}</option>
+                                        `}
                                 `}
-                            `}
                         `}
                     `)}
                 </select>

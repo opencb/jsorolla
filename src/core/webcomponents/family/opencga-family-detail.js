@@ -17,6 +17,7 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
 import "./opencga-family-view.js";
+import "./../commons/view/detail-tabs.js";
 
 export default class OpencgaFamilyDetail extends LitElement {
 
@@ -69,9 +70,10 @@ export default class OpencgaFamilyDetail extends LitElement {
     familyIdObserver() {
         if (this.opencgaSession) {
             if (this.familyId) {
-                this.opencgaSession.opencgaClient.family().info(this.familyId, {study: this.opencgaSession.study.fqn})
+                this.opencgaSession.opencgaClient.families().info(this.familyId, {study: this.opencgaSession.study.fqn})
                     .then(restResponse => {
                         this.family = restResponse.getResult(0);
+                        this.requestUpdate();
                     })
                     .catch(restResponse => {
                         console.error(restResponse);

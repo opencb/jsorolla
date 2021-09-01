@@ -16,8 +16,14 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
-import "../commons/filters/opencga-date-filter.js";
+import "../commons/filters/date-filter.js";
 import "../commons/filters/clinical-analysis-id-autocomplete.js";
+import "../commons/filters/proband-id-autocomplete.js";
+import "../commons/filters/clinical-priority-filter.js";
+import "../commons/filters/clinical-status-filter.js";
+import "../commons/filters/family-id-autocomplete.js";
+import "../commons/filters/sample-id-autocomplete.js";
+
 
 export default class OpencgaClinicalAnalysisFilter extends LitElement {
 
@@ -124,17 +130,26 @@ export default class OpencgaClinicalAnalysisFilter extends LitElement {
             case "id":
                 content = html`<clinical-analysis-id-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></clinical-analysis-id-autocomplete>`;
                 break;
-            case "family":
             case "proband":
-            case "samples":
-                content = html`<text-field-filter placeholder="${subsection.placeholder}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></text-field-filter>`;
+                content = html`<proband-id-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></proband-id-autocomplete>`;
+                break;
+            case "family":
+                content = html`<family-id-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></family-id-autocomplete>`;
+                break;
+            case "sample":
+                content = html`<sample-id-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></sample-id-autocomplete>`;
                 break;
             case "priority":
+                content = html`<clinical-priority-filter .priorities="${Object.values(this.opencgaSession.study.configuration?.clinical?.priorities)}" .priority="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></clinical-priority-filter>`;
+                break;
+            case "status":
+                content = html`<clinical-status-filter .statuses="${this.opencgaSession.study.configuration?.clinical?.status}" .status="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></clinical-status-filter>`;
+                break;
             case "type":
                 content = html`<select-field-filter ?multiple="${subsection.multiple}" .data="${subsection.allowedValues}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></select-field-filter>`;
                 break;
             case "date":
-                content = html`<opencga-date-filter .creationDate="${this.preparedQuery.creationDate}" @filterChange="${e => this.onFilterChange("creationDate", e.detail.value)}"></opencga-date-filter>`;
+                content = html`<date-filter .creationDate="${this.preparedQuery.creationDate}" @filterChange="${e => this.onFilterChange("creationDate", e.detail.value)}"></date-filter>`;
                 break;
             default:
                 console.error("Filter component not found");
@@ -147,9 +162,9 @@ export default class OpencgaClinicalAnalysisFilter extends LitElement {
                                     <a tooltip-title="${subsection.name}" tooltip-text="${subsection.description}"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
                                 </div>` : null }
                         </div>
-                        <div id="${this._prefix}${subsection.id}" class="subsection-content">
+                        <div id="${this._prefix}${subsection.id}" class="subsection-content" data-cy="${subsection.id}">
                             ${content}
-                         </div>
+                        </div>
                     </div>
                 `;
     }
@@ -166,7 +181,7 @@ export default class OpencgaClinicalAnalysisFilter extends LitElement {
 
         <div class="panel-group" id="${this._prefix}Accordion" role="tablist" aria-multiselectable="true">
             <div class="">
-                ${this.config.sections && this.config.sections.length ? this.config.sections.map( section => this._createSection(section)) : html`No filter has been configured.`}
+                ${this.config.sections && this.config.sections.length ? this.config.sections.map(section => this._createSection(section)) : html`No filter has been configured.`}
             </div>
         </div>
         `;

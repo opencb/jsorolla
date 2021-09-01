@@ -18,7 +18,7 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../utilsNew.js";
 
 
-export default class TextFieldFilter extends LitElement {
+export default class NumberFieldFilter extends LitElement {
 
     constructor() {
         super();
@@ -33,7 +33,10 @@ export default class TextFieldFilter extends LitElement {
 
     static get properties() {
         return {
-            key: {
+            type: {
+                type: String
+            },
+            config: {
                 type: String
             },
             value: {
@@ -58,7 +61,8 @@ export default class TextFieldFilter extends LitElement {
     }
 
     _init() {
-        this._prefix = "tff-" + UtilsNew.randomString(6);
+        this._prefix = UtilsNew.randomString(8);
+
         this.state = {
             comparator: "<"
         };
@@ -66,13 +70,14 @@ export default class TextFieldFilter extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
+
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
     updated(changedProperties) {
         if (changedProperties.has("value")) {
-            if(this.value) {
-                const [, comparator, value] = this.value.match(/(<=?|>=?)(-?\d+[.]?[\d+]?)/);
+            if (this.value) {
+                const [, comparator, value] = this.value.match(/(<=?|>=?|=)(-?\d*\.?\d+)/);
                 this.state = {comparator, value};
             } else {
                 this.state = {
@@ -88,53 +93,52 @@ export default class TextFieldFilter extends LitElement {
         e.stopPropagation();
         let field = e.target.dataset.field;
         this.state[field] = e.target.value;
-        //console.log("filterChange", this.state.value ? (this.key + (this.state.comparator ?? "") + this.state.value) : null)
-
         const event = new CustomEvent("filterChange", {
             detail: {
-                value: this.state.value ? (this.key + (this.state.comparator ?? "") + this.state.value) : null
+                comparator: this.state.comparator,
+                numValue: this.state.value,
+                value: this.state.value ? (this.state.comparator ?? "") + this.state.value : null
             },
-            bubbles: true,
-            composed: true
+            //bubbles: true,
+            //composed: true
         });
         this.dispatchEvent(event);
     }
 
     getDefaultConfig() {
         return {
-            layout: [4, 4, 4], // in case the label is not needed the expected value of the first element is 0
+            layout: [3, 4, 5], // in case the label is not needed the expected value of the first element is 0
             comparator: true,
-            values: [">", ">=", "<", "<="]
+            values: ["=", "<", "<=", ">", ">="]
         };
     }
 
     render() {
         return html`
-            <style>
-                .number-field-filter {
-                    margin: 5px 0px;
-                }              
-                
-                .number-field-filter > div:not(:first-child) {
-                    padding: 0px 10px
-                }
-            </style>
-            <div class="number-field-filter form-group">
-                ${this.label ? html`<div class="col-md-${this._config.layout[0]} control-label" data-toggle="tooltip" data-placement="top" title="${this.label}">${this.label}</div>` : null}
+            <div class="number-field-filter form-group" data-cy="number-field-filter-wrapper-${this.label ?? ""}">
+                ${this.label ? html`<div class="col-md-${this._config.layout[0]} control-label" data-toggle="tooltip" data-placement="top" title="${this.label}">
+                        ${this.label}
+                    </div>` : null}
                 ${this._config.comparator ? html`<div class="col-md-${this._config.layout[1]}">
                     <select id="${this._prefix}Comparator" name="${this._prefix}Comparator"
                             class="form-control input-sm ${this._prefix}FilterSelect"
                             @change="${this.filterChange}" data-field="comparator">
+                        <option .selected="${this.state.comparator === "="}" value="=">=</option>
                         <option .selected="${this.state.comparator === "<"}" value="<">&lt;</option>
                         <option .selected="${this.state.comparator === "<="}" value="<=">&le;</option>
-                        <option .selected="${this.state.comparator === ">="}" value=">">&gt;</option>
+                        <option .selected="${this.state.comparator === ">"}" value=">">&gt;</option>
                         <option .selected="${this.state.comparator === ">="}" value=">=">&ge;</option>
                     </select>
                 </div>` : null}
                 <div class="col-md-${this._config.layout[2]}">
-                    <input type="number" data-field="value" .min="${this.min ?? false}" .max="${this.max ?? false}" .step="${this.step ?? false}"
-                           class="form-control input-sm ${this._prefix}FilterTextInput"
-                           name="${this.key}" value="${this.state.value}" @input="${this.filterChange}">
+                    <input  type="${this.type ?? "number"}"
+                            class="form-control input-sm ${this._prefix}FilterTextInput"
+                            data-field="value"
+                            .min="${this.min ?? false}"
+                            .max="${this.max ?? false}"
+                            .step="${this.step ?? false}"
+                            .value="${this.state.value ?? ""}"
+                            @input="${this.filterChange}">
                 </div>
             </div>
         `;
@@ -142,4 +146,4 @@ export default class TextFieldFilter extends LitElement {
 
 }
 
-customElements.define("number-field-filter", TextFieldFilter);
+customElements.define("number-field-filter", NumberFieldFilter);

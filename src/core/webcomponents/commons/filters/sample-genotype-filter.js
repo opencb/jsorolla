@@ -32,17 +32,14 @@ export default class SampleGenotypeFilter extends LitElement {
 
     static get properties() {
         return {
-            opencgaSession: {
-                type: Object
+            sample: {
+                type: String
             },
             genotypes: {
                 type: Array
             },
             sampleId: {
                 type: String
-            },
-            sample: {
-                type: Object
             },
             config: {
                 type: Object
@@ -53,27 +50,63 @@ export default class SampleGenotypeFilter extends LitElement {
     _init() {
         this._prefix = UtilsNew.randomString(8);
 
-        this.genotypes = ["any"];
         this._config = this.getDefaultConfig();
     }
 
+    update(changedProperties) {
+        if (changedProperties.has("sample") && this.sample) {
+            let keyValue = this.sample.split(":");
+            if (keyValue.length === 2) {
+                this.sampleId = keyValue[0];
+                this.genotypes = keyValue[1].split(",");
+            } else {
+                // No genotypes provided
+                this.sampleId = keyValue[0];
+                this.genotypes = ["0/1", "1/1", "NA"];
+            }
+        }
+
+        if (changedProperties.has("config")) {
+            this._config = {...this.getDefaultConfig(), ...this.config};
+        }
+
+        super.update(changedProperties)
+    }
+
+    filterChange(e) {
+        //select-field-filter already emits a bubbled filterChange event.
+
+        // Prepare sample query filter
+        let sampleFilter = this.sampleId;
+        if (e.detail.value) {
+            sampleFilter += ":" + e.detail.value;
+        }
+
+        const event = new CustomEvent("filterChange", {
+            detail: {
+                value: sampleFilter
+            },
+            bubbles: true,
+            composed: true
+        });
+        this.dispatchEvent(event);
+    }
+
     getDefaultConfig() {
+        // HOM_REF, HOM_ALT, HET, HET_REF, HET_ALT and MISS e.g. HG0097:HOM_REF;HG0098:HET_REF,HOM_ALT . 3)
         return {
             genotypes: [
                 {
-                    id: "any", name: "Any"
+                    id: "0/1", name: "HET"
+                },
+                {
+                    id: "1/1", name: "HOM ALT"
                 },
                 {
                     separator: true
                 },
                 {
-                    id: "0/1", name: "0/1"
-                },
-                {
-                    id: "1/1", name: "1/1"
-                },
-                {
-                    separator: true
+                    id: "./.", name: "Missing"
                 },
                 {
                     id: "NA", name: "NA"
@@ -82,27 +115,15 @@ export default class SampleGenotypeFilter extends LitElement {
         };
     }
 
-    filterChange(e) {
-        //select-field-filter already emits a bubbled filterChange event.
-        let genotypes = e.detail?.value?.split(",");
-        if (genotypes) {
-            let sampleId = this.sample ? this.sample.id : this.sampleId;
-            let sampleGenotypes = genotypes.filter(e => e !== "any").join(",");
-            const event = new CustomEvent("filterChange", {
-                detail: {
-                    value: `${sampleId}=${sampleGenotypes}`
-                },
-                bubbles: true,
-                composed: true
-            });
-            this.dispatchEvent(event);
-        }
-        debugger
-    }
-
     render() {
         return html`
-            <select-field-filter multiple .data="${this._config.genotypes}" .value=${this.genotypes} .multiple="true" @filterChange="${this.filterChange}"></select-field-filter>
+            <select-field-filter
+                    multiple
+                    .data="${this._config.genotypes}"
+                    .value=${this.genotypes}
+                    .multiple="true"
+                    @filterChange="${this.filterChange}">
+            </select-field-filter>
         `;
     }
 

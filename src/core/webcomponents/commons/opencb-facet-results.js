@@ -15,10 +15,12 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
+import {RestResponse} from "../../clients/rest-response.js";
 import UtilsNew from "../../utilsNew.js";
+import {NotificationQueue} from "../Notification.js";
 import PolymerUtils from "../PolymerUtils.js";
+import "./opencga-facet-result-view.js";
 import "../loading-spinner.js";
-
 
 class OpencbFacetResults extends LitElement {
 
@@ -87,7 +89,6 @@ class OpencbFacetResults extends LitElement {
             this.queryObserver();
         }
         if (changedProperties.has("query")) {
-            console.log("facet query changed", this.query)
             this.queryObserver();
         }
         if (changedProperties.has("config")) {
@@ -99,26 +100,34 @@ class OpencbFacetResults extends LitElement {
         }
     }
 
-    queryObserver() {
+    async queryObserver() {
         // executedQuery in opencga-variant-browser has changed so, if requested,  we have to repeat the facet query
         this.facetResults = [];
-        this.requestUpdate();
+        await this.requestUpdate();
         if (this.query) {
             this.loading = true;
             this.errorState = false;
-            this.requestUpdate();
+            await this.requestUpdate();
             this.endpoint(this.resource).aggregationStats(this.query, {})
                 .then(restResponse => {
                     this.errorState = false;
                     this.facetResults = restResponse.getResults() || [];
                 })
-                .catch(restResponse => {
-                    if (restResponse.getEvents("ERROR").length) {
-                        console.log(restResponse.getEvents("ERROR"))
-                        this.errorState = restResponse.getEvents("ERROR").map(error => error.message).join("<br>");
+                .catch(response => {
+                    if (response instanceof RestResponse) {
+                        if (response.getEvents?.("ERROR")?.length) {
+                            this.errorState = response.getEvents("ERROR");
+                            this.errorState.forEach(error => new NotificationQueue().push(error.name, error.message, "ERROR"));
+                        } else {
+                            this.errorState = [{name: "Generic Server Error", message: JSON.stringify(response)}];
+                            new NotificationQueue().push(this.errorState[0].name, this.errorState[0].message, "error");
+                        }
+                    } else if (response instanceof Error) {
+                        this.errorState = [{name: response.name, message: response.message}];
+                        new NotificationQueue().push(this.errorState[0].name, this.errorState[0].message, "error");
                     } else {
-                        console.log("Unknown error");
-                        this.errorState = "Unknown Server Error";
+                        this.errorState = [{name: "Generic Error", message: JSON.JSON.stringify(response)}];
+                        new NotificationQueue().push(this.errorState[0].name, this.errorState[0].message, "error");
                     }
                 })
                 .finally(() => {
@@ -201,12 +210,21 @@ class OpencbFacetResults extends LitElement {
                     <loading-spinner></loading-spinner>
                 </div>
             ` : null }
-            ${this.errorState ? html`
+            ${this.errorState?.length ? html`
                 <div id="error" class="alert alert-danger" role="alert">
-                    ${this.errorState}
+                    ${this.errorState.map(error => html`<p><strong>${error.name}</strong></p><p>${error.message}</p>`)}
                 </div>
             ` : null}
-            ${this.facetResults.length ? this.facetResults.map(item => html`
+
+            ${this.facetResults.length ? this.facetResults.map(item => item.aggregationName && item.aggregationValues ? html`
+                <div>
+                    <h3>${item.name}</h3>
+                    <div class="facet-result-single-value">
+                        <span class="aggregation-name">${item.aggregationName}</span>
+                        <span class="aggregation-values">${item.aggregationValues}</span>
+                    </div>
+                </div>
+            ` : html`
                 <div>
                     <h3>${item.name}</h3>
                     <opencga-facet-result-view .facetResult="${item}"
@@ -214,8 +232,13 @@ class OpencbFacetResults extends LitElement {
                             ?active="${this.facetActive}">
                     </opencga-facet-result-view>
                 </div>
-            `) : !this.loading ? html`<div class="alert alert-info" role="alert"><i class="fas fa-3x fa-info-circle align-middle"></i> Please select the aggregation fields in the Aggregation Tab on the left.</div>` : null  
-            }
+            `) : null}
+
+            ${!this.facetResults.length && !this.loading && !this.errorState ?
+                !this.query ? html`
+                    <div class="alert alert-info" role="alert"><i class="fas fa-3x fa-info-circle align-middle"></i> Please select the aggregation fields in the Aggregation Tab on the left and then click on <b>Search</b> button.</div>` : html`
+                    <div class="alert alert-warning" role="alert"><i class="fas fa-3x fa-exclamation-circle align-middle"></i> Empty results</div>
+            ` : null}
         </div>
     `;
     }

@@ -280,10 +280,10 @@ export default class LoadingSpinner extends LitElement {
                 animation-delay: -18.69s;
                 background-color: #4d68ec;
             }
-        
+
             @-webkit-keyframes animBefore {
                 0% {
-                    top: -6vh;
+                    top: -60vh;
                     z-index: 1;
                 }
                 25% {
@@ -306,10 +306,10 @@ export default class LoadingSpinner extends LitElement {
                     z-index: -1;
                 }
             }
-        
+
             @keyframes animBefore {
                 0% {
-                    top: -6vh;
+                    top: -60px;
                     z-index: 1;
                 }
                 25% {
@@ -318,7 +318,7 @@ export default class LoadingSpinner extends LitElement {
                     z-index: 1;
                 }
                 50% {
-                    top: 6vh;
+                    top: 60px;
                     z-index: -1;
                 }
                 75% {
@@ -328,11 +328,11 @@ export default class LoadingSpinner extends LitElement {
                     z-index: -1;
                 }
                 100% {
-                    top: -6vh;
+                    top: -60px;
                     z-index: -1;
                 }
             }
-        
+
             @-webkit-keyframes animAfter {
                 0% {
                     top: 6vh;
@@ -358,10 +358,10 @@ export default class LoadingSpinner extends LitElement {
                     z-index: 1;
                 }
             }
-        
+
             @keyframes animAfter {
                 0% {
-                    top: 6vh;
+                    top: 60px;
                     z-index: -1;
                 }
                 25% {
@@ -371,7 +371,7 @@ export default class LoadingSpinner extends LitElement {
                     z-index: -1;
                 }
                 50% {
-                    top: -6vh;
+                    top: -60px;
                     z-index: 1;
                 }
                 75% {
@@ -380,87 +380,25 @@ export default class LoadingSpinner extends LitElement {
                     z-index: 1;
                 }
                 100% {
-                    top: 6vh;
+                    top: 60px;
                     z-index: 1;
                 }
             }
-        
-            @-webkit-keyframes animDotBar {
-                0% {
-                    height: 8.25vh;
-                }
-                25% {
-                    height: 0;
-                }
-                50% {
-                    height: 8.25vh;
-                }
-                75% {
-                    height: 0;
-                }
-                100% {
-                    height: 8.25vh;
-                }
-            }
-        
-            @keyframes animDotBar {
-                0% {
-                    height: 8.25vh;
-                }
-                25% {
-                    height: 0;
-                }
-                50% {
-                    height: 8.25vh;
-                }
-                75% {
-                    height: 0;
-                }
-                100% {
-                    height: 8.25vh;
-                }
-            }
-        
-            @-webkit-keyframes superscript {
-                0% {
-                    opacity: 0;
-                    -webkit-transform: translateY(-1em);
-                    transform: translateY(-1em);
-                }
-                100% {
-                    opacity: 1;
-                    -webkit-transform: translateY(0em);
-                    transform: translateY(0em);
-                }
-            }
-        
-            @keyframes superscript {
-                0% {
-                    opacity: 0;
-                    -webkit-transform: translateY(-1em);
-                    transform: translateY(-1em);
-                }
-                100% {
-                    opacity: 1;
-                    -webkit-transform: translateY(0em);
-                    transform: translateY(0em);
-                }
-            }
-        
+
             .loading-spinner-wrapper .loading-text {
-                font-size: 19px;
+                font-size: 19px !important; /* Bootstrap Table forces font-size: 32px on .loading-text for some reason */
                 font-variant: all-small-caps;
                 letter-spacing: .3em;
-                margin: 20px 0 0 20px;
+                margin: 25px 0 0 20px;
                 text-align: left;
             }
-            
+
             .loading-spinner-wrapper .description {
                 font-size: 17px;
                 font-variant: all-small-caps;
                 letter-spacing: .3em;
             }
-            
+
             .loading-text-wrapper {
                 width: 140px;
                 margin: 0 auto;

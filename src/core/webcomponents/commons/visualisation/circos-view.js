@@ -79,11 +79,12 @@ export default class CircosView extends LitElement {
         this.requestUpdate();
 
         let query = {
-            title: "Circos",
-            density: "LOW",
+            title: "no.delete.Circos",
+            density: "MEDIUM",
             query: {
                 sample: this.sampleId,
-                ...this.query
+                // ...this.query,
+                // filter: "PASS"
             },
             tracks: [
                 {
@@ -94,7 +95,7 @@ export default class CircosView extends LitElement {
                         sample: this.sampleId,
                         type: "SNV",
                         // filter: "PASS",
-                        ...this.queries["SNV"]
+                        ...this.queries?.["SNV"]
                     }
                 },
                 {
@@ -103,25 +104,38 @@ export default class CircosView extends LitElement {
                     query: {
                         study: this.opencgaSession.study.fqn,
                         sample: this.sampleId,
-                        type: "INDEL",
-                        filter: "PASS",
-                        ...this.queries["INDEL"]
+                        type: "INDEL,INSERTION,DELETION",
+                        // filter: "PASS",
+                        ...this.queries?.["INDEL"]
+                        // fileData: "AR2.10039966-01T_vs_AR2.10039966-01G.annot.pindel.vcf.gz:FILTER=PASS"
                     }
                 },
                 {
                     id: "cnv1",
-                    type: "COPY-NUMBER"
+                    type: "COPY-NUMBER",
+                    query: {
+                        study: this.opencgaSession.study.fqn,
+                        sample: this.sampleId,
+                        type: "INSERTION",
+                    }
                 },
                 {
                     id: "rearr1",
-                    type: "REARRANGEMENT"
+                    type: "REARRANGEMENT",
+                    query: {
+                        study: this.opencgaSession.study.fqn,
+                        sample: this.sampleId,
+                        // type: "DELETION",
+                        // file: "AR2.10039966-01T_vs_AR2.10039966-01G.annot.brass.vcf.gz"
+                        fileData: "AR2.10039966-01T_vs_AR2.10039966-01G.annot.brass.vcf.gz:BAS>=0"
+                    }
                 }
             ]
         }
-        debugger
 
         this.opencgaSession.opencgaClient.variants().runCircos(query, {study: this.opencgaSession.study.fqn})
             .then( restResult => {
+                debugger
                 document.getElementById(this._prefix + "CircosMessage").style["display"] = "none";
                 this.circosImage = "data:image/png;base64, " + restResult.getResult(0);
             })

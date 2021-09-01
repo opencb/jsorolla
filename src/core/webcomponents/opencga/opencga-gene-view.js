@@ -17,9 +17,9 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
 import PolymerUtils from "../PolymerUtils.js";
-import "../variant/opencga-variant-grid.js";
+import "../variant/variant-browser-grid.js";
 import "../variant/variant-protein-view.js";
-import "../variant/opencga-variant-detail-view.js";
+import "../variant/variant-browser-detail.js";
 
 
 export default class OpencgaGeneView extends LitElement {
@@ -281,7 +281,7 @@ export default class OpencgaGeneView extends LitElement {
             
                             <!--<br>-->
                             <br>
-                            <opencga-variant-grid .opencgaSession="${this.opencgaSession}"
+                            <variant-browser-grid .opencgaSession="${this.opencgaSession}"
                                                   .query="${this.query}"
                                                   .populationFrequencies="${this.populationFrequencies}"
                                                   .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
@@ -289,7 +289,7 @@ export default class OpencgaGeneView extends LitElement {
                                                   .summary="${this.summary}"
                                                   .config="${this.config}"
                                                   @selectrow="${this.onSelectVariant}">
-                            </opencga-variant-grid>
+                            </variant-browser-grid>
             
                             ${this.checkVariant(this.variantId) ? html`
                                 <!-- Bottom tabs with specific variant information -->

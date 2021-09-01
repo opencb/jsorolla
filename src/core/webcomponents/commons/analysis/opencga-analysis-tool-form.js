@@ -37,6 +37,9 @@ export default class OpencgaAnalysisToolForm extends LitElement {
             opencgaSession: {
                 type: Object
             },
+            cellbaseClient: {
+                type: Object
+            },
             config: {
                 type: Object
             }
@@ -61,7 +64,7 @@ export default class OpencgaAnalysisToolForm extends LitElement {
 
         // This should be executed on change of each field (or better just on actuator param change)
         if (this.config.sections && this.config.sections.length) {
-            this.config.sections.forEach( section => {
+            this.config.sections.forEach(section => {
                 if (section.parameters && section.parameters.length) {
                     section.parameters.forEach(param => {
                         param.value = param.defaultValue; // TODO change defaultValue to value in config?
@@ -87,7 +90,7 @@ export default class OpencgaAnalysisToolForm extends LitElement {
                 // handle the invalid form...
             } else {
                 // everything looks good!
-                const params = this.config.sections.reduce( (acc, curr) => [...acc, ...curr.parameters], []);
+                const params = this.config.sections.reduce((acc, curr) => [...acc, ...curr.parameters], []);
                 console.log(params);
             }
         });
@@ -95,37 +98,13 @@ export default class OpencgaAnalysisToolForm extends LitElement {
 
     }
 
-    updated(changedProperties) {
+    async updated(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
-            this.params["study"] = this.opencgaSession.study.fqn;
-            // // Check logged user is the study owner
-            // let loggedUser = this.opencgaSession.user.id;
-            // // Check if user is the Study owner
-            // let _studyOwner = this.opencgaSession.study.fqn.split("@")[0];
-            // if (this.opencgaSession.user.id === _studyOwner) {
-            //     this.runnable = true;
-            // } else {
-            //     // Check if user is a Study admin, belongs to @admins group
-            //     let admins = this.opencgaSession.study.groups.find(group => group.id === "@admins");
-            //     if (admins.userIds.includes(loggedUser)) {
-            //         this.runnable = true;
-            //     } else {
-            //         // Check if user is in acl
-            //         let aclIds = this.opencgaSession.study.groups
-            //             .filter(group => group.userIds.includes(loggedUser))
-            //             .map(group => group.id);
-            //         aclIds.push(loggedUser);
-            //         for (let aclId of aclIds) {
-            //             if (this.opencgaSession.study?.acl?.[aclId]?.includes("EXECUTE_JOBS")) {
-            //                 this.runnable = true;
-            //                 break;
-            //             }
-            //         }
-            //         // this.runnable = this.opencgaSession.study.acl.includes("EXECUTE_JOBS")
-            //     }
-            // }
-            this.runnable = OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "EXECUTE_JOBS")
-            this.requestUpdate();
+            this.params.study = this.opencgaSession.study.fqn;
+            this.runnable = OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "EXECUTE_JOBS");
+            await this.requestUpdate();
+            // await this.updateComplete;
+            UtilsNew.initTooltip(this);
         }
     }
 
@@ -144,7 +123,7 @@ export default class OpencgaAnalysisToolForm extends LitElement {
     }
 
     _operatorExec(a, b, operator) {
-        switch(operator) {
+        switch (operator) {
             case "==":
             case "===":
                 return a === b;
@@ -190,11 +169,11 @@ export default class OpencgaAnalysisToolForm extends LitElement {
                     }
                 });
             }
-            this.config.sections = $.extend(true, [], this.config.sections); // god save the queen
-            this.requestUpdate();
         } else {
             delete this.data[e.detail.param];
         }
+        this.config.sections = $.extend(true, [], this.config.sections); // god save the queen
+        this.requestUpdate();
     }
 
     // This function fills job 'params' which contains study, jobId, jobTags and jobDescription. This is common for all OpenCGA Analysis.
@@ -239,7 +218,7 @@ export default class OpencgaAnalysisToolForm extends LitElement {
                     </pre>
                 -->
                 <form id="${this._prefix}analysis-form" data-toggle="validator" data-feedback='{"success": "fa-check", "error": "fa-times"}' role="form">
-                    ${this.config.sections.map( (section, i) => html`
+                    ${this.config.sections.map((section, i) => html`
                          <div class="panel panel-default shadow-sm">
                              <div class="panel-heading" role="tab" id="${this._prefix}Heading${i}">
                                  <h4 class="panel-title">
@@ -252,8 +231,8 @@ export default class OpencgaAnalysisToolForm extends LitElement {
                              <div id="${this._prefix}section-${i}" class="panel-collapse ${!section.collapsed ? "in" : ""}" role="tabpanel" aria-labelledby="${this._prefix}${i}Heading">
                                  <div class="panel-body">
                                      <div class="row">
-                                         ${section.parameters && section.parameters.length ? section.parameters.map( param => html`
-                                             <opencga-analysis-tool-form-field .opencgaSession="${this.opencgaSession}" .config="${param}" @fieldChange="${this.onFieldChange}"> </opencga-analysis-tool-form-field>
+                                         ${section.parameters && section.parameters.length ? section.parameters.map(param => html`
+                                             <opencga-analysis-tool-form-field .opencgaSession="${this.opencgaSession}" .cellbaseClient=${this.cellbaseClient} .config="${param}" @fieldChange="${this.onFieldChange}"> </opencga-analysis-tool-form-field>
                                          `) : null }
                                      </div>
                                  </div>
@@ -262,40 +241,41 @@ export default class OpencgaAnalysisToolForm extends LitElement {
                     `)}
                     
                     <!-- Job Info section -->
-                    <div class="panel panel-default shadow-sm">
-                        <div class="panel-heading" role="tab" id="${this._prefix}HeadingJob">
-                            <h4 class="panel-title">
-                                <a class="collapsed" role="button" data-toggle="collapse" data-parent="#${this._prefix}Accordion"
-                                        href="#${this._prefix}section-job" aria-expanded="true">
-                                    ${this.config.job.title}
-                                </a>
-                            </h4>
-                        </div>
-                        <div id="${this._prefix}section-job" class="panel-collapse" role="tabpanel">
-                            <div class="panel-body">
-                                <div class="row">
-                                    <div style="padding: 4px 20px; width: 480px">
-                                        <label>Job ID</label>
-                                        <text-field-filter placeholder="job ID" .value="${this.jobId}" @filterChange="${e => this.onJobFieldChange("jobId", e.detail.value)}"></text-field-filter>
-                                    </div>
-                                    <div style="padding: 4px 20px; width: 480px">
-                                        <label>Job tags</label>
-                                        <text-field-filter placeholder="Comma-separated tags, eg. variant, stats, ... " .value="" @filterChange="${e => this.onJobFieldChange("jobTags", e.detail.value)}"></text-field-filter>
-                                    </div>
-                                    <div style="padding: 4px 20px; width: 480px">
-                                        <label>Job Description</label>
-                                        <text-field-filter placeholder="job description" .value="" @filterChange="${e => this.onJobFieldChange("jobDescription", e.detail.value)}"></text-field-filter>
+                    ${(this.config.job.visible ?? true) ? html`
+                        <div class="panel panel-default shadow-sm">
+                            <div class="panel-heading" role="tab" id="${this._prefix}HeadingJob">
+                                <h4 class="panel-title">
+                                    <a class="collapsed" role="button" data-toggle="collapse" data-parent="#${this._prefix}Accordion"
+                                            href="#${this._prefix}section-job" aria-expanded="true">
+                                        ${this.config.job.title}
+                                    </a>
+                                </h4>
+                            </div>
+                            <div id="${this._prefix}section-job" class="panel-collapse" role="tabpanel">
+                                <div class="panel-body">
+                                    <div class="row">
+                                        <div style="padding: 4px 20px; width: 480px">
+                                            <label>Job ID</label>
+                                            <text-field-filter placeholder="job ID" .value="${this.jobId}" @filterChange="${e => this.onJobFieldChange("jobId", e.detail.value)}"></text-field-filter>
+                                        </div>
+                                        <div style="padding: 4px 20px; width: 480px">
+                                            <label>Job tags</label>
+                                            <text-field-filter placeholder="Comma-separated tags, eg. variant, stats, ... " .value="" @filterChange="${e => this.onJobFieldChange("jobTags", e.detail.value)}"></text-field-filter>
+                                        </div>
+                                        <div style="padding: 4px 20px; width: 480px">
+                                            <label>Job Description</label>
+                                            <text-field-filter placeholder="job description" .value="" @filterChange="${e => this.onJobFieldChange("jobDescription", e.detail.value)}"></text-field-filter>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                        
+                    ` : null}
                     <div class="pull-right button-wrapper">
-                        ${this.runnable 
-                            ? html`
-                                <button type="button" class="ripple btn btn-primary btn-lg" @click="${this.onRun}">Run</button>` 
-                            : html`
+                        ${this.runnable ?
+                            html`
+                                <button type="button" class="ripple btn btn-primary btn-lg" @click="${this.onRun}">Run</button>` :
+                            html`
                                 <a tooltip-title="Permission denied" tooltip-text="EXECUTE_JOB permission not available">
                                     <i class="fas fa-exclamation-circle text-danger"></i>
                                 </a>

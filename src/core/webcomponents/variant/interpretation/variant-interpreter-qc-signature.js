@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../utilsNew.js";
-import "../../samples/sample-qc-signature-view.js";
+import "../../sample/sample-qc-signature-view.js";
 
 class VariantInterpreterQcSignature extends LitElement {
 
@@ -90,7 +90,7 @@ class VariantInterpreterQcSignature extends LitElement {
         if (this.clinicalAnalysis) {
             this.somaticSample = this.clinicalAnalysis.proband.samples.find(s => s.somatic);
             // if (somaticSample) {
-            //     this.signature = somaticSample.qualityControl?.metrics[0]?.signatures[0];
+            //     this.signature = somaticSample.qualityControl?.variantMetrics?.signatures[0];
             // }
         }
         this.requestUpdate();

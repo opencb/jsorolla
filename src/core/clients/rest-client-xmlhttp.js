@@ -2,16 +2,27 @@ import {RestResponse} from "./rest-response.js";
 
 export class RestClientXmlhttp {
 
+    constructor() {
+        if (!RestClientXmlhttp.instance) {
+            RestClientXmlhttp.instance = this;
+            this.requests = {};
+        }
+        return RestClientXmlhttp.instance;
+    }
+
+    /**
+     * @deprecated
+     */
     static callXmlhttp(url, options) {
-        let method = options.method || "GET";
-        let async = options.async;
+        const method = options.method || "GET";
+        const async = options.async;
 
         let dataResponse = null;
         console.time("AJAX call to CellBase");
-        let request = new XMLHttpRequest();
-        request.onload = function(event) {
+        const request = new XMLHttpRequest();
+        request.onload = function (event) {
             console.log(`CellBaseClient: call to URL succeed: '${url}'`);
-            let contentType = this.getResponseHeader("Content-Type");
+            const contentType = this.getResponseHeader("Content-Type");
             if (contentType === "application/json") {
                 dataResponse = JSON.parse(this.response);
 
@@ -31,7 +42,7 @@ export class RestClientXmlhttp {
             }
         };
 
-        request.onerror = function(event) {
+        request.onerror = function (event) {
             // console.log(event)
             console.error(`CellBaseClient: an error occurred when calling to '${url}'`);
             if (typeof options.error === "function") {
@@ -39,7 +50,7 @@ export class RestClientXmlhttp {
             }
         };
 
-        request.ontimeout = function(event) {
+        request.ontimeout = function (event) {
             console.error(`CellBaseClient: a timeout occurred when calling to '${url}'`);
             if (typeof options.error === "function") {
                 options.error(this);
@@ -55,7 +66,7 @@ export class RestClientXmlhttp {
         return dataResponse;
     }
 
-    static call(url, options) {
+    call(url, options, key) {
         const eventFire = new CustomEvent("request", {
             detail: {
                 value: url
@@ -77,44 +88,62 @@ export class RestClientXmlhttp {
 
         let dataResponse = null;
         console.time(`REST call to ${url}`);
-
         // Creating the promise
-        return new Promise(function(resolve, reject) {
-            let request = new XMLHttpRequest();
+        return new Promise((resolve, reject) => {
 
-            request.onload = function(event) {
+            // let key = `${new Error().stack.split("\n    at ").slice(0,6).join("|")}`;
+            const request = new XMLHttpRequest();
+
+            // console.error("url", url);
+            if (this.requests[key]) {
+                // pending prev request
+                this.requests[key] = {...this.requests[key], pending: true};
+
+            } else {
+                // pending false as there is no prev request
+                this.requests[key] = {pending: false, request, url, key};
+            }
+            request.onload = event => {
+                // console.log("on load EVENT", event);
+                // console.log("on load URL", url);
+
+                // request is fulfilled
+                delete this.requests[key];
+
                 if (request.status === 200) {
-                    let contentType = this.getResponseHeader("Content-Type");
+
+                    const contentType = request.getResponseHeader("Content-Type") ?? ""; // empty string is useful in case contentType is undefined (empty response)
                     // indexOf() is used because sometimes the contentType is 'application/json;charset=utf-8'
                     if (contentType.indexOf("application/json")!== -1) {
-                        dataResponse = JSON.parse(this.response);
+                        dataResponse = JSON.parse(request.response);
 
                         if (typeof options !== "undefined" && typeof options.cacheFn === "function") {
                             options.cacheFn(dataResponse);
                         }
 
                         // If the call is OK then we execute the success function from the user
-                        if (typeof options !== "undefined" && typeof options.success === "function"
-                            && typeof options.cacheFn === "undefined") {
+                        if (typeof options !== "undefined" && typeof options.success === "function" &&
+                                typeof options.cacheFn === "undefined") {
                             options.success(dataResponse);
                         }
                         console.timeEnd(`REST call to ${url}`);
                         globalThis.dispatchEvent(eventDone);
-                        resolve( new RestResponse(dataResponse));
+
+                        resolve(new RestResponse(dataResponse));
                     } else if (contentType.startsWith("text/plain")) {
                         globalThis.dispatchEvent(eventDone);
-                        resolve(this.response);
+                        resolve(request.response);
 
                     } else if (contentType.startsWith("application/octet-stream")) {
                         globalThis.dispatchEvent(eventDone);
-                        resolve(this.response);
-                    }  else {
-                        console.log(`Result is not JSON: ${this.response}`);
+                        resolve(request.response);
+                    } else {
+                        console.error(`Response is not JSON: ${request.response}`);
                     }
                 } else {
                     console.error(`REST call to URL failed: '${url}'`);
                     globalThis.dispatchEvent(eventDone);
-                    if (this.getResponseHeader("Content-Type").indexOf("application/json") > -1) {
+                    if (request.getResponseHeader("Content-Type").indexOf("application/json") > -1) {
                         reject(new RestResponse(JSON.parse(request.response)));
                     } else {
                         reject(request.response);
@@ -123,7 +152,7 @@ export class RestClientXmlhttp {
                 }
             };
 
-            request.onerror = function(event) {
+            request.onerror = function (event) {
                 console.error(`CellBaseClient: an error occurred when calling to '${url}'`);
                 if (typeof options.error === "function") {
                     options.error(this);
@@ -131,14 +160,13 @@ export class RestClientXmlhttp {
                 reject(Error(`CellBaseClient: an error occurred when calling to '${url}'`));
             };
 
-            request.ontimeout = function(event) {
+            request.ontimeout = function (event) {
                 console.error(`CellBaseClient: a timeout occurred when calling to '${url}'`);
                 if (typeof options.error === "function") {
                     options.error(this);
                 }
             };
 
-            //console.log("CALL [method, url, options]", method, url, options)
             request.open(method, url, async);
             if (typeof options !== "undefined" && options.hasOwnProperty("token")) {
                 request.setRequestHeader("Authorization", `Bearer ${options["token"]}`);
@@ -146,16 +174,16 @@ export class RestClientXmlhttp {
             // request.timeout = options.timeout || 0;
             if (method === "POST" && options !== undefined && options.hasOwnProperty("data")) {
                 if (options.hasOwnProperty("post-method") && options["post-method"] === "form") {
-                    let myForm = new FormData();
-                    let keys = Object.keys(options.data);
+                    const myForm = new FormData();
+                    const keys = Object.keys(options.data);
 
-                    for (let i in keys) {
+                    for (const i in keys) {
                         myForm.append(keys[i], options.data[keys[i]]);
                     }
 
                     request.send(myForm);
                 } else {
-                    //request.setRequestHeader("Access-Control-Allow-Origin", "*");
+                    // request.setRequestHeader("Access-Control-Allow-Origin", "*");
                     // // request.setRequestHeader("Access-Control-Allow-Credentials", "true");
                     // request.setRequestHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
                     request.setRequestHeader("Content-type", "application/json");
@@ -167,7 +195,21 @@ export class RestClientXmlhttp {
                 request.send();
             } else {
                 request.send();
+
             }
+            if (this.requests[key]) {
+                // console.log("FULL LIST", Object.entries(this.requests))
+                // console.log("this.requests[key]", this.requests[key]);
+
+                if (this.requests[key].pending) {
+                    console.warn("aborting request", this.requests[key].url);
+                    this.requests[key].request.abort();
+                    delete this.requests[key];
+                } else {
+                    // not aborting
+                }
+            }
+
         });
     }
 

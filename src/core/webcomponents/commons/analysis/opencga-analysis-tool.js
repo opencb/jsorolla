@@ -37,6 +37,9 @@ export default class OpencgaAnalysisTool extends LitElement {
             opencgaSession: {
                 type: Object
             },
+            cellbaseClient: {
+                type: Object
+            },
             config: {
                 type: Object
             }
@@ -47,17 +50,33 @@ export default class OpencgaAnalysisTool extends LitElement {
         this._prefix = "oat-" + UtilsNew.randomString(6);
     }
 
-    updated(changedProperties) {
+    connectedCallback() {
+        super.connectedCallback();
+    }
 
+    updated(changedProperties) {
+        if (changedProperties.has("config")) {
+            this._config = {...this.config};
+            this.requestUpdate();
+        }
+    }
+
+    openModal(e) {
+        $(`#${this._prefix}analysis_description_modal`, this).modal("show");
     }
 
     onAnalysisRun(e) {
         // Execute function provided in the configuration
-        if (this.config.execute) {
-            this.config.execute(this.opencgaSession, e.detail.data, e.detail.params);
+        /*if (this.analysisClass.execute) {
+            this.analysisClass.execute(this.opencgaSession, e.detail.data, e.detail.params);
         } else {
-            console.error(`No execute() function provided for analysis: ${this.config.id}`)
-        }
+            console.error(`No execute() function provided for analysis: ${this._config.id}`)
+        }*/
+
+        //TODO NOTE onAnalysisRun at the moment just forwards the `analysisRun` event fired in opencga-analysis-tool-form
+        this.dispatchEvent(new CustomEvent("execute", {
+            detail: e.detail
+        }));
     }
 
     render() {
@@ -72,33 +91,46 @@ export default class OpencgaAnalysisTool extends LitElement {
         }
 
         // Check Analysis tool configuration
-        if (!this.config || !this.config.id || !this.config.form) {
+        if (!this._config || !this._config.id || !this._config.form) {
             return html`
                 <div class="guard-page">
                     <i class="fas fa-exclamation fa-5x"></i>
                     <h3>No valid Analysis tool configuration provided. Please check configuration:</h3>
                     <div style="padding: 10px">
-                        <pre>${JSON.stringify(this.config, null, 2)}</pre>              
+                        <pre>${JSON.stringify(this._config, null, 2)}</pre>
                     </div>
                 </div>
             `;
         }
 
         return html`
-            <tool-header title="${this.config.title}" icon="${this.config.icon}"></tool-header>
-            <!-- <tool-header title="${`<text-icon title="${this.config.title}" acronym="${this.config.acronym ? this.config.acronym : this.config.title[0] + this.config.title[1] + this.config.title[2].toLowerCase()}"></text-icon>` + this.config.title}"></tool-header> -->
-
-
-            <div class="container">
-                <!-- Header
-                <div style="padding: 20px">
-                    <h2 class="list-item-arrow">${this.config.title}</h2>
-                </div> -->
-                               
-                <opencga-analysis-tool-form .opencgaSession=${this.opencgaSession} 
-                                            .config="${this.config.form}"
-                                            @analysisRun="${this.onAnalysisRun}">
-                </opencga-analysis-tool-form>
+            <div class="opencga-analysis-tool">
+                <tool-header title="${this._config.title}" icon="${this._config.icon}" .rhs="${html`<button class="btn btn-default ripple" @click="${e => this.openModal()}"><i class="fas fa-info-circle"></i> Info</button>`}"></tool-header>
+                <!-- <tool-header title="${`<text-icon title="${this._config.title}" acronym="${this._config.acronym ? this._config.acronym : this._config.title[0] + this._config.title[1] + this._config.title[2].toLowerCase()}"></text-icon>` + this._config.title}"></tool-header> -->
+    
+                <div class="container">
+                    <opencga-analysis-tool-form .opencgaSession=${this.opencgaSession} 
+                                                .cellbaseClient="${this.cellbaseClient}"
+                                                .config="${this._config.form}"
+                                                @analysisRun="${this.onAnalysisRun}">
+                    </opencga-analysis-tool-form>
+                </div>
+                
+                <div class="modal fade" id="${this._prefix}analysis_description_modal" tabindex="-1" role="dialog">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                                <h4 class="modal-title">${this._config.title}</h4>
+                            </div>
+                            <div class="modal-body">
+                                ${this._config.description}
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         `;
     }

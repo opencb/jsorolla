@@ -61,14 +61,14 @@ export default class SampleIdAutocomplete extends LitElement {
             addButton: false,
             fields: item => ({
                 name: item.id,
-                "Individual ID": item?.attributes?.OPENCGA_INDIVIDUAL?.id
+                "Individual ID": item?.individualId
             }),
             dataSource: (query, process) => {
                 const filters = {
                     study: this.opencgaSession.study.fqn,
                     limit: 20,
                     count: false,
-                    // include: "id,individual.id",
+                    include: "id,individualId",
                     id: "~^" + query.toUpperCase()
                 };
                 this.opencgaSession.opencgaClient.samples().search(filters).then(restResponse => {

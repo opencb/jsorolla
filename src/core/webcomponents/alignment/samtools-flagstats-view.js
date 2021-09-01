@@ -100,11 +100,11 @@ class SamtoolsFlagstatsView extends LitElement {
     // }
 
     sampleObserver() {
-        if (this.sample && this.sample.qualityControl?.metrics?.length > 0  && this.sample.qualityControl.metrics[0].samtoolsFlagstats) {
+        if (this.sample && this.sample?.qualityControl?.alignmentMetrics?.length > 0  && this.sample.qualityControl.alignmentMetrics[0].samtoolsFlagstats) {
             // Get BAM file name and add it to the table
-            let bamFileName = this.sample.qualityControl.metrics[0].bamFileId || "N/A";
-            if (this.sample.qualityControl.metrics[0].bamFileId?.includes(":")) {
-                let parts = this.sample.qualityControl.metrics[0].bamFileId.split(":");
+            let bamFileName = this.sample.qualityControl.alignmentMetrics[0].bamFileId || "N/A";
+            if (this.sample.qualityControl.alignmentMetrics[0].bamFileId?.includes(":")) {
+                let parts = this.sample.qualityControl.alignmentMetrics[0].bamFileId.split(":");
                 bamFileName = parts[parts.length - 1];
             }
 
@@ -116,7 +116,7 @@ class SamtoolsFlagstatsView extends LitElement {
                 }
             ];
             // St flagstats array
-            this.flagstats = [this.sample.qualityControl.metrics[0].samtoolsFlagstats];
+            this.flagstats = [this.sample.qualityControl.alignmentMetrics[0].samtoolsFlagstats];
         }
     }
 
@@ -125,13 +125,15 @@ class SamtoolsFlagstatsView extends LitElement {
             this._config.columns = [];
             let _flagstats = [];
             for (let sample of this.samples) {
-                if (sample.qualityControl?.metrics?.length > 0  && sample.qualityControl.metrics[0].samtoolsFlagstats) {
-                    _flagstats.push(sample.qualityControl.metrics[0].samtoolsFlagstats);
+                let alignmentMetric = sample?.qualityControl?.alignmentMetrics?.[0];
+                // if (sample?.qualityControl?.alignmentMetrics?.length > 0 && sample.qualityControl.alignmentMetrics[0].samtoolsFlagstats) {
+                if (alignmentMetric) {
+                    _flagstats.push(alignmentMetric.samtoolsFlagstats);
 
                     // Get BAM file name and add it to the table
-                    let bamFileName = sample.qualityControl.metrics[0].bamFileId || "N/A";
-                    if (sample.qualityControl.metrics[0].bamFileId?.includes(":")) {
-                        let parts = sample.qualityControl.metrics[0].bamFileId.split(":");
+                    let bamFileName = alignmentMetric.bamFileId || "N/A";
+                    if (alignmentMetric.bamFileId?.includes(":")) {
+                        let parts = alignmentMetric.bamFileId.split(":");
                         bamFileName = parts[parts.length - 1];
                     }
 
@@ -177,32 +179,14 @@ class SamtoolsFlagstatsView extends LitElement {
     onDownload(e) {
         const header = this._config?.columns?.length ? this._config.columns.map( col => col.name) : this.flagstats.map( stat => stat.sampleId)
         const d = this._config.rows.map(variable => [variable.name, ...this.flagstats.map(stat => stat[variable.field] ?? "N/A")].join("\t"))
-
-        let dataString, mimeType, extension;
         if (e.currentTarget.dataset.downloadOption.toLowerCase() === "tab") {
-            dataString = [
+            const dataString = [
                 ["#key", ...header].join("\t"),
                 d.join("\n")];
-            // console.log(dataString);
-            mimeType = "text/plain";
-            extension = ".txt";
+            UtilsNew.downloadData(dataString, "samtools_flagstats.txt", "text/plain");
         } else {
-            dataString = [JSON.stringify(this.flagstats, null, "\t")];
-            mimeType = "application/json";
-            extension = ".json";
+            UtilsNew.downloadData(JSON.stringify(this.flagstats, null, "\t"), this.opencgaSession.study.id + ".json", "application/json");
         }
-
-        // Build file and anchor link
-        const data = new Blob([dataString.join("\n")], {type: mimeType});
-        const file = window.URL.createObjectURL(data);
-        const a = document.createElement("a");
-        a.href = file;
-        a.download = this.opencgaSession.study.id + extension;
-        document.body.appendChild(a);
-        a.click();
-        setTimeout(function() {
-            document.body.removeChild(a);
-        }, 0);
     }
 
 

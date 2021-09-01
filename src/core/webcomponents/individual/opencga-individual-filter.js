@@ -20,7 +20,9 @@ import "../opencga/catalog/variableSets/opencga-annotation-filter.js";
 import "../commons/filters/text-field-filter.js";
 import "../commons/filters/select-field-filter.js";
 import "../commons/filters/individual-id-autocomplete.js";
-import "../commons/filters/opencga-date-filter.js";
+import "../commons/filters/disorder-id-autocomplete.js";
+import "../commons/filters/phenotype-id-autocomplete.js";
+import "../commons/filters/date-filter.js";
 
 
 export default class OpencgaIndividualFilter extends LitElement {
@@ -153,9 +155,13 @@ export default class OpencgaIndividualFilter extends LitElement {
             case "samples":
                 content = html`<sample-id-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></sample-id-autocomplete>`
                 break;
-            case "ethnicity":
             case "disorders":
+                content = html`<disorder-id-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></disorder-id-autocomplete>`
+                break;
             case "phenotypes":
+                content = html`<phenotype-id-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></phenotype-id-autocomplete>`
+                break;
+            case "ethnicity":
                 content = html`<text-field-filter placeholder="${subsection.placeholder}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></text-field-filter>`;
                 break;
             case "sex":
@@ -173,7 +179,7 @@ export default class OpencgaIndividualFilter extends LitElement {
                         </opencga-annotation-filter-modal>`;
                 break;
             case "date":
-                content = html`<opencga-date-filter .creationDate="${this.preparedQuery.creationDate}" @filterChange="${e => this.onFilterChange("creationDate", e.detail.value)}"></opencga-date-filter>`;
+                content = html`<date-filter .creationDate="${this.preparedQuery.creationDate}" @filterChange="${e => this.onFilterChange("creationDate", e.detail.value)}"></date-filter>`;
                 break;
             default:
                 console.error("Filter component not found");
@@ -186,16 +192,16 @@ export default class OpencgaIndividualFilter extends LitElement {
                                     <a tooltip-title="${subsection.name}" tooltip-text="${subsection.description}"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
                                 </div>` : null }
                         </div>
-                        <div id="${this._prefix}${subsection.id}" class="subsection-content">
+                        <div id="${this._prefix}${subsection.id}" class="subsection-content" data-cy="${subsection.id}">
                             ${content}
-                         </div>
+                        </div>
                     </div>
                 `;
     }
 
     render() {
         return html`
-            ${this.searchButton ? html`
+            ${this.config?.searchButton ? html`
                 <div class="search-button-wrapper">
                     <button type="button" class="btn btn-primary ripple" @click="${this.onSearch}">
                         <i class="fa fa-search" aria-hidden="true"></i> Search
@@ -203,14 +209,14 @@ export default class OpencgaIndividualFilter extends LitElement {
                 </div>
             ` : null}
 
-        <div class="panel-group" id="${this._prefix}Accordion" role="tablist" aria-multiselectable="true">
-
-            <!-- Individual field attributes -->
-                <div class="">            
-                    ${this.config.sections && this.config.sections.length ? this.config.sections.map(section => this._createSection(section)) : html`No filter has been configured.`}
+            <div class="panel-group" id="${this._prefix}Accordion" role="tablist" aria-multiselectable="true">
+    
+                <!-- Individual field attributes -->
+                    <div class="">            
+                        ${this.config.sections && this.config.sections.length ? this.config.sections.map(section => this._createSection(section)) : html`No filter has been configured.`}
+                    </div>
                 </div>
             </div>
-        </div>
         `;
     }
 

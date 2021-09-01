@@ -57,7 +57,7 @@ export default class Pedigree2 extends LitElement {
     }
 
     updated(changedProperties) {
-        if ((changedProperties.has("family") || changedProperties.has("active") || changedProperties.has("opencgaSession")) /*&& this.active*/) {
+        if ((changedProperties.has("family") || changedProperties.has("active") || changedProperties.has("opencgaSession")) /* && this.active*/) {
             this.pedigree();
         }
     }
@@ -81,7 +81,7 @@ export default class Pedigree2 extends LitElement {
         // .filter(Boolean) filters out undefined values: in case of `node` has children with unknown partner
         const partners = [...new Set(children.map(i => i[partnerRole].id).filter(Boolean))];
         if (partners.length > 1) console.warn(node.id, "has more than 1 partner!", partners);
-        return partners.map( el => this.getNode(el));
+        return partners.map(el => this.getNode(el));
     }
 
     hasParents(node) {
@@ -109,7 +109,7 @@ export default class Pedigree2 extends LitElement {
     sortBySexAndAge(array) {
         return [...array].sort((a, b) => {
             if (a.sex === "MALE" && b.sex === "MALE") {
-                //older first
+                // older first
                 return b.age - a.age;
             }
             // MALE first and then FEMALE (on sex string length)
@@ -118,7 +118,7 @@ export default class Pedigree2 extends LitElement {
     }
 
     sortByAge(array) {
-        //older first
+        // older first
         return [...array].sort((a, b) => b.age - a.age);
     }
 
@@ -134,10 +134,10 @@ export default class Pedigree2 extends LitElement {
      * Counts the parents in common between the nodes a and b
      * @param a
      * @param b
-     * @return The number of common parents
+     * @returns The number of common parents
      */
     haveSameParents(a, b) {
-        //console.log([...new Set(getParents(a))], [...new Set(getParents(b))])
+        // console.log([...new Set(getParents(a))], [...new Set(getParents(b))])
         const parentsA = this.getParents(a).filter(Boolean);
         const parentsB = this.getParents(b).filter(Boolean);
         const commonParents = parentsA.filter(n => ~parentsB.indexOf(n));
@@ -150,7 +150,7 @@ export default class Pedigree2 extends LitElement {
      * It also move orphan nodes close to their first partner.
      * @param {Array} array
      * @param {Array} previousGeneration List of nodes in the previous generation
-     * @return {Array} sorted
+     * @returns {Array} sorted
      */
     sortChildren(array, previousGeneration) {
         if (!previousGeneration) return array; // root generation
@@ -166,12 +166,12 @@ export default class Pedigree2 extends LitElement {
 
         // this is the children list taken from the previous generation.
         // It is flatten to replicate the order of the previous generation (the parents) to the current generation (the children).
-        let childs = [...new Set(previousGeneration.individuals.flatMap(ind => ind.children.map(_ => _.id)))];
+        const childs = [...new Set(previousGeneration.individuals.flatMap(ind => ind.children.map(_ => _.id)))];
 
-        //1. sort by same parents
+        // 1. sort by same parents
         let sorted = [...array].sort((a, b) => {
-            let aPos = childs.indexOf(a.id);
-            let bPos = childs.indexOf(b.id);
+            const aPos = childs.indexOf(a.id);
+            const bPos = childs.indexOf(b.id);
             if (aPos > 0 && bPos === -1) return -1;
             if (aPos === -1 && bPos > 0) return 1;
             if (aPos === -1 && bPos === -1) return 1;
@@ -179,15 +179,15 @@ export default class Pedigree2 extends LitElement {
         });
 
         // 2. move partners close to each other
-        let res = [];
+        const res = [];
         // NOTE it mutates `sorted` array while iterating over it.
         sorted.forEach(node => {
-            let partners = this.getPartners(node);
+            const partners = this.getPartners(node);
             // looking for orphan nodes
             if (!this.hasParents(node) && partners.length) {
                 // moving the orphan node after its FIRST partner
-                let partnerIndex = sorted.findIndex(ind => ind.id === partners[0].id);
-                //console.log(node, partnerIndex)
+                const partnerIndex = sorted.findIndex(ind => ind.id === partners[0].id);
+                // console.log(node, partnerIndex)
                 sorted = this.removeNodes(node.id, sorted);
                 sorted = this.insertNode(node, partnerIndex + 1, sorted);
             }
@@ -200,7 +200,7 @@ export default class Pedigree2 extends LitElement {
     /**
      * Sort the array by partner (partners close to each other), then sex (male first) then age (older first)
      * @param {Array} array
-     * @return {Array} sorted
+     * @returns {Array} sorted
      */
     sortRootGeneration(array) {
         // criteria
@@ -208,7 +208,7 @@ export default class Pedigree2 extends LitElement {
         // 2. sort by sex
         // 3. sort by age
         let unsorted = this.sortByAge(array); // to make sure the first selected is the oldest here `const node = unsorted[0]`
-        let sorted = [];
+        const sorted = [];
         while (unsorted.length) {
             const node = unsorted[0];
             // add to sorted array the node `node` and its partners, sorted by Sex and then Age
@@ -221,13 +221,13 @@ export default class Pedigree2 extends LitElement {
 
     /**
      * The following code builds the final data-structure.
-     *  The algorithm follow a simple rule to split the nodes in generations:
-     *  a node is in the root generation iff it and its partners have't parents.
+     *  The algorithm follow a simple rule to assign a node to a generation:
+     *  a node is in the root generation iff it and its partners have no parents.
      *  If we use a pool of individuals in which we delete nodes as soon as we add them in the final structure,
      *  the rule is valid for all generations.
      **/
     preprocess() {
-        let generations = []; //init root level
+        const generations = []; // init root level
         let generationCnt = 0;
 
         // sortRootGeneration() sorts by the root generation criterion only (older-male first).
@@ -236,11 +236,11 @@ export default class Pedigree2 extends LitElement {
         let individualsPool = this.sortRootGeneration(this.family);
 
         while (individualsPool.length) {
-            //console.log("generationCnt", generationCnt)
-            let generationNodes = [];
+            // console.log("generationCnt", generationCnt)
+            const generationNodes = [];
             for (let i = 0; i < individualsPool.length; i++) {
                 const node = individualsPool[i];
-                const partners = this.getPartners(node); //NOTE getPartners() search in the original family, not in the pool.
+                const partners = this.getPartners(node); // NOTE getPartners() search in the original family, not in the pool.
                 const hasSomePartnerInPool = partners.some(n => this.hasParentsInPool(n, individualsPool));
                 if (!this.hasParentsInPool(node, individualsPool) && (!partners.length || !hasSomePartnerInPool)) {
                     generationNodes.push({
@@ -256,7 +256,7 @@ export default class Pedigree2 extends LitElement {
             };
             generationCnt++;
             individualsPool = this.removeNodes(generationNodes.map(_ => _.id), individualsPool);
-            //if (generationCnt == 2) break
+            // if (generationCnt == 2) break
         }
 
         console.log(generations);
@@ -275,45 +275,45 @@ export default class Pedigree2 extends LitElement {
 
         this.draw = this.svg.group();
 
-        this.gridCols = Math.max(...this.pedigree.map( g => g.individuals.length))
+        this.gridCols = Math.max(...this.pedigree.map(g => g.individuals.length));
         this.gridRows = this.pedigree.length;
         let col = 0;
         let row = 0;
-        this.pedigree.forEach( generation => {
+        this.pedigree.forEach(generation => {
             col = 0;
-            generation.individuals.forEach( individual => {
-                let pos = this.dynamicGridToPx(row, col, generation.individuals.length);
+            generation.individuals.forEach(individual => {
+                const pos = this.dynamicGridToPx(row, col, generation.individuals.length);
                 console.log(pos);
-                this.drawNode(individual, pos)
-                col++
-            })
-            row++
-        })
+                this.drawNode(individual, pos);
+                col++;
+            });
+            row++;
+        });
 
 
     }
 
     drawNode(node, pos) {
         if (node.sex === "MALE") {
-            this.draw.rect({id: "node" + node.id, width: this._config.nodeSize, height: this._config.nodeSize, fill: "#fff", stroke: "black", x: pos.x, y: pos.y})
+            this.draw.rect({id: "node" + node.id, width: this._config.nodeSize, height: this._config.nodeSize, fill: "#fff", stroke: "black", x: pos.x, y: pos.y});
         }
         if (node.sex === "FEMALE") {
-            this.draw.circle({id: "node" + node.id, r: this._config.nodeSize / 2, fill: "#fff", stroke: "black", cx: pos.x + this._config.nodeSize / 2, cy: pos.y + this._config.nodeSize / 2})
+            this.draw.circle({id: "node" + node.id, r: this._config.nodeSize / 2, fill: "#fff", stroke: "black", cx: pos.x + this._config.nodeSize / 2, cy: pos.y + this._config.nodeSize / 2});
         }
-        this.draw.text(node.id).attr({dominantBaseline: "middle", textAnchor:"middle"}).dy(pos.y + this._config.nodeSize).dx(pos.x + this._config.nodeSize/2 * .8);
+        this.draw.text(node.id).attr({dominantBaseline: "middle", textAnchor: "middle"}).dy(pos.y + this._config.nodeSize).dx(pos.x + this._config.nodeSize/2 * .8);
     }
 
     dynamicGridToPx(row, col, totalCols) {
-        console.log(totalCols)
-        let colWidth = this._config.board.width / totalCols;
-        let x = this.rescale_linear(col, 0, totalCols, colWidth / 2, this._config.board.width);
-        let y = this.rescale_linear(row, 0, this.gridRows, 0, this.boardHeight);
+        console.log(totalCols);
+        const colWidth = this._config.board.width / totalCols;
+        const x = this.rescale_linear(col, 0, totalCols, colWidth / 2, this._config.board.width);
+        const y = this.rescale_linear(row, 0, this.gridRows, 0, this.boardHeight);
         return {x, y};
     }
 
     gridToPx(row, col) {
-        let x = this.rescale_linear(col, 0, this.gridCols, 0, this._config.board.width);
-        let y = this.rescale_linear(row, 0, this.gridRows, 0, this.boardHeight);
+        const x = this.rescale_linear(col, 0, this.gridCols, 0, this._config.board.width);
+        const y = this.rescale_linear(row, 0, this.gridRows, 0, this.boardHeight);
         return {x, y};
     }
 

@@ -20,7 +20,7 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
 import PolymerUtils from "../PolymerUtils.js";
-import "../samples/opencga-sample-filter.js";
+import "../sample/sample-browser-filter.js";
 
 
 export default class VariantSampleSelector extends LitElement {
@@ -311,7 +311,7 @@ export default class VariantSampleSelector extends LitElement {
                                         .query="${this.query}"
                                         .defaultStudy="${this.study.alias}"
                                         alias="${this.activeFilterAlias}"
-                                        .refresh="${this.search}"
+                                        .executedQuery="${this.search}"
                                         @activeFilterClear="${this.onClear}"
                                         @activeFilterChange="${this.onFilterChange}">
                 </opencga-active-filters>

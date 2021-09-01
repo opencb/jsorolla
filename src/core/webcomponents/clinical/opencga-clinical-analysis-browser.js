@@ -110,15 +110,19 @@ export default class OpencgaClinicalAnalysisBrowser extends LitElement {
                                 description: ""
                             },
                             {
-                                id: "samples",
+                                id: "sample",
                                 name: "Sample ID",
                                 placeholder: "HG01879, HG01880, HG01881...",
                                 description: ""
                             },
                             {
+                                id: "status",
+                                name: "Status",
+                                description: ""
+                            },
+                            {
                                 id: "priority",
                                 name: "Priority",
-                                allowedValues: ["URGENT", "HIGH", "MEDIUM", "LOW"],
                                 description: ""
                             },
                             {
@@ -136,6 +140,7 @@ export default class OpencgaClinicalAnalysisBrowser extends LitElement {
                     }
                 ],
                 grid: {
+                    readOnlyMode: true,
                     pageSize: 10,
                     pageList: [10, 25, 50],
                     detailView: false,

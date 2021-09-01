@@ -14,134 +14,99 @@
  * limitations under the License.
  */
 
-import UtilsNew from "../../utilsNew.js";
 import BioinfoUtils from "../../bioinfo-utils.js";
 
 
-//TODO urgent review of the whole class
-
 export default class VariantGridFormatter {
 
-    constructor(opencgaSession, config) {
-        this.opencgaSession = opencgaSession;
-        this.config = config;
-        this.CT = consequenceTypes; //global var
-        this.prefix = UtilsNew.randomString(8);
-    }
-
-    assignColors(consequenceTypes, proteinSubstitutionScores) {
+    // DEPRECATED: use new consequenceTypes.impact instead
+    static assignColors(consequenceTypes, proteinSubstitutionScores) {
         let result = {};
-        if (typeof consequenceTypes !== "undefined") {
-            let consequenceTypeToColor = {};
-            let consequenceTypeToImpact = {};
-            for (let i = 0; i < consequenceTypes.categories.length; i++) {
-                if (typeof consequenceTypes.categories[i].terms !== "undefined") {
-                    for (let j = 0; j < consequenceTypes.categories[i].terms.length; j++) {
-                        consequenceTypeToColor[consequenceTypes.categories[i].terms[j].name] = this.CT.style[consequenceTypes.categories[i].terms[j].impact];
-                        consequenceTypeToImpact[consequenceTypes.categories[i].terms[j].name] = consequenceTypes.categories[i].terms[j].impact;
+        if (consequenceTypes) {
+            const consequenceTypeToColor = {};
+            const consequenceTypeToImpact = {};
+            for (const category of consequenceTypes.categories) {
+                if (category.terms) {
+                    for (const term of category.terms) {
+                        consequenceTypeToColor[term.name] = consequenceTypes.style[term.impact];
+                        consequenceTypeToImpact[term.name] = term.impact;
                     }
-                } else if (typeof consequenceTypes.categories[i].id !== "undefined" && typeof consequenceTypes.categories[i].name !== "undefined") {
-                    consequenceTypeToColor[consequenceTypes.categories[i].name] = consequenceTypes[consequenceTypes.categories[i].impact];
-                    consequenceTypeToImpact[consequenceTypes.categories[i].name] = consequenceTypes.categories[i].impact;
+                } else {
+                    if (category.id && category.name) {
+                        consequenceTypeToColor[category.name] = consequenceTypes[category.impact];
+                        consequenceTypeToImpact[category.name] = category.impact;
+                    }
                 }
             }
-            // this.consequenceTypeToColor = consequenceTypeToColor;
-            // this.consequenceTypeToImpact = consequenceTypeToImpact;
             result = {
                 consequenceTypeToColor: consequenceTypeToColor,
                 consequenceTypeToImpact: consequenceTypeToImpact
             };
         }
 
-        if (typeof proteinSubstitutionScores !== "undefined") {
-            let pssColor = new Map();
-            for (let i in proteinSubstitutionScores) {
-                let obj = proteinSubstitutionScores[i];
+        if (proteinSubstitutionScores) {
+            const pssColor = new Map();
+            for (const i in proteinSubstitutionScores) {
+                const obj = proteinSubstitutionScores[i];
                 Object.keys(obj).forEach(key => {
                     pssColor.set(key, obj[key]);
                 });
             }
-            // this.pssColor = pssColor;
             result.pssColor = pssColor;
         }
-
         return result;
     }
 
-    variantFormatter(value, row, config) {
-        if (row === undefined) {
+    static variantFormatter(value, row, index, assembly, config) {
+        if (!row) {
             return;
         }
 
-        // If REF/ALT is greater than maxAlleleLength we display the first and last 5 bp
-        let ref = (UtilsNew.isNotEmpty(row.reference)) ? row.reference : "-";
-        let alt = (UtilsNew.isNotEmpty(row.alternate)) ? row.alternate : "-";
-        let maxAlleleLength = 15;
-        if (UtilsNew.isNotUndefinedOrNull(config) && UtilsNew.isNotUndefinedOrNull(config.alleleStringLengthMax)) {
-            maxAlleleLength = config.alleleStringLengthMax;
-        }
-        ref = (ref.length > maxAlleleLength) ? ref.substring(0, 5) + "..." + ref.substring(ref.length - 5) : ref;
-        alt = (alt.length > maxAlleleLength) ? alt.substring(0, 5) + "..." + alt.substring(alt.length - 5) : alt;
+        let ref = row.reference ? row.reference : "-";
+        let alt = row.alternate ? row.alternate : "-";
 
-        let id = row.id;
-        if (UtilsNew.isEmpty(id)) {
-            console.warn("row.id is empty: " + row);
-            id = `${row.chromosome}:${row.start}:${ref}:${alt}`;
-        }
+        // Check size
+        const maxAlleleLength = config?.alleleStringLengthMax ? config.alleleStringLengthMax : 20;
+        ref = (ref.length > maxAlleleLength) ? ref.substring(0, 4) + "..." + ref.substring(ref.length - 4) : ref;
+        alt = (alt.length > maxAlleleLength) ? alt.substring(0, 4) + "..." + alt.substring(alt.length - 4) : alt;
 
-        if (typeof row.annotation !== "undefined" && UtilsNew.isNotEmptyArray(row.annotation.xrefs)) {
-            row.annotation.xrefs.find(function (element) {
-                if (element.source === "dbSNP") {
-                    id = element.id;
-                }
-            });
-        }
+        // Ww need to escape < and > symbols from <INS>, <DEL>, ...
+        alt = alt.replaceAll("<", "&lt;").replaceAll(">", "&gt;");
 
-        let genomeBrowserMenuLink = "";
-        if (UtilsNew.isNotUndefinedOrNull(config) && config.showGenomeBrowser) {
-            genomeBrowserMenuLink = `<div>
-                                        <a class="genome-browser-option" data-variant-position="${row.chromosome}:${row.start}-${row.end}" style="cursor: pointer">
-                                            <i class="fa fa-list" aria-hidden="true"></i> Genome Browser
-                                        </a>
-                                     </div>`;
-        }
+        // Create links for tooltip
+        const variantRegion = row.chromosome + ":" + row.start + "-" + row.end;
+        const tooltipText = `
+            <div class="dropdown-header" style="padding-left: 5px">External Links</div>
+            <div style="padding: 5px">
+                <a target="_blank" href="${BioinfoUtils.getVariantLink(row.id, variantRegion, "ensembl_genome_browser")}">
+                    Ensembl Genome Browser
+                </a>
+            </div>
+            <div style="padding: 5px">
+                <a target="_blank" href="${BioinfoUtils.getVariantLink(row.id, variantRegion, "ucsc_genome_browser")}">
+                    UCSC Genome Browser
+                </a>
+            </div>`;
 
-        let ensemblLinkHtml = id.startsWith("rs")
-            ? "https://www.ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v=" + id
-            : "http://www.ensembl.org/Homo_sapiens/Location/View?r=" + row.chromosome + ":" + row.start + "-" + row.end;
+        const snpHtml = VariantGridFormatter.snpFormatter(value, row, index, assembly);
 
-        let snpLinkHtml = "";
-        if (id.startsWith("rs")) {
-            snpLinkHtml = `<div class="pad5"><a target="_blank" href="https://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?searchType=adhoc_search&type=rs&rs=${id}">dbSNP</a></div>
-                           ${application.appConfig === "opencb" ? `<div class="pad5"><a target="_blank" href="https://www.snpedia.com/index.php/${id}">SNPedia</a></div>` : ``}
-                           <div class="pad5"><a target="_blank" href="https://www.ncbi.nlm.nih.gov/clinvar/?term=${id}">ClinVar</a></div>
-                `;
-        }
-
-        // <div style="padding: 5px 15px; color: darkgray; font-weight: bolder">External Links</div>
-        let tooltipText = `${genomeBrowserMenuLink}
-                            <div style="padding: 5px">
-                                <a target="_blank" href="${ensemblLinkHtml}">Ensembl</a>
-                            </div>
-                            ${snpLinkHtml}
-                `;
-
-        return `<div>
-                    <a tooltip-title='Links' tooltip-text='${tooltipText}'>
-                        ${row.chromosome}:${row.start}&nbsp;&nbsp;${ref}/${alt}
-                    </a>
-                </div>`;
+        return `
+            <div style="margin: 5px 0px">
+                <a tooltip-title='Links' tooltip-text='${tooltipText}'>
+                    ${row.chromosome}:${row.start}&nbsp;&nbsp;${ref}/${alt}
+                </a>
+            </div>
+            ${snpHtml ? `<div style="margin: 5px 0px">${snpHtml}</div>` : ""}
+            `;
     }
 
-    snpFormatter(value, row, index) {
-        /*
-            We try first to read SNP ID from the 'names' of the variant (this identifier comes from the file).
-            If this ID is not a "rs..." then we search the rs in the CellBase XRef annotations.
-            This field is in annotation.xref when source: "dbSNP".
-        */
-        let snpId = null;
+    static snpFormatter(value, row, index, assembly) {
+        // We try first to read SNP ID from the 'names' of the variant (this identifier comes from the file).
+        // If this ID is not a "rs..." then we search the rs in the CellBase XRef annotations.
+        // This field is in annotation.xref when source: "dbSNP".
+        let snpId = "";
         if (row.names && row.names.length > 0) {
-            for (let name of row.names) {
+            for (const name of row.names) {
                 if (name.startsWith("rs")) {
                     snpId = name;
                     break;
@@ -153,7 +118,7 @@ export default class VariantGridFormatter {
                     snpId = row.annotation.id;
                 } else {
                     if (row.annotation.xrefs) {
-                        for (let xref of row.annotation.xrefs) {
+                        for (const xref of row.annotation.xrefs) {
                             if (xref.source === "dbSNP") {
                                 snpId = xref.id;
                                 break;
@@ -163,104 +128,107 @@ export default class VariantGridFormatter {
                 }
             }
         }
+
         if (snpId) {
-            if (this.opencgaSession.project.organism && this.opencgaSession.project.organism.assembly.toUpperCase() === "GRCH37") {
+            if (assembly.toUpperCase() === "GRCH37") {
                 return "<a target='_blank' href='http://grch37.ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v=" + snpId + "'>" + snpId + "</a>";
             } else {
                 return "<a target='_blank' href='http://www.ensembl.org/Homo_sapiens/Variation/Explore?vdb=variation;v=" + snpId + "'>" + snpId + "</a>";
             }
         }
-        return "-";
+        return snpId;
     }
 
-    geneFormatter(value, row, index) {
-        let geneToSo = null;
-        let queryCtArray = null;
+    static geneFormatter(variant, index, query, opencgaSession, gridCtSettings) {
+        const {selectedConsequenceTypes, notSelectedConsequenceTypes} =
+            VariantGridFormatter._consequenceTypeDetailFormatterFilter(variant.annotation.consequenceTypes, gridCtSettings);
 
-        // Check 'query' is passed through formatter bind()
         // Keep a map of genes and the SO accessions and names
-        if (this.query?.ct) {
-            queryCtArray = this.query.ct.split(",");
-            geneToSo = {};
-            for (let ct of row.annotation.consequenceTypes) {
-                let geneName = ct.geneName;
-                if (typeof geneToSo[geneName] === "undefined") {
-                    geneToSo[geneName] = [];
+        const geneHasQueryCt = new Set();
+        if (query?.ct) {
+            const consequenceTypes = new Set();
+            for (const ct of query.ct.split(",")) {
+                if (ct.toUpperCase() === "LOF") {
+                    CONSEQUENCE_TYPES.lof.forEach(key => consequenceTypes.add(key));
+                } else {
+                    consequenceTypes.add(ct);
                 }
-                for (let so of ct.sequenceOntologyTerms) {
-                    geneToSo[geneName].push(so.accession);
-                    geneToSo[geneName].push(so.name);
+            }
+
+            // const queryCtArray = query.ct.split(",");
+            for (const ct of selectedConsequenceTypes) {
+                if (ct.sequenceOntologyTerms.some(so => consequenceTypes.has(so.name))) {
+                    geneHasQueryCt.add(ct.geneName);
                 }
+
+                // for (const so of ct.sequenceOntologyTerms) {
+                //     if (queryCtArray.includes(so.name)) {
+                //         geneHasQueryCt.add(ct.geneName);
+                //         break;
+                //     }
+                // }
             }
         }
 
-        if (typeof row !== "undefined" && row.annotation !== undefined && UtilsNew.isNotEmptyArray(row.annotation.consequenceTypes)) {
-            let visited = {};
-            let geneLinks = [];
-            let geneWithSoLinks = [];
-            for (let i = 0; i < row.annotation.consequenceTypes.length; i++) {
-                let geneName = row.annotation.consequenceTypes[i].geneName;
+        if (variant?.annotation?.consequenceTypes?.length > 0) {
+            const visited = {};
+            const geneLinks = [];
+            const geneWithCtLinks = [];
+            for (let i = 0; i < variant.annotation.consequenceTypes.length; i++) {
+                const geneName = variant.annotation.consequenceTypes[i].geneName;
 
                 // We process Genes just one time
-                if (UtilsNew.isNotEmpty(geneName) && typeof visited[geneName] === "undefined") {
+                if (geneName && !visited[geneName]) {
                     let geneViewMenuLink = "";
-                    let genomeBrowserMenuLink = "";
-
-                    if (this.config && this.config.showGenomeBrowser) {
-                        genomeBrowserMenuLink = `<div>
-                                                    <a class="genome-browser-option" data-variant-position="${row.chromosome}:${row.start}-${row.end}" style="cursor: pointer">
-                                                        Genome Browser
-                                                    </a>
-                                                 </div>`;
+                    if (opencgaSession.project && opencgaSession.study) {
+                        geneViewMenuLink = `<div style='padding: 5px'>
+                                                <a style='cursor: pointer' href='#gene/${opencgaSession.project.id}/${opencgaSession.study.id}/${geneName}' data-cy='gene-view'>Gene View</a>
+                                            </div>`;
                     }
 
-                    if (this.opencgaSession.project && this.opencgaSession.study) {
-                        geneViewMenuLink = `<div style="padding: 5px"><a style="cursor: pointer" href="#gene/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${geneName}">Gene View</a></div>`;
-                    }
-
-                    let tooltipText = `${geneViewMenuLink}
-                                       ${genomeBrowserMenuLink}
-                                       <div class="dropdown-header" style="padding-left: 10px">External Links</div>
-                                       <div style="padding: 5px">
-                                            <a target="_blank" href="${BioinfoUtils.getEnsemblLink(geneName, "gene", this.opencgaSession.project.organism.assembly)}">Ensembl</a>
-                                       </div>
-                                       <div style="padding: 5px">
-                                            <a target="_blank" href="${BioinfoUtils.getCosmicLink(geneName, this.opencgaSession.project.organism.assembly)}">COSMIC</a>
-                                       </div>
-                                       <div style="padding: 5px">
-                                            <a target="_blank" href="${BioinfoUtils.getUniprotLink(geneName)}">UniProt</a></div>`;
+                    const tooltipText = `
+                        ${geneViewMenuLink}
+                        
+                        <div class='dropdown-header' style='padding-left: 5px;padding-top: 5px'>External Links</div>
+                        <div style='padding: 5px'>
+                             <a target='_blank' href='${BioinfoUtils.getEnsemblLink(geneName, "gene", opencgaSession.project.organism.assembly)}'>Ensembl</a>
+                        </div>
+                        <div style='padding: 5px'>
+                             <a target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "lrg")}'>LRG</a>
+                        </div>
+                        <div style='padding: 5px'>
+                             <a target='_blank' href='${BioinfoUtils.getUniprotLink(geneName)}'>UniProt</a>
+                        </div>
+                       
+                        <div class='dropdown-header' style='padding-left: 5px;padding-top: 5px'>Clinical Resources</div>
+                        <div style='padding: 5px'>
+                             <a target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "decipher")}'>Decipher</a>
+                        </div>
+                        <div style='padding: 5px'>
+                             <a target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "cosmic", opencgaSession.project.organism.assembly)}'>COSMIC</a>
+                        </div>
+                        <div style='padding: 5px'>
+                             <a target='_blank' href='${BioinfoUtils.getGeneLink(geneName, "omim")}'>OMIM</a>
+                        </div>
+                    `;
 
                     // If query.ct exists
-                    if (geneToSo) {
-                        let geneContainSo = false;
-                        for (let so of queryCtArray) {
-                            if (geneToSo[geneName].includes(so)) {
-                                geneContainSo = true;
-                                break;
-                            }
-                        }
-
+                    if (query?.ct) {
                         // If gene contains one of the query.ct
-                        if (geneContainSo) {
-                            geneWithSoLinks.push(`<span class="gene-tooltip" data-tooltip-text='${tooltipText}' style="margin-left: 2px;">
-                                                    <a>
+                        if (geneHasQueryCt.has(geneName)) {
+                            geneWithCtLinks.push(`<a class="gene-tooltip" tooltip-title="Links" tooltip-text="${tooltipText}" style="margin-left: 2px;">
                                                         ${geneName}
-                                                    </a>
-                                                 </span>`);
+                                                  </a>`);
                         } else {
-                            geneLinks.push(`<span class="gene-tooltip" data-tooltip-text='${tooltipText}' style="margin-left: 2px;color: darkgray;font-style: italic">
-                                                <span>
+                            geneLinks.push(`<a class="gene-tooltip" tooltip-title="Links" tooltip-text="${tooltipText}" style="margin-left: 2px;color: darkgray;font-style: italic">
                                                     ${geneName}
-                                                </span>
-                                            </span>`);
+                                            </a>`);
                         }
                     } else {
                         // No query.ct passed
-                        geneLinks.push(`<span class="gene-tooltip" data-tooltip-text='${tooltipText}' style="margin-left: 2px">
-                                            <a>
+                        geneLinks.push(`<a class="gene-tooltip" tooltip-title="Links" tooltip-text="${tooltipText}" style="margin-left: 2px">
                                                 ${geneName}
-                                            </a>
-                                        </span>`);
+                                        </a>`);
                     }
                     visited[geneName] = true;
                 }
@@ -270,10 +238,10 @@ export default class VariantGridFormatter {
             let resultHtml = "";
 
             // First, print Genes with query CT
-            if (geneToSo) {
-                for (let i = 0; i < geneWithSoLinks.length; i++) {
-                    resultHtml += geneWithSoLinks[i];
-                    if (i + 1 !== geneWithSoLinks.length) {
+            if (query?.ct) {
+                for (let i = 0; i < geneWithCtLinks.length; i++) {
+                    resultHtml += geneWithCtLinks[i];
+                    if (i + 1 !== geneWithCtLinks.length) {
                         resultHtml += ",";
                     }
                 }
@@ -293,27 +261,43 @@ export default class VariantGridFormatter {
                     }
                 }
             }
-
             return resultHtml;
         } else {
             return "-";
         }
     }
 
-    typeFormatter(value, row, index) {
-        if (row !== undefined) {
+    static vcfFormatter(value, row, field, type = "INFO") {
+        if (type.toUpperCase() === "INFO") {
+            return row.studies[0].files[0].data[field];
+        } else {
+            const index = row.studies[0].sampleDataKeys.findIndex(f => f === field);
+            return row.studies[0].samples[0].data[index];
+        }
+    }
+
+    static typeFormatter(value, row) {
+        if (row) {
             let type = row.type;
             let color = "";
             switch (row.type) {
-                case "SNP":
+                case "SNP": // Deprecated
                     type = "SNV";
                     break;
                 case "INDEL":
+                case "CNV": // Deprecated
+                case "COPY_NUMBER":
+                case "COPY_NUMBER_GAIN":
+                case "COPY_NUMBER_LOSS":
                 case "MNV":
                     color = "darkorange";
                     break;
+                case "SV":
                 case "INSERTION":
                 case "DELETION":
+                case "DUPLICATION":
+                case "TANDEM_DUPLICATION":
+                case "BREAKEND":
                     color = "red";
                     break;
                 default:
@@ -326,100 +310,224 @@ export default class VariantGridFormatter {
         }
     }
 
-    consequenceTypeFormatter(value, row, index) {
-        if (typeof row !== "undefined" && typeof row.annotation !== "undefined" && UtilsNew.isNotEmptyArray(row.annotation.consequenceTypes)) {
-            let consequenceTypesArr = [];
-            let visited = new Set();
-            let impact = {};
-            for (let i = 0; i < row.annotation.consequenceTypes.length; i++) {
-                for (let j = 0; j < row.annotation.consequenceTypes[i].sequenceOntologyTerms.length; j++) {
+    static consequenceTypeFormatter(value, row, ctQuery, gridCtSettings) {
+        if (row?.annotation && row.annotation.consequenceTypes?.length > 0) {
+            let {selectedConsequenceTypes, notSelectedConsequenceTypes, indexes} =
+                VariantGridFormatter._consequenceTypeDetailFormatterFilter(row.annotation.consequenceTypes, gridCtSettings);
 
-                    let consequenceTypeName = row.annotation.consequenceTypes[i].sequenceOntologyTerms[j].name;
-
-                    // FIXME This is a temporal fix for some wrong CTs. This must be removed ASAP.
-                    if (consequenceTypeName === "2KB_downstream_gene_variant") {
-                        consequenceTypeName = "2KB_downstream_variant";
+            // If CT is passed in the query then we must make and AND with the selected transcript by the user.
+            // This means that only the selectedConsequenceTypes that ARE ALSO IN THE CT QUERY are displayed.
+            if (ctQuery) {
+                const consequenceTypes = new Set();
+                for (const ct of ctQuery.split(",")) {
+                    if (ct.toUpperCase() === "LOF") {
+                        CONSEQUENCE_TYPES.lof.forEach(key => consequenceTypes.add(key));
+                    } else {
+                        consequenceTypes.add(ct);
                     }
-                    if (consequenceTypeName === "2KB_upstream_gene_variant") {
-                        consequenceTypeName = "2KB_upstream_variant";
+                }
+                const newSelectedConsequenceTypes = [];
+                for (const ct of selectedConsequenceTypes) {
+                    if (ct.sequenceOntologyTerms.some(so => consequenceTypes.has(so.name))) {
+                        newSelectedConsequenceTypes.push(ct);
+                    } else {
+                        notSelectedConsequenceTypes.push(ct);
                     }
+                }
+                selectedConsequenceTypes = newSelectedConsequenceTypes;
+            }
 
-                    if (typeof consequenceTypeName !== "undefined" && consequenceTypeName !== "" && !visited.has(consequenceTypeName)) {
-                        if (typeof this.consequenceTypeToImpact !== "undefined"
-                            && typeof this.consequenceTypeToImpact[consequenceTypeName] !== "undefined") {
-                            let imp = this.consequenceTypeToImpact[consequenceTypeName];
-                            if (typeof impact[imp] === "undefined") {
-                                impact[imp] = [];
-                            }
-                            if (typeof this.consequenceTypeToColor !== "undefined"
-                                && typeof this.consequenceTypeToColor[consequenceTypeName] !== "undefined") {
-                                impact[imp].push("<span style=\"color: " + this.consequenceTypeToColor[consequenceTypeName] + "\">" + consequenceTypeName + "</span>");
-                            } else {
-                                impact[imp].push("<span>" + consequenceTypeName + "</span>");
-                            }
+            const positiveConsequenceTypes = [];
+            const negativeConsequenceTypes = [];
+            const soVisited = new Set();
+            for (const ct of selectedConsequenceTypes) {
+                for (const so of ct.sequenceOntologyTerms) {
+                    if (!soVisited.has(so?.name)) {
+                        positiveConsequenceTypes.push(`<span style="color: ${CONSEQUENCE_TYPES.style[CONSEQUENCE_TYPES.impact[so.name]] || "black"}">${so.name}</span>`);
+                        soVisited.add(so.name);
+                    }
+                }
+            }
 
+            // Print negative SO, if not printed as positive
+            let negativeConsequenceTypesText = "";
+            if (gridCtSettings.consequenceType.showNegativeConsequenceTypes) {
+                for (const ct of notSelectedConsequenceTypes) {
+                    for (const so of ct.sequenceOntologyTerms) {
+                        if (!soVisited.has(so.name)) {
+                            negativeConsequenceTypes.push(`<div style="color: ${CONSEQUENCE_TYPES.style[CONSEQUENCE_TYPES.impact[so.name]] || "black"}; margin: 5px">${so.name}</div>`);
+                            soVisited.add(so.name);
                         }
-                        visited.add(consequenceTypeName);
                     }
+                }
+
+                if (negativeConsequenceTypes.length > 0) {
+                    negativeConsequenceTypesText = `<a tooltip-title="Terms Filtered" tooltip-text='${negativeConsequenceTypes.join("")}'>
+                                                        <span style="color: darkgray;font-style: italic">${negativeConsequenceTypes.length} terms filtered</span>
+                                                    </a>`;
                 }
             }
 
-            if (Object.keys(impact).length > 0) {
-                if (typeof impact["high"] !== "undefined" || typeof impact["moderate"] !== "undefined") {
-                    if (typeof impact["high"] !== "undefined") {
-                        Array.prototype.push.apply(consequenceTypesArr, impact["high"]);
-                    }
-                    if (typeof impact["moderate"] !== "undefined") {
-                        Array.prototype.push.apply(consequenceTypesArr, impact["moderate"]);
-                    }
-                } else if (typeof impact["low"] !== "undefined") {
-                    Array.prototype.push.apply(consequenceTypesArr, impact["low"]);
-                } else if (typeof impact["modifier"] !== "undefined") {
-                    Array.prototype.push.apply(consequenceTypesArr, impact["modifier"]);
-                }
-            }
-
-            return consequenceTypesArr.join("<br>");
+            return `
+                <div>
+                    ${positiveConsequenceTypes.join("<br>")}
+                </div>
+                <div>
+                    ${negativeConsequenceTypesText}
+                </div>`;
         }
         return "-";
     }
 
-    _consequenceTypeDetailFormatterFilter(cts, query, filter) {
-        let showArrayIndexes = [];
-        for (let i = 0; i < cts.length; i++) {
-            let ct = cts[i];
-            let result = true;
-            if (filter) {
-                if (filter.consequenceType.gencodeBasic) {
-                    result = result && ct.transcriptAnnotationFlags && ct.transcriptAnnotationFlags.includes("basic");
-                }
-                if (result && filter.consequenceType.filterByBiotype) {
-                    if (query.biotype) {
-                        result = result && query.biotype.split(",").includes(ct.biotype);
+    /* Usage:
+        columns: [
+            {
+                title: "", classes: "", style: "",
+                columns: [      // nested column
+                    {
+                        title: "", classes: "", style: ""
                     }
+                ]
+            }
+        ]
+
+        rows: [
+            {values: ["", ""], classes: "", style: ""}
+        ]
+     */
+    static renderTable(id, columns, rows, config) {
+        if (!rows || rows.length === 0) {
+            return `<span>${config?.defaultMessage ? config.defaultMessage : "No data found"}</span>`;
+        }
+
+        let tr = "";
+        const nestedColumnIndex = columns.findIndex(col => col.columns?.length > 0);
+        if (nestedColumnIndex > -1) {
+            let thTop = "";
+            let thBottom = "";
+            for (const column of columns) {
+                if (column.columns?.length > 0) {
+                    thTop += `<th rowspan="1" colspan="${column.columns.length}" class="${column.classes ?? ""}" style="text-align: center; ${column.style ?? ""}">${column.title}</th>`;
+                    for (const bottomColumn of column.columns) {
+                        thBottom += `<th rowspan="1">${bottomColumn.title}</th>`;
+                    }
+                } else {
+                    thTop += `<th rowspan="2" class="${column.classes ?? ""}" style="${column.style ?? ""}">${column.title}</th>`;
                 }
-                if (result && filter.consequenceType.filterByConsequenceType) {
-                    if (query.ct) {
-                        let cts = query.ct.split(",");
-                        let isSoPresent = false;
-                        for (let term of ct.sequenceOntologyTerms) {
-                            isSoPresent = isSoPresent || cts.includes(term.name);
-                        }
-                        result = result && isSoPresent;
+            }
+            tr += `<tr>${thTop}</tr>`;
+            tr += `<tr>${thBottom}</tr>`;
+        } else {
+            const th = columns.map(column => `<th>${column.title}</th>`).join("");
+            tr = `<tr>${th}</tr>`;
+        }
+
+        let html = `<table id="${id ? id : null}" class="table ${config?.classes ? config.classes : "table-hover table-no-bordered"}">
+                        <thead>
+                            ${tr}
+                        </thead>
+                        <tbody>`;
+        // Render rows
+        for (const row of rows) {
+            let td = "";
+            for (const value of row.values) {
+                td += `<td>${value}</td>`;
+            }
+            html += `<tr class="${row.classes ?? ""}" style="${row.style ?? ""}">${td}</tr>`;
+        }
+        html += "</tbody></table>";
+
+        return html;
+    }
+
+    static _consequenceTypeDetailFormatterFilter(cts, filter) {
+        const selectedConsequenceTypes = [];
+        const notSelectedConsequenceTypes = [];
+        const showArrayIndexes = [];
+        for (let i = 0; i < cts.length; i++) {
+            const ct = cts[i];
+            // TODO Remove in IVA 2.2
+            // To keep compatability with CellBase 4
+            const transcriptFlags = ct.transcriptFlags ?? ct.transcriptAnnotationFlags;
+            let result = false;
+            if (filter) {
+                if (filter.consequenceType.maneTranscript && transcriptFlags?.includes("MANE")) {
+                    result = result || ct.transcriptAnnotationFlags?.includes("MANE");
+                }
+                if (filter.consequenceType.ensemblCanonicalTranscript) {
+                    result = result || transcriptFlags?.includes("canonical");
+                }
+                if (filter.consequenceType.refseqTranscript) {
+                    result = result || ct?.source?.toUpperCase() === "REFSEQ";
+                }
+                if (filter.consequenceType.gencodeBasicTranscript) {
+                    result = result || transcriptFlags?.includes("basic");
+                }
+                if (filter.consequenceType.ensemblTslTranscript) {
+                    result = result || transcriptFlags?.includes("TSL:1");
+                }
+                if (filter.consequenceType.ccdsTranscript) {
+                    result = result || transcriptFlags?.includes("CCDS");
+                }
+                if (filter.consequenceType.proteinCodingTranscript && ct.biotype === "protein_coding") {
+                    result = result || ct.biotype === "protein_coding";
+                }
+                if (filter.consequenceType.highImpactConsequenceTypeTranscript) {
+                    for (const so of ct.sequenceOntologyTerms) {
+                        const impact = CONSEQUENCE_TYPES?.impact[so.name]?.toUpperCase();
+                        result = result || impact === "HIGH" || impact === "MODERATE";
                     }
                 }
             }
             if (result) {
                 showArrayIndexes.push(i);
+                selectedConsequenceTypes.push(ct);
+            } else {
+                notSelectedConsequenceTypes.push(ct);
             }
         }
-        return showArrayIndexes;
+        return {
+            selectedConsequenceTypes: selectedConsequenceTypes,
+            notSelectedConsequenceTypes: notSelectedConsequenceTypes,
+            indexes: showArrayIndexes
+        };
     }
 
-    toggleDetailConsequenceType(e) {
-        let id = e.target.dataset.id;
-        let elements = document.getElementsByClassName(this._prefix + id + "Filtered");
-        for (let element of elements) {
+    static getHgvsLink(id, hgvsArray) {
+        if (!id) {
+            return;
+        }
+
+        let hgvs = hgvsArray?.find(hgvs => hgvs.startsWith(id));
+        if (hgvs) {
+            if (hgvs.includes("(")) {
+                const split = hgvs.split(new RegExp("[()]"));
+                hgvs = split[0] + split[2];
+            }
+
+            const split = hgvs.split(":");
+            let link;
+            if (hgvs.includes(":c.")) {
+                link = BioinfoUtils.getTranscriptLink(split[0]);
+            }
+            if (hgvs.includes(":p.")) {
+                link = BioinfoUtils.getProteinLink(split[0]);
+            }
+
+            return `<a href=${link} target="_blank">${split[0]}</a>:${split[1]}`;
+        } else {
+            if (id.startsWith("ENST") || id.startsWith("NM_") || id.startsWith("NR_")) {
+                return `<a href=${BioinfoUtils.getTranscriptLink(id)} target="_blank">${id}</a>`;
+            } else {
+                return `<a href=${BioinfoUtils.getProteinLink(id)} target="_blank">${id}</a>`;
+            }
+        }
+    }
+
+    static toggleDetailConsequenceType(e) {
+        const id = e.target.dataset.id;
+        const elements = document.getElementsByClassName(this._prefix + id + "Filtered");
+        for (const element of elements) {
             if (element.style.display === "none") {
                 element.style.display = "";
             } else {
@@ -428,37 +536,25 @@ export default class VariantGridFormatter {
         }
     }
 
-    consequenceTypeDetailFormatter(value, row, variantGrid, query, filter) {
+    static consequenceTypeDetailFormatter(value, row, variantGrid, query, filter, assembly) {
         if (row?.annotation?.consequenceTypes && row.annotation.consequenceTypes.length > 0) {
             // Sort and group CTs by Gene name
-            row.annotation.consequenceTypes.sort(function (a, b) {
-                if (a.geneName === "" && b.geneName !== "") {
-                    return 1;
-                }
-                if (a.geneName !== "" && b.geneName === "") {
-                    return -1;
-                }
-                if (a.geneName < b.geneName) {
-                    return -1;
-                }
-                if (a.geneName > b.geneName) {
-                    return 1;
-                }
-                return 0;
-            });
+            BioinfoUtils.sort(row.annotation.consequenceTypes, v => v.geneName);
 
-            let showArrayIndexes = this._consequenceTypeDetailFormatterFilter(row.annotation.consequenceTypes, query, filter);
+            const showArrayIndexes = VariantGridFormatter._consequenceTypeDetailFormatterFilter(row.annotation.consequenceTypes, filter).indexes;
             let message = "";
             if (filter) {
                 // Create two different divs to 'show all' or 'apply filter' title
-                message = `<div class="${variantGrid._prefix}${row.id}Filtered">Showing <span style="font-weight: bold; color: red">${showArrayIndexes.length}</span> of 
+                message = `<div class="${variantGrid._prefix}${row.id}Filtered">
+                                Showing <span style="font-weight: bold; color: red">${showArrayIndexes.length}</span> of 
                                 <span style="font-weight: bold; color: red">${row.annotation.consequenceTypes.length}</span> consequence types, 
                                 <a id="${variantGrid._prefix}${row.id}ShowCt" data-id="${row.id}" style="cursor: pointer">show all...</a>
                             </div>
-                            <div class="${variantGrid._prefix}${row.id}Filtered" style="display: none">Showing <span style="font-weight: bold; color: red">${row.annotation.consequenceTypes.length}</span> of 
+                            <div class="${variantGrid._prefix}${row.id}Filtered" style="display: none">
+                                Showing <span style="font-weight: bold; color: red">${row.annotation.consequenceTypes.length}</span> of 
                                 <span style="font-weight: bold; color: red">${row.annotation.consequenceTypes.length}</span> consequence types, 
                                 <a id="${variantGrid._prefix}${row.id}HideCt" data-id="${row.id}" style="cursor: pointer">apply filters...</a>
-                           </div>
+                            </div>
                             `;
             }
 
@@ -468,63 +564,145 @@ export default class VariantGridFormatter {
                           <table id="ConsqTypeTable" class="table table-hover table-no-bordered">
                               <thead>
                                   <tr>
-                                      <th rowspan="2">Gene Name</th>
-                                      <th rowspan="2">Ensembl Gene</th>                                     
-                                      <th rowspan="2">Ensembl Transcript</th>
-                                      <th rowspan="2">Biotype</th>
+                                      <th rowspan="2">Gene</th>
+                                      <th rowspan="2">Transcript</th>
+                                      <th rowspan="2">Consequence Type</th>
                                       <th rowspan="2">Transcript Flags</th>
-                                      <th rowspan="2">Consequence Types (SO Term)</th>
-                                      <th rowspan="1" colspan="3" style="text-align: center">Protein Variant Annotation</th>
+                                      <th rowspan="1" colspan="3" style="text-align: center; padding-top: 5px; padding-right: 2px">Transcript Variant Annotation</th>
+                                      <th rowspan="1" colspan="4" style="text-align: center; padding-top: 5px">Protein Variant Annotation</th>
                                   </tr>
-                                  <tr>
+                                  <tr style="margin: 5px">
+                                      <th rowspan="1" style="padding-top: 5px">cDNA / CDS</th>
+                                      <th rowspan="1">Codon</th>
+                                      <th rowspan="1" style="padding-right: 20px">Exon (%)</th>
                                       <th rowspan="1">UniProt Acc</th>
                                       <th rowspan="1">Position</th>
                                       <th rowspan="1">Ref/Alt</th>
+                                      <th rowspan="1">Domains</th>
                                   </tr>
                               </thead>
                               <tbody>`;
 
             for (let i = 0; i < row.annotation.consequenceTypes.length; i++) {
-                let ct = row.annotation.consequenceTypes[i];
+                const ct = row.annotation.consequenceTypes[i];
+
+                // Keep backward compatibility with old ensemblGeneId and ensemblTranscriptId
+                const source = ct.source || "ensembl";
+                const geneId = ct.geneId || ct.ensemblGeneId;
+                const transcriptId = ct.transcriptId || ct.ensemblTranscriptId;
+                const geneIdLink = `${BioinfoUtils.getGeneLink(geneId, source, assembly)}`;
+                const ensemblTranscriptIdLink = `${BioinfoUtils.getTranscriptLink(transcriptId, source, assembly)}`;
 
                 // Prepare data info for columns
-                let geneName = ct.geneName ? `<a href="https://www.genenames.org/tools/search/#!/all?query=${ct.geneName}" target="_blank">${ct.geneName}</a>` : "-";
-                let geneId = ct.ensemblGeneId ? `<a href="${BioinfoUtils.getEnsemblLink(ct.ensemblGeneId, "gene", this.opencgaSession.project.organism.assembly)}" target="_blank">${ct.ensemblGeneId}</a>` : "-";
-                let transcriptId = ct.ensemblTranscriptId ? `<a href="${BioinfoUtils.getEnsemblLink(ct.ensemblTranscriptId, "transcript", this.opencgaSession.project.organism.assembly)}" target="_blank">${ct.ensemblTranscriptId}</a>` : "-";
+                const geneName = ct.geneName ? `<a href="${BioinfoUtils.getGeneNameLink(ct.geneName)}" target="_blank">${ct.geneName}</a>` : "-";
 
-                let transcriptAnnotationFlags = "-";
-                if (ct.ensemblTranscriptId) {
-                    transcriptAnnotationFlags = ct.transcriptAnnotationFlags && ct.transcriptAnnotationFlags.length ? ct.transcriptAnnotationFlags.join(", ") : "NA";
-                }
+                const geneIdLinkHtml = geneId ? `<a href="${geneIdLink}" target="_blank">${geneId}</a>` : "";
+                const geneHtml = `
+                    <div>${geneName}</div>
+                    <div style="margin: 5px 0px">${geneIdLinkHtml}</div>
+                `;
 
-                let soArray = [];
-                for (let so of ct.sequenceOntologyTerms) {
-                    let color = "black";
-                    if (typeof variantGrid.consequenceTypeToColor !== "undefined"
-                        && typeof variantGrid.consequenceTypeToColor[so.name] !== "undefined") {
-                        color = variantGrid.consequenceTypeToColor[so.name];
-                    }
-                    soArray.push(`<div style="color: ${color}">
-                                    ${so.name} (<a href="http://www.sequenceontology.org/browser/current_svn/term/${so.accession}" target="_blank">${so.accession}</a>)
+                const transcriptIdHtml = `
+                    <div>
+                        <span>${ct.biotype ? ct.biotype : "-"}</span>
+                    </div>
+                    <div style="margin: 5px 0px">
+                        <span>
+                            ${transcriptId ? `
+                                <div style="margin: 5px 0px">
+                                    ${VariantGridFormatter.getHgvsLink(transcriptId, row.annotation.hgvs) || ""}
+                                </div>
+                                <div style="margin: 5px 0px">
+                                    ${VariantGridFormatter.getHgvsLink(ct?.proteinVariantAnnotation?.proteinId, row.annotation.hgvs) || ""}
+                                </div>` : ""
+                            }
+                        </span>
+                    </div>`;
+
+                const soArray = [];
+                for (const so of ct.sequenceOntologyTerms) {
+                    const color = CONSEQUENCE_TYPES.style[CONSEQUENCE_TYPES.impact[so.name]] || "black";
+                    soArray.push(`<div style="color: ${color}; margin-bottom: 5px">
+                                    <span style="padding-right: 5px">${so.name}</span> 
+                                    <a title="Go to Sequence Ontology ${so.accession} term" 
+                                            href="https://www.sequenceontology.org/browser/current_svn/term/${so.accession}" target="_blank">
+                                        <i class="fas fa-external-link-alt"></i>
+                                    </a>
                                   </div>`);
                 }
 
-                let pva = ct.proteinVariantAnnotation ? ct.proteinVariantAnnotation : {};
-                let uniprotAccession = pva.uniprotAccession ? `<a href="https://www.uniprot.org/uniprot/${pva.uniprotAccession}" target="_blank">${pva.uniprotAccession}</a>` : "-";
+                let transcriptFlags = ["-"];
+                if (transcriptId && (ct.transcriptFlags?.length > 0 || ct.transcriptAnnotationFlags?.length > 0)) {
+                    transcriptFlags = ct.transcriptFlags ?
+                        ct.transcriptFlags.map(flag => `<div style="margin-bottom: 5px">${flag}</div>`) :
+                        ct.transcriptAnnotationFlags.map(flag => `<div style="margin-bottom: 5px">${flag}</div>`);
+                }
+
+                let exons = ["-"];
+                if (ct.exonOverlap && ct.exonOverlap.length > 0) {
+                    exons = ct.exonOverlap.map(exon => `
+                        <div>
+                            <span>${exon.number}</span>
+                        </div>
+                        ${exon?.percentage ? `
+                            <div>
+                                <span class="help-block" style="margin: 2px 0px">${exon?.percentage.toFixed(2) ?? "-"}%</span>
+                            </div>` :
+                        ""}
+                    `);
+                }
+
+                const pva = ct.proteinVariantAnnotation ? ct.proteinVariantAnnotation : {};
+                let uniprotAccession = "-";
+                if (pva.uniprotAccession) {
+                    uniprotAccession = `
+                        <div style="margin: 5px 0px">
+                            <span><a href="${BioinfoUtils.getUniprotLink(pva.uniprotAccession)}" target="_blank">${pva.uniprotAccession}</a></span>
+                        </div>
+                        ${pva.uniprotVariantId ? `
+                            <div>
+                                <span class="help-block" style="margin: 0px">${pva.uniprotVariantId}</span>
+                            </div>` :
+                        ""}
+                    `;
+                }
+
+                let domains = "<a class=\"ct-protein-domain-tooltip\" tooltip-title='Info' tooltip-text='No protein domains found' tooltip-position-at=\"left bottom\" tooltip-position-my=\"right top\"><i class='fa fa-times' style='color: gray'></i></a>";
+                if (pva.features) {
+                    let tooltipText = "";
+                    const visited = new Set();
+                    for (const feature of pva.features) {
+                        if (feature.id && !visited.has(feature.id)) {
+                            visited.add(feature.id);
+                            tooltipText += `
+                                <div>
+                                    <span style="font-weight: bold; margin: 5px">${feature.id}</span><span class="help-block" style="margin: 5px">${feature.description}</span>
+                                </div>
+                            `;
+                        }
+                    }
+                    domains = `<a class="ct-protein-domain-tooltip" tooltip-title='Links' tooltip-text='${tooltipText}' tooltip-position-at="left bottom" tooltip-position-my="right top">
+                                    <i class='fa fa-check' style='color: green'></i>
+                               </a>`;
+                }
 
                 // Create the table row
-                let hideClass = showArrayIndexes.includes(i) ? "" : `${variantGrid._prefix}${row.id}Filtered`;
-                let displayStyle = showArrayIndexes.includes(i) ? "" : "display: none";
+                const hideClass = showArrayIndexes.includes(i) ? "" : `${variantGrid._prefix}${row.id}Filtered`;
+                const displayStyle = showArrayIndexes.includes(i) ? "" : "display: none";
                 ctHtml += `<tr class="detail-view-row ${hideClass}" style="${displayStyle}">
-                                <td>${geneName}</td>
-                                <td>${geneId}</td>
-                                <td>${transcriptId}</td>
-                                <td>${UtilsNew.isNotEmpty(ct.biotype) ? ct.biotype : "-"}</td>
-                                <td>${transcriptAnnotationFlags}</td>
+                                <td>${geneHtml}</td>
+                                <td>${transcriptIdHtml}</td>
                                 <td>${soArray.join("")}</td>
+                                <td>${transcriptFlags.join("")}</td>
+                                
+                                <td>${ct.cdnaPosition || "-"} / ${ct.cdsPosition || "-"}</td>
+                                <td>${ct.codon || "-"}</td>
+                                <td>${exons.join("<br>")}</td>
+                                
                                 <td>${uniprotAccession}</td>
                                 <td>${pva.position !== undefined ? pva.position : "-"}</td>
                                 <td>${pva.reference !== undefined ? pva.reference + "/" + pva.alternate : "-"}</td>
+                                <td>${domains}</td>
                            </tr>`;
             }
             ctHtml += "</tbody></table>";
@@ -533,152 +711,115 @@ export default class VariantGridFormatter {
         return "-";
     }
 
-    addCohortStatsInfoTooltip(div, populationFrequencies) {
-        $("#" + div).qtip({
-            content: {
-                title: "Cohort Stats",
-                text: function (event, api) {
-                    return `One coloured square is shown for each cohort. Frequencies are coded with colours which classify values 
-                            into 'very rare', 'rare', 'average', 'common' or 'missing', see 
-                            <a href="http://www.dialogues-cns.com/wp-content/uploads/2015/03/DialoguesClinNeurosci-17-69-g001.jpg" target="_blank">
-                                http://www.dialogues-cns.com/wp-content/uploads/2015/03/DialoguesClinNeurosci-17-69-g001.jpg
-                            </a>. Please, leave the cursor over each square to visualize the actual frequency values.
-                            <div style="padding: 10px 0px 0px 0px"><label>Legend: </label></div>
-                            <div><span><i class="fa fa-square" style="color: ${populationFrequencies.style.veryRare}" aria-hidden="true"></i> Very rare:  freq < 0.001</span></div>
-                            <div><span><i class="fa fa-square" style="color: ${populationFrequencies.style.rare}" aria-hidden="true"></i> Rare:  freq < 0.005</span></div>
-                            <div><span><i class="fa fa-square" style="color: ${populationFrequencies.style.average}" aria-hidden="true"></i> Average:  freq < 0.05</span></div>
-                            <div><span><i class="fa fa-square" style="color: ${populationFrequencies.style.common}" aria-hidden="true"></i> Common:  freq >= 0.05</span></div>
-                            <div><span><i class="fa fa-square" style="color: black" aria-hidden="true"></i> Not observed</span></div>`;
-                },
-            },
-            position: {target: "mouse", adjust: {x: 2, y: 2, mouse: false}},
-            style: {width: true, classes: "qtip-light qtip-rounded qtip-shadow qtip-custom-class"},
-            show: {delay: 200},
-            hide: {fixed: true, delay: 300}
-        });
+    static populationFrequenciesInfoTooltipContent(populationFrequencies) {
+        return `One coloured square is shown for each population. Frequencies are coded with colours which classify values 
+                into 'very rare', 'rare', 'average', 'common' or 'missing', see 
+                <a href='https://www.nature.com/scitable/topicpage/multifactorial-inheritance-and-genetic-disease-919' target='_blank'>
+                    https://www.nature.com/scitable/topicpage/multifactorial-inheritance-and-genetic-disease-919
+                </a>. Please, leave the cursor over each square to display the actual frequency values. <br>
+                <span style='font-weight: bold'>Note that that all frequencies are percentages.</span>
+                <div style='padding: 10px 0px 0px 0px'><label>Legend: </label></div>
+                <div><span><i class='fa fa-square' style='color: ${populationFrequencies.style.veryRare}' aria-hidden='true'></i> Very rare:  freq < 0.1 %</span></div>
+                <div><span><i class='fa fa-square' style='color: ${populationFrequencies.style.rare}' aria-hidden='true'></i> Rare:  freq < 0.5 %</span></div>
+                <div><span><i class='fa fa-square' style='color: ${populationFrequencies.style.average}' aria-hidden='true'></i> Average:  freq < 5 %</span></div>
+                <div><span><i class='fa fa-square' style='color: ${populationFrequencies.style.common}' aria-hidden='true'></i> Common:  freq >= 5 %</span></div>
+                <div><span><i class='fa fa-square' style='color: black' aria-hidden='true'></i> Not observed</span></div>`;
     }
 
-    /**
-     * Creates the colored table with one row and as many columns as populations.
-     * @param cohorts
-     * @param populationFrequenciesColor
-     */
-    createCohortStatsTable(cohorts, cohortStats, populationFrequenciesColor) {
+    // Creates the colored table with one row and as many columns as populations.
+    static createCohortStatsTable(cohorts, cohortStats, populationFrequenciesColor) {
         // This is used by the tooltip function below to display all population frequencies
-        let popFreqsTooltip;
-        let popFreqsArray = [];
-        for (let cohort of cohorts) {
-            let freq = (cohortStats.get(cohort.id) !== undefined) ? cohortStats.get(cohort.id) : 0;
-            popFreqsArray.push(cohort.name + "::" + freq);
+        const popFreqsArray = [];
+        for (const cohort of cohorts) {
+            const freq = (cohortStats.get(cohort.id) !== undefined) ? cohortStats.get(cohort.id) : 0;
+            popFreqsArray.push(cohort.id + "::" + freq);
         }
-        popFreqsTooltip = popFreqsArray.join(",");
+        const popFreqsTooltip = popFreqsArray.join(",");
+
+        // TODO block copied in createPopulationFrequenciesTable
+        let tooltip = "";
+        for (const popFreq of popFreqsArray) {
+            const arr = popFreq.split("::");
+            const color = VariantGridFormatter._getPopulationFrequencyColor(arr[1], populationFrequenciesColor);
+            // const freq = (arr[1] !== 0 && arr[1] !== "0") ? arr[1] + " %" : "<span style='font-style: italic'>Not Observed</span>";
+            let freq;
+            if (arr[1] !== 0 && arr[1] !== "0") {
+                freq = `${arr[1]} (${(Number(arr[1]) * 100).toPrecision(4)} %)`;
+            } else {
+                freq = "<span style='font-style: italic'>Not Observed</span>";
+            }
+            tooltip += `<div>
+                            <span><i class='fa fa-xs fa-square' style='color: ${color}' aria-hidden='true'></i>
+                                <label style='padding-left: 5px; width: 40px'>${arr[0]}:</label>
+                            </span>
+                            <span style='font-weight: bold'>${freq}</span>
+                        </div>`;
+        }
 
         // Create the table (with the tooltip info)
-        let tableSize = cohorts.length * 15;
-        let htmlPopFreqTable = `<table style="width:${tableSize}px" class="cohortStatsTable" data-pop-freq="${popFreqsTooltip}"><tr>`;
-        for (let cohort of cohorts) {
+        const tableSize = cohorts.length * 15;
+        let htmlPopFreqTable = `<a tooltip-title="Population Frequencies" tooltip-text="${tooltip}"><table style="width:${tableSize}px" class="cohortStatsTable" data-pop-freq="${popFreqsTooltip}"><tr>`;
+        for (const cohort of cohorts) {
             let color = "black";
             if (typeof cohortStats.get(cohort.id) !== "undefined") {
-                let freq = cohortStats.get(cohort.id);
-                color = this._getPopulationFrequencyColor(freq, populationFrequenciesColor);
-            }
-            htmlPopFreqTable += `<td style="width: 15px; background: ${color}">&nbsp;</td>`;
-        }
-        htmlPopFreqTable += "</tr></table>";
-        return htmlPopFreqTable;
-    }
-
-    addPopulationFrequenciesInfoTooltip(selector, populationFrequencies) {
-        $(selector).qtip({
-            content: {
-                title: "Population Frequencies",
-                text: function (event, api) {
-                    return `One coloured square is shown for each population. Frequencies are coded with colours which classify values 
-                            into 'very rare', 'rare', 'average', 'common' or 'missing', see 
-                            <a href="https://www.nature.com/scitable/topicpage/multifactorial-inheritance-and-genetic-disease-919" target="_blank">
-                                https://www.nature.com/scitable/topicpage/multifactorial-inheritance-and-genetic-disease-919
-                            </a>. Please, leave the cursor over each square to display the actual frequency value.
-                            <div style="padding: 10px 0px 0px 0px"><label>Legend: </label></div>
-                            <div><span><i class="fa fa-square" style="color: ${populationFrequencies.style.veryRare}" aria-hidden="true"></i> Very rare:  freq < 0.001</span></div>
-                            <div><span><i class="fa fa-square" style="color: ${populationFrequencies.style.rare}" aria-hidden="true"></i> Rare:  freq < 0.005</span></div>
-                            <div><span><i class="fa fa-square" style="color: ${populationFrequencies.style.average}" aria-hidden="true"></i> Average:  freq < 0.05</span></div>
-                            <div><span><i class="fa fa-square" style="color: ${populationFrequencies.style.common}" aria-hidden="true"></i> Common:  freq >= 0.05</span></div>
-                            <div><span><i class="fa fa-square" style="color: black" aria-hidden="true"></i> Not observed</span></div>`;
-                },
-            },
-            position: {target: "mouse", adjust: {x: 2, y: 2, mouse: false}},
-            style: {width: true, classes: "qtip-light qtip-rounded qtip-shadow qtip-custom-class"},
-            show: {delay: 200},
-            hide: {fixed: true, delay: 300}
-        });
-    }
-
-    /**
-     * Creates the colored table with one row and as many columns as populations.
-     * @param populations
-     * @param populationFrequenciesMap
-     * @param populationFrequenciesColor
-     */
-    createPopulationFrequenciesTable(populations, populationFrequenciesMap, populationFrequenciesColor) {
-        // This is used by the tooltip function below to display all population frequencies
-        let popFreqsTooltip;
-        let popFreqsArray = [];
-        for (let population of populations) {
-            let freq = (populationFrequenciesMap.get(population) !== undefined) ? populationFrequenciesMap.get(population) : 0;
-            popFreqsArray.push(population + "::" + freq);
-        }
-        popFreqsTooltip = popFreqsArray.join(",");
-
-        // Create the table (with the tooltip info)
-        let tableSize = populations.length * 15;
-        let htmlPopFreqTable = `<table style="width:${tableSize}px" class="populationFrequenciesTable" data-pop-freq="${popFreqsTooltip}"><tr>`;
-        for (let population of populations) {
-            // This array contains "study:population"
-            let color = "black";
-            if (typeof populationFrequenciesMap.get(population) !== "undefined") {
-                let freq = populationFrequenciesMap.get(population);
-                color = this._getPopulationFrequencyColor(freq, populationFrequenciesColor);
+                const freq = cohortStats.get(cohort.id);
+                color = VariantGridFormatter._getPopulationFrequencyColor(freq, populationFrequenciesColor);
             }
             htmlPopFreqTable += `<td style="width: 15px; background: ${color}; border-right: 1px solid white;">&nbsp;</td>`;
         }
-        htmlPopFreqTable += "</tr></table>";
+        htmlPopFreqTable += "</tr></table></a>";
         return htmlPopFreqTable;
     }
 
-    addPopulationFrequenciesTooltip(div, populationFrequencies) {
-        if (UtilsNew.isEmpty(div)) {
-            div = "table.populationFrequenciesTable";
+    // Creates the colored table with one row and as many columns as populations.
+    static createPopulationFrequenciesTable(populations, populationFrequenciesMap, populationFrequenciesColor) {
+        // This is used by the tooltip function below to display all population frequencies
+        const popFreqsArray = [];
+        for (const population of populations) {
+            const freq = (populationFrequenciesMap.get(population) !== undefined) ? populationFrequenciesMap.get(population) : 0;
+            popFreqsArray.push(population + "::" + freq);
+        }
+        const popFreqsTooltip = popFreqsArray.join(",");
+
+        let tooltip = "";
+        for (const popFreq of popFreqsArray) {
+            const arr = popFreq.split("::");
+            const color = VariantGridFormatter._getPopulationFrequencyColor(arr[1], populationFrequenciesColor);
+            // const freq = (arr[1] !== 0 && arr[1] !== "0") ? arr[1] + " %" : "<span style='font-style: italic'>Not Observed</span>";
+            let freq;
+            if (arr[1] !== 0 && arr[1] !== "0") {
+                freq = `${arr[1]} (${(Number(arr[1]) * 100).toPrecision(4)} %)`;
+            } else {
+                freq = "<span style='font-style: italic'>Not Observed</span>";
+            }
+            tooltip += `<div>
+                            <span>
+                                <i class='fa fa-xs fa-square' style='color: ${color}' aria-hidden='true'></i>
+                                <label style='padding-left: 5px; width: 40px'>${arr[0]}:</label>
+                            </span>
+                            <span style='font-weight: bold'>${freq}</span>
+                        </div>`;
         }
 
-        let _this = this;
-        $(div).qtip({
-            content: {
-                title: "Population Frequencies",
-                text: function (event, api) {
-                    let popFreqs = $(this).attr("data-pop-freq").split(",");
-                    let html = "";
-                    for (let popFreq of popFreqs) {
-                        let arr = popFreq.split("::");
-                        let color = _this._getPopulationFrequencyColor(arr[1], populationFrequencies.style);
-                        let freq = (arr[1] !== 0 && arr[1] !== "0") ? arr[1] : "0.00 (NA)";
-                        html += `<div>
-                                    <span><i class="fa fa-xs fa-square" style="color: ${color}" aria-hidden="true"></i>
-                                        <label style="padding-left: 5px">${arr[0]}:</label>
-                                    </span>
-                                    <span style="font-weight: bold">${freq}</span>
-                                </div>`;
-                    }
-                    return html;
-                }
-            },
-            position: {target: "mouse", adjust: {x: 2, y: 2, mouse: false}},
-            style: {width: true, classes: "qtip-light qtip-rounded qtip-shadow qtip-custom-class"},
-            show: {delay: 200},
-            hide: {fixed: true, delay: 300}
-        });
+        // Create the table (with the tooltip info)
+        const tableSize = populations.length * 15;
+        let htmlPopFreqTable = `<a tooltip-title="Population Frequencies" tooltip-text="${tooltip}">
+                                <table style="width:${tableSize}px" class="populationFrequenciesTable" data-pop-freq="${popFreqsTooltip}">
+                                    <tr>`;
+        for (const population of populations) {
+            // This array contains "study:population"
+            let color = "black";
+            if (typeof populationFrequenciesMap.get(population) !== "undefined") {
+                const freq = populationFrequenciesMap.get(population);
+                color = VariantGridFormatter._getPopulationFrequencyColor(freq, populationFrequenciesColor);
+            }
+            htmlPopFreqTable += `<td style="width: 15px; background: ${color}; border-right: 1px solid white;">&nbsp;</td>`;
+        }
+        htmlPopFreqTable += "</tr></table></a>";
+        return htmlPopFreqTable;
     }
 
-    _getPopulationFrequencyColor(freq, populationFrequenciesColor) {
+    static _getPopulationFrequencyColor(freq, populationFrequenciesColor) {
         let color;
         if (freq === 0 || freq === "0") {
             color = populationFrequenciesColor.unobserved;
@@ -694,20 +835,32 @@ export default class VariantGridFormatter {
         return color;
     }
 
-    clinicalPhenotypeFormatter(value, row, index) {
-        let phenotypeHtml = "<span><i class='fa fa-times' style='color: red'></i></span>";
+    static clinicalPhenotypeFormatter(value, row, index) {
+        const phenotypeHtml = "<span><i class='fa fa-times' style='color: red'></i></span>";
         if (row?.annotation?.traitAssociation) {
-            // Filter the traits for this column
+            // Filter the traits for this column and check the number of existing traits
             const traits = row.annotation.traitAssociation.filter(trait => trait.source.name.toUpperCase() === this.field.toUpperCase());
+            if (traits.length === 0) {
+                return "<span title='No clinical records found for this variant'><i class='fa fa-times' style='color: gray'></i></span>";
+            }
+
             if (this.field === "clinvar") {
-                let results = [];
-                if (traits.length === 0) {
-                    return "<span title='No ClinVar record found for this variant'><i class='fa fa-times' style='color: gray'></i></span>";
-                }
-                // There are some clinvar traits
-                let clinicalSignificanceVisited = {};
-                for (let trait of traits) {
-                    let clinicalSignificance = trait?.variantClassification?.clinicalSignificance || "UNKNOWN";
+                const results = [];
+                let tooltipText = "";
+                const clinicalSignificanceVisited = new Set();
+                for (const trait of traits) {
+                    let clinicalSignificance,
+                        drugResponseClassification;
+                    if (trait?.variantClassification?.clinicalSignificance) {
+                        clinicalSignificance = trait.variantClassification.clinicalSignificance;
+                    } else {
+                        if (trait?.variantClassification?.drugResponseClassification) {
+                            clinicalSignificance = "drug_response";
+                            drugResponseClassification = trait?.variantClassification?.drugResponseClassification;
+                        } else {
+                            clinicalSignificance = "unknown";
+                        }
+                    }
                     let code = "";
                     let color = "";
                     let tooltip = "";
@@ -738,6 +891,11 @@ export default class VariantGridFormatter {
                             color = "red";
                             tooltip = "Classified as pathogenic following ACMG/AMP recommendations for variants interpreted for Mendelian disorders";
                             break;
+                        case "DRUG_RESPONSE":
+                            code = "DR";
+                            color = "darkred";
+                            tooltip = "Classified as drug response following ACMG/AMP recommendations for variants interpreted for Mendelian disorders";
+                            break;
                         case "UNKNOWN":
                             code = "NP";
                             color = "grey";
@@ -745,36 +903,72 @@ export default class VariantGridFormatter {
                             break;
                     }
 
-                    if (code !== "NP") {
-                        if (typeof clinicalSignificanceVisited[code] === "undefined") {
-                            if (code === "BB" || code === "LB") {
-                                results.push(`<span style="color: ${color}" title="${tooltip}">${code}</span>`);
-                            } else {
-                                results.push(`<span style="color: ${color}" title="${tooltip}">${code}</span>`);
-                            }
-                            clinicalSignificanceVisited[code] = true;
-                        }
+                    if (code !== "NP" && !clinicalSignificanceVisited.has(code)) {
+                        results.push(`<span style="color: ${color}">${code}</span>`);
+                        clinicalSignificanceVisited.add(code);
+                    }
+
+                    // Prepare the tooltip links
+                    if (!trait.id?.startsWith("SCV")) {
+                        // We display the link plus the clinical significance and all the heritable trait descriptions
+                        tooltipText += `
+                            <div style="margin: 10px 5px">
+                                <div>
+                                    <a href="${trait.url}" target="_blank">${trait.id}</a>
+                                    <span style="font-style: italic; color: ${color}; margin-left: 10px">
+                                        ${clinicalSignificance} ${drugResponseClassification ? "(" + drugResponseClassification + ")" : ""}
+                                    </span>
+                                </div>
+                                <div>
+                                    ${trait?.heritableTraits?.length > 0 && trait.heritableTraits
+                                        .filter(t => t.trait && t.trait !== "not specified" && t.trait !== "not provided")
+                                        .map(t => `<span class="help-block" style="margin: 5px 1px">${t.trait}</span>`)
+                                        .join("")
+                                    }
+                                </div>
+                            </div>`;
                     }
                 }
 
                 // This can only be shown if nothing else exists
                 if (results.length === 0) {
-                    results.push(`<span style="color: grey" title="ClinVar submissions without an interpretation of clinical significance">NP</span>`);
+                    return "<span style=\"color: grey\" title=\"ClinVar submissions without an interpretation of clinical significance\">NP</span>";
                 }
-                return results.join("<br>");
+
+                return `<a class="clinvar-tooltip" tooltip-title='Links' tooltip-text='${tooltipText}' tooltip-position-at="left bottom" tooltip-position-my="right top">${results.join("<br>")}</a>`;
             } else {
                 if (this.field === "cosmic") {
-                    if (traits.length === 0) {
-                        return "<span title='No Cosmic record found for this variant'><i class='fa fa-times' style='color: gray'></i></span>";
-                    }
-                    let tooltip = [];
-                    for (let trait of traits) {
-                        if (trait?.somaticInformation) {
-                            tooltip.push(trait?.somaticInformation?.primaryHistology);
+                    // Prepare the tooltip links
+                    let tooltipText = "";
+                    const cosmicMap = new Map();
+                    traits.forEach(trait => {
+                        if (trait?.somaticInformation?.primaryHistology) {
+                            if (!cosmicMap.has(trait.id)) {
+                                cosmicMap.set(trait.id, new Set());
+                            }
+                            cosmicMap.get(trait.id).add(trait.somaticInformation.primaryHistology);
                         }
-                    }
-                    return `<span data-toggle="tooltip" data-placement="bottom" title="${tooltip.join(", ")}"><i class='fa fa-check' style='color: green'></i></span>`;
+                    });
 
+                    for (const [traitId, histologies] of cosmicMap.entries()) {
+                        tooltipText += `
+                            <div style="margin: 10px 5px">
+                                <div>
+                                    <a href="${BioinfoUtils.getCosmicVariantLink(traitId)}" target="_blank">${traitId}</a>
+                                </div>
+                                <div>
+                                    ${histologies?.size > 0 && Array.from(histologies.values())
+                                        .filter(histology => histology && histology !== "null")
+                                        .map(histology => `<span class="help-block" style="margin: 5px 1px">${histology}</span>`)
+                                        .join("")
+                                    }
+                                </div>
+                            </div>`;
+                    }
+
+                    return `<a class="cosmic-tooltip" tooltip-title='Links' tooltip-text='${tooltipText}' tooltip-position-at="left bottom" tooltip-position-my="right top">
+                                <span style="color: green">${cosmicMap.size} ${cosmicMap.size > 1 ? "studies" : "study" }</span>
+                            </a>`;
                 } else {
                     console.error("Wrong clinical source : " + this.field);
                 }
@@ -783,150 +977,129 @@ export default class VariantGridFormatter {
         return phenotypeHtml;
     }
 
-    addPhenotypesInfoTooltip(div) {
-        $("#" + div).qtip({
-            content: {
-                title: "Phenotypes",
-                text: function (event, api) {
-                    return `<div>
-                                <span style="font-weight: bold">ClinVar</span> is a freely accessible, public archive of reports of the relationships among human variations 
-                                and phenotypes, with supporting evidence.
-                            </div>
-                            <div style="padding-top: 10px">
-                                <span style="font-weight: bold">COSMIC</span> is the world's largest and most comprehensive resource for exploring the impact of somatic mutations in human cancer.
-                            </div>
-
-                           `;
-                },
-            },
-            position: {target: "mouse", adjust: {x: 2, y: 2, mouse: false}},
-            style: {width: true, classes: "qtip-light qtip-rounded qtip-shadow qtip-custom-class"},
-            show: {delay: 200},
-            hide: {fixed: true, delay: 300}
-        });
-    }
-
-    /*
-    * File attributes formatters
-    */
-    variantAlleleFrequencyDetailFormatter(value, row, variantGrid) {
-        let fileAttrHtml = "";
-        if (row && row.studies?.length > 0) {
-            fileAttrHtml = `<table class="table table-hover table-no-bordered">
-                                    <thead>
-                                        <tr>
-                                            <th rowspan="2" style="padding: 0px 10px"><span style="white-space: nowrap">Sample ID</span></th>
-                                            <th rowspan="2" style="padding: 0px 10px">VCF Call</th>
-                                            <th rowspan="2" style="padding: 0px 10px">Genotype</th>
-                                            <th rowspan="1" colspan="2" style="text-align:center;padding: 0px 10px">Reference</th>
-                                            <th rowspan="1" colspan="2" style="text-align:center;padding: 0px 10px">Alternate</th>
-                                            <th rowspan="2" style="padding: 0px 10px">Secondary Alternate</th>
-                                            <th rowspan="2" style="padding: 0px 10px">Other</th>
-                                        </tr>
-                                        <tr>
-                                            <th rowspan="1" style="padding: 0px 10px">Allele</th>
-                                            <th rowspan="1" style="padding: 0px 10px"><span style="white-space: nowrap">Frequency (Depth)</span></th>
-                                            <th rowspan="1" style="padding: 0px 10px">Allele</th>
-                                            <th rowspan="1" style="padding: 0px 10px"><span style="white-space: nowrap">Frequency (Depth)</span></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>`;
-
-            const study = row.studies[0];
-            for (let sample of study.samples) {
-                let file = study.files?.length > sample.fileIndex ? study.files[sample.fileIndex] : null;
-
-                let referenceFreq, referenceCount;
-                let alternateFreq, alternateCount;
-                let secondaryAlternate = "-";
-                let secondaryAlternateFreq;
-                let originalCall;
-
-                let ad, af, dp;
-                // Get DP value
-                let dpIdx = study.sampleDataKeys.findIndex(e => e === "DP");
-                if (dpIdx !== -1) {
-                    dp = Number.parseInt(sample.data[dpIdx]);
-                } else {
-                    dp = file.data.DP ? Number.parseInt(file.data.DP) : null;
-                }
-
-                // Sample format can contain AD or AF
-                let adIdx = study.sampleDataKeys.findIndex(e => e === "AD");
-                if (adIdx !== -1) {
-                    ad = sample.data[adIdx]?.split(",");
-                    referenceCount = Number.parseInt(ad[0]);
-                    alternateCount = Number.parseInt(ad[1]);
-                    if (ad > 1) {
-                        secondaryAlternateFreq = ad[2];
+    static clinicalTableDetail(value, row, index) {
+        const clinvar = [];
+        const cosmicIntermdiate = new Map();
+        const cosmic = [];
+        if (row.annotation.traitAssociation && row.annotation.traitAssociation.length > 0) {
+            for (const trait of row.annotation.traitAssociation) {
+                const values = [];
+                const vcvId = trait.additionalProperties.find(p => p.name === "VCV ID");
+                const genomicFeature = trait.genomicFeatures.find(f => f.featureType.toUpperCase() === "GENE");
+                const reviewStatus = trait.additionalProperties.find(p => p.name === "ReviewStatus_in_source_file");
+                if (trait.source.name.toUpperCase() === "CLINVAR") {
+                    values.push(`<a href="${trait.url ?? BioinfoUtils.getClinvarVariationLink(trait.id)}" target="_blank">${trait.id}</a>`);
+                    values.push(vcvId ? vcvId.value : trait.id);
+                    values.push(genomicFeature?.xrefs ? genomicFeature.xrefs?.symbol : "-");
+                    values.push(trait.variantClassification?.clinicalSignificance);
+                    values.push(trait.consistencyStatus);
+                    values.push(reviewStatus ? reviewStatus.value : "-");
+                    values.push(trait.heritableTraits ? trait.heritableTraits.map(t => t.trait).join("<br>") : "-");
+                    clinvar.push({
+                        values: values
+                    });
+                } else { // COSMIC section
+                    // Prepare data to group by histologySubtype field
+                    const key = trait.id + ":" + trait.somaticInformation.primaryHistology + ":" + trait.somaticInformation.primaryHistology;
+                    const reviewStatus = trait.additionalProperties.find(p => p.id === "MUTATION_SOMATIC_STATUS");
+                    const zygosity = trait.additionalProperties.find(p => p.id === "MUTATION_ZYGOSITY");
+                    if (!cosmicIntermdiate.has(key)) {
+                        cosmicIntermdiate.set(key, {
+                            id: trait.id,
+                            url: trait.url,
+                            primarySite: trait.somaticInformation.primarySite,
+                            primaryHistology: trait.somaticInformation.primaryHistology,
+                            histologySubtypes: [],
+                            histologySubtypesCounter: new Map(),
+                            reviewStatus: reviewStatus,
+                            pubmed: new Set(),
+                            zygosity: new Set()
+                        });
                     }
-                    if (dp) {
-                        referenceFreq = referenceCount !== 0 && referenceCount !== dp ? Number.parseFloat(referenceCount / dp).toFixed(3) : referenceCount / dp;
-                        alternateFreq = alternateCount !== 0 && alternateCount !== dp ? Number.parseFloat(alternateCount / dp).toFixed(3) : alternateCount / dp;
-                    }
-                } else {
-                    let afIdx = study.sampleDataKeys.findIndex(e => e === "AF");
-                    if (afIdx !== -1) {
-                        af = sample.data[afIdx]?.split(",");
-                        referenceFreq = af[0];
-                        alternateFreq = af[1];
-                        if (af > 1) {
-                            secondaryAlternateFreq = af[2];
+                    // Only add the new terms for this key
+                    if (trait.somaticInformation.histologySubtype) {
+                        if (!cosmicIntermdiate.get(key).histologySubtypesCounter.get(trait.somaticInformation.histologySubtype)) {
+                            cosmicIntermdiate.get(key).histologySubtypes.push(trait.somaticInformation.histologySubtype);
                         }
-                        referenceCount = "NA";
-                        alternateCount = "NA";
+                        // Increment the counter always
+                        cosmicIntermdiate.get(key).histologySubtypesCounter
+                            .set(trait.somaticInformation.histologySubtype, cosmicIntermdiate.get(key).histologySubtypesCounter.size + 1);
+                    }
+                    if (trait?.bibliography?.length > 0) {
+                        cosmicIntermdiate.get(key).pubmed.add(...trait.bibliography);
+                    }
+                    if (zygosity) {
+                        cosmicIntermdiate.get(key).zygosity.add(zygosity.value);
                     }
                 }
-
-                if (file.call?.variantId) {
-                    originalCall = file.call.variantId.replace("<", "&lt;").replace(">", "&gt;");
-                    if (originalCall.includes(",")) {
-                        let split = originalCall.split(",");
-                        secondaryAlternate = split[1] !== "&lt;NON_REF&gt;" ? split[1] : "none";
-                    }
-                } else {
-                    originalCall = `${row.chromosome}:${row.position}:${row.reference}:${row.alternate}`;
-                }
-
-                let format = [];
-                for (let i = 0; i < study.sampleDataKeys.length; i++) {
-                    format.push(study.sampleDataKeys[i] + ": " + sample.data[i]);
-                }
-
-                let genotypeColor = "black";
-                if (sample.data[0] === "0/1" || sample.data[0] === "0|1" && sample.data[0] === "1|0") {
-                    genotypeColor = "darkorange";
-                } else {
-                    if (sample.data[0] === "1/1" || sample.data[0] === "1|1") {
-                        genotypeColor = "red";
-                    }
-                }
-                let sampleIdColor = variantGrid?.clinicalAnalysis?.proband?.samples[0]?.id === sample.sampleId ? "darkred" : "black";
-                fileAttrHtml += `<tr class="detail-view-row">
-                                    <td><span style="font-weight: bold; color: ${sampleIdColor}">${sample.sampleId}</span></td>
-                                    <td><span style="white-space: nowrap">${originalCall}</span></td>
-                                    <td><span style="color: ${genotypeColor}">${sample.data[0]}</span></td>
-                                    <td>${row.reference}</td>
-                                    <td>${referenceFreq} (${referenceCount})</td>
-                                    <td>${row.alternate}</td>
-                                    <td>${alternateFreq} (${alternateCount})</td>
-                                    <td>${secondaryAlternate}</td>
-                                    <td>${format.join("; ")}</td>
-                                 </tr>`;
             }
 
-            fileAttrHtml += `</tbody></table>`;
+            // Sort bu key and prepare column data
+            for (const [key, c] of new Map([...cosmicIntermdiate.entries()].sort())) {
+                const values = [];
+                values.push(`<a href="${c.url ?? BioinfoUtils.getCosmicVariantLink(c.id)}" target="_blank">${c.id}</a>`);
+                values.push(c.primarySite);
+                values.push(c.primaryHistology);
+                values.push(c.histologySubtypes
+                    .map(value => {
+                        if (cosmicIntermdiate.get(key).histologySubtypesCounter.get(value) > 1) {
+                            return value + " (x" + cosmicIntermdiate.get(key).histologySubtypesCounter.get(value) + ")";
+                        } else {
+                            return "-";
+                        }
+                    })
+                    .join("<br>") || "-");
+                values.push(Array.from(c.zygosity?.values()).join(", ") || "-");
+                values.push(c?.reviewStatus?.value || "-");
+                values.push(Array.from(c.pubmed.values()).map(p => `<a href="${BioinfoUtils.getPubmedLink(p)}" target="_blank">${p}</a>`).join("<br>"));
+                cosmic.push({
+                    values: values
+                });
+            }
         }
-        return fileAttrHtml;
+
+        // Clinvar
+        const clinvarColumns = [
+            {title: "ID"},
+            {title: "Variation ID"},
+            {title: "Gene"},
+            {title: "Clinical Significance"},
+            {title: "Consistency Status"},
+            {title: "Review Status"},
+            {title: "Traits"}
+        ];
+        const clinvarTable = VariantGridFormatter.renderTable("", clinvarColumns, clinvar, {defaultMessage: "No ClinVar data found"});
+        const clinvarTraits = `<div>
+                                <label>ClinVar</label>
+                                <div>${clinvarTable}</div>
+                             </div>`;
+
+        // Cosmic
+        const cosmicColumns = [
+            {title: "ID"},
+            {title: "Primary Site"},
+            {title: "Primary Histology"},
+            {title: "Histology Subtype"},
+            {title: "Zygosity"},
+            {title: "Status"},
+            {title: "Pubmed"}
+        ];
+        const cosmicTable = VariantGridFormatter.renderTable("", cosmicColumns, cosmic, {defaultMessage: "No Cosmic data found"});
+        const cosmicTraits = `<div style="margin-top: 15px">
+                                <label>Cosmic</label>
+                                <div>${cosmicTable}</div>
+                            </div>`;
+
+        return clinvarTraits + cosmicTraits;
     }
 
     /*
      * Reported Variant formatters
      */
-    toggleDetailClinicalEvidence(e) {
-        let id = e.target.dataset.id;
-        let elements = document.getElementsByClassName(this._prefix + id + "EvidenceFiltered");
-        for (let element of elements) {
+    static toggleDetailClinicalEvidence(e) {
+        const id = e.target.dataset.id;
+        const elements = document.getElementsByClassName(this._prefix + id + "EvidenceFiltered");
+        for (const element of elements) {
             if (element.style.display === "none") {
                 element.style.display = "";
             } else {
@@ -935,289 +1108,24 @@ export default class VariantGridFormatter {
         }
     }
 
-    reportedEventDetailFormatter(value, row, variantGrid, query, filter) {
-        if (row && row.evidences.length > 0) {
-            // Sort by Tier level
-            row.evidences.sort(function (a, b) {
-                if (a.tier === null || b.tier !== null) {
-                    return 1;
-                }
-                if (a.tier !== null || b.tier === null) {
-                    return -1;
-                }
-                if (a.tier < b.tier) {
-                    return -1;
-                }
-                if (a.tier > b.tier) {
-                    return 1;
-                }
-                return 0;
-            });
-
-            // let selectColumnHtml = "";
-            // if (variantGrid._config.showSelectCheckbox) {
-            //     selectColumnHtml = "<th rowspan=\"2\">Select</th>";
-            // }
-
-            let showArrayIndexes = this._consequenceTypeDetailFormatterFilter(row.annotation.consequenceTypes, query, filter);
-            let message = "";
-            if (filter) {
-                // Create two different divs to 'show all' or 'apply filter' title
-                message = `<div class="${variantGrid._prefix}${row.id}EvidenceFiltered">Showing <span style="font-weight: bold; color: red">${showArrayIndexes.length}</span> of 
-                                <span style="font-weight: bold; color: red">${row.annotation.consequenceTypes.length}</span> clinical evidences, 
-                                <a id="${variantGrid._prefix}${row.id}ShowEvidence" data-id="${row.id}" style="cursor: pointer">show all...</a>
-                            </div>
-                            <div class="${variantGrid._prefix}${row.id}EvidenceFiltered" style="display: none">Showing <span style="font-weight: bold; color: red">${row.annotation.consequenceTypes.length}</span> of 
-                                <span style="font-weight: bold; color: red">${row.annotation.consequenceTypes.length}</span> clinical evidences, 
-                                <a id="${variantGrid._prefix}${row.id}HideEvidence" data-id="${row.id}" style="cursor: pointer">apply filters...</a>
-                           </div>
-                            `;
-            }
-
-            let ctHtml = `
-                            <div style="padding-bottom: 5px">
-                                ${message}
-                            </div>
-                            <table id="ConsqTypeTable" class="table table-hover table-no-bordered">
-                                <thead>
-                                    <tr>
-                                        <th rowspan="2">Gene</th>
-                                        <th rowspan="2">Transcript</th>
-                                        <th rowspan="2">Gencode</th>
-                                        <th rowspan="2">Consequence Type (SO Term)</th>
-                                        <th rowspan="2">Panel</th>
-                                        <th rowspan="2">Mode of Inheritance</th>
-                                        <th rowspan="2">Role in Cancer</th>
-                                        <th rowspan="2">Actionable</th>
-                                        <th rowspan="1" colspan="3" style="text-align: center">Classification</th>
-                                    </tr>
-                                    <tr>
-                                        <th rowspan="1">ACMG</th>
-                                        <th rowspan="2">Tier</th>
-                                        <th rowspan="1">Clinical Significance</th>
-                                    </tr>
-                                </thead>
-                                <tbody>`;
-
-
-            // FIXME Maybe this should happen in the server?
-            // let biotypeSet = new Set();
-            let consequenceTypeSet = new Set();
-            if (UtilsNew.isNotUndefinedOrNull(variantGrid.query)) {
-                // if (UtilsNew.isNotUndefinedOrNull(variantGrid.query.biotype)) {
-                //     biotypeSet = new Set(variantGrid.query.biotype.split(","));
-                // }
-                if (UtilsNew.isNotUndefinedOrNull(variantGrid.query.ct)) {
-                    consequenceTypeSet = new Set(variantGrid.query.ct.split(","));
-                }
-            }
-
-            for (let i = 0; i < row.evidences.length; i++) {
-                let re = row.evidences[i];
-
-                // FIXME Maybe this should happen in the server?
-                // If ct exist and there are some consequenceTypeIds then we check that the report event matches the query
-                if (UtilsNew.isNotEmptyArray(re.consequenceTypeIds) && consequenceTypeSet.size > 0) {
-                    let hasConsequenceType = false;
-                    for (let ct of re.consequenceTypeIds) {
-                        if (consequenceTypeSet.has(ct)) {
-                            hasConsequenceType = true;
-                        }
-                    }
-                    if (!hasConsequenceType) {
-                        continue;
-                    }
-                }
-
-                // Prepare data info for columns
-                let gene = "-";
-                if (UtilsNew.isNotEmpty(re.genomicFeature.id)) {
-                    gene = `<div>
-                                <a href="https://www.genenames.org/tools/search/#!/all?query=${re.genomicFeature.geneName}" target="_blank">
-                                    ${re.genomicFeature.geneName}
-                                </a>
-                            </div>
-                            <div style="padding-top: 5px">
-                                <a href="http://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=${re.genomicFeature.id}" target="_blank">
-                                    ${re.genomicFeature.id}
-                                </a>
-                            </div>`;
-                }
-
-
-                let transcriptId = "-";
-                if (UtilsNew.isNotEmpty(re.genomicFeature.transcriptId)) {
-                    let biotype = "-";
-                    if (UtilsNew.isNotUndefinedOrNull(row.annotation) && UtilsNew.isNotEmptyArray(row.annotation.consequenceTypes)) {
-                        for (let ct of row.annotation.consequenceTypes) {
-                            if (ct.ensemblTranscriptId === re.genomicFeature.transcriptId) {
-                                biotype = ct.biotype;
-                                break;
-                            }
-                        }
-                    }
-
-                    transcriptId = `<div>
-                                        <a href="http://www.ensembl.org/Homo_sapiens/Transcript/Idhistory?t=${re.genomicFeature.transcriptId}" target="_blank">
-                                            ${re.genomicFeature.transcriptId}
-                                        </a>
-                                    </div>
-                                    <div style="padding-top: 5px">
-                                        ${biotype}
-                                    </div>`;
-                }
-
-                let transcriptFlag = "";
-                let transcriptFlagChecked = false;
-                if (UtilsNew.isNotEmptyArray(row.annotation.consequenceTypes)) {
-                    for (let ct of row.annotation.consequenceTypes) {
-                        if (re.genomicFeature.transcriptId === ct.ensemblTranscriptId) {
-                            if (ct.transcriptAnnotationFlags !== undefined && ct.transcriptAnnotationFlags.includes("basic")) {
-                                transcriptFlag = `<span data-toggle="tooltip" data-placement="bottom" title="Proband">
-                                                    <i class='fa fa-check' style='color: green'></i>
-                                                  </span>`;
-                                transcriptFlagChecked = true;
-                            } else {
-                                if (re.genomicFeature.transcriptId) {
-                                    transcriptFlag = `<span><i class='fa fa-times' style='color: red'></i></span>`;
-                                } else {
-                                    transcriptFlag = `-`;
-                                }
-                            }
-                            break;
-                        }
-                    }
-                }
-
-                let soArray = [];
-                if (re.genomicFeature.consequenceTypes && re.genomicFeature.consequenceTypes.length > 0) {
-                    for (let so of re.genomicFeature.consequenceTypes) {
-                        let color = "black";
-                        if (typeof variantGrid.consequenceTypeToColor !== "undefined" && typeof variantGrid.consequenceTypeToColor[so.name] !== "undefined") {
-                            color = variantGrid.consequenceTypeToColor[so.name];
-                        }
-                        soArray.push(`<div style="color: ${color}">
-                                    ${so.name} (<a href="http://www.sequenceontology.org/browser/current_svn/term/${so.accession}" target="_blank">${so.accession}</a>)
-                                  </div>`);
-                    }
-                }
-
-
-                let panel = "-";
-                if (UtilsNew.isNotUndefinedOrNull(re.panelId)) {
-                    panel = re.panelId;
-                }
-
-                let moi = "-";
-                if (UtilsNew.isNotUndefinedOrNull(re.modeOfInheritance)) {
-                    moi = re.modeOfInheritance;
-                }
-
-                let roleInCancer = "-";
-                if (UtilsNew.isNotUndefinedOrNull(re.roleInCancer)) {
-                    roleInCancer = re.roleInCancer === "TUMOR_SUPRESSOR_GENE" || re.roleInCancer === "TUMOR_SUPPRESSOR_GENE" ? "TSG" : re.roleInCancer;
-                    // roleInCancer = re.roleInCancer;
-                }
-
-                let actionable = "-";
-                if (UtilsNew.isNotUndefinedOrNull(re.actionable) && re.actionable) {
-                    actionable = "Yes";
-                }
-
-                let acmg = "-";
-                if (UtilsNew.isNotEmptyArray(re.classification.acmg)) {
-                    acmg = re.classification.acmg.join(", ");
-                }
-
-                let tier = "-";
-                let color = "black";
-                if (UtilsNew.isNotUndefinedOrNull(re.tier)) {
-                    color = (re.tier === "Tier1" || re.tier === "Tier 1") ? "red" : color;
-                    color = (re.tier === "Tier2" || re.tier === "Tier 2") ? "darkorange" : color;
-                    color = (re.tier === "Tier3" || re.tier === "Tier 3") ? "blue" : color;
-                    tier = `<span style="color: ${color}">${re.tier}</span>`;
-                }
-
-                let clinicalSignificance = "-";
-                if (re.classification.clinicalSignificance) {
-                    clinicalSignificance = re.classification.clinicalSignificance;
-                    switch (clinicalSignificance) {
-                        case "PATHOGENIC":
-                        case "PATHOGENIC_VARIANT":
-                        case "LIKELY_PATHOGENIC":
-                        case "LIKELY_PATHOGENIC_VARIANT":
-                            clinicalSignificance = `<span style='color: red'>${clinicalSignificance.replace("_", " ")}</span>`;
-                            break;
-                        case "UNCERTAIN_SIGNIFICANCE":
-                        case "VARIANT_OF_UNKNOWN_CLINICAL_SIGNIFICANCE":
-                            clinicalSignificance = `<span style='color: darkorange'>${clinicalSignificance.replace("_", " ")}</span>`;
-                            break;
-                        case "LIKELY_BENIGN":
-                        case "LIKELY_BENIGN_VARIANT":
-                        case "BENIGN":
-                        case "BENIGN_VARIANT":
-                            clinicalSignificance = `<span style='color: blue'>${clinicalSignificance.replace("_", " ")}</span>`;
-                            break;
-                        case "NOT_ASSESSED":
-                            clinicalSignificance = `<span style='color: black'>${clinicalSignificance.replace("_", " ")}</span>`;
-                            break;
-                        default:
-                            clinicalSignificance = "NA";
-                            break;
-                    }
-                }
-
-                // let checboxHtml = "";
-                // if (variantGrid._config.showSelectCheckbox) {
-                //     let checked = "";
-                //     if (transcriptFlagChecked && tier !== "-") {
-                //         checked = "checked";
-                //     }
-                //     checboxHtml = `<td><input type="checkbox" ${checked}></td>`;
-                // }
-
-                // Create the table row
-                let hideClass = showArrayIndexes.includes(i) ? "" : `${variantGrid._prefix}${row.id}EvidenceFiltered`;
-                let displayStyle = showArrayIndexes.includes(i) ? "" : "display: none";
-
-                // Create the table row
-                ctHtml += `<tr class="detail-view-row ${hideClass}" style="${displayStyle}">
-                            <td>${gene}</td>
-                            <td>${transcriptId}</td>
-                            <td>${transcriptFlag}</td>
-                            <td>${soArray.join("")}</td>
-                            <td>${panel}</td>
-                            <td>${moi}</td>
-                            <td>${roleInCancer}</td>
-                            <td>${actionable}</td>
-                            <td>${acmg}</td>
-                            <td>${tier}</td>
-                            <td>${clinicalSignificance}</td>
-                           </tr>`;
-            }
-            ctHtml += "</tbody></table>";
-            return ctHtml;
-        }
-        return "-";
-    }
-
-    addTooltip(selector, title, content, config) {
-        $(selector).qtip({
-            content: {
-                title: title,
-                text: function (event, api) {
-                    if (UtilsNew.isNotEmpty(content)) {
-                        return content;
-                    } else {
-                        return $(this).attr("data-tooltip-text");
-                    }
-                }
-            },
-            position: {target: "mouse", adjust: {x: 2, y: 2, mouse: false}},
-            style: {classes: "qtip-light qtip-rounded qtip-shadow qtip-custom-class"},
-            show: {delay: 200},
-            hide: {fixed: true, delay: 300}
-        });
-    }
+    // TODO Remove since it is DEPRECATED
+    // addTooltip(selector, title, content, config) {
+    //     $(selector).qtip({
+    //         content: {
+    //             title: title,
+    //             text: function (event, api) {
+    //                 if (UtilsNew.isNotEmpty(content)) {
+    //                     return content;
+    //                 } else {
+    //                     return $(this).attr("data-tooltip-text");
+    //                 }
+    //             }
+    //         },
+    //         position: {target: "mouse", adjust: {x: 2, y: 2, mouse: false}},
+    //         style: {classes: "qtip-light qtip-rounded qtip-shadow qtip-custom-class"},
+    //         show: {delay: 200},
+    //         hide: {fixed: true, delay: 300}
+    //     });
+    // }
 
 }

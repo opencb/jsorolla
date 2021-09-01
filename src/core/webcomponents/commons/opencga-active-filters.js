@@ -17,8 +17,6 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../utilsNew.js";
 import {NotificationQueue} from "../Notification.js";
-import PolymerUtils from "../PolymerUtils.js";
-import {OpenCGAClient} from "../../clients/opencga/opencga-client.js";
 
 export default class OpencgaActiveFilters extends LitElement {
 
@@ -36,6 +34,9 @@ export default class OpencgaActiveFilters extends LitElement {
             query: {
                 type: Object
             },
+            executedQuery: {
+                type: Object
+            },
             // this is included in config param in case of variant-browser (it can be different somewhere else)
             filters: {
                 type: Array
@@ -49,9 +50,6 @@ export default class OpencgaActiveFilters extends LitElement {
             defaultStudy: {
                 type: String
             },
-            refresh: {
-                type: Object
-            },
             config: {
                 type: Object
             },
@@ -59,6 +57,9 @@ export default class OpencgaActiveFilters extends LitElement {
                 type: Boolean
             },
             facetQuery: {
+                type: Object
+            },
+            executedFacetQuery: {
                 type: Object
             }
         };
@@ -69,7 +70,7 @@ export default class OpencgaActiveFilters extends LitElement {
     }
 
     init() {
-        this._prefix = "oaf" + UtilsNew.randomString(6) + "_";
+        this._prefix = UtilsNew.randomString(8);
         this._config = this.getDefaultConfig();
         this.filters = [];
         this._filters = [];
@@ -77,24 +78,20 @@ export default class OpencgaActiveFilters extends LitElement {
         this.query = {};
         this.lockedFieldsMap = {};
         this.facetQuery = {};
-        this._facetQuery = {};
+        this._JsonFacetQuery = null;
     }
 
     connectedCallback() {
         super.connectedCallback();
-        this.opencgaClient = this.opencgaSession.opencgaClient;
     }
 
     firstUpdated() {
-        // super.connectedCallback();
-
         // Small trick to force the warning message display after DOM is renderer
         this.query = {...this.query};
 
         // We need to init _previousQuery with query in order to work before executing any search
         this._previousQuery = this.query;
 
-        // console.log("CONFIG", this.filters)
         // If there is any active filter we set the first one in the initialisation
         if (typeof this.filters !== "undefined" && UtilsNew.isEmpty(this.query)) {
             for (const filter of this.filters) {
@@ -116,12 +113,15 @@ export default class OpencgaActiveFilters extends LitElement {
             this.opencgaSessionObserver();
         }
 
+        // this is before queryObserver because in searchClicked() updates this._jsonPrevQuery which is being used in queryObserver()
+        if (changedProperties.has("executedQuery") || changedProperties.has("executedFacetQuery")) {
+            this.searchClicked();
+        }
+
         if (changedProperties.has("query")) {
             this.queryObserver();
         }
-        if (changedProperties.has("refresh")) {
-            this.searchClicked();
-        }
+
         if (changedProperties.has("config")) {
             this.configObserver();
         }
@@ -132,307 +132,29 @@ export default class OpencgaActiveFilters extends LitElement {
         }
     }
 
-    configObserver() {
-        this._config = Object.assign({}, this.getDefaultConfig(), this.config);
-
-        // Overwrite default alias with the one passed
-        this._config.alias = Object.assign({}, this.getDefaultConfig().alias, this.config.alias);
-
-        this.lockedFieldsMap = {};
-        for (const lockedField of this._config.lockedFields) {
-            this.lockedFieldsMap[lockedField.id] = lockedField;
-        }
-    }
-
-    facetQueryObserver() {
-        if (JSON.stringify(this._facetQuery) !== JSON.stringify(this.facetQuery)) {
-            this.querySelector("#" + this._prefix + "Warning").style.display = "block";
-            this._facetQuery = this.facetQuery;
-        } else {
-            this.querySelector("#" + this._prefix + "Warning").style.display = "none";
-        }
-
-    }
-
-    clear() {
-        PolymerUtils.addStyleByClass("filtersLink", "color", "black");
-
-        // TODO do not trigger event if there are no active filters
-        // Trigger clear event
-        this.dispatchEvent(new CustomEvent("activeFilterClear", {detail: {}, bubbles: true, composed: true}));
-    }
-
-    clearFacet() {
-        this.querySelector("#" + this._prefix + "Warning").style.display = "none";
-        this.dispatchEvent(new CustomEvent("activeFacetClear", {detail: {}, bubbles: true, composed: true}));
-    }
-
-    launchModal() {
-        $(PolymerUtils.getElementById(this._prefix + "SaveModal")).modal("show");
-    }
-
-    showSelectFilters() {
-        return (this.filters !== undefined && this.filters.length > 0) || !UtilsNew.isEmpty(this.opencgaSession.token);
-    }
-
-    checkSid(config) {
-        return UtilsNew.isNotEmpty(config);
-    }
-
     opencgaSessionObserver() {
-        if (this.opencgaClient instanceof OpenCGAClient && UtilsNew.isNotUndefined(this.opencgaSession.token)) {
-            // console.error("arguments changed inverted after new clients. recheck functionality. serverVersion is now ignored");
-            this.opencgaClient.users().filters(this.opencgaSession.user.id).then( restResponse => {
-                const result = restResponse.getResults();
-
-                // (this.filters || []) in case comes undefined as prop
-                if (result.length > 0) {
-                    this._filters = [...(this.filters || []), ...result.filter( f => f.resource === this.resource)];
-                } else {
-                    this._filters = [...(this.filters || [])];
-                }
-                this.requestUpdate();
-            });
+        if (this.opencgaSession.token && this.opencgaSession?.study?.fqn) {
+            this.refreshFilters();
         }
-    }
-    // TODO recheck & refactor
-    save() {
-        const filterName = PolymerUtils.getValue(this._prefix + "filterName");
-        const filterDescription = PolymerUtils.getValue(this._prefix + "filterDescription");
-
-
-        this.opencgaClient.users().filters(this.opencgaSession.user.id)
-            .then(restResponse => {
-                console.log("GET filters", restResponse);
-                const savedFilters = restResponse.getResults() || [];
-
-                console.log("savedFilters", savedFilters);
-
-                if (savedFilters.find(savedFilter => savedFilter.id === filterName)) {
-                    // updating an existing filter
-                    const data = {
-                        description: filterDescription,
-                        query: this.query,
-                        options: {}
-                    };
-
-                    Swal.fire({
-                        title: "Are you sure?",
-                        text: "A Filter with the same name is already present. You are going to overwrite it.",
-                        icon: "warning",
-                        showCancelButton: true,
-                        confirmButtonColor: "#d33",
-                        cancelButtonColor: "#3085d6",
-                        confirmButtonText: "Yes"
-                    }).then(result => {
-                        if (result.value) {
-                            this.opencgaClient.users().updateFilter(this.opencgaSession.user.id, filterName, data)
-                                .then(restResponse => {
-                                    if (!restResponse?.getEvents?.("ERROR")?.length) {
-                                        for (const i in this._filters) {
-                                            if (this._filters[i].id === filterName) {
-                                                this._filters[i] = restResponse.response[0].result[0];
-                                            }
-                                        }
-                                        Swal.fire(
-                                            "Filter Saved",
-                                            "Filter has been saved.",
-                                            "success"
-                                        );
-                                    } else {
-                                        console.error(restResponse);
-                                        Swal.fire(
-                                            "Server Error!",
-                                            "Filter has not been correctly saved.",
-                                            "error"
-                                        )
-                                    }
-                                    PolymerUtils.setValue(this._prefix + "filterName", "");
-                                    PolymerUtils.setValue(this._prefix + "filterDescription", "");
-                                }).catch(restResponse => {
-                                    console.error(restResponse);
-                                    Swal.fire(
-                                        "Server Error!",
-                                        "Filter has not been correctly saved.",
-                                        "error"
-                                    )
-                                })
-                        }
-                    })
-
-                } else {
-                    // saving a new filter
-                    const data = {
-                        id: filterName,
-                        description: filterDescription,
-                        resource: this.resource,
-                        query: this.query,
-                        options: {}
-                    };
-                    this.opencgaClient.users().updateFilters(this.opencgaSession.user.id, data, {action: "ADD"})
-                        .then(restResponse => {
-                            if (!restResponse.getEvents?.("ERROR")?.length) {
-                                this._filters = [...this._filters, data];
-                                PolymerUtils.setValue(this._prefix + "filterName", "");
-                                PolymerUtils.setValue(this._prefix + "filterDescription", "");
-                                Swal.fire(
-                                    "Filter Saved",
-                                    "Filter has been saved.",
-                                    "success"
-                                );
-                            } else {
-                                console.error(restResponse);
-                                Swal.fire(
-                                    "Server Error!",
-                                    "Filter has not been correctly saved.",
-                                    "error"
-                                )
-                            }
-                            this.requestUpdate();
-                        }).catch(restResponse => {
-                        console.error(restResponse);
-                        Swal.fire(
-                            "Server Error!",
-                            "Filter has not been correctly saved.",
-                            "error"
-                        )
-                    })
-                }
-
-            })
-            .catch(restResponse => {
-                if (restResponse.getEvents?.("ERROR")?.length) {
-                    const msg = restResponse.getEvents("ERROR").map(error => error.message).join("<br>")
-                    new NotificationQueue().push("Error saving the filter", msg, "error");
-                } else {
-                    new NotificationQueue().push("Error saving the filter", "", "error");
-                }
-                console.error(restResponse);
-            })
-            .finally(() => {
-
-            });
-    }
-
-    onServerFilterChange(e) {
-        this.querySelector("#" + this._prefix + "Warning").style.display = "none";
-
-        if (!UtilsNew.isUndefinedOrNull(this._filters)) {
-            // We look for the filter name in the filters array
-            for (const filter of this._filters) {
-                if (filter.id === e.target.dataset.filterId) {
-                    PolymerUtils.addStyleByClass("filtersLink", "color", "black");
-                    e.target.style.color = "green";
-                    const _queryList = Object.assign({}, filter.query);
-                    this.dispatchEvent(new CustomEvent("activeFilterChange", {
-                        detail: _queryList,
-                        bubbles: true,
-                        composed: true
-                    }));
-                    break;
-                }
-            }
-        }
-        this.requestUpdate();
-    }
-
-    onQueryFilterDelete(e) {
-        const _queryList = Object.assign({}, this.query);
-        // Reset selected filters to none
-        PolymerUtils.addStyleByClass("filtersLink", "color", "black");
-
-        const {filterName: name, filterValue: value} = e.target.dataset;
-        console.log("onQueryFilterDelete", name, value);
-
-        if (UtilsNew.isEmpty(value)) {
-            delete _queryList[name];
-            // TODO check the reason of this condition
-            // FIXME this.modeInheritance is never defined
-            if (UtilsNew.isEqual(name, "genotype")) {
-                if (this.modeInheritance === "xLinked" || this.modeInheritance === "yLinked") {
-                    delete _queryList["region"];
-                }
-            }
-        } else {
-            //                    let filterFields = _queryList[name].split(new RegExp("[,;]"));
-            let filterFields;
-
-            /**
-             * TODO refactor
-             * QUICKFIX: `sample` has semicolons and commas both, it needs a custom logic
-             */
-            if (name === "sample") {
-                filterFields = _queryList[name].split(new RegExp(";"));
-                const indexOfValue = filterFields.indexOf(value);
-                filterFields.splice(indexOfValue, 1);
-                _queryList[name] = filterFields.join(";");
-
-            } else {
-                if ((value.indexOf(";") !== -1 && value.indexOf(",") !== -1) || this._config.complexFields.indexOf(name) !== -1) {
-                    filterFields = _queryList[name].split(new RegExp(";"));
-                } else {
-                    filterFields = _queryList[name].split(new RegExp("[,;]"));
-                }
-
-                const indexOfValue = filterFields.indexOf(value);
-                filterFields.splice(indexOfValue, 1);
-
-                if ((value.indexOf(";") !== -1 && value.indexOf(",") !== -1) || this._config.complexFields.indexOf(name) !== -1) {
-                    _queryList[name] = filterFields.join(";");
-                } else {
-                    if (_queryList[name].indexOf(",") !== -1) {
-                        _queryList[name] = filterFields.join(",");
-                    } else {
-                        _queryList[name] = filterFields.join(";");
-                    }
-                }
-            }
-        }
-
-        // When you delete any query filter we are not longer using any known Filter
-        if (UtilsNew.isNotUndefined(PolymerUtils.getElementById("filtersList"))) {
-            // TODO Refactor
-            $("#filtersList option[value='none']").prop("selected", true);
-        }
-
-
-        this.dispatchEvent(new CustomEvent("activeFilterChange", {
-            detail: _queryList,
-            bubbles: true,
-            composed: true
-        }));
-    }
-
-    onQueryFacetDelete(e) {
-        this.querySelector("#" + this._prefix + "Warning").style.display = "none";
-
-        console.log("onQueryFacetDelete", e.target.dataset.filterName);
-        delete this.facetQuery[e.target.dataset.filterName];
-        this.facetQuery = {...this.facetQuery};
-        this.dispatchEvent(new CustomEvent("activeFacetChange", {
-            detail: this.facetQuery,
-            bubbles: true,
-            composed: true
-        }));
     }
 
     queryObserver() {
         const _queryList = [];
         const keys = Object.keys(this.query);
+
+        if (!this._prevQuery || !UtilsNew.objectCompare(this.query, this._prevQuery)) {
+            this._prevQuery = {...this.query};
+            $("#" + this._prefix + "Warning").fadeIn();
+            // console.log("query has changed")
+        } else {
+            // query not changed OR changed via onQueryFacetDelete() so this._jsonPrevFacetQuery was already updated
+            // console.log("query has not changed or changed in active-filters")
+            $("#" + this._prefix + "Warning").hide();
+        }
+
         for (const keyIdx in keys) {
             const key = keys[keyIdx];
             if (UtilsNew.isNotEmpty(this.query[key]) && (!this._config.hiddenFields || (this._config.hiddenFields && !this._config.hiddenFields.includes(key)))) {
-                const queryString = Object.entries(this.query).sort().toString();
-                const prevQueryString = Object.entries(this._previousQuery).sort().toString();
-                if (queryString !== prevQueryString) {
-                    /* console.log(this.query);
-                    console.log(this._previousQuery);
-                    console.log(queryString);
-                    console.log(prevQueryString);*/
-                    this.querySelector("#" + this._prefix + "Warning").style.display = "block";
-                } else {
-                    this.querySelector("#" + this._prefix + "Warning").style.display = "none";
-                }
 
                 // We use the alias to rename the key
                 let title = key;
@@ -495,9 +217,377 @@ export default class OpencgaActiveFilters extends LitElement {
         this.requestUpdate();
     }
 
+    facetQueryObserver() {
+        // this just handle the visibility of the warning message and store a serialised this.facetQuery into this._jsonPrevFacetQuery.
+        // we use the same logic as queryObserver() for show/hide the warning message, but here we store a json string in _jsonPrevFacetQuery.
+        if (Object.keys(this.facetQuery).length) {
+            // check if this.facetQuery has changed
+            if (!this._jsonPrevFacetQuery || !UtilsNew.objectCompare(this.facetQuery, JSON.parse(this._jsonPrevFacetQuery))) {
+                this._jsonPrevFacetQuery = JSON.stringify(this.facetQuery); // this.facetQuery is a complex object, {...this.facetQuery} won't work
+                $("#" + this._prefix + "Warning").fadeIn();
+
+            } else {
+                // query not changed OR changed via onQueryFacetDelete() so this._jsonPrevFacetQuery was already updated
+                $("#" + this._prefix + "Warning").hide();
+            }
+        } else {
+            // TODO handle warning alert here too
+            this._jsonPrevFacetQuery = null;
+        }
+    }
+
     searchClicked() {
-        PolymerUtils.hide(this._prefix + "Warning");
-        this._previousQuery = this.query;
+        // console.log("searchClicked")
+        $("#" + this._prefix + "Warning").hide();
+        this._prevQuery = {...this.query};
+        this._jsonPrevFacetQuery = JSON.stringify(this.executedFacetQuery);
+    }
+
+    configObserver() {
+        this._config = Object.assign({}, this.getDefaultConfig(), this.config);
+
+        // Overwrite default alias with the one passed
+        this._config.alias = Object.assign({}, this.getDefaultConfig().alias, this.config.alias);
+
+        this.lockedFieldsMap = {};
+        for (const lockedField of this._config.lockedFields) {
+            this.lockedFieldsMap[lockedField.id] = lockedField;
+        }
+    }
+
+    clear() {
+        // TODO do not trigger event if there are no active filters
+        // Trigger clear event
+        this.dispatchEvent(new CustomEvent("activeFilterClear", {detail: {}, /*bubbles: true, composed: true*/}));
+    }
+
+    clearFacet() {
+        $("#" + this._prefix + "Warning").hide();
+        this.dispatchEvent(new CustomEvent("activeFacetClear", {detail: {}, /*bubbles: true, composed: true*/}));
+    }
+
+    launchModal() {
+        $("#" + this._prefix + "SaveModal").modal("show");
+    }
+
+    showSelectFilters() {
+        return (this.filters !== undefined && this.filters.length > 0) || !UtilsNew.isEmpty(this.opencgaSession.token);
+    }
+
+    isLoggedIn() {
+        return !!this?.opencgaSession?.token;
+    }
+
+    refreshFilters() {
+        this.opencgaSession.opencgaClient.users().filters(this.opencgaSession.user.id).then(restResponse => {
+            const result = restResponse.getResults();
+
+            // (this.filters || []) in case this.filters (prop) is undefined
+            if (result.length > 0) {
+                this._filters = [...(this.filters || []), ...result.filter(f => f.resource === this.resource)];
+            } else {
+                this._filters = [...(this.filters || [])];
+            }
+            this.requestUpdate().then(() => UtilsNew.initTooltip(this));
+        });
+    }
+
+    // TODO recheck & refactor
+    save() {
+        const filterName = $("#" + (this._prefix + "filterName")).val();
+        const filterDescription = $("#" + (this._prefix + "filterDescription")).val();
+
+        const query = this.query;
+        if (query.study) {
+            // filters out the current active study
+            const studies = query.study.split(",").filter(fqn => fqn !== this.opencgaSession.study.fqn);
+            if (studies.length) {
+                query.study = studies.join(",");
+            } else {
+                delete query.study;
+            }
+        }
+
+        // Remove ignored params
+        // When saving a filter we do no twant to save the exact sample or file ID, otherwise the filter cannot be reused
+        if (this._config?.save?.ignoreParams) {
+            for (const param of this._config.save.ignoreParams) {
+                delete query[param];
+            }
+        }
+
+        this.opencgaSession.opencgaClient.users().filters(this.opencgaSession.user.id)
+            .then(restResponse => {
+                console.log("GET filters", restResponse);
+                const savedFilters = restResponse.getResults() || [];
+
+                console.log("savedFilters", savedFilters);
+
+                if (savedFilters.find(savedFilter => savedFilter.id === filterName)) {
+                    // updating an existing filter
+                    const data = {
+                        description: filterDescription,
+                        resource: this.resource,
+                        query: query,
+                        options: {}
+                    };
+
+                    Swal.fire({
+                        title: "Are you sure?",
+                        text: "A Filter with the same name is already present. You are going to overwrite it.",
+                        icon: "warning",
+                        showCancelButton: true,
+                        confirmButtonColor: "#d33",
+                        cancelButtonColor: "#3085d6",
+                        confirmButtonText: "Yes"
+                    }).then(result => {
+                        if (result.value) {
+                            this.opencgaSession.opencgaClient.users().updateFilter(this.opencgaSession.user.id, filterName, data)
+                                .then(restResponse => {
+                                    if (!restResponse?.getEvents?.("ERROR")?.length) {
+                                        for (const i in this._filters) {
+                                            if (this._filters[i].id === filterName) {
+                                                this._filters[i] = restResponse.response[0].result[0];
+                                            }
+                                        }
+                                        Swal.fire(
+                                            "Filter Saved",
+                                            "Filter has been saved.",
+                                            "success"
+                                        );
+                                        this.requestUpdate().then(() => UtilsNew.initTooltip(this));
+                                    } else {
+                                        console.error(restResponse);
+                                        Swal.fire(
+                                            "Server Error!",
+                                            "Filter has not been correctly saved.",
+                                            "error"
+                                        );
+                                    }
+                                    $("#" + this._prefix + "filterName").val("");
+                                    $("#" + this._prefix + "filterDescription").val("");
+                                }).catch(restResponse => {
+                                    console.error(restResponse);
+                                    Swal.fire(
+                                        "Server Error!",
+                                        "Filter has not been correctly saved.",
+                                        "error"
+                                    );
+                                });
+                        }
+                    });
+
+                } else {
+                    // saving a new filter
+                    const data = {
+                        id: filterName,
+                        description: filterDescription,
+                        resource: this.resource,
+                        query: query,
+                        options: {}
+                    };
+                    this.opencgaSession.opencgaClient.users().updateFilters(this.opencgaSession.user.id, data, {action: "ADD"})
+                        .then(restResponse => {
+                            if (!restResponse.getEvents?.("ERROR")?.length) {
+                                this._filters = [...this._filters, data];
+                                $("#" + this._prefix + "filterName").val("");
+                                $("#" + this._prefix + "filterDescription").val("");
+                                Swal.fire(
+                                    "Filter Saved",
+                                    "Filter has been saved.",
+                                    "success"
+                                );
+                                this.requestUpdate().then(() => UtilsNew.initTooltip(this));
+                            } else {
+                                console.error(restResponse);
+                                Swal.fire(
+                                    "Server Error!",
+                                    "Filter has not been correctly saved.",
+                                    "error"
+                                );
+                            }
+                            this.requestUpdate();
+                        }).catch(restResponse => {
+                            console.error(restResponse);
+                            Swal.fire(
+                                "Server Error!",
+                                "Filter has not been correctly saved.",
+                                "error"
+                            );
+                        });
+                }
+
+            })
+            .catch(restResponse => {
+                if (restResponse.getEvents?.("ERROR")?.length) {
+                    const msg = restResponse.getEvents("ERROR").map(error => error.message).join("<br>");
+                    new NotificationQueue().push("Error saving the filter", msg, "error");
+                } else {
+                    new NotificationQueue().push("Error saving the filter", "", "error");
+                }
+                console.error(restResponse);
+            })
+            .finally(() => {
+
+            });
+    }
+
+    onServerFilterChange(e) {
+        // suppress if I have clicked on an action buttons
+        if (e.target.className !== "id-filter-button") {
+            return;
+        }
+
+        $("#" + this._prefix + "Warning").hide();
+        if (!UtilsNew.isUndefinedOrNull(this._filters)) {
+            // We look for the filter name in the filters array
+            for (const filter of this._filters) {
+                if (filter.id === e.currentTarget.dataset.filterId) {
+                    filter.active = true;
+
+                    // We need to merge the selected filter query with the "save.ignoreParams" of the current query,
+                    // otherwise the sample or file are deleted.
+                    const _query = {};
+                    if (this._config?.save?.ignoreParams) {
+                        for (const key of Object.keys(this.query)) {
+                            if (this._config.save.ignoreParams.includes(key)) {
+                                _query[key] = this.query[key];
+                            }
+                        }
+                    }
+
+                    const _queryList = {..._query, ...filter.query};
+                    if (_queryList.study) {
+                        // add the current active study
+                        const studies = [...new Set([..._queryList.study.split(","), this.opencgaSession.study.fqn])];
+                        _queryList.study = studies.join(",");
+                    }
+                    this.dispatchEvent(new CustomEvent("activeFilterChange", {
+                        detail: _queryList,
+                        bubbles: true,
+                        composed: true
+                    }));
+                } else {
+                    filter.active = false;
+                }
+            }
+        }
+        this.requestUpdate();
+    }
+
+    serverFilterDelete(e) {
+        const {filterId} = e.currentTarget.dataset;
+        Swal.fire({
+            title: "Are you sure?",
+            text: "The filter will be deleted. The operation cannot be reverted.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#3085d6",
+            confirmButtonText: "Yes"
+        }).then(result => {
+            if (result.value) {
+                const data = {
+                    id: filterId,
+                    resource: this.resource,
+                    options: {}
+                };
+                this.opencgaSession.opencgaClient.users().updateFilters(this.opencgaSession.user.id, data, {action: "REMOVE"})
+                    .then(restResponse => {
+                        console.log("restResponse", restResponse);
+                        Swal.fire(
+                            "Filter Deleted",
+                            "Filter has been deleted.",
+                            "success"
+                        );
+                        this.refreshFilters();
+                    }).catch(restResponse => {
+                        if (restResponse.getEvents?.("ERROR")?.length) {
+                            const msg = restResponse.getEvents("ERROR").map(error => error.message).join("<br>");
+                            new NotificationQueue().push("Error deleting filter", msg, "error");
+                        } else {
+                            new NotificationQueue().push("Error deleting filter", "", "error");
+                        }
+                        console.error(restResponse);
+                    });
+            }
+        });
+    }
+
+    onQueryFilterDelete(e) {
+        const _queryList = Object.assign({}, this.query);
+
+        const {filterName: name, filterValue: value} = e.target.dataset;
+        console.log("onQueryFilterDelete", name, value);
+
+        if (UtilsNew.isEmpty(value)) {
+            delete _queryList[name];
+            // TODO check the reason of this condition
+            // FIXME this.modeInheritance is never defined
+            if (UtilsNew.isEqual(name, "genotype")) {
+                if (this.modeInheritance === "xLinked" || this.modeInheritance === "yLinked") {
+                    delete _queryList["region"];
+                }
+            }
+        } else {
+            //                    let filterFields = _queryList[name].split(new RegExp("[,;]"));
+            let filterFields;
+
+            /**
+             * TODO refactor
+             * QUICKFIX: `sample` has semicolons and commas both, it needs a custom logic
+             */
+            if (name === "sample") {
+                filterFields = _queryList[name].split(new RegExp(";"));
+                const indexOfValue = filterFields.indexOf(value);
+                filterFields.splice(indexOfValue, 1);
+                _queryList[name] = filterFields.join(";");
+
+            } else {
+                if ((value.indexOf(";") !== -1 && value.indexOf(",") !== -1) || this._config.complexFields.indexOf(name) !== -1) {
+                    filterFields = _queryList[name].split(new RegExp(";"));
+                } else {
+                    filterFields = _queryList[name].split(new RegExp("[,;]"));
+                }
+
+                const indexOfValue = filterFields.indexOf(value);
+                filterFields.splice(indexOfValue, 1);
+
+                if ((value.indexOf(";") !== -1 && value.indexOf(",") !== -1) || this._config.complexFields.indexOf(name) !== -1) {
+                    _queryList[name] = filterFields.join(";");
+                } else {
+                    if (_queryList[name].indexOf(",") !== -1) {
+                        _queryList[name] = filterFields.join(",");
+                    } else {
+                        _queryList[name] = filterFields.join(";");
+                    }
+                }
+            }
+        }
+
+        this._jsonPrevQuery = JSON.stringify(_queryList);
+
+        this.dispatchEvent(new CustomEvent("activeFilterChange", {
+            detail: _queryList,
+            /* bubbles: true,
+            composed: true*/
+        }));
+    }
+
+    onQueryFacetDelete(e) {
+        $("#" + this._prefix + "Warning").hide();
+        delete this.facetQuery[e.target.dataset.filterName];
+        // NOTE we don't update this.facetQuery reference because facetQueryObserver() is being called already by this chain:
+        // `activeFacetChange` event triggers onActiveFacetChange() => onRun() in opencga-browser => [...] => facetQueryObserver() in opencga-active-filters
+        // this.facetQuery = {...this.facetQuery};
+
+        this._jsonPrevFacetQuery = JSON.stringify(this.facetQuery);
+
+        this.dispatchEvent(new CustomEvent("activeFacetChange", {
+            detail: this.facetQuery,
+            /* bubbles: true,
+            composed: true*/
+        }));
     }
 
     _isMultiValued(item) {
@@ -511,7 +601,7 @@ export default class OpencgaActiveFilters extends LitElement {
                 "region": "Region",
                 "gene": "Gene",
                 "genotype": "Sample Genotype",
-                "sample": "Samples",
+                "sample": "Sample Genotype",
                 "maf": "Cohort Stat MAF",
                 "cohortStatsAlt": "Cohort ALT Stats",
                 "xref": "XRef",
@@ -531,7 +621,10 @@ export default class OpencgaActiveFilters extends LitElement {
             },
             complexFields: [],
             hiddenFields: [],
-            lockedFields: []
+            lockedFields: [],
+            save: {
+                ignoreParams: ["study", "sample", "sampleData", "file", "fileData"]
+            }
         };
     }
 
@@ -545,39 +638,83 @@ export default class OpencgaActiveFilters extends LitElement {
                     <span><strong>Warning!</strong></span>&nbsp;&nbsp;Filters have changed, please click on <strong> ${this._config.searchButtonText} </strong> to update the results.
                 </div>
             `}
-        
-            <!--<div class="alert alert-info">query ${JSON.stringify(this.query)}</div> 
-            <div class="alert alert-info">queryList ${JSON.stringify(this.queryList)}</div>--> 
+
+            <!--<div class="alert alert-info">query ${JSON.stringify(this.query)}</div>
+            <div class="alert alert-info">queryList ${JSON.stringify(this.queryList)}</div>
+             <div class="alert alert-info">facetQuery ${JSON.stringify(this.facetQuery)}</div>-->
             <div class="panel panel-default">
                 <div class="panel-body" style="padding: 8px 10px">
                     <div class="lhs">
-                        <p class="active-filter-label">Filters</p>
+                        <div class="dropdown saved-filter-dropdown" style="margin-right: 5px">
+                            <button type="button" class="active-filter-label ripple no-shadow" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-cy="filter-button">
+                                <i class="fa fa-filter icon-padding" aria-hidden="true"></i> Filters <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu saved-filter-wrapper">
+                                <li>
+                                    <a><i class="fas fa-cloud-upload-alt icon-padding"></i> <strong>Saved Filters</strong></a>
+                                </li>
+                                ${this._filters && this._filters.length ?
+                                    this._filters.map(item => item.separator ?
+                                        html`
+                                            <li role="separator" class="divider"></li>` :
+                                        html`
+                                            <li>
+                                                <a data-filter-id="${item.id}" class="filtersLink" style="cursor: pointer;color: ${!item.active ? "black" : "green"}" 
+                                                        @click="${this.onServerFilterChange}">
+                                                    <span class="id-filter-button">${item.id}</span>
+                                                    <span class="action-buttons">
+                                                        <span tooltip-title="${item.id}"
+                                                              tooltip-text="${(item.description ? item.description + "<br>" : "") + Object.entries(item.query).map(([k, v]) => `<b>${k}</b> = ${v}`).join("<br>")}"
+                                                              data-filter-id="${item.id}">
+                                                            <i class="fas fa-eye"></i>
+                                                        </span>
+                                                        <i data-cy="delete" tooltip-title="Delete filter" class="fas fa-trash" data-filter-id="${item.id}" @click="${this.serverFilterDelete}"></i>
+                                                    </span>
+                                                </a>
+                                            </li>`
+                                        ) :
+                                    html`<li><a class="help-block">No filters found</a></li>`
+                                }
+                                
+                                <li role="separator" class="divider"></li>
+                                <li>
+                                    <a href="javascript: void 0" @click="${this.clear}" data-action="active-filter-clear">
+                                        <i class="fa fa-eraser icon-padding" aria-hidden="true"></i> <strong>Clear</strong>
+                                    </a>    
+                                </li>
+                                ${this.isLoggedIn() ? html`
+                                    <li>
+                                        <a style="cursor: pointer" @click="${this.launchModal}" data-action="active-filter-save"><i class="fas fa-save icon-padding"></i> <strong>Save filter...</strong></a>
+                                    </li>
+                                ` : null}
+                            </ul>
+                        </div>
                     
                         ${this.queryList ? html`
-                            ${this.queryList.length === 0
-                                ? html`
-                                    <label>No filters selected</label>`
-                                : html`
-                                    ${this.queryList.map(item => !this._isMultiValued(item)
-                                        ? html` 
-                                            ${!item.locked
-                                                ? html`
+                            ${this.queryList.length === 0 ?
+                                html`
+                                    <label>No filters selected</label>` :
+                                html`
+                                    ${this.queryList.map(item => !this._isMultiValued(item) ?
+                                        html` 
+                                            ${!item.locked ?
+                                                html`
                                                     <!-- No multi-valued filters -->
                                                     <button type="button" class="btn btn-warning btn-sm ${item.name}ActiveFilter active-filter-button ripple no-transform" data-filter-name="${item.name}" data-filter-value=""
                                                             @click="${this.onQueryFilterDelete}">
                                                     ${item.text}
-                                                    </button>`
-                                                : html`
+                                                    </button>` :
+                                                html`
                                                     <button type="button" class="btn btn-warning btn-sm ${item.name}ActiveFilter active-filter-button ripple no-transform" data-filter-name="${item.name}" data-filter-value=""
                                                              @click="${this.onQueryFilterDelete}" title="${item.message ?? ""}" disabled>
                                                         ${item.text}
                                                     </button>`
-                                                }`
-                                        : html`
+                                                }` :
+                                        html`
                                             <!-- Multi-valued filters -->
                                             <div class="btn-group">
-                                                ${item.locked
-                                                    ? html`
+                                                ${item.locked ?
+                                                    html`
                                                         <button type="button" class="btn btn-warning btn-sm ${item.name}ActiveFilter active-filter-button ripple no-transform" data-filter-name="${item.name}" data-filter-value=""
                                                                 @click="${this.onQueryFilterDelete}" disabled> ${item.text} <span class="badge">${item.items.length}</span>
                                                         </button>
@@ -591,8 +728,8 @@ export default class OpencgaActiveFilters extends LitElement {
                                                                     <a>${filterItem}</a>
                                                                 </li>
                                                             `)}
-                                                        </ul>`
-                                                    : html`
+                                                        </ul>` :
+                                                    html`
                                                         <button type="button" class="btn btn-warning btn-sm ${item.name}ActiveFilter active-filter-button ripple no-transform" data-filter-name="${item.name}" data-filter-value=""
                                                                 @click="${this.onQueryFilterDelete}"> ${item.text} <span class="badge">${item.items.length}</span>
                                                         </button>
@@ -613,34 +750,38 @@ export default class OpencgaActiveFilters extends LitElement {
                                             </div>`
                                     )}
                                 `}
-                            `
-                        : null}
+                            ` :
+                        null}
                     </div> 
                         
                     <div class="rhs">
-                        <button type="button" class="btn btn-primary btn-sm ripple" @click="${this.clear}">
+                        <!--<button type="button" class="btn btn-primary btn-sm ripple" @click="${this.clear}">
                             <i class="fa fa-eraser icon-padding" aria-hidden="true"></i> Clear
                         </button>
+                        -->
                         
                         <!-- TODO we probably need a new property for this -->
-                        ${this.showSelectFilters(this.opencgaClient._config) ? html`
-                            <div class="dropdown">
+                        ${false && this.showSelectFilters(this.opencgaSession.opencgaClient._config) ? html`
+                            <div class="dropdown saved-filter-wrapper">
     
                                 <button type="button" class="btn btn-primary btn-sm dropdown-toggle ripple" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                     <i class="fa fa-filter icon-padding" aria-hidden="true"></i> Filters <span class="caret"></span>
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-right">
                                     <li><a style="font-weight: bold">Saved Filters</a></li>
-                                    ${this._filters && this._filters.length
-                                        ? this._filters.map(item => item.separator ? html`
-                                                <li role="separator" class="divider"></li>
-                                            ` : html`
-                                                <li>
-                                                    <a data-filter-id="${item.id}" style="cursor: pointer;color: ${!item.active ? "black" : "green"}" @click="${this.onServerFilterChange}" class="filtersLink">&nbsp;&nbsp;${item.id}</a>
-                                                </li>`)
-                                        : null
+                                    ${this._filters && this._filters.length ?
+                                        this._filters.map(item => item.separator ? html`
+                                            <li role="separator" class="divider"></li>
+                                        ` : html`
+                                            <li>
+                                                <a data-filter-id="${item.id}" class="filtersLink" style="cursor: pointer;color: ${!item.active ? "black" : "green"}" title="${item.description ?? ""}" @click="${this.onServerFilterChange}">
+                                                    <span class="id-filter-button">&nbsp;&nbsp;${item.id}</span>
+                                                    <span class="delete-filter-button" title="Delete filter" data-filter-id="${item.id}" @click="${this.serverFilterDelete}"><i class="fas fa-times"></i></span>
+                                                </a>
+                                            </li>`) :
+                                        null
                                     }
-                                    ${this.checkSid(this.opencgaClient._config) ? html`
+                                    ${this.isLoggedIn() ? html`
                                         <li role="separator" class="divider"></li>
                                         <li>
                                             <a style="cursor: pointer" @click="${this.launchModal}"><i class="fa fa-floppy-o" aria-hidden="true"></i> Save...</a>
@@ -651,7 +792,7 @@ export default class OpencgaActiveFilters extends LitElement {
                         ` : null}
                     </div>
                     <!-- aggregation stat section -->
-                    ${this.facetActive && Object.keys(this.facetQuery).length ? html`
+                    ${this.facetActive && this.facetQuery && Object.keys(this.facetQuery).length ? html`
                         <div class="facet-wrapper">
                             <p class="active-filter-label">Aggregation fields</p>
                                 <div class="button-list">
@@ -687,18 +828,18 @@ export default class OpencgaActiveFilters extends LitElement {
                             <div class="form-group row">
                                 <label for="filterName" class="col-xs-2 col-form-label">Name</label>
                                 <div class="col-xs-10">
-                                    <input class="form-control" type="text" id="${this._prefix}filterName">
+                                    <input class="form-control" type="text" id="${this._prefix}filterName" data-cy="modal-filter-name">
                                 </div>
                             </div>
                             <div class="form-group row">
                                 <label for="${this._prefix}filterDescription" class="col-xs-2 col-form-label">Description</label>
                                 <div class="col-xs-10">
-                                    <input class="form-control" type="text" id="${this._prefix}filterDescription">
+                                    <input class="form-control" type="text" id="${this._prefix}filterDescription" data-cy="modal-filter-description">
                                 </div>
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${this.save}">Save</button>
+                            <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${this.save}" data-cy="modal-filter-save-button">Save</button>
                         </div>
                     </div>
                 </div>

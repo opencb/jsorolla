@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-
 import {LitElement, html} from "/web_modules/lit-element.js";
+import {classMap} from "/web_modules/lit-html/directives/class-map.js";
 import UtilsNew from "../../../utilsNew.js";
+
 
 export default class VariantTypeFilter extends LitElement {
 
@@ -33,11 +34,8 @@ export default class VariantTypeFilter extends LitElement {
 
     static get properties() {
         return {
-            cellbaseClient: {
-                type: Object
-            },
             type: {
-                type: Object
+                type: String
             },
             config: {
                 type: Object
@@ -46,10 +44,10 @@ export default class VariantTypeFilter extends LitElement {
     }
 
     _init() {
-        this._prefix = "crf-" + UtilsNew.randomString(6) + "_";
-        this._config = this.getDefaultConfig();
+        this._prefix = UtilsNew.randomString(8);
+
         this.selectedVariantTypes = [];
-        this.requestUpdate();
+        this._config = this.getDefaultConfig();
     }
 
     connectedCallback() {
@@ -57,13 +55,18 @@ export default class VariantTypeFilter extends LitElement {
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
-    updated(_changedProperties) {
-        if (_changedProperties.has("type")) {
+    updated(changedProperties) {
+        if (changedProperties.has("type")) {
             if (this.type) {
                 this.selectedVariantTypes = this.type.split(",");
             } else {
                 this.selectedVariantTypes = [];
             }
+            this.requestUpdate();
+        }
+
+        if (changedProperties.has("config")) {
+            this._config = {...this.getDefaultConfig(), ...this.config};
             this.requestUpdate();
         }
     }
@@ -78,11 +81,6 @@ export default class VariantTypeFilter extends LitElement {
         this.dispatchEvent(event);
     }
 
-    getDefaultConfig() {
-        return {
-            types: types
-        };
-    }
     toggle(type) {
         const checkbox = this.querySelector(`input[value=${type}]`);
         if (!~this.selectedVariantTypes.indexOf(type)) {
@@ -95,15 +93,27 @@ export default class VariantTypeFilter extends LitElement {
         this.filterChange();
     }
 
+    getDefaultConfig() {
+        return {
+            types: VARIANT_TYPES,
+            layout: "vertical"
+        };
+    }
+
     render() {
         return html`
+            <style>
+                variant-type-filter .inline li {
+                    display: inline-block;
+                    margin-right: 10px;
+                }
+            </style>
             <div id="${this._prefix}Type">
-             <ul class="checkbox-container">
+             <ul class="magic-checkbox-wrapper ${classMap({inline: this._config.layout === "horizontal"})}">
                 ${this._config.types && this._config.types.length && this._config.types.map( type => html`
                     <li>
-                            <input type="checkbox" value="${type}" .checked="${~this.selectedVariantTypes.indexOf(type)}" class="${this._prefix}FilterCheckBox"/>
-                            <label class="checkmark-label" @click="${ _ => this.toggle(type) }">${type}</label>
-                            
+                        <input class="magic-checkbox" type="checkbox" value="${type}" .checked="${~this.selectedVariantTypes.indexOf(type)}"/>
+                        <label class="" @click="${() => this.toggle(type) }">${type}</label>
                     </li>
                 `)}
              </ul>

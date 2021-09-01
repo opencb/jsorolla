@@ -15,8 +15,9 @@
  */
 
 import {LitElement, html} from "/web_modules/lit-element.js";
+import OpencgaCatalogUtils from "../../clients/opencga/opencga-catalog-utils.js";
 import UtilsNew from "./../../utilsNew.js";
-
+import "./opencga-export.js";
 
 export default class OpencbGridToolbar extends LitElement {
 
@@ -31,14 +32,23 @@ export default class OpencbGridToolbar extends LitElement {
 
     static get properties() {
         return {
+            opencgaSession: {
+                type: Object
+            },
+            rightToolbar: {
+                type: Array
+            },
+            query: {
+                type: Object
+            },
             config: {
                 type: Object
             }
-        }
+        };
     }
 
     _init() {
-        this._prefix = "grid" + UtilsNew.randomString(6);
+        this._prefix = UtilsNew.randomString(8);
     }
 
     connectedCallback() {
@@ -47,17 +57,29 @@ export default class OpencbGridToolbar extends LitElement {
     }
 
 
-    updated(changedProperties) {
-        if(changedProperties.has("config")) {
+    update(changedProperties) {
+        if (changedProperties.has("query")) {
+        }
+        if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
         }
+        super.update(changedProperties);
     }
 
     onDownloadFile(e) {
         this.dispatchEvent(new CustomEvent("download", {
             detail: {
                 option: e.target.dataset.downloadOption
-            }, bubbles: true, composed: true
+            }
+        }));
+    }
+
+    onExport(e) {
+        // simply forwarding from opencga-export to file-grid
+        this.dispatchEvent(new CustomEvent("export", {
+            detail: {
+                ...e.detail
+            }
         }));
     }
 
@@ -92,17 +114,33 @@ export default class OpencbGridToolbar extends LitElement {
         return UtilsNew.isUndefinedOrNull(value) || value;
     }
 
+    openModal(e) {
+        $(`#${this._prefix}export-modal`, this).modal("show");
+    }
+
     getDefaultConfig() {
         return {
             label: "records",
             columns: [], // [{field: "fieldname", title: "title", visible: true, eligible: true}]
             download: ["Tab", "JSON"],
             showShareLink: false,
-            buttons: ["columns", "download"]
+            buttons: ["columns", "download"],
+            rightToolbar: {
+                // render
+            }
         };
     }
 
-    render(){
+    render() {
+        const rightButtons = [];
+        if (this.rightToolbar && this.rightToolbar.length > 0) {
+            for (const rightButton of this.rightToolbar) {
+                rightButtons.push(rightButton.render());
+            }
+        }
+
+        // console.log(this._config)
+        // debugger
         return html`
             <style>
                 .opencb-grid-toolbar .checkbox-container label:before {
@@ -112,33 +150,37 @@ export default class OpencbGridToolbar extends LitElement {
                     margin-bottom: ${~this._config.buttons.indexOf("new") ? 10 : 5}px;
                 }
             </style>
+            
             <div class="opencb-grid-toolbar">
                 <div class="row">
                     <div id="${this._prefix}ToolbarLeft" class="col-md-6">
-                        ${~this._config.buttons.indexOf("new") ? html`<button type="button" class="btn btn-default ripple btn-sm">
-                            <i id="${this._prefix}ColumnIcon" class="fa fa-columns icon-padding" aria-hidden="true"></i> New </span>
-                        </button>` : null}
+                        ${this._config.showCreate && (!this.opencgaSession || (this.opencgaSession && OpencgaCatalogUtils.checkPermissions(this.opencgaSession?.study, this.opencgaSession?.user?.id, "WRITE_CLINICAL_ANALYSIS"))) ? html`
+                            <a type="button" class="btn btn-default ripple btn-sm text-black" href="${this._config.newButtonLink}">
+                                <i id="${this._prefix}ColumnIcon" class="fa fa-columns icon-padding" aria-hidden="true"></i> New </span> 
+                            </a>
+                        ` : null}
                     </div>
                     <div id="${this._prefix}toolbar" class="col-md-6">
                         <div class="form-inline text-right pull-right">
                             ${~this._config.buttons.indexOf("columns") && this._config.columns.length ? html`
-                                    <div class="btn-group">
-                                        <button type="button" class="btn btn-default ripple btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                            <i id="${this._prefix}ColumnIcon" class="fa fa-columns icon-padding" aria-hidden="true"></i> Columns <span class="caret"></span>
-                                        </button>
-                                        <ul class="dropdown-menu btn-sm checkbox-container">
-                                            ${this._config.columns.length ?
-                                                this._config.columns.filter(item => item.eligible ?? true ).map(item => html`
-                                                    <li>
-                                                        <a data-column-id="${item.field}" @click="${this.onColumnClick}" style="cursor: pointer;">
-                                                            <input type="checkbox" @click="${this.checkboxToggle}" .checked="${this.isTrue(item.visible)}"/>
-                                                            <label class="checkmark-label">${item.title}</label>
-                                                        </a>
-                                                    </li>`)
-                                                : null}
-                                        </ul>
-                                    </div>
-                            ` : null }
+                                <div class="btn-group columns-toggle-wrapper">
+                                    <button type="button" class="btn btn-default ripple btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <i id="${this._prefix}ColumnIcon" class="fa fa-columns icon-padding" aria-hidden="true"></i> Columns <span class="caret"></span>
+                                    </button>
+                                    <ul class="dropdown-menu btn-sm checkbox-container">
+                                        ${this._config.columns.length ?
+                                            this._config.columns.filter(item => item.eligible ?? true).map(item => html`
+                                                <li>
+                                                    <a data-column-id="${item.field}" @click="${this.onColumnClick}" style="cursor: pointer;">
+                                                        <input type="checkbox" @click="${this.checkboxToggle}" .checked="${this.isTrue(item.visible)}"/>
+                                                        <label class="checkmark-label">${item.title}</label>
+                                                    </a>
+                                                </li>`) :
+                                            null}
+                                    </ul>
+                                </div>
+                            ` : null
+                            }
             
                             ${~this._config.buttons.indexOf("download") ? html`
                                 <div class="btn-group">
@@ -149,22 +191,57 @@ export default class OpencbGridToolbar extends LitElement {
                                     </button>
                                     <ul class="dropdown-menu btn-sm">
                                         ${this._config.download.length ? this._config.download.map(item => html`
-                                                <li><a href="javascript:;" data-download-option="${item}" @click="${this.onDownloadFile}">${item}</a></li>
+                                            <li><a href="javascript:;" data-download-option="${item}" @click="${this.onDownloadFile}">${item}</a></li>
                                         `) : null}
                                     </ul>
                                 </div>
+                            ` : null
+                            }
+                            
+                            ${~this._config.buttons.indexOf("export") ? html`
+                                <div class="btn-group">
+                                    <button type="button" class="btn btn-default ripple btn-sm" @click="${this.openModal}">
+                                        <i class="fa fa-download icon-padding" aria-hidden="true"></i> Export
+                                    </button>
+                                </div>
                             ` : null}
+
             
                             <!--Share URL-->
                             ${this.showShareLink ? html`
                                 <button type="button" class="btn btn-default btn-sm" data-toggle="popover" data-placement="bottom" @click="onShareLink">
                                     <i class="fa fa-share-alt icon-padding" aria-hidden="true"></i> Share
                                 </button>
-                            ` : null }
+                            ` : null
+                            }
+                            
+                            ${rightButtons && rightButtons.length > 0 ? rightButtons.map(rightButton => html`
+                                <div class="btn-group">
+                                        ${rightButton}
+                                </div>`
+                                ) : null
+                            }
                         </div>
                     </div>
                 </div>
-            </div>`;
+            </div>
+            
+            <div class="modal fade" tabindex="-1" id="${this._prefix}export-modal" role="dialog">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        ${this._config.downloading ? html`<div class="overlay"><loading-spinner></loading-spinner></div>` : null}
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title">Export</h4>
+                        </div>
+                        <div class="modal-body">
+                            <opencga-export .config="${this._config}" .query=${this.query} .opencgaSession="${this.opencgaSession}" @export="${this.onExport}"></opencga-export>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        
+        `;
     }
 
 }

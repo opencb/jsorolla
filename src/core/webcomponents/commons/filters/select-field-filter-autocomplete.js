@@ -66,6 +66,7 @@ export default class SelectFieldFilterAutocomplete extends LitElement {
         //MAP result => ({name: result.id, individual: result.attributes && result.attributes.OPENCGA_INDIVIDUAL ? result.attributes.OPENCGA_INDIVIDUAL.id : ""})
         this.input.typeahead({
             source: this._config.dataSource,
+            //showHintOnFocus: true,
             /*source: (query, process) => {
                 const filters = {
                     study: this.opencgaSession.study.fqn,
@@ -225,83 +226,6 @@ export default class SelectFieldFilterAutocomplete extends LitElement {
 
     render() {
         return html`
-            <style>
-                .dropdown-item-extra {
-                    font-size: .8em;
-                }
-
-                .dropdown-item-extra label {
-                    margin-right: 10px;
-                }
-
-                .selection-list ul {
-                    list-style: none;
-                    margin: 0;
-                    padding: 0;
-                }
-
-                .selection-list {
-                    /*background-color: #eee;
-                    border: 1px solid #ccc;*/
-                    padding: 5px;
-                    margin-top: 10px;
-                }
-
-                .dropzone-wrapper {
-                    border: 2px dashed #91b0b3;
-                    color: #92b0b3;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    height: 100px;
-                    position: relative;
-                    cursor: pointer;
-                    margin-top: 10px;
-                }
-
-                .dropzone-desc {
-                    margin: 0 auto;
-                    text-align: center;
-                }
-
-                .dropzone,
-                .dropzone:focus {
-                    position: absolute;
-                    outline: none !important;
-                    width: 100%;
-                    height: 100px;
-                    cursor: pointer;
-                    opacity: 0;
-                }
-
-                .dropzone-wrapper:hover,
-                .dropzone-wrapper.dragover {
-                    background: #ecf0f5;
-                }
-
-                .select-field-filter-autocomplete .input-group-addon {
-                    border-radius: 0;
-                    cursor:pointer;
-                    padding: 6px 9px;
-                }
-
-                .select-field-filter-autocomplete .separator {
-                    background: transparent;
-                    border: solid #ccc;
-                    border-width: 0 1px 0 0;
-                    padding: 3px;
-                    cursor: auto;
-                }
-
-                .badge.break-spaces {
-                    text-align: left;
-                    white-space: break-spaces;
-                    word-break: break-all;
-                    padding: 3px 4px;
-                    border-radius: 5px;    
-                    margin: 0 0 2px 0;
-                }
-            </style>
             <div class="select-field-filter-autocomplete">
                 <form autocomplete="off" action="javascript:void 0">
                     <div class="${classMap({"input-group": this._config.addButton})}">
@@ -339,7 +263,7 @@ export default class SelectFieldFilterAutocomplete extends LitElement {
                             ${this.selectionList.slice(0, this._config.limitToShow).map(term => html`<li><span class="badge break-spaces">${term} <span class="close-icon" data-term=${term} @click="${this.remove}"><i class="fas fa-times"></i></span></span></li>`)}
                             ${this.showAll ? this.selectionList.slice(this._config.limitToShow).map(term => html`<li><span class="badge break-spaces">${term} <span class="close-icon" @click="${this.remove}"><i class="fas fa-times"></i></span></span></li>`) : ""}
                         </ul>
-                        ${this.selectionList.length > this._config.limitToShow ? html`<button class="btn btn-small ripple" @click="${this.toggleList}">Show ${this.showAll ? "less" : "all"}</button>` : ""}
+                        ${this.selectionList.length > this._config.limitToShow ? html`<button class="btn btn-small ripple" type="button" @click="${this.toggleList}">Show ${this.showAll ? "less" : "all"}</button>` : ""}
                     </div>` : null}
             </div>
         `;

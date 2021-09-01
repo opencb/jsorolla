@@ -80,61 +80,54 @@ export default class OpencgaFamilyRelatednessView extends LitElement {
         }
     }
 
-    onDownload(e) {
-        let dataString = [];
-        let mimeType = "";
-        let extension = "";
-        // Check if user clicked in Tab or JSON format
-        if (e.currentTarget.dataset.downloadOption.toLowerCase() === "tab") {
-
-            const relatedness = this.family?.qualityControl?.relatedness[0];
-
-            const data = relatedness.scores.map(score => {
-                return [
-                    score.sampleId1,
-                    score.sampleId2,
-                    score.inferredRelationship,
-                    score?.values?.z0,
-                    score?.values?.z1,
-                    score?.values?.z2,
-                    score?.values?.PiHat,
-                    score?.inferredRelationship
-                ].join("\t")
+    getIndividualId(sampleId) {
+        let id;
+        this.family.members.forEach( member => {
+            member.samples.forEach( sample => {
+                if (sample.id === sampleId) {
+                    id = member.id;
+                    //return id; // FIXME
+                }
             });
-
-            dataString = [
-                [
-                    "Sample ID 1", "Sample ID 2", "Reported Relationship", "IBD0",	"IBD1",	"IBD2",	"PiHat", "Inferred Relationship"
-                ].join("\t"),
-                data.join("\n")
-            ];
-            //console.log(dataString);
-            mimeType = "text/plain";
-            extension = ".txt";
-        } else {
-            dataString = [JSON.stringify(this.family?.qualityControl?.relatedness[0], null, "\t")];
-            mimeType = "application/json";
-            extension = ".json";
+        });
+        if (id) {
+            return id;
         }
+    }
 
-        // Build file and anchor link
-        const data = new Blob([dataString.join("\n")], {type: mimeType});
-        const file = window.URL.createObjectURL(data);
-        const a = document.createElement("a");
-        a.href = file;
-        a.download = this.opencgaSession.study.alias + extension;
-        document.body.appendChild(a);
-        a.click();
-        setTimeout(function() {
-            document.body.removeChild(a);
-        }, 0);
+    onDownload(e) {
+        // Check if user clicked in Tab or JSON format
+        const relatedness = this.family?.qualityControl?.relatedness[0];
+        if(relatedness) {
+            if (e.currentTarget.dataset.downloadOption.toLowerCase() === "tab") {
+                const data = relatedness.scores.map(score => {
+                    return [
+                        score.sampleId1,
+                        score.sampleId2,
+                        this.family.roles[this.getIndividualId(score.sampleId1)][this.getIndividualId(score.sampleId2)] ?? "-",
+                        score?.values?.z0,
+                        score?.values?.z1,
+                        score?.values?.z2,
+                        score?.values?.PiHat,
+                        score?.inferredRelationship
+                    ].join("\t")
+                });
+                const dataString = [
+                    ["Sample ID 1", "Sample ID 2", "Reported Relationship", "IBD0",	"IBD1",	"IBD2",	"PiHat", "Inferred Relationship"].join("\t"),
+                    data.join("\n")
+                ];
+                UtilsNew.downloadData(dataString, "family_relatedness" + this.opencgaSession.study.id + ".txt", "text/plain");
+            } else {
+                UtilsNew.downloadData(JSON.stringify(relatedness, null, "\t"), this.opencgaSession.study.id + ".json", "application/json");
+            }
+        }
     }
 
     renderTable() {
         if (this.family?.qualityControl?.relatedness?.length > 0) {
             let relatedness = this.family.qualityControl.relatedness[0];
             return html`
-                <table class="table table-hover table-no-bordered text-center">
+                <table class="table table-hover table-no-bordered">
                     <thead>
                         <tr>
                             <th>Sample ID 1</th>
@@ -150,7 +143,7 @@ export default class OpencgaFamilyRelatednessView extends LitElement {
                     </thead>
                     <tbody>
                         ${relatedness.scores.map(score => {
-                            let role = this.family.roles[score.sampleId1][score.sampleId2];
+                            let role = this.family.roles[this.getIndividualId(score.sampleId1)][this.getIndividualId(score.sampleId2)];
                             return html`
                                 <tr>
                                     <td>
@@ -215,6 +208,7 @@ export default class OpencgaFamilyRelatednessView extends LitElement {
                 
                 <div class="row">
                     <div class="col-md-12">
+                        <h4>Information</h4>
                         <div class="col-md-2">
                             <label>Method:</label>
                         </div>
@@ -231,12 +225,8 @@ export default class OpencgaFamilyRelatednessView extends LitElement {
                         </div>
                     </div>
                     <div class="col-md-12">
-                        <div class="col-md-12">
-                            <label>Results:</label>
-                        </div>
-                        <div class="col-md-12">
-                            ${this.renderTable()}
-                        </div>
+                        <h4>Results</h4>
+                        ${this.renderTable()}
                     </div>
                 </div>
             </div>
