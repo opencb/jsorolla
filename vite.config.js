@@ -7,14 +7,31 @@ import minifyHTML from "rollup-plugin-minify-html-literals";
 import summary from "rollup-plugin-summary";
 import path from "path";
 import del from "rollup-plugin-delete";
-import {babel, getBabelOutputPlugin} from "@rollup/plugin-babel";
+import {babel} from "@rollup/plugin-babel";
 import {terser} from "rollup-plugin-terser";
+import {execSync} from "child_process";
+import pkg from "./package.json";
 
 
 const buildPath = path.resolve(__dirname, "build-vite");
 const ivaPath = path.resolve(__dirname, "src/sites/iva");
 const patternExt = /\.[0-9a-z]+$/i;
 const patternConfig = /(config|settings|constants|tools)/gi;
+
+const revision = () => {
+    try {
+        const jsorollaBranch = execSync("git rev-parse --abbrev-ref HEAD").toString();
+        const jsorollaSha1 = execSync("git rev-parse HEAD").toString();
+        return `~
+        ~ Jsorolla Version: ${pkg.version} | Git: ${jsorollaBranch.trim()} - ${jsorollaSha1.trim()}
+        ~ Build generated on: ${new Date()}`;
+    } catch (error) {
+        console.error(`
+            Status: ${error.status}
+            ${error.stderr.toString()}
+        `);
+    }
+};
 
 export default defineConfig({
     mode: "development",
@@ -31,7 +48,9 @@ export default defineConfig({
             preserveEntrySignatures: "strict",
             plugins: [
                 del({targets: "build-vite"}),
-                html(),
+                html({
+                    transformHtml: [html => html.replace("[build-signature]", revision())],
+                }),
                 resolve(),
                 minifyHTML(),
                 babel({
