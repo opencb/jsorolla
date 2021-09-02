@@ -33,6 +33,9 @@ const revision = () => {
     }
 };
 
+// "src/genome-browser/demo/genome-browser.html"
+// `${ivaPath}/iva-index.html`,
+
 export default defineConfig({
     mode: "development",
     root: "./",
@@ -42,10 +45,8 @@ export default defineConfig({
         watch: ["src", "styles"]
     },
     build: {
-        polyfillModulePreload: true,
         rollupOptions: {
             input: [`${ivaPath}/iva-index.html`, "src/genome-browser/demo/genome-browser.html"],
-            preserveEntrySignatures: "strict",
             plugins: [
                 del({targets: "build-vite"}),
                 html({
@@ -84,13 +85,37 @@ export default defineConfig({
             ],
             output: {
                 dir: "build-vite",
+                manualChunks: id => { // It's only detect "import" from script type=module.. the others no.
+                    if (id.includes("node_modules")) {
+                        return "vendor";
+                    }
+                    if (id.includes("src/webcomponents") && !id.includes("src/webcomponents/commons")) {
+                        return "lib/webcomponents";
+                    }
+                    if (id.includes("src/webcomponents/commons")) {
+                        return "lib/webcomponents-commons";
+                    }
+                    if (id.includes("src/core")) {
+                        return "lib/core-jsorolla";
+                    }
+                },
                 assetFileNames: assetInfo => {
+
                     if (assetInfo.name.match(patternConfig) !== null) {
                         return "conf/[name][extname]";
+                    }
+
+                    if (assetInfo.name.endsWith(".js") && !assetInfo.name.match(patternConfig) !== null) {
+                        return "assets/js/[name]-[hash][extname]";
+                    }
+
+                    if (assetInfo.name.endsWith(".css")) {
+                        return "assets/css/[name]-[hash][extname]";
                     }
                     return "assets/[name]-[hash][extname]";
                 }
             }
         },
-    }
+    },
+
 });
