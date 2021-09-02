@@ -17,6 +17,7 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../core/utilsNew.js";
 
+
 export default class SampleGenotypeFilter extends LitElement {
 
     constructor() {
@@ -55,7 +56,7 @@ export default class SampleGenotypeFilter extends LitElement {
 
     update(changedProperties) {
         if (changedProperties.has("sample") && this.sample) {
-            let keyValue = this.sample.split(":");
+            const keyValue = this.sample.split(":");
             if (keyValue.length === 2) {
                 this.sampleId = keyValue[0];
                 this.genotypes = keyValue[1].split(",");
@@ -70,11 +71,11 @@ export default class SampleGenotypeFilter extends LitElement {
             this._config = {...this.getDefaultConfig(), ...this.config};
         }
 
-        super.update(changedProperties)
+        super.update(changedProperties);
     }
 
     filterChange(e) {
-        //select-field-filter already emits a bubbled filterChange event.
+        // select-field-filter already emits a bubbled filterChange event.
 
         // Prepare sample query filter
         let sampleFilter = this.sampleId;

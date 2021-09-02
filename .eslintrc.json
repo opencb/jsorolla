@@ -47,5 +47,13 @@
   "plugins": [
     "cypress",
     "lit"
+  ],
+  "overrides": [
+    {
+      "files": ["*.js"],
+      "rules": {
+        "lit/no-property-change-update": 0
+      }
+    }
   ]
 }
