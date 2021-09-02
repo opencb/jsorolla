@@ -33,8 +33,9 @@ const revision = () => {
     }
 };
 
-// "src/genome-browser/demo/genome-browser.html"
-// `${ivaPath}/iva-index.html`,
+const isConfig = name => {
+    return name.match(patternConfig) !== null;
+};
 
 export default defineConfig({
     mode: "development",
@@ -51,6 +52,7 @@ export default defineConfig({
                 del({targets: "build-vite"}),
                 html({
                     transformHtml: [html => html.replace("[build-signature]", revision())],
+                    minify: true
                 }),
                 resolve(),
                 minifyHTML(),
@@ -77,9 +79,9 @@ export default defineConfig({
                         {src: `${ivaPath}/LICENSE`, dest: `${buildPath}`},
                         {src: `${ivaPath}/README.md`, dest: `${buildPath}`},
                         {src: `${ivaPath}/favicon.ico`, dest: `${buildPath}`},
-                        {src: "./styles/fonts", dest: `${buildPath}/`},
-                        {src: "./node_modules/bootstrap/dist/fonts", dest: `${buildPath}/`},
-                        {src: "./node_modules/@fortawesome/fontawesome-free/webfonts", dest: `${buildPath}/`},
+                        {src: "./styles/fonts", dest: `${buildPath}/assets/`},
+                        {src: "./node_modules/bootstrap/dist/fonts", dest: `${buildPath}/assets/`},
+                        {src: "./node_modules/@fortawesome/fontawesome-free/webfonts", dest: `${buildPath}/assets/`},
                     ]
                 }),
             ],
@@ -100,12 +102,11 @@ export default defineConfig({
                     }
                 },
                 assetFileNames: assetInfo => {
-
-                    if (assetInfo.name.match(patternConfig) !== null) {
+                    if (isConfig(assetInfo.name)) {
                         return "conf/[name][extname]";
                     }
 
-                    if (assetInfo.name.endsWith(".js") && !assetInfo.name.match(patternConfig) !== null) {
+                    if (assetInfo.name.endsWith(".js") && !isConfig(assetInfo.name)) {
                         return "assets/js/[name]-[hash][extname]";
                     }
 
