@@ -18,6 +18,10 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import Utils from "./../../../core/utils.js";
 import "../forms/select-field-filter-autocomplete.js";
 
+/**
+ *  @deprecated use sample-id-autocomplete-token instead
+ **/
+
 export default class SampleIdAutocomplete extends LitElement {
 
     constructor() {
@@ -60,7 +64,7 @@ export default class SampleIdAutocomplete extends LitElement {
         return {
             addButton: false,
             fields: item => ({
-                name: item.id,
+                "name": item.id,
                 "Individual ID": item?.individualId
             }),
             dataSource: (query, process) => {
@@ -81,7 +85,12 @@ export default class SampleIdAutocomplete extends LitElement {
 
     render() {
         return html`
-            <select-field-filter-autocomplete .opencgaSession="${this.opencgaSession}" .config=${this._config} .value="${this.value}" @filterChange="${e => this.onFilterChange("id", e.detail.value)}"></select-field-filter-autocomplete>
+            <select-field-filter-autocomplete
+                    .opencgaSession="${this.opencgaSession}"
+                    .config=${this._config}
+                    .value="${this.value}"
+                    @filterChange="${e => this.onFilterChange("id", e.detail.value)}">
+            </select-field-filter-autocomplete>
         `;
     }
 
