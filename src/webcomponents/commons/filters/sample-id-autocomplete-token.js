@@ -14,15 +14,11 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
-import Utils from "./../../../core/utils.js";
-import "../forms/select-field-filter-autocomplete.js";
+import {LitElement, html} from "/web_modules/lit-element.js";
+import "../forms/select-token-filter2.js";
 
-/**
- *  @deprecated use sample-id-autocomplete-token instead
- **/
 
-export default class SampleIdAutocomplete extends LitElement {
+export default class SampleIdAutocompleteToken extends LitElement {
 
     constructor() {
         super();
@@ -62,38 +58,39 @@ export default class SampleIdAutocomplete extends LitElement {
 
     getDefaultConfig() {
         return {
+            placeholder: "",
+            limit: 10,
             addButton: false,
             fields: item => ({
                 "name": item.id,
                 "Individual ID": item?.individualId
             }),
-            dataSource: (query, process) => {
+            source: async (params, success, failure) => {
+                params.data.page = params.data.page || 1;
                 const filters = {
                     study: this.opencgaSession.study.fqn,
-                    limit: 20,
-                    count: false,
+                    limit: this._config.limit,
+                    count: true,
+                    skip: (params.data.page - 1) * this._config.limit,
                     include: "id,individualId",
-                    id: "~^" + query.toUpperCase()
+                    id: "~^" + params?.data?.term?.toUpperCase()
                 };
-                this.opencgaSession.opencgaClient.samples().search(filters).then(restResponse => {
-                    const results = restResponse.getResults();
-                    process(results.map(this._config.fields));
-                });
-            }
+                try {
+                    const restResponse = await this.opencgaSession.opencgaClient.samples().search(filters);
+                    success(restResponse);
+                } catch (e) {
+                    failure(e);
+                }
+            },
         };
     }
 
     render() {
         return html`
-            <select-field-filter-autocomplete
-                    .opencgaSession="${this.opencgaSession}"
-                    .config=${this._config}
-                    .value="${this.value}"
-                    @filterChange="${e => this.onFilterChange("id", e.detail.value)}">
-            </select-field-filter-autocomplete>
+            <select-token-filter2 .opencgaSession="${this.opencgaSession}" .config=${this._config} .value="${this.value}" @filterChange="${e => this.onFilterChange("id", e.detail.value)}"></select-token-filter2>
         `;
     }
 
 }
 
-customElements.define("sample-id-autocomplete", SampleIdAutocomplete);
+customElements.define("sample-id-autocomplete-token", SampleIdAutocompleteToken);
