@@ -92,6 +92,7 @@ export default defineConfig({
                 }),
             ],
             output: {
+                sourcemap: true,
                 dir: "build-vite",
                 manualChunks: id => { // It's only detect "import" from script type=module.. the others no.
                     if (id.includes("node_modules")) {
