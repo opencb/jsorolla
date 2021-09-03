@@ -88,6 +88,7 @@ export default class SelectTokenFilterStatic extends LitElement {
             placeholder: this._config.placeholder,
             minimumInputLength: this._config.minimumInputLength,
             data: this.data,
+            dropdownParent: !this.data?.length ? $(".hidden") : null,
             templateResult: item => {
                 return item.name ?? item.text;
             },
@@ -129,13 +130,8 @@ export default class SelectTokenFilterStatic extends LitElement {
     render() {
         return html`
         <div>
-            <style>
-                .no-data .select2-dropdown {
-                    display: none;
-                }
-            </style>
-
-            <select id="${this._prefix}" style="width: 100%" @change="${this.filterChange}"></select>
+            <select id="${this._prefix}" class="${classMap({"no-data": !this.data?.length})}" style="width: 100%" @change="${this.filterChange}"></select>
+            <div class="hidden"></div>
         </div>
         `;
     }
