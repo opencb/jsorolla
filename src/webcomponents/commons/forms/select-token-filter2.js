@@ -16,11 +16,11 @@
 
 import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../../core/utilsNew.js";
+import {classMap} from "/web_modules/lit-html/directives/class-map.js";
 
 /**
- * Select2 version
+ * Tokel filter. Select2 version with opencga dynamic datasource
  *
- * TODO support both static and dynamic data. Dynamic data only at the moment.
  */
 
 export default class SelectTokenFilter2 extends LitElement {
@@ -61,7 +61,8 @@ export default class SelectTokenFilter2 extends LitElement {
         this.select.select2({
             // tags: true,
             multiple: true,
-            // placeholder: this._config.placeholder,
+            placeholder: this._config.placeholder,
+            minimumInputLength: this._config.minimumInputLength,
             ajax: {
                 transport: async (params, success, failure) => this._config.source(params, success, failure),
                 processResults: (restResponse, params) => {
@@ -86,8 +87,8 @@ export default class SelectTokenFilter2 extends LitElement {
                     console.error(e);
                 }
             },
-            templateSelection: repo => {
-                return repo.id;
+            templateSelection: item => {
+                return item.id ?? item.text;
             }
         })
             .on("select2:select", e => {
@@ -157,7 +158,7 @@ export default class SelectTokenFilter2 extends LitElement {
     getDefaultConfig() {
         return {
             limit: 10,
-            searchMinLength: 3,
+            minimumInputLength: 0,
             maxItems: 0,
             placeholder: "Start typing",
             source: () => {

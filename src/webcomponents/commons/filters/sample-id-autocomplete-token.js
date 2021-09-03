@@ -67,13 +67,14 @@ export default class SampleIdAutocompleteToken extends LitElement {
             }),
             source: async (params, success, failure) => {
                 params.data.page = params.data.page || 1;
+                const id = params?.data?.term ? {id: "~^" + params?.data?.term?.toUpperCase()} : "";
                 const filters = {
                     study: this.opencgaSession.study.fqn,
                     limit: this._config.limit,
                     count: true,
                     skip: (params.data.page - 1) * this._config.limit,
                     include: "id,individualId",
-                    id: "~^" + params?.data?.term?.toUpperCase()
+                    ...id
                 };
                 try {
                     const restResponse = await this.opencgaSession.opencgaClient.samples().search(filters);

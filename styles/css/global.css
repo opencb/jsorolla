@@ -2587,8 +2587,16 @@ interpretation-editor .status-wrapper .row > div:last-child {
 /****  select2 style override ****/
 
 .select2-container--bootstrap .select2-selection--multiple .select2-selection__rendered {
-    display: inline-block;
-    width: inherit;
+    /* display: inline-block;
+    width: inherit; */
+}
+
+.select2-container--bootstrap .select2-selection--multiple .select2-search--inline .select2-search__field {
+    line-height: 1.8; /* fix vertical alignment of the placeholder*/
+}
+
+.select2-selection__choice__display {
+    white-space: break-spaces; /* selected tag on multiple lines if needed */
 }
 
 .select2-container--bootstrap .select2-selection--multiple .select2-selection__choice__remove {
@@ -2607,8 +2615,13 @@ interpretation-editor .status-wrapper .row > div:last-child {
     padding: 0 0 0 5px;
     background-color: #eff2f7;
     border-radius: 2px;
+    word-break: break-all; /* selected tag on multiple lines if needed */
 }
 
+.select2-results__option.select2-results__option--selected {
+    background-color: #eee;
+
+}
 .select2-container--bootstrap .select2-selection--multiple .select2-selection__choice__remove {
     background: transparent;
     border: 0;
