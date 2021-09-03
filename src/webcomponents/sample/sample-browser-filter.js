@@ -30,6 +30,7 @@ import "../commons/filters/individual-id-autocomplete.js";
 import "../commons/forms/select-token-filter2.js";
 import "../commons/filters/select-token-filter.js";
 import "../commons/filters/sample-id-autocomplete-token.js";
+import "../commons/forms/select-token-filter-static.js";
 
 export default class SampleBrowserFilter extends LitElement {
 
@@ -161,7 +162,12 @@ export default class SampleBrowserFilter extends LitElement {
                                                   .opencgaSession="${this.opencgaSession}"
                                                   .value="${this.preparedQuery[subsection.id]}"
                                                   @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
-                    </sample-id-autocomplete-token>`;
+                    </sample-id-autocomplete-token>
+                    <!--<select-token-filter-static .config="\${subsection}"
+                                                  .value="\${this.preparedQuery[subsection.id]}"
+                                                  @filterChange="\${e => this.onFilterChange(subsection.id, e.detail.value)}">
+                    </select-token-filter-static> -->
+                `;
                 break;
             case "individualId":
                 content = html`
