@@ -52,13 +52,13 @@ export default defineConfig({
     },
     build: {
         rollupOptions: {
-            input: {
-                "suite/index.html": `${ivaPath}/iva-index.html`,
-                "genome-maps/index.html": "src/genome-browser/demo/genome-browser.html"},
+            input: [
+                `${ivaPath}/iva-index.html`,
+                "src/genome-browser/demo/genome-browser.html"],
             plugins: [
                 del({targets: "build-vite"}),
                 html({
-                    transformHtml: [html => html.replace("[build-signature]", revision())]
+                    transformHtml: [html => html.replace("[build-signature]", revision())],
                 }),
                 resolve(),
                 minifyHTML(),
@@ -81,13 +81,13 @@ export default defineConfig({
                 summary(),
                 copy({
                     targets: [
-                        {src: `${ivaPath}/img`, dest: `${buildPath}/suite`},
+                        {src: `${ivaPath}/img`, dest: `${buildPath}`},
                         {src: `${ivaPath}/LICENSE`, dest: `${buildPath}`},
                         {src: `${ivaPath}/README.md`, dest: `${buildPath}`},
                         {src: `${ivaPath}/favicon.ico`, dest: `${buildPath}`},
-                        {src: "./styles/fonts", dest: `${buildPath}/assets/`},
-                        {src: "./node_modules/bootstrap/dist/fonts", dest: `${buildPath}/assets/vendors/`},
-                        {src: "./node_modules/@fortawesome/fontawesome-free/webfonts", dest: `${buildPath}/assets/vendors/`},
+                        {src: "./styles/fonts", dest: `${buildPath}/`},
+                        {src: "./node_modules/bootstrap/dist/fonts", dest: `${buildPath}/vendors/`},
+                        {src: "./node_modules/@fortawesome/fontawesome-free/webfonts", dest: `${buildPath}/vendors/`},
                     ]
                 }),
             ],
@@ -105,23 +105,29 @@ export default defineConfig({
                         return "lib/core.min";
                     }
                 },
+                chunkFileNames: chunkInfo =>{
+                    return "[name]-[hash].js"; // configuration of manualChunks about name format and folder.
+                },
+                entryFileNames: chunkInfo => { // configuration for entry script module and inline script
+                    return "lib/[name].js";
+                },
                 assetFileNames: assetInfo => {
                     if (isConfig(assetInfo.name)) {
                         return "conf/[name][extname]";
                     }
 
                     if (isInternalCss(assetInfo.name)) {
-                        return "assets/css/[name]-[hash][extname]";
+                        return "css/[name]-[hash][extname]";
                     }
 
                     if (assetInfo.name.endsWith(".js") && !isConfig(assetInfo.name)) {
-                        return "assets/vendors/js/[name]-[hash][extname]";
+                        return "vendors/js/[name]-[hash][extname]";
                     }
 
                     if (assetInfo.name.endsWith(".css")) {
-                        return "assets/vendors/css/[name]-[hash][extname]";
+                        return "vendors/css/[name]-[hash][extname]";
                     }
-                    return "assets/vendors/[name]-[hash][extname]";
+                    return "vendors/[name]-[hash][extname]";
                 }
             }
         },
