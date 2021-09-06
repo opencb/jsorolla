@@ -19,11 +19,11 @@ import UtilsNew from "../../../core/utilsNew.js";
 import {classMap} from "/web_modules/lit-html/directives/class-map.js";
 
 /**
- * Tokel filter. Select2 version with opencga dynamic datasource
+ * Token filter. Select2 version with opencga dynamic datasource
  *
  */
 
-export default class SelectTokenFilter2 extends LitElement {
+export default class SelectTokenFilter extends LitElement {
 
     constructor() {
         super();
@@ -56,7 +56,7 @@ export default class SelectTokenFilter2 extends LitElement {
         this.state = [];
     }
 
-    firstUpdated(_changedProperties) {
+    firstUpdated() {
         this.select = $("#" + this._prefix);
         this.select.select2({
             // tags: true,
@@ -66,11 +66,12 @@ export default class SelectTokenFilter2 extends LitElement {
             ajax: {
                 transport: async (params, success, failure) => this._config.source(params, success, failure),
                 processResults: (restResponse, params) => {
-                    params.page = params.page || 1;
+                    const _params = params;
+                    _params.page = _params.page || 1;
                     return {
                         results: restResponse.getResults(),
                         pagination: {
-                            more: (params.page * this._config.limit) < restResponse.getResponse().numMatches
+                            more: (_params.page * this._config.limit) < restResponse.getResponse().numMatches
                         }
                     };
                 }
@@ -180,4 +181,4 @@ export default class SelectTokenFilter2 extends LitElement {
 
 }
 
-customElements.define("select-token-filter2", SelectTokenFilter2);
+customElements.define("select-token-filter2", SelectTokenFilter);

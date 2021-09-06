@@ -120,7 +120,6 @@ export default class OpencgaSampleBrowser extends LitElement {
                             {
                                 id: "id",
                                 name: "Sample ID",
-                                placeholder: "HG01879, HG01880, HG01881...",
                                 description: ""
                             },
                             {

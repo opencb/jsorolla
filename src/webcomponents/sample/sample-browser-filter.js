@@ -27,9 +27,9 @@ import "../commons/filters/select-token-filter.js";
 import "../commons/forms/select-field-filter-autocomplete.js";
 import "../commons/filters/sample-id-autocomplete.js";
 import "../commons/filters/individual-id-autocomplete.js";
-import "../commons/forms/select-token-filter2.js";
+import "../commons/forms/select-token-filter.js";
 import "../commons/filters/select-token-filter.js";
-import "../commons/filters/sample-id-autocomplete-token.js";
+import "../commons/filters/sample-id-autocomplete.js";
 import "../commons/forms/select-token-filter-static.js";
 
 export default class SampleBrowserFilter extends LitElement {
@@ -158,11 +158,11 @@ export default class SampleBrowserFilter extends LitElement {
         switch (subsection.id) {
             case "id":
                 content = html`
-                    <sample-id-autocomplete-token .config="${subsection}"
+                    <sample-id-autocomplete .config="${subsection}"
                                                   .opencgaSession="${this.opencgaSession}"
                                                   .value="${this.preparedQuery[subsection.id]}"
                                                   @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
-                    </sample-id-autocomplete-token>
+                    </sample-id-autocomplete>
                     <!--<select-token-filter-static .config="\${subsection}"
                                                   .value="\${this.preparedQuery[subsection.id]}"
                                                   @filterChange="\${e => this.onFilterChange(subsection.id, e.detail.value)}">
