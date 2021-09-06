@@ -17,6 +17,7 @@ const buildPath = path.resolve(__dirname, "build-vite");
 const ivaPath = path.resolve(__dirname, "src/sites/iva");
 const patternExt = /\.[0-9a-z]+$/i;
 const patternConfig = /(config|settings|constants|tools)/gi;
+const internalCss = /(global|magic-check|style|toggle-switch)/gi;
 
 const revision = () => {
     try {
@@ -37,6 +38,10 @@ const isConfig = name => {
     return name.match(patternConfig) !== null;
 };
 
+const isInternalCss = name => {
+    return name.match(internalCss) !== null;
+};
+
 export default defineConfig({
     mode: "development",
     root: "./",
@@ -47,12 +52,13 @@ export default defineConfig({
     },
     build: {
         rollupOptions: {
-            input: [`${ivaPath}/iva-index.html`, "src/genome-browser/demo/genome-browser.html"],
+            input: [
+                `${ivaPath}/iva-index.html`,
+                "src/genome-browser/demo/genome-browser.html"],
             plugins: [
                 del({targets: "build-vite"}),
                 html({
                     transformHtml: [html => html.replace("[build-signature]", revision())],
-                    minify: true
                 }),
                 resolve(),
                 minifyHTML(),
@@ -79,41 +85,49 @@ export default defineConfig({
                         {src: `${ivaPath}/LICENSE`, dest: `${buildPath}`},
                         {src: `${ivaPath}/README.md`, dest: `${buildPath}`},
                         {src: `${ivaPath}/favicon.ico`, dest: `${buildPath}`},
-                        {src: "./styles/fonts", dest: `${buildPath}/assets/`},
-                        {src: "./node_modules/bootstrap/dist/fonts", dest: `${buildPath}/assets/`},
-                        {src: "./node_modules/@fortawesome/fontawesome-free/webfonts", dest: `${buildPath}/assets/`},
+                        {src: "./styles/fonts", dest: `${buildPath}/`},
+                        {src: "./node_modules/bootstrap/dist/fonts", dest: `${buildPath}/vendors/`},
+                        {src: "./node_modules/@fortawesome/fontawesome-free/webfonts", dest: `${buildPath}/vendors/`},
                     ]
                 }),
             ],
             output: {
+                sourcemap: true,
                 dir: "build-vite",
                 manualChunks: id => { // It's only detect "import" from script type=module.. the others no.
                     if (id.includes("node_modules")) {
-                        return "vendor";
+                        return "vendors/js/vendors";
                     }
-                    if (id.includes("src/webcomponents") && !id.includes("src/webcomponents/commons")) {
-                        return "lib/webcomponents";
-                    }
-                    if (id.includes("src/webcomponents/commons")) {
-                        return "lib/webcomponents-commons";
+                    if (id.includes("src/webcomponents")) {
+                        return "lib/webcomponents.min";
                     }
                     if (id.includes("src/core")) {
-                        return "lib/core-jsorolla";
+                        return "lib/core.min";
                     }
+                },
+                chunkFileNames: chunkInfo =>{
+                    return "[name]-[hash].js"; // configuration of manualChunks about name format and folder.
+                },
+                entryFileNames: chunkInfo => { // configuration for entry script module and inline script
+                    return "lib/[name].js";
                 },
                 assetFileNames: assetInfo => {
                     if (isConfig(assetInfo.name)) {
                         return "conf/[name][extname]";
                     }
 
+                    if (isInternalCss(assetInfo.name)) {
+                        return "css/[name]-[hash][extname]";
+                    }
+
                     if (assetInfo.name.endsWith(".js") && !isConfig(assetInfo.name)) {
-                        return "assets/js/[name]-[hash][extname]";
+                        return "vendors/js/[name]-[hash][extname]";
                     }
 
                     if (assetInfo.name.endsWith(".css")) {
-                        return "assets/css/[name]-[hash][extname]";
+                        return "vendors/css/[name]-[hash][extname]";
                     }
-                    return "assets/[name]-[hash][extname]";
+                    return "vendors/[name]-[hash][extname]";
                 }
             }
         },
