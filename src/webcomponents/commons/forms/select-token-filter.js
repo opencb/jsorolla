@@ -181,4 +181,4 @@ export default class SelectTokenFilter extends LitElement {
 
 }
 
-customElements.define("select-token-filter2", SelectTokenFilter);
+customElements.define("select-token-filter", SelectTokenFilter);

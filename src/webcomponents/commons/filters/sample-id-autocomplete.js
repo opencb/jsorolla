@@ -88,7 +88,7 @@ export default class SampleIdAutocomplete extends LitElement {
 
     render() {
         return html`
-            <select-token-filter2 .opencgaSession="${this.opencgaSession}" .config=${this._config} .value="${this.value}" @filterChange="${e => this.onFilterChange("id", e.detail.value)}"></select-token-filter2>
+            <select-token-filter .opencgaSession="${this.opencgaSession}" .config=${this._config} .value="${this.value}" @filterChange="${e => this.onFilterChange("id", e.detail.value)}"></select-token-filter>
         `;
     }
 
