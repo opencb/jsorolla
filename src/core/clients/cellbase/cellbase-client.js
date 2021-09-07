@@ -128,7 +128,7 @@ export class CellBaseClient {
         if (typeof queryParamsUrl !== "undefined" && queryParamsUrl !== null && queryParamsUrl !== "") {
             url += `?${queryParamsUrl}`;
         }
-        const k = this.generateKey();
+        const k = this.generateKey(params);
         return this.restClient.call(url, options, k);
     }
 
@@ -200,7 +200,9 @@ export class CellBaseClient {
                         // We make a copy of dataResponse
                         const query = {};
                         for (const i in dataResponse) {
-                            query[i] = dataResponse[i];
+                            if (Object.prototype.hasOwnProperty.call(dataResponse, i)) {
+                                query[i] = dataResponse[i];
+                            }
                         }
                         // And remove the key response
                         delete query["response"];
@@ -254,23 +256,11 @@ export class CellBaseClient {
     _callRestWebService(host, category, subcategory, ids, resource, params, options) {
         const version = options.version || this._config.version;
         const species = options.species || this._config.species;
-        const url = this._createRestUrl(host, version, species, category, subcategory, ids, resource, params);
-        /*
-        let response;
-        const userError = options.error;
-        const _this = this;
-        // if the URL query fails we try with next host
 
-         options.error = function () {
-            if (++count < hosts.length) {
-                // we need a new URL
-                url = _this._createRestUrl(hosts[count], version, species, category, subcategory, ids, resource, params);
-                response = this.restClient.call(url, options);
-            } else {
-                userError(this);
-            }
-        };*/
-        const k = this.generateKey();
+        const url = this._createRestUrl(host, version, species, category, subcategory, ids, resource, params);
+
+        // ids is not included
+        const k = this.generateKey({...params, species, category, subcategory, resource, params});
         return this.restClient.call(url, options, k);
     }
 
@@ -308,7 +298,9 @@ export class CellBaseClient {
         const keyArray = _.keys(params).sort();
         const keyValueArray = [];
         for (const i in keyArray) {
-            keyValueArray.push(`${keyArray[i]}=${encodeURIComponent(params[keyArray[i]])}`);
+            if (Object.prototype.hasOwnProperty.call(keyArray, i)) {
+                keyValueArray.push(`${keyArray[i]}=${encodeURIComponent(params[keyArray[i]])}`);
+            }
         }
         let suffixKey = keyValueArray.join("&");
         // suffixKey is preceded by '_' if suffix is true. Else it is treated as queryParam that needs to be sorted
@@ -327,7 +319,9 @@ export class CellBaseClient {
     }
 
     generateKey(params) {
-        return `${new Error().stack.split("\n    at ").slice(0, 5).join("|")}`;
+        // params is added to the key to avoid unwanted request abort.
+        // We can do it because we don't have tables in IVA that queries Cellbase.
+        return `${new Error().stack.split("\n    at ").slice(0, 5).join("|") + JSON.stringify(params)}`;
     }
 
 }
