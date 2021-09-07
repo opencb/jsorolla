@@ -185,7 +185,7 @@ const suite = {
                                     </ul>`,
                             visibility: "public",
                             fa_icon: "fa fa-list",
-                            icon: "variant_browser.svg",
+                            icon: "img/tools/icons/variant_browser.svg",
                             thumbnail: "variant-browser.png"
                         }
                         // {
@@ -335,7 +335,7 @@ const suite = {
                             name: "Mutational Signature",
                             acronym: "SG",
                             description: "",
-                            icon: "aggregation.svg",
+                            icon: "img/tools/icons/aggregation.svg",
                             visibility: "public"
                         },
                         separator,
@@ -609,7 +609,7 @@ const suite = {
                 {
                     id: "clinical",
                     name: "Case Interpretation",
-                    icon: "interpretation_portal.svg",
+                    icon: "img/tools/icons/interpretation_portal.svg",
                     visibility: "public",
                     submenu: [
                         {
@@ -630,7 +630,7 @@ const suite = {
                             `,
                             visibility: "public",
                             fa_icon: "fas fa-folder-open",
-                            icon: "interpretation_portal.svg",
+                            icon: "img/tools/icons/interpretation_portal.svg",
                             thumbnail: "interpretation_portal.png"
                         },
                         {
@@ -765,14 +765,14 @@ const suite = {
                     id: "projects-admin",
                     name: "Project Manager",
                     fa_icon: "fas fa-file-invoice",
-                    icon: "variant_browser.svg",
+                    icon: "img/tools/icons/variant_browser.svg",
                     visibility: "public"
                 },
                 {
                     id: "study-admin",
                     name: "Study Admin",
                     fa_icon: "fas fa-file-invoice",
-                    icon: "variant_browser.svg",
+                    icon: "img/tools/icons/variant_browser.svg",
                     visibility: "public"
                 }
                 // {
@@ -794,7 +794,7 @@ const suite = {
                 //             </ul>`,
                 //             visibility: "public",
                 //             fa_icon: "fa fa-list",
-                //             icon: "variant_browser.svg",
+                //             icon: "img/tools/icons/variant_browser.svg",
                 //             thumbnail: "variant-browser.png"
                 //         }
                 //     ]
