@@ -12,11 +12,11 @@
     ]
   },
   "scripts": {
-    "dev": "vite",
-    "vite-build": "vite build",
+    "serve": "vite",
+    "build": "vite build",
     "prepare": "husky install",
     "browser-support": "npx browserslist",
-    "build": "npm run build-clean && npm run dist && npx webpack && npm run package && npm run build-genome-browser",
+    "build-deprecated": "npm run build-clean && npm run dist && npx webpack && npm run package && npm run build-genome-browser",
     "build-clean": "rm -rf build",
     "build-network-viewer": "mkdir -p build/network-viewer && ./build-network-viewer.sh",
     "build-genome-browser-demo": "for i in `ls src/genome-browser/demo`; do cat src/genome-browser/demo/$i | sed 's/..\\/..\\/..\\/node_modules/vendors/' | sed 's/..\\/..\\/..\\/dist/dist/' | sed 's/..\\/webcomponent\\//webcomponent\\//'> build/genome-browser/$i; done",
@@ -29,7 +29,7 @@
     "dist": "npm run clean && mkdir -p dist/js && npm install && npm run core && npm run genome-browser && npm run styles",
     "test": "jest",
     "clean": "rm -rf build",
-    "serve": "wds --watch --open src/sites/iva --node-resolve",
+    "serve-deprecated": "wds --watch --open src/sites/iva --node-resolve",
     "package": "mv build iva-$npm_package_version && tar zcvf iva-$npm_package_version.tar.gz iva-$npm_package_version && mv iva-$npm_package_version build",
     "deploy": "npx webpack && ./docker/docker-build.py push",
     "eslint": "eslint -c .eslintrc.json . --ignore-pattern '/web_modules/'",
