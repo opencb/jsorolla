@@ -82,7 +82,7 @@ export default class SelectTokenFilter extends LitElement {
                 }
                 // NOTE this function silently fails in case of errors if not wrapped in try/catch block
                 try {
-                    const {name, ...rest} = this._config.fields(item) ?? item.id;
+                    const {name, ...rest} = this._config.fields(item) ?? item.id ?? item;
                     return $(`<span>${name}</span> ${(rest ? Object.entries(rest).map(([label, value]) => `<p class="dropdown-item-extra"><label>${label}</label> ${value || "-"}</p>`).join("") : "") }`);
                 } catch (e) {
                     console.error(e);
