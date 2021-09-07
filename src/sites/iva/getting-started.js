@@ -18,7 +18,9 @@ import {LitElement, html} from "/web_modules/lit-element.js";
 import UtilsNew from "../../core/utilsNew.js";
 import "../../webcomponents/commons/tool-header.js";
 
-// TODO Video-Tutorial here?
+/**
+ * @deprecated
+ */
 
 export default class GettingStarted extends LitElement {
 

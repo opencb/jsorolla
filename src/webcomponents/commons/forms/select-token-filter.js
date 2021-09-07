@@ -173,8 +173,8 @@ export default class SelectTokenFilter extends LitElement {
 
     render() {
         return html`
-        <div class="">
-            <select id="${this._prefix}" style="width: 100%" @change="${this.filterChange}"></select>
+        <div>
+            <select class="form-control"  id="${this._prefix}" @change="${this.filterChange}"></select>
         </div>
         `;
     }
