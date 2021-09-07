@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "/web_modules/lit-element.js";
+import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
 import "./../../commons/view/detail-tabs.js";
 import GridCommons from "../../commons/grid-commons.js";
@@ -73,8 +73,8 @@ export default class RgaIndividualVariants extends LitElement {
 
 
     updated(changedProperties) {
-        if (changedProperties.has("opencgaSession")) {
-        }
+        /* if (changedProperties.has("opencgaSession")) {
+        }*/
 
         if (changedProperties.has("individual")) {
             this.prepareData();
@@ -154,7 +154,7 @@ export default class RgaIndividualVariants extends LitElement {
 
     }
 
-    /**
+    /*
      * @deprecated
      * useful in case rga-individual-grid uses /analysis/clinical/rga/individual/query
      */
@@ -188,7 +188,7 @@ export default class RgaIndividualVariants extends LitElement {
 
     }
 
-    /**
+    /*
      * @deprecated
      * useful in case rga-individual-grid uses /analysis/clinical/rga/individual/query
      */

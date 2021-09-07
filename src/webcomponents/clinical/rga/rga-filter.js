@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "/web_modules/lit-element.js";
+import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
 import "../../commons/forms/text-field-filter.js";
 import "../../commons/forms/checkbox-field-filter.js";
@@ -52,7 +52,7 @@ export default class RgaFilter extends LitElement {
             },
             config: {
                 type: Object
-            }
+            },
         };
     }
 
@@ -114,31 +114,33 @@ export default class RgaFilter extends LitElement {
     notifyQuery(query) {
         this.dispatchEvent(new CustomEvent("queryChange", {
             detail: {
-                query: query
+                query: query,
             },
             bubbles: true,
-            composed: true
+            composed: true,
         }));
     }
 
     notifySearch(query) {
         this.dispatchEvent(new CustomEvent("querySearch", {
             detail: {
-                query: query
-            }
+                query: query,
+            },
         }));
     }
 
     _createSection(section) {
         const htmlFields = section.fields && section.fields.length && section.fields.map(subsection => this._createSubSection(subsection));
-        return this.config.sections.length > 1 ? html`<section-filter .config="${section}" .filters="${htmlFields}">` : htmlFields;
+        return this.config.sections.length > 1 ? html`
+            <section-filter .config="${section}" .filters="${htmlFields}">` : htmlFields;
     }
 
+    // TODO recheck, why an ad hoc method?
     rgaIndividualFilter(subsection) {
         const config = {
             addButton: false,
             fields: item => ({
-                name: item.id
+                name: item.id,
             }),
             dataSource: (query, process) => {
                 const filters = {
@@ -146,80 +148,125 @@ export default class RgaFilter extends LitElement {
                     limit: 20,
                     count: false,
                     include: "id",
-                    id: "~^" + query.toUpperCase()
+                    id: "~^" + query.toUpperCase(),
                 };
                 this.opencgaSession.opencgaClient.individuals().search(filters).then(restResponse => {
                     const results = restResponse.getResults();
                     process(results.map(config.fields));
                 });
-            }
+            },
         };
-        return html`<select-field-filter-autocomplete .opencgaSession="${this.opencgaSession}" .config=${config} .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></select-field-filter-autocomplete>`;
+        return html`
+            <select-field-filter-autocomplete
+                    .opencgaSession="${this.opencgaSession}"
+                    .config=${config}
+                    .value="${this.preparedQuery[subsection.id]}"
+                    @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
+            </select-field-filter-autocomplete>`;
     }
 
     _createSubSection(subsection) {
         let content = "";
         switch (subsection.id) {
             case "variants":
-                content = html`<text-field-filter placeholder="${subsection.placeholder}" .value="${this.preparedQuery[subsection.id]}" .separator="${",;"}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></text-field-filter>`;
+                content = html`
+                    <text-field-filter
+                            placeholder="${subsection.placeholder}"
+                            .value="${this.preparedQuery[subsection.id]}"
+                            .separator="${",;"}"
+                            @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
+                    </text-field-filter>`;
                 break;
             case "geneName":
-                content = html`<feature-filter placeholder="${subsection.placeholder}" .cellbaseClient="${this.cellbaseClient}" .query="${this.preparedQuery}" .separator="${",;"}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></feature-filter>`;
+                content = html`
+                    <feature-filter
+                            placeholder="${subsection.placeholder}"
+                            .cellbaseClient="${this.cellbaseClient}"
+                            .query="${this.preparedQuery}"
+                            .separator="${",;"}"
+                            @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
+                    </feature-filter>`;
                 break;
             case "cohort":
-                content = html`<cohort-stats-filter .opencgaSession="${this.opencgaSession}" .onlyCohortAll=${true} .cohortStatsAlt="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
-                            </cohort-stats-filter>`;
+                content = html`
+                    <cohort-stats-filter .opencgaSession="${this.opencgaSession}"
+                                         .onlyCohortAll=${true}
+                                         .cohortStatsAlt="${this.preparedQuery[subsection.id]}"
+                                         @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
+                    </cohort-stats-filter>`;
                 break;
             case "populationFrequency":
-                content = html`<population-frequency-filter .populationFrequencies="${populationFrequencies}" .allowedFrequencies=${this.allowedPopFrequencies} ?onlyPopFreqAll="${subsection.onlyPopFreqAll}" .populationFrequencyAlt="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></population-frequency-filter>`;
+                content = html`
+                    <population-frequency-filter .populationFrequencies="${populationFrequencies}"
+                                                 .allowedFrequencies=${this.allowedPopFrequencies}
+                                                 ?onlyPopFreqAll="${subsection.onlyPopFreqAll}"
+                                                 .populationFrequencyAlt="${this.preparedQuery[subsection.id]}"
+                                                 @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
+                    </population-frequency-filter>`;
                 break;
             case "type":
-                content = html`<variant-type-filter .type="${this.preparedQuery[subsection.id]}" .config="${subsection}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></variant-type-filter>`;
+                content = html`
+                    <variant-type-filter .type="${this.preparedQuery[subsection.id]}"
+                                         .config="${subsection}"
+                                         @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
+                    </variant-type-filter>`;
                 break;
             case "consequenceType":
-                content = html`<consequence-type-select-filter .ct="${this.preparedQuery[subsection.id]}" .config="${subsection}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></consequence-type-select-filter>`;
+                content = html`
+                    <consequence-type-select-filter .ct="${this.preparedQuery[subsection.id]}" .config="${subsection}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></consequence-type-select-filter>`;
                 break;
             case "clinicalSignificance":
-                content = html`<clinvar-accessions-filter .config="${{clinvar: false}}" .clinicalSignificance="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e?.detail?.value?.clinicalSignificance)}"></clinvar-accessions-filter>`;
+                content = html`
+                    <clinvar-accessions-filter .config="${{clinvar: false}}" .clinicalSignificance="${this.preparedQuery[subsection.id]}"
+                                               @filterChange="${e => this.onFilterChange(subsection.id, e?.detail?.value?.clinicalSignificance)}"></clinvar-accessions-filter>`;
                 break;
             case "numParents":
-                content = html`<checkbox-field-filter .value="${this.preparedQuery[subsection.id]}" .data="${subsection.allowedValues}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></checkbox-field-filter>`;
+                content = html`
+                    <checkbox-field-filter .value="${this.preparedQuery[subsection.id]}" .data="${subsection.allowedValues}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></checkbox-field-filter>`;
                 break;
             case "knockoutType":
-                content = html`<select-field-filter multiple .data="${subsection.allowedValues}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></select-field-filter>`;
+                content = html`
+                    <select-field-filter multiple .data="${subsection.allowedValues}" .value="${this.preparedQuery[subsection.id]}"
+                                         @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></select-field-filter>`;
                 break;
             case "probandOnly":
                 content = html`
                     <div class="form-horizontal">
                         <div class="from-group form-inline">
-                            <input class="magic-radio" type="radio" name="${subsection.id}" id="${this._prefix + subsection.id}yes" ?checked=${subsection.value === "yes"} value="yes" @change="${e => this.onFilterChange(subsection.id, "yes")}"><label class="magic-horizontal-label" for="${this._prefix + subsection.id}yes"> Yes </label>
-                            <input class="magic-radio" type="radio" name="${subsection.id}" id="${this._prefix + subsection.id}no" ?checked=${subsection.value === "no"} value="no" @change="${e => this.onFilterChange(subsection.id, "no")}"> <label class="magic-horizontal-label" for="${this._prefix + subsection.id}no"> No </label>
+                            <input class="magic-radio" type="radio" name="${subsection.id}" id="${this._prefix + subsection.id}yes" ?checked=${subsection.value === "yes"} value="yes"
+                                   @change="${e => this.onFilterChange(subsection.id, "yes")}"><label class="magic-horizontal-label" for="${this._prefix + subsection.id}yes"> Yes </label>
+                            <input class="magic-radio" type="radio" name="${subsection.id}" id="${this._prefix + subsection.id}no" ?checked=${subsection.value === "no"} value="no"
+                                   @change="${e => this.onFilterChange(subsection.id, "no")}"> <label class="magic-horizontal-label" for="${this._prefix + subsection.id}no"> No </label>
                         </div>
                     </div>
                 `;
                 break;
             case "region":
-                content = html`<region-filter  .cellbaseClient="${this.cellbaseClient}" .region="${this.preparedQuery.region}" @filterChange="${e => this.onFilterChange("region", e.detail.value)}"></region-filter>`;
+                content = html`
+                    <region-filter .cellbaseClient="${this.cellbaseClient}" .region="${this.preparedQuery.region}" @filterChange="${e => this.onFilterChange("region", e.detail.value)}"></region-filter>`;
                 break;
             case "individualId":
-                content = this.rgaIndividualFilter(subsection);
+                content = html`
+                    <individual-id-autocomplete .value="${this.preparedQuery[subsection.id]}" .config="${subsection}" .opencgaSession="${this.opencgaSession}"
+                                                @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></individual-id-autocomplete>`;
+                // content = this.rgaIndividualFilter(subsection);
                 break;
             default:
                 console.error("Filter component not found", subsection?.id);
         }
         return html`
-                    <div class="form-group">
-                        <div class="browser-subsection" id="${subsection.id}">${subsection.name}
-                            ${subsection.description ? html`
-                                <div class="tooltip-div pull-right">
-                                    <a tooltip-title="${subsection.name}" tooltip-text="${subsection.description}"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
-                                </div>` : null }
-                        </div>
-                        <div id="${this._prefix}${subsection.id}" class="subsection-content" data-cy="${subsection.id}">
-                            ${content}
-                         </div>
-                    </div>
-                `;
+            <div class="form-group">
+                <div class="browser-subsection" id="${subsection.id}">${subsection.name}
+                    ${subsection.description ? html`
+                        <div class="tooltip-div pull-right">
+                            <a tooltip-title="${subsection.name}" tooltip-text="${subsection.description}"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
+                        </div>` : null}
+                </div>
+                <div id="${this._prefix}${subsection.id}" class="subsection-content" data-cy="${subsection.id}">
+                    ${content}
+                </div>
+            </div>
+        `;
     }
 
     render() {
@@ -229,7 +276,7 @@ export default class RgaFilter extends LitElement {
                     <i class="fa fa-search" aria-hidden="true"></i> Search
                 </button>
             </div>
-            ` : null}
+        ` : null}
 
         <div class="panel-group" id="${this._prefix}Accordion" role="tablist" aria-multiselectable="true">
             <div class="">

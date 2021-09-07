@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "/web_modules/lit-element.js";
+import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
 import CatalogGridFormatter from "../../commons/catalog-grid-formatter.js";
 import GridCommons from "../../commons/grid-commons.js";
@@ -153,7 +153,7 @@ export default class RgaVariantView extends LitElement {
         this.renderTable();
     }
 
-    /**
+    /*
      * @deprecated
      */
     prepareData() {
@@ -329,7 +329,7 @@ export default class RgaVariantView extends LitElement {
         return res;
     }
 
-    /**
+    /*
      * @deprecated
      */
     geneFormatter(value, row) {
@@ -338,7 +338,7 @@ export default class RgaVariantView extends LitElement {
         return Array.from(genes.keys()).join(", ");
     }
 
-    /**
+    /*
      * @deprecated
      */
     alleleCountFormatter(value, row) {
@@ -369,7 +369,7 @@ export default class RgaVariantView extends LitElement {
         }
     }
 
-    /**
+    /*
      * @deprecated
      */
     dbSNPFormatter(value, row) {
@@ -416,7 +416,7 @@ export default class RgaVariantView extends LitElement {
         }*/
     }
 
-    /**
+    /*
      * not used at the moment
      */
     individualFormatter(value, row) {
@@ -458,7 +458,7 @@ export default class RgaVariantView extends LitElement {
     renderTable() {
         this._query = {...this.query, study: this.opencgaSession.study.fqn}; // we want to support a query obj param both with or without study.
         // Checks if the component is not visible or the query hasn't changed (NOT the latter anymore)
-        if (!this.active /*|| UtilsNew.objectCompare(this._query, this.prevQuery)*/) {
+        if (!this.active /* || UtilsNew.objectCompare(this._query, this.prevQuery)*/) {
             return;
         }
         this.prevQuery = {...this._query};

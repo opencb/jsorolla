@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "/web_modules/lit-element.js";
+import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
 import "./../../commons/view/detail-tabs.js";
 import CatalogGridFormatter from "../../commons/catalog-grid-formatter.js";
@@ -62,8 +62,8 @@ export default class RgaVariantIndividual extends LitElement {
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("opencgaSession")) {
-        }
+        /* if (changedProperties.has("opencgaSession")) {
+        }*/
 
         if (changedProperties.has("variant") || changedProperties.has("query")) {
             // this.prepareData();
@@ -75,7 +75,7 @@ export default class RgaVariantIndividual extends LitElement {
         }
     }
 
-    /**
+    /*
      *  generates tableDataMap, a map of all individuals (not paginated).
      *  The map will be used merging Individuals and Clinical data.
      *  @deprecated
@@ -170,7 +170,7 @@ export default class RgaVariantIndividual extends LitElement {
             responseHandler: response => {
                 const result = this.gridCommons.responseHandler(response, $(this.table).bootstrapTable("getOptions"));
                 this.hiddenIndividuals = this.variant.individualStats.count - result.response.total;
-                this.requestUpdate()
+                this.requestUpdate();
                 return result.response;
             },
             onClickRow: (row, selectedElement, field) => {
@@ -207,7 +207,7 @@ export default class RgaVariantIndividual extends LitElement {
         return res;
     }
 
-    /**
+    /*
      * @deprecated
      */
     renderTableLocale() {
@@ -257,7 +257,7 @@ export default class RgaVariantIndividual extends LitElement {
         });
     }
 
-    /**
+    /*
      * Get clinical info only for the subset of individual defined by startIndividual and endIndividual indexes.
      * NOTE we search for proband and other members as well
      */
@@ -282,10 +282,10 @@ export default class RgaVariantIndividual extends LitElement {
 
     }
 
-    /**
+    /*
      * Update tableDataMap (containing all the individuals) with the clinical info just fetched.
      * @deprecated
-     */
+
     updateTableData(tableDataMap, clinicalData) {
         const _tableDataMap = tableDataMap;
         for (const individualId in _tableDataMap) {
@@ -303,7 +303,7 @@ export default class RgaVariantIndividual extends LitElement {
             }
         }
         return Object.values(_tableDataMap);
-    }
+    }*/
 
     _initTableColumns() {
         return [
@@ -392,7 +392,9 @@ export default class RgaVariantIndividual extends LitElement {
         return html`
             <h3 class="break-word">Individual presenting ${this.variant.id}</h3>
             ${this.hiddenIndividuals > 0 ? html`
-                <div class="alert alert-warning"><i class="fas fa-3x fa-exclamation-circle align-middle"></i>  ${this.hiddenIndividuals} individual${this.hiddenIndividuals > 1 ? "s are" : " is"} hidden due to your permission settings.</div>
+                <div class="alert alert-warning"><i class="fas fa-3x fa-exclamation-circle align-middle"></i>
+                    ${this.hiddenIndividuals} individual${this.hiddenIndividuals > 1 ? "s are" : " is"} hidden due to your permission settings.
+                </div>
             ` : null}
             <div class="row">
                 <table id="${this.gridId}"></table>

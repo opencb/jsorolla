@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "/web_modules/lit-element.js";
+import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
 import GridCommons from "../../commons/grid-commons.js";
 import CatalogGridFormatter from "../../commons/catalog-grid-formatter.js";
@@ -288,7 +288,7 @@ export default class RgaIndividualView extends LitElement {
         }
     }
 
-    /**
+    /*
      * @deprecated
      */
     mapResult(results) {
@@ -401,7 +401,7 @@ export default class RgaIndividualView extends LitElement {
         ];
     }
 
-    /**
+    /*
      * Returns variantStats.numCompHet iff numParents matches the number of parent Ids defined
      */
     getChConfidenceFormatter(row, numParents) {

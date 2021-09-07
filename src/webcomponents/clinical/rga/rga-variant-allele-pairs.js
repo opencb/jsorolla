@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "/web_modules/lit-element.js";
+import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
 import "./../../commons/view/detail-tabs.js";
 import GridCommons from "../../commons/grid-commons.js";
@@ -60,8 +60,8 @@ export default class RgaVariantAllelePairs extends LitElement {
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("opencgaSession")) {
-        }
+        /* if (changedProperties.has("opencgaSession")) {
+        }*/
 
         if (changedProperties.has("variant")) {
             this.prepareData();
@@ -185,7 +185,7 @@ export default class RgaVariantAllelePairs extends LitElement {
         });
     }
 
-    /**
+    /*
      * Get variant info only for the subset of variant defined by startVariant and endVariant indexes.
      */
     async getVariantInfo(variantIds, startVariant, endVariant) {
@@ -209,7 +209,7 @@ export default class RgaVariantAllelePairs extends LitElement {
 
     }
 
-    /**
+    /*
      * Update variantData (containing all the variants from variant/summary in Variant View) with variant info just fetched (a list of paginated variants, still from variant/summary).
      * Double loop is necessary as variantData can contain more than 1 variant with the same id
      */

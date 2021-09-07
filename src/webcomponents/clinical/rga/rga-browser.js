@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "/web_modules/lit-element.js";
+import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
 import "../../commons/opencga-active-filters.js";
 import "../../commons/forms/select-field-filter.js";
@@ -71,7 +71,7 @@ export default class RgaBrowser extends LitElement {
 
         // LoF as defaultQuery
         this.defaultQuery = {
-            /*consequenceType: "transcript_ablation,splice_acceptor_variant,splice_donor_variant,stop_gained,frameshift_variant,stop_lost,start_lost,transcript_amplification,inframe_insertion,inframe_deletion",
+            /* consequenceType: "transcript_ablation,splice_acceptor_variant,splice_donor_variant,stop_gained,frameshift_variant,stop_lost,start_lost,transcript_amplification,inframe_insertion,inframe_deletion",
             geneName: ["GRIK5", "ACTN3", "COMT", "TTN", "ABCA12", "ALMS1", "ALOX12B", "ATP8A2", "BLM",
                 "CCNO", "CEP290", "CNGB3", "CUL7", "DNAAF1", "DOCK6", "EIF2B5", "ERCC6", "FLG", "HADA",
                 "INPP5K", "MANIB1", "MERTK", "MUTYH", "NDUFAF5", "NDUFS7", "OTOG", "PAH", "PDZD7", "PHYH",
@@ -167,7 +167,11 @@ export default class RgaBrowser extends LitElement {
     _changeView(tabId) {
         $(".content-pills", this).removeClass("active");
         $(".content-tab", this).removeClass("active");
-        for (const tab in this.activeTab) this.activeTab[tab] = false;
+        for (const tab in this.activeTab) {
+            if (Object.prototype.isPrototypeOf.call(this.activeTab, tab)) {
+                this.activeTab[tab] = false;
+            }
+        }
         $(`button.content-pills[data-id=${tabId}]`, this).addClass("active");
         $("#" + tabId, this).addClass("active");
         this.activeTab[tabId] = true;
@@ -306,7 +310,7 @@ export default class RgaBrowser extends LitElement {
                                 name: "Variant Id",
                                 placeholder: "13:32906644:-:T,13:32912753:AC:-"
                             },
-                            /*{
+                            /* {
                                 id: "region",
                                 name: "Genomic Location",
                                 tooltip: tooltips.region
@@ -442,7 +446,12 @@ export default class RgaBrowser extends LitElement {
                                 </div>
 
                                 <div id="variant-tab" class="content-tab">
-                                    <rga-variant-view .query=${this.executedQuery} .config=${this._config} .opencgaSession="${this.opencgaSession}" .cellbaseClient=${this.cellbaseClient} .active="${this.activeTab["variant-tab"]}"></rga-variant-view>
+                                    <rga-variant-view .query=${this.executedQuery}
+                                                      .config=${this._config}
+                                                      .opencgaSession="${this.opencgaSession}"
+                                                      .cellbaseClient=${this.cellbaseClient}
+                                                      .active="${this.activeTab["variant-tab"]}">
+                                    </rga-variant-view>
                                 </div>
 
                             </div>

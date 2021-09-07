@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "/web_modules/lit-element.js";
+import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
 import "./../../commons/view/detail-tabs.js";
 import GridCommons from "../../commons/grid-commons.js";
@@ -68,8 +68,8 @@ export default class RgaIndividualFamily extends LitElement {
     }
 
     async updated(changedProperties) {
-        if (changedProperties.has("opencgaSession")) {
-        }
+        /* if (changedProperties.has("opencgaSession")) {
+        }*/
 
         if ((changedProperties.has("individual") || changedProperties.has("active")) && this.active) {
             // this.prepareData();
@@ -221,11 +221,11 @@ export default class RgaIndividualFamily extends LitElement {
     }
 
 
-    /**
+    /*
      * @deprecated
      * useful in case rga-individual-grid uses /analysis/clinical/rga/individual/query
      */
-    async prepareData() {
+    /* async prepareData() {
         if (this.individual) {
             try {
                 // motherId: "115000155", fatherId: "115000154"
@@ -240,9 +240,9 @@ export default class RgaIndividualFamily extends LitElement {
                 // in case fatherSampleId is missing, the response studies[].samples[] of variants().query() would contains only 2 entries
                 this.motherSampleIndx = this.individual.fatherSampleId && this.individual.motherSampleId ? 2 : 1;
 
-                /**
+                /!**
                  * this.tableDataMap is the full list of unique variants per individual
-                 */
+                 *!/
                 if (UtilsNew.isEmpty(this.tableDataMap)) {
                     for (const gene of this.individual.genes) {
                         for (const transcript of gene.transcripts) {
@@ -263,9 +263,9 @@ export default class RgaIndividualFamily extends LitElement {
             }
         }
 
-    }
+    }*/
 
-    /**
+    /*
      * Queries variant WS only for the subset defined by startVariant and endVariant.
      */
     async getVariantInfo(sampleIds, variantIds) {
@@ -298,7 +298,7 @@ export default class RgaIndividualFamily extends LitElement {
         return Object.values(resultMap);
     }
 
-    /**
+    /*
      * @deprecated
      * update tableData with new variant data (it happens on pagination)
      */
@@ -310,7 +310,7 @@ export default class RgaIndividualFamily extends LitElement {
         return Object.values(_tableDataMap);
     }
 
-    /**
+    /*
      * @deprecated
      * useful in case rga-individual-grid uses /analysis/clinical/rga/individual/query
      */
@@ -497,8 +497,8 @@ export default class RgaIndividualFamily extends LitElement {
                 <br>
                 <a tooltip-title="Terms Filtered" tooltip-text="${Object.values(filteredUniqueCT).map(ct => `<span>${ct.name} (${ct.accession})</span>`).join(", ")}">
                     <span style="color: darkgray;font-style: italic">${Object.values(filteredUniqueCT).length} terms filtered</span>
-                </a>`
-                : ""}
+                </a>` :
+                ""}
         `;
         }
     }

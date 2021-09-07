@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "/web_modules/lit-element.js";
+import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
 import GridCommons from "../../commons/grid-commons.js";
 import CatalogGridFormatter from "../../commons/catalog-grid-formatter.js";
@@ -134,7 +134,7 @@ export default class RgaGeneView extends LitElement {
                         // TODO move this in formatter (or in onLoadSuccess()) and make it async on table render
                         // disabled at the moment
 
-                        /*this.geneIds = rgaGeneResponse.getResults().map(gene => gene.id);
+                        /* this.geneIds = rgaGeneResponse.getResults().map(gene => gene.id);
                         const individualStatsResponse = await this.getIndividualInfo(this.geneIds);
                         console.log("individualStatsResponse", individualStatsResponse);
                         // merging RGA Variant data with Variant data
@@ -164,13 +164,13 @@ export default class RgaGeneView extends LitElement {
             },
             onCheck: (row, $element) => this.gridCommons.onCheck(row.id, row),
             onLoadSuccess: data => {
-                this.gridCommons.onLoadSuccess(data, 1)
+                this.gridCommons.onLoadSuccess(data, 1);
             },
             onLoadError: (e, restResponse) => this.gridCommons.onLoadError(e, restResponse)
         });
     }
 
-    /**
+    /*
      * @deprecated
      */
     responseHandler(response) {
@@ -249,7 +249,7 @@ export default class RgaGeneView extends LitElement {
                     title: "Total",
                     field: "individualStats.count",
                     formatter: value => value > 0 ? value : "-",
-                    /*formatter: (value, row) => {
+                    /* formatter: (value, row) => {
                         console.log("row", row);
                         if (value > 0) {
                             return value - row.attributes.INDIVIDUAL !== 0 ? value + " - " + row.attributes.INDIVIDUAL : value;
@@ -310,12 +310,12 @@ export default class RgaGeneView extends LitElement {
     }
 
     async updateTotalIndividual(id, field) {
-        console.log("id", id)
-        this.table.bootstrapTable("updateCellByUniqueId", {id: id, field: 'name', value: "loading"});
+        console.log("id", id);
+        this.table.bootstrapTable("updateCellByUniqueId", {id: id, field: "name", value: "loading"});
         const totalIndividualMap = await this.getIndividualInfo(id);
         this.table.bootstrapTable("updateCellByUniqueId", {
             id: id,
-            field: 'name',
+            field: "name",
             value: totalIndividualMap[id]
         });
     }
@@ -327,8 +327,8 @@ export default class RgaGeneView extends LitElement {
     /**
      * Get Individual stats of a set of genes (the genes are not spliced as they comes from a paginated request already).
      * TODO NOTE this won't work as the `numMatches` > 10k is approximated
-     * @param geneIds {Array} all genes
-     * @returns {Promise}
+     * @param {Array} geneIds all genes
+     * @returns {Object} Gene map
      */
     async getIndividualInfo(geneIds) {
         try {
@@ -362,7 +362,7 @@ export default class RgaGeneView extends LitElement {
 
     }
 
-    /**
+    /*
      * @deprecated
      */
     _getConfidenceCount(facetFields, value) {
