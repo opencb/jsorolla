@@ -16,7 +16,7 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
-import {classMap} from "/web_modules/lit-html/directives/class-map.js";
+import {classMap} from "lit/directives/class-map.js";
 
 /**
  * Token filter. Select2 version with opencga dynamic datasource

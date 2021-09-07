@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "/web_modules/lit-element.js";
+import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
-import {classMap} from "/web_modules/lit-html/directives/class-map.js";
+import {classMap} from "lit/directives/class-map.js";
 
 /**
  * Tokel filter. Select2 version with static datasource
