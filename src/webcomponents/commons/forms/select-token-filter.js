@@ -16,15 +16,14 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
+import {classMap} from "/web_modules/lit-html/directives/class-map.js";
 
 /**
- * Select2 version
+ * Token filter. Select2 version with opencga dynamic datasource
  *
- * TODO FIXME Update from active-filters leads to an inconsistent state.
- * TODO support both static and dynamic data
  */
 
-export default class SelectTokenFilter2 extends LitElement {
+export default class SelectTokenFilter extends LitElement {
 
     constructor() {
         super();
@@ -37,17 +36,8 @@ export default class SelectTokenFilter2 extends LitElement {
 
     static get properties() {
         return {
-            opencgaSession: {
-                type: Object
-            },
             config: {
                 type: Object
-            },
-            placeholder: {
-                type: String
-            },
-            resource: {
-                type: String
             },
             value: {
                 type: String
@@ -66,53 +56,46 @@ export default class SelectTokenFilter2 extends LitElement {
         this.state = [];
     }
 
-    firstUpdated(_changedProperties) {
+    firstUpdated() {
         this.select = $("#" + this._prefix);
         this.select.select2({
+            // tags: true,
             multiple: true,
+            placeholder: this._config.placeholder,
+            minimumInputLength: this._config.minimumInputLength,
             ajax: {
-                transport: (params, success, failure) => {
-                    params.data.page = params.data.page || 1;
-                    const filters = {
-                        study: this.opencgaSession.study.fqn,
-                        limit: this._config.limit,
-                        count: true,
-                        skip: (params.data.page - 1) * this._config.limit,
-                        include: "id",
-                        id: "~^" + params?.data?.term?.toUpperCase()
-                    };
-                    this.opencgaSession.opencgaClient.samples().search(filters).then(restResponse => {
-                        const results = restResponse.getResults();
-                        success(restResponse);
-                    });
-                },
+                transport: async (params, success, failure) => this._config.source(params, success, failure),
                 processResults: (restResponse, params) => {
-                    params.page = params.page || 1;
+                    const _params = params;
+                    _params.page = _params.page || 1;
                     return {
-                        results: restResponse.getResults().map(r => ({id: r.id, text: r.id})),
+                        results: restResponse.getResults(),
                         pagination: {
-                            more: (params.page * this._config.limit) < restResponse.getResponse().numMatches
+                            more: (_params.page * this._config.limit) < restResponse.getResponse().numMatches
                         }
                     };
                 }
             },
-            templateResult: r => {
-                return $("<span>" + r.id + "<p class='dropdown-item-extra'><label>ID</label>" + r.id + "</p></span>");
+            templateResult: item => {
+                if (item.loading) {
+                    return item.text;
+                }
+                // NOTE this function silently fails in case of errors if not wrapped in try/catch block
+                try {
+                    const {name, ...rest} = this._config.fields(item) ?? item.id ?? item;
+                    return $(`<span>${name}</span> ${(rest ? Object.entries(rest).map(([label, value]) => `<p class="dropdown-item-extra"><label>${label}</label> ${value || "-"}</p>`).join("") : "") }`);
+                } catch (e) {
+                    console.error(e);
+                }
+            },
+            templateSelection: item => {
+                return item.id ?? item.text;
             }
-
         })
-            .on("select2:select", async e => {
-                console.log("adding", e.params.data.id);
-                // this.state = [...this.state, e.params.data.id];
-                // this.value = this.state.join(",");
-                console.log("select2(\"data\")", this.select.select2("data"));
+            .on("select2:select", e => {
                 this.filterChange(e);
             })
-            .on("select2:unselect", async e => {
-                console.log("removing", e.params.data.id);
-                // this.state = this.state.filter(el => el.id === e.params.data.id);
-                // this.value = this.state.join(",");
-                console.log("select2(\"data\")", this.select.select2("data"));
+            .on("select2:unselect", e => {
                 this.filterChange(e);
             });
 
@@ -123,8 +106,15 @@ export default class SelectTokenFilter2 extends LitElement {
             this._config = {...this.getDefaultConfig(), ...this.config};
         }
         if (_changedProperties.has("value")) {
-            console.log("this.value", this.value);
-            this.state = this.value?.split(this.separator);
+
+            /* if (this.value) {
+                this.state = this.value.split(",");
+            }*/
+            this.select.val(null).trigger("change");
+            const selection = this.value ? this.value.split(",") : null;
+            this.select.val(selection);
+            this.select.trigger("change");
+
             // this.addOptions(this.value?.split(this.separator));
             // const selection = this.value ? this.value.split(this.separator) : null;
             // this.select.val(selection); // this wont work as options arent actually there since there is an ajax source
@@ -135,10 +125,9 @@ export default class SelectTokenFilter2 extends LitElement {
 
     }
 
-    addOptions(ids) {
+    /* addOptions(ids) {
         if (ids) {
             for (const id of ids) {
-                console.log("ADDING", id)
                 if (this.select.find("option[value='" + id + "']").length) {
                     this.select.val(id).trigger("change");
                 } else {
@@ -148,20 +137,20 @@ export default class SelectTokenFilter2 extends LitElement {
                     this.select.append(newOption).trigger("change");
                 }
             }
-            this.select.trigger('change');
+            this.select.trigger("change");
         } else {
-            this.select.val(null).trigger('change');
+            this.select.val(null).trigger("change");
 
         }
 
-    }
+    }*/
 
     filterChange(e) {
-        const selection = this.select.select2("data");
+        const selection = this.select.select2("data").map(el => el.id).join(this.separator);
         console.log("filterChange", selection);
         const event = new CustomEvent("filterChange", {
             detail: {
-                value: selection.map(el => el.id).join(this.separator)
+                value: selection
             }
         });
         this.dispatchEvent(event);
@@ -170,22 +159,26 @@ export default class SelectTokenFilter2 extends LitElement {
     getDefaultConfig() {
         return {
             limit: 10,
-            searchMinLength: 3,
-            maxItems: 0
+            minimumInputLength: 0,
+            maxItems: 0,
+            placeholder: "Start typing",
+            source: () => {
+                throw new Error("Data source not defined");
+            },
+            fields: item => ({
+                "name": item.id,
+            }),
         };
     }
 
     render() {
         return html`
-        ${JSON.stringify(this.value)}
-        <div class="">
-            <select id="${this._prefix}" style="width: 100%" @change="${this.filterChange}">
-                ${this.value?.split(this.separator)?.map(el => html`<option>${el.id}</option>`)}
-            </select>
+        <div>
+            <select class="form-control"  id="${this._prefix}" @change="${this.filterChange}"></select>
         </div>
         `;
     }
 
 }
 
-customElements.define("select-token-filter2", SelectTokenFilter2);
+customElements.define("select-token-filter", SelectTokenFilter);

@@ -48,11 +48,12 @@ export default defineConfig({
     mode: "development",
     root: "./",
     server: {
-        open: "/src/sites/iva",
+        open: "/src/sites/iva/index.html",
         port: 3000,
         watch: ["src", "styles"]
     },
     build: {
+        sourcemap: true,
         rollupOptions: {
             input: {
                 "iva/index.html": `${ivaPath}/iva-index.html`,
@@ -96,7 +97,6 @@ export default defineConfig({
                 }),
             ],
             output: {
-                sourcemap: true,
                 dir: "build",
                 manualChunks: id => { // It's only detect "import" from script type=module.. the others no.
                     if (id.includes("node_modules")) {

@@ -15,8 +15,10 @@
  */
 
 import {LitElement, html} from "lit";
-import Utils from "./../../../core/utils.js";
 import "../../commons/forms/select-field-filter-autocomplete.js";
+
+// TODO refactor to use select-token-filter (it seems there is a problem with a "distinct" endpoint)
+
 
 export default class DisorderIdAutocomplete extends LitElement {
 
@@ -65,7 +67,7 @@ export default class DisorderIdAutocomplete extends LitElement {
             dataSource: (query, process) => {
                 const filters = {
                     study: this.opencgaSession.study.fqn,
-                    //limit: 20, // limit is not supported in distinct WSs
+                    // limit: 20, // limit is not supported in distinct WSs
                     count: false,
                     disorders: "~^" + query
                 };
@@ -79,7 +81,12 @@ export default class DisorderIdAutocomplete extends LitElement {
 
     render() {
         return html`
-            <select-field-filter-autocomplete .opencgaSession="${this.opencgaSession}" .config=${this._config} .value="${this.value}" @filterChange="${e => this.onFilterChange("id", e.detail.value)}"></select-field-filter-autocomplete>
+            <select-field-filter-autocomplete
+                    .opencgaSession="${this.opencgaSession}"
+                    .config=${this._config}
+                    .value="${this.value}"
+                    @filterChange="${e => this.onFilterChange("id", e.detail.value)}">
+            </select-field-filter-autocomplete>
         `;
     }
 

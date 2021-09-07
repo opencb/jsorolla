@@ -44,20 +44,20 @@ export default class ToolHeader extends LitElement {
             rhs: {
                 type: Object
             }
-        }
+        };
     }
 
     render() {
         return html`
             <div class="page-title ${this.class ?? ""}">
                 <h2>
-                    ${this.icon
-                        ? this.icon.match(/\./)?.length
-                            ? html`
-                                <img src="img/tools/icons/${this.icon}" alt="${this.title}">`
-                            : html`
-                                <i class="${this.icon}" aria-hidden="true"></i>`
-                        : null
+                    ${this.icon ?
+                        this.icon.match(/\./)?.length ?
+                            html`
+                                <img src="${this.icon}" alt="${this.title}">` :
+                            html`
+                                <i class="${this.icon}" aria-hidden="true"></i>` :
+                        ""
                     }
                     ${UtilsNew.renderHTML(this.title)}
                 </h2>
@@ -69,6 +69,7 @@ export default class ToolHeader extends LitElement {
             </div>
         `;
     }
+
 }
 
 customElements.define("tool-header", ToolHeader);

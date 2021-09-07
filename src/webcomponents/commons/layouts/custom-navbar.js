@@ -260,7 +260,7 @@ export default class CustomNavBar extends LitElement {
                     <nav class="navbar" id="sidebar-wrapper" role="navigation">
                         <a href="#home" @click="${e => this.onChangeApp(e, true)}">
                             <div class="iva-logo">
-                                <img src="${this.config.logo}" />
+                                <img src="${this.config.logoAlt}" />
                                 <span class="subtitle">OpenCB Suite</span>
                             </div>
                         </a>
@@ -276,7 +276,7 @@ export default class CustomNavBar extends LitElement {
                             ${this.config?.apps?.filter(item => this.isVisible(item)).map(item => html`
                                 <li>
                                     <a href="#home" role="button" data-id="${item.id}" @click="${e => this.onChangeApp(e, true)}">
-                                        <img src="img/tools/icons/${item.icon}" alt="${item.name}"/>  ${item.name}
+                                        <img src="${item.icon}" alt="${item.name}"/>  ${item.name}
                                     </a>
                                 </li>
                             `)}
@@ -373,18 +373,6 @@ export default class CustomNavBar extends LitElement {
                             <!-- Jobs -->
                             ${this.isVisible(this.app?.jobMonitor) ? html`
                                 <job-monitor .opencgaSession="${this.opencgaSession}" @jobSelected="${this.onJobSelected}"></job-monitor>
-                            ` : null}
-
-                            <!-- TODO: What's do? Should be delete-->
-                            ${false && this.opencgaSession && this.opencgaSession.projects && this.config.search.visible ? html`
-                                <!-- Search menu <form class="navbar-form navbar-left" role="search">
-                                        <div class="form-group">
-                                            <div class="input-group search-box-wrapper">
-                                                <input class="form-control" id="searchTextBox" placeholder="\${this.config.search.placeholder}" @input="\${this.buildQuery}">
-                                                <span class="input-group-addon"><span class="fa fa-search" aria-hidden="true" @click="\${this.onQuickSearch}"></span></span>
-                                            </div>
-                                        </div>
-                                    </form>-->
                             ` : null}
 
                             ${this.isVisible(this.app?.fileExplorer) ? html`

@@ -112,6 +112,7 @@ const suite = {
     name: "OpenCGA Suite",
     version: "v2.1.0-beta",
     logo: "img/iva-white.svg",
+    logoAlt: "img/iva.svg",
     footerLogo: "img/opencb-logo.png",
     mode: "development",
     appConfig: "opencb",
@@ -159,16 +160,17 @@ const suite = {
             id: "iva",
             name: "Variant Analysis",
             // logo: "img/iva-black.svg",
-            logo: "img/tools/icons/variant_browser.svg",
+            logo: "img/iva-white.svg",
+            // logo: "img/tools/icons/variant_browser.svg",
             // alt: "This is the old IVA tool",
-            icon: "variant_browser.svg",
+            icon: "img/tools/icons/variant_browser.svg",
             visibility: "public",
             menu: [
                 {
                     id: "browser",
                     name: "Variant Browser",
                     // fa_icon: "fa fa-list",
-                    icon: "variant_browser.svg",
+                    icon: "img/tools/icons/variant_browser.svg",
                     visibility: "public",
                     submenu: [
                         {
@@ -206,7 +208,7 @@ const suite = {
                     id: "analysis",
                     name: "Variant Analysis",
                     description: "",
-                    icon: "aggregation.svg",
+                    icon: "img/tools/icons/aggregation.svg",
                     visibility: "public",
                     submenu: [
                         {
@@ -473,7 +475,7 @@ const suite = {
                     id: "alignment",
                     name: "Alignment",
                     description: "",
-                    icon: "alignment.svg",
+                    icon: "img/tools/icons/alignment.svg",
                     visibility: "public",
                     submenu: [
                         {
@@ -516,7 +518,7 @@ const suite = {
                     id: "catalog",
                     name: "Catalog",
                     visibility: "public",
-                    icon: "aggregation2.svg",
+                    icon: "img/tools/icons/aggregation2.svg",
                     submenu: [
                         {
                             id: "projects",
@@ -600,8 +602,8 @@ const suite = {
             id: "clinical",
             name: "Clinical (XetaBase)",
             logo: "img/tools/icons/interpretation_portal_white.svg",
-            logo2: "img/tools/icons/interpretation_portal.svg",
-            icon: "interpretation_portal.svg",
+            logoAlt: "img/tools/icons/interpretation_portal.svg",
+            icon: "img/tools/icons/interpretation_portal.svg",
             visibility: "public",
             menu: [
                 {
@@ -756,7 +758,7 @@ const suite = {
             id: "admin",
             name: "OpenCGA Admin",
             logo: "img/tools/icons/file_explorer.svg",
-            icon: "file_explorer.svg",
+            icon: "img/tools/icons/file_explorer.svg",
             visibility: "public",
             menu: [
                 {
