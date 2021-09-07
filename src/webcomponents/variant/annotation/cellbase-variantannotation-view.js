@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "/web_modules/lit-element.js";
+import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
 import "./cellbase-variant-annotation-summary.js";
 import "./variant-consequence-type-view.js";
@@ -123,7 +123,7 @@ export default class CellbaseVariantAnnotationView extends LitElement {
                         this.numberGTA = UtilsNew.isNotUndefinedOrNull(this.variantAnnotation.geneTraitAssociation) ? this.variantAnnotation.geneTraitAssociation.length : 0;
                     }
 
-                    await this.requestUpdate();
+                    await this.updateComplete;
                     // Gene Trait Association definition
                     $("#" + this._prefix + "GTATable").bootstrapTable("destroy");
                     $("#" + this._prefix + "GTATable").bootstrapTable({

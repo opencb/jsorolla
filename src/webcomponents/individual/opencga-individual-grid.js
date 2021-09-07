@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {html, LitElement} from "/web_modules/lit-element.js";
+import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
 import {NotificationQueue} from "../../core/NotificationQueue.js";
 import GridCommons from "../commons/grid-commons.js";
@@ -477,7 +477,7 @@ export default class OpencgaIndividualGrid extends LitElement {
 
     async onDownload(e) {
         this.toolbarConfig = {...this.toolbarConfig, downloading: true};
-        await this.requestUpdate();
+        await this.updateComplete;
         const query = {
             ...this.query,
             study: this.opencgaSession.study.fqn,

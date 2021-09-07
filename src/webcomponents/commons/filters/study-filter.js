@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "/web_modules/lit-element.js";
+import {LitElement, html} from "lit";
 import UtilsNew from "./../../../core/utilsNew.js";
 import "../forms/select-field-filter.js";
 
@@ -53,7 +53,7 @@ export default class StudyFilter extends LitElement {
             if (this.opencgaSession.project.studies.length) {
                 this.differentStudies = this.opencgaSession.project.studies.filter(study => this.opencgaSession.study.id !== study.id);
             }
-            this.requestUpdate().then( () => {
+            this.updateComplete.then( () => {
                 $(".selectpicker", this).selectpicker("refresh");
             });
         }

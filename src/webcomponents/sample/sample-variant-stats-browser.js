@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "/web_modules/lit-element.js";
+import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
 import "../variant/opencga-variant-filter.js";
 import "../commons/opencga-active-filters.js";
@@ -161,7 +161,7 @@ export default class SampleVariantStatsBrowser extends LitElement {
     async renderVariantStats() {
         this.loading = true;
         this.errorState = false;
-        await this.requestUpdate();
+        await this.updateComplete;
 
         this.opencgaSession.opencgaClient.variants().querySampleStats(this.sample?.id, {study: this.opencgaSession.study.fqn, ...this.query})
             .then(response => {

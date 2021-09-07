@@ -1,4 +1,4 @@
-import {LitElement, html} from "/web_modules/lit-element.js";
+import {LitElement, html} from "lit";
 import UtilsNew from "../../../../core/utilsNew.js";
 import PolymerUtils from "../../../PolymerUtils.js";
 import {NotificationQueue} from "../../../../core/NotificationQueue.js";
@@ -100,7 +100,7 @@ export default class OpencgaAnnotationFilterDynamic extends LitElement {
             const variables = this.selectedVariablesFormatted.split(";");
             // reset selectedVariables
             this.selectedVariables = Object.assign({}, ...this.variableSets.map(_ => ({[_.id]: []})));
-            await this.requestUpdate();
+            await this.updateComplete;
 
             for (let v of variables) {
                 let [, variableSetId, variable, value] = [...v.matchAll(/(\w+):(\w+)=(\w+)/g)][0];
@@ -184,7 +184,7 @@ export default class OpencgaAnnotationFilterDynamic extends LitElement {
             this.selectedVariables[variableSetId] = this.selectedVariables[variableSetId].filter(variable => variable.id !== difference);
             //console.log("removing", difference, this.selectedVariables[variableSetId]);
         }
-        await this.requestUpdate();
+        await this.updateComplete;
     }
 
     /** @deprecated */
@@ -294,7 +294,7 @@ export default class OpencgaAnnotationFilterDynamic extends LitElement {
             this.variableSets = _variableSets;
         }
 
-        this.requestUpdate().then(() => {
+        this.updateComplete.then(() => {
             $("select.selectpicker", this).selectpicker("refresh");
         });
     }

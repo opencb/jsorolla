@@ -20,7 +20,7 @@
 
 // import { LitElement, html } from 'lit-element'; // bare import by name doesn't work yet in browser,
 // see: https://www.polymer-project.org/blog/2018-02-26-3.0-preview-paths-and-names
-import {LitElement, html} from "/web_modules/lit-element.js";
+import {LitElement, html} from "lit";
 import "./welcome.js";
 import "./about.js";
 import "./contact.js";
@@ -344,7 +344,7 @@ class IvaApp extends LitElement {
 
     async _createOpenCGASession() {
         this.signingIn = "Creating session..";
-        await this.requestUpdate();
+        await this.updateComplete;
         const _this = this;
         const opencgaSession = this.opencgaClient.createSession()
             .then(response => {
@@ -400,6 +400,7 @@ class IvaApp extends LitElement {
             }).finally(() => {
                 this.signingIn = false;
                 this.requestUpdate();
+                // this.updateComplete;
             });
     }
 
@@ -1582,3 +1583,4 @@ class IvaApp extends LitElement {
 }
 
 customElements.define("iva-app", IvaApp);
+

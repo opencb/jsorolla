@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "/web_modules/lit-element.js";
+import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
 import {NotificationQueue} from "../../core/NotificationQueue.js";
 import {RestResponse} from "../../core/clients/rest-response.js";
@@ -145,7 +145,7 @@ export default class OpencgaLogin extends LitElement {
                                 this.errorState = [{name: "Generic Error", message: JSON.JSON.stringify(response)}];
                                 new NotificationQueue().push(this.errorState[0].name, this.errorState[0].message, "error");
                             }
-                        }).finally(() => this.requestUpdate());
+                        }).finally(() => this.updateComplete);
                 } else {
                     new NotificationQueue().push("Error retrieving OpencgaSession", null, "ERROR");
                 }
@@ -237,4 +237,5 @@ export default class OpencgaLogin extends LitElement {
 }
 
 customElements.define("opencga-login", OpencgaLogin);
+
 

@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "/web_modules/lit-element.js";
+import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
-import {classMap} from "/web_modules/lit-html/directives/class-map.js";
+import {classMap} from "lit/directives/class-map.js";
 import "./gene-coverage-detail.js";
 import "./gene-coverage-grid.js";
 import "./gene-coverage-view.js";
@@ -125,7 +125,7 @@ export default class GeneCoverageBrowser extends LitElement {
         }
         this.loading = true;
         //debugger
-        await this.requestUpdate();
+        await this.updateComplete;
         this.opencgaSession.opencgaClient.alignments().statsCoverage(this.fileId, geneId, {study: this.opencgaSession.study.fqn})
             .then( restResponse => {
                 this.geneCoverageStats[geneId] = restResponse.getResult(0);

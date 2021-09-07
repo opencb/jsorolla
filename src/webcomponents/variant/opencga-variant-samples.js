@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {html, LitElement} from "/web_modules/lit-element.js";
+import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
 import "../loading-spinner.js";
 import CatalogGridFormatter from "../commons/catalog-grid-formatter.js";
@@ -344,7 +344,7 @@ export default class OpencgaVariantSamples extends LitElement {
     async onDownload(e) {
         try {
             this.toolbarConfig = {...this.toolbarConfig, downloading: true};
-            await this.requestUpdate();
+            await this.updateComplete;
             // batch size for sample query
             const BATCH_SIZE = 100;
             const query = {

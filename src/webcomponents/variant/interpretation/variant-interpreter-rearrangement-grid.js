@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {html, LitElement} from "/web_modules/lit-element.js";
+import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
 import ClinicalAnalysisManager from "../../clinical/clinical-analysis-manager.js";
 import VariantInterpreterGridFormatter from "./variant-interpreter-grid-formatter.js";
@@ -876,7 +876,7 @@ export default class VariantInterpreterRearrangementGrid extends LitElement {
     // TODO fix tab jsonToTabConvert isn't working!
     async onDownload(e) {
         this.toolbarConfig = {...this.toolbarConfig, downloading: true};
-        await this.requestUpdate();
+        await this.updateComplete;
         if (this.clinicalAnalysis.type.toUpperCase() === "FAMILY" && this.query?.sample) {
             const samples = this.query.sample.split(";");
             const sortedSamples = [];

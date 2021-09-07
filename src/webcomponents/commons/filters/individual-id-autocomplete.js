@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "/web_modules/lit-element.js";
+import {LitElement, html} from "lit";
 import "../forms/select-token-filter.js";
 
 export default class IndividualIdAutocomplete extends LitElement {

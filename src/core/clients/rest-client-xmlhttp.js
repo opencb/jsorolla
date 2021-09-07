@@ -10,7 +10,7 @@ export class RestClientXmlhttp {
         return RestClientXmlhttp.instance;
     }
 
-    /**
+    /*
      * @deprecated
      */
     static callXmlhttp(url, options) {
@@ -58,7 +58,7 @@ export class RestClientXmlhttp {
         };
 
         request.open(method, url, async);
-        if (typeof options !== "undefined" && options.hasOwnProperty("sid")) {
+        if (typeof options !== "undefined" && Object.prototype.hasOwnProperty.call(options, "sid")) {
             request.setRequestHeader("Authorization", `Bearer ${options["sid"]}`);
         }
         // request.timeout = options.timeout || 0;
@@ -66,7 +66,12 @@ export class RestClientXmlhttp {
         return dataResponse;
     }
 
-    call(url, options, key) {
+    call(url, options, k) {
+        let method = "GET";
+        let async = true;
+        const key = RestClientXmlhttp.hash(k);
+        let dataResponse = null;
+
         const eventFire = new CustomEvent("request", {
             detail: {
                 value: url
@@ -79,14 +84,11 @@ export class RestClientXmlhttp {
         });
         globalThis.dispatchEvent(eventFire);
 
-        let method = "GET";
-        let async = true;
         if (typeof options !== "undefined") {
             method = options.method || "GET";
             async = options.async || true;
         }
 
-        let dataResponse = null;
         console.time(`REST call to ${url}`);
         // Creating the promise
         return new Promise((resolve, reject) => {
@@ -94,7 +96,6 @@ export class RestClientXmlhttp {
             // let key = `${new Error().stack.split("\n    at ").slice(0,6).join("|")}`;
             const request = new XMLHttpRequest();
 
-            // console.error("url", url);
             if (this.requests[key]) {
                 // pending prev request
                 this.requests[key] = {...this.requests[key], pending: true};
@@ -168,19 +169,17 @@ export class RestClientXmlhttp {
             };
 
             request.open(method, url, async);
-            if (typeof options !== "undefined" && options.hasOwnProperty("token")) {
+            if (typeof options !== "undefined" && Object.prototype.hasOwnProperty.call(options, "token")) {
                 request.setRequestHeader("Authorization", `Bearer ${options["token"]}`);
             }
             // request.timeout = options.timeout || 0;
-            if (method === "POST" && options !== undefined && options.hasOwnProperty("data")) {
-                if (options.hasOwnProperty("post-method") && options["post-method"] === "form") {
+            if (method === "POST" && options !== undefined && Object.prototype.hasOwnProperty.hasOwnProperty.call(options, "data")) {
+                if (Object.prototype.hasOwnProperty.hasOwnProperty.call(options, "post-method") && options["post-method"] === "form") {
                     const myForm = new FormData();
                     const keys = Object.keys(options.data);
-
-                    for (const i in keys) {
-                        myForm.append(keys[i], options.data[keys[i]]);
-                    }
-
+                    keys.forEach(key => {
+                        myForm.append(key, options.data[key]);
+                    });
                     request.send(myForm);
                 } else {
                     // request.setRequestHeader("Access-Control-Allow-Origin", "*");
@@ -211,6 +210,17 @@ export class RestClientXmlhttp {
             }
 
         });
+    }
+
+    static hash(str) {
+        let hash = 0; let i, chr;
+        if (str.length === 0) return hash;
+        for (i = 0; i < str.length; i++) {
+            chr = str.charCodeAt(i);
+            hash = ((hash << 5) - hash) + chr;
+            hash |= 0; // Convert to 32bit integer
+        }
+        return hash;
     }
 
 }

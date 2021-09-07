@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {html, LitElement} from "/web_modules/lit-element.js";
+import {LitElement, html} from "lit";
 import DetailTabs from "../commons/view/detail-tabs.js";
 import "../individual/individual-update.js";
 import "../individual/individual-create.js";

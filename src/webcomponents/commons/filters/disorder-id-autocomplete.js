@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "/web_modules/lit-element.js";
+import {LitElement, html} from "lit";
 import "../../commons/forms/select-field-filter-autocomplete.js";
 
 // TODO refactor to use select-token-filter (it seems there is a problem with a "distinct" endpoint)

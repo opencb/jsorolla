@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "/web_modules/lit-element.js";
+import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
 
 export default class FacetFilter extends LitElement {
@@ -171,7 +171,7 @@ export default class FacetFilter extends LitElement {
             const newField = this._recFind(this.config.sections, difference);
             // console.log("newField", newField)
             this.selectedFacet[difference] = {...newField, value: newField && newField.defaultValue ? newField.defaultValue : ""};
-            await this.requestUpdate();
+            await this.updateComplete;
             $(".bootstrap-select", this).selectpicker();
         } else {
             console.log("deletion of", difference);

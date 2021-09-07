@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "/web_modules/lit-element.js";
+import {LitElement, html} from "lit";
 import "../../commons/forms/select-token-filter.js";
 
 
@@ -86,7 +86,12 @@ export default class CohortIdAutocomplete extends LitElement {
 
     render() {
         return html`
-            <select-token-filter .opencgaSession="${this.opencgaSession}" .config=${this._config} .value="${this.value}" @filterChange="${e => this.onFilterChange("id", e.detail.value)}"></select-token-filter>
+            <select-token-filter
+                .opencgaSession="${this.opencgaSession}"
+                .config=${this._config}
+                .value="${this.value}"
+                @filterChange="${e => this.onFilterChange("id", e.detail.value)}">
+            </select-token-filter>
         `;
     }
 

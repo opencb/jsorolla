@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "/web_modules/lit-element.js";
+import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
 import "../commons/forms/select-field-filter.js";
 
@@ -294,7 +294,7 @@ export default class FamilyGenotypeFilter extends LitElement {
         this.errorState = !this.state[probandSampleId].genotypes.length ? "At least one genotype have to be selected for the proband." : false;
         this.state = {...this.state};
         this.noGtSamples = [...this.noGtSamples];
-        await this.requestUpdate();
+        await this.updateComplete;
         this.notifySampleFilterChange();
     }
 

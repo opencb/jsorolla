@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+
 const cellbase = {
     host: "https://ws.opencb.org/cellbase-4.8.2",
     version: "v4"

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "/web_modules/lit-element.js";
+import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
 import "../../alignment/samtools-flagstats-view.js";
 
@@ -153,7 +153,10 @@ class VariantInterpreterQcAlignmentStats extends LitElement {
         // Alignment stats are the same for FAMILY and CANCER analysis
         return html`
             <div style="margin: 20px 10px">
-                <samtools-flagstats-view .samples="${this.samples}" .opencgaSession=${this.opencgaSession}"></samtools-flagstats-view>
+                <samtools-flagstats-view
+                    .samples="${this.samples}"
+                    .opencgaSession=${this.opencgaSession}>
+                </samtools-flagstats-view>
             </div>
         `;
     }

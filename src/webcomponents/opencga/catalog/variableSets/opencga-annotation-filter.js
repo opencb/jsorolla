@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "/web_modules/lit-element.js";
+import {LitElement, html} from "lit";
 import UtilsNew from "../../../../core/utilsNew.js";
 import PolymerUtils from "../../../PolymerUtils.js";
 import {NotificationQueue} from "../../../../core/NotificationQueue.js";
@@ -74,9 +74,9 @@ export default class OpencgaAnnotationFilter extends LitElement {
         // Components are already set. We will override with the classes from the configuration file
         PolymerUtils.addClassById(`${this._prefix}-main-annotation-filter-div`, [this._config.class]);
 
-        //$("select.selectpicker", this).selectpicker("render");
-        //$("select.selectpicker", this).selectpicker("refresh");
-        //$("select.selectpicker", this).selectpicker("deselectAll");
+        // $("select.selectpicker", this).selectpicker("render");
+        // $("select.selectpicker", this).selectpicker("refresh");
+        // $("select.selectpicker", this).selectpicker("deselectAll");
 
         // Get selected variable
         const variableSetSelector = $(`button[data-id=${this._prefix}-annotation-picker]`)[0];
@@ -109,7 +109,7 @@ export default class OpencgaAnnotationFilter extends LitElement {
     async onChangeSelectedVariable(e, variableSetName) {
         // this.selectedVariable = e.detail.value[0];
         this.selectedVariable = e.detail.value;
-        await this.requestUpdate();
+        await this.updateComplete;
         this.lastAnnotationFilter = undefined;
         // We do this manually here because the selectpicker class does not show/hide automatically
         if (this.selectedVariable.type === "CATEGORICAL") {
@@ -192,10 +192,10 @@ export default class OpencgaAnnotationFilter extends LitElement {
             const _this = this;
 
             this.opencgaClient.studies().info(this.opencgaSession.study.id, {include: "variableSets"})
-                .then(function(response) {
+                .then(function (response) {
                     _this._updateVariableSets(response.response[0].result[0]);
                 })
-                .catch(function() {
+                .catch(function () {
                     _this.multipleVariableSets = false;
 
                     // Hide all selectpicker selectors
@@ -240,7 +240,7 @@ export default class OpencgaAnnotationFilter extends LitElement {
 
             this.multipleVariableSets = this.variableSets.length > 1;
             this.singleVariableSet = !this.multipleVariableSets ? this.variableSets[0].id : null;
-            await this.requestUpdate();
+            await this.updateComplete;
             this.dispatchEvent(new CustomEvent("variablesetselected", {detail: {id: this.variableSets[0].id}}));
 
         } else {
@@ -253,7 +253,7 @@ export default class OpencgaAnnotationFilter extends LitElement {
 
             this.dispatchEvent(new CustomEvent("variablesetselected", {detail: {id: null}}));
         }
-        this.requestUpdate().then( () => {
+        this.updateComplete.then(() => {
             $("select.selectpicker", this).selectpicker("refresh");
         });
     }
@@ -266,9 +266,9 @@ export default class OpencgaAnnotationFilter extends LitElement {
     }
 
     onSelectedVariableSetChange(e) {
-        //console.log("onSelectedVariableSetChange", e)
+        // console.log("onSelectedVariableSetChange", e)
         const selectedVariableSet = e.detail.value;
-        this.selectedVariableSet = this.variableSets.find( variableSet => variableSet.name === selectedVariableSet);
+        this.selectedVariableSet = this.variableSets.find(variableSet => variableSet.name === selectedVariableSet);
         this.requestUpdate();
     }
 
@@ -314,7 +314,7 @@ export default class OpencgaAnnotationFilter extends LitElement {
             <!-- Annotations -->
             ${this.multipleVariableSets ? html`
                 <label for="${this._prefix}-variableSetSelect">Select Variable Set</label>
-                <select-field-filter .data="${this.variableSets.map( _ => _.name)}" @filterChange="${this.onSelectedVariableSetChange}"></select-field-filter>
+                <select-field-filter .data="${this.variableSets.map(_ => _.name)}" @filterChange="${this.onSelectedVariableSetChange}"></select-field-filter>
                ` :
         null}
 

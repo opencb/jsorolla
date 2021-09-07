@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "/web_modules/lit-element.js";
+import {LitElement, html} from "lit";
 
 export default class LoadingBar extends LitElement {
 
@@ -194,7 +194,7 @@ export default class LoadingBar extends LitElement {
             return;
         }
         this.WIDTH = (n * 100) + "%";
-        await this.requestUpdate();
+        await this.updateComplete;
         // loadingBar.css("width", pct);
 
         this.status = n;

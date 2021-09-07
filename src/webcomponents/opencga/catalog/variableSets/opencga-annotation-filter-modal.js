@@ -15,8 +15,8 @@
  */
 
 
-import {LitElement, html} from "/web_modules/lit-element.js";
-import {classMap} from "/web_modules/lit-html/directives/class-map.js";
+import {LitElement, html} from "lit";
+import {classMap} from "lit/directives/class-map.js";
 import UtilsNew from "../../../../core/utilsNew.js";
 import "./../../../commons/forms/select-field-filter.js";
 
@@ -78,7 +78,7 @@ export default class OpencgaAnnotationFilterModal extends LitElement {
         this.selectedVariables = {};
         if (this.selectedVariablesText) {
             const variables = this.selectedVariablesText.split(";");
-            await this.requestUpdate();
+            await this.updateComplete;
             for (const v of variables) {
                 const [, variableSetId, variableId, operator, value] = [...v.matchAll(/(\w+):(\w+\.?\w+)(<=?|>=?|=)(\w+)/g)][0];
                 this.selectedVariables[variableSetId] = {...this.selectedVariables[variableSetId] ?? {}, [variableId]: {operator, value}};

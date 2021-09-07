@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "/web_modules/lit-element.js";
+import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utils.js";
 import "./opencga-clinical-analysis-view.js";
 import "./../commons/view/detail-tabs.js";

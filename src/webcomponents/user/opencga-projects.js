@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "/web_modules/lit-element.js";
-import {classMap} from "/web_modules/lit-html/directives/class-map.js";
+import {LitElement, html} from "lit";
+import {classMap} from "lit/directives/class-map.js";
 import UtilsNew from "../../core/utilsNew.js";
 import "../commons/tool-header.js";
-import {CountUp} from "/node_modules/countup.js/dist/countUp.min.js";
+// import {CountUp} from "/node_modules/countup.js/dist/countUp.min.js";
+import {CountUp} from "countup.js";
 import "../commons/simple-chart.js";
 import {NotificationQueue} from "../../core/NotificationQueue.js";
 import {RestResponse} from "../../core/clients/rest-response.js";
@@ -281,7 +282,7 @@ export default class OpencgaProjects extends LitElement {
             console.error(e);
             UtilsNew.notifyError(e);
         }
-        await this.requestUpdate();
+        await this.updateComplete;
         this.querySelector("#loading").style.display = "none";
     }
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "/web_modules/lit-element.js";
+import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
 import "./opencga-file-view.js";
 import "../commons/forms/data-form.js";
@@ -62,7 +62,7 @@ export default class OpencgaFileManager extends LitElement {
         if (changedProperties.has("opencgaSession")) {
             this.loading = true;
             this.currentRoot = null;
-            await this.requestUpdate();
+            await this.updateComplete;
             this.opencgaSession.opencgaClient.files().tree(this.currentRootId, {study: this.opencgaSession.study.fqn, maxDepth: 1, include: "id,name,path,size,format"})
                 .then(restResponse => {
                     this.errorState = false;
@@ -201,8 +201,8 @@ export default class OpencgaFileManager extends LitElement {
         } else {
             console.error("no id!");
         }
-        // $("." + id + " + ul").slideToggle();
-        await this.requestUpdate();
+        //$("." + id + " + ul").slideToggle();
+        await this.updateComplete;
     }
 
     icon(format, size) {

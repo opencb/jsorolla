@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "/web_modules/lit-element.js";
-import {classMap} from "/web_modules/lit-html/directives/class-map.js";
+import {LitElement, html} from "lit";
+import {classMap} from "lit/directives/class-map.js";
 import GridCommons from "../../commons/grid-commons.js";
 import UtilsNew from "./../../../core/utilsNew.js";
 import "../../commons/analysis/opencga-analysis-tool.js";
