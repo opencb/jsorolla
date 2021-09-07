@@ -3,6 +3,7 @@ import {defineConfig} from "vite";
 import html from "@web/rollup-plugin-html";
 import copy from "rollup-plugin-copy";
 import resolve from "@rollup/plugin-node-resolve";
+import replace from "@rollup/plugin-replace";
 import minifyHTML from "rollup-plugin-minify-html-literals";
 import summary from "rollup-plugin-summary";
 import path from "path";
@@ -13,8 +14,9 @@ import {execSync} from "child_process";
 import pkg from "./package.json";
 
 
-const buildPath = path.resolve(__dirname, "build-vite");
+const buildPath = path.resolve(__dirname, "build");
 const ivaPath = path.resolve(__dirname, "src/sites/iva");
+const genomeMapsDemoPath = path.resolve(__dirname, "src/genome-browser");
 const patternExt = /\.[0-9a-z]+$/i;
 const patternConfig = /(config|settings|constants|tools)/gi;
 const internalCss = /(global|magic-check|style|toggle-switch)/gi;
@@ -52,11 +54,12 @@ export default defineConfig({
     },
     build: {
         rollupOptions: {
-            input: [
-                `${ivaPath}/iva-index.html`,
-                "src/genome-browser/demo/genome-browser.html"],
+            input: {
+                "iva/index.html": `${ivaPath}/iva-index.html`,
+                "genome-maps/index.html": `${genomeMapsDemoPath}/demo/genome-browser.html`,
+            },
             plugins: [
-                del({targets: "build-vite"}),
+                del({targets: "build"}),
                 html({
                     transformHtml: [html => html.replace("[build-signature]", revision())],
                 }),
@@ -81,7 +84,8 @@ export default defineConfig({
                 summary(),
                 copy({
                     targets: [
-                        {src: `${ivaPath}/img`, dest: `${buildPath}`},
+                        {src: `${ivaPath}/img`, dest: `${buildPath}/iva/`},
+                        {src: "./styles/img", dest: `${buildPath}/`},
                         {src: `${ivaPath}/LICENSE`, dest: `${buildPath}`},
                         {src: `${ivaPath}/README.md`, dest: `${buildPath}`},
                         {src: `${ivaPath}/favicon.ico`, dest: `${buildPath}`},
@@ -93,7 +97,7 @@ export default defineConfig({
             ],
             output: {
                 sourcemap: true,
-                dir: "build-vite",
+                dir: "build",
                 manualChunks: id => { // It's only detect "import" from script type=module.. the others no.
                     if (id.includes("node_modules")) {
                         return "vendors/js/vendors";
@@ -112,8 +116,13 @@ export default defineConfig({
                     return "lib/[name].js";
                 },
                 assetFileNames: assetInfo => {
+
+                    if (assetInfo.name.includes("genome-browser.config")) {
+                        return "genome-maps/conf/[name][extname]";
+                    }
+
                     if (isConfig(assetInfo.name)) {
-                        return "conf/[name][extname]";
+                        return "iva/conf/[name][extname]";
                     }
 
                     if (isInternalCss(assetInfo.name)) {
@@ -127,10 +136,10 @@ export default defineConfig({
                     if (assetInfo.name.endsWith(".css")) {
                         return "vendors/css/[name]-[hash][extname]";
                     }
+
                     return "vendors/[name]-[hash][extname]";
                 }
             }
         },
-    },
-
+    }
 });
