@@ -1,0 +1,32 @@
+
+# Special property that should be specified
+# at the top of the file outside of any sections.
+# Set to true to stop .editorconfig files search
+# on current file.
+root = true
+
+[*] #All type of file
+end_of_line = lf
+charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+[*.js]
+indent_style = space
+tab_width = 4
+
+[*.yml]
+indent_style = space
+indent_size = 2
+
+[package.json]
+indent_style = space
+indent_size = 2
+
+[*.md]
+trim_trailing_whitespace = false
+
+[*.{html,js,md}]
+block_comment_start = /**
+block_comment = *
+block_comment_end = */

@@ -65,8 +65,8 @@ To fetch the latest stable release at **_master_** branch can be downloaded exec
     Resolving deltas: 100% (27029/27029), done.
     Checking connectivity... done.
 
+### Install
 
-### Build
 After installing _Node.js_ and _npm_ we have to install all _npm_ dependencies of JSorolla, from the the root folder execute:
 
 ```bash
@@ -74,6 +74,15 @@ npm install
 ```
 This will make _npm_ to search all dependencies at file [package.json](package.json) and install them locally.
 
+### Develop
+
+After executed the command `npm install` , if you want to run the app just execute the next command:
+
+```bash
+npm run serve
+```
+It automatically open the web app
+### Build
 
 You can build all JSorolla _demos_ by executing:
 

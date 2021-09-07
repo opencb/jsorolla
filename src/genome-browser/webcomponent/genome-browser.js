@@ -17,8 +17,8 @@
 import {LitElement, html} from "/web_modules/lit-element.js";
 import Utils from "./../../core/utils.js";
 import UtilsNew from "./../../core/utilsNew.js";
-import PolymerUtils from "../../core/webcomponents/PolymerUtils.js";
-import {NotificationQueue} from "../../core/webcomponents/Notification.js";
+import PolymerUtils from "../../webcomponents/PolymerUtils.js";
+import {NotificationQueue} from "../../core/NotificationQueue.js";
 import GenomeBrowser from "../../genome-browser/genome-browser.js";
 import FeatureTrack from "../tracks/feature-track.js";
 import FeatureRenderer from "../renderers/feature-renderer.js";

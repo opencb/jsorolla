@@ -1,0 +1,3 @@
+const OpencgaClinicalAnalysisViewSettings = {
+    hiddenFields: []
+}

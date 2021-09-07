@@ -1,4 +1,4 @@
-import Region from "../core/region.js";
+import Region from "../core/bioinfo/region.js";
 import Utils from "../core/utils.js";
 
 
@@ -71,8 +71,8 @@ export default class NavigationBar {
 
 
         let HTML = '' +
-            '<div title="Restore previous region" style="margin-right: 5px;" id="leftSideButton" class="ocb-ctrl"><i class="fa fa-navicon"></i></div>' +
-            '<div id="restoreDefaultRegionButton" class="ocb-ctrl"><i class="fa fa-repeat"></i></div>' +
+            '<div title="Restore previous region" style="margin-right: 5px;" id="leftSideButton" class="ocb-ctrl"><i class="fa fa-bars"></i></div>' +
+            '<div id="restoreDefaultRegionButton" class="ocb-ctrl"><i class="fa fa-redo"></i></div>' +
 
             '<div title="Region history" class="ocb-dropdown" style="margin-left: 5px">' +
             '   <div tabindex="-1" id="regionHistoryButton" class="ocb-ctrl"><i class="fa fa-history"></i> <i class="fa fa-caret-down"></i></div>' +

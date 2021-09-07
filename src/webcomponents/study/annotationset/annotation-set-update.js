@@ -1,0 +1,211 @@
+/**
+ * Copyright 2015-2021 OpenCB
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+
+import {LitElement, html} from "/web_modules/lit-element.js";
+import "../../commons/forms/text-field-filter.js";
+import LitUtils from "../../commons/utils/lit-utils.js";
+import UtilsNew from "../../../core/utilsNew.js";
+import "./annotation-create.js";
+import "./annotation-update.js";
+
+export default class AnnotationSetUpdate extends LitElement {
+
+    constructor() {
+        super();
+        this._init();
+    }
+
+    createRenderRoot() {
+        return this;
+    }
+
+    static get properties() {
+        return {
+            annotationSets: {
+                type: Array
+            },
+            opencgaSession: {
+                type: Object
+            }
+        };
+    }
+
+    connectedCallback() {
+        super.connectedCallback();
+        if (UtilsNew.isUndefined(this.annotationSets)) {
+            console.log("It's Undefined");
+            this.annotationSets = [];
+        }
+    }
+
+
+    _init() {
+        this._prefix = UtilsNew.randomString(8);
+        this.annotationSet = {};
+        this._manager = {
+            action: "",
+            data: ""
+        };
+    }
+
+    onShowManager(e, manager) {
+        this._manager = manager;
+        if (manager.action === "ADD") {
+            this.annotationSet = {};
+        } else {
+            this.annotationSet = manager.annotationSet;
+        }
+        this.requestUpdate();
+        $("#annotationSetManagerModal" + this._prefix).modal("show");
+    }
+
+    onAction(e) {
+        e.stopPropagation();
+        if (this._manager.action === "ADD") {
+            this.addAnnotationSet(e.detail.value);
+        } else {
+            this.editAnnotationSet(e.detail.value);
+        }
+        $("#annotationSetManagerModal" + this._prefix).modal("hide");
+        this.requestUpdate();
+    }
+
+    addAnnotationSet(annotationSet) {
+        this.annotationSets = [...this.annotationSets, annotationSet];
+        LitUtils.dispatchEventCustom(this, "changeAnnotationSets", this.annotationSets);
+    }
+
+    editAnnotationSet(annotationSet) {
+        const index = this.annotationSets.findIndex(ann => ann.variableSetId === this.annotationSet.variableSetId);
+        this.annotationSets[index] = annotationSet;
+        this.annotationSet = {};
+        LitUtils.dispatchEventCustom(this, "changeAnnotationSets", this.annotationSets);
+        this.requestUpdate();
+    }
+
+    onRemoveAnnotationSet(e, item) {
+        e.stopPropagation();
+        Swal.fire({
+            title: "Are you sure?",
+            text: "You won't be able to revert this!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, delete it!",
+            reverseButtons: true
+        }).then(result => {
+            if (result.isConfirmed) {
+                this.annotationSets = this.annotationSets.filter(annotationSet => annotationSet !== item);
+                LitUtils.dispatchEventCustom(this, "changeAnnotationSets", this.annotationSets);
+                Swal.fire(
+                    "Deleted!",
+                    "The annotationSet has been deleted.",
+                    "success"
+                );
+            }
+        });
+    }
+
+    onCloseForm(e) {
+        this.annotationSet = {};
+        $("#annotationSetManagerModal"+ this._prefix).modal("hide");
+        e.stopPropagation();
+    }
+
+    renderAnnotationsSets(annotationSets) {
+        return html`
+            ${annotationSets?.map(item => html`
+                <li>
+                    <div class="row">
+                        <div class="col-md-8">
+                            <span style="margin-left:14px">${item.variableSetId}</span>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="btn-group pull-right" style="padding-bottom:5px" role="group">
+                                <button type="button" class="btn btn-primary btn-xs"
+                                    @click="${e => this.onShowManager(e, {action: "EDIT", annotationSet: item})}">Edit</button>
+                                <button type="button" class="btn btn-danger btn-xs"
+                                    @click="${e => this.onRemoveAnnotationSet(e, item)}">Delete</button>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+            `)}
+        `;
+    }
+
+    render() {
+        return html`
+
+        <style>
+            /* Remove default bullets */
+            ul, #myUL {
+                list-style-type: none;
+            }
+
+            /* Remove margins and padding from the parent ul */
+            #myUL {
+                margin: 0;
+                padding: 0;
+            }
+        </style>
+
+        <div class="col-md-12" style="padding: 10px 20px">
+            <div class="container" style="width:100%">
+                <ul id="myUL">
+                    ${this.renderAnnotationsSets(this.annotationSets)}
+                </ul>
+                <button type="button" class="btn btn-primary btn-sm"
+                    @click="${e => this.onShowManager(e, {action: "ADD"})}">
+                    Add AnnotationSet
+                </button>
+            </div>
+        </div>
+        <div id=${"annotationSetManagerModal"+this._prefix} class="modal fade" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title">Annotation Set Information</h4>
+                    </div>
+                    <div class="modal-body">
+                        ${this._manager.action === "ADD"? html `
+                            <annotation-create
+                                .annotationSet="${this.annotationSet}"
+                                .variableSetIdsSelected="${this.annotationSets?.map(item => item.variableSetId)}"
+                                .opencgaSession="${this.opencgaSession}"
+                                @closeForm="${e => this.onCloseForm(e)}"
+                                @addItem="${this.onAction}">
+                            </annotation-create>
+                        `:html`
+                            <annotation-update
+                                .annotationSet="${this.annotationSet}"
+                                .opencgaSession="${this.opencgaSession}"
+                                @closeForm="${e => this.onCloseForm(e)}"
+                                @addItem="${this.onAction}">
+                            </annotation-update>`}
+                    </div>
+                </div>
+            </div>
+        </div>
+        `;
+    }
+
+}
+
+customElements.define("annotation-set-update", AnnotationSetUpdate);

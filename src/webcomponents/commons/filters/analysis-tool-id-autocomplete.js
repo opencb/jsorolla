@@ -1,0 +1,115 @@
+/**
+ * Copyright 2015-2019 OpenCB
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import {LitElement, html} from "/web_modules/lit-element.js";
+import "../../commons/forms/select-token-filter.js";
+
+// TODO refactor to use select-token-filter (it seems there is a problem with a "distinct" endpoint)
+
+
+export default class AnalysisToolIdAutocomplete extends LitElement {
+
+    constructor() {
+        super();
+    }
+
+    createRenderRoot() {
+        return this;
+    }
+
+    static get properties() {
+        return {
+            opencgaSession: {
+                type: Object
+            },
+            value: {
+                type: Object
+            },
+            config: {
+                type: Object
+            }
+        };
+    }
+
+    connectedCallback() {
+        super.connectedCallback();
+        this._config = {...this.getDefaultConfig(), ...this.config};
+    }
+
+    onFilterChange(key, value) {
+        const event = new CustomEvent("filterChange", {
+            detail: {
+                value: value
+            }
+        });
+        this.dispatchEvent(event);
+    }
+
+    getDefaultConfig() {
+        return {
+            limit: 10,
+            fields: item => ({
+                name: item
+            }),
+            dataSource: (query, process) => {
+                const filters = {
+                    study: this.opencgaSession.study.fqn,
+                    limit: 20,
+                    count: false,
+                    include: "id",
+                    toolId: "~^" + query
+                };
+                this.opencgaSession.opencgaClient.jobs().distinct("tool.id", filters).then(restResponse => {
+                    const results = restResponse.getResults();
+                    process(results.map(this._config.fields));
+                });
+            },
+            source: async (params, success, failure) => {
+                const _params = params;
+                _params.data.page = params.data.page || 1;
+                const toolId = _params?.data?.term ? {toolId: "~^" + _params?.data?.term?.toUpperCase()} : "";
+                const filters = {
+                    study: this.opencgaSession.study.fqn,
+                    limit: this._config.limit,
+                    count: false,
+                    skip: (_params.data.page - 1) * this._config.limit,
+                    include: "id",
+                    ...toolId
+                };
+                try {
+                    const restResponse = await this.opencgaSession.opencgaClient.jobs().distinct("tool.id", filters);
+                    success(restResponse);
+                } catch (e) {
+                    failure(e);
+                }
+            },
+        };
+    }
+
+    render() {
+        return html`
+            <select-token-filter
+                    .opencgaSession="${this.opencgaSession}"
+                    .config=${this._config}
+                    .value="${this.value}"
+                    @filterChange="${e => this.onFilterChange("id", e.detail.value)}">
+            </select-token-filter>
+        `;
+    }
+
+}
+
+customElements.define("analysis-tool-id-autocomplete", AnalysisToolIdAutocomplete);

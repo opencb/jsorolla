@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<script type="text/javascript" src="../node_modules/jquery/dist/jquery.js"></script>
+<script type="text/javascript" src="../node_modules/sweetalert2/dist/sweetalert2.js"></script>
+<link rel="stylesheet" href="../node_modules/sweetalert2/dist/sweetalert2.css">
+
+<script>
+
+    let remoteRequest = ms => new Promise(resolve => {
+        setTimeout(() => resolve(), 1000);
+    })
+
+    function req() {
+        console.log("req")
+        Swal.fire({
+            title: "Are you sure?",
+            text: "You won't be able to revert this!",
+            icon: "warning",
+            showCancelButton: true,
+        }).then(result => {
+            if (result.value) {
+                remoteRequest()
+                    .then(response => {
+                        Swal.fire(
+                            "Deleted!",
+                            "Entry has been correctly deleted.",
+                            "success"
+                        );
+                    })
+                    .catch(response => {
+                        Swal.fire(
+                            "Server Error!",
+                            "Entry has not been correctly deleted.",
+                            "error"
+                        );
+                    });
+            }
+        });
+    }
+</script>
+<button onclick="req()">Request</button>
+</body>
+</html>

@@ -1,6 +1,7 @@
 require(kinship2)
 
-family1_raw = read.csv("~/opencb/iva/lib/jsorolla/src/core/visualisation/test/resources/family1.csv")
+# family1_raw = read.csv("~/opencb/iva/lib/jsorolla/src/core/visualisation/test/resources/family1.csv")
+family1_raw = read.csv("~/opencb/src/core/visualisation/test/resources/family1.csv")
 pedAll <- pedigree(id = family1_raw$id, dadid = family1_raw$fatherid, momid = family1_raw$motherid, sex = family1_raw$sex)
 DATA = pedAll
 
