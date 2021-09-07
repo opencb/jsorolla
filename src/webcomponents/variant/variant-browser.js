@@ -78,7 +78,7 @@ export default class VariantBrowser extends LitElement {
         this._prefix = UtilsNew.randomString(8);
 
         // These are for making the queries to server
-        /*this.facetFields = [];
+        /* this.facetFields = [];
         this.facetRanges = [];
 
         this.facetFieldsName = [];
@@ -220,7 +220,11 @@ export default class VariantBrowser extends LitElement {
     _changeView(tabId) {
         $(".content-pills", this).removeClass("active");
         $(".content-tab", this).removeClass("active");
-        for (const tab in this.activeTab) this.activeTab[tab] = false;
+        for (const tab in this.activeTab) {
+            if (Object.prototype.hasOwnProperty.call(this.activeTab, tab)) {
+                this.activeTab[tab] = false;
+            }
+        }
         $(`button.content-pills[data-id=${tabId}]`, this).addClass("active");
         $("#" + tabId, this).addClass("active");
         this.activeTab[tabId] = true;
@@ -293,7 +297,7 @@ export default class VariantBrowser extends LitElement {
         // return BrowserConf.config;
         return {
             title: "Variant Browser",
-            icon: "variant_browser.svg",
+            icon: "img/tools/icons/variant_browser.svg",
             active: false,
             searchButtonText: "Search",
             filter: {
@@ -742,7 +746,7 @@ export default class VariantBrowser extends LitElement {
                                                 @activeFilterClear="${this.onActiveFilterClear}">
                         </opencga-active-filters>
 
-                            <!--<div class="alert alert-info">facetQuery ${JSON.stringify(this.facetQuery)}</div>-->
+                            <!--<div class="alert alert-info">facetQuery \${JSON.stringify(this.facetQuery)}</div>-->
 
                         <div class="main-view">
                             <div id="table-tab" class="content-tab active">
