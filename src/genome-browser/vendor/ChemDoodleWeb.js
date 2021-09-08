@@ -15,7 +15,7 @@
 // As an exception to the GPL, you may distribute this packed form of
 // the code without the copy of the GPL license normally required,
 // provided you include this license notice and a URL through which
-// recipients can access the corresponding unpacked source code. 
+// recipients can access the corresponding unpacked source code.
 //
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of

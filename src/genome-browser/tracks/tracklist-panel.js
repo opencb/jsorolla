@@ -1,10 +1,10 @@
-import Region from "../../core/region.js";
+import Region from "../../core/bioinfo/region.js";
 import Utils from "../../core/utils.js";
 import SequenceRenderer from "../renderers/sequence-renderer.js";
 
-export default class TrackListPanel { //parent is a DOM div element
+export default class TrackListPanel { // parent is a DOM div element
 
-    constructor(args){
+    constructor(args) {
         let _this = this;
 
         Object.assign(this, Backbone.Events);
@@ -12,7 +12,7 @@ export default class TrackListPanel { //parent is a DOM div element
         this.cellBaseHost = "http://bioinfo.hpc.cam.ac.uk/cellbase";
         this.cellBaseVersion = "v4";
 
-        //set default args
+        // set default args
         this.target;
         this.autoRender = true;
         this.id = Utils.genId("TrackListPanel");
@@ -33,17 +33,17 @@ export default class TrackListPanel { //parent is a DOM div element
 
         this.height = 0;
 
-        //set instantiation args, must be last
+        // set instantiation args, must be last
         Object.assign(this, args);
 
-        //set new region object
+        // set new region object
         this.region = new Region(this.region);
         this.width -= 18;
 
 
         this.status;
 
-        //this region is used to do not modify original region, and will be used by trackSvg
+        // this region is used to do not modify original region, and will be used by trackSvg
         this.visualRegion = new Region(this.region);
 
         /********/
@@ -183,9 +183,9 @@ export default class TrackListPanel { //parent is a DOM div element
         $(panelDiv).append(this.tlTracksDiv);
 
 
-        //Main SVG and its events
+        // Main SVG and its events
 
-        //Position div
+        // Position div
         this.positionDiv = document.createElement("div");
         this.positionDiv.classList.add("ocb-gv-tracklist-position");
 
@@ -219,7 +219,7 @@ export default class TrackListPanel { //parent is a DOM div element
             "position": "absolute",
             "left": mid - 1,
             "top": 0,
-            "width": Math.floor(this.pixelBase), //this.pixelBase + 1,
+            "width": Math.floor(this.pixelBase), // this.pixelBase + 1,
             //            'height': '100%',
             "height": "calc(100% - 8px)",
             "opacity": 0.5,

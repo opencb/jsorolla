@@ -1,4 +1,4 @@
-import Region from "../core/region.js";
+import Region from "../core/bioinfo/region.js";
 import Utils from "../core/utils.js";
 import TrackListPanel from "./tracks/tracklist-panel.js";
 import FeatureTrack from "./tracks/feature-track.js";
@@ -8,6 +8,7 @@ import ChromosomePanel from "./chromosome-panel.js";
 import StatusBar from "./status-bar.js";
 import FeatureRenderer from "./renderers/feature-renderer.js";
 
+
 export default class GenomeBrowser {
 
     constructor(args) {
@@ -15,7 +16,7 @@ export default class GenomeBrowser {
 
         this.id = Utils.genId("GenomeBrowser");
 
-        //set default args
+        // set default args
         this.autoRender = true;
         this.version = 'Powered by <a target="_blank" href="http://www.opencb.org/">OpenCB</a>';
         this.target;
@@ -24,8 +25,8 @@ export default class GenomeBrowser {
         this.height = 1;
 
         this.client;
-        this.cellBaseHost = "http://bioinfo.hpc.cam.ac.uk/cellbase";
-        this.cellBaseVersion = "v4";
+        this.cellBaseHost = args.cellBaseHost? args.cellBaseHost : CELLBASE_HOST;
+        this.cellBaseVersion = args.cellBaseVersion? args.cellBaseVersion : CELLBASE_VERSION;
 
         this.quickSearchResultFn;
         this.quickSearchDisplayKey = "name";

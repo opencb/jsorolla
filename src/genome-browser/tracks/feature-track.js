@@ -1,4 +1,4 @@
-import Region from "../../core/region.js";
+import Region from "../../core/bioinfo/region.js";
 import Utils from "../../core/utils.js";
 import UtilsNew from "../../core/utilsNew.js";
 import HistogramRenderer from "../renderers/histogram-renderer.js";

@@ -321,13 +321,23 @@ export class OpenCGAClient {
                             console.error(e);
                         }
 
+
+                        session.projects = session.user.projects;
+
+
                         // Fetch authorised Projects and Studies
                         _this._notifySessionEvent("signingIn", "Fetching Projects and Studies");
                         _this.projects().search({})
                             .then(async function (response) {
                                 try {
-                                    session.projects = response.response[0].result;
-                                    if (session.projects?.length && session?.projects[0]?.studies.length) {
+                                    // session.projects = response.responses[0].results;
+                                    for (const project of response.responses[0].results) {
+                                        let projectIndex = session.projects.findIndex(proj => proj.fqn === project.fqn);
+                                        if (projectIndex < 0) {
+                                            session.projects.push(project);
+                                        }
+                                    }
+                                    if (session.projects?.length) {    // && session?.projects[0]?.studies.length
                                         const studies = [];
                                         for (const project of session.projects) {
                                             // project.alias = project.alias || project.fqn || null;
@@ -335,6 +345,7 @@ export class OpenCGAClient {
                                                 for (const study of project.studies) {
                                                     // We need to store the user permission fr the all the studies fetched
                                                     _this._notifySessionEvent("signingIn", "Fetching User permissions");
+
                                                     let acl = null;
                                                     const admins = study.groups.find(g => g.id === "@admins");
                                                     if (admins.userIds?.includes(session.user.id)) {
@@ -350,7 +361,7 @@ export class OpenCGAClient {
                                                         .search({study: study.fqn, internalStatus: "READY", include: "id,description,numSamples,internal", limit: 20});
                                                     study.cohorts = cohortsResponse.responses[0].results;
 
-                                                    // Check if lastStudy matches, we overwrite defaultStudy if set, no need to check.
+                                                    // Check if lastStudy form User Configuration matches
                                                     if (session.user?.configs?.IVA?.lastStudy === study.fqn) {
                                                         session.project = project;
                                                         session.study = study;
@@ -364,15 +375,19 @@ export class OpenCGAClient {
                                         /** if the user doesn't have his own Default study in User config then there the fallback is:
                                          *  first study of the first project
                                          */
-                                        // If no We select the first project and study as default
+                                        // We select the first project and study as default
                                         if (!session.project && !session.study) {
-                                            session.project = session.project ?? session.projects[0];
-                                            session.study = session.study ?? session.projects[0].studies[0];
+                                            for (const project of session.projects) {
+                                                if (project.studies?.length > 0) {
+                                                    session.project = project;
+                                                    session.study = project.studies[0];
+                                                }
+                                            }
                                         }
 
-                                        if (!session.project || !session.study) {
-                                            throw new Error("Default study not found");
-                                        }
+                                        // if (!session.project || !session.study) {
+                                        //     throw new Error("Default study not found");
+                                        // }
 
                                         // Fetch the Disease Panels for each Study
                                         _this._notifySessionEvent("signingIn", "Fetching Disease Panels");
@@ -392,7 +407,6 @@ export class OpenCGAClient {
                                             }
                                         }
                                     }
-                                    // debugger
                                     resolve(session);
                                 } catch (e) {
                                     console.error("Error getting study permissions, cohorts or disease panels");

@@ -1,6 +1,7 @@
 import UtilsNew from "../../core/utilsNew.js";
 import Renderer from "./renderer.js";
-import {SVG} from "./../../core/svg.js";
+import {SVG} from "../../core/svg.js";
+import FeatureBinarySearchTree from "../feature-binary-search-tree.js";
 
 export default class AlignmentRenderer extends Renderer {
 
@@ -555,16 +556,16 @@ export default class AlignmentRenderer extends Renderer {
             let enc = args.renderedArea[rowY].add({ start: x, end: xPair + widthPair - 1, features });
             if (enc) {
                 const points = {
-                    Reverse: `M${x} ${rowY + (height / 2)} L${x + 5} ${rowY} H${x + width} V${rowY + height} H${x + 5} 
+                    Reverse: `M${x} ${rowY + (height / 2)} L${x + 5} ${rowY} H${x + width} V${rowY + height} H${x + 5}
                             L${x} ${rowY + (height / 2)} `,
-                    Forward: `M${x} ${rowY} H${x + width - 5} L${x + width} ${rowY + (height / 2)} L${x + width - 5} ${rowY + height} 
+                    Forward: `M${x} ${rowY} H${x + width - 5} L${x + width} ${rowY + (height / 2)} L${x + width - 5} ${rowY + height}
                             H${x} V${rowY} `,
                 };
 
                 const paired_points = {
-                    Reverse: `M${xPair} ${rowY + (height / 2)} L${xPair + 5} ${rowY} H${xPair + widthPair} V${rowY + height} H${xPair + 5} 
+                    Reverse: `M${xPair} ${rowY + (height / 2)} L${xPair + 5} ${rowY} H${xPair + widthPair} V${rowY + height} H${xPair + 5}
                             L${xPair} ${rowY + (height / 2)} `,
-                    Forward: `M${xPair} ${rowY} H${xPair + widthPair - 5} L${xPair + widthPair} ${rowY + (height / 2)} 
+                    Forward: `M${xPair} ${rowY} H${xPair + widthPair - 5} L${xPair + widthPair} ${rowY + (height / 2)}
                             L${xPair + widthPair - 5} ${rowY + height} H${xPair} V${rowY} `,
                 };
 
@@ -644,9 +645,9 @@ export default class AlignmentRenderer extends Renderer {
             const enc = args.renderedArea[rowY].add({ start: x, end: x + maxWidth - 1, features });
             if (enc) {
                 const points = {
-                    Reverse: `M${x} ${rowY + (height / 2)} L${x + 5} ${rowY} H${x + width} V${rowY + height} H${x + 5} 
+                    Reverse: `M${x} ${rowY + (height / 2)} L${x + 5} ${rowY} H${x + width} V${rowY + height} H${x + 5}
                             L${x} ${rowY + (height / 2)} `,
-                    Forward: `M${x} ${rowY} H${x + width - 5} L${x + width} ${rowY + (height / 2)} L${x + width - 5} ${rowY + height} 
+                    Forward: `M${x} ${rowY} H${x + width - 5} L${x + width} ${rowY + (height / 2)} L${x + width - 5} ${rowY + height}
                             H${x} V${rowY} `,
                 };
 
