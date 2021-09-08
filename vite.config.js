@@ -56,7 +56,7 @@ export default defineConfig({
         sourcemap: true,
         rollupOptions: {
             input: {
-                "iva/index.html": `${ivaPath}/iva-index.html`,
+                "iva/index.html": `${ivaPath}/index.html`,
                 "genome-maps/index.html": `${genomeMapsDemoPath}/demo/genome-browser.html`,
             },
             plugins: [
