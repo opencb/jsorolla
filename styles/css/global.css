@@ -2186,6 +2186,12 @@ opencga-gene-view h3.section-title /* TODO refactor */{
     letter-spacing: 2px;
 }
 
+.opencga-project-table thead {
+    background: #f1f1f1;
+}
+.opencga-project-table.table>thead>tr>th {
+    vertical-align: middle;
+}
 /********** TODO refactor. variant-interpreter tooltip quickfix  *************/
 .zygosity-formatter,
 .predictionTooltip-inner {

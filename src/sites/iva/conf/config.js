@@ -44,14 +44,14 @@ const hosts = [
 ];
 
 const opencga = {
-    host: hosts[1].url,
+    host: hosts[4].url,
     // host: "https://ws.opencb.org/opencga-prod",
     // host: "http://localhost:1234/opencga",
     // host: "https://uat.eglh.app.zettagenomics.com/opencga", // public instance
     version: "v2",
     serverVersion: "1.4",
     cookie: {
-        prefix: "iva-" + hosts[1].id
+        prefix: "iva-" + hosts[4].id
     }
 
     // This forces the following projects to be used instead of the user's project
@@ -187,6 +187,14 @@ const suite = {
                             fa_icon: "fa fa-list",
                             icon: "img/tools/icons/variant_browser.svg",
                             thumbnail: "variant-browser.png"
+                        },
+                        {
+                            id: "rga",
+                            name: "Recessive Variant Browser",
+                            acronym: "",
+                            icon: "",
+                            description: "",
+                            visibility: "public"
                         }
                         // {
                         //     id: "genomeBrowser",
@@ -592,7 +600,6 @@ const suite = {
             },
             userMenu: [
                 {id: "account", name: "Your Profile", url: "#account", icon: "fa fa-user", visibility: "private"},
-                {id: "projects", name: "Projects", url: "#projects", icon: "fa fa-database", visibility: "private"},
                 {id: "projects", name: "Projects", url: "#projects", icon: "fa fa-database", visibility: "private"},
                 {id: "file-manager", name: "File Manager", url: "#file-manager", icon: "fas fa-folder-open", visibility: "private"}
                 // {id: "settings", name: "Settings", url: "#settings", icon: "fas fa-cogs"}
