@@ -168,7 +168,7 @@ export default class RgaBrowser extends LitElement {
         $(".content-pills", this).removeClass("active");
         $(".content-tab", this).removeClass("active");
         for (const tab in this.activeTab) {
-            if (Object.prototype.isPrototypeOf.call(this.activeTab, tab)) {
+            if (Object.prototype.hasOwnProperty.call(this.activeTab, tab)) {
                 this.activeTab[tab] = false;
             }
         }
