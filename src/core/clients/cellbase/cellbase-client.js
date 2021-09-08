@@ -258,8 +258,6 @@ export class CellBaseClient {
         const species = options.species || this._config.species;
 
         const url = this._createRestUrl(host, version, species, category, subcategory, ids, resource, params);
-
-        // ids is not included
         const k = this.generateKey({...params, species, category, subcategory, resource, params});
         return this.restClient.call(url, options, k);
     }
