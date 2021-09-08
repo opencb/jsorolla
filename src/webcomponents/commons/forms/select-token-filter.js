@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "/web_modules/lit-element.js";
+import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
+import {classMap} from "lit/directives/class-map.js";
 
 /**
- * Select2 version
+ * Token filter. Select2 version with opencga dynamic datasource
  *
- * TODO support both static and dynamic data. Dynamic data only at the moment.
  */
 
-export default class SelectTokenFilter2 extends LitElement {
+export default class SelectTokenFilter extends LitElement {
 
     constructor() {
         super();
@@ -56,20 +56,22 @@ export default class SelectTokenFilter2 extends LitElement {
         this.state = [];
     }
 
-    firstUpdated(_changedProperties) {
+    firstUpdated() {
         this.select = $("#" + this._prefix);
         this.select.select2({
             // tags: true,
             multiple: true,
-            // placeholder: this._config.placeholder,
+            placeholder: this._config.placeholder,
+            minimumInputLength: this._config.minimumInputLength,
             ajax: {
                 transport: async (params, success, failure) => this._config.source(params, success, failure),
                 processResults: (restResponse, params) => {
-                    params.page = params.page || 1;
+                    const _params = params;
+                    _params.page = _params.page || 1;
                     return {
                         results: restResponse.getResults(),
                         pagination: {
-                            more: (params.page * this._config.limit) < restResponse.getResponse().numMatches
+                            more: (_params.page * this._config.limit) < restResponse.getResponse().numMatches
                         }
                     };
                 }
@@ -80,14 +82,14 @@ export default class SelectTokenFilter2 extends LitElement {
                 }
                 // NOTE this function silently fails in case of errors if not wrapped in try/catch block
                 try {
-                    const {name, ...rest} = this._config.fields(item) ?? item.id;
+                    const {name, ...rest} = this._config.fields(item) ?? item.id ?? item;
                     return $(`<span>${name}</span> ${(rest ? Object.entries(rest).map(([label, value]) => `<p class="dropdown-item-extra"><label>${label}</label> ${value || "-"}</p>`).join("") : "") }`);
                 } catch (e) {
                     console.error(e);
                 }
             },
-            templateSelection: repo => {
-                return repo.id;
+            templateSelection: item => {
+                return item.id ?? item.text;
             }
         })
             .on("select2:select", e => {
@@ -157,7 +159,7 @@ export default class SelectTokenFilter2 extends LitElement {
     getDefaultConfig() {
         return {
             limit: 10,
-            searchMinLength: 3,
+            minimumInputLength: 0,
             maxItems: 0,
             placeholder: "Start typing",
             source: () => {
@@ -171,12 +173,12 @@ export default class SelectTokenFilter2 extends LitElement {
 
     render() {
         return html`
-        <div class="">
-            <select id="${this._prefix}" style="width: 100%" @change="${this.filterChange}"></select>
+        <div>
+            <select class="form-control"  id="${this._prefix}" @change="${this.filterChange}"></select>
         </div>
         `;
     }
 
 }
 
-customElements.define("select-token-filter2", SelectTokenFilter2);
+customElements.define("select-token-filter", SelectTokenFilter);

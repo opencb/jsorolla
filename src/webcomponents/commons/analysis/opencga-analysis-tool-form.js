@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "/web_modules/lit-element.js";
+import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
 import OpencgaCatalogUtils from "../../../core/clients/opencga/opencga-catalog-utils.js";
 import "./opencga-analysis-tool-form-field.js";
@@ -102,7 +102,7 @@ export default class OpencgaAnalysisToolForm extends LitElement {
         if (changedProperties.has("opencgaSession")) {
             this.params.study = this.opencgaSession.study.fqn;
             this.runnable = OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "EXECUTE_JOBS");
-            await this.requestUpdate();
+            await this.updateComplete;
             // await this.updateComplete;
             UtilsNew.initTooltip(this);
         }

@@ -1,5 +1,5 @@
 import UtilsNew from "./utilsNew.js";
-import {html} from "/web_modules/lit-element.js";
+import {html} from "lit-html";
 
 export class NotificationQueue {
 
@@ -19,11 +19,11 @@ export class NotificationQueue {
         const id = UtilsNew.randomString(6);
         const msg = {id, title, details, severity, dismissible, autoDismiss};
         this.queue = [...this.queue, msg];
-        await this.context.requestUpdate();
+        await this.context.updateComplete;
         if (autoDismiss) {
             await UtilsNew.sleep(5000);
             this.remove(id);
-            await this.context.requestUpdate();
+            await this.context.updateComplete;
         }
     }
 

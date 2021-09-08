@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { html, LitElement } from "/web_modules/lit-element.js";
+import { html, LitElement } from "lit"
 import UtilsNew from "../../core/utilsNew.js";
 import DetailTabs from "../commons/view/detail-tabs.js";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js"

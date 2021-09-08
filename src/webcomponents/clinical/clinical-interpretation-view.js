@@ -16,7 +16,7 @@
 
 // todo check functionality (there is a _render() method and explicit calls to render())
 
-import {LitElement, html} from "/web_modules/lit-element.js";
+import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
 import PolymerUtils from "../PolymerUtils.js";
 

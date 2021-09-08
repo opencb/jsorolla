@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {html, LitElement} from "/web_modules/lit-element.js";
+import {LitElement, html} from "lit";
 import DetailTabs from "../commons/view/detail-tabs.js";
 import "../cohort/opencga-cohort-view.js";
 import "../cohort/cohort-create.js";

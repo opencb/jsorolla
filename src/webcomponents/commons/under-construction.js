@@ -1,4 +1,4 @@
-import { html } from "/web_modules/lit-element.js";
+import { html } from "lit-html"
 
 export const construction =
     html`

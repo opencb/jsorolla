@@ -14,10 +14,17 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "/web_modules/lit-element.js";
-import {classMap} from "/web_modules/lit-html/directives/class-map.js";
+import {LitElement, html} from "lit";
+import {classMap} from "lit/directives/class-map.js";
 import UtilsNew from "../../../core/utilsNew.js";
 
+/**
+ * @deprecated
+ * Bootstrap3-typeahead autocomplete
+ * Use select-token-filter instead.
+ *
+ * TODO extract FileReader upload logic to a new component
+ */
 
 export default class SelectFieldFilterAutocomplete extends LitElement {
 
@@ -63,11 +70,11 @@ export default class SelectFieldFilterAutocomplete extends LitElement {
     firstUpdated() {
         this.input = $(".typeahead", this);
 
-        //MAP result => ({name: result.id, individual: result.attributes && result.attributes.OPENCGA_INDIVIDUAL ? result.attributes.OPENCGA_INDIVIDUAL.id : ""})
+        // MAP result => ({name: result.id, individual: result.attributes && result.attributes.OPENCGA_INDIVIDUAL ? result.attributes.OPENCGA_INDIVIDUAL.id : ""})
         this.input.typeahead({
             source: this._config.dataSource,
-            //showHintOnFocus: true,
-            /*source: (query, process) => {
+            // showHintOnFocus: true,
+            /* source: (query, process) => {
                 const filters = {
                     study: this.opencgaSession.study.fqn,
                     limit: this._config.limit,
@@ -102,14 +109,14 @@ export default class SelectFieldFilterAutocomplete extends LitElement {
                 if (current.name === this.input.val()) {
                     // This means the exact match is found. Use toLowerCase() if you want case insensitive match.
 
-                    //simple mode: no add button
+                    // simple mode: no add button
                     if (!this._config.addButton) {
                         console.log("addButton");
                         this.addTerm();
                     }
 
-                    //this.selection = this.input.val();
-                    //this.filterChange();
+                    // this.selection = this.input.val();
+                    // this.filterChange();
                 } else {
                     // This means it is only a partial match, you can either add a new item
                     // or take the active if you don't want new items
@@ -119,7 +126,7 @@ export default class SelectFieldFilterAutocomplete extends LitElement {
                 // Nothing is active so it is a new value (or maybe empty value)
                 console.log("NO match", this.input.val());
             }
-            //this.addTerm();
+            // this.addTerm();
         });
         this.input.on("keypress", e => {
             if (e.which === 13) {
@@ -134,7 +141,7 @@ export default class SelectFieldFilterAutocomplete extends LitElement {
         }
         if (_changedProperties.has("value")) {
             this.selectionList = this.value ? this.value.split(",") : [];
-            if(!this._config.multiple) {
+            if (!this._config.multiple) {
                 this.input.val(this.value).change();
             }
 
@@ -156,17 +163,17 @@ export default class SelectFieldFilterAutocomplete extends LitElement {
     addTerm() {
         console.log("searching addTerm");
         if (this.input.val()) {
-            if(this._config.multiple) {
+            if (this._config.multiple) {
                 const selection = [...this.selectionList, ...this.input.val().split(new RegExp("[,;]")).filter(Boolean)];
                 // selection without addButton (straight in the dropdown) in selectpicker causes duplicates
                 this.selectionList = [...new Set(selection)];
                 this.input.val("").change();
             } else {
-                //single item
+                // single item
                 this.selectionList = this.input.val().split(new RegExp("[,;]")).filter(Boolean);
             }
             this.filterChange();
-            //this.requestUpdate();
+            // this.requestUpdate();
         }
     }
 
@@ -179,12 +186,12 @@ export default class SelectFieldFilterAutocomplete extends LitElement {
         const reader = new FileReader();
         reader.onload = () => {
             const plain = reader.result;
-            //it handles split on ",", ";", "CR", "LF" and "CRLF"
+            // it handles split on ",", ";", "CR", "LF" and "CRLF"
             this.selectionList.push(plain.split(/\r\n|\r|\n|,|;/).filter(Boolean));
             $("#file-form").collapse("toggle");
             this.filterChange();
         };
-        reader.readAsText(e.target.files[0] /*|| e.dataTransfer.files[0]*/);
+        reader.readAsText(e.target.files[0] /* || e.dataTransfer.files[0]*/);
     }
 
     onDragOver(e) {
@@ -214,7 +221,7 @@ export default class SelectFieldFilterAutocomplete extends LitElement {
         return {
             limit: 10,
             searchMinLength: 1,
-            //maxItems: 0,
+            // maxItems: 0,
             limitToShow: 3,
             fileUpload: false,
             showList: false,
@@ -240,7 +247,7 @@ export default class SelectFieldFilterAutocomplete extends LitElement {
                 </form>
 
                 ${this._config.fileUpload ? html`
-                    <!-- <a class="btn btn-small collapsed" role="button" data-collapse="#file-form" @click="${this.toggleCollapse}"> <i class="fas fa-arrow-alt-circle-down"></i> Upload file</a> -->
+                    <!-- <a class="btn btn-small collapsed" role="button" data-collapse="#file-form" @click="\${this.toggleCollapse}"> <i class="fas fa-arrow-alt-circle-down"></i> Upload file</a> -->
                     <div class="collapse" id="${this._prefix}file-form">
                         <div class="">
                             <div class="">
@@ -263,14 +270,19 @@ export default class SelectFieldFilterAutocomplete extends LitElement {
                 ${this._config.showList && this.selectionList.length ? html`
                     <div class="selection-list">
                         <ul>
-                            ${this.selectionList.slice(0, this._config.limitToShow).map(term => html`<li><span class="badge break-spaces">${term} <span class="close-icon" data-term=${term} @click="${this.remove}"><i class="fas fa-times"></i></span></span></li>`)}
-                            ${this.showAll ? this.selectionList.slice(this._config.limitToShow).map(term => html`<li><span class="badge break-spaces">${term} <span class="close-icon" @click="${this.remove}"><i class="fas fa-times"></i></span></span></li>`) : ""}
+                            ${this.selectionList.slice(0, this._config.limitToShow).map(term => html`
+                                <li><span class="badge break-spaces">${term} <span class="close-icon" data-term=${term} @click="${this.remove}"><i class="fas fa-times"></i></span></span></li>
+                            `)}
+                            ${this.showAll ? this.selectionList.slice(this._config.limitToShow).map(term => html`
+                                <li><span class="badge break-spaces">${term} <span class="close-icon" @click="${this.remove}"><i class="fas fa-times"></i></span></span></li>
+                            `) : ""}
                         </ul>
                         ${this.selectionList.length > this._config.limitToShow ? html`<button class="btn btn-small ripple" type="button" @click="${this.toggleList}">Show ${this.showAll ? "less" : "all"}</button>` : ""}
                     </div>` : null}
             </div>
         `;
     }
+
 }
 
 customElements.define("select-field-filter-autocomplete", SelectFieldFilterAutocomplete);

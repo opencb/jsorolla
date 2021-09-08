@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "/web_modules/lit-element.js";
+import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
 // import Circos from "./test/circos.js";
 import "../variant/opencga-variant-filter.js";
@@ -79,7 +79,7 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
 
     async propertyObserver() {
         this.signature = null;
-        await this.requestUpdate();
+        await this.updateComplete;
 
         this.signatureQuery();
         this.statsQuery();

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "/web_modules/lit-element.js";
+import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
 import {NotificationQueue} from "../../core/NotificationQueue.js";
 
@@ -288,7 +288,7 @@ export default class OpencgaActiveFilters extends LitElement {
             } else {
                 this._filters = [...(this.filters || [])];
             }
-            this.requestUpdate().then(() => UtilsNew.initTooltip(this));
+            this.updateComplete.then(() => UtilsNew.initTooltip(this));
         });
     }
 
@@ -355,7 +355,7 @@ export default class OpencgaActiveFilters extends LitElement {
                                             "Filter has been saved.",
                                             "success"
                                         );
-                                        this.requestUpdate().then(() => UtilsNew.initTooltip(this));
+                                        this.updateComplete.then(() => UtilsNew.initTooltip(this));
                                     } else {
                                         console.error(restResponse);
                                         Swal.fire(
@@ -397,7 +397,7 @@ export default class OpencgaActiveFilters extends LitElement {
                                     "Filter has been saved.",
                                     "success"
                                 );
-                                this.requestUpdate().then(() => UtilsNew.initTooltip(this));
+                                this.updateComplete.then(() => UtilsNew.initTooltip(this));
                             } else {
                                 console.error(restResponse);
                                 Swal.fire(

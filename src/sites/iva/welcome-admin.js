@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { LitElement, html } from "/web_modules/lit-element.js";
+import {LitElement, html} from "lit";
 import UtilsNew from "./../../core/utilsNew.js";
-import "../../webcomponents/project/projects-admin.js";
 
 export default class WelcomeAdmin extends LitElement {
 
@@ -83,7 +82,6 @@ export default class WelcomeAdmin extends LitElement {
     }
 
 
-
     // <study-dashboard
     // .config=${this.config}
     //                     .opencgaSession=${this.opencgaSession}>
@@ -103,7 +101,7 @@ export default class WelcomeAdmin extends LitElement {
                     ${item.submenu ? html`
                         <a class="icon-wrapper" data-title="${item.name}" href="#${item.id}">
                             <div class="hi-icon">
-                                <img alt="${item.name}" src="img/tools/icons/${item.icon}" />
+                                <img alt="${item.name}" src="${item.icon}" />
                             </div>
                             <div><span style="font-weight: bold">${item.name}</span></div>
                         </a>
@@ -112,7 +110,7 @@ export default class WelcomeAdmin extends LitElement {
                     ` : html`
                         <a class="icon-wrapper" href="#${item.id}">
                             <div class="hi-icon">
-                                <img alt="${item.name}" src="img/tools/icons/${item.icon}" />
+                                <img alt="${item.name}" src="${item.icon}" />
                             </div>
                             <div><span style="font-weight: bold">${item.name}</span></div>
                         </a>

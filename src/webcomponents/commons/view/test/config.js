@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {html} from "/web_modules/lit-element.js";
+import {html} from "lit-html";
 
 const individual = {
     title: "Summary",
@@ -137,7 +137,7 @@ const individual = {
                     type: "custom",
                     // without the field "field" the param of render is data the whole config
                     display: {
-                        render: (data) => {
+                        render: data => {
                             return html`${data.sex} (<span style="color: red">${data.karyotypicSex}</span>)`;
                         },
                     }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "/web_modules/lit-element.js";
+import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
 import "../commons/opencga-browser.js";
 
@@ -120,7 +120,6 @@ export default class OpencgaSampleBrowser extends LitElement {
                             {
                                 id: "id",
                                 name: "Sample ID",
-                                placeholder: "HG01879, HG01880, HG01881...",
                                 description: ""
                             },
                             {

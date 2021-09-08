@@ -16,7 +16,7 @@
 
 // TODO check functionality and on-dom-repeat
 
-import {LitElement, html} from "/web_modules/lit-element.js";
+import {LitElement, html} from "lit";
 import UtilsNew from "../../../../core/utilsNew.js";
 import CatalogWebUtils from "../../../commons/catalog-web-utils.js";
 
@@ -102,7 +102,7 @@ export default class OpencgaVariableSelector extends LitElement {
             const selectpicker = $(`#${this._prefix}-annotation-picker`);
             //console.log("selectpicker",selectpicker.val())
             //selectpicker.selectpicker("render");
-            await this.requestUpdate();
+            await this.updateComplete;
             selectpicker.selectpicker("refresh");
         }
     }

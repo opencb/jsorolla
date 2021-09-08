@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "/web_modules/lit-element.js";
+import {LitElement, html} from "lit";
 import UtilsNew from "./../../core/utilsNew.js";
 import "../commons/tool-header.js";
 import FormUtils from "../../webcomponents/commons/forms/form-utils.js";

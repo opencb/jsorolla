@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "/web_modules/lit-element.js";
+import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
-import "../../commons/forms/select-field-filter-autocomplete.js";
+import "../../commons/forms/select-token-filter.js";
 
 
 export default class FileNameAutocomplete extends LitElement {
@@ -59,12 +59,11 @@ export default class FileNameAutocomplete extends LitElement {
 
     getDefaultConfig() {
         return {
-            addButton: false,
-            // template: item => item.id + "<p class=\"dropdown-item-extra\"><label>Individual ID</label>" + (item.attributes && item.attributes.OPENCGA_INDIVIDUAL ? item.attributes.OPENCGA_INDIVIDUAL.id : "") + "</p>",
             placeholder: "eg. samples.tsv, phenotypes.vcf...",
+            limit: 10,
             fields: item => ({
                 name: item.name,
-                Format: item.format || "",
+                Format: item.format ?? "N/A",
                 Size: UtilsNew.getDiskUsage(item.size)
 
             }),
@@ -81,18 +80,38 @@ export default class FileNameAutocomplete extends LitElement {
                     const results = restResponse.getResults();
                     process(results.map(this._config.fields));
                 });
-            }
+            },
+            source: async (params, success, failure) => {
+                const _params = params;
+                _params.data.page = params.data.page || 1;
+                const name = _params?.data?.term ? {id: "~^" + _params?.data?.term?.toUpperCase()} : "";
+                const filters = {
+                    study: this.opencgaSession.study.fqn,
+                    limit: this._config.limit,
+                    count: false,
+                    skip: (_params.data.page - 1) * this._config.limit,
+                    type: "FILE",
+                    include: "id,name,format,size",
+                    ...name
+                };
+                try {
+                    const restResponse = await this.opencgaSession.opencgaClient.files().search(filters);
+                    success(restResponse);
+                } catch (e) {
+                    failure(e);
+                }
+            },
         };
     }
 
     render() {
         return html`
-            <select-field-filter-autocomplete
+            <select-token-filter
                     .opencgaSession="${this.opencgaSession}"
                     .config=${this._config}
                     .value="${this.value}"
                     @filterChange="${e => this.onFilterChange("id", e.detail.value)}">
-            </select-field-filter-autocomplete>
+            </select-token-filter>
         `;
     }
 

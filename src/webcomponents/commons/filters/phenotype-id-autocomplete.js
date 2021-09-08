@@ -14,9 +14,12 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "/web_modules/lit-element.js";
+import {LitElement, html} from "lit";
 import Utils from "./../../../core/utils.js";
 import "../../commons/forms/select-field-filter-autocomplete.js";
+
+// TODO refactor to use select-token-filter (it seems there is a problem with a "distinct" endpoint)
+
 
 export default class PhenotypeIdAutocomplete extends LitElement {
 
@@ -67,7 +70,7 @@ export default class PhenotypeIdAutocomplete extends LitElement {
                     study: this.opencgaSession.study.fqn,
                     limit: 20,
                     count: false,
-                    //include: "id",
+                    // include: "id",
                     phenotypes: "~^" + query.toUpperCase()
                 };
                 this.opencgaSession.opencgaClient.individuals().distinct("phenotypes.id", filters).then(restResponse => {
@@ -80,7 +83,12 @@ export default class PhenotypeIdAutocomplete extends LitElement {
 
     render() {
         return html`
-            <select-field-filter-autocomplete .opencgaSession="${this.opencgaSession}" .config=${this._config} .value="${this.value}" @filterChange="${e => this.onFilterChange("id", e.detail.value)}"></select-field-filter-autocomplete>
+            <select-field-filter-autocomplete
+                    .opencgaSession="${this.opencgaSession}"
+                    .config=${this._config}
+                    .value="${this.value}"
+                    @filterChange="${e => this.onFilterChange("id", e.detail.value)}">
+            </select-field-filter-autocomplete>
         `;
     }
 

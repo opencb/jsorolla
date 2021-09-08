@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {LitElement, html} from "/web_modules/lit-element.js";
+import {LitElement, html} from "lit";
 import UtilsNew from "./../../core/utilsNew.js";
 import "./welcome-iva.js";
 import "./welcome-admin.js";
@@ -128,7 +128,7 @@ export default class WelcomeWeb extends LitElement {
                     ${this.config.apps.filter(this.isVisible).map(item => html`
                         <a class="icon-wrapper" href="#home" data-id="${item.id}" @click="${this.onChangeApp}">
                             <div class="hi-icon">
-                                <img alt="${item.name}" src="${item.id == "clinical"? item.logo2 : item.logo}" width=80px height=80px />
+                                <img alt="${item.name}" src="${item.icon}"  />
                             </div>
                             <div><span style="font-weight: bold">${item.name}</span></div>
                         </a>

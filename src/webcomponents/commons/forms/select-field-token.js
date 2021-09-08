@@ -14,10 +14,15 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "/web_modules/lit-element.js";
+import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
 import LitUtils from "../utils/lit-utils.js";
 
+/**
+ * tokenize version
+ * @deprecated
+ *
+ */
 export default class SelectFieldToken extends LitElement {
 
     constructor() {
@@ -52,7 +57,7 @@ export default class SelectFieldToken extends LitElement {
         this.disabled = false;
         this.placeholder = "Type something to start";
         this.allowCustomTokens = true;
-        this.separators = [",", "-"];  // TODO consider to add blank space
+        this.separators = [",", "-"]; // TODO consider to add blank space
     }
 
     connectedCallback() {
@@ -110,7 +115,7 @@ export default class SelectFieldToken extends LitElement {
         return {
             placeholder: "Type something to start",
             allowCustomTokens: true,
-            separators: [",", "-"]  // TODO consider to add blank space
+            separators: [",", "-"] // TODO consider to add blank space
         };
     }
 

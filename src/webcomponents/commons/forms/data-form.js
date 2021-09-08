@@ -16,9 +16,8 @@
  * limitations under the License.
  */
 
-import {html, LitElement} from "/web_modules/lit-element.js";
-import {ifDefined} from "/web_modules/lit-html/directives/if-defined.js";
-// import UtilsNew from "../../../core/utilsNew.js";
+import {LitElement, html} from "lit";
+import {ifDefined} from "lit/directives/if-defined.js";
 import UtilsNew from "../../../core/utilsNew.js";
 import "../simple-chart.js";
 import "../json-viewer.js";
