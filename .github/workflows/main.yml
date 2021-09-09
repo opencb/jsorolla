@@ -14,6 +14,10 @@ jobs:
     steps:
       - name: Clone Jsorolla
         uses: actions/checkout@v2
+      - name: "Install node"
+        uses: actions/setup-node@v2
+        with:
+          node-version: "14"
       - name: Cache dependencies
         uses: actions/cache@v2
         env:
@@ -29,7 +33,7 @@ jobs:
       # - name: Run npm ci
       #   run: npm ci --only-production --ignore-scripts
       - name: Run npm install
-        run: npm i
+        run: npm install
       - name: Build Jsorolla
         run: npm run build
       - name: Upload rollup artifact
@@ -51,7 +55,7 @@ jobs:
       - name: Clone Jsorolla repository
         uses: actions/checkout@v2
       - name: Install Nodejs ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node.version }}
       - name: Cache dependencies
@@ -90,13 +94,13 @@ jobs:
             cypress/screenshots
             cypress/videos
           retention-days: 2
-#      - name: Upload Video
-#        uses: actions/upload-artifact@v2
-#        if: always()
-#        with:
-#          name: cypress-videos-${{ matrix.browsers }}_${{ matrix.node-version }}
-#          path: cypress/videos
-#          retention-days: 2
+  #      - name: Upload Video
+  #        uses: actions/upload-artifact@v2
+  #        if: always()
+  #        with:
+  #          name: cypress-videos-${{ matrix.browsers }}_${{ matrix.node-version }}
+  #          path: cypress/videos
+  #          retention-days: 2
 
   docker:
     name: Publish Docker image in Docker Hub repository
