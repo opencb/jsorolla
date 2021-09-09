@@ -15,7 +15,6 @@
  */
 
 import {LitElement, html} from "lit";
-import Utils from "./../../../core/utils.js";
 import "../../commons/forms/select-token-filter.js";
 
 

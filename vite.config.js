@@ -3,7 +3,6 @@ import {defineConfig} from "vite";
 import html from "@web/rollup-plugin-html";
 import copy from "rollup-plugin-copy";
 import resolve from "@rollup/plugin-node-resolve";
-import replace from "@rollup/plugin-replace";
 import minifyHTML from "rollup-plugin-minify-html-literals";
 import summary from "rollup-plugin-summary";
 import path from "path";
