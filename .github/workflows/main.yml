@@ -3,7 +3,7 @@ name: "Develop CI/CD"
 on:
   push:
     branches:
-      - develop
+      - jsorolla-next
     tags:
       - "*"
 
