@@ -65,22 +65,7 @@ export default class FileNameAutocomplete extends LitElement {
                 name: item.name,
                 Format: item.format ?? "N/A",
                 Size: UtilsNew.getDiskUsage(item.size)
-
             }),
-            dataSource: (query, process) => {
-                const filters = {
-                    study: this.opencgaSession.study.fqn,
-                    limit: 20,
-                    count: false,
-                    type: "FILE",
-                    // include: "id,individual.id",
-                    name: "~^" + query
-                };
-                this.opencgaSession.opencgaClient.files().search(filters).then(restResponse => {
-                    const results = restResponse.getResults();
-                    process(results.map(this._config.fields));
-                });
-            },
             source: async (params, success, failure) => {
                 const _params = params;
                 _params.data.page = params.data.page || 1;

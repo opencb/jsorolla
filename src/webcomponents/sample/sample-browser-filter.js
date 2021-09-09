@@ -27,6 +27,7 @@ import "../commons/forms/select-field-filter-autocomplete.js";
 import "../commons/filters/sample-id-autocomplete.js";
 import "../commons/filters/individual-id-autocomplete.js";
 import "../commons/filters/sample-id-autocomplete.js";
+import "../commons/filters/phenotype-id-autocomplete.js";
 import "../commons/forms/select-token-filter-static.js";
 
 export default class SampleBrowserFilter extends LitElement {
@@ -181,9 +182,11 @@ export default class SampleBrowserFilter extends LitElement {
             case "source":
             case "phenotypes":
                 content = html`
-                    <text-field-filter placeholder="${subsection.placeholder}" .value="${this.preparedQuery[subsection.id]}"
-                                       @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
-                    </text-field-filter>`;
+                    <phenotype-id-autocomplete .config="${subsection}"
+                                                .opencgaSession="${this.opencgaSession}"
+                                                .value="${this.preparedQuery[subsection.id]}"
+                                                @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
+                    </phenotype-id-autocomplete>`;
                 break;
             case "annotations":
                 content = html`

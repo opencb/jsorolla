@@ -61,6 +61,7 @@ export default class SelectTokenFilter extends LitElement {
         this.select.select2({
             // tags: true,
             multiple: true,
+            width: "style",
             placeholder: this._config.placeholder,
             minimumInputLength: this._config.minimumInputLength,
             ajax: {
@@ -69,7 +70,7 @@ export default class SelectTokenFilter extends LitElement {
                     const _params = params;
                     _params.page = _params.page || 1;
                     return {
-                        results: restResponse.getResults(),
+                        results: this.preprocessResults(restResponse.getResults()),
                         pagination: {
                             more: (_params.page * this._config.limit) < restResponse.getResponse().numMatches
                         }
@@ -82,7 +83,7 @@ export default class SelectTokenFilter extends LitElement {
                 }
                 // NOTE this function silently fails in case of errors if not wrapped in try/catch block
                 try {
-                    const {name, ...rest} = this._config.fields(item) ?? item.id ?? item;
+                    const {name, ...rest} = this._config.fields(item) ?? item.id;
                     return $(`<span>${name}</span> ${(rest ? Object.entries(rest).map(([label, value]) => `<p class="dropdown-item-extra"><label>${label}</label> ${value || "-"}</p>`).join("") : "") }`);
                 } catch (e) {
                     console.error(e);
@@ -90,7 +91,8 @@ export default class SelectTokenFilter extends LitElement {
             },
             templateSelection: item => {
                 return item.id ?? item.text;
-            }
+            },
+            ...this._config.select2Config
         })
             .on("select2:select", e => {
                 this.filterChange(e);
@@ -123,6 +125,15 @@ export default class SelectTokenFilter extends LitElement {
 
         }
 
+    }
+
+    preprocessResults(results) {
+        if (results.length) {
+            if ("string" === typeof results[0]) {
+                return results.map(s => ({id: s}));
+            }
+        }
+        return results;
     }
 
     /* addOptions(ids) {
