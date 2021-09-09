@@ -49,7 +49,7 @@ jobs:
     needs: build
     strategy:
       matrix:
-        node-version: [15.x, 16.x]
+        node-version: [16.x]
         browsers: [chrome, firefox]
     steps:
       - name: Clone Jsorolla repository
