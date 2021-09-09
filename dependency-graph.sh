@@ -1,18 +1,20 @@
 exclude=\
 "node_modules|"\
+"./deprecated|"\
 "src/genome-browser|"\
-"src/webcomponents/loading-spinner.js|"\
-"src/webcomponents/NotificationUtils.js|"\
+"src/core|"\
 "src/core/src/core/utils.js|"\
 "src/core/utilsNew.js|"\
-"src/webcomponents/PolymerUtils.js|"\
 "src/core/clients|"\
 "src/core/visualisation|"\
+"src/webcomponents/loading-spinner.js|"\
+"src/webcomponents/NotificationUtils.js|"\
+"src/webcomponents/PolymerUtils.js|"\
 "src/webcomponents/opencga/clinical/obsolete|"\
-"src/webcomponents/commons/filters/deprecated|"\
 "src/webcomponents/variant/deprecated|"\
-"./deprecated|"\
-"src/webcomponents/Notification.js"
+"src/webcomponents/Notification.js|"\
+"src/webcomponents/commons/filters/deprecated|"\
+"src/webcomponents/commons"
 
 depcruise "src/webcomponents/**/*.js" -x "^($exclude)" --output-type dot | dot -T svg > dependency.svg
 depcruise "src/sites/iva/**/*.js" -x "^($exclude)" --output-type json > dependency.json
