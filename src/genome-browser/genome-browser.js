@@ -265,7 +265,7 @@ export default class GenomeBrowser {
 
         if (!$.isFunction(this.quickSearchResultFn)) {
             this.quickSearchResultFn = function (query) {
-                return _this.client.get("feature", "id", query, "starts_with", { limit: 10 });
+                return _this.client.get("feature", "id", query, "starts_with", {limit: 10});
             };
         }
 
@@ -678,7 +678,7 @@ export default class GenomeBrowser {
             })
             .catch(e => {
                 console.error(e);
-                globalEvent("signingInError", {value: "Cellbase host not available. Genome-browser.js fail"});
+                console.error( "Cellbase host not available. Genome-browser.js fail. _speciesChangeHandler");
             });
     }
 
