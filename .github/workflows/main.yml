@@ -3,7 +3,7 @@ name: "Develop CI/CD"
 on:
   push:
     branches:
-      - issue-160
+      - develop
     tags:
       - "*"
 
@@ -26,18 +26,16 @@ jobs:
             ${{ runner.os }}-build-${{ env.cache-name }}-
             ${{ runner.os }}-build-
             ${{ runner.os }}-
-      - name: Install bower dependecy
-        run: npm install bower
       - name: Run npm ci
         run: npm ci --only-production --ignore-scripts
       - name: Run npm install
-        run: npm init -y && npm install
+        run: npm i
       - name: Build Jsorolla
         run: npm run build
-      - name: Upload webpack artifact
+      - name: Upload rollup artifact
         uses: actions/upload-artifact@v2
         with:
-          name: webpack-artifact
+          name: rollup-artifact
           path: build
           retention-days: 2
 
@@ -68,10 +66,8 @@ jobs:
             ${{ runner.os }}-build-${{ env.cache-name }}-
             ${{ runner.os }}-build-
             ${{ runner.os }}-
-      - name: Install bower dependency
-        run: npm install bower
       - name: Run npm install
-        run: npm init -y && npm install
+        run: npm i
       - name: Test IVA - Cypress run
         uses: cypress-io/github-action@v2
         with:
@@ -109,10 +105,10 @@ jobs:
     needs: test
     steps:
       - uses: actions/checkout@v2
-      - name: Download webpack artifact
+      - name: Download rollup artifact
         uses: actions/download-artifact@v2
         with:
-          name: webpack-artifact
+          name: rollup-artifact
           path: build
       - name: Login to dockerhub
         uses: docker/login-action@v1
@@ -120,7 +116,7 @@ jobs:
           username: ${{ secrets.DOCKER_HUB_USER }}
           password: ${{ secrets.DOCKER_HUB_PASSWORD }}
       - name: Build and publish Docker image
-        run: python3 ./docker/docker-build.py push --images app --tag 2.1.0-exp
+        run: python3 ./docker/docker-build.py push --images app --tag 2.2.0-exp
 
   deploy-ucam:
     name: Deploy Web App in UCam
@@ -129,10 +125,10 @@ jobs:
     needs: test
     steps:
       - uses: actions/checkout@v2
-      - name: Download Webpack artifact
+      - name: Download Rollup artifact
         uses: actions/download-artifact@v2
         with:
-          name: webpack-artifact
+          name: rollup-artifact
           path: build
       - id: package-version
         name: Read package.json
