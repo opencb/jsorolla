@@ -654,29 +654,32 @@ export default class GenomeBrowser {
         this.setRegion(this.region);
     }
     _speciesChangeHandler(event) {
+        const _this = this;
         // Relaunch
         this.trigger("species:change", event);
         this._updateSpecies(event.species);
 
-        // TODO: Change this call
         let firstGeneRegion;
-        CellBaseManager.get({
-            host: this.cellBaseHost,
-            async: false,
+        const args = {
             category: "feature",
-            subCategory: "gene",
+            subcategory: "gene",
             resource: "first",
             species: event.species,
             params: {
                 include: "chromosome,start,end"
-            },
-            success: function (r) {
-                firstGeneRegion = r.response[0].result[0];
             }
-        });
+        };
 
-        const region = new Region(firstGeneRegion);
-        this.setRegion(region);
+        _this.client.getOldWay(args)
+            .then(response =>{
+                firstGeneRegion = response.response[0].result[0];
+                const region = new Region(firstGeneRegion);
+                this.setRegion(region);
+            })
+            .catch(e => {
+                console.error(e);
+                globalEvent("signingInError", {value: "Cellbase host not available. Genome-browser.js fail"});
+            });
     }
 
     _updateSpecies(species) {
