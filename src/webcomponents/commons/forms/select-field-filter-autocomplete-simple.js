@@ -17,7 +17,14 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
 
-
+/**
+ * @deprecated
+ * Bootstrap3-typeahead autocomplete
+ * This is a copy of select-field-filter-autocomplete but with no File Upload logic and "resource" prop. The query to opencga is made in place.
+ *
+ * Use select-token-filter
+ * TODO move the remote request in select-token-filter?
+ */
 export default class SelectFieldFilterAutocompleteSimple extends LitElement {
 
     constructor() {
@@ -68,7 +75,7 @@ export default class SelectFieldFilterAutocompleteSimple extends LitElement {
     firstUpdated() {
         this.input = $(".typeahead", this);
 
-        //MAP result => ({name: result.id, individual: result.attributes && result.attributes.OPENCGA_INDIVIDUAL ? result.attributes.OPENCGA_INDIVIDUAL.id : ""})
+        // MAP result => ({name: result.id, individual: result.attributes && result.attributes.OPENCGA_INDIVIDUAL ? result.attributes.OPENCGA_INDIVIDUAL.id : ""})
         this.input.typeahead({
             source: (query, process) => {
                 const filters = {
@@ -81,14 +88,14 @@ export default class SelectFieldFilterAutocompleteSimple extends LitElement {
                 this.client().search(filters).then(restResponse => {
                     const results = restResponse.getResults();
                     console.log("results", results);
-                    //process(results.map(result => ({name: result.id, individual: result.attributes && result.attributes.OPENCGA_INDIVIDUAL ? result.attributes.OPENCGA_INDIVIDUAL.id : ""})));
+                    // process(results.map(result => ({name: result.id, individual: result.attributes && result.attributes.OPENCGA_INDIVIDUAL ? result.attributes.OPENCGA_INDIVIDUAL.id : ""})));
                     process(results.map(result => ({name: result.id})));
                 });
             },
             minLength: this._config.searchMinLength,
             autoSelect: true,
-            displayText: function(item) {
-                return item.name //+ "<p class=\"dropdown-item-extra\"><label>Individual ID</label>" + item.individual + "</p>";
+            displayText: function (item) {
+                return item.name; // + "<p class=\"dropdown-item-extra\"><label>Individual ID</label>" + item.individual + "</p>";
             },
             /* displayText: function(item) {
                 return item.id + "<p class=\"dropdown-item-extra\"><label>Individual ID</label>" + (item.attributes && item.attributes.OPENCGA_INDIVIDUAL ? item.attributes.OPENCGA_INDIVIDUAL.id : "") + "</p>";
@@ -104,8 +111,8 @@ export default class SelectFieldFilterAutocompleteSimple extends LitElement {
                 if (current.name === this.input.val()) {
                     // This means the exact match is found. Use toLowerCase() if you want case insensitive match.
                     console.log("exact match", this.input.val());
-                    //this.selection = this.input.val();
-                    //this.filterChange();
+                    // this.selection = this.input.val();
+                    // this.filterChange();
                     this.filterChange();
                 } else {
                     // This means it is only a partial match, you can either add a new item
@@ -116,7 +123,7 @@ export default class SelectFieldFilterAutocompleteSimple extends LitElement {
                 // Nothing is active so it is a new value (or maybe empty value)
                 console.log("NO match", this.input.val());
             }
-            //this.addTerm();
+            // this.addTerm();
         });
     }
 

@@ -15,8 +15,8 @@
  */
 
 import {LitElement, html} from "lit";
-import Utils from "./../../../core/utils.js";
-import "../../commons/forms/select-field-filter-autocomplete.js";
+import "../../commons/forms/select-token-filter.js";
+
 
 export default class PhenotypeIdAutocomplete extends LitElement {
 
@@ -58,29 +58,45 @@ export default class PhenotypeIdAutocomplete extends LitElement {
 
     getDefaultConfig() {
         return {
-            addButton: false,
-            fields: item => ({
+            limit: 10,
+            /* fields: item => ({
                 name: item
-            }),
-            dataSource: (query, process) => {
+            }),*/
+            // direct select2 configuration
+            select2Config: {
+                // enables free tokenisation as phenotypes field actually perform a full-text search (while the autocomplete works in IDs only)
+                tags: true
+            },
+            source: async (params, success, failure) => {
+                const _params = params;
+                _params.data.page = params.data.page || 1;
+                const phenotypes = _params?.data?.term ? {phenotypes: "~^" + _params?.data?.term?.toUpperCase()} : "";
                 const filters = {
                     study: this.opencgaSession.study.fqn,
-                    limit: 20,
+                    limit: this._config.limit,
                     count: false,
-                    //include: "id",
-                    phenotypes: "~^" + query.toUpperCase()
+                    skip: (_params.data.page - 1) * this._config.limit,
+                    // include: "id,proband",
+                    ...phenotypes
                 };
-                this.opencgaSession.opencgaClient.individuals().distinct("phenotypes.id", filters).then(restResponse => {
-                    const results = restResponse.getResults();
-                    process(results.map(this._config.fields));
-                });
-            }
+                try {
+                    const restResponse = await this.opencgaSession.opencgaClient.individuals().distinct("phenotypes.id", filters);
+                    success(restResponse);
+                } catch (e) {
+                    failure(e);
+                }
+            },
         };
     }
 
     render() {
         return html`
-            <select-field-filter-autocomplete .opencgaSession="${this.opencgaSession}" .config=${this._config} .value="${this.value}" @filterChange="${e => this.onFilterChange("id", e.detail.value)}"></select-field-filter-autocomplete>
+            <select-token-filter
+                    .opencgaSession="${this.opencgaSession}"
+                    .config=${this._config}
+                    .value="${this.value}"
+                    @filterChange="${e => this.onFilterChange("id", e.detail.value)}">
+            </select-token-filter>
         `;
     }
 

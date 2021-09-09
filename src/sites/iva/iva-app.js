@@ -95,8 +95,10 @@ import "../../webcomponents/Notification.js";
 
 import "../../webcomponents/commons/layouts/custom-footer.js";
 import "../../webcomponents/commons/layouts/custom-navbar.js";
+
+import "../../webcomponents/clinical/rga/rga-browser.js";
+
 // import "../../webcomponents/commons/loading-bar.js";
-// import "../../webcomponents/clinical/rga/rga-browser.js";
 
 // import "./loading-bar.js";
 
@@ -281,7 +283,7 @@ class IvaApp extends LitElement {
         }, false);
 
         globalThis.addEventListener("hostInit", e => {
-            this.host[e.detail.host] = e.detail.value;
+            this.host = {...this.host, [e.detail.host]: e.detail.value};
             this.requestUpdate();
         }, false);
 

@@ -128,7 +128,7 @@ export default class WelcomeWeb extends LitElement {
                     ${this.config.apps.filter(this.isVisible).map(item => html`
                         <a class="icon-wrapper" href="#home" data-id="${item.id}" @click="${this.onChangeApp}">
                             <div class="hi-icon">
-                                <img alt="${item.name}" src="${item.id == "clinical"? item.logo2 : item.logo}" width=80px height=80px />
+                                <img alt="${item.name}" src="${item.icon}"  />
                             </div>
                             <div><span style="font-weight: bold">${item.name}</span></div>
                         </a>

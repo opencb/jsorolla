@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+
 const cellbase = {
     host: "https://ws.opencb.org/cellbase-4.8.2",
     version: "v4"
@@ -43,14 +44,14 @@ const hosts = [
 ];
 
 const opencga = {
-    host: hosts[1].url,
+    host: hosts[4].url,
     // host: "https://ws.opencb.org/opencga-prod",
     // host: "http://localhost:1234/opencga",
     // host: "https://uat.eglh.app.zettagenomics.com/opencga", // public instance
     version: "v2",
     serverVersion: "1.4",
     cookie: {
-        prefix: "iva-" + hosts[1].id
+        prefix: "iva-" + hosts[4].id
     }
 
     // This forces the following projects to be used instead of the user's project
@@ -111,6 +112,7 @@ const suite = {
     name: "OpenCGA Suite",
     version: "v2.1.0-beta",
     logo: "img/iva-white.svg",
+    logoAlt: "img/iva.svg",
     footerLogo: "img/opencb-logo.png",
     mode: "development",
     appConfig: "opencb",
@@ -158,16 +160,17 @@ const suite = {
             id: "iva",
             name: "Variant Analysis",
             // logo: "img/iva-black.svg",
-            logo: "img/tools/icons/variant_browser.svg",
+            logo: "img/iva-white.svg",
+            // logo: "img/tools/icons/variant_browser.svg",
             // alt: "This is the old IVA tool",
-            icon: "variant_browser.svg",
+            icon: "img/tools/icons/variant_browser.svg",
             visibility: "public",
             menu: [
                 {
                     id: "browser",
                     name: "Variant Browser",
                     // fa_icon: "fa fa-list",
-                    icon: "variant_browser.svg",
+                    icon: "img/tools/icons/variant_browser.svg",
                     visibility: "public",
                     submenu: [
                         {
@@ -182,8 +185,16 @@ const suite = {
                                     </ul>`,
                             visibility: "public",
                             fa_icon: "fa fa-list",
-                            icon: "variant_browser.svg",
+                            icon: "img/tools/icons/variant_browser.svg",
                             thumbnail: "variant-browser.png"
+                        },
+                        {
+                            id: "rga",
+                            name: "Recessive Variant Browser",
+                            acronym: "",
+                            icon: "",
+                            description: "",
+                            visibility: "public"
                         }
                         // {
                         //     id: "genomeBrowser",
@@ -205,7 +216,7 @@ const suite = {
                     id: "analysis",
                     name: "Variant Analysis",
                     description: "",
-                    icon: "aggregation.svg",
+                    icon: "img/tools/icons/aggregation.svg",
                     visibility: "public",
                     submenu: [
                         {
@@ -332,7 +343,7 @@ const suite = {
                             name: "Mutational Signature",
                             acronym: "SG",
                             description: "",
-                            icon: "aggregation.svg",
+                            icon: "img/tools/icons/aggregation.svg",
                             visibility: "public"
                         },
                         separator,
@@ -472,7 +483,7 @@ const suite = {
                     id: "alignment",
                     name: "Alignment",
                     description: "",
-                    icon: "alignment.svg",
+                    icon: "img/tools/icons/alignment.svg",
                     visibility: "public",
                     submenu: [
                         {
@@ -515,7 +526,7 @@ const suite = {
                     id: "catalog",
                     name: "Catalog",
                     visibility: "public",
-                    icon: "aggregation2.svg",
+                    icon: "img/tools/icons/aggregation2.svg",
                     submenu: [
                         {
                             id: "projects",
@@ -590,7 +601,6 @@ const suite = {
             userMenu: [
                 {id: "account", name: "Your Profile", url: "#account", icon: "fa fa-user", visibility: "private"},
                 {id: "projects", name: "Projects", url: "#projects", icon: "fa fa-database", visibility: "private"},
-                {id: "projects", name: "Projects", url: "#projects", icon: "fa fa-database", visibility: "private"},
                 {id: "file-manager", name: "File Manager", url: "#file-manager", icon: "fas fa-folder-open", visibility: "private"}
                 // {id: "settings", name: "Settings", url: "#settings", icon: "fas fa-cogs"}
             ]
@@ -599,14 +609,14 @@ const suite = {
             id: "clinical",
             name: "Clinical (XetaBase)",
             logo: "img/tools/icons/interpretation_portal_white.svg",
-            logo2: "img/tools/icons/interpretation_portal.svg",
-            icon: "interpretation_portal.svg",
+            logoAlt: "img/tools/icons/interpretation_portal.svg",
+            icon: "img/tools/icons/interpretation_portal.svg",
             visibility: "public",
             menu: [
                 {
                     id: "clinical",
                     name: "Case Interpretation",
-                    icon: "interpretation_portal.svg",
+                    icon: "img/tools/icons/interpretation_portal.svg",
                     visibility: "public",
                     submenu: [
                         {
@@ -627,7 +637,7 @@ const suite = {
                             `,
                             visibility: "public",
                             fa_icon: "fas fa-folder-open",
-                            icon: "interpretation_portal.svg",
+                            icon: "img/tools/icons/interpretation_portal.svg",
                             thumbnail: "interpretation_portal.png"
                         },
                         {
@@ -755,21 +765,21 @@ const suite = {
             id: "admin",
             name: "OpenCGA Admin",
             logo: "img/tools/icons/file_explorer.svg",
-            icon: "file_explorer.svg",
+            icon: "img/tools/icons/file_explorer.svg",
             visibility: "public",
             menu: [
                 {
                     id: "projects-admin",
                     name: "Project Manager",
                     fa_icon: "fas fa-file-invoice",
-                    icon: "variant_browser.svg",
+                    icon: "img/tools/icons/variant_browser.svg",
                     visibility: "public"
                 },
                 {
                     id: "study-admin",
                     name: "Study Admin",
                     fa_icon: "fas fa-file-invoice",
-                    icon: "variant_browser.svg",
+                    icon: "img/tools/icons/variant_browser.svg",
                     visibility: "public"
                 }
                 // {
@@ -791,7 +801,7 @@ const suite = {
                 //             </ul>`,
                 //             visibility: "public",
                 //             fa_icon: "fa fa-list",
-                //             icon: "variant_browser.svg",
+                //             icon: "img/tools/icons/variant_browser.svg",
                 //             thumbnail: "variant-browser.png"
                 //         }
                 //     ]

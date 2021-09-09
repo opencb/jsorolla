@@ -23,13 +23,12 @@ import "../commons/forms/text-field-filter.js";
 import "../commons/filters/file-quality-filter.js";
 import "../commons/filters/somatic-filter.js";
 import "../commons/forms/section-filter.js";
-import "../commons/filters/select-token-filter.js";
 import "../commons/forms/select-field-filter-autocomplete.js";
 import "../commons/filters/sample-id-autocomplete.js";
 import "../commons/filters/individual-id-autocomplete.js";
-import "../commons/forms/select-token-filter2.js";
-import "../commons/filters/select-token-filter.js";
-import "../commons/filters/sample-id-autocomplete-token.js";
+import "../commons/filters/sample-id-autocomplete.js";
+import "../commons/filters/phenotype-id-autocomplete.js";
+import "../commons/forms/select-token-filter-static.js";
 
 export default class SampleBrowserFilter extends LitElement {
 
@@ -157,11 +156,16 @@ export default class SampleBrowserFilter extends LitElement {
         switch (subsection.id) {
             case "id":
                 content = html`
-                    <sample-id-autocomplete-token .config="${subsection}"
+                    <sample-id-autocomplete .config="${subsection}"
                                                   .opencgaSession="${this.opencgaSession}"
                                                   .value="${this.preparedQuery[subsection.id]}"
                                                   @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
-                    </sample-id-autocomplete-token>`;
+                    </sample-id-autocomplete>
+                    <!--<select-token-filter-static .config="\${subsection}"
+                                                  .value="\${this.preparedQuery[subsection.id]}"
+                                                  @filterChange="\${e => this.onFilterChange(subsection.id, e.detail.value)}">
+                    </select-token-filter-static> -->
+                `;
                 break;
             case "individualId":
                 content = html`
@@ -178,9 +182,11 @@ export default class SampleBrowserFilter extends LitElement {
             case "source":
             case "phenotypes":
                 content = html`
-                    <text-field-filter placeholder="${subsection.placeholder}" .value="${this.preparedQuery[subsection.id]}"
-                                       @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
-                    </text-field-filter>`;
+                    <phenotype-id-autocomplete .config="${subsection}"
+                                                .opencgaSession="${this.opencgaSession}"
+                                                .value="${this.preparedQuery[subsection.id]}"
+                                                @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
+                    </phenotype-id-autocomplete>`;
                 break;
             case "annotations":
                 content = html`

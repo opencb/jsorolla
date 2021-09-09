@@ -1,6 +1,6 @@
 
 build/
-build-vite/
+build-next/
 dist/
 *node_modules/
 *web_modules/

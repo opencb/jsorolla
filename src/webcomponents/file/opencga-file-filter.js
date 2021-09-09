@@ -22,7 +22,6 @@ import "../opencga/catalog/variableSets/opencga-annotation-filter-modal.js";
 import "../commons/forms/date-filter.js";
 import "../commons/forms/text-field-filter.js";
 import "../commons/forms/select-field-filter.js";
-import "../commons/filters/select-token-filter.js";
 import "../commons/filters/file-name-autocomplete.js";
 import "../commons/filters/sample-id-autocomplete.js";
 import "../commons/filters/directory-autocomplete.js";
@@ -106,9 +105,9 @@ export default class OpencgaFileFilter extends LitElement {
 
     onAnnotationChange(e) {
         if (e.detail.value) {
-            this.preparedQuery.annotation = e.detail.value
+            this.preparedQuery.annotation = e.detail.value;
         } else {
-            delete this.preparedQuery.annotation
+            delete this.preparedQuery.annotation;
         }
         this.preparedQuery = {...this.preparedQuery};
         this.notifyQuery(this.preparedQuery);
@@ -163,21 +162,44 @@ export default class OpencgaFileFilter extends LitElement {
         let content = "";
         switch (subsection.id) {
             case "name":
-                content = html`<file-name-autocomplete .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></file-name-autocomplete>`
+                content = html`
+                    <file-name-autocomplete
+                        .opencgaSession="${this.opencgaSession}"
+                        .value="${this.preparedQuery[subsection.id]}"
+                        @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
+
+                    </file-name-autocomplete>`;
                 break;
             case "sampleIds":
-                content = html`<sample-id-autocomplete .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></sample-id-autocomplete>`
+                content = html`<sample-id-autocomplete
+                        .opencgaSession="${this.opencgaSession}"
+                        .value="${this.preparedQuery[subsection.id]}"
+                        @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
+                </sample-id-autocomplete>`;
                 break;
             case "directory":
-                content = html`<directory-autocomplete .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></directory-autocomplete>`
+                content = html`<directory-autocomplete
+                        .opencgaSession="${this.opencgaSession}"
+                        .value="${this.preparedQuery[subsection.id]}"
+                        @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
+                </directory-autocomplete>`;
                 break;
             case "path":
-                content = html`<text-field-filter placeholder="${subsection.placeholder}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></text-field-filter>`;
+                content = html`<text-field-filter
+                        placeholder="${subsection.placeholder}"
+                        .value="${this.preparedQuery[subsection.id]}"
+                        @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
+                </text-field-filter>`;
                 break;
             case "format":
             case "bioformat":
             case "internal.index.status.name":
-                content = html`<select-field-filter multiple .value="${this.preparedQuery[subsection.id]}" .data="${subsection.allowedValues}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></select-field-filter>`;
+                content = html`<select-field-filter
+                        multiple
+                        .value="${this.preparedQuery[subsection.id]}"
+                        .data="${subsection.allowedValues}"
+                        @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
+                </select-field-filter>`;
                 break;
             case "annotations":
                 content = html`
@@ -225,7 +247,7 @@ export default class OpencgaFileFilter extends LitElement {
             ` : null}
 
             <div class="panel-group" id="${this._prefix}Accordion" role="tablist" aria-multiselectable="true">
-                    ${this.config.sections && this.config.sections.length ? this.config.sections.map( section => this._createSection(section)) : html`No filter has been configured.`}
+                    ${this.config.sections && this.config.sections.length ? this.config.sections.map(section => this._createSection(section)) : html`No filter has been configured.`}
             </div>
         `;
     }

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { LitElement, html } from "lit"
+import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
 import PolymerUtils from "../../webcomponents/PolymerUtils.js";
 
@@ -68,7 +68,7 @@ export default class WelcomeIva extends LitElement {
     }
 
     onExampleClick(e) {
-        const query = { study: this.opencgaSession.study.fqn };
+        const query = {study: this.opencgaSession.study.fqn};
         switch (e.currentTarget.dataset.type) {
             case "gene":
                 query.gene = e.currentTarget.text;
@@ -223,7 +223,7 @@ export default class WelcomeIva extends LitElement {
                         ${item.submenu ? html`
                             <a class="icon-wrapper" data-cat-id="cat-${item.id}" data-title="${item.name}" href="#cat-${item.id}/${this._checkProjects() ? `${this.opencgaSession.project.id}/${this.opencgaSession.study.id}` : ""}">
                                 <div class="hi-icon">
-                                    <img alt="${item.name}" src="img/tools/icons/${item.icon}" />
+                                    <img alt="${item.name}" src="${item.icon}" />
                                 </div>
                                 <p>${item.name}</p>
                                 <span class="smaller"></span>
@@ -231,7 +231,7 @@ export default class WelcomeIva extends LitElement {
                         ` : html`
                             <a class="icon-wrapper" href="#${item.id}/${this._checkProjects() ? `${this.opencgaSession.project.id}/${this.opencgaSession.study.id}` : ""}">
                                 <div class="hi-icon">
-                                    <img alt="${item.name}" src="img/tools/icons/${item.icon}" />
+                                    <img alt="${item.name}" src="${item.icon}" />
                                 </div>
                                 <p>${item.name}</p>
                                 <span class="smaller"></span>

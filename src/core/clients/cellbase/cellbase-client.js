@@ -256,6 +256,7 @@ export class CellBaseClient {
     _callRestWebService(host, category, subcategory, ids, resource, params, options) {
         const version = options.version || this._config.version;
         const species = options.species || this._config.species;
+
         const url = this._createRestUrl(host, version, species, category, subcategory, ids, resource, params);
         const k = this.generateKey({...params, species, category, subcategory, resource, params});
         return this.restClient.call(url, options, k);

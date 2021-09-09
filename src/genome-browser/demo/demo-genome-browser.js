@@ -8,7 +8,7 @@ import FeatureTrack from "../tracks/feature-track.js";
 import GeneTrack from "../tracks/gene-track.js";
 import CellBaseAdapter from "../../core/data-adapter/cellbase-adapter.js";
 import SequenceRenderer from "../renderers/sequence-renderer.js";
-import "../config.js";
+import "../genome-browser.config";
 
 
 /** *************************************************************************/

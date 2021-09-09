@@ -54,6 +54,7 @@ export default class OpencgaProjects extends LitElement {
             variants: 0,
             files: 0,
             samples: 0,
+            family: 0,
             jobs: 0,
             individuals: 0,
             cohorts: 0
@@ -155,7 +156,7 @@ export default class OpencgaProjects extends LitElement {
         };
         this.filesCount = new CountUp("files-count", 0);
         this.filesCount.start();
-        this.familyCount = new CountUp("files-count", 0);
+        this.familyCount = new CountUp("family-count", 0);
         this.familyCount.start();
         this.samplesCount = new CountUp("samples-count", 0);
         this.samplesCount.start();
@@ -207,18 +208,17 @@ export default class OpencgaProjects extends LitElement {
 
                 // iterates over projects
                 Object.entries(catalogProjectResponse.getResult(0)).forEach(([projectId, studiesObj]) => {
-                    // console.log(projectId, studiesObj)
                     this.chartData[projectId] = {};
 
                     // iterates over studies
                     Object.entries(studiesObj).forEach(([studyId, stats]) => {
                         // updates CountUp counters
-                        this.filesCount.update(this.totalCount.files += stats.file.results[0]?.count);
-                        this.familyCount.update(this.totalCount.files += stats.family.results[0]?.count);
-                        this.samplesCount.update(this.totalCount.samples += stats.sample.results[0]?.count);
-                        this.jobsCount.update(this.totalCount.jobs += stats.job.results[0]?.count);
-                        this.individualsCount.update(this.totalCount.individuals += stats.individual.results[0]?.count);
-                        this.cohortsCount.update(this.totalCount.cohorts += stats.cohort.results[0]?.count);
+                        this.filesCount.update(this.totalCount.files += stats.file.results[0]?.count ?? 0);
+                        this.samplesCount.update(this.totalCount.samples += stats.sample.results[0]?.count ?? 0);
+                        this.familyCount.update(this.totalCount.family += stats.family.results[0]?.count ?? 0);
+                        this.jobsCount.update(this.totalCount.jobs += stats.job.results[0]?.count ?? 0);
+                        this.individualsCount.update(this.totalCount.individuals += stats.individual.results[0]?.count ?? 0);
+                        this.cohortsCount.update(this.totalCount.cohorts += stats.cohort.results[0]?.count ?? 0);
 
                         // prepare main data (it will be used for both charts and tables)
                         this.data[projectId].stats[studyId] = {
@@ -239,7 +239,7 @@ export default class OpencgaProjects extends LitElement {
 
                     // once main data is ready, build chartData based on this.charts (which contains the list of charts we want to show per entity)
                     for (const entity in this.charts) {
-                        if (Object.prototype.isPrototypeOf.call(this.charts, entity)) {
+                        if (Object.prototype.hasOwnProperty.call(this.charts, entity)) {
                             const charts = this.charts[entity];
                             this.chartData[projectId][entity] = [];
                             charts.forEach(field => {
@@ -273,7 +273,6 @@ export default class OpencgaProjects extends LitElement {
                 // pivot data on field names
                 // TODO avoid extra step and build data straight this way?
                 this.data = this.prepareData(this.data);
-
             } else if (catalogProjectResponse.getEvents("ERROR").length) {
                 const msg = catalogProjectResponse.getEvents("ERROR").map(error => error.message).join("<br>");
                 new NotificationQueue().push("Error", msg, "error");
@@ -282,7 +281,8 @@ export default class OpencgaProjects extends LitElement {
             console.error(e);
             UtilsNew.notifyError(e);
         }
-        await this.updateComplete;
+        this.requestUpdate();
+        // await this.updateComplete; // this causes intermittent refresh issues
         this.querySelector("#loading").style.display = "none";
     }
 
@@ -327,8 +327,11 @@ export default class OpencgaProjects extends LitElement {
             <table class="table table-no-bordered opencga-project-table">
                 <thead>
                     <tr>
-                        <th></th>
-                        <th></th>
+                        <th rowspan="2">Field</th>
+                        <th rowspan="2">Value</th>
+                        <th colspan="${projectData.studies.length}">Studies</th>
+                    </tr>
+                    <tr>
                         ${projectData.studies.map(study => html`<th>${study.id}</th>`)}
                     </tr>
                 </thead>
@@ -449,7 +452,7 @@ export default class OpencgaProjects extends LitElement {
 
         // TODO continue using activeTab as global state for active project and active menu item
         for (const tab in this.activeTab) {
-            if (Object.prototype.isPrototypeOf.call(this.activeTab, tab)) {
+            if (Object.prototype.hasOwnProperty.call(this.activeTab, tab)) {
                 this.activeTab[tab] = false;
             }
         }
@@ -618,6 +621,13 @@ export default class OpencgaProjects extends LitElement {
 
                 <div class="panel panel-default shadow-sm">
                     <div class="panel-body">
+                        <p class="counter" id="family-count"></p>
+                        <p class="counter-title">Family</p>
+                    </div>
+                </div>
+
+                <div class="panel panel-default shadow-sm">
+                    <div class="panel-body">
                         <p class="counter" id="jobs-count"></p>
                         <p class="counter-title">Jobs</p>
                     </div>
@@ -709,29 +719,32 @@ export default class OpencgaProjects extends LitElement {
                                                         `)}
                                                     </div>
                                                     ${this.renderTable(project, "file")}
-                                                </div>`
-                                            : ""}
+                                                </div>` :
+                                            ""}
 
                                             ${~this.sideNavItems.indexOf("Samples") ? html`
                                                 <div id="${this._prefix}${project.id}Samples" role="tabpanel" class="tab-pane content-tab ${classMap({active: this.activeTab[projectId]?.["Samples"]})}">
                                                     <h3>Samples</h3>
                                                     ${this.renderTable(project, "sample")}
                                                 </div>
-                                            ` : ""}
+                                            ` :
+                                            ""}
 
                                             ${~this.sideNavItems.indexOf("Individuals") ? html`
                                                 <div id="${this._prefix}${project.id}Individuals" role="tabpanel" class="tab-pane content-tab ${classMap({active: this.activeTab[projectId]?.["Individuals"]})}">
                                                     <h3>Individuals</h3>
                                                     ${this.renderTable(project, "individual")}
                                                 </div>
-                                            ` : ""}
+                                            ` :
+                                            ""}
 
                                             ${~this.sideNavItems.indexOf("Cohorts") ? html`
                                                 <div id="${this._prefix}${project.id}Cohorts" role="tabpanel" class="tab-pane content-tab ${classMap({active: this.activeTab[projectId]?.["Cohorts"]})}">
                                                     <h3>Cohorts</h3>
                                                     ${this.renderTable(project, "cohort")}
                                                 </div>
-                                            ` : ""}
+                                            ` :
+                                            ""}
                                         </div>
                                     </div>
                                 </div>
