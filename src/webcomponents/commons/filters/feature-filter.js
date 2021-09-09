@@ -16,10 +16,8 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
+import "../../commons/forms/select-token-filter.js";
 
-/*
-* TODO handle GENES
-* **/
 
 export default class FeatureFilter extends LitElement {
 
@@ -84,7 +82,7 @@ export default class FeatureFilter extends LitElement {
 
     getDefaultConfig() {
         return {
-            addButton: false,
+            limit: 10,
             fields: item => ({
                 name: item.name
             }),
@@ -93,12 +91,25 @@ export default class FeatureFilter extends LitElement {
                     .then(restResponse => {
                         process(restResponse.response[0].result.map(this._config.fields));
                     });
-            }
+            },
+            source: async (params, success, failure) => {
+                try {
+                    let restResponse;
+                    if (params?.data?.term) {
+                        restResponse = await this.cellbaseClient.get("feature", "id", params?.data?.term?.toUpperCase(), "starts_with", {limit: this._config.limit}, {});
+                    } else {
+                        restResponse = await this.cellbaseClient.get("feature", "gene", "search", "", {limit: this._config.limit}, {});
+                    }
+                    success(restResponse);
+                } catch (e) {
+                    failure(e);
+                }
+            },
         };
     }
 
     render() {
-        return html`<select-field-filter-autocomplete .config=${this._config} .value="${this.value}" @filterChange="${e => this.onFilterChange("id", e.detail.value)}"></select-field-filter-autocomplete>`;
+        return html`<select-token-filter .config=${this._config} .value="${this.value}" @filterChange="${e => this.onFilterChange("id", e.detail.value)}"></select-token-filter>`;
     }
 
 }

@@ -15,9 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
-import "../../commons/forms/select-field-filter-autocomplete.js";
-
-// TODO refactor to use select-token-filter (it seems there is a problem with a "distinct" endpoint)
+import "../../commons/forms/select-token-filter.js";
 
 
 export default class DisorderIdAutocomplete extends LitElement {
@@ -60,33 +58,39 @@ export default class DisorderIdAutocomplete extends LitElement {
 
     getDefaultConfig() {
         return {
-            addButton: false,
-            fields: item => ({
+            limit: 10,
+            /* fields: item => ({
                 name: item
-            }),
-            dataSource: (query, process) => {
+            }),*/
+            source: async (params, success, failure) => {
+                const _params = params;
+                _params.data.page = params.data.page || 1;
+                const disorders = _params?.data?.term ? {disorders: "~^" + _params?.data?.term?.toUpperCase()} : "";
                 const filters = {
                     study: this.opencgaSession.study.fqn,
-                    // limit: 20, // limit is not supported in distinct WSs
+                    limit: this._config.limit,
                     count: false,
-                    disorders: "~^" + query
+                    skip: (_params.data.page - 1) * this._config.limit,
+                    ...disorders
                 };
-                this.opencgaSession.opencgaClient.individuals().distinct("disorders.name", filters).then(restResponse => {
-                    const results = restResponse.getResults().filter(disorder => disorder.startsWith(query));
-                    process(results.map(this._config.fields));
-                });
-            }
+                try {
+                    const restResponse = await this.opencgaSession.opencgaClient.individuals().distinct("disorders.name", filters);
+                    success(restResponse);
+                } catch (e) {
+                    failure(e);
+                }
+            },
         };
     }
 
     render() {
         return html`
-            <select-field-filter-autocomplete
+            <select-token-filter
                     .opencgaSession="${this.opencgaSession}"
                     .config=${this._config}
                     .value="${this.value}"
                     @filterChange="${e => this.onFilterChange("id", e.detail.value)}">
-            </select-field-filter-autocomplete>
+            </select-token-filter>
         `;
     }
 
