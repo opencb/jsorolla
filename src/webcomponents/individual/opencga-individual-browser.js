@@ -17,12 +17,12 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
 import "./opencga-individual-inferred-sex-view.js";
-import "../commons/opencga-browser.js";
 import "./individual-view.js";
+import "./opencga-individual-inferred-sex-view.js";
+import "./opencga-individual-mendelian-errors-view.js";
 import "./../clinical/opencga-clinical-analysis-grid.js";
-import "./../individual/opencga-individual-inferred-sex-view.js";
-import "./../individual/opencga-individual-mendelian-errors-view.js";
-import "./../commons/json-viewer.js";
+import "../commons/opencga-browser.js";
+import "../commons/json-viewer.js";
 
 
 export default class OpencgaIndividualBrowser extends LitElement {
@@ -262,7 +262,7 @@ export default class OpencgaIndividualBrowser extends LitElement {
                             name: "Overview",
                             active: true,
                             render: (individual, active, opencgaSession) => {
-                                return html`<opencga-individual-view .individual="${individual}" .opencgaSession="${opencgaSession}"></opencga-individual-view>`;
+                                return html`<individual-view .individual="${individual}" .opencgaSession="${opencgaSession}"></individual-view>`;
                             }
                         },
                         {

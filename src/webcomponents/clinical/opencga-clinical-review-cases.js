@@ -88,7 +88,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
     }
 
     opencgaSessionObserver() {
-        //console.error(this._config.filter)
+        // console.error(this._config.filter)
         this.filters = this._config?.filter?.examples;
         if (this?.opencgaSession?.study) {
             this.checkProjects = true;
@@ -180,14 +180,14 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                         );
                         this.refreshFilters();
                     }).catch(restResponse => {
-                    if (restResponse.getEvents?.("ERROR")?.length) {
-                        const msg = restResponse.getEvents("ERROR").map(error => error.message).join("<br>");
-                        new NotificationQueue().push("Error deleting filter", msg, "error");
-                    } else {
-                        new NotificationQueue().push("Error deleting filter", "", "error");
-                    }
-                    console.error(restResponse);
-                });
+                        if (restResponse.getEvents?.("ERROR")?.length) {
+                            const msg = restResponse.getEvents("ERROR").map(error => error.message).join("<br>");
+                            new NotificationQueue().push("Error deleting filter", msg, "error");
+                        } else {
+                            new NotificationQueue().push("Error deleting filter", "", "error");
+                        }
+                        console.error(restResponse);
+                    });
             }
         });
     }
@@ -311,13 +311,13 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                             }
                             this.requestUpdate();
                         }).catch(restResponse => {
-                        console.error(restResponse);
-                        Swal.fire(
-                            "Server Error!",
-                            "Filter has not been correctly saved.",
-                            "error"
-                        );
-                    });
+                            console.error(restResponse);
+                            Swal.fire(
+                                "Server Error!",
+                                "Filter has not been correctly saved.",
+                                "error"
+                            );
+                        });
                 }
 
             })
@@ -415,7 +415,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                             name: "Proband",
                             render: (clinicalAnalysis, active, opencgaSession) => {
                                 return html`
-                                    <opencga-individual-view .opencgaSession="${opencgaSession}" .individual="${clinicalAnalysis.proband}"></opencga-individual-view>`;
+                                    <individual-view .opencgaSession="${opencgaSession}" .individual="${clinicalAnalysis.proband}"></individual-view>`;
                             }
                         }
                     ]
@@ -672,47 +672,10 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                         ` : null}
 
                                             <!-- Buttons
-                                    <button type="button" class="btn btn-primary btn-sm ripple" @click="${this.updateQuery}">
+                                    <button type="button" class="btn btn-primary btn-sm ripple" @click="\${this.updateQuery}">
                                             <i class="fa fa-search icon-padding" aria-hidden="true"></i> Filter
                                     </button>-->
                                     </div>
-
-
-                                    ${false ? html`
-                                        <div class="rhs" style="padding: 7px">
-                                            <button type="button" class="btn btn-primary btn-sm ripple" @click="${this.clear}">
-                                                <i class="fa fa-times icon-padding" aria-hidden="true"></i> Clear
-                                            </button>
-                                            <div class="dropdown saved-filter-wrapper">
-                                                <button type="button" class="btn btn-primary btn-sm dropdown-toggle ripple" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                    <i class="fa fa-filter icon-padding" aria-hidden="true"></i> Filters <span class="caret"></span>
-                                                </button>
-                                                <ul class="dropdown-menu">
-                                                    <li><a style="font-weight: bold">Saved Filters</a></li>
-                                                    ${this._filters && this._filters.length ?
-                                                            this._filters.map(item => item.separator ? html`
-                                                                <li role="separator" class="divider"></li>
-                                                            ` : html`
-                                                                <li>
-                                                                    <a data-filter-id="${item.id}" style="cursor: pointer;color: ${!item.active ? "black" : "green"}" title="${item.description ?? ""}"
-                                                                       @click="${this.onServerFilterChange}" class="filtersLink">
-                                                                        <span class="id-filter-button">&nbsp;&nbsp;${item.id}</span>
-                                                                        <span class="delete-filter-button" title="Delete filter" data-filter-id="${item.id}" @click="${this.serverFilterDelete}"><i
-                                                                                class="fas fa-times"></i></span>
-                                                                    </a>
-                                                                </li>`) :
-                                                            null}
-
-                                                    ${this.opencgaSession?.token ? html`
-                                                        <li role="separator" class="divider"></li>
-                                                        <li>
-                                                            <a style="cursor: pointer" @click="${this.launchModal}"><i class="fa fa-floppy-o icon-padding" aria-hidden="true"></i> Save...</a>
-                                                        </li>
-                                                    ` : null}
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    ` : null}
 
                                 </div>
                             </div>
