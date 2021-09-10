@@ -84,7 +84,7 @@ class VariantInterpreterLanding extends LitElement {
         if (changedProperties.has("opencgaSession") || changedProperties.has("clinicalAnalysis")) {
             this.propertyObserver();
         }
-        super.update(changedProperties)
+        super.update(changedProperties);
     }
 
     propertyObserver() {
@@ -114,7 +114,9 @@ class VariantInterpreterLanding extends LitElement {
         // $("#" + this._prefix + tabId, this).show();
         $("#" + this._prefix + tabId).addClass("active");
         for (const tab in this.activeTab) {
-            this.activeTab[tab] = false;
+            if (Object.prototype.hasOwnProperty.call(this.activeTab, tab)) {
+                this.activeTab[tab] = false;
+            }
         }
         this.activeTab[tabId] = true;
         this.requestUpdate();
@@ -268,22 +270,16 @@ class VariantInterpreterLanding extends LitElement {
                             display: {
                                 render: () => {
                                     const config = {
-                                        addButton: false,
-                                        multiple: false,
-                                        dataSource: (query, process) => {
-                                            const filters = {
-                                                study: this.opencgaSession.study.fqn,
-                                                limit: 20,
-                                                count: false,
-                                                id: "~^" + query.toUpperCase()
-                                            };
-                                            this.opencgaSession.opencgaClient.clinical().search(filters).then(restResponse => {
-                                                const results = restResponse.getResults();
-                                                process(results.map(item => ({"name": item.id, "Type": item?.type, "Proband Id": item?.proband?.id})));
-                                            });
+                                        select2Config: {
+                                            multiple: false
                                         }
                                     };
-                                    return html`<clinical-analysis-id-autocomplete .config=${config} .opencgaSession="${this.opencgaSession}" @filterChange="${e => this.onClinicalAnalysisIdChange("clinicalAnalysisId", e.detail.value)}"></clinical-analysis-id-autocomplete>`;
+                                    return html`
+                                        <clinical-analysis-id-autocomplete
+                                            .config=${config}
+                                            .opencgaSession="${this.opencgaSession}"
+                                            @filterChange="${e => this.onClinicalAnalysisIdChange("clinicalAnalysisId", e.detail.value)}">
+                                        </clinical-analysis-id-autocomplete>`;
                                 },
                                 placeholder: "eg. AN-3",
                                 errorMessage: ""
@@ -311,7 +307,12 @@ class VariantInterpreterLanding extends LitElement {
                                             });
                                         }
                                     };
-                                    return html`<clinical-analysis-id-autocomplete .config=${config} .opencgaSession="${this.opencgaSession}" @filterChange="${e => this.onProbandIdChange("individualId", e.detail.value)}"></clinical-analysis-id-autocomplete>`;
+                                    return html`
+                                        <clinical-analysis-id-autocomplete
+                                            .config=${config}
+                                            .opencgaSession="${this.opencgaSession}"
+                                            @filterChange="${e => this.onProbandIdChange("individualId", e.detail.value)}">
+                                        </clinical-analysis-id-autocomplete>`;
                                 }
                             }
                         },

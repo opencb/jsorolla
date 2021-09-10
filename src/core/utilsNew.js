@@ -50,7 +50,7 @@ export default class UtilsNew {
         // obj is an actual Object
         if (typeof obj === "object") {
             for (const key in obj) {
-                if (obj.hasOwnProperty(key)) {
+                if (Object.prototype.hasOwnProperty.call(obj, key)) {
                     return false;
                 }
             }
@@ -92,11 +92,15 @@ export default class UtilsNew {
         const lookupObject = {};
 
         for (const i in array) {
-            lookupObject[array[i][prop]] = array[i];
+            if (Object.prototype.hasOwnProperty.call(array, i)) {
+                lookupObject[array[i][prop]] = array[i];
+            }
         }
 
         for (const i in lookupObject) {
-            newArray.push(lookupObject[i]);
+            if (Object.prototype.hasOwnProperty.call(lookupObject, i)) {
+                newArray.push(lookupObject[i]);
+            }
         }
         return newArray;
     }
@@ -217,7 +221,7 @@ export default class UtilsNew {
     }
 
 
-    /**
+    /*
      * This function creates a table (rows and columns) a given Object or array of Objects using the fields provided.
      * Id fields is not defined or empty then it uses the Object keys. Fields can contain arrays and nested arrays.
      */
@@ -267,7 +271,7 @@ export default class UtilsNew {
         return table;
     }
 
-    /**
+    /*
      * Download data in the browser.
      * data can be a string, and arrays of string or an array of arrays
      */
@@ -398,25 +402,25 @@ export default class UtilsNew {
     }
 
     /**
-     * @deprecated
-     * It merges external filter list with internal one. It support reorganisation of sections.
+     * It merges external filter list with internal one. The resulting section organisation is defined in `external`.
      *
-     * @param {Array} internal
-     * @param {Array} external
+     * @param {Array} internal Sections list containing `filters` as object
+     * @param {Array} external Sections list containing `filters` as list of Ids
      * @returns {Array} hydrated array
      */
-    static mergeFiltersOld(internal, external) {
+    static mergeSections(internal, external) {
         // console.log("internal, external", internal, external)
+
         if (external) {
-            // flattening the whole list of fields
-            const allFields = internal.sections.flatMap(section => section);
-            const sections = external.sections.map(section => {
+            // flattening the whole list of filters
+            const allFilters = internal.flatMap(section => section.fields);
+            const sections = external.map(section => {
                 // const internalSection = internal.sections.find(s => s.id === section.id);
                 // hydrates all the fields of each external section from the pool of fields.
-                const fields = UtilsNew.mergeConfigArray(allFields, section.fields);
-                return {...external, fields: fields};
+                const fields = UtilsNew.mergeConfigById(allFilters, section.filters);
+                return {...section, fields: fields};
             });
-            return {...internal, ...external, sections: sections};
+            return sections;
         }
     }
 
@@ -426,8 +430,6 @@ export default class UtilsNew {
      *  - filters components
      *  - canned filters
      *  - detail tabs
-     *
-     * It doesn't support sections reorder and fields reorganisation among sections. Sections are fixed from the internal config.
      *
      * @param {Array} internal Filter object
      * @param {Array} external Simplified filter object
@@ -439,19 +441,8 @@ export default class UtilsNew {
         let examples = internal.examples;
         const detail = internal.detail;
 
-        if (external?.menu?.filters?.length) {
-            sections = internal.sections.map(section => {
-                const fields = [];
-                for (const ex of external.menu.filters) {
-                    const internalField = section.fields.find(field => field.id === ex.id);
-                    if (internalField) {
-                        fields.push({...internalField, ...ex});
-                    } else {
-                        // console.warn(`Field "${ex.id}" not found merging user settings`);
-                    }
-                }
-                return {...section, fields: fields};
-            });
+        if (external?.menu?.sections?.length) {
+            sections = UtilsNew.mergeSections(sections, external.menu.sections);
         }
         // merge canned filters
         if (external?.menu?.examples?.length) {
@@ -472,7 +463,7 @@ export default class UtilsNew {
      * Filters internal array using external array.
      * It either uses external array as list to add or remove from the result array.
      *
-     * @param {Array} internal
+     * @param {Array} internal array
      * @param {Array} external can be either a plain array of string or an array of object with IDs
      * @param {Boolean} subtractive set true if the external array lists the fields to hide
      * @returns {Array} resulting array
@@ -523,8 +514,8 @@ export default class UtilsNew {
      * If an object with a certain Id is present in the internal array but not in the external, it won't be present in the returning array.
      * The other way around, if an object with a certain Id is present in the external array but not in the internal, it will be added only if `force` flag is true.
      *
-     * @param {Array} internal
-     * @param {Array} external
+     * @param {Array} internal array
+     * @param {Array} external array
      * @param {Boolean} force  force external object addition even if there is no object with the same id in `internal`
      * @returns {Array} hydrated array
      */
@@ -560,7 +551,6 @@ export default class UtilsNew {
      * @returns {Array} hydrated array
      */
     static mergeConfigById(internal, external, subtractive = false) {
-        // console.log("internal, external", internal, external)
         // it doesn't check for external.length because it supports empty array
         if (external) {
             if (!subtractive) {
@@ -650,8 +640,6 @@ export default class UtilsNew {
                             result[1].push(...subFields);
                             // add subIndx the number of elements just added
                             subIndx += c.colspan ? c.colspan : 0;
-
-                        } else {
                         }
                     } else {
                         // increment subIndx in case the `c` (the current internal element) is not present in `external` array.

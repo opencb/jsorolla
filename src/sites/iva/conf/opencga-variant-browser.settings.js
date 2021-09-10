@@ -1,23 +1,39 @@
 const OpencgaVariantBrowserSettings = {
     menu: {
-        // merge criterium: it uses this `filters` array as filter for internal one. Each object is merged with spread operator
-        filters: [
-            {id: "study"},
-            {id: "cohort"},
-            {id: "region"},
-            {id: "feature"},
-            {id: "biotype"},
-            {id: "type"},
-            {id: "consequenceTypeSelect"},
-            {id: "populationFrequency"},
-            {id: "diseasePanels"},
-            {id: "clinical-annotation"},
-            {id: "fullTextSearch"},
-            {id: "go"},
-            {id: "hpo"},
-            {id: "proteinSubstitutionScore"},
-            {id: "cadd"},
-            {id: "conservation"}
+        // merge criterium: internal sections and filters are used to hydrates the external filters list for each section (which is a list of string). Sections and filter order is respected.
+        sections: [
+            {
+                title: "Study and Cohorts",
+                filters: ["study", "cohort"]
+            },
+            {
+                title: "Genomic",
+                filters: ["region", "feature", "biotype", "type"]
+            },
+            {
+                title: "Consequence Type",
+                filters: ["consequenceTypeSelect"]
+            },
+            {
+                title: "Population Frequency",
+                filters: ["populationFrequency"]
+            },
+            {
+                title: "Clinical",
+                filters: ["diseasePanels", "clinical-annotation", "fullTextSearch"]
+            },
+            {
+                title: "Phenotype",
+                filters: ["go", "hpo"]
+            },
+            {
+                title: "Deleteriousness",
+                filters: ["proteinSubstitutionScore", "cadd"]
+            },
+            {
+                title: "Conservation",
+                filters: ["conservation"]
+            }
         ],
         // merge criterium: full outer join like. it adds objects presents in internal array only and in external array only. In case of objects with same id, the external values overwrite the internal.
         examples: [

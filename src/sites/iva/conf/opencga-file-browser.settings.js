@@ -2,32 +2,11 @@ const opencgaFileBrowserSettings = {
     /**
      *  Full settings
      */
-    /* menu: {
-        // merge criterium: it uses this `filters` array as filter for internal one. Each object is merged with spread operator
-        filters: [
+    menu: {
+        // merge criterium: internal sections and filters are used to hydrates the external filters list for each section (which is a list of string). Sections and filter order is respected.
+        sections: [
             {
-                "id": "name"
-            },
-            {
-                "id": "sampleIds"
-            },
-            {
-                "id": "directory"
-            },
-            {
-                "id": "format"
-            },
-            {
-                "id": "bioformat"
-            },
-            {
-                "id": "internal.index.status.name"
-            },
-            {
-                "id": "date"
-            },
-            {
-                "id": "annotations"
+                filters: ["name", "sampleIds", /* "path",*/ "directory", "format", "bioformat", "internal.index.status.name", "date", "annotations"]
             }
         ],
         // merge criterium: full outer join-like. it adds objects presents in internal array only and in external array only. In case of same id, the external value overwrite the internal.
@@ -47,5 +26,4 @@ const opencgaFileBrowserSettings = {
     },
     // merge criterium: uses this array as filter for internal 1D array.
     details: ["file-view", "file-preview", "json-view"]
-    */
 };

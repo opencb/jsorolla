@@ -39,17 +39,17 @@ export default class OpencgaClinicalAnalysisFilter extends LitElement {
     static get properties() {
         return {
             opencgaSession: {
-                type: Object
+                type: Object,
             },
             query: {
-                type: Object
+                type: Object,
             },
             compact: {
-                type: Boolean
+                type: Boolean,
             },
             config: {
-                type: Object
-            }
+                type: Object,
+            },
         };
     }
 
@@ -102,88 +102,129 @@ export default class OpencgaClinicalAnalysisFilter extends LitElement {
     notifyQuery(query) {
         this.dispatchEvent(new CustomEvent("queryChange", {
             detail: {
-                query: query
+                query: query,
             },
             bubbles: true,
-            composed: true
+            composed: true,
         }));
     }
 
     notifySearch(query) {
         this.dispatchEvent(new CustomEvent("querySearch", {
             detail: {
-                query: query
+                query: query,
             },
             bubbles: true,
-            composed: true
+            composed: true,
         }));
     }
 
     _createSection(section) {
         const htmlFields = section.fields && section.fields.length && section.fields.map(subsection => this._createSubSection(subsection));
-        return this.config.sections.length > 1 ? html`<section-filter .config="${section}" .filters="${htmlFields}">` : htmlFields;
+        return this.config.sections.length > 1 ? html`
+            <section-filter .config="${section}" .filters="${htmlFields}">` : htmlFields;
     }
 
     _createSubSection(subsection) {
         let content = "";
         switch (subsection.id) {
             case "id":
-                content = html`<clinical-analysis-id-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></clinical-analysis-id-autocomplete>`;
+                content = html`
+                    <clinical-analysis-id-autocomplete
+                            .config="${subsection}"
+                            .opencgaSession="${this.opencgaSession}"
+                            .value="${this.preparedQuery[subsection.id]}"
+                            @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
+                    </clinical-analysis-id-autocomplete>`;
                 break;
             case "proband":
-                content = html`<proband-id-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></proband-id-autocomplete>`;
+                content = html`
+                    <proband-id-autocomplete
+                            .config="${subsection}"
+                            .opencgaSession="${this.opencgaSession}"
+                            .value="${this.preparedQuery[subsection.id]}"
+                            @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
+                    </proband-id-autocomplete>`;
                 break;
             case "family":
-                content = html`<family-id-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></family-id-autocomplete>`;
+                content = html`
+                    <family-id-autocomplete
+                            .config="${subsection}"
+                            .opencgaSession="${this.opencgaSession}"
+                            .value="${this.preparedQuery[subsection.id]}"
+                            @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
+                    </family-id-autocomplete>`;
                 break;
             case "sample":
-                content = html`<sample-id-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></sample-id-autocomplete>`;
+                content = html`
+                    <sample-id-autocomplete
+                            .config="${subsection}"
+                            .opencgaSession="${this.opencgaSession}"
+                            .value="${this.preparedQuery[subsection.id]}"
+                            @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
+                    </sample-id-autocomplete>`;
                 break;
             case "priority":
-                content = html`<clinical-priority-filter .priorities="${Object.values(this.opencgaSession.study.configuration?.clinical?.priorities)}" .priority="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></clinical-priority-filter>`;
+                content = html`
+                    <clinical-priority-filter .priorities="${Object.values(this.opencgaSession.study.configuration?.clinical?.priorities ?? [])}"
+                                              .priority="${this.preparedQuery[subsection.id]}"
+                                              @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
+                    </clinical-priority-filter>`;
                 break;
             case "status":
-                content = html`<clinical-status-filter .statuses="${this.opencgaSession.study.configuration?.clinical?.status}" .status="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></clinical-status-filter>`;
+                content = html`
+                    <clinical-status-filter .statuses="${this.opencgaSession.study.configuration?.clinical?.status}"
+                                            .status="${this.preparedQuery[subsection.id]}"
+                                            @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
+                    </clinical-status-filter>`;
                 break;
             case "type":
-                content = html`<select-field-filter ?multiple="${subsection.multiple}" .data="${subsection.allowedValues}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></select-field-filter>`;
+                content = html`
+                    <select-field-filter ?multiple="${subsection.multiple}"
+                                         .data="${subsection.allowedValues}"
+                                         .value="${this.preparedQuery[subsection.id]}"
+                                         @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
+                    </select-field-filter>`;
                 break;
             case "date":
-                content = html`<date-filter .creationDate="${this.preparedQuery.creationDate}" @filterChange="${e => this.onFilterChange("creationDate", e.detail.value)}"></date-filter>`;
+                content = html`
+                    <date-filter .creationDate="${this.preparedQuery.creationDate}"
+                                 @filterChange="${e => this.onFilterChange("creationDate", e.detail.value)}">
+                    </date-filter>`;
                 break;
             default:
                 console.error("Filter component not found");
         }
         return html`
-                    <div class="form-group">
-                        <div class="browser-subsection" id="${subsection.id}">${subsection.name}
-                            ${subsection.description ? html`
-                                <div class="tooltip-div pull-right">
-                                    <a tooltip-title="${subsection.name}" tooltip-text="${subsection.description}"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
-                                </div>` : null }
-                        </div>
-                        <div id="${this._prefix}${subsection.id}" class="subsection-content" data-cy="${subsection.id}">
-                            ${content}
-                        </div>
-                    </div>
-                `;
+            <div class="form-group">
+                <div class="browser-subsection" id="${subsection.id}">${subsection.name}
+                    ${subsection.description ? html`
+                        <div class="tooltip-div pull-right">
+                            <a tooltip-title="${subsection.name}" tooltip-text="${subsection.description}"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
+                        </div>` : null}
+                </div>
+                <div id="${this._prefix}${subsection.id}" class="subsection-content" data-cy="${subsection.id}">
+                    ${content}
+                </div>
+            </div>
+        `;
     }
 
     render() {
         return html`
-        ${this.searchButton ? html`
-            <div class="search-button-wrapper">
-                <button type="button" class="btn btn-primary ripple" @click="${this.onSearch}">
-                    <i class="fa fa-search" aria-hidden="true"></i> Search
-                </button>
-            </div>
+            ${this.searchButton ? html`
+                <div class="search-button-wrapper">
+                    <button type="button" class="btn btn-primary ripple" @click="${this.onSearch}">
+                        <i class="fa fa-search" aria-hidden="true"></i> Search
+                    </button>
+                </div>
             ` : null}
 
-        <div class="panel-group" id="${this._prefix}Accordion" role="tablist" aria-multiselectable="true">
-            <div class="">
-                ${this.config.sections && this.config.sections.length ? this.config.sections.map(section => this._createSection(section)) : html`No filter has been configured.`}
+            <div class="panel-group" id="${this._prefix}Accordion" role="tablist" aria-multiselectable="true">
+                <div class="">
+                    ${this.config.sections && this.config.sections.length ? this.config.sections.map(section => this._createSection(section)) : html`No filter has been configured.`}
+                </div>
             </div>
-        </div>
         `;
     }
 

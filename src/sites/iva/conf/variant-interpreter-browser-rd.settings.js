@@ -1,57 +1,37 @@
 const variantInterpreterBrowserRdSettings = {
     menu: {
-        filters: [
+        sections: [
             {
-                id: "sample-genotype"
+                title: "Sample",
+                fields: ["sample-genotype", "sample", "file-quality", "cohort"]
             },
             {
-                id: "sample"
+                title: "Genomic",
+                fields: ["region", "feature", "biotype", "type"]
             },
             {
-                id: "file-quality",
-                showDepth: false
+                title: "Clinical",
+                fields: ["diseasePanels", "clinical-annotation"]
             },
             {
-                id: "cohort"
+                title: "Consequence Type",
+                fields: ["consequenceTypeSelect"]
             },
             {
-                id: "region"
+                title: "Population Frequency",
+                fields: ["populationFrequency"]
             },
             {
-                id: "feature"
+                title: "Phenotype",
+                fields: ["go", "hpo"]
             },
             {
-                id: "biotype"
+                title: "Deleteriousness",
+                fields: ["proteinSubstitutionScore", "cadd"]
             },
             {
-                id: "type"
-            },
-            {
-                id: "diseasePanels"
-            },
-            {
-                id: "clinvar"
-            },
-            {
-                id: "consequenceTypeSelect"
-            },
-            {
-                id: "populationFrequency"
-            },
-            {
-                id: "go"
-            },
-            {
-                id: "hpo"
-            },
-            {
-                id: "proteinSubstitutionScore"
-            },
-            {
-                id: "cadd"
-            },
-            {
-                id: "conservation"
+                title: "Conservation",
+                fields: ["conservation"]
             }
         ]
     },

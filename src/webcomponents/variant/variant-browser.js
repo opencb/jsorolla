@@ -110,8 +110,6 @@ export default class VariantBrowser extends LitElement {
         if (changedProperties.has("opencgaSession")) {
             this.opencgaSessionObserver();
             this.settingsObserver();
-
-            //this._config = {...this.getDefaultConfig(), ...this.config};
         }
         if (changedProperties.has("query")) {
             this.queryObserver();

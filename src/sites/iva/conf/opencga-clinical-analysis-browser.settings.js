@@ -1,30 +1,9 @@
 const opencgaClinicalAnalysisBrowserSettings = {
     menu: {
-        // merge criterium: it uses this `filters` array as filter for internal one. Each object is merged with spread operator
-        filters: [
+        // merge criterium: internal sections and filters are used to hydrates the external filters list for each section (which is a list of string). Sections and filter order is respected.
+        sections: [
             {
-                id: "id"
-            },
-            {
-                id: "family"
-            },
-            {
-                id: "proband"
-            },
-            {
-                id: "sample"
-            },
-            {
-                id: "status"
-            },
-            {
-                id: "priority"
-            },
-            {
-                id: "type"
-            },
-            {
-                id: "date"
+                filters: ["id", "family", "proband", "sample", "status", "priority", "type", "date"]
             }
         ],
         // merge criterium: full outer join-like. it adds objects presents in internal array only and in external array only. In case of same id, the external value overwrite the internal.

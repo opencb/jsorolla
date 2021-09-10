@@ -2,32 +2,11 @@ const opencgaJobBrowserSettings = {
     /**
      *  Full settings
      */
-    /* menu: {
-        // merge criterium: it uses this `filters` array as filter for internal one. Each object is merged with spread operator
-        filters: [
+    menu: {
+        // merge criterium: internal sections and filters are used to hydrates the external filters list for each section (which is a list of string). Sections and filter order is respected.
+        sections: [
             {
-                id: "id"
-            },
-            {
-                id: "tool"
-            },
-            {
-                id: "input"
-            },
-            {
-                id: "internal.status.name"
-            },
-            {
-                id: "priority"
-            },
-            {
-                id: "tags"
-            },
-            {
-                id: "creationDate"
-            },
-            {
-                id: "visited"
+                filters: ["id", "tool", "input", "internal.status.name", "priority", "tags", "creationDate", "visited"]
             }
         ],
         // merge criterium: full outer join-like. it adds objects presents in internal array only and in external array only. In case of same id, the external value overwrite the internal.
@@ -44,9 +23,8 @@ const opencgaJobBrowserSettings = {
         },
         // merge criterium: uses this array as filter for internal 1D/2D array. It handles row/col span
         // It is supported either columns[] or hiddenColumns[].
-        columns: ["id",/!* "toolId", "status", "priority", "dependsOn", "output", "execution", "execution", "creationDate"*!/]
+        columns: ["id"/* "toolId", "status", "priority", "dependsOn", "output", "execution", "execution", "creationDate"*/]
     },
     // merge criterium: uses this array as filter for internal 1D array.
     details: ["job-view", "job-log", "json-view"]
-    */
 };
