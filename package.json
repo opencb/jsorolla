@@ -13,7 +13,7 @@
   },
   "scripts": {
     "serve": "vite",
-    "build": "vite build",
+    "build": "vite build && npm run package",
     "preview": "vite preview",
     "prepare": "husky install",
     "browser-support": "npx browserslist",
