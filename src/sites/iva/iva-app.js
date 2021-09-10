@@ -802,7 +802,6 @@ class IvaApp extends LitElement {
     }
 
     onJobSelected(e) {
-        console.log("Job selected");
         this.jobSelected = e.detail.jobId;
         this.requestUpdate();
     }
