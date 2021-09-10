@@ -107,7 +107,8 @@ class VariantInterpreter extends LitElement {
     async clinicalAnalysisIdObserver() {
         if (this.opencgaSession) {
             this._config = {...this._config, loading: true};
-            await this.updateComplete;
+            // await this.updateComplete;
+            this.requestUpdate();
             if (this.clinicalAnalysisId) {
                 this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
                     .then(async response => {
@@ -118,7 +119,8 @@ class VariantInterpreter extends LitElement {
                     })
                     .finally(async () => {
                         this._config = {...this._config, loading: false};
-                        await this.updateComplete;
+                        // await this.updateComplete;
+                        this.requestUpdate();
                     });
             } else {
                 this.clinicalAnalysis = null;

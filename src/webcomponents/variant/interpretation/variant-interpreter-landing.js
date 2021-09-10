@@ -84,7 +84,7 @@ class VariantInterpreterLanding extends LitElement {
         if (changedProperties.has("opencgaSession") || changedProperties.has("clinicalAnalysis")) {
             this.propertyObserver();
         }
-        super.update(changedProperties)
+        super.update(changedProperties);
     }
 
     propertyObserver() {
