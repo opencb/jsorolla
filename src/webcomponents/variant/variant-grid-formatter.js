@@ -47,10 +47,13 @@ export default class VariantGridFormatter {
         if (proteinSubstitutionScores) {
             const pssColor = new Map();
             for (const i in proteinSubstitutionScores) {
-                const obj = proteinSubstitutionScores[i];
-                Object.keys(obj).forEach(key => {
-                    pssColor.set(key, obj[key]);
-                });
+                if (Object.prototype.hasOwnProperty.call(proteinSubstitutionScores, i)) {
+
+                    const obj = proteinSubstitutionScores[i];
+                    Object.keys(obj).forEach(key => {
+                        pssColor.set(key, obj[key]);
+                    });
+                }
             }
             result.pssColor = pssColor;
         }
@@ -140,6 +143,13 @@ export default class VariantGridFormatter {
     }
 
     static geneFormatter(variant, index, query, opencgaSession, gridCtSettings) {
+        // debugger
+        // FIXME
+        if (!variant.annotation) {
+            variant.annotation = {
+                consequenceTypes: []
+            };
+        }
         const {selectedConsequenceTypes, notSelectedConsequenceTypes} =
             VariantGridFormatter._consequenceTypeDetailFormatterFilter(variant.annotation.consequenceTypes, gridCtSettings);
 
@@ -463,11 +473,20 @@ export default class VariantGridFormatter {
                 if (filter.consequenceType.gencodeBasicTranscript) {
                     result = result || transcriptFlags?.includes("basic");
                 }
+                if (filter.consequenceType.ccdsTranscript) {
+                    result = result || transcriptFlags?.includes("CCDS");
+                }
+                if (filter.consequenceType.lrgTranscript) {
+                    result = result || transcriptFlags?.includes("LRG");
+                }
                 if (filter.consequenceType.ensemblTslTranscript) {
                     result = result || transcriptFlags?.includes("TSL:1");
                 }
-                if (filter.consequenceType.ccdsTranscript) {
-                    result = result || transcriptFlags?.includes("CCDS");
+                if (filter.consequenceType.illuminaTSO500Transcript) {
+                    result = result || transcriptFlags?.includes("TSO500");
+                }
+                if (filter.consequenceType.eglhHaemoncTranscript) {
+                    result = result || transcriptFlags?.includes("EGLH_HaemOnc");
                 }
                 if (filter.consequenceType.proteinCodingTranscript && ct.biotype === "protein_coding") {
                     result = result || ct.biotype === "protein_coding";
@@ -667,7 +686,9 @@ export default class VariantGridFormatter {
                     `;
                 }
 
-                let domains = "<a class=\"ct-protein-domain-tooltip\" tooltip-title='Info' tooltip-text='No protein domains found' tooltip-position-at=\"left bottom\" tooltip-position-my=\"right top\"><i class='fa fa-times' style='color: gray'></i></a>";
+                let domains = `<a class="ct-protein-domain-tooltip" tooltip-title='Info' tooltip-text='No protein domains found' tooltip-position-at="left bottom" tooltip-position-my="right top">
+                                    <i class='fa fa-times' style='color: gray'></i>
+                               </a>`;
                 if (pva.features) {
                     let tooltipText = "";
                     const visited = new Set();

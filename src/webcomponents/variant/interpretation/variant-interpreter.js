@@ -115,7 +115,8 @@ class VariantInterpreter extends LitElement {
     async clinicalAnalysisIdObserver() {
         if (this.opencgaSession) {
             this._config = {...this._config, loading: true};
-            await this.updateComplete;
+            // await this.updateComplete;
+            this.requestUpdate();
             if (this.clinicalAnalysisId) {
                 this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
                     .then(async response => {
@@ -126,7 +127,8 @@ class VariantInterpreter extends LitElement {
                     })
                     .finally(async () => {
                         this._config = {...this._config, loading: false};
-                        await this.updateComplete;
+                        // await this.updateComplete;
+                        this.requestUpdate();
                     });
             } else {
                 this.clinicalAnalysis = null;
@@ -155,7 +157,11 @@ class VariantInterpreter extends LitElement {
 
         $(".variant-interpreter-step", this).removeClass("active");
         // $(".clinical-portal-content", this).removeClass("active");
-        for (const tab in this.activeTab) this.activeTab[tab] = false;
+        for (const tab in this.activeTab) {
+            if (Object.prototype.hasOwnProperty.call(this.activeTab, tab)) {
+                this.activeTab[tab] = false;
+            }
+        }
         $(`button.content-pills[data-id=${tabId}]`, this).addClass("active");
         $("#" + tabId, this).addClass("active");
         this.activeTab[tabId] = true;
@@ -252,7 +258,9 @@ class VariantInterpreter extends LitElement {
                                  .title="${`${this._config.title}<span class="inverse"> Case ${this.clinicalAnalysis?.id} </span>`}"
                                  .rhs="${html`
                                     <download-button .json="${this.clinicalAnalysis}" title="Download Clinical Analysis"></download-button>
-                                    <a class="btn btn-default ripple text-black" title="Close Case" href="#clinicalAnalysisPortal/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}"><i class="fas fa-times"></i> Close</a>
+                                    <a class="btn btn-default ripple text-black" title="Close Case" href="#clinicalAnalysisPortal/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}">
+                                        <i class="fas fa-times"></i> Close
+                                    </a>
                                     <!--<div class="dropdown more-button">
                                         <a class="btn btn-default ripple dropdown-toggle" type="button" data-toggle="dropdown"><i class="fas fa-ellipsis-h"></i></a>
                                         <ul class="dropdown-menu pull-right">
@@ -280,7 +288,9 @@ class VariantInterpreter extends LitElement {
                                 <div class="row hi-icon-wrap wizard hi-icon-animation variant-interpreter-wizard">
                                     ${this._config.tools && this._config.tools.map(item => html`
                                     ${!item.hidden ? html`
-                                        <a class="icon-wrapper variant-interpreter-step ${!this.clinicalAnalysis && item.id !== "select" || item.disabled ? "disabled" : ""} ${this.activeTab[item.id] ? "active" : ""}" href="javascript: void 0" data-view="${item.id}" @click="${this.onClickSection}">
+                                        <a class="icon-wrapper variant-interpreter-step ${!this.clinicalAnalysis && item.id !== "select" || item.disabled ? "disabled" : ""} ${this.activeTab[item.id] ? "active" : ""}"
+                                           href="javascript: void 0" data-view="${item.id}"
+                                           @click="${this.onClickSection}">
                                             <div class="hi-icon ${item.icon}"></div>
                                             <p>${item.title}</p>
                                             <span class="smaller"></span>

@@ -3,6 +3,7 @@ const variantInterpreterBrowserRdSettings = {
         sections: [
             {
                 title: "Sample",
+                // file-quality: showDepth: false
                 fields: ["sample-genotype", "sample", "file-quality", "cohort"]
             },
             {

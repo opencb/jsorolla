@@ -71,9 +71,8 @@ export default class OpencgaJobView extends LitElement {
             this.requestUpdate();
         }
 
-        if (changedProperties.has("mode")) {
-
-        }
+        /* if (changedProperties.has("mode")) {
+        }*/
     }
 
     jobIdObserver() {
@@ -83,14 +82,14 @@ export default class OpencgaJobView extends LitElement {
                     this.job = response.getResult(0);
                     this.requestUpdate();
                 })
-                .catch(function(reason) {
+                .catch(reason => {
                     console.error(reason);
                 });
         }
     }
 
     dependsOnMap(node) {
-        console.log("node", node)
+        console.log("node", node);
         return {text: node.id, nodes: node.elements?.map(n => this.dependsOnMap(n))};
     }
 
@@ -100,16 +99,16 @@ export default class OpencgaJobView extends LitElement {
          *  2. using the switch to dynamic import the config and call render
          */
 
-        console.log("this.job.tool.id", this.job.tool.id)
-        switch(this.job.tool.id) {
+        console.log("this.job.tool.id", this.job.tool.id);
+        switch (this.job.tool.id) {
             case "knockout":
-                return html`<opencga-knockout-analysis-result></opencga-knockout-analysis-result>`
-            /*case "knockout":
+                return html`<opencga-knockout-analysis-result></opencga-knockout-analysis-result>`;
+            /* case "knockout":
                 let config = await import("./../variant/analysis/opencga-knockout-analysis.js")
                 return config.default.config().result();
                 break*/
             default:
-                return "results"
+                return "results";
         }
 
 
@@ -190,7 +189,10 @@ export default class OpencgaJobView extends LitElement {
                             // field: "execution",
                             type: "custom",
                             display: {
-                                render: job => job.execution ? html`${job.execution.start ? moment(job.execution.start).format("D MMM YYYY, h:mm:ss a") : "-"} ${job.execution.end ? html`- ${moment(job.execution.end).format("D MMM YYYY, h:mm:ss a")}` : html`-` }` : "-"
+                                render: job => job.execution ? html`
+                                    ${job.execution.start ? moment(job.execution.start).format("D MMM YYYY, h:mm:ss a") : "-"} ${job.execution.end ? html`- ${moment(job.execution.end).format("D MMM YYYY, h:mm:ss a")}` : html`-` }
+                                ` :
+                                    "-"
                             }
                         },
                         {
@@ -296,7 +298,7 @@ export default class OpencgaJobView extends LitElement {
                                     },
                                     {
                                         name: "Status", field: "internal.status.name"
-                                        //format: ${UtilsNew.renderHTML(this.statusFormatter(status.name))}
+                                        // format: ${UtilsNew.renderHTML(this.statusFormatter(status.name))}
                                     }
                                 ],
                                 border: true
@@ -328,7 +330,10 @@ export default class OpencgaJobView extends LitElement {
 
     render() {
         return html`
-            <data-form .data=${this.job} .config="${this._config}"></data-form>
+            <data-form
+                .data=${this.job}
+                .config="${this._config}">
+            </data-form>
         `;
     }
 

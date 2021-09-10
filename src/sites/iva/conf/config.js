@@ -34,6 +34,10 @@ const hosts = [
         url: "https://eglh.app.zettagenomics.com/opencga"
     },
     {
+        id: "eglh-uat",
+        url: "https://uat.eglh.app.zettagenomics.com/opencga"
+    },
+    {
         id: "local",
         url: "http://localhost:1234/opencga"
     },
@@ -44,14 +48,14 @@ const hosts = [
 ];
 
 const opencga = {
-    host: hosts[4].url,
+    host: hosts[5].url,
     // host: "https://ws.opencb.org/opencga-prod",
     // host: "http://localhost:1234/opencga",
     // host: "https://uat.eglh.app.zettagenomics.com/opencga", // public instance
     version: "v2",
     serverVersion: "1.4",
     cookie: {
-        prefix: "iva-" + hosts[4].id
+        prefix: "iva-" + hosts[5].id
     }
 
     // This forces the following projects to be used instead of the user's project
@@ -480,6 +484,43 @@ const suite = {
                     ]
                 },
                 {
+                    id: "clinical",
+                    name: "Case Interpretation",
+                    icon: "img/tools/icons/interpretation_portal.svg",
+                    visibility: "public",
+                    submenu: [
+                        {
+                            name: "Clinical Management",
+                            category: true,
+                            id: "cat-clinical",
+                            visibility: "public"
+                        },
+                        {
+                            id: "clinicalAnalysisPortal",
+                            name: "Case Portal",
+                            acronym: "",
+                            description: `
+                                <ul>
+                                    <li>Analyse the genomes of participants in the 100,000 Genomes Project</li>
+                                    <li>Filter by gene, consequence, frequency and much more</li>
+                                </ul>
+                            `,
+                            visibility: "public",
+                            fa_icon: "fas fa-folder-open",
+                            icon: "img/tools/icons/interpretation_portal.svg",
+                            thumbnail: "interpretation_portal.png"
+                        },
+                        {
+                            id: "clinical-analysis-writer",
+                            name: "Create Case",
+                            acronym: "",
+                            icon: "",
+                            description: "",
+                            visibility: "public"
+                        }
+                    ]
+                },
+                {
                     id: "alignment",
                     name: "Alignment",
                     description: "",
@@ -611,7 +652,7 @@ const suite = {
             logo: "img/tools/icons/interpretation_portal_white.svg",
             logoAlt: "img/tools/icons/interpretation_portal.svg",
             icon: "img/tools/icons/interpretation_portal.svg",
-            visibility: "public",
+            visibility: "none",
             menu: [
                 {
                     id: "clinical",
@@ -766,7 +807,7 @@ const suite = {
             name: "OpenCGA Admin",
             logo: "img/tools/icons/file_explorer.svg",
             icon: "img/tools/icons/file_explorer.svg",
-            visibility: "public",
+            visibility: "none",
             menu: [
                 {
                     id: "projects-admin",

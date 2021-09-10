@@ -58,8 +58,8 @@ export default class OpencbGridToolbar extends LitElement {
 
 
     update(changedProperties) {
-        if (changedProperties.has("query")) {
-        }
+        /* if (changedProperties.has("query")) {
+        }*/
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
         }
@@ -154,7 +154,8 @@ export default class OpencbGridToolbar extends LitElement {
             <div class="opencb-grid-toolbar">
                 <div class="row">
                     <div id="${this._prefix}ToolbarLeft" class="col-md-6">
-                        ${this._config.showCreate && (!this.opencgaSession || (this.opencgaSession && OpencgaCatalogUtils.checkPermissions(this.opencgaSession?.study, this.opencgaSession?.user?.id, "WRITE_CLINICAL_ANALYSIS"))) ? html`
+                        ${this._config.showCreate &&
+                        (!this.opencgaSession || (this.opencgaSession && OpencgaCatalogUtils.checkPermissions(this.opencgaSession?.study, this.opencgaSession?.user?.id, "WRITE_CLINICAL_ANALYSIS"))) ? html`
                             <a type="button" class="btn btn-default ripple btn-sm text-black" href="${this._config.newButtonLink}">
                                 <i id="${this._prefix}ColumnIcon" class="fa fa-columns icon-padding" aria-hidden="true"></i> New </span>
                             </a>
@@ -202,7 +203,7 @@ export default class OpencbGridToolbar extends LitElement {
                                 <div class="btn-group">
                                     <button type="button" class="btn btn-default ripple btn-sm" @click="${this.openModal}">
                                         ${this.config?.downloading === true ? html`<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>` : null}
-                                        <i class="fa fa-download icon-padding" aria-hidden="true"></i> Export
+                                        <i class="fa fa-download icon-padding" aria-hidden="true"></i> Export (Beta)
                                     </button>
                                 </div>
                             ` : null}

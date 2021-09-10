@@ -180,10 +180,11 @@ export default class OpencgaVariantFilter extends LitElement {
         }));
     }
 
-    /** *
+    // eslint-disable-next-line valid-jsdoc
+    /**
      * Handles filterChange events from all the filter components (this is the new updateQueryFilters)
-     * @param key the name of the property in this.query
-     * @param value the new value of the property
+     * @param {String} key the name of the property in this.query
+     * @param {String|Object} value the new value of the property
      */
     onFilterChange(key, value) {
         // debugger
@@ -220,7 +221,7 @@ export default class OpencgaVariantFilter extends LitElement {
         // this.requestUpdate();
     }
 
-    /**
+    /*
      * Deprecated: use function above.
      * @param sampleFields
      */
@@ -241,7 +242,7 @@ export default class OpencgaVariantFilter extends LitElement {
     }
 
     onVariantCallerInfoFilter(fileId, fileDataFilter, callback) {
-        debugger
+        // debugger
         let fileDataArray = [];
         if (this.preparedQuery.fileData) {
             fileDataArray = this.preparedQuery.fileData.split(",");
@@ -257,7 +258,7 @@ export default class OpencgaVariantFilter extends LitElement {
 
         this.preparedQuery = {
             ...this.preparedQuery,
-            fileData: fileId + ":" + fileDataArray.join(",")
+            fileData: fileDataArray.join(",")
         };
 
         this.notifyQuery(this.preparedQuery);
@@ -447,17 +448,31 @@ export default class OpencgaVariantFilter extends LitElement {
                         </population-frequency-filter>`;
                     break;
                 case "consequenceType":
-                    content = html`<consequence-type-filter .consequenceTypes="${this.consequenceTypes}" .ct="${this.preparedQuery.ct}"  @filterChange="${e => this.onFilterChange("ct", e.detail.value)}"></consequence-type-filter>`;
+                    content = html`<consequence-type-filter
+                            .consequenceTypes="${this.consequenceTypes}"
+                            .ct="${this.preparedQuery.ct}"
+                            @filterChange="${e => this.onFilterChange("ct", e.detail.value)}">
+                    </consequence-type-filter>`;
                     break;
                 case "consequenceTypeSelect":
-                    content = html`<consequence-type-select-filter .ct="${this.preparedQuery.ct}" .config="${this.consequenceTypes}" @filterChange="${e => this.onFilterChange("ct", e.detail.value)}"></consequence-type-select-filter>`;
+                    content = html`<consequence-type-select-filter
+                            .ct="${this.preparedQuery.ct}"
+                            .config="${this.consequenceTypes}"
+                            @filterChange="${e => this.onFilterChange("ct", e.detail.value)}">
+                    </consequence-type-select-filter>`;
                     break;
                 case "proteinSubstitutionScore":
-                    content = html`<protein-substitution-score-filter .protein_substitution="${this.preparedQuery.protein_substitution}" @filterChange="${e => this.onFilterChange("protein_substitution", e.detail.value)}"></protein-substitution-score-filter>`;
+                    content = html`<protein-substitution-score-filter
+                            .protein_substitution="${this.preparedQuery.protein_substitution}"
+                            @filterChange="${e => this.onFilterChange("protein_substitution", e.detail.value)}">
+                    </protein-substitution-score-filter>`;
                     break;
                 case "cadd":
                     if (this.opencgaSession.project.organism.assembly.toLowerCase() === "grch37") {
-                        content = html`<cadd-filter .annot-functional-score="${this.preparedQuery["annot-functional-score"]}" @filterChange="${e => this.onFilterChange("annot-functional-score", e.detail.value)}"></cadd-filter>`;
+                        content = html`<cadd-filter
+                                .annot-functional-score="${this.preparedQuery["annot-functional-score"]}"
+                                @filterChange="${e => this.onFilterChange("annot-functional-score", e.detail.value)}">
+                        </cadd-filter>`;
                     }
                     break;
                 case "conservation":
