@@ -39,17 +39,17 @@ export default class OpencgaClinicalAnalysisFilter extends LitElement {
     static get properties() {
         return {
             opencgaSession: {
-                type: Object,
+                type: Object
             },
             query: {
-                type: Object,
+                type: Object
             },
             compact: {
-                type: Boolean,
+                type: Boolean
             },
             config: {
-                type: Object,
-            },
+                type: Object
+            }
         };
     }
 
@@ -102,20 +102,20 @@ export default class OpencgaClinicalAnalysisFilter extends LitElement {
     notifyQuery(query) {
         this.dispatchEvent(new CustomEvent("queryChange", {
             detail: {
-                query: query,
+                query: query
             },
             bubbles: true,
-            composed: true,
+            composed: true
         }));
     }
 
     notifySearch(query) {
         this.dispatchEvent(new CustomEvent("querySearch", {
             detail: {
-                query: query,
+                query: query
             },
             bubbles: true,
-            composed: true,
+            composed: true
         }));
     }
 

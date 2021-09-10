@@ -15,10 +15,7 @@
  */
 
 import {LitElement, html} from "lit";
-import Utils from "./../../../core/utils.js";
-import "../../commons/forms/select-field-filter-autocomplete.js";
-
-// TODO refactor to use select-token-filter (it seems there is a problem with a "distinct" endpoint)
+import "../../commons/forms/select-token-filter.js";
 
 
 export default class ProbandIdAutocomplete extends LitElement {
@@ -61,33 +58,39 @@ export default class ProbandIdAutocomplete extends LitElement {
 
     getDefaultConfig() {
         return {
-            addButton: false,
-            fields: item => ({
-                name: item
-            }),
-            dataSource: (query, process) => {
+            limit: 10,
+            /* fields: item => ({
+                name: item.id
+            }),*/
+            source: async (params, success, failure) => {
+                const _params = params;
+                _params.data.page = params.data.page || 1;
+                const proband = _params?.data?.term ? {proband: "~^" + _params?.data?.term?.toUpperCase()} : "";
                 const filters = {
                     study: this.opencgaSession.study.fqn,
-                    limit: 20,
+                    limit: this._config.limit,
                     count: false,
-                    proband: "~^" + query.toUpperCase()
+                    skip: (_params.data.page - 1) * this._config.limit,
+                    ...proband
                 };
-                this.opencgaSession.opencgaClient.clinical().distinct("proband.id", filters).then(restResponse => {
-                    const results = restResponse.getResults();
-                    process(results.map(this._config.fields));
-                });
-            }
+                try {
+                    const restResponse = await this.opencgaSession.opencgaClient.clinical().distinct("proband.id", filters);
+                    success(restResponse);
+                } catch (e) {
+                    failure(e);
+                }
+            },
         };
     }
 
     render() {
         return html`
-            <select-field-filter-autocomplete
+            <select-token-filter
                     .opencgaSession="${this.opencgaSession}"
                     .config=${this._config}
                     .value="${this.value}"
                     @filterChange="${e => this.onFilterChange("id", e.detail.value)}">
-            </select-field-filter-autocomplete>
+            </select-token-filter>
 
         `;
     }

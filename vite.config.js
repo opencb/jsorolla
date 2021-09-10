@@ -3,7 +3,6 @@ import {defineConfig} from "vite";
 import html from "@web/rollup-plugin-html";
 import copy from "rollup-plugin-copy";
 import resolve from "@rollup/plugin-node-resolve";
-import replace from "@rollup/plugin-replace";
 import minifyHTML from "rollup-plugin-minify-html-literals";
 import summary from "rollup-plugin-summary";
 import path from "path";
@@ -56,7 +55,7 @@ export default defineConfig({
         sourcemap: true,
         rollupOptions: {
             input: {
-                "iva/index.html": `${ivaPath}/iva-index.html`,
+                "iva/index.html": `${ivaPath}/index.html`,
                 "genome-maps/index.html": `${genomeMapsDemoPath}/demo/genome-browser.html`,
             },
             plugins: [
@@ -89,7 +88,6 @@ export default defineConfig({
                         {src: "./styles/img", dest: `${buildPath}/`},
                         {src: `${ivaPath}/LICENSE`, dest: `${buildPath}`},
                         {src: `${ivaPath}/README.md`, dest: `${buildPath}`},
-                        {src: `${ivaPath}/favicon.ico`, dest: `${buildPath}`},
                         {src: "./styles/fonts", dest: `${buildPath}/`},
                         {src: "./node_modules/bootstrap/dist/fonts", dest: `${buildPath}/vendors/`},
                         {src: "./node_modules/@fortawesome/fontawesome-free/webfonts", dest: `${buildPath}/vendors/`},
@@ -97,7 +95,6 @@ export default defineConfig({
                 }),
             ],
             output: {
-                dir: "build",
                 manualChunks: id => { // It's only detect "import" from script type=module.. the others no.
                     if (id.includes("node_modules")) {
                         return "vendors/js/vendors";
@@ -141,5 +138,8 @@ export default defineConfig({
                 }
             }
         },
-    }
+        emptyOutDir: false,
+        outDir: "build",
+    },
+
 });

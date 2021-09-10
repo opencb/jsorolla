@@ -18,8 +18,6 @@ import {LitElement, html} from "lit";
 import Utils from "./../../../core/utils.js";
 import "../../commons/forms/select-token-filter.js";
 
-// TODO refactor to use select-token-filter (it seems there is a problem with a "distinct" endpoint)
-
 
 export default class AnalysisToolIdAutocomplete extends LitElement {
 
@@ -62,22 +60,9 @@ export default class AnalysisToolIdAutocomplete extends LitElement {
     getDefaultConfig() {
         return {
             limit: 10,
-            fields: item => ({
+            /* fields: item => ({
                 name: item
-            }),
-            dataSource: (query, process) => {
-                const filters = {
-                    study: this.opencgaSession.study.fqn,
-                    limit: 20,
-                    count: false,
-                    include: "id",
-                    toolId: "~^" + query
-                };
-                this.opencgaSession.opencgaClient.jobs().distinct("tool.id", filters).then(restResponse => {
-                    const results = restResponse.getResults();
-                    process(results.map(this._config.fields));
-                });
-            },
+            }),*/
             source: async (params, success, failure) => {
                 const _params = params;
                 _params.data.page = params.data.page || 1;

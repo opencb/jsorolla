@@ -284,7 +284,7 @@ class IvaApp extends LitElement {
         }, false);
 
         globalThis.addEventListener("hostInit", e => {
-            this.host[e.detail.host] = e.detail.value;
+            this.host = {...this.host, [e.detail.host]: e.detail.value};
             this.requestUpdate();
         }, false);
 
