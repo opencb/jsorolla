@@ -201,11 +201,11 @@ export default class OpencbGridToolbar extends LitElement {
                             ${~this._config.buttons.indexOf("export") ? html`
                                 <div class="btn-group">
                                     <button type="button" class="btn btn-default ripple btn-sm" @click="${this.openModal}">
-                                        <i class="fa fa-download icon-padding" aria-hidden="true"></i> Export
+                                        <i class="fa fa-download icon-padding" aria-hidden="true"></i> Export (Beta)
                                     </button>
                                 </div>
-                            ` : null}
-
+                            ` : null
+                            }
 
                             <!--Share URL-->
                             ${this.showShareLink ? html`

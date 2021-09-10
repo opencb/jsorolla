@@ -65,6 +65,7 @@ export default class VariantInterpreterGrid extends LitElement {
         // Config for the grid toolbar
         this.toolbarConfig = {
             download: ["JSON"],
+            buttons: ["columns", "download", "export"],
             columns: [
                 {title: "Variant", field: "id"},
                 {title: "Genes", field: "genes"},
