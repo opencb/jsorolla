@@ -257,7 +257,7 @@ export default class OpencgaVariantFilter extends LitElement {
 
         this.preparedQuery = {
             ...this.preparedQuery,
-            fileData: fileId + ":" + fileDataArray.join(",")
+            fileData: fileDataArray.join(",")
         };
 
         this.notifyQuery(this.preparedQuery);

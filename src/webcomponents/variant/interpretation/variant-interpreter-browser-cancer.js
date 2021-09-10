@@ -265,7 +265,6 @@ class VariantInterpreterBrowserCancer extends LitElement {
     }
 
     onVariantFilterChange(e) {
-        console.trace(e);
         this.preparedQuery = e.detail.query;
         // TODO quick fix to avoid warning message on sample
         // if (!this.predefinedFilter) {
@@ -344,10 +343,10 @@ class VariantInterpreterBrowserCancer extends LitElement {
                         id: "caveman",
                         queryString: "FILTER=PASS;CLPM>=0;ASMD>=140"
                     },
-                    {
-                        id: "pindel",
-                        queryString: "FILTER=PASS;QUAL>=250;REP<=9"
-                    }
+                    // {
+                    //     id: "pindel",
+                    //     queryString: "FILTER=PASS;QUAL>=250;REP<=9"
+                    // }
                 ],
                 sections: [ // sections and subsections, structure and order is respected
                     {
