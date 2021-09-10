@@ -73,6 +73,10 @@ export default class CustomNavBar extends LitElement {
         LitUtils.dispatchEventCustom(this, "changeTool", e);
     }
 
+    onJobSelected(e) {
+        LitUtils.dispatchEventCustom(this, "jobSelected", e);
+    }
+
     onChangeApp(e, toggle) {
         LitUtils.dispatchEventCustom(this, "changeApp", "", null, {event: e, toggle: toggle});
     }

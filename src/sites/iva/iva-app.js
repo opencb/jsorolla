@@ -802,6 +802,7 @@ class IvaApp extends LitElement {
     }
 
     onJobSelected(e) {
+        console.log("Job selected");
         this.jobSelected = e.detail.jobId;
         this.requestUpdate();
     }
@@ -992,6 +993,7 @@ class IvaApp extends LitElement {
                 @changeTool=${e => this.changeTool(e.detail.value)}
                 @changeApp=${e => this.onChangeApp(e.detail.event, e.detail.toggle)}
                 @studySelect=${ e => this.onStudySelect(e.detail.event, e.detail.study)}
+                @jobSelected=${e => this.onJobSelected(e)}
             ></custom-navbar>
 
             <!-- End of navigation bar -->
@@ -1533,7 +1535,11 @@ class IvaApp extends LitElement {
                 ${this.config.enabledComponents["job-view"] ? html`
                     <tool-header title="${this.jobSelected || "No job selected"}" icon="${"fas fa-rocket"}"></tool-header>
                     <div id="job-view" class="content col-md-8 col-md-offset-2">
-                        <opencga-job-view .jobId="${this.jobSelected}" mode="full" .opencgaSession="${this.opencgaSession}"></opencga-job-view>
+                        <opencga-job-view
+                            mode="full"
+                            .jobId="${this.jobSelected}"
+                            .opencgaSession="${this.opencgaSession}">
+                        </opencga-job-view>
                     </div>
                 ` : null
                 }

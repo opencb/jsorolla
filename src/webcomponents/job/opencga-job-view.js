@@ -109,7 +109,7 @@ export default class OpencgaJobView extends LitElement {
                 return config.default.config().result();
                 break*/
             default:
-                return "results"
+                return "results";
         }
 
 
@@ -328,7 +328,10 @@ export default class OpencgaJobView extends LitElement {
 
     render() {
         return html`
-            <data-form .data=${this.job} .config="${this._config}"></data-form>
+            <data-form
+                .data=${this.job}
+                .config="${this._config}">
+            </data-form>
         `;
     }
 
