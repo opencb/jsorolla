@@ -35,6 +35,9 @@ export default class VariantFileFilter extends LitElement {
             files: {
                 type: Array
             },
+            value: {
+                type: String
+            },
             config: {
                 type: Object
             }
@@ -75,6 +78,7 @@ export default class VariantFileFilter extends LitElement {
         return html`
             <select-field-filter
                     .data="${this.files}"
+                    .value="${this.value}"
                     @filterChange="${this.filterChange}">
             </select-field-filter>
         `;

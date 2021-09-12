@@ -554,7 +554,7 @@ export default class VariantInterpreterGridFormatter {
                         const vaf = VariantInterpreterGridFormatter._getVariantAlleleFraction(row, sampleEntry, file);
                         if (vaf && vaf.vaf >= 0 && vaf.depth >= 0) {
                             content = VariantInterpreterGridFormatter.vafGenotypeRenderer(vaf.vaf, vaf.depth, file, {});
-                        } else { // Just in case we cannot render freqs, this should never happen.
+                        } else {    // Just in case we cannot render freqs, this should never happen.
                             content = VariantInterpreterGridFormatter.alleleGenotypeRenderer(row, sampleEntry);
                         }
                         break;
@@ -800,10 +800,11 @@ export default class VariantInterpreterGridFormatter {
                     }
                 }
             }
+            return {vaf: vaf, depth: depth};
         }
 
         // Check if is Pindel by looking to specific sample FORMAT fields
-        if (file.data.PC && file.data.VT) {
+        if (file.data.PC && file.data.S1 && file.data.S2) {
             const values = {};
             const fields = ["PU", "NU", "PR", "NR"];
             for (const field of fields) {
@@ -812,6 +813,7 @@ export default class VariantInterpreterGridFormatter {
             }
             vaf = (values.PU + values.NU) / (values.PR + values.NR);
             depth = values.PR + values.NR;
+            return {vaf: vaf, depth: depth};
         }
 
         if (variant?.studies[0].sampleDataKeys.includes("AD")) {
@@ -826,15 +828,12 @@ export default class VariantInterpreterGridFormatter {
                 }
                 vaf = Number.parseInt(alt) / depth;
             }
+            return {vaf: vaf, depth: depth};
         }
-
-        return {vaf: vaf, depth: depth};
     }
 
     static _getAlleleFrequencies(variant, sampleEntry, file) {
-        let af, ad, dp,
-            afIndex, adIndex, dpIndex,
-            refFreq, altFreq;
+        let af, ad, dp, afIndex, adIndex, dpIndex, refFreq, altFreq;
 
         // Find and get the DP
         dpIndex = variant.studies[0].sampleDataKeys.findIndex(e => e === "DP");

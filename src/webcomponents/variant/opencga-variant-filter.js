@@ -241,7 +241,6 @@ export default class OpencgaVariantFilter extends LitElement {
     }
 
     onVariantCallerInfoFilter(fileId, fileDataFilter, callback) {
-        debugger
         let fileDataArray = [];
         if (this.preparedQuery.fileData) {
             fileDataArray = this.preparedQuery.fileData.split(",");
@@ -386,6 +385,7 @@ export default class OpencgaVariantFilter extends LitElement {
                     content = html`
                         <variant-file-filter
                                 .files="${files}"
+                                .value="${this.preparedQuery.file}"
                                 @filterChange="${e => this.onFilterChange("file", e.detail.value)}">
                         </variant-file-filter>`;
                     break;
