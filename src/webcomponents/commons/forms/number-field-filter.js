@@ -57,7 +57,7 @@ export default class NumberFieldFilter extends LitElement {
             step: {
                 type: String
             }
-        }
+        };
     }
 
     _init() {
@@ -74,7 +74,7 @@ export default class NumberFieldFilter extends LitElement {
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
-    updated(changedProperties) {
+    update(changedProperties) {
         if (changedProperties.has("value")) {
             if (this.value) {
                 const [, comparator, value] = this.value.match(/(<=?|>=?|=)(-?\d*\.?\d+)/);
@@ -85,13 +85,14 @@ export default class NumberFieldFilter extends LitElement {
                     value: null
                 };
             }
-            this.requestUpdate();
         }
+        super.update(changedProperties);
     }
 
     filterChange(e) {
         e.stopPropagation();
-        let field = e.target.dataset.field;
+
+        const field = e.target.dataset.field;
         this.state[field] = e.target.value;
         const event = new CustomEvent("filterChange", {
             detail: {
@@ -99,8 +100,8 @@ export default class NumberFieldFilter extends LitElement {
                 numValue: this.state.value,
                 value: this.state.value ? (this.state.comparator ?? "") + this.state.value : null
             },
-            //bubbles: true,
-            //composed: true
+            // bubbles: true,
+            // composed: true
         });
         this.dispatchEvent(event);
     }

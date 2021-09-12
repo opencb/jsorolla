@@ -64,14 +64,14 @@ export default class CohortStatsFilter extends LitElement {
         this.state = {};
     }
 
-    updated(_changedProperties) {
-        if (_changedProperties.has("opencgaSession") || _changedProperties.has("cohorts")) {
+    updated(changedProperties) {
+        if (changedProperties.has("opencgaSession") || changedProperties.has("cohorts")) {
             this.state = {};
             this.cohortsPerStudy = this._getCohorts();
-            this.requestUpdate();
+            // this.requestUpdate();
         }
 
-        if (_changedProperties.has("cohortStatsAlt")) {
+        if (changedProperties.has("cohortStatsAlt")) {
             this.state = {};
             if (this.cohortStatsAlt) {
                 const cohorts = this.cohortStatsAlt.split(";");
@@ -82,8 +82,9 @@ export default class CohortStatsFilter extends LitElement {
                     this.state[studyId] = {cohort, comparator, value};
                 });
             }
-            this.requestUpdate();
+            // this.requestUpdate();
         }
+        super.update(changedProperties);
     }
 
     _getCohorts() {

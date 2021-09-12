@@ -47,21 +47,14 @@ export default class VariantFileFilter extends LitElement {
         this._config = this.getDefaultConfig();
     }
 
-    updated(changedProperties) {
-        if (changedProperties.has("files")) {
-
-        }
-    }
-
     filterChange(e) {
-        //select-field-filter already emits a bubbled filterChange event.
+        // select-field-filter already emits a bubbled filterChange event.
 
         // Prepare sample query filter
         // let sampleFilter = this.sampleId;
         // if (e.detail.value) {
         //     sampleFilter += ":" + e.detail.value;
         // }
-debugger
         const event = new CustomEvent("filterChange", {
             detail: {
                 value: e.detail.value
@@ -79,7 +72,6 @@ debugger
     }
 
     render() {
-                                    // .value=${this.genotypes}
         return html`
             <select-field-filter
                     .data="${this.files}"

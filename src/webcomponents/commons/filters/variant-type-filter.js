@@ -55,20 +55,21 @@ export default class VariantTypeFilter extends LitElement {
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
-    updated(changedProperties) {
+    update(changedProperties) {
         if (changedProperties.has("type")) {
             if (this.type) {
                 this.selectedVariantTypes = this.type.split(",");
             } else {
                 this.selectedVariantTypes = [];
             }
-            this.requestUpdate();
+            // this.requestUpdate();
         }
 
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
-            this.requestUpdate();
+            // this.requestUpdate();
         }
+        super.update(changedProperties);
     }
 
     filterChange(e) {
