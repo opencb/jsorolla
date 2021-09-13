@@ -84,6 +84,7 @@ export class CellBaseClient {
      * This method has been implemented to be backward compatible with old cellbase-manager.js
      */
     getOldWay(args) {
+        this._config.species = args.species.id || this._config.species;
         return this.get(args.category, args.subcategory, args.id, args.resource, args.params, args.options);
     }
 

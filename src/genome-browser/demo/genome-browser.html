@@ -7,6 +7,7 @@
 
     <script type="text/javascript" src="../genome-browser.config.js"></script>
 
+
     <!-- links for use to src -->
     <link rel="stylesheet" href="../../../node_modules/@fortawesome/fontawesome-free/css/all.min.css">
     <link rel="stylesheet" href="../../../node_modules/qtip2/dist/jquery.qtip.min.css">
@@ -73,31 +74,26 @@
         // We first parse URL to check (and overwrite) if a CellBase Host and Version have been provided
         // if we do not provide the CellbaseHost then you will get those configured in the file "config.js"
 
-        let CELLBASE_HOST = "http://bioinfo.hpc.cam.ac.uk/cellbase";
-        let CELLBASE_VERSION = "v4";
+        //let CELLBASE_HOST = "http://ws.zettagenomics.com/cellbase";
+        //let CELLBASE_VERSION = "v4";
         let AVAILABLE_SPECIES;
-
-        const cellBaseClientConfig = {
-            hosts: CELLBASE_HOST,
-            version: CELLBASE_VERSION,
-            cache: { active: false }
-        };
-
 
         const queryParams = URI.parseQuery(window.location.search);
         if (typeof queryParams.CELLBASE_HOST !== "undefined") {
             CELLBASE_HOST = queryParams.CELLBASE_HOST;
         }
-        CELLBASE_HOST = "bioinfo.hpc.cam.ac.uk/cellbase";
 
         if (typeof queryParams.CELLBASE_VERSION !== "undefined") {
             CELLBASE_VERSION = queryParams.CELLBASE_VERSION;
         }
 
         console.log("CellBase Host: " + CELLBASE_HOST, " - CellBase Version: " + CELLBASE_VERSION);
-        // let cellBaseClientConfig = new CellBaseClientConfig(hosts = CELLBASE_HOST, version = CELLBASE_VERSION);
-        // cellBaseClientConfig.cache.active = false;
 
+        const cellBaseClientConfig = {
+            host: CELLBASE_HOST,
+            version: CELLBASE_VERSION,
+            cache: { active: false }
+        };
         const cellbaseClient = new CellBaseClient(cellBaseClientConfig);
 
         // GenomeBrowser, Region and Species:
@@ -134,6 +130,7 @@
                 target: "application",
                 width: document.querySelector("#application").getBoundingClientRect().width,
                 region: region,
+                availableSpecies: AVAILABLE_SPECIES,
                 species: species,
                 autoRender: true,
                 resizable: true,
@@ -145,10 +142,6 @@
                     collapsed: false,
                     collapsible: true
                 },
-                //            navigationBarConfig: {
-                //                componentsConfig: {
-                //                }
-                //            },
                 handlers: {
                     "region:change": function (e) {
                         console.log(e);
