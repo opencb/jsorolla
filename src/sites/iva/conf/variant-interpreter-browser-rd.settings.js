@@ -3,36 +3,36 @@ const variantInterpreterBrowserRdSettings = {
         sections: [
             {
                 title: "Sample",
-                // file-quality: showDepth: false
-                fields: ["sample-genotype", "sample", "file-quality", "cohort"]
+                // TODO file-quality: showDepth: false
+                filters: ["sample-genotype", "sample", "file-quality", "cohort"]
             },
             {
                 title: "Genomic",
-                fields: ["region", "feature", "biotype", "type"]
+                filters: ["region", "feature", "biotype", "type"]
             },
             {
                 title: "Clinical",
-                fields: ["diseasePanels", "clinical-annotation"]
+                filters: ["diseasePanels", "clinical-annotation"]
             },
             {
                 title: "Consequence Type",
-                fields: ["consequenceTypeSelect"]
+                filters: ["consequenceTypeSelect"]
             },
             {
                 title: "Population Frequency",
-                fields: ["populationFrequency"]
+                filters: ["populationFrequency"]
             },
             {
                 title: "Phenotype",
-                fields: ["go", "hpo"]
+                filters: ["go", "hpo"]
             },
             {
                 title: "Deleteriousness",
-                fields: ["proteinSubstitutionScore", "cadd"]
+                filters: ["proteinSubstitutionScore", "cadd"]
             },
             {
                 title: "Conservation",
-                fields: ["conservation"]
+                filters: ["conservation"]
             }
         ]
     },

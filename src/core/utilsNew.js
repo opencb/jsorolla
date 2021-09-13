@@ -554,7 +554,7 @@ export default class UtilsNew {
         // it doesn't check for external.length because it supports empty array
         if (external) {
             if (!subtractive) {
-                return external.map(id => {
+                const section = external.map(id => {
                     const obj = internal.find(e => id === e.id);
                     if (!obj) {
                         console.error(`Config Merge failed. ${id} not found in internal config`);
@@ -562,6 +562,7 @@ export default class UtilsNew {
                         return {...obj};
                     }
                 });
+                return section;
             } else {
                 return internal.filter(f => {
                     return !~external.indexOf(f.id);
