@@ -1,3 +1,4 @@
+// eslint-disable-next-line max-len
 /*
  * Copyright 2015-2016 OpenCB
  *
@@ -16,6 +17,8 @@
 
 /**
  * Created by imedina on 05/06/17.
+ *
+ * @deprecated
  */
 
 const cohortFileMenu = {
@@ -24,31 +27,31 @@ const cohortFileMenu = {
     cohorts: { // organised in projects and studies
         reference_grch37: {
             "1kG_phase3": [
-                {id: "ALL", name: "All"}, {id: "MXL", name: "Mexican"}
+                {id: "ALL", name: "All"}, {id: "MXL", name: "Mexican"},
             ],
             "EXAC": [
-                {id: "ALL", name: "All"}
-            ]
+                {id: "ALL", name: "All"},
+            ],
         },
         GRCH37: {
             platinum: [
-                {id: "ALL", name: "ALL"}
-            ]
+                {id: "ALL", name: "ALL"},
+            ],
         },
         exomes_grch37: {
             corpasome: [
-                {id: "ALL", name: "ALL"}
-            ]
-        }
+                {id: "ALL", name: "ALL"},
+            ],
+        },
     },
-    tooltip: "Filter variants by cohort Alternate allele frequency"
+    tooltip: "Filter variants by cohort Alternate allele frequency",
 };
 
-/* MOVED in variant-browser config (TODO copy in interpretation portal) */
+/* MOVED in variant-browser config and in in interpretation portal */
 const filterMenu = {
     searchButtonText: "Search",
     tooltip: {
-        classes: "qtip-rounded qtip-shadow qtip-custom-class"
+        classes: "qtip-rounded qtip-shadow qtip-custom-class",
         // classes: "qtip-dark qtip-rounded qtip-shadow"
     },
     skipSubsections: [], // controls which subsections are disabled and should not be displayed
@@ -60,10 +63,10 @@ const filterMenu = {
                 {
                     id: "study",
                     title: "Studies Filter",
-                    tooltip: "Only considers variants from the selected studies"
+                    tooltip: "Only considers variants from the selected studies",
                 },
-                cohortFileMenu
-            ]
+                cohortFileMenu,
+            ],
         },
         {
             title: "Genomic",
@@ -72,17 +75,17 @@ const filterMenu = {
                 {
                     id: "region",
                     title: "Chromosomal Location",
-                    tooltip: "Filter out variants falling outside the genomic interval(s) defined"
+                    tooltip: "Filter out variants falling outside the genomic interval(s) defined",
                 },
                 {
                     id: "feature",
                     title: "Feature IDs (gene, SNPs, ...)",
-                    tooltip: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined"
+                    tooltip: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined",
                 },
                 {
                     id: "diseasePanels",
                     title: "Disease Panels",
-                    tooltip: "Filter out variants falling outside the genomic intervals (typically genes) defined by the panel(s) chosen"
+                    tooltip: "Filter out variants falling outside the genomic intervals (typically genes) defined by the panel(s) chosen",
                 },
                 {
                     id: "biotype",
@@ -94,17 +97,17 @@ const filterMenu = {
                         "nonsense_mediated_decay", "polymorphic_pseudogene", "processed_pseudogene", "processed_transcript",
                         "protein_coding", "pseudogene", "rRNA", "retained_intron", "sense_intronic", "sense_overlapping", "snRNA",
                         "snoRNA", "transcribed_processed_pseudogene", "transcribed_unprocessed_pseudogene",
-                        "translated_processed_pseudogene", "unitary_pseudogene", "unprocessed_pseudogene"
+                        "translated_processed_pseudogene", "unitary_pseudogene", "unprocessed_pseudogene",
                     ],
-                    tooltip: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined"
+                    tooltip: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined",
                 },
                 {
                     id: "type",
                     title: "Variant Type",
                     types: ["SNV", "INDEL", "CNV", "INSERTION", "DELETION", "MNV"],
-                    tooltip: "Only considers variants of the selected type"
-                }
-            ]
+                    tooltip: "Only considers variants of the selected type",
+                },
+            ],
         },
         {
             title: "Population Frequency",
@@ -114,9 +117,9 @@ const filterMenu = {
                     id: "populationFrequency",
                     title: "Select Population Frequency",
                     tooltip: populationFrequencies.tooltip,
-                    showSetAll: true
-                }
-            ]
+                    showSetAll: true,
+                },
+            ],
         },
         {
             title: "Consequence Type",
@@ -125,9 +128,9 @@ const filterMenu = {
                 {
                     id: "consequenceType",
                     title: "Select SO terms",
-                    tooltip: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined"
-                }
-            ]
+                    tooltip: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined",
+                },
+            ],
         },
         {
             title: "Deleteriousness",
@@ -139,16 +142,16 @@ const filterMenu = {
                     tooltip: "<strong>SIFT score:</strong> Choose either a Tolerated/Deleterious qualitative score or provide below a " +
                         "quantitative impact value. SIFT scores <0.05 are considered deleterious. " +
                         "<strong>Polyphen:</strong> Choose, either a Benign/probably damaging qualitative score or provide below a " +
-                        "quantitative impact value. Polyphen scores can be Benign (<0.15), Possibly damaging (0.15-0.85) or Damaging (>0.85)"
+                        "quantitative impact value. Polyphen scores can be Benign (<0.15), Possibly damaging (0.15-0.85) or Damaging (>0.85)",
                 },
                 {
                     id: "cadd",
                     title: "CADD",
                     tooltip: "Raw values have relative meaning, with higher values indicating that a variant is more likely to be " +
                         "simulated (or not observed) and therefore more likely to have deleterious effects. If discovering causal variants " +
-                        "within an individual, or small groups, of exomes or genomes te use of the scaled CADD score is recommended"
-                }
-            ]
+                        "within an individual, or small groups, of exomes or genomes te use of the scaled CADD score is recommended",
+                },
+            ],
         },
         {
             title: "Conservation",
@@ -166,9 +169,9 @@ const filterMenu = {
                         "the multiple alignment. The phastCons scores represent probabilities of negative selection and range between 0 " +
                         "(non-conserved) and 1 (highly conserved).<br>" +
                         "<strong>Genomic Evolutionary Rate Profiling (GERP)</strong> score estimate the level of conservation of positions." +
-                        " Scores ≥ 2 indicate evolutionary constraint to and ≥ 3 indicate purifying selection."
-                }
-            ]
+                        " Scores ≥ 2 indicate evolutionary constraint to and ≥ 3 indicate purifying selection.",
+                },
+            ],
         },
         {
             title: "Gene Ontology",
@@ -177,9 +180,9 @@ const filterMenu = {
                 {
                     id: "go",
                     title: "GO Accessions (max. 100 terms)",
-                    tooltip: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined"
-                }
-            ]
+                    tooltip: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined",
+                },
+            ],
         },
         {
             title: "Phenotype-Disease",
@@ -188,26 +191,26 @@ const filterMenu = {
                 {
                     id: "hpo",
                     title: "HPO Accessions",
-                    tooltip: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined"
+                    tooltip: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined",
                 },
                 {
                     id: "clinvar",
                     title: "ClinVar Accessions",
-                    tooltip: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined"
+                    tooltip: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined",
                 },
                 {
                     id: "fullTextSearch",
                     title: "Full-text search on HPO, ClinVar, protein domains or keywords. Some OMIM and Orphanet IDs are also supported",
-                    tooltip: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined"
-                }
-            ]
-        }
-    ]
+                    tooltip: "Filter out variants falling outside the genomic features (gene, transcript, SNP, etc.) defined",
+                },
+            ],
+        },
+    ],
 };
 
 
 // Clone menu for interpretation and add clinical section
-/*const clinical = {
+/* const clinical = {
     title: "Sample and File",
     collapsed: false,
     fields: [
@@ -246,7 +249,7 @@ interpreterMenu.sections = interpreterSections;*/
 
 
 const tools = {
-    /*browser: {
+    /* browser: {
         title: "Variant Browser",
         active: false,
         showSummary: true,
@@ -338,7 +341,7 @@ const tools = {
             // }
         ]
     },*/
-    /*"rd-interpreter": {
+    /* "rd-interpreter": {
         title: "Variant RD Interpreter",
         disableSaveInterpretation: false,
         active: false,
@@ -451,7 +454,7 @@ const tools = {
         }
     },*/
 
-    /*panel: {
+    /* panel: {
         active: false
     },
     individual: {
@@ -459,7 +462,7 @@ const tools = {
     },
     family: {
         active: false
-    },*/
+    },
     gene: {
         protein: {
             color: {
@@ -475,13 +478,13 @@ const tools = {
         },
         active: false
     }
-    /*beacon: {
+    beacon: {
         active: false,
         hosts: [
             "brca-exchange", "cell_lines", "cosmic", "wtsi", "wgs", "ncbi", "ebi", "ega", "broad", "gigascience", "ucsc", "lovd", "hgmd", "icgc", "sahgp"
         ]
     },*/
-    /*clinical: {
+    /* clinical: {
         icd10: ICD_10,
         upload: {
             visible: true
@@ -666,7 +669,7 @@ const tools = {
             downloadQcSample: false
         }
     },*/
-    /*genomeBrowser: {
+    /* genomeBrowser: {
         active: false
     }*/
 };
