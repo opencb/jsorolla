@@ -387,6 +387,7 @@ export default class OpencgaVariantFilter extends LitElement {
                     content = html`
                         <variant-file-filter
                                 .files="${files}"
+                                .value="${this.preparedQuery.file}"
                                 @filterChange="${e => this.onFilterChange("file", e.detail.value)}">
                         </variant-file-filter>`;
                     break;
@@ -498,6 +499,7 @@ export default class OpencgaVariantFilter extends LitElement {
                                                  .panelRoleInCancer="${this.preparedQuery.panelRoleInCancer}"
                                                  @filterChange="${e => this.onFilterChange({
                                                      panel: "panel",
+                                                     panelGene: "panelGene",
                                                      panelModeOfInheritance: "panelModeOfInheritance",
                                                      panelConfidence: "panelConfidence",
                                                      panelRoleInCancer: "panelRoleInCancer"

@@ -33,16 +33,14 @@ export default class GeneTrack extends FeatureTrack {
         // set CellBase adapter as default
         if (typeof this.dataAdapter === "undefined") {
             if (typeof this.cellbase !== "undefined" && this.cellbase !== null) {
-                // let cellBaseConfig = new CellBaseClientConfig(this.cellbase.host, this.cellbase.version, this.cellbase.species);
-                // cellBaseConfig.cache.active = false;
-                let cellBaseConfig = {
-                    hosts: this.cellbase.host,
+                const cellBaseConfig = {
+                    host: this.cellbase.host,
                     version: this.cellbase.version,
                     species: this.cellbase.species,
                     cache: {active: false}
                 };
                 this.dataAdapter = new CellBaseAdapter(new CellBaseClient(cellBaseConfig), "genomic", "region", "gene", {},
-                    { chunkSize: 100000 });
+                    {chunkSize: 100000});
             }
         }
 
@@ -141,7 +139,7 @@ export default class GeneTrack extends FeatureTrack {
                     //}
                 }).then(function (response) {
                     _this.getDataHandler(response);
-                }).catch(function(reason) {
+                }).catch(function (reason) {
                     console.log(`Gene Track move error: ${reason}`);
                 });
                 this.svgCanvasLeftLimit = parseInt(this.svgCanvasLeftLimit - this.svgCanvasOffset);
@@ -169,7 +167,7 @@ export default class GeneTrack extends FeatureTrack {
                     //}
                 }).then(function (response) {
                     _this.getDataHandler(response);
-                }).catch(function(reason) {
+                }).catch(function (reason) {
                     console.log(`Gene Track move error: ${reason}`);
                 });
                 this.svgCanvasRightLimit = parseInt(this.svgCanvasRightLimit + this.svgCanvasOffset);

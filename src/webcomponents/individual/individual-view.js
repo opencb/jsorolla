@@ -62,7 +62,7 @@ export default class IndividualView extends LitElement {
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
         }
-        super.update();
+        super.update(changedProperties);
     }
 
     individualIdObserver() {

@@ -355,7 +355,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
 
     priorityFormatter(value) {
         // TODO remove this code as soon as new OpenCGA configuration is in place
-        const _priorities = this.opencgaSession.study?.configuration?.clinical ? this.opencgaSession.study.configuration.clinical.priorities : this.priorities;
+        const _priorities = this.opencgaSession.study?.internal?.configuration?.clinical ? this.opencgaSession.study.internal.configuration.clinical.priorities : this.priorities;
         const priorityMap = {
             URGENT: "label-danger",
             HIGH: "label-warning",
@@ -399,7 +399,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
 
     statusFormatter(value, row) {
         // TODO remove this code as soon as new OpenCGA configuration is in place
-        const _status = this.opencgaSession.study?.configuration?.clinical?.status ? this.opencgaSession.study.configuration.clinical.status : this.status;
+        const _status = this.opencgaSession.study?.internal?.configuration?.clinical?.status ? this.opencgaSession.study.internal.configuration.clinical.status : this.status;
         value = {id: value.name, ...value};
         // TODO /remove this code as soon as new OpenCGA configuration is in place
 
@@ -574,8 +574,8 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                 formatter: this.statusFormatter.bind(this),
                 events: {
                     "click a": this.onActionClick.bind(this)
-                }
-                // visible: !this._config.columns.hidden.includes("status") && !!this.opencgaSession.study?.configuration?.clinical?.status
+                },
+                visible: !!this.opencgaSession.study?.internal?.configuration?.clinical?.status
             },
             {
                 id: "priority",
@@ -587,8 +587,8 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                 formatter: this.priorityFormatter.bind(this),
                 events: {
                     "click a": this.onActionClick.bind(this)
-                }
-                // visible: !this._config.columns.hidden.includes("priority") && !!this.opencgaSession.study?.configuration?.clinical?.priorities
+                },
+                visible: !!this.opencgaSession.study?.internal?.configuration?.clinical?.priorities
             },
             {
                 id: "Analyst",
@@ -620,20 +620,6 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                 }
                 // visible: !this._config.columns.hidden.includes("dueDate")
             },
-            // {
-            //     title: "Due Date",
-            //     field: "dueDate",
-            //     valign: "middle",
-            //     formatter: CatalogGridFormatter.dateFormatter,
-            //     visible: !this._config.columns.hidden.includes("dueDate")
-            // },
-            // {
-            //     title: "Creation Date",
-            //     field: "creationDate",
-            //     valign: "middle",
-            //     formatter: CatalogGridFormatter.dateFormatter,
-            //     visible: !this._config.columns.hidden.includes("creationDate")
-            // },
             {
                 id: "state",
                 field: "state",

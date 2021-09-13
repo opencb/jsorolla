@@ -650,7 +650,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                         ${~this._config.filter.sections[0].fields.findIndex(field => field.id === "status") ? html`
                                             <!-- Status -->
                                             <div class="btn-group" data-cy="form-status">
-                                                <clinical-status-filter placeholder="${"Status: All"}" .statuses="${this.opencgaSession?.study?.configuration?.clinical?.status ?? []}"
+                                                <clinical-status-filter placeholder="${"Status: All"}" .statuses="${this.opencgaSession?.study?.internal?.configuration?.clinical?.status ?? []}"
                                                                         .value=${this.query?.status} @filterChange="${e => this.onFilterChange("status", e.detail.value)}"></clinical-status-filter>
                                         ` : null}
 
@@ -658,7 +658,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                             <!-- Priority -->
                                             <div class="btn-group" data-cy="form-priority">
                                                 <clinical-priority-filter placeholder="${"Priority: All"}"
-                                                                          .priorities="${Object.values(this.opencgaSession?.study?.configuration?.clinical?.priorities ?? {}) ?? []}"
+                                                                          .priorities="${Object.values(this.opencgaSession?.study?.internal?.configuration?.clinical?.priorities ?? {})}"
                                                                           @filterChange="${e => this.onFilterChange("priority", e.detail.value)}"></clinical-priority-filter>
                                             </div>
                                         ` : null}
