@@ -657,6 +657,7 @@ h3.page-title {
 /********** active-filters  *************/
 .active-filter-button {
     word-break: break-all;
+    margin: 3px 0 0 0;
 }
 
 .active-filter-button:hover {
@@ -2648,6 +2649,12 @@ select.no-data + .select2-container--bootstrap.select2-container--open.select2-c
     border-bottom-right-radius: 4px
 }
 
+/* adapt select2 placeholder text to the default BT ones */
+.select2-container--bootstrap .select2-search--inline .select2-search__field {
+    font-family: "Lato", Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    line-height: 26px;
+}
 
 /* Notification */
 
