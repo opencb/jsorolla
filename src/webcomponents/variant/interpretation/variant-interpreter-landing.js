@@ -236,6 +236,7 @@ class VariantInterpreterLanding extends LitElement {
                 this.clinicalAnalysisId = null;
                 break;
         }
+        this.onClinicalAnalysisChange();
     }
 
     getSearchConfig() {
