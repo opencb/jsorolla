@@ -483,6 +483,7 @@ export default class OpencgaVariantFilter extends LitElement {
                                                  .panelRoleInCancer="${this.preparedQuery.panelRoleInCancer}"
                                                  @filterChange="${e => this.onFilterChange({
                                                      panel: "panel",
+                                                     panelGene: "panelGene",
                                                      panelModeOfInheritance: "panelModeOfInheritance",
                                                      panelConfidence: "panelConfidence",
                                                      panelRoleInCancer: "panelRoleInCancer"
