@@ -114,7 +114,7 @@ const separator = {
 
 const suite = {
     name: "OpenCGA Suite",
-    version: "v2.1.0-beta",
+    version: "v2.2.0-dev",
     logo: "img/iva-white.svg",
     logoAlt: "img/iva.svg",
     footerLogo: "img/opencb-logo.png",
