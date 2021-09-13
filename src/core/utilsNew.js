@@ -460,15 +460,16 @@ export default class UtilsNew {
     }
 
     /**
-     * Filters internal array using external array.
-     * It either uses external array as list to add or remove from the result array.
+     * Filters internal array items using external array.
+     * It either uses external array as list to add or remove items from the resulting array.
      *
-     * @param {Array} internal array
+     * @param {Array} internal list of objects with IDs.
      * @param {Array} external can be either a plain array of string or an array of object with IDs
-     * @param {Boolean} subtractive set true if the external array lists the fields to hide
+     * @param {Boolean} subtractive set true if the external array represents the fields to hide
+     * @param {Boolean} externalObject set true if the external list is a list of objects and you want to merge internal and external items together.
      * @returns {Array} resulting array
      */
-    static mergeArray(internal, external, subtractive = false) {
+    static mergeArray(internal, external, subtractive = false, externalObject = false) {
 
         if (external) {
             if (!subtractive) {
@@ -487,7 +488,11 @@ export default class UtilsNew {
                         }
                     });
                     if (field) {
-                        results.push(field);
+                        if (externalObject) {
+                            results.push({...c, ...field});
+                        } else {
+                            results.push(field);
+                        }
                     } else {
                         // console.error("Field not found", c);
                     }
@@ -509,13 +514,16 @@ export default class UtilsNew {
     }
 
     /**
+     * NOT used at the moment
+     *
      * Hydrates `external` array of objects with `internal` one. The merge is based on id.
      * It acts like a filter for the internal object.
      * If an object with a certain Id is present in the internal array but not in the external, it won't be present in the returning array.
      * The other way around, if an object with a certain Id is present in the external array but not in the internal, it will be added only if `force` flag is true.
+     * This is similar to mergeArray. The difference is the resulting items here are merged with the spread operator, the force flag and the subtractive flag.
      *
-     * @param {Array} internal array
-     * @param {Array} external array
+     * @param {Array} internal list of object with IDs
+     * @param {Array} external list of object with IDs
      * @param {Boolean} force  force external object addition even if there is no object with the same id in `internal`
      * @returns {Array} hydrated array
      */
