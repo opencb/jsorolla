@@ -5,6 +5,7 @@ import HistogramRenderer from "../renderers/histogram-renderer.js";
 import {SVG} from "../../core/svg.js";
 
 export default class FeatureTrack {
+
     constructor(args) {
         this.id = Utils.genId("track");
         this.dataAdapter;
@@ -51,8 +52,8 @@ export default class FeatureTrack {
         this.invalidZoomText;
 
 
-        this.renderedArea = {}; //used for renders to store binary trees
-        this.chunksDisplayed = {}; //used to avoid painting multiple times features contained in more than 1 chunk
+        this.renderedArea = {}; // used for renders to store binary trees
+        this.chunksDisplayed = {}; // used to avoid painting multiple times features contained in more than 1 chunk
 
         if ("handlers" in this) {
             for (let eventName in this.handlers) {
@@ -67,7 +68,7 @@ export default class FeatureTrack {
 
         Object.assign(this, Backbone.Events);
 
-        //save default render reference;
+        // save default render reference;
         // this.defaultRenderer = this.renderer;
         // this.renderer = this.renderer;
 
@@ -139,19 +140,19 @@ export default class FeatureTrack {
     }
 
     settingsContent() {
-        this.trigger("track:settings", { sender: this });
+        this.trigger("track:settings", {sender: this});
     }
 
     close() {
-        this.trigger("track:close", { sender: this });
+        this.trigger("track:close", {sender: this});
     }
 
     up() {
-        this.trigger("track:up", { sender: this });
+        this.trigger("track:up", {sender: this});
     }
 
     down() {
-        this.trigger("track:down", { sender: this });
+        this.trigger("track:down", {sender: this});
     }
 
     setSpecies(species) {
@@ -207,7 +208,7 @@ export default class FeatureTrack {
             this.histogram = true;
             this.histogramLogarithm = true;
             this.histogramMax = 500;
-            this.interval = Math.ceil(10 / this.pixelBase); //server interval limit 512
+            this.interval = Math.ceil(10 / this.pixelBase); // server interval limit 512
             $(this.histogramEl).html('&nbsp;<i class="fa fa-signal"></i>');
         } else {
             this.histogram = undefined;
@@ -225,7 +226,7 @@ export default class FeatureTrack {
     }
 
     _clean() {
-        //Must be called on child clean method
+        // Must be called on child clean method
         this.chunksDisplayed = {};
         this.renderedArea = {};
     }
@@ -268,9 +269,9 @@ export default class FeatureTrack {
                 let lastContains = 0;
                 for (let i in this.renderedArea) {
                     if (this.renderedArea[i].contains({
-                            start: x,
-                            end: x + width
-                        })) {
+                        start: x,
+                        end: x + width
+                    })) {
                         lastContains = i;
                     }
                 }
@@ -572,7 +573,7 @@ export default class FeatureTrack {
             //     interval: this.interval,
             //     exclude: this.exclude
             // };
-            if(UtilsNew.isUndefined(adapter.params)){
+            if (UtilsNew.isUndefined(adapter.params)){
                 adapter.params = {};
             }
             let params = Object.assign(adapter.params, {
@@ -599,11 +600,11 @@ export default class FeatureTrack {
     }
 
     getFeaturesToRenderByChunk(response, filters) {
-        //Returns an array avoiding already drawn features in this.chunksDisplayed
-        let getChunkId = function(position) {
+        // Returns an array avoiding already drawn features in this.chunksDisplayed
+        let getChunkId = function (position) {
             return Math.floor(position / response.chunkSize);
         };
-        let getChunkKey = function(chromosome, chunkId) {
+        let getChunkKey = function (chromosome, chunkId) {
             return `${chromosome}:${chunkId}_${response.dataType}_${response.chunkSize}`;
         };
 
@@ -611,11 +612,11 @@ export default class FeatureTrack {
 
         let feature, displayed, featureFirstChunk, featureLastChunk, features = [];
         for (let i = 0, leni = chunks.length; i < leni; i++) {
-            if (this.chunksDisplayed[chunks[i].chunkKey] !== true) { //check if any chunk is already displayed and skip it
+            if (this.chunksDisplayed[chunks[i].chunkKey] !== true) { // check if any chunk is already displayed and skip it
                 for (let j = 0, lenj = chunks[i].value.length; j < lenj; j++) {
                     feature = chunks[i].value[j];
 
-                    //check if any feature has been already displayed by another chunk
+                    // check if any feature has been already displayed by another chunk
                     displayed = false;
                     featureFirstChunk = getChunkId(feature.start);
                     featureLastChunk = getChunkId(feature.end);
@@ -648,7 +649,7 @@ export default class FeatureTrack {
         let pixelDisplacement = disp * _this.pixelBase;
         this.pixelPosition -= pixelDisplacement;
 
-        //parseFloat important
+        // parseFloat important
         let move = parseFloat(this.svgCanvasFeatures.getAttribute("x")) + pixelDisplacement;
         this.svgCanvasFeatures.setAttribute("x", move);
 
@@ -672,12 +673,12 @@ export default class FeatureTrack {
                         interval: this.interval
                     }
                 })
-                .then(function (response) {
-                    _this.getDataHandler(response);
-                })
-                .catch(function(reason) {
-                    console.log("Feature Track move error: " + reason)
-                });
+                    .then(function (response) {
+                        _this.getDataHandler(response);
+                    })
+                    .catch(function (reason) {
+                        console.log("Feature Track move error: " + reason)
+                    });
                 this.svgCanvasLeftLimit = parseInt(this.svgCanvasLeftLimit - this.svgCanvasOffset);
             }
 
@@ -696,12 +697,12 @@ export default class FeatureTrack {
                         interval: this.interval
                     }
                 })
-                .then(function (response) {
-                    _this.getDataHandler(response);
-                })
-                .catch(function(reason) {
-                    console.log("Feature Track move error: " + reason)
-                });
+                    .then(function (response) {
+                        _this.getDataHandler(response);
+                    })
+                    .catch(function (reason) {
+                        console.log("Feature Track move error: " + reason)
+                    });
                 this.svgCanvasRightLimit = parseInt(this.svgCanvasRightLimit + this.svgCanvasOffset);
             }
         }
@@ -710,4 +711,5 @@ export default class FeatureTrack {
             this.updateHeight();
         }
     }
+
 }
