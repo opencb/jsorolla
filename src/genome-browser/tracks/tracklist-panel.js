@@ -131,14 +131,14 @@ export default class TrackListPanel { // parent is a DOM div element
 
                 this.collapseDiv.appendChild(collapseSpan);
 
-                $(titleDiv).dblclick(function() {
+                $(titleDiv).dblclick(function () {
                     if (_this.collapsed) {
                         _this.showContent();
                     } else {
                         _this.hideContent();
                     }
                 });
-                $(this.collapseDiv).click(function() {
+                $(this.collapseDiv).click(function () {
                     if (_this.collapsed) {
                         _this.showContent();
                     } else {
@@ -492,7 +492,7 @@ export default class TrackListPanel { // parent is a DOM div element
 
         var enableKeys = function () {
             // keys
-            $("body").bind("keydown.genomeViewer", function(e) {
+            $("body").bind("keydown.genomeViewer", function (e) {
                 let disp = 0;
                 switch (e.keyCode) {
                     case 37: // left arrow
@@ -582,7 +582,7 @@ export default class TrackListPanel { // parent is a DOM div element
     setRegion(region) { // item.chromosome, item.position, item.species
         console.log(`trackListPanel setRegion region ------> ${region}`);
         console.log(`trackListPanel setRegion width ------> ${this.width}`);
-        let _this = this;
+
         let mid = this.width / 2;
         this.region.load(region);
         this.visualRegion.load(region);
@@ -662,7 +662,7 @@ export default class TrackListPanel { // parent is a DOM div element
     }
     _addTrack(track) {
         if (!this.rendered) {
-            console.info(`${this.id} is not rendered yet`);
+            console.log(`${this.id} is not rendered yet`);
             return;
         }
         let _this = this;
@@ -758,13 +758,13 @@ export default class TrackListPanel { // parent is a DOM div element
             }
         });
 
-        track.on("track:close", function(event) {
+        track.on("track:close", function (event) {
             _this.removeTrack(event.sender);
         });
-        track.on("track:up", function(event) {
+        track.on("track:up", function (event) {
             _this._reallocateAbove(event.sender);
         });
-        track.on("track:down", function(event) {
+        track.on("track:down", function (event) {
             _this._reallocateUnder(event.sender);
         });
 
@@ -842,7 +842,7 @@ export default class TrackListPanel { // parent is a DOM div element
         //        this.off('trackSpecies:change', track.get('trackSpecies:change'));
         this.off("trackRegion:change", track.get("trackRegion:change"));
         this.off("trackRegion:move", track.get("trackRegion:move"));
-        //this.off('trackWidth:change', track.set('trackWidth:change'));
+        // this.off('trackWidth:change', track.set('trackWidth:change'));
         this.off("trackFeature:highlight", track.get("trackFeature:highlight"));
 
         this.refreshTracksDom();
