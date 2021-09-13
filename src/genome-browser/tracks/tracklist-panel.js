@@ -1034,7 +1034,7 @@ export default class TrackListPanel { // parent is a DOM div element
     setCellBaseHost(host) {
         this.cellBaseHost = host;
         for (let i = 0; i < this.tracks.length; i++) {
-            let track = this.tracks[i];
+            const track = this.tracks[i];
             if (track.dataAdapter instanceof CellBaseAdapter) {
                 track.dataAdapter.setHost(this.cellBaseHost);
             }
@@ -1042,8 +1042,8 @@ export default class TrackListPanel { // parent is a DOM div element
     }
     deleteTracksCache() {
         for (let i = 0; i < this.tracks.length; i++) {
-            let track = this.tracks[i];
-            if(track.dataAdapter.deleteCache != null) {
+            const track = this.tracks[i];
+            if (track.dataAdapter.deleteCache != null) {
                 track.dataAdapter.deleteCache();
             }
         }
