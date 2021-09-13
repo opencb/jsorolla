@@ -72,11 +72,11 @@ class VariantInterpreterQc extends LitElement {
 
     }
 
-    updated(changedProperties) {
+    update(changedProperties) {
         if (changedProperties.has("config")) {
             // console.error("this.config", this.config)
             this._config = {...this.getDefaultConfig(), ...this.config};
-            this.requestUpdate();
+            // this.requestUpdate();
         }
         if (changedProperties.has("clinicalAnalysis")) {
             this.clinicalAnalysisObserver();
@@ -85,6 +85,7 @@ class VariantInterpreterQc extends LitElement {
         if (changedProperties.has("clinicalAnalysisId")) {
             this.clinicalAnalysisIdObserver();
         }
+        super.update(changedProperties);
     }
 
     clinicalAnalysisObserver() {
@@ -124,7 +125,9 @@ class VariantInterpreterQc extends LitElement {
             contentTabs.removeClass("active");
             $("#" + this._prefix + tabId).addClass("active");
             for (const tab in this.activeTab) {
-                this.activeTab[tab] = false;
+                if (Object.prototype.hasOwnProperty.call(this.activeTab, tab)) {
+                    this.activeTab[tab] = false;
+                }
             }
             this.activeTab[tabId] = true;
             this.requestUpdate();
@@ -133,6 +136,7 @@ class VariantInterpreterQc extends LitElement {
 
     getDefaultConfig() {
         return {
+            // this list is customisable via external settings in variant-interpreter.settings.js
             tabs: ["overview", "sampleVariantStats", "cancerQCPlots", "somaticVariantStats", "germlineVariantStats", "geneCoverage"]
         };
     }

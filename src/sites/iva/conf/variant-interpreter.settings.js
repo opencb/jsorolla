@@ -5,7 +5,7 @@ const variantInterpreterSettings = {
         },
         {
             id: "qc",
-            tabs: ["overview", "sampleVariantStats", /* "cancerQCPlots",*/ "somaticVariantStats", "germlineVariantStats"],
+            tabs: ["overview", "sampleVariantStats", /* "cancerQCPlots",*/ "somaticVariantStats", "germlineVariantStats"/* "geneCoverage"*/],
         },
         /* {
             id: "methods"
