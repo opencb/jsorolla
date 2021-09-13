@@ -988,11 +988,11 @@ export default class VariantInterpreterGrid extends LitElement {
                 },
                 {
                     id: "pindel",
-                    info: ["QUAL", "REP"]
+                    info: ["QUAL", "REP", "LEN"]
                 },
                 {
                     id: "tnhaplotyper2",
-                    info: ["DP", "ECNT", "TLOD", "P_GERMLINE"]
+                    info: ["ECNT", "TLOD", "P_GERMLINE"]
                 },
                 {
                     id: "Pisces",
