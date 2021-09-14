@@ -461,10 +461,10 @@ class VariantInterpreterBrowserCancer extends LitElement {
                             {
                                 id: "populationFrequency",
                                 title: "Select Population Frequency",
-                                allowedFrequencies: "0.001,0.005,0.01",
+                                allowedFrequencies: "0.0001,0.0005,0.001,0.005,0.01,0.05",
                                 tooltip: tooltips.populationFrequencies,
                                 showSetAll: false,
-                                // TODO read this from the StudyConfiguration in OpenCGA 2.1
+                                // TODO read this from the Study.internal.configuration in OpenCGA 2.1
                                 populationFrequencies: {
                                     studies: [
                                         {
