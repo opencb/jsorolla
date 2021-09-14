@@ -73,6 +73,10 @@ export default class CustomNavBar extends LitElement {
         LitUtils.dispatchEventCustom(this, "changeTool", e);
     }
 
+    onJobSelected(e) {
+        LitUtils.dispatchEventCustom(this, "jobSelected", e);
+    }
+
     onChangeApp(e, toggle) {
         LitUtils.dispatchEventCustom(this, "changeApp", "", null, {event: e, toggle: toggle});
     }
@@ -289,7 +293,7 @@ export default class CustomNavBar extends LitElement {
             <nav class="navbar navbar-inverse main-navbar">
                 <div>
                     <!-- Left Sidebar Icon: we only show the icon if more than 1 visible app exist -->
-                    ${this.config.apps?.filter(app => this.isVisible(app)).length > 0 ? html`
+                    ${this.config.apps?.filter(app => this.isVisible(app)).length > 1 ? html`
                         <ul class="nav navbar-nav">
                             <li>
                                 <a href="#" @click="${this.toggleSideNav}" id="waffle-icon-wrapper">

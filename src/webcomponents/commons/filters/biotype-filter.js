@@ -47,11 +47,11 @@ export default class BiotypeFilter extends LitElement {
         this._config = this.getDefaultConfig();
     }
 
-    updated(changedProperties) {
+    update(changedProperties) {
         if (changedProperties.has("config")) {
             this._config = {...this.getDefaultConfig(), ...this.config};
-            this.requestUpdate();
         }
+        super.update(changedProperties);
     }
 
     getDefaultConfig() {

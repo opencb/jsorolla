@@ -13,7 +13,7 @@
   },
   "scripts": {
     "serve": "vite",
-    "build": "vite build",
+    "build": "vite build && npm run package",
     "preview": "vite preview",
     "prepare": "husky install",
     "browser-support": "npx browserslist",
@@ -37,7 +37,8 @@
     "e2e": "./cypress/credentials.sh npx cypress open --config-file ./cypress/cypress.json",
     "e2e-win": "crypress/credentials.bat npx cypress open --config-file ./cypress/cypress.json",
     "e2e-report": "./cypress/e2e-runner.sh",
-    "e2e-report-win": "cypress/e2e-runner.bat"
+    "e2e-report-win": "cypress/e2e-runner.bat",
+    "graph": "./dependency-graph.sh"
   },
   "license": "Apache-2.0",
   "dependencies": {
@@ -134,7 +135,8 @@
     "uglify-js": "^3.14.2",
     "uglifycss": "0.0.29",
     "vite": "^2.5.5",
-    "xmldom": "0.1.27"
+    "xmldom": "0.1.27",
+    "dependency-cruiser": "^10.0.7"
   },
   "browserslist": [
     ">1%",

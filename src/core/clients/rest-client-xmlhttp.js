@@ -21,7 +21,7 @@ export class RestClientXmlhttp {
         console.time("AJAX call to CellBase");
         const request = new XMLHttpRequest();
         request.onload = function (event) {
-            console.log(`CellBaseClient: call to URL succeed: '${url}'`);
+            // console.log(`CellBaseClient: call to URL succeed: '${url}'`);
             const contentType = this.getResponseHeader("Content-Type");
             if (contentType === "application/json") {
                 dataResponse = JSON.parse(this.response);
@@ -89,7 +89,7 @@ export class RestClientXmlhttp {
             async = options.async || true;
         }
 
-        console.time(`REST call to ${url}`);
+        // console.time(`REST call to ${url}`);
         // Creating the promise
         return new Promise((resolve, reject) => {
 
@@ -127,7 +127,7 @@ export class RestClientXmlhttp {
                                 typeof options.cacheFn === "undefined") {
                             options.success(dataResponse);
                         }
-                        console.timeEnd(`REST call to ${url}`);
+                        // console.timeEnd(`REST call to ${url}`);
                         globalThis.dispatchEvent(eventDone);
 
                         resolve(new RestResponse(dataResponse));

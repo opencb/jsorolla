@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
 import "../forms/data-form.js";
@@ -64,10 +63,11 @@ export default class VariantCallerInfoFilter extends LitElement {
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
-    updated(changedProperties) {
+    update(changedProperties) {
         if (changedProperties.has("fileData")) {
             this.fileDataObserver();
         }
+        super.update(changedProperties);
     }
 
     // update(changedProperties) {
@@ -139,7 +139,7 @@ export default class VariantCallerInfoFilter extends LitElement {
             this.fileDataQuery = {};
         }
 
-        this.requestUpdate();
+        // this.requestUpdate();
     }
 
     filterChange(e) {
@@ -268,6 +268,12 @@ export default class VariantCallerInfoFilter extends LitElement {
                         {
                             name: "REP",
                             field: "REP",
+                            type: "input-number",
+                            defaultValue: "",
+                        },
+                        {
+                            name: "LEN",
+                            field: "LEN",
                             type: "input-number",
                             defaultValue: "",
                         },

@@ -65,6 +65,7 @@ export default class VariantInterpreterGrid extends LitElement {
         // Config for the grid toolbar
         this.toolbarConfig = {
             download: ["JSON"],
+            buttons: ["columns", "download", "export"],
             columns: [
                 {title: "Variant", field: "id"},
                 {title: "Genes", field: "genes"},
@@ -987,11 +988,11 @@ export default class VariantInterpreterGrid extends LitElement {
                 },
                 {
                     id: "pindel",
-                    info: ["QUAL", "REP"]
+                    info: ["QUAL", "REP", "LEN"]
                 },
                 {
                     id: "tnhaplotyper2",
-                    info: ["DP", "ECNT", "TLOD", "P_GERMLINE"]
+                    info: ["ECNT", "TLOD", "P_GERMLINE"]
                 },
                 {
                     id: "Pisces",

@@ -51,8 +51,10 @@ export default class VariantInterpreterGridConfig extends LitElement {
             case "consequenceType.refseqTranscript":
             case "consequenceType.gencodeBasicTranscript":
             case "consequenceType.ccdsTranscript":
+            case "consequenceType.lrgTranscript":
             case "consequenceType.ensemblTslTranscript":
             case "consequenceType.illuminaTSO500Transcript":
+            case "consequenceType.eglhHaemoncTranscript":
             case "consequenceType.proteinCodingTranscript":
             case "consequenceType.highImpactConsequenceTypeTranscript":
             case "consequenceType.showNegativeConsequenceTypes":
@@ -135,6 +137,13 @@ export default class VariantInterpreterGridConfig extends LitElement {
                             }
                         },
                         {
+                            field: "consequenceType.lrgTranscript",
+                            type: "checkbox",
+                            text: "Include LRG transcripts",
+                            display: {
+                            }
+                        },
+                        {
                             field: "consequenceType.ensemblTslTranscript",
                             type: "checkbox",
                             text: "Include Ensembl TSL:1 transcripts",
@@ -145,6 +154,13 @@ export default class VariantInterpreterGridConfig extends LitElement {
                             field: "consequenceType.illuminaTSO500Transcript",
                             type: "checkbox",
                             text: "Include Illumina TSO500 transcripts",
+                            display: {
+                            }
+                        },
+                        {
+                            field: "consequenceType.eglhHaemoncTranscript",
+                            type: "checkbox",
+                            text: "Include EGLH HaemOnc transcripts",
                             display: {
                             }
                         },

@@ -235,7 +235,7 @@ export default class TrackListPanel { // parent is a DOM div element
             "position": "absolute",
             "left": -20.5,
             "top": 0,
-            "width": Math.floor(this.pixelBase), //this.pixelBase + 2,
+            "width": Math.floor(this.pixelBase), // this.pixelBase + 2,
             "height": "calc(100% - 8px)",
             "border": "1px solid gray",
             "opacity": 0.7,
@@ -243,7 +243,7 @@ export default class TrackListPanel { // parent is a DOM div element
             "background-color": "gainsboro"
         });
 
-        //allow selection in trackSvgLayoutOverview
+        // allow selection in trackSvgLayoutOverview
 
 
         let selBox = $(`<div id="${this.id}selBox"></div>`)[0];
@@ -354,19 +354,19 @@ export default class TrackListPanel { // parent is a DOM div element
                 mouseState = `ctrlKey${event.which}`;
             }
             switch (mouseState) {
-                case 1: //Left mouse button pressed
+                case 1: // Left mouse button pressed
                     $(this).css({
                         "cursor": "move"
                     });
                     downX = event.clientX;
                     let lastX = 0;
                     $(this).mousemove(function(event) {
-                        let newX = (downX - event.clientX) / _this.pixelBase | 0; //truncate always towards zero
+                        let newX = (downX - event.clientX) / _this.pixelBase | 0; // truncate always towards zero
                         if (newX != lastX) {
                             let disp = lastX - newX;
                             let centerPosition = _this.region.center();
                             let p = centerPosition - disp;
-                            if (p > 0) { //avoid 0 and negative positions
+                            if (p > 0) { // avoid 0 and negative positions
                                 _this.region.start -= disp;
                                 _this.region.end -= disp;
                                 _this._setTextPosition();
@@ -382,14 +382,14 @@ export default class TrackListPanel { // parent is a DOM div element
                                     sender: _this
                                 });
                                 lastX = newX;
-                                //_this.setNucleotidPosition(p);
+                                // _this.setNucleotidPosition(p);
                             }
                         }
                     });
 
                     break;
-                case 2: //Middle mouse button pressed
-                case "ctrlKey1": //ctrlKey and left mouse button
+                case 2: // Middle mouse button pressed
+                case "ctrlKey1": // ctrlKey and left mouse button
                     $(selBox).css({
                         "visibility": "visible"
                     });
@@ -414,7 +414,7 @@ export default class TrackListPanel { // parent is a DOM div element
 
 
                     break;
-                case 3: //Right mouse button pressed
+                case 3: // Right mouse button pressed
                     break;
                 default: // other button?
             }
@@ -437,11 +437,11 @@ export default class TrackListPanel { // parent is a DOM div element
                 mouseState = `ctrlKey${event.which}`;
             }
             switch (mouseState) {
-                case 1: //Left mouse button pressed
+                case 1: // Left mouse button pressed
 
                     break;
-                case 2: //Middle mouse button pressed
-                case "ctrlKey1": //ctrlKey and left mouse button
+                case 2: // Middle mouse button pressed
+                case "ctrlKey1": // ctrlKey and left mouse button
                     $(selBox).css({
                         "visibility": "hidden"
                     });
@@ -470,7 +470,7 @@ export default class TrackListPanel { // parent is a DOM div element
                         });
                     }
                     break;
-                case 3: //Right mouse button pressed
+                case 3: // Right mouse button pressed
                     break;
                 default: // other button?
             }
@@ -508,14 +508,14 @@ export default class TrackListPanel { // parent is a DOM div element
             $("body").bind("keydown.genomeViewer", function(e) {
                 let disp = 0;
                 switch (e.keyCode) {
-                    case 37: //left arrow
+                    case 37: // left arrow
                         if (e.ctrlKey) {
                             disp = Math.round(100 / _this.pixelBase);
                         } else {
                             disp = Math.round(10 / _this.pixelBase);
                         }
                         break;
-                    case 39: //right arrow
+                    case 39: // right arrow
                         if (e.ctrlKey) {
                             disp = Math.round(-100 / _this.pixelBase);
                         } else {
@@ -587,7 +587,7 @@ export default class TrackListPanel { // parent is a DOM div element
         }
     }
 
-    setRegion(region) { //item.chromosome, item.position, item.species
+    setRegion(region) { // item.chromosome, item.position, item.species
         console.log(`trackListPanel setRegion region ------> ${region}`);
         console.log(`trackListPanel setRegion width ------> ${this.width}`);
         let _this = this;
@@ -595,7 +595,7 @@ export default class TrackListPanel { // parent is a DOM div element
         this.region.load(region);
         this.visualRegion.load(region);
         this._setPixelBase();
-        //get pixelbase by Region
+        // get pixelbase by Region
 
 
         $(this.centerLine).css({
@@ -631,7 +631,7 @@ export default class TrackListPanel { // parent is a DOM div element
             sender: this
         });
 
-        this.positionNucleotidDiv.textContent = ""; //remove base char, will be drawn later if needed
+        this.positionNucleotidDiv.textContent = ""; // remove base char, will be drawn later if needed
 
         this.status = "rendering";
 
@@ -712,7 +712,7 @@ export default class TrackListPanel { // parent is a DOM div element
         track.draw();
 
 
-        //trackEvents
+        // trackEvents
         track.set("track:draw", function(event) {
             track.draw();
         });
@@ -809,7 +809,7 @@ export default class TrackListPanel { // parent is a DOM div element
         return this.tracksIndex[track.id];
     }
     _updateTracksIndex() {
-        //update index with correct index after splice
+        // update index with correct index after splice
         for (let i = 0; i < this.tracks.length; i++) {
             let track = this.tracks[i];
             this.tracksIndex[track.id] = i;
@@ -873,7 +873,7 @@ export default class TrackListPanel { // parent is a DOM div element
     }
 
 
-    //This routine is called when track order is modified
+    // This routine is called when track order is modified
     _reallocateAbove(track) {
         if (!this.containsTrack((track))) {
             return false;
@@ -924,15 +924,15 @@ export default class TrackListPanel { // parent is a DOM div element
 
         let oldIndex = this.getTrackIndex(track);
 
-        //remove track from old index
+        // remove track from old index
         this.tracks.splice(oldIndex, 1)[0];
 
-        //add track at new Index
+        // add track at new Index
         this.tracks.splice(newIndex, 0, track);
 
         this._updateTracksIndex();
 
-        //update track div positions
+        // update track div positions
         this.refreshTracksDom();
     }
     swapTracks(t1, t2) {
@@ -1006,7 +1006,7 @@ export default class TrackListPanel { // parent is a DOM div element
         }
     }
     getSequenceTrack() {
-        //if multiple, returns the first found
+        // if multiple, returns the first found
         for (let i = 0; i < this.tracks.length; i++) {
             let track = this.tracks[i];
             if (track.renderer instanceof SequenceRenderer) {

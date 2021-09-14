@@ -98,7 +98,7 @@ class VariantInterpreter extends LitElement {
             // To delete
             // this.clinicalAnalysisId = "NA12877";
             // this.clinicalAnalysisId = "AN-1";
-            // this.clinicalAnalysisId = "TN2_PINDEL";
+            // this.clinicalAnalysisId = "C-TMV2OCT20_121978_S57_L005_TUMOR";
             // this.clinicalAnalysisId = "C-MA6250";
             // this.clinicalAnalysisIdObserver();
         }
@@ -107,7 +107,8 @@ class VariantInterpreter extends LitElement {
     async clinicalAnalysisIdObserver() {
         if (this.opencgaSession) {
             this._config = {...this._config, loading: true};
-            await this.updateComplete;
+            // await this.updateComplete;
+            this.requestUpdate();
             if (this.clinicalAnalysisId) {
                 this.opencgaSession.opencgaClient.clinical().info(this.clinicalAnalysisId, {study: this.opencgaSession.study.fqn})
                     .then(async response => {
@@ -118,7 +119,8 @@ class VariantInterpreter extends LitElement {
                     })
                     .finally(async () => {
                         this._config = {...this._config, loading: false};
-                        await this.updateComplete;
+                        // await this.updateComplete;
+                        this.requestUpdate();
                     });
             } else {
                 this.clinicalAnalysis = null;

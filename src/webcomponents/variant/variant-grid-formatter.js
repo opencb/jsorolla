@@ -140,6 +140,13 @@ export default class VariantGridFormatter {
     }
 
     static geneFormatter(variant, index, query, opencgaSession, gridCtSettings) {
+        // debugger
+        // FIXME
+        if (!variant.annotation) {
+            variant.annotation = {
+                consequenceTypes: []
+            };
+        }
         const {selectedConsequenceTypes, notSelectedConsequenceTypes} =
             VariantGridFormatter._consequenceTypeDetailFormatterFilter(variant.annotation.consequenceTypes, gridCtSettings);
 
@@ -463,11 +470,20 @@ export default class VariantGridFormatter {
                 if (filter.consequenceType.gencodeBasicTranscript) {
                     result = result || transcriptFlags?.includes("basic");
                 }
+                if (filter.consequenceType.ccdsTranscript) {
+                    result = result || transcriptFlags?.includes("CCDS");
+                }
+                if (filter.consequenceType.lrgTranscript) {
+                    result = result || transcriptFlags?.includes("LRG");
+                }
                 if (filter.consequenceType.ensemblTslTranscript) {
                     result = result || transcriptFlags?.includes("TSL:1");
                 }
-                if (filter.consequenceType.ccdsTranscript) {
-                    result = result || transcriptFlags?.includes("CCDS");
+                if (filter.consequenceType.illuminaTSO500Transcript) {
+                    result = result || transcriptFlags?.includes("TSO500");
+                }
+                if (filter.consequenceType.eglhHaemoncTranscript) {
+                    result = result || transcriptFlags?.includes("EGLH_HaemOnc");
                 }
                 if (filter.consequenceType.proteinCodingTranscript && ct.biotype === "protein_coding") {
                     result = result || ct.biotype === "protein_coding";

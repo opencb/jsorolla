@@ -109,10 +109,9 @@ class ClinicalAnalysisInterpretationEditor extends LitElement {
                 ...this.clinicalAnalysis.secondaryInterpretations
             ];
 
-            let params = {
+            const params = {
                 study: this.opencgaSession.study.fqn,
                 version: "all",
-                // include: "id,version,modificationDate"
             };
             await this.opencgaSession.opencgaClient.clinical().infoInterpretation(this.clinicalAnalysis.interpretation.id, params)
                 .then(response => {
@@ -124,7 +123,8 @@ class ClinicalAnalysisInterpretationEditor extends LitElement {
         }
 
         // We always refresh UI when clinicalAnalysisObserver is called
-        await this.updateComplete;
+        // await this.updateComplete;
+        await this.requestUpdate();
         this.renderHistoryTable();
     }
 
@@ -132,9 +132,9 @@ class ClinicalAnalysisInterpretationEditor extends LitElement {
         return html`
             <div class="interpretation-wrapper ${classMap({primary: interpretation.primary})}">
                 <div class="header">
-                    <div>${interpretation.primary
-                        ? html`<span class="badge badge-dark-blue">PRIMARY</span>`
-                        : html`<span class="badge badge-light">SECONDARY</span>`
+                    <div>${interpretation.primary ?
+                        html`<span class="badge badge-dark-blue">PRIMARY</span>` :
+                        html`<span class="badge badge-light">SECONDARY</span>`
                     }
                     </div>
                     <span class="id">${interpretation.id}</span>
@@ -267,7 +267,7 @@ class ClinicalAnalysisInterpretationEditor extends LitElement {
 
     onActionClick(e, _, row) {
         const {action, interpretationId} = e.currentTarget.dataset;
-        let interpretationCallback = () => {
+        const interpretationCallback = () => {
             this.dispatchEvent(new CustomEvent("clinicalAnalysisUpdate", {
                 detail: {
                     clinicalAnalysis: this.clinicalAnalysis
@@ -308,8 +308,8 @@ class ClinicalAnalysisInterpretationEditor extends LitElement {
 
         return html`
             <div class="interpreter-content-tab">
-                ${this.interpretations?.length
-                    ? html`
+                ${this.interpretations?.length ?
+                    html`
                         <div class="row">
                             <div class="col-md-8" style="margin-bottom: 10px">
                                 <h3 style="padding-bottom: 5px">Interpretations</h3>
@@ -330,13 +330,14 @@ class ClinicalAnalysisInterpretationEditor extends LitElement {
                                 <h3>Main Interpretation History - ${this.clinicalAnalysis.interpretation.id}</h3>
                                 <table id="${this.gridId}"></table>
                             </div>
-                        </div>`
-                    : html`
+                        </div>` :
+                    html`
                         <div class="alert alert-info"><i class="fas fa-3x fa-info-circle align-middle"></i> No interpretation available yet.</div>`
                 }
             </div>
         `;
     }
+
 }
 
 customElements.define("clinical-analysis-interpretation-editor", ClinicalAnalysisInterpretationEditor);
