@@ -180,13 +180,12 @@ export default class OpencgaVariantFilter extends LitElement {
         }));
     }
 
-    /** *
+    /*
      * Handles filterChange events from all the filter components (this is the new updateQueryFilters)
      * @param key the name of the property in this.query
      * @param value the new value of the property
      */
     onFilterChange(key, value) {
-        // debugger
         /* Some filters may return more than one parameter, in this case key and value are objects with all the keys and filters
              - key: an object mapping filter name with the one returned
              - value: and object with the filter
@@ -220,25 +219,21 @@ export default class OpencgaVariantFilter extends LitElement {
         // this.requestUpdate();
     }
 
-    /**
-     * Deprecated: use function above.
-     * @param sampleFields
-     */
-    onSampleFilterChange(sampleFields) {
-        if (!sampleFields.sample) {
-            delete this.preparedQuery.sample;
-        }
-        if (!sampleFields.format) {
-            delete this.preparedQuery.format;
-        }
-        if (!sampleFields.includeSample) {
-            delete this.preparedQuery.includeSample;
-        }
-        this.preparedQuery = {...this.preparedQuery, ...sampleFields};
-
-        this.notifyQuery(this.preparedQuery);
-        this.requestUpdate(); // NOTE: this causes the bug in sample-filter / variant-filter-clinical (clicking the checkboxes on variant-filter-clinical)
-    }
+    // onSampleFilterChange(sampleFields) {
+    //     if (!sampleFields.sample) {
+    //         delete this.preparedQuery.sample;
+    //     }
+    //     if (!sampleFields.format) {
+    //         delete this.preparedQuery.format;
+    //     }
+    //     if (!sampleFields.includeSample) {
+    //         delete this.preparedQuery.includeSample;
+    //     }
+    //     this.preparedQuery = {...this.preparedQuery, ...sampleFields};
+    //
+    //     this.notifyQuery(this.preparedQuery);
+    //     this.requestUpdate(); // NOTE: this causes the bug in sample-filter / variant-filter-clinical (clicking the checkboxes on variant-filter-clinical)
+    // }
 
     onVariantCallerInfoFilter(fileId, fileDataFilter, callback) {
         let fileDataArray = [];
@@ -342,7 +337,10 @@ export default class OpencgaVariantFilter extends LitElement {
             switch (subsection.id) {
                 case "study":
                     if (this.opencgaSession.project.studies.length > 1) {
-                        content = html`<study-filter .opencgaSession="${this.opencgaSession}" @filterChange="${e => this.onFilterChange("study", e.detail.value)}"></study-filter>`;
+                        content = html`
+                            <study-filter .opencgaSession="${this.opencgaSession}"
+                                          @filterChange="${e => this.onFilterChange("study", e.detail.value)}">
+                            </study-filter>`;
                     }
                     break;
                 case "cohort":
@@ -390,25 +388,26 @@ export default class OpencgaVariantFilter extends LitElement {
                         </variant-file-filter>`;
                     break;
                 case "file-quality":
-                    // content = html`<file-qual-filter .qual="${this.preparedQuery.qual}" @filterChange="${e => this.onFilterChange("qual", e.detail.value)}"></file-qual-filter>`;
                     let depth;
                     if (this.preparedQuery?.sampleData) {
                         const sampleDataFilters = this.preparedQuery.sampleData.split(";");
                         depth = sampleDataFilters.find(filter => filter.startsWith("DP")).split(">=")[1];
                     }
-                    content = html`<file-quality-filter .filter="${this.preparedQuery.filter}" .depth="${depth}" .qual="${this.preparedQuery.qual}"
-                                                        @filterChange="${e => this.onFilterChange({
+                    content = html`
+                        <file-quality-filter .filter="${this.preparedQuery.filter}" .depth="${depth}" .qual="${this.preparedQuery.qual}"
+                                             @filterChange="${e => this.onFilterChange({
                                                                 filter: "filter",
                                                                 sampleData: "sampleData",
                                                                 qual: "qual"
                                                             }, e.detail.value)}" .config="${subsection}">
-                                    </file-quality-filter>
+                        </file-quality-filter>
                             `;
                     break;
                 case "region":
-                    content = html`<region-filter  .cellbaseClient="${this.cellbaseClient}" .region="${this.preparedQuery.region}"
-                                                    @filterChange="${e => this.onFilterChange("region", e.detail.value)}">
-                                    </region-filter>`;
+                    content = html`
+                        <region-filter  .cellbaseClient="${this.cellbaseClient}" .region="${this.preparedQuery.region}"
+                                        @filterChange="${e => this.onFilterChange("region", e.detail.value)}">
+                        </region-filter>`;
                     break;
                 case "feature":
                     content = html`
@@ -447,24 +446,43 @@ export default class OpencgaVariantFilter extends LitElement {
                         </population-frequency-filter>`;
                     break;
                 case "consequenceType":
-                    content = html`<consequence-type-filter .consequenceTypes="${this.consequenceTypes}" .ct="${this.preparedQuery.ct}"  @filterChange="${e => this.onFilterChange("ct", e.detail.value)}"></consequence-type-filter>`;
+                    content = html`
+                        <consequence-type-filter .consequenceTypes="${this.consequenceTypes}"
+                                                 .ct="${this.preparedQuery.ct}"
+                                                 @filterChange="${e => this.onFilterChange("ct", e.detail.value)}">
+                        </consequence-type-filter>`;
                     break;
                 case "consequenceTypeSelect":
-                    content = html`<consequence-type-select-filter .ct="${this.preparedQuery.ct}" .config="${this.consequenceTypes}" @filterChange="${e => this.onFilterChange("ct", e.detail.value)}"></consequence-type-select-filter>`;
+                    content = html`
+                        <consequence-type-select-filter .ct="${this.preparedQuery.ct}"
+                                                        .config="${this.consequenceTypes}"
+                                                        @filterChange="${e => this.onFilterChange("ct", e.detail.value)}">
+                        </consequence-type-select-filter>`;
                     break;
                 case "proteinSubstitutionScore":
-                    content = html`<protein-substitution-score-filter .protein_substitution="${this.preparedQuery.protein_substitution}" @filterChange="${e => this.onFilterChange("protein_substitution", e.detail.value)}"></protein-substitution-score-filter>`;
+                    content = html`
+                        <protein-substitution-score-filter .protein_substitution="${this.preparedQuery.protein_substitution}"
+                                                           @filterChange="${e => this.onFilterChange("protein_substitution", e.detail.value)}">
+                        </protein-substitution-score-filter>`;
                     break;
                 case "cadd":
-                    if (this.opencgaSession.project.organism.assembly.toLowerCase() === "grch37") {
-                        content = html`<cadd-filter .annot-functional-score="${this.preparedQuery["annot-functional-score"]}" @filterChange="${e => this.onFilterChange("annot-functional-score", e.detail.value)}"></cadd-filter>`;
-                    }
+                    content = html`
+                        <cadd-filter .annot-functional-score="${this.preparedQuery["annot-functional-score"]}"
+                                     @filterChange="${e => this.onFilterChange("annot-functional-score", e.detail.value)}">
+                        </cadd-filter>`;
                     break;
                 case "conservation":
-                    content = html`<conservation-filter .conservation="${this.preparedQuery.conservation}" @filterChange="${e => this.onFilterChange("conservation", e.detail.value)}"></conservation-filter>`;
+                    content = html`
+                        <conservation-filter .conservation="${this.preparedQuery.conservation}"
+                                             @filterChange="${e => this.onFilterChange("conservation", e.detail.value)}">
+                        </conservation-filter>`;
                     break;
                 case "go":
-                    content = html`<go-accessions-filter .go="${this.preparedQuery.go}" @ontologyModalOpen="${this.onOntologyModalOpen}" @filterChange="${e => this.onFilterChange("go", e.detail.value)}"></go-accessions-filter>`;
+                    content = html`
+                        <go-accessions-filter .go="${this.preparedQuery.go}"
+                                              @ontologyModalOpen="${this.onOntologyModalOpen}"
+                                              @filterChange="${e => this.onFilterChange("go", e.detail.value)}">
+                        </go-accessions-filter>`;
                     break;
                 case "hpo":
                     content = html`
@@ -483,7 +501,6 @@ export default class OpencgaVariantFilter extends LitElement {
                                                  .panelRoleInCancer="${this.preparedQuery.panelRoleInCancer}"
                                                  @filterChange="${e => this.onFilterChange({
                                                      panel: "panel",
-                                                     panelGene: "panelGene",
                                                      panelModeOfInheritance: "panelModeOfInheritance",
                                                      panelConfidence: "panelConfidence",
                                                      panelRoleInCancer: "panelRoleInCancer"
@@ -537,7 +554,9 @@ export default class OpencgaVariantFilter extends LitElement {
                         <variant-caller-info-filter .caller="${subsection.id}"
                                                     .fileId="${subsection.params.fileId}"
                                                     .fileData="${this.preparedQuery.fileData}"
-                                                    @filterChange="${e => this.onVariantCallerInfoFilter(subsection.params.fileId, e.detail.value, subsection.callback)}">
+                                                    @filterChange="${
+                                                            e => this.onVariantCallerInfoFilter(subsection.params.fileId, e.detail.value, subsection.callback)
+                                                    }">
                         </variant-caller-info-filter>`;
                     break;
                 default:
