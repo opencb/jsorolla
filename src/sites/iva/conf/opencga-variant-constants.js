@@ -59,7 +59,7 @@ const CONSEQUENCE_TYPES = {
         // This is the impact color. It allows to customise both the impact categories and desired colors
         high: "red",
         moderate: "darkorange",
-        low: "blue",
+        low: "#5d91a2",
         modifier: "green"
     },
 
@@ -435,9 +435,9 @@ const tooltips = {
         "(non-conserved) and 1 (highly conserved).<br>" +
         "<strong>Genomic Evolutionary Rate Profiling (GERP)</strong> score estimate the level of conservation of positions." +
         " Scores ≥ 2 indicate evolutionary constraint to and ≥ 3 indicate purifying selection.",
-    populationFrequencies: `<strong>1000 Genomes</strong> Only considers variants whose observed allelic frequency in the 1000 genomes phase 3 database 
+    populationFrequencies: `<strong>1000 Genomes</strong> Only considers variants whose observed allelic frequency in the 1000 genomes phase 3 database
                 is below (or above) the defined value. Genome-wide allelic frequencies were obtained from more than 2.500 genomes.<br><br>
-              <strong>gnomAD Genomes</strong> Only considers variants whose observed allelic frequency in the gnomAD Genomes database is 
+              <strong>gnomAD Genomes</strong> Only considers variants whose observed allelic frequency in the gnomAD Genomes database is
                 below (or above) the defined value. Frequencies were calculated from about 15,000 unrelated individuals`,
     proteinSubstitutionScore: "<strong>SIFT score:</strong> Choose either a Tolerated/Deleterious qualitative score or provide below a " +
             "quantitative impact value. SIFT scores <0.05 are considered deleterious. " +

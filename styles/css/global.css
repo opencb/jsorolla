@@ -132,8 +132,8 @@ input[type="number"] {
 }
 
 .badge-light {
-    color: #ffffff;
-    background-color: #a5a5a5;
+    color: #212529;
+    background-color: #e8e8e8;
 }
 
 .badge-dark {
@@ -2485,6 +2485,12 @@ interpretation-editor .status-wrapper .row > div:last-child {
 }
 
 /************  number-field-filter component style  ************/
+.control-label {
+
+    padding-left: 2px;
+    padding-right: 5px;
+}
+
 .number-field-filter {
     margin: 5px 0px;
 }
