@@ -153,61 +153,63 @@ export default class OpencgaActiveFilters extends LitElement {
         }
 
         for (const keyIdx in keys) {
-            const key = keys[keyIdx];
-            if (UtilsNew.isNotEmpty(this.query[key]) && (!this._config.hiddenFields || (this._config.hiddenFields && !this._config.hiddenFields.includes(key)))) {
+            if (Object.prototype.hasOwnProperty.call(keys, keyIdx)) {
+                const key = keys[keyIdx];
+                if (UtilsNew.isNotEmpty(this.query[key]) && (!this._config.hiddenFields || (this._config.hiddenFields && !this._config.hiddenFields.includes(key)))) {
 
-                // We use the alias to rename the key
-                let title = key;
-                if (UtilsNew.isNotUndefinedOrNull(this._config.alias) && UtilsNew.isNotUndefinedOrNull(this._config.alias[key])) {
-                    title = this._config.alias[key];
-                }
-
-                // We convert the Query entry object into an array of small objects (queryList)
-                let value = this.query[key];
-                if (typeof value === "boolean") {
-                    value = value.toString();
-                }
-
-                let filterFields = [];
-
-                // in case of annotation
-                if (key === "annotation") {
-                    filterFields = value.split(";");
-                } else if (key === "study") {
-                    // We fist have need to remove defaultStudy from 'filterFields' and 'value'
-                    filterFields = value.split(/[,;]/).filter(fqn => fqn !== this.defaultStudy);
-                    // defaultStudy was the only one present so no need to render anything
-                    if (!filterFields.length) {
-                        continue;
+                    // We use the alias to rename the key
+                    let title = key;
+                    if (UtilsNew.isNotUndefinedOrNull(this._config.alias) && UtilsNew.isNotUndefinedOrNull(this._config.alias[key])) {
+                        title = this._config.alias[key];
                     }
-                    value = filterFields.join(/[,;]/);
-                } else {
-                    // If we find a field with both ; and , or the field has been defined as complex, we will only
-                    // separate by ;
-                    if ((value.indexOf(";") !== -1 && value.indexOf(",") !== -1) || this._config.complexFields.indexOf(key) !== -1) {
-                        filterFields = value.split(new RegExp(";"));
-                    } else {
-                        filterFields = value.split(new RegExp("[,;]"));
+
+                    // We convert the Query entry object into an array of small objects (queryList)
+                    let value = this.query[key];
+                    if (typeof value === "boolean") {
+                        value = value.toString();
                     }
-                }
 
+                    let filterFields = [];
 
-                const locked = UtilsNew.isNotUndefinedOrNull(this.lockedFieldsMap[key]);
-                const lockedTooltip = UtilsNew.isNotUndefinedOrNull(this.lockedFieldsMap[key]) ? this.lockedFieldsMap[key].message : "";
-
-                // Just in case one is a flag
-                if (filterFields.length === 0) {
-                    _queryList.push({name: key, text: title, locked: locked, message: lockedTooltip});
-                } else {
-                    if (filterFields.length === 1) {
-                        if (value.indexOf(">") !== -1 || value.indexOf("<") !== -1 || value.indexOf("=") !== -1) {
-                            _queryList.push({name: key, text: title + ": " + value, locked: locked, message: lockedTooltip});
-                        } else {
-                            _queryList.push({name: key, text: title + " = " + value, locked: locked, message: lockedTooltip});
+                    // in case of annotation
+                    if (key === "annotation") {
+                        filterFields = value.split(";");
+                    } else if (key === "study") {
+                        // We fist have need to remove defaultStudy from 'filterFields' and 'value'
+                        filterFields = value.split(/[,;]/).filter(fqn => fqn !== this.defaultStudy);
+                        // defaultStudy was the only one present so no need to render anything
+                        if (!filterFields.length) {
+                            continue;
                         }
-                        //                                }
+                        value = filterFields.join(/[,;]/);
                     } else {
-                        _queryList.push({name: key, text: title, items: filterFields, locked: locked, message: lockedTooltip});
+                        // If we find a field with both ; and , or the field has been defined as complex, we will only
+                        // separate by ;
+                        if ((value.indexOf(";") !== -1 && value.indexOf(",") !== -1) || this._config.complexFields.indexOf(key) !== -1) {
+                            filterFields = value.split(new RegExp(";"));
+                        } else {
+                            filterFields = value.split(new RegExp("[,;]"));
+                        }
+                    }
+
+
+                    const locked = UtilsNew.isNotUndefinedOrNull(this.lockedFieldsMap[key]);
+                    const lockedTooltip = UtilsNew.isNotUndefinedOrNull(this.lockedFieldsMap[key]) ? this.lockedFieldsMap[key].message : "";
+
+                    // Just in case one is a flag
+                    if (filterFields.length === 0) {
+                        _queryList.push({name: key, text: title, locked: locked, message: lockedTooltip});
+                    } else {
+                        if (filterFields.length === 1) {
+                            if (value.indexOf(">") !== -1 || value.indexOf("<") !== -1 || value.indexOf("=") !== -1) {
+                                _queryList.push({name: key, text: title + ": " + value, locked: locked, message: lockedTooltip});
+                            } else {
+                                _queryList.push({name: key, text: title + " = " + value, locked: locked, message: lockedTooltip});
+                            }
+                            //                                }
+                        } else {
+                            _queryList.push({name: key, text: title, items: filterFields, locked: locked, message: lockedTooltip});
+                        }
                     }
                 }
             }
@@ -220,7 +222,7 @@ export default class OpencgaActiveFilters extends LitElement {
     facetQueryObserver() {
         // this just handle the visibility of the warning message and store a serialised this.facetQuery into this._jsonPrevFacetQuery.
         // we use the same logic as queryObserver() for show/hide the warning message, but here we store a json string in _jsonPrevFacetQuery.
-        if (Object.keys(this.facetQuery).length) {
+        if (this.facetQuery && Object.keys(this.facetQuery).length) {
             // check if this.facetQuery has changed
             if (!this._jsonPrevFacetQuery || !UtilsNew.objectCompare(this.facetQuery, JSON.parse(this._jsonPrevFacetQuery))) {
                 this._jsonPrevFacetQuery = JSON.stringify(this.facetQuery); // this.facetQuery is a complex object, {...this.facetQuery} won't work
@@ -258,12 +260,12 @@ export default class OpencgaActiveFilters extends LitElement {
     clear() {
         // TODO do not trigger event if there are no active filters
         // Trigger clear event
-        this.dispatchEvent(new CustomEvent("activeFilterClear", {detail: {}, /*bubbles: true, composed: true*/}));
+        this.dispatchEvent(new CustomEvent("activeFilterClear", {detail: {} /* bubbles: true, composed: true*/}));
     }
 
     clearFacet() {
         $("#" + this._prefix + "Warning").hide();
-        this.dispatchEvent(new CustomEvent("activeFacetClear", {detail: {}, /*bubbles: true, composed: true*/}));
+        this.dispatchEvent(new CustomEvent("activeFacetClear", {detail: {} /* bubbles: true, composed: true*/}));
     }
 
     launchModal() {
@@ -639,9 +641,9 @@ export default class OpencgaActiveFilters extends LitElement {
                 </div>
             `}
 
-            <!--<div class="alert alert-info">query ${JSON.stringify(this.query)}</div>
-            <div class="alert alert-info">queryList ${JSON.stringify(this.queryList)}</div>
-             <div class="alert alert-info">facetQuery ${JSON.stringify(this.facetQuery)}</div>-->
+            <!--<div class="alert alert-info">query \${JSON.stringify(this.query)}</div>
+            <div class="alert alert-info">queryList \${JSON.stringify(this.queryList)}</div>
+             <div class="alert alert-info">facetQuery \${JSON.stringify(this.facetQuery)}</div>-->
             <div class="panel panel-default">
                 <div class="panel-body" style="padding: 8px 10px">
                     <div class="lhs">
@@ -755,7 +757,7 @@ export default class OpencgaActiveFilters extends LitElement {
                     </div>
 
                     <div class="rhs">
-                        <!--<button type="button" class="btn btn-primary btn-sm ripple" @click="${this.clear}">
+                        <!--<button type="button" class="btn btn-primary btn-sm ripple" @click="\${this.clear}">
                             <i class="fa fa-eraser icon-padding" aria-hidden="true"></i> Clear
                         </button>
                         -->
@@ -774,7 +776,11 @@ export default class OpencgaActiveFilters extends LitElement {
                                             <li role="separator" class="divider"></li>
                                         ` : html`
                                             <li>
-                                                <a data-filter-id="${item.id}" class="filtersLink" style="cursor: pointer;color: ${!item.active ? "black" : "green"}" title="${item.description ?? ""}" @click="${this.onServerFilterChange}">
+                                                <a data-filter-id="${item.id}"
+                                                   class="filtersLink"
+                                                   style="cursor: pointer;color: ${!item.active ? "black" : "green"}"
+                                                   title="${item.description ?? ""}"
+                                                   @click="${this.onServerFilterChange}">
                                                     <span class="id-filter-button">&nbsp;&nbsp;${item.id}</span>
                                                     <span class="delete-filter-button" title="Delete filter" data-filter-id="${item.id}" @click="${this.serverFilterDelete}"><i class="fas fa-times"></i></span>
                                                 </a>
