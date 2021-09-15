@@ -20,7 +20,9 @@ import UtilsNew from "../../../core/utilsNew.js";
 // TODO reorganize props multiple/forceSelection
 
 /** NOTE - Design choice: to allow deselection, the single mode (this.multiple=false), has been implemented with the multiple flag in bootstrap-select, but forcing 1 selection with data-max-options=1
- *  (this has no consequences for the developer point of view). This behaviour can be over overridden using "forceSelection" prop
+ *  (this has no consequences for the developer point of view). This behaviour can be over overridden using "forceSelection" prop.
+ *
+ *  NOTE putting names in data-content attr instead of as <option> content inself, allows HTML entities to be correctly decoded.
  *
  *  Usage:
  * <select-field-filter .data="${["A","B","C"]}" .value=${"A"} @filterChange="${e => console.log(e)}"></select-field-filter>
@@ -119,11 +121,11 @@ export default class SelectFieldFilter extends LitElement {
 
         if (changedProperties.has("classes")) {
             if (this.classes) {
-                this.selectPicker.selectpicker('setStyle', this.classes, 'add');
+                this.selectPicker.selectpicker("setStyle", this.classes, "add");
             } else {
                 // if classes os removed then we need to removed the old assigned classes
-                this.selectPicker.selectpicker('setStyle', changedProperties.get("classes"), 'remove');
-                this.selectPicker.selectpicker('setStyle', "btn-default", 'add');
+                this.selectPicker.selectpicker("setStyle", changedProperties.get("classes"), "remove");
+                this.selectPicker.selectpicker("setStyle", "btn-default", "add");
             }
         }
     }
@@ -178,7 +180,7 @@ export default class SelectFieldFilter extends LitElement {
                                         <optgroup label="${opt.id ?? opt.name}">${opt.fields.map(subopt => html`
                                             ${UtilsNew.isObject(subopt) ?
                                                 html`
-                                                    <option ?disabled="${subopt.disabled}" ?selected="${subopt.selected}" .value="${subopt.id ?? subopt.name}">${subopt.name}</option>` :
+                                                    <option ?disabled="${subopt.disabled}" ?selected="${subopt.selected}" .value="${subopt.id ?? subopt.name}" data-content="${subopt.name}"></option>` :
                                                 html`
                                                     <option>${subopt}</option>
                                                 `}
@@ -187,9 +189,9 @@ export default class SelectFieldFilter extends LitElement {
                                     html`
                                         ${UtilsNew.isObject(opt) ?
                                             html`
-                                                <option ?disabled="${opt.disabled}" ?selected="${opt.selected}" .value="${opt.id ?? opt.name}">${opt.name ?? opt.id}</option>` :
+                                                <option ?disabled="${opt.disabled}" ?selected="${opt.selected}" .value="${opt.id ?? opt.name}" data-content="${opt.name ?? opt.id}"></option>` :
                                             html`
-                                                <option>${opt}</option>
+                                                <option data-content="${opt}">${opt}</option>
                                         `}
                                 `}
                         `}
