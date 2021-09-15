@@ -16,6 +16,7 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
+import "./select-field-filter.js";
 
 
 export default class NumberFieldFilter extends LitElement {
@@ -89,11 +90,16 @@ export default class NumberFieldFilter extends LitElement {
         super.update(changedProperties);
     }
 
-    filterChange(e) {
+    filterChange(e, key) {
         e.stopPropagation();
 
-        const field = e.target.dataset.field;
-        this.state[field] = e.target.value;
+        if (key === "comparator") {
+            this.state.comparator = e.detail.value;
+        } else if (key === "value") {
+            this.state.value = e.target.value;
+        }
+        // const field = e.target.dataset.field;
+        // this.state[field] = e.target.value;
         const event = new CustomEvent("filterChange", {
             detail: {
                 comparator: this.state.comparator,
@@ -110,7 +116,7 @@ export default class NumberFieldFilter extends LitElement {
         return {
             layout: [3, 4, 5], // in case the label is not needed the expected value of the first element is 0
             comparator: true,
-            values: ["=", "<", "<=", ">", ">="]
+            values: [{id: "=", name: "="}, {id: "<", name: "<"}, {id: "<=", name: "&#8804;"}, {id: ">", name: ">"}, {id: ">=", name: "&#8805;"}]
         };
     }
 
@@ -121,15 +127,19 @@ export default class NumberFieldFilter extends LitElement {
                         ${this.label}
                     </div>` : null}
                 ${this._config.comparator ? html`<div class="col-md-${this._config.layout[1]}">
-                    <select id="${this._prefix}Comparator" name="${this._prefix}Comparator"
-                            class="form-control input-sm ${this._prefix}FilterSelect"
-                            @change="${this.filterChange}" data-field="comparator">
-                        <option .selected="${this.state.comparator === "="}" value="=">=</option>
-                        <option .selected="${this.state.comparator === "<"}" value="<">&lt;</option>
-                        <option .selected="${this.state.comparator === "<="}" value="<=">&le;</option>
-                        <option .selected="${this.state.comparator === ">"}" value=">">&gt;</option>
-                        <option .selected="${this.state.comparator === ">="}" value=">=">&ge;</option>
-                    </select>
+                    <select-field-filter    .data="${this._config.values}"
+                                            .value="${this.state.comparator}"
+                                            @filterChange="${e => this.filterChange(e, "comparator")}">
+                    </select-field-filter>
+                    <!--<select id="\${this._prefix}Comparator" name="\${this._prefix}Comparator"
+                            class="form-control input-sm \${this._prefix}FilterSelect"
+                            @change="\${this.filterChange}" data-field="comparator">
+                        <option .selected="\${this.state.comparator === "="}" value="=">=</option>
+                        <option .selected="\${this.state.comparator === "<"}" value="<">&lt;</option>
+                        <option .selected="\${this.state.comparator === "<="}" value="<=">&le;</option>
+                        <option .selected="\${this.state.comparator === ">"}" value=">">&gt;</option>
+                        <option .selected="\${this.state.comparator === ">="}" value=">=">&ge;</option>
+                     </select>-->
                 </div>` : null}
                 <div class="col-md-${this._config.layout[2]}">
                     <input  type="${this.type ?? "number"}"
@@ -139,7 +149,7 @@ export default class NumberFieldFilter extends LitElement {
                             .max="${this.max ?? false}"
                             .step="${this.step ?? false}"
                             .value="${this.state.value ?? ""}"
-                            @input="${this.filterChange}">
+                            @input="${e => this.filterChange(e, "value")}">
                 </div>
             </div>
         `;
