@@ -271,6 +271,12 @@ export default class VariantCallerInfoFilter extends LitElement {
                             type: "input-number",
                             defaultValue: "",
                         },
+                        {
+                            name: "LEN",
+                            field: "LEN",
+                            type: "input-number",
+                            defaultValue: "",
+                        },
                     ]
                 },
                 {

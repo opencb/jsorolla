@@ -88,7 +88,8 @@ export default class OpencgaGeneView extends LitElement {
         }
 
         if (changedProperties.has("settings")) {
-            // TODO support settings
+            this._config = {...this.settings};
+            this.requestUpdate();
         }
 
         /* if (changedProperties.has("project") || changedProperties.has("study")) {
@@ -115,8 +116,9 @@ export default class OpencgaGeneView extends LitElement {
             this.cellbaseClient.getGeneClient(this.geneId, "info", {exclude: "annotation", assembly: this.opencgaSession.project.organism.assembly}, {})
                 .then(async restResponse => {
                     this.gene = restResponse.getResult(0);
+                    this.requestUpdate();
                     await this.updateComplete;
-                    UtilsNew.initTooltip();
+                    UtilsNew.initTooltip(this);
 
                 });
         }
@@ -178,7 +180,7 @@ export default class OpencgaGeneView extends LitElement {
 
     render() {
         return this.gene ? html`
-        <tool-header title="${`Gene <span class="inverse"> ${this.gene.name} </span>` }" icon="gene-view.svg"></tool-header>
+        <tool-header title="${`Gene <span class="inverse"> ${this.gene.name} </span>` }" icon="${this._config?.icon}"></tool-header>
         <div class="container-fluid">
             <div class="row">
                 <div class="col-md-10 col-md-offset-1">

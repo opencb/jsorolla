@@ -261,12 +261,12 @@ export default class OpencgaActiveFilters extends LitElement {
     clear() {
         // TODO do not trigger event if there are no active filters
         // Trigger clear event
-        this.dispatchEvent(new CustomEvent("activeFilterClear", {detail: {}, /*bubbles: true, composed: true*/}));
+        this.dispatchEvent(new CustomEvent("activeFilterClear", {detail: {} /* bubbles: true, composed: true*/}));
     }
 
     clearFacet() {
         $("#" + this._prefix + "Warning").hide();
-        this.dispatchEvent(new CustomEvent("activeFacetClear", {detail: {}, /*bubbles: true, composed: true*/}));
+        this.dispatchEvent(new CustomEvent("activeFacetClear", {detail: {} /* bubbles: true, composed: true*/}));
     }
 
     launchModal() {
@@ -642,9 +642,9 @@ export default class OpencgaActiveFilters extends LitElement {
                 </div>
             `}
 
-            <!--<div class="alert alert-info">query ${JSON.stringify(this.query)}</div>
-            <div class="alert alert-info">queryList ${JSON.stringify(this.queryList)}</div>
-             <div class="alert alert-info">facetQuery ${JSON.stringify(this.facetQuery)}</div>-->
+            <!--<div class="alert alert-info">query \${JSON.stringify(this.query)}</div>
+            <div class="alert alert-info">queryList \${JSON.stringify(this.queryList)}</div>
+             <div class="alert alert-info">facetQuery \${JSON.stringify(this.facetQuery)}</div>-->
             <div class="panel panel-default">
                 <div class="panel-body" style="padding: 8px 10px">
                     <div class="lhs">
@@ -758,7 +758,7 @@ export default class OpencgaActiveFilters extends LitElement {
                     </div>
 
                     <div class="rhs">
-                        <!--<button type="button" class="btn btn-primary btn-sm ripple" @click="${this.clear}">
+                        <!--<button type="button" class="btn btn-primary btn-sm ripple" @click="\${this.clear}">
                             <i class="fa fa-eraser icon-padding" aria-hidden="true"></i> Clear
                         </button>
                         -->
@@ -777,7 +777,11 @@ export default class OpencgaActiveFilters extends LitElement {
                                             <li role="separator" class="divider"></li>
                                         ` : html`
                                             <li>
-                                                <a data-filter-id="${item.id}" class="filtersLink" style="cursor: pointer;color: ${!item.active ? "black" : "green"}" title="${item.description ?? ""}" @click="${this.onServerFilterChange}">
+                                                <a data-filter-id="${item.id}"
+                                                   class="filtersLink"
+                                                   style="cursor: pointer;color: ${!item.active ? "black" : "green"}"
+                                                   title="${item.description ?? ""}"
+                                                   @click="${this.onServerFilterChange}">
                                                     <span class="id-filter-button">&nbsp;&nbsp;${item.id}</span>
                                                     <span class="delete-filter-button" title="Delete filter" data-filter-id="${item.id}" @click="${this.serverFilterDelete}"><i class="fas fa-times"></i></span>
                                                 </a>

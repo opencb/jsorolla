@@ -25,18 +25,18 @@ import UtilsNew from "../../../core/utilsNew.js";
  *
  * Usage:
  * <disease-panel-filter    .opencgaSession="${this.opencgaSession}"
-                            .diseasePanels="${this.opencgaSession.study.panels}"
-                            .panel="${this.preparedQuery.panel}"
-                            .panelModeOfInheritance="${this.preparedQuery.panelModeOfInheritance}"
-                            .panelConfidence="${this.preparedQuery.panelConfidence}"
-                            .panelRoleInCancer="${this.preparedQuery.panelRoleInCancer}"
-                            @filterChange="${e => this.onFilterChange({
+ .diseasePanels="${this.opencgaSession.study.panels}"
+ .panel="${this.preparedQuery.panel}"
+ .panelModeOfInheritance="${this.preparedQuery.panelModeOfInheritance}"
+ .panelConfidence="${this.preparedQuery.panelConfidence}"
+ .panelRoleInCancer="${this.preparedQuery.panelRoleInCancer}"
+ @filterChange="${e => this.onFilterChange({
                                   panel: "panel",
                                   panelModeOfInheritance: "panelModeOfInheritance",
                                   panelConfidence: "panelConfidence",
                                   panelRoleInCancer: "panelRoleInCancer"
                               }, e.detail)}">
-   </disease-panel-filter>
+ </disease-panel-filter>
  */
 export default class DiseasePanelFilter extends LitElement {
 
@@ -133,22 +133,17 @@ export default class DiseasePanelFilter extends LitElement {
     // Updates the gene list for the gene select
     panelObserver(panel) {
         const _panel = panel ?? this.panel;
+        this.genes = [];
         if (_panel) {
-            if (this._config.showGeneFilter) {
-                this.genes = [];
-                const panelIds = _panel.split(",");
-                for (const panelId of panelIds) {
-                    const dp = this.diseasePanels.find(diseasePanel => diseasePanel.id === panelId);
-                    if (dp) {
-                        this.genes = this.genes.concat(dp.genes);
-                    }
+            const panelIds = _panel.split(",");
+            for (const panelId of panelIds) {
+                const dp = this.diseasePanels.find(diseasePanel => diseasePanel.id === panelId);
+                if (dp) {
+                    this.genes = this.genes.concat(dp.genes);
                 }
-                this.requestUpdate();
             }
-        } else {
-            this.genes = [];
-            this.requestUpdate();
         }
+        this.requestUpdate();
     }
 
     filterChange(e, field) {
@@ -163,7 +158,7 @@ export default class DiseasePanelFilter extends LitElement {
         if (e.detail.value) {
             this.query[field] = e.detail.value;
         } else {
-            // If the value is empty we deelete the filter, empty filters are not alloed
+            // If the value is empty we delete the filter, empty filters are not allowed
             delete this.query[field];
         }
 
@@ -175,9 +170,9 @@ export default class DiseasePanelFilter extends LitElement {
 
     getDefaultConfig() {
         return {
-            showGeneFilter: true,
             showPanelFilter: true,
             // DEPRECATED
+            showGeneFilter: false,
             showSummary: false
         };
     }
@@ -203,9 +198,9 @@ export default class DiseasePanelFilter extends LitElement {
                         <div style="padding: 2px 0px">
                             <select-field-filter    .liveSearch=${true}
                                                     .data="${this.genes.map(gene => (
-                                                        {
-                                                            id: gene.id || gene.name, name: `${gene.name ? `${gene.name} (${gene.id})`: `${gene.id}`}`
-                                                        })
+                                                            {
+                                                                id: gene.id || gene.name, name: `${gene.name ? `${gene.name} (${gene.id})`: `${gene.id}`}`
+                                                            })
                                                     )}"
                                                     .disabled="${this.genes?.length === 0}"
                                                     @filterChange="${e => this.filterChange(e, "panelGene")}">

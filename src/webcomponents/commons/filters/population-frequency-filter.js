@@ -73,10 +73,7 @@ export default class PopulationFrequencyFilter extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
-
-        if (this.onlyPopFreqAll) {
-
-        }
+        this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
     update(changedProperties) {
@@ -202,6 +199,12 @@ export default class PopulationFrequencyFilter extends LitElement {
         this.dispatchEvent(event);
     }
 
+    getDefaultConfig() {
+        return {
+            comparators: [{id: "=", name: "="}, {id: "<", name: "<"}, {id: "<=", name: "&#8804;"}, {id: ">", name: ">"}, {id: ">=", name: "&#8805;"}]
+        };
+    }
+
     render() {
         if (!this._populationFrequencies?.studies?.length) {
             return html`No Population Frequencies defined`;
@@ -222,11 +225,11 @@ export default class PopulationFrequencyFilter extends LitElement {
                         <div id="${this._prefix}${study.id}" class="form-horizontal" hidden data-cy="pop-freq-codes-wrapper-${study.id}">
                             ${study.populations && study.populations.length && study.populations.map(popFreq => html`
                                 <div class="form-group" style="padding: 0px 5px;margin: 0px">
-                                    <div class="col-md-4" style="padding: 0px">
+                                    <div class="col-md-2" style="padding: 0px">
                                         <div style="margin: 10px 0px">${popFreq.id}</div>
                                     </div>
-                                    <div class="col-md-3" style="padding: 0px">
-                                        <select-field-filter    .data="${["<", ">="]}"
+                                    <div class="col-md-5" style="padding: 0 2px;">
+                                        <select-field-filter    .data="${this._config.comparators}"
                                                                 .value="${this.state[study.id + ":" + popFreq.id]?.comparator}"
                                                                 @filterChange="${e => {
                                                                     this.filterSelectChange(e, study.id + ":" + popFreq.id, "comparator");
@@ -271,10 +274,10 @@ export default class PopulationFrequencyFilter extends LitElement {
                         <div id="${this._prefix}${study.id}" class="form-horizontal" hidden data-cy="pop-freq-codes-wrapper-${study.id}">
                             ${this.showSetAll ? html`
                                 <div class="set-all-form-wrapper form-group">
-                                    <div class="col-md-4 control-label" data-toggle="tooltip" data-placement="top">Set all</div>
-                                    <div class="col-md-3"></div>
+                                    <div class="col-md-2 control-label" data-toggle="tooltip" data-placement="top">Set all</div>
+                                    <div class="col-md-5"></div>
                                     <div class="col-md-5">
-                                        <input id="${this._prefix}${study.id}Input" type="string" data-mode="all" data-study="${study.id}"
+                                        <input id="${this._prefix}${study.id}Input" type="text" data-mode="all" data-study="${study.id}"
                                                class="form-control input-sm ${this._prefix}FilterTextInput"
                                                name="${study.id}Input" @input="${this.onSetAllFreqChange}">
                                     </div>
@@ -285,7 +288,7 @@ export default class PopulationFrequencyFilter extends LitElement {
                                         .value="${this.state[study.id + ":" + popFreq.id]?.value ?
                                                 ((this.state[study.id + ":" + popFreq.id]?.comparator ?? this.defaultComparator) + this.state[study.id + ":" + popFreq.id]?.value) :
                                                 ""}"
-                                        .config="${{comparator: true, layout: [4, 3, 5]}}"
+                                        .config="${{comparator: true, layout: [2, 5, 5]}}"
                                         .label="${popFreq.id}"
                                         type="text"
                                         @filterChange="${e => this.filterChange(e, `${study.id}:${popFreq.id}`)}">

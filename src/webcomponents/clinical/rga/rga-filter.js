@@ -135,7 +135,8 @@ export default class RgaFilter extends LitElement {
             <section-filter .config="${section}" .filters="${htmlFields}">` : htmlFields;
     }
 
-    // TODO recheck, why an ad hoc method?
+    /* @deprecated
+     */
     rgaIndividualFilter(subsection) {
         const config = {
             addButton: false,
@@ -201,6 +202,7 @@ export default class RgaFilter extends LitElement {
                                                  .allowedFrequencies=${this.allowedPopFrequencies}
                                                  ?onlyPopFreqAll="${subsection.onlyPopFreqAll}"
                                                  .populationFrequencyAlt="${this.preparedQuery[subsection.id]}"
+                                                 .config="${{comparators: [{id: "<", name: "<"}, {id: ">=", name: "&#8804;"}]}}"
                                                  @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
                     </population-frequency-filter>`;
                 break;

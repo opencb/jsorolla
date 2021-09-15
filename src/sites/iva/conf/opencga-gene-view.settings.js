@@ -1,4 +1,5 @@
 const opencgaGeneViewSettings = {
+    icon: "img/tools/icons/gene-view.svg",
     // set to true if the server on which IVA is running is exposed to Internet (for genomemaps.org, ensembl.org).
     externalLinks: true,
     // from conf/tools.js

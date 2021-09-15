@@ -58,12 +58,11 @@ export default class ClinicalPriorityFilter extends LitElement {
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
-    update(changedProperties) {
-        if (changedProperties.has("priorities")) {
-            this._config.priorities = this.priorities;
-        }
-        super.update(changedProperties);
-    }
+    // update(changedProperties) {
+    //     if (changedProperties.has("priority")) {
+    //     }
+    //     super.update(changedProperties);
+    // }
 
     filterChange(e) {
         e.stopPropagation();
@@ -85,12 +84,12 @@ export default class ClinicalPriorityFilter extends LitElement {
     render() {
         return html`
             <select-field-filter
-                    multiple
-                    .placeholder="${this.placeholder}"
-                    ?multiple="${this._config.multiple}"
-                    .data="${this._config.priorities}"
-                    .value=${this.priority}
-                    @filterChange="${e => this.filterChange(e)}">
+                .placeholder="${this.placeholder}"
+                ?multiple="${this._config.multiple}"
+                .data="${this.priorities?.length ? this.priorities : this._config.priorities}"
+                .value=${this.priority}
+                multiple
+                @filterChange="${e => this.filterChange(e)}">
             </select-field-filter>
         `;
     }
