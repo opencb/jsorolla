@@ -6,9 +6,7 @@ const variantInterpreterBrowserCancerSettings = {
         sections: [ // sections and subsections, structure and order is respected
             {
                 title: "Sample And File",
-                filters: ["sample-genotype", "variant-file", "file-quality",
-                    "caveman", "strelka", "pindel", "ascat", "canvas", "brass", "manta", "tnhaplotyper2", "pisces", "craft"
-                ]
+                filters: ["sample-genotype", "variant-file", "file-quality"/* "variant-caller-info-filter"*/],
             },
             {
                 title: "Genomic",

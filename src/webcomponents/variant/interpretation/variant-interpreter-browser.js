@@ -48,6 +48,9 @@ class VariantInterpreterBrowser extends LitElement {
             },
             clinicalAnalysisId: {
                 type: String
+            },
+            settings: {
+                type: Object
             }
             // query: {
             //     type: Object
@@ -66,12 +69,27 @@ class VariantInterpreterBrowser extends LitElement {
     }
 
     updated(changedProperties) {
+        if (changedProperties.has("settings")) {
+            this.settingsObserver();
+        }
         if (changedProperties.has("clinicalAnalysis")) {
             this.clinicalAnalysisObserver();
         }
         if (changedProperties.has("clinicalAnalysisId")) {
             this.clinicalAnalysisIdObserver();
         }
+    }
+
+    settingsObserver() {
+        if (this.clinicalAnalysis) {
+            const type = this.clinicalAnalysis.type.toUpperCase();
+            if (["SINGLE", "FAMILY", "CANCER"].includes(type)) {
+                this._browserSettings = this.settings.browsers[type];
+            } else {
+                console.error("Unexpected Case Type");
+            }
+        }
+        this.requestUpdate();
     }
 
     clinicalAnalysisObserver() {
@@ -116,7 +134,9 @@ class VariantInterpreterBrowser extends LitElement {
             contentTabs.removeClass("active");
             $("#" + this._prefix + tabId).addClass("active");
             for (const tab in this.activeTab) {
-                this.activeTab[tab] = false;
+                if (Object.prototype.hasOwnProperty.call(this.activeTab, tab)) {
+                    this.activeTab[tab] = false;
+                }
             }
             this.activeTab[tabId] = true;
             this.requestUpdate();
@@ -205,7 +225,7 @@ class VariantInterpreterBrowser extends LitElement {
                                                                 .clinicalAnalysis="${this.clinicalAnalysis}"
                                                                 .query="${this.query}"
                                                                 .cellbaseClient="${this.cellbaseClient}"
-                                                                .settings="${variantInterpreterBrowserRdSettings}"
+                                                                .settings="${this._browserSettings}"
                                                                 @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}"
                                                                 @samplechange="${this.onSampleChange}">
                                 </variant-interpreter-browser-rd>
@@ -220,7 +240,7 @@ class VariantInterpreterBrowser extends LitElement {
                                                                     .clinicalAnalysis="${this.clinicalAnalysis}"
                                                                     .query="${this.query}"
                                                                     .cellbaseClient="${this.cellbaseClient}"
-                                                                    .settings="${variantInterpreterBrowserCancerSettings}"
+                                                                    .settings="${this._browserSettings}"
                                                                     @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
                                 </variant-interpreter-browser-cancer>
                             </div>
@@ -246,7 +266,7 @@ class VariantInterpreterBrowser extends LitElement {
                                                                         .clinicalAnalysis="${this.clinicalAnalysis}"
                                                                         .query="${this.query}"
                                                                         .cellbaseClient="${this.cellbaseClient}"
-                                                                        .settings="${variantInterpreterBrowserRdSettings}"
+                                                                        .settings="${this._config}"
                                                                         @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}"
                                                                         @samplechange="${this.onSampleChange}">
                                         </variant-interpreter-browser-rd>

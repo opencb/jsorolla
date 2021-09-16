@@ -11,7 +11,12 @@ const variantInterpreterSettings = {
             id: "methods"
         },*/
         {
-            id: "variant-browser"
+            id: "variant-browser",
+            browsers: {
+                CANCER: variantInterpreterBrowserCancerSettings,
+                FAMILY: variantInterpreterBrowserRdSettings,
+                SINGLE: variantInterpreterBrowserRdSettings
+            }
         }
         /* {
             id: "review"
