@@ -91,10 +91,10 @@ export default class CustomNavBar extends LitElement {
         const iconHtml = link.icon ? html`<i class="${link.icon} icon-padding" aria-hidden="true"></i>` : null;
         if (link.url) {
             return html`
-                <a href="${url}" role="${button ? "button" : "link"}" target="_blank">${iconHtml} ${link.name}</a>`;
+                <a class="dropdown-item" href="${url}" role="${button ? "button" : "link"}" target="_blank">${iconHtml} ${link.name}</a>`;
         } else {
             return html`
-                <a href="${url}" role="${button ? "button" : "link"}">${iconHtml} ${link.name}</a>`;
+                <a class="dropdown-item" href="${url}" role="${button ? "button" : "link"}">${iconHtml} ${link.name}</a>`;
         }
     }
 
@@ -109,7 +109,7 @@ export default class CustomNavBar extends LitElement {
                 .navbar-inverse {
                     background-color: var(--main-bg-color);
                 }
-                .navbar-inverse .navbar-nav>.open>a, .navbar-inverse .navbar-nav>.open>a:focus, .navbar-inverse .navbar-nav>.open>a:hover {
+                .navbar-inverse .navbar-nav >.open > a, .navbar-inverse .navbar-nav >.open>a:focus, .navbar-inverse .navbar-nav>.open>a:hover {
                     background-color: var(--main-bg-color-darker);
                     /*filter: brightness(0.8); this involves text as well..*/
                 }
@@ -254,8 +254,6 @@ export default class CustomNavBar extends LitElement {
                 }*/
             </style>
 
-            <!-- <loading-bar></loading-bar> -->
-
             <!-- Left Sidebar: we only display this if more than 1 visible app exist -->
             ${this.config?.apps?.filter(app => this.isVisible(app)).length > 0 ? html`
                 <div id="overlay" @click="${this.toggleSideNav}"></div>
@@ -290,8 +288,8 @@ export default class CustomNavBar extends LitElement {
             ` : null
             }
 
-            <nav class="navbar navbar-inverse main-navbar">
-                <div>
+            <nav class="navbar navbar-expand-md navbar-inverse main-navbar">
+                <div class="container-fluid">
                     <!-- Left Sidebar Icon: we only show the icon if more than 1 visible app exist -->
                     ${this.config.apps?.filter(app => this.isVisible(app)).length > 1 ? html`
                         <ul class="nav navbar-nav">
@@ -304,7 +302,7 @@ export default class CustomNavBar extends LitElement {
                     ` : null}
 
                     <!-- Brand and toggle get grouped for better mobile display -->
-                    <div class="navbar-header">
+                    <div class="navbar-brand">
                         ${this.app?.logo ? html`
                             <a href="#home" class="navbar-brand company-logo" @click="${this.onChangeTool}">
                                 <img src="${this.app?.logo}" alt="logo">
@@ -315,44 +313,44 @@ export default class CustomNavBar extends LitElement {
                     <!-- Collect the nav links, form, and other content for toggling -->
                     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                         <!-- Controls aligned to the LEFT -->
-                        <ul class="nav navbar-nav">
+                        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                             <!-- This code parse the config menu arrays and creates a custom menu taking into account visibility -->
                             ${this.app?.menu?.filter?.(item => this.isVisible(item)).map(item => html`
                                 <!-- If there is not submenu we just display a button -->
                                 ${item.submenu && item.submenu.filter(sm => this.isVisible(sm)).length > 0 ? html`
                                     <!-- If there is a submenu we create a dropdown menu item -->
-                                    <li class="dropdown">
-                                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                                    <li class="nav-item dropdown">
+                                        <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" data-bs-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
                                             ${item.name} <span class="caret"></span>
                                         </a>
-                                        <ul class="dropdown-menu">
+                                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                                             ${item.submenu.map(subitem => subitem.category ? html`
                                                 <li>
-                                                    <a class="nav-item-category" href="${subitem.id ? "#" + subitem.id : "javascript: void 0"}">${subitem.name}</a>
+                                                    <a class="nav-item-category dropdown-item" href="${subitem.id ? "#" + subitem.id : "javascript: void 0"}">${subitem.name}</a>
                                                 </li>
                                             ` : subitem.separator ? html`
-                                                <li role="separator" class="divider"></li>
+                                                <li role="separator" class="dropdown-divider"></li>
                                             ` : html`
                                                 <li>
-                                                    <a href="#${subitem.id}" @click="${this.onChangeTool}" data-id="${subitem.id}">${subitem.name}</a>
+                                                    <a class="dropdown-item" href="#${subitem.id}" @click="${this.onChangeTool}" data-id="${subitem.id}">${subitem.name}</a>
                                                 </li>
                                             `)}
                                         </ul>
                                     </li>
                                 ` : html`
                                     <li>
-                                        <a href="#${item.id}" role="button" @click="${this.onChangeTool}">${item.name}</a>
+                                        <a class="dropdown-item" href="#${item.id}" role="button" @click="${this.onChangeTool}">${item.name}</a>
                                     </li>`
                                 }`
                             )}
                         </ul>
 
                         <!-- Controls aligned to the RIGHT: settings and about-->
-                        <ul class="nav navbar-nav navbar-right">
+                        <ul class="navbar-nav">
                             <!--Studies dropdown and Search menu-->
                             ${this.opencgaSession && this.opencgaSession.projects && this.opencgaSession.projects.length ? html`
-                                <li class="dropdown">
-                                    <a href="#" class="dropdown-toggle study-switcher" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" data-cy="active-study">
+                                <li class="nav-item dropdown">
+                                    <a href="#" class="nav-link dropdown-toggle study-switcher" data-bs-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" data-cy="active-study">
                                         <div><i class="fa fa-database fa-lg" style="padding-right: 10px"></i></div>
                                         <div style="margin-right: 5px">
                                             <p class="project-name">${this.opencgaSession.project?.name}</p>
@@ -362,10 +360,10 @@ export default class CustomNavBar extends LitElement {
                                     </a>
                                     <ul class="dropdown-menu">
                                         ${this.opencgaSession.projects.filter(project => project?.studies.length > 0).map(project => html`
-                                            <li><a title="${project.fqn}"><b>${project.name} [${project.fqn.split("@")[0]}]</b></a></li>
+                                            <li><a class="dropdown-item" title="${project.fqn}"><b>${project.name} [${project.fqn.split("@")[0]}]</b></a></li>
                                             ${project.studies && project.studies.length && project.studies.map(study => html`
                                                 <li>
-                                                    <a href="#" title="${study.fqn}" @click="${e => this.onStudySelect(e, study)}">${study.name}</a>
+                                                    <a class="dropdown-item" href="#" title="${study.fqn}" @click="${e => this.onStudySelect(e, study)}">${study.name}</a>
                                                 </li>
                                             `)}
                                         `)}
@@ -376,11 +374,14 @@ export default class CustomNavBar extends LitElement {
 
                             <!-- Jobs -->
                             ${this.isVisible(this.app?.jobMonitor) ? html`
-                                <job-monitor .opencgaSession="${this.opencgaSession}" @jobSelected="${this.onJobSelected}"></job-monitor>
+                                <job-monitor
+                                    .opencgaSession="${this.opencgaSession}"
+                                    @jobSelected="${this.onJobSelected}">
+                                </job-monitor>
                             ` : null}
 
                             ${this.isVisible(this.app?.fileExplorer) ? html`
-                                <li>
+                                <li class="nav-item">
                                     <a href="#file-manager" title="File Manager" role="button" @click="${this.onChangeTool}">
                                         <i class="fas fa-folder-open icon-padding"></i>
                                     </a>
@@ -390,8 +391,8 @@ export default class CustomNavBar extends LitElement {
 
                             <!-- About dropdown menu-->
                             ${this.app?.about.dropdown ? html`
-                                <li class="dropdown">
-                                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                                <li class="nav-item dropdown">
+                                    <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
                                         <i class="fa fa-question-circle fa-lg" style="padding-right: 10px"></i>About <span class="caret"></span>
                                     </a>
                                     <ul class="dropdown-menu">
@@ -406,8 +407,8 @@ export default class CustomNavBar extends LitElement {
 
                             <!-- Login/Logout button -->
                             ${this.config.login.visible && !this.isLoggedIn() ? html`
-                                <li class="dropdown">
-                                    <a href="#login" id="loginButton" role="button" @click="${this.onChangeTool}">
+                                <li class="nav-item">
+                                    <a class="nav-link" id="loginButton" href="#login" role="button" @click="${this.onChangeTool}">
                                         <i href="#login" class="fa fa-sign-in-alt fa-lg icon-padding" aria-hidden="true"></i>Login
                                     </a>
                                 </li>
@@ -415,20 +416,22 @@ export default class CustomNavBar extends LitElement {
 
                             <!--User-->
                             ${this.isLoggedIn() ? html`
-                                <li class="dropdown" data-cy="user-menu">
-                                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                                <li class="nav-item dropdown" data-cy="user-menu">
+                                    <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
                                         <i class="fa fa-user-circle fa-lg icon-padding" aria-hidden="true">
                                         </i>${this.opencgaSession.user?.name ?? this.opencgaSession.user?.email} <span class="caret"></span>
                                     </a>
                                     <ul class="dropdown-menu">
                                         ${this.app?.userMenu?.length ? this.app.userMenu.filter(item => this.isVisible(item)).map(item => html`
                                             <li>
-                                                <a href="${item.url}" data-user-menu="${item.id}"><i class="${item.icon} icon-padding" aria-hidden="true"></i> ${item.name}</a>
+                                                <a class="dropdown-item" href="${item.url}" data-user-menu="${item.id}">
+                                                    <i class="${item.icon} icon-padding" aria-hidden="true"></i> ${item.name}
+                                                </a>
                                             </li>
                                         `) : null}
-                                        <li role="separator" class="divider"></li>
+                                        <li role="separator" class="dropdown-divider"></li>
                                         <li>
-                                            <a id="logoutButton" role="button" @click="${this.logout}" data-user-menu="logout">
+                                            <a class="dropdown-item" id="logoutButton" role="button" @click="${this.logout}" data-user-menu="logout">
                                                 <i class="fa fa-sign-out-alt icon-padding" aria-hidden="true"></i> Logout
                                             </a>
                                         </li>
