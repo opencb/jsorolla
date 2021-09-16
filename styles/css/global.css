@@ -192,13 +192,6 @@ input[type="number"] {
 
 }
 
-.company-logo {
-    padding: 1px;
-}
-.company-logo img{
-    height: 45px;
-}
-
 .iva-logo img {
     width: 35em;
 }
@@ -228,16 +221,28 @@ input[type="number"] {
     margin: 0 4px;
 }
 
-.iva-logo-white {
+.navbar .navbar-header {
+    padding-left: 8px;
+}
+
+.company-logo {
+    padding: 1px;
+}
+
+.company-logo img{
+    height: 45px;
+}
+
+.app-logo {
     padding: 10px;
 }
 
-.iva-logo-white img{
+.app-logo img{
     width: 70px;
     display: inline-block;
 }
 
-.iva-logo-white sup{
+.app-logo sup{
     font-variant: all-small-caps;
     top: -1em;
     text-transform: uppercase;

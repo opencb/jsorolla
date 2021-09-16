@@ -305,9 +305,15 @@ export default class CustomNavBar extends LitElement {
 
                     <!-- Brand and toggle get grouped for better mobile display -->
                     <div class="navbar-header">
-                        ${this.app?.logo ? html`
+                        ${this.config?.companyLogo ? html`
                             <a href="#home" class="navbar-brand company-logo" @click="${this.onChangeTool}">
+                                <img src="${this.config?.companyLogo}" alt="companyLogo">
+                            </a>
+                        ` : null}
+                        ${this.app?.logo ? html`
+                            <a href="#home" class="navbar-brand app-logo" @click="${this.onChangeTool}">
                                 <img src="${this.app?.logo}" alt="logo">
+                                <b><sup>${this.config.version}</sup></b>
                             </a>
                         ` : null}
                     </div>

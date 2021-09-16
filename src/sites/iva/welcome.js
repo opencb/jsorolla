@@ -125,7 +125,7 @@ export default class WelcomeWeb extends LitElement {
                 </div>
 
                 <div class="row hi-icon-wrap hi-icon-effect-9 hi-icon-animation">
-                    ${this.config.apps.filter(this.isVisible).map(item => html`
+                    ${this.config.apps.filter(app => this.isVisible(app)).map(item => html`
                         <a class="icon-wrapper" href="#home" data-id="${item.id}" @click="${this.onChangeApp}">
                             <div class="hi-icon">
                                 <img alt="${item.name}" src="${item.icon}"  />
