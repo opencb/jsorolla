@@ -59,7 +59,7 @@ export default class SelectTokenFilter extends LitElement {
     firstUpdated() {
         this.select = $("#" + this._prefix);
         this.select.select2({
-            // tags: true,
+            tags: this._config.freeTag === true,
             multiple: true,
             width: "style",
             placeholder: this._config.placeholder,
@@ -96,14 +96,17 @@ export default class SelectTokenFilter extends LitElement {
         })
             .on("select2:select", e => {
                 this.filterChange(e);
-                /* TODO dynamic width in progress
-                let width = 80;
-                $(".select2-selection__choice", this).each(function () {
-                    const token = $(this);
-                    const tokenWidth = token.outerWidth();
-                    width+=tokenWidth;
-                });
-                $(this).find("span.select2-selection").css("width", width);*/
+                /* dynamic width. DONE in css */
+                /* if (this._config.dynamicWidth) {
+                    let width = 200;
+                    $(".select2-selection__choice", this).each(function () {
+                        const token = $(this);
+                        const tokenWidth = token.outerWidth();
+                        width += tokenWidth;
+                    });
+                    console.log("$(this).find(\"span.select2-selection\")", $(this).find("span.select2-selection"))
+                    $(this).find("span.select2-selection").css("max-width", width);
+                }*/
             })
             .on("select2:unselect", e => {
                 this.filterChange(e);
@@ -116,7 +119,6 @@ export default class SelectTokenFilter extends LitElement {
             this._config = {...this.getDefaultConfig(), ...this.config};
         }
         if (_changedProperties.has("value")) {
-
             /* if (this.value) {
                 this.state = this.value.split(",");
             }*/
@@ -181,6 +183,7 @@ export default class SelectTokenFilter extends LitElement {
             minimumInputLength: 0,
             maxItems: 0,
             placeholder: "Start typing",
+            freeTag: false,
             source: () => {
                 throw new Error("Data source not defined");
             },

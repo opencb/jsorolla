@@ -2666,6 +2666,17 @@ select.no-data + .select2-container--bootstrap.select2-container--open.select2-c
     font-size: 14px;
     line-height: 26px;
 }
+.select2-selection__rendered {
+    width: auto;
+}
+/* dynamic width: it renders active area for the dropdown and selected tokens in one line, where possible */
+.select2-container--bootstrap .select2-selection--multiple .select2-selection__rendered {
+    width: auto;
+    display: inline-block;
+}
+.select2-search.select2-search--inline {
+    display: inline-block;
+}
 
 /* active area to click on to open the dropdown
 .select2-container--bootstrap .select2-selection--multiple .select2-search--inline .select2-search__field {
