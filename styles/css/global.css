@@ -2667,6 +2667,11 @@ select.no-data + .select2-container--bootstrap.select2-container--open.select2-c
     line-height: 26px;
 }
 
+/* active area to click on to open the dropdown
+.select2-container--bootstrap .select2-selection--multiple .select2-search--inline .select2-search__field {
+    min-width: 2em;
+} */
+
 /* Notification */
 
 #notifications-queue {

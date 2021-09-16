@@ -20,6 +20,7 @@ import PolymerUtils from "../PolymerUtils.js";
 import "../variant/variant-browser-grid.js";
 import "../variant/variant-protein-view.js";
 import "../variant/variant-browser-detail.js";
+import BioinfoUtils from "../../core/bioinfo/bioinfo-utils.js";
 
 
 export default class OpencgaGeneView extends LitElement {
@@ -59,13 +60,13 @@ export default class OpencgaGeneView extends LitElement {
             variant: {
                 type: String
             },
-            config: {
+            settings: {
                 type: Object
             },
             summary: {
                 type: Boolean
-            },
-            /*project: {
+            }
+            /* project: {
                 type: Object
             },
             study: {
@@ -82,13 +83,21 @@ export default class OpencgaGeneView extends LitElement {
     updated(changedProperties) {
         if (changedProperties.has("opencgaSession") || changedProperties.has("gene")) {
             this.geneChanged();
+
+
         }
-        /*if (changedProperties.has("project") || changedProperties.has("study")) {
+
+        if (changedProperties.has("settings")) {
+            this._config = {...this.settings};
+            this.requestUpdate();
+        }
+
+        /* if (changedProperties.has("project") || changedProperties.has("study")) {
             this.projectStudyObtained();
         }*/
     }
 
-    /*projectStudyObtained(project, study) {
+    /* projectStudyObtained(project, study) {
         if (UtilsNew.isNotUndefined(this.opencgaSession.project) && UtilsNew.isNotEmpty(this.opencgaSession.project.alias) &&
             UtilsNew.isNotUndefined(this.opencgaSession.study) && UtilsNew.isNotEmpty(this.opencgaSession.study.alias)) {
             this.hashFragmentCredentials = {
@@ -105,9 +114,12 @@ export default class OpencgaGeneView extends LitElement {
                 study: this.opencgaSession.study.fqn
             };
             this.cellbaseClient.getGeneClient(this.geneId, "info", {exclude: "annotation", assembly: this.opencgaSession.project.organism.assembly}, {})
-                .then(restResponse => {
+                .then(async restResponse => {
                     this.gene = restResponse.getResult(0);
                     this.requestUpdate();
+                    await this.updateComplete;
+                    UtilsNew.initTooltip(this);
+
                 });
         }
     }
@@ -136,7 +148,7 @@ export default class OpencgaGeneView extends LitElement {
     }
 
     showBrowser() {
-        this.notifySearch({xref: this.geneId})
+        this.notifySearch({xref: this.geneId});
         const hash = window.location.hash.split("/");
         const newHash = "#browser/" + hash[1] + "/" + hash[2];
         window.location.hash = newHash;
@@ -155,9 +167,20 @@ export default class OpencgaGeneView extends LitElement {
         this.requestUpdate();
     }
 
+    transcriptTooltip(transcript) {
+        return `
+            <div style='padding: 5px'>
+                <a href="#transcript/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}/${transcript.id}">Transcript View</a>
+            </div>
+            <div style='padding: 5px'>
+                 <a target='_blank' href='${BioinfoUtils.getEnsemblLink(this.gene.name, "TRANSCRIPT", this.opencgaSession.project.organism.assembly)}'>Ensembl</a>
+            </div>
+        `;
+    }
+
     render() {
         return this.gene ? html`
-        <tool-header title="${`Gene <span class="inverse"> ${this.gene.name} </span>` }" icon="gene-view.svg"></tool-header>
+        <tool-header title="${`Gene <span class="inverse"> ${this.gene.name} </span>` }" icon="${this._config?.icon}"></tool-header>
         <div class="container-fluid">
             <div class="row">
                 <div class="col-md-10 col-md-offset-1">
@@ -187,16 +210,18 @@ export default class OpencgaGeneView extends LitElement {
                                     <th class="gene-summary-title col-sm-4">Location</th>
                                     <td>${this.gene.chromosome}:${this.gene.start}-${this.gene.end} (${this.gene.strand})</td>
                                 </tr>
-                                <tr>
-                                    <th class="gene-summary-title col-sm-4">Genome Browser</th>
-                                    <td>
-                                        ${application.appConfig === "opencb" ? html`
-                                            <a target="_blank" href="http://genomemaps.org/?region=${this.gene.chromosome}:${this.gene.start}-${this.gene.end}">
-                                            ${this.gene.chromosome}:${this.gene.start}-${this.gene.end}
-                                            </a>
-                                        ` : html`${this.gene.chromosome}:${this.gene.start}-${this.gene.end}`}
-                                    </td>
-                                </tr>
+                                ${/* application.appConfig === "opencb"*/ this.settings.externalLinks ? html`
+                                    <tr>
+                                        <th class="gene-summary-title col-sm-4">Genome Browser</th>
+                                        <td>
+
+                                                <a target="_blank" href="http://genomemaps.org/?region=${this.gene.chromosome}:${this.gene.start}-${this.gene.end}">
+                                                ${this.gene.chromosome}:${this.gene.start}-${this.gene.end}
+                                                </a>
+
+                                        </td>
+                                    </tr>
+                                ` : ""}
                             </table>
                         </div>
 
@@ -216,18 +241,14 @@ export default class OpencgaGeneView extends LitElement {
                                 </tr>
                                 </thead>
                                 <tbody>
-                                ${this.gene.transcripts && this.gene.transcripts.length ? this.gene.transcripts.map( transcript => html`
+                                ${this.gene.transcripts && this.gene.transcripts.length ? this.gene.transcripts.map(transcript => html`
                                     <tr>
                                         <td>
-                                            ${application.appConfig === "opencb" ? html`
-                                                <a href="#transcript/${this.opencgaSession.project.alias}/${this.opencgaSession.study.alias}/${transcript.id}">${transcript.id}</a>
-                                            ` : html`
-                                                <a href="http://www.ensembl.org/Multi/Search/Results?q=${transcript.id};site=ensembl;page=1;facet_feature_type=Transcript" target="_blank">${transcript.id}</a>
-                                            `}
+                                            <a tooltip-title="Transcript" tooltip-text='${this.transcriptTooltip(transcript)}'>${transcript.id}</a>
                                         </td>
                                         <td>${transcript.name}</td>
                                         <td>
-                                            ${application.appConfig === "opencb" ? html`
+                                            ${/* application.appConfig === "opencb"*/ this.settings.externalLinks ? html`
                                                 <a target="_blank"
                                                    href="http://genomemaps.org/?region=${transcript.chromosome}:${transcript.start}-${transcript.end}">
                                                     ${transcript.chromosome}:${transcript.start}-${transcript.end}
@@ -236,7 +257,7 @@ export default class OpencgaGeneView extends LitElement {
                                         <td>${transcript.biotype}</td>
                                         <!--
                                         <td>
-                                            ${application.appConfig === "opencb" ? html`
+                                            ${/* application.appConfig === "opencb"*/ this.settings.externalLinks ? html`
                                                 <a target="_blank"
                                                    href="http://genomemaps.org/?region=${transcript.chromosome}:${transcript.genomicCodingStart}-${transcript.genomicCodingEnd}">
                                                     ${transcript.genomicCodingStart}-${transcript.genomicCodingEnd}
@@ -254,7 +275,7 @@ export default class OpencgaGeneView extends LitElement {
                         </div>
                     </div>
 
-                    ${application.appConfig === "opencb" ? html`
+                    ${/* application.appConfig === "opencb"*/ this.settings.externalLinks ? html`
                         <ul id="${this._prefix}ViewTabs" class="nav nav-tabs" role="tablist">
                             <li role="presentation" class="active">
                                 <a href="#${this._prefix}Variants" role="tab" data-toggle="tab" class="gene-variant-tab-title">Variants</a>
@@ -308,7 +329,7 @@ export default class OpencgaGeneView extends LitElement {
                                                                      .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
                                                                      .consequenceTypes="${this.consequenceTypes}">
                                     </cellbase-variantannotation-view> -->
-                            ` : null}
+                            ` : ""}
                         </div>
 
                         <div role="tabpanel" class="tab-pane" id="${this._prefix}Protein">
@@ -316,7 +337,7 @@ export default class OpencgaGeneView extends LitElement {
                                                   .opencgaClient="${this.opencgaClient}"
                                                   .cellbaseClient="${this.cellbaseClient}"
                                                   .gene="${this.gene}"
-                                                  .config="${this.config.protein}"
+                                                  .config="${opencgaGeneViewSettings.protein}"
                                                   .summary="${this.summary}">
                             </variant-protein-view>
                         </div>

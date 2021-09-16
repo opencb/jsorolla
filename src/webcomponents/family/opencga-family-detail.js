@@ -87,18 +87,7 @@ export default class OpencgaFamilyDetail extends LitElement {
 
     getDefaultConfig() {
         return {
-            title: "Family",
-            showTitle: true,
-            items: [
-                {
-                    id: "family-view",
-                    name: "Overview",
-                    active: true,
-                    render: (family, active, opencgaSession) => {
-                        return html`<family-view .opencgaSession="${opencgaSession}" .family="${family}"></family-view>`;
-                    }
-                }
-            ]
+            // details config in family-browser
         };
     }
 

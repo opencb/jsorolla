@@ -52,23 +52,18 @@
     <!-- Load IVA configuration file, this must be located in the same folder -->
     <script src="conf/config.js"></script>
     <script src="conf/opencga-variant-constants.js"></script>
-    <script defer src="conf/opencga-cohort-browser.settings.js"></script>
-    <script defer src="conf/opencga-family-browser.settings.js"></script>
-    <script defer src="conf/opencga-file-browser.settings.js"></script>
-    <script defer src="conf/opencga-individual-browser.settings.js"></script>
-    <script defer src="conf/opencga-job-browser.settings.js"></script>
-    <script defer src="conf/opencga-clinical-analysis-browser.settings.js"></script>
+    <script defer src="conf/opencga-cohort-browser.config.js"></script>
+    <script defer src="conf/opencga-family-browser.config.js"></script>
+    <script defer src="conf/opencga-file-browser.config.js"></script>
+    <script defer src="conf/opencga-individual-browser.config.js"></script>
+    <script defer src="conf/opencga-job-browser.config.js"></script>
+    <script defer src="conf/opencga-clinical-analysis-browser.config.js"></script>
     <script defer src="conf/opencga-clinical-analysis-view.settings.js"></script>
-    <script defer src="conf/opencga-sample-browser.settings.js"></script>
+    <script defer src="conf/opencga-sample-browser.config.js"></script>
+    <script defer src="conf/opencga-variant-browser.config.js"></script>
+    <script defer src="conf/variant-interpreter.config.js"></script>
     <script defer src="conf/opencga-clinical-review-cases.settings.js"></script>
-    <script defer src="conf/variant-interpreter-qc-overview.settings.js"></script>
     <script defer src="conf/variant-interpreter-browser-rd.settings.js"></script>
-    <script defer src="conf/variant-interpreter-browser-cancer.settings.js"></script>
-    <script defer src="conf/variant-interpreter.settings.js"></script>
-    <script defer src="conf/opencga-variant-browser.settings.js"></script>
-    <script defer src="conf/opencga-gene-view.settings.js"></script>
-    <script defer src="conf/opencga-family-view.settings.js"></script>
-
     <!--    <script src="../lib/jsorolla/src/webcomponents/opencga/panels_example.js"></script>-->
     <script src="conf/tools.js"></script>
 
@@ -76,10 +71,10 @@
     <script type="text/javascript" src="../../../node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js"></script>
     <!-- /build -->
 
-    <!-- build:js[assets/js/vendor.js] -->
+
     <script type="text/javascript" src="../../../node_modules/jquery/dist/jquery.js"></script>
     <script type="text/javascript" src="../../../node_modules/lodash/lodash.min.js"></script>
-<!--    <script type="text/javascript" src="../node_modules/underscore/underscore-min.js"></script>-->
+
     <script type="text/javascript" src="../../../node_modules/backbone/backbone-min.js"></script>
     <script type="text/javascript" src="../../../node_modules/moment/min/moment.min.js"></script>
     <script type="text/javascript" src="../../../node_modules/highcharts/highcharts.js"></script>
@@ -102,7 +97,6 @@
     <script type="text/javascript" src="../../../node_modules/tokenize2/dist/tokenize2.min.js"></script>
     <script type="text/javascript" src="../../../node_modules/@svgdotjs/svg.js/dist/svg.min.js"></script>
     <script type="text/javascript" src="../../../node_modules/sweetalert2/dist/sweetalert2.js"></script>
-<!-- <script type="text/javascript" src="../node_modules/@highlightjs/cdn-assets/highlight.min.js"></script> -->
     <script type="text/javascript" src="../../../node_modules/clipboard/dist/clipboard.min.js"></script>
     <script type="text/javascript" src="../../../node_modules/select2/dist/js/select2.min.js"></script>
 
@@ -124,46 +118,6 @@
     <link rel="stylesheet" href="../../../node_modules/@highlightjs/cdn-assets/styles/default.min.css">
     <link rel="stylesheet" href="../../../node_modules/select2/dist/css/select2.css">
     <link rel="stylesheet" href="../../../node_modules/select2-bootstrap-theme/dist/select2-bootstrap.min.css">
-    <!-- /build -->
-
-    <!-- Load JSorolla dependencies -->
-    <!-- build:void[] -->
-    <!--
-    <script type="text/javascript" src="https://reactome.org/DiagramJs/diagram/diagram.nocache.js"></script>
-    TODO replace this with import in rest-client in jsorolla
-    <script src="../lib/jsorolla/node_modules/axios/dist/axios.min.js"></script>
-    TODO convert in ES module
-    <script type="text/javascript" src="../lib/jsorolla/src/core/visualisation/lollipop.js"></script>
-    <script type="text/javascript" src="../lib/jsorolla/src/genome-browser/feature-binary-search-tree.js"></script>
-    <script type="text/javascript" src="../lib/jsorolla/src/core/cache/indexeddb-cache.js"></script>
-    <script type="text/javascript" src="../lib/jsorolla/src/core/cache/file-feature-cache.js"></script>
-    <script type="text/javascript" src="../lib/jsorolla/src/core/cache/feature-chunk-cache.js"></script>
-    <script type="text/javascript" src="../lib/jsorolla/src/core/cache/memory-store.js"></script>
-    <script type="text/javascript" src="../lib/jsorolla/src/core/cache/indexedDB-store.js"></script>
-    <script type="text/javascript" src="../lib/jsorolla/src/core/cache/bam-cache.js"></script>
-    <script type="text/javascript" src="../lib/jsorolla/src/core/data-adapter/feature-template-adapter.js"></script>
-    <script type="text/javascript" src="../lib/jsorolla/src/core/data-adapter/feature-adapter.js"></script>
-    <script type="text/javascript" src="../lib/jsorolla/src/core/data-adapter/cellbase-adapter.js"></script>
-    <script type="text/javascript" src="../lib/jsorolla/src/core/data-adapter/opencga-adapter.js"></script>
-    <script type="text/javascript" src="../lib/jsorolla/src/core/widgets/feature/info/info-widget.js"></script>
-    <script type="text/javascript" src="../lib/jsorolla/src/core/widgets/feature/info/gene-info-widget.js"></script>
-    <script type="text/javascript" src="../lib/jsorolla/src/core/widgets/feature/info/protein-info-widget.js"></script>
-    <script type="text/javascript" src="../lib/jsorolla/src/core/widgets/feature/info/snp-info-widget.js"></script>
-    <script type="text/javascript" src="../lib/jsorolla/src/core/widgets/feature/info/transcript-info-widget.js"></script>
-    <script type="text/javascript" src="../lib/jsorolla/src/core/widgets/feature/info/vcf-variant-info-widget.js"></script>
-    <script type="text/javascript" src="../lib/jsorolla/src/core/widgets/ux-window.js"></script>
-    <script type="text/javascript" src="../lib/jsorolla/src/genome-browser/navigation-bar.js"></script>
-    <script type="text/javascript" src="../lib/jsorolla/src/genome-browser/status-bar.js"></script>
-    <script type="text/javascript" src="../lib/jsorolla/src/genome-browser/tracks/tracklist-panel.js"></script>
-    <script type="text/javascript" src="../lib/jsorolla/src/genome-browser/tracks/feature-track.js"></script>
-    <script type="text/javascript" src="../lib/jsorolla/src/genome-browser/tracks/gene-track.js"></script>
-    <script type="text/javascript" src="../lib/jsorolla/src/genome-browser/tracks/alignment-track.js"></script>
-    <script type="text/javascript" src="../lib/jsorolla/src/genome-browser/tracks/variant-track.js"></script>
-    <script type="text/javascript" src="../lib/jsorolla/src/genome-browser/config.js"></script>
-    <script type="text/javascript" src="../lib/jsorolla/src/genome-browser/genome-browser.js"></script>
-
-    <script type="text/javascript" src="../lib/jsorolla/src/genome-browser/config.js"></script>
-    -->
     <!-- /build -->
 
     <!-- Load IVA CSS styles -->

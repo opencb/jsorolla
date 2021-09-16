@@ -46,35 +46,34 @@ export default class OpencgaFamilyGrid extends LitElement {
             families: {
                 type: Array
             },
-            active: {
-                type: Boolean
-            },
             config: {
                 type: Object
+            },
+            active: {
+                type: Boolean
             }
         };
     }
 
     _init() {
         this._prefix = "VarFamilyGrid" + UtilsNew.randomString(6);
-
+        this.gridId = this._prefix + "FamilyBrowserGrid";
         this.catalogUiUtils = new CatalogWebUtils();
         this.active = true;
-        this.gridId = this._prefix + "FamilyBrowserGrid";
     }
 
     connectedCallback() {
         super.connectedCallback();
-
         this._config = {...this.getDefaultConfig(), ...this.config};
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("opencgaSession") ||
+        if ((changedProperties.has("opencgaSession") ||
             changedProperties.has("query") ||
             changedProperties.has("config") ||
-            changedProperties.has("active")) {
+            changedProperties.has("active")) &&
+            this.active) {
             this.propertyObserver();
         }
     }
@@ -84,6 +83,8 @@ export default class OpencgaFamilyGrid extends LitElement {
         this._config = {...this.getDefaultConfig(), ...this.config};
         // Config for the grid toolbar
         this.toolbarConfig = {
+            ...this.config.toolbar,
+            resource: "FAMILY",
             columns: this._getDefaultColumns()
         };
         this.renderTable();
@@ -99,7 +100,7 @@ export default class OpencgaFamilyGrid extends LitElement {
     }
 
     renderRemoteTable() {
-        if (this.opencgaSession.opencgaClient && this.opencgaSession.study && this.opencgaSession.study.fqn) {
+        if (this.opencgaSession.opencgaClient && this.opencgaSession?.study?.fqn) {
             this.table = $("#" + this.gridId);
             this.table.bootstrapTable("destroy");
             this.table.bootstrapTable({
@@ -344,38 +345,44 @@ export default class OpencgaFamilyGrid extends LitElement {
         const customAnnotationVisible = (UtilsNew.isNotUndefinedOrNull(this._config.customAnnotations) &&
             UtilsNew.isNotEmptyArray(this._config.customAnnotations.fields));
 
-        const _columns = [
+        let _columns = [
             {
+                id: "id",
                 title: "Family",
                 field: "id",
                 sortable: true,
                 halign: this._config.header.horizontalAlign
             },
             {
+                id: "members",
                 title: "Members",
                 field: "members",
                 formatter: this.membersFormatter.bind(this),
                 halign: this._config.header.horizontalAlign
             },
             {
+                id: "disorders",
                 title: "Disorders",
                 field: "disorders",
                 formatter: disorders => disorders.map(disorder => CatalogGridFormatter.disorderFormatter(disorder)).join("<br>"),
                 halign: this._config.header.horizontalAlign
             },
             {
+                id: "phenotypes",
                 title: "Phenotypes",
                 field: "phenotypes",
                 formatter: CatalogGridFormatter.phenotypesFormatter,
                 halign: this._config.header.horizontalAlign
             },
             {
+                id: "caseId",
                 title: "Case ID",
                 field: "attributes.OPENCGA_CLINICAL_ANALYSIS",
                 formatter: (value, row) => CatalogGridFormatter.caseFormatter(value, row, row.id, this.opencgaSession),
                 halign: this._config.header.horizontalAlign
             },
             {
+                id: "customAnnotation",
                 title: "Custom Annotations",
                 field: "customAnnotation",
                 formatter: this.customAnnotationFormatter,
@@ -383,6 +390,7 @@ export default class OpencgaFamilyGrid extends LitElement {
                 halign: this._config.header.horizontalAlign
             },
             {
+                id: "creationDate",
                 title: "Creation Date",
                 field: "creationDate",
                 formatter: CatalogGridFormatter.dateFormatter,
@@ -394,6 +402,7 @@ export default class OpencgaFamilyGrid extends LitElement {
 
         if (this._config.showSelectCheckbox) {
             _columns.push({
+                id: "state",
                 field: "state",
                 checkbox: true,
                 // formatter: this.stateFormatter,
@@ -401,6 +410,8 @@ export default class OpencgaFamilyGrid extends LitElement {
                 eligible: false
             });
         }
+
+        _columns = UtilsNew.mergeTable(_columns, this._config.columns || this._config.hiddenColumns, !!this._config.hiddenColumns);
 
         return _columns;
     }
@@ -469,11 +480,14 @@ export default class OpencgaFamilyGrid extends LitElement {
         return html`
             ${this._config.showToolbar ?
                 html`
-                    <opencb-grid-toolbar    .config="${this.toolbarConfig}"
-                                            @download="${this.onDownload}"
-                                            @columnChange="${this.onColumnChange}">
+                    <opencb-grid-toolbar  .config="${this.toolbarConfig}"
+                                          .query="${this.query}"
+                                          .opencgaSession="${this.opencgaSession}"
+                                          @columnChange="${this.onColumnChange}"
+                                          @download="${this.onDownload}"
+                                          @export="${this.onDownload}">
                     </opencb-grid-toolbar>` :
-                null
+                ""
             }
             <div id="${this._prefix}GridTableDiv">
                 <table id="${this._prefix}FamilyBrowserGrid"></table>

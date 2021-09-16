@@ -62,7 +62,7 @@ export default class OpencgaProteinView extends LitElement {
             variant: {
                 type: String
             },
-            config: {
+            settings: {
                 type: Object
             },
             summary: {
@@ -88,6 +88,10 @@ export default class OpencgaProteinView extends LitElement {
 
         if (changedProperties.has("project") || changedProperties.has("study")) {
             this._proteinChanged();
+        }
+
+        if (changedProperties.has("settings")) {
+            // TODO support settings
         }
     }
 

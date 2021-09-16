@@ -46,9 +46,7 @@ export default class OpencgaFamilyBrowser extends LitElement {
             selectedFacet: {
                 type: Object
             },*/
-            config: {
-                type: Object
-            }
+            settings: {}
         };
     }
 
@@ -75,14 +73,30 @@ export default class OpencgaFamilyBrowser extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
-
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
-    updated(changedProperties) {
-        if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
-            this.requestUpdate();
+    // NOTE turn updated into update here reduces the number of remote requests from 2 to 1 as in the grid components propertyObserver()
+    // is executed twice in case there is external settings
+    update(changedProperties) {
+        if (changedProperties.has("settings")) {
+            this.settingsObserver();
+        }
+        super.update(changedProperties);
+    }
+
+    settingsObserver() {
+        this._config = {...this.getDefaultConfig()};
+        // merge filter list, canned filters, detail tabs
+        if (this.settings?.menu) {
+            this._config.filter = UtilsNew.mergeFiltersAndDetails(this._config?.filter, this.settings);
+        }
+
+        if (this.settings?.table) {
+            this._config.filter.result.grid = {...this._config.filter.result.grid, ...this.settings.table};
+        }
+        if (this.settings?.table?.toolbar) {
+            this._config.filter.result.grid.toolbar = {...this._config.filter.result.grid.toolbar, ...this.settings.table.toolbar};
         }
     }
 
@@ -167,12 +181,14 @@ export default class OpencgaFamilyBrowser extends LitElement {
                 activeFilters: {
                     complexFields: ["annotation"]
                 },
-                grid: {
-                    pageSize: 10,
-                    pageList: [10, 25, 50],
-                    detailView: true,
-                    multiSelection: false,
-                    showSelectCheckbox: false
+                result: {
+                    grid: {
+                        pageSize: 10,
+                        pageList: [10, 25, 50],
+                        detailView: true,
+                        multiSelection: false,
+                        showSelectCheckbox: false
+                    }
                 },
                 detail: {
                     title: "Family",
@@ -323,15 +339,13 @@ export default class OpencgaFamilyBrowser extends LitElement {
     }
 
     render() {
-        return this.opencgaSession && this._config ?
-            html`
-                <opencga-browser
-                    resource="FAMILY"
-                    .opencgaSession="${this.opencgaSession}"
-                    .query="${this.query}"
-                    .config="${this._config}">
-                </opencga-browser>` :
-            null;
+        return this.opencgaSession && this._config ? html`
+            <opencga-browser  resource="FAMILY"
+                              .opencgaSession="${this.opencgaSession}"
+                              .query="${this.query}"
+                              .config="${this._config}">
+            </opencga-browser>` :
+            "";
     }
 
 }

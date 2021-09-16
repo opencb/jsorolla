@@ -51,7 +51,7 @@ class VariantInterpreterQcOverview extends LitElement {
             clinicalAnalysis: {
                 type: Object
             },
-            config: {
+            settings: {
                 type: Object
             }
         };
@@ -81,8 +81,13 @@ class VariantInterpreterQcOverview extends LitElement {
             this.clinicalAnalysisIdObserver();
         }
 
-        if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
+        if (changedProperties.has("settings")) {
+            this._config = {...this.getDefaultConfig(), ...this.settings};
+            if (this.settings.tabs) {
+                this._config = UtilsNew.mergeDataFormConfig(this._config, this.settings.tabs);
+            }
+            // debugger
+            this.requestUpdate();
         }
     }
 
@@ -136,7 +141,7 @@ class VariantInterpreterQcOverview extends LitElement {
                 title: "Quality Control Overview",
                 sections: [
                     {
-                        fields: [
+                        elements: [
                             {
                                 id: "Summary",
                                 title: "Summary"
@@ -160,7 +165,7 @@ class VariantInterpreterQcOverview extends LitElement {
                             {
                                 id: "AlignmentStats",
                                 title: "Samtools Flagstats",
-                                disabled: application.appConfig !== "opencb"
+                                /*disabled: application.appConfig !== "opencb"*/
                             }
                             /* {
                                 id: "GeneCoverageStats",
@@ -176,7 +181,7 @@ class VariantInterpreterQcOverview extends LitElement {
                 title: "Quality Control Overview",
                 sections: [
                     {
-                        fields: [
+                        elements: [
                             {
                                 id: "Summary",
                                 title: "Summary"
@@ -184,7 +189,7 @@ class VariantInterpreterQcOverview extends LitElement {
                             {
                                 id: "VariantStats",
                                 title: "QC Plot Files",
-                                disabled: application.appConfig !== "opencb"
+                                /* disabled: application.appConfig !== "opencb"*/
                             },
                             {
                                 id: "SamtoolsPlots",
@@ -193,12 +198,12 @@ class VariantInterpreterQcOverview extends LitElement {
                             {
                                 id: "Alignment",
                                 title: "Samtools Stats",
-                                disabled: application.appConfig !== "opencb"
+                                /* disabled: application.appConfig !== "opencb"*/
                             },
                             {
                                 id: "AlignmentStats",
                                 title: "Samtools Flagstats",
-                                disabled: application.appConfig !== "opencb"
+                                /* disabled: application.appConfig !== "opencb"*/
                             },
                             {
                                 id: "GenomicContext",
@@ -207,7 +212,7 @@ class VariantInterpreterQcOverview extends LitElement {
                             {
                                 id: "GeneCoverageStats",
                                 title: "Gene Coverage Stats",
-                                disabled: application.appConfig !== "opencb"
+                                /* disabled: application.appConfig !== "opencb"*/
                             }
                         ]
                     }
@@ -245,7 +250,7 @@ class VariantInterpreterQcOverview extends LitElement {
             <!--<tool-header title="${this._config.title}" class="bg-white" icon="${this._config.icon}"></tool-header>-->
             <div class="row variant-interpreter-overview" style="padding: 10px 15px">
                 <div class="col-md-2 list-group interpreter-side-nav side-tabs side-nav">
-                    ${this._config.sections[0].fields.filter(field => !field.disabled).map((field, i) => {
+                    ${this._config.sections[0].elements.filter(field => !field.disabled).map((field, i) => {
                         return html`<button type="button"
                                         class="list-group-item ${i === 0 ? "active" : ""}"
                                         data-id="${field.id}"

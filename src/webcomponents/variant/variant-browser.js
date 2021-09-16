@@ -68,7 +68,7 @@ export default class VariantBrowser extends LitElement {
             selectedFacet: {
                 type: Object
             },
-            config: {
+            settings: {
                 type: Object
             }
         };
@@ -100,23 +100,44 @@ export default class VariantBrowser extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
+        this._config = {...this.getDefaultConfig()};
     }
 
     update(changedProperties) {
+        if (changedProperties.has("settings")) {
+            this.settingsObserver();
+        }
         if (changedProperties.has("opencgaSession")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
             this.opencgaSessionObserver();
+            this.settingsObserver();
         }
         if (changedProperties.has("query")) {
             this.queryObserver();
-        }
-        if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
         }
         if (changedProperties.has("selectedFacet")) {
             this.facetQueryBuilder();
         }
         super.update(changedProperties);
+    }
+
+    settingsObserver() {
+        if (!this.opencgaSession) {
+            return;
+        }
+        // merge filters
+        this._config = {...this.getDefaultConfig(), ...this.config};
+        // filter list, canned filters, detail tabs
+        if (this.settings?.menu) {
+            this._config.filter = UtilsNew.mergeFiltersAndDetails(this._config?.filter, this.settings);
+        }
+
+        if (this.settings?.table) {
+            this._config.filter.result.grid = {...this._config.filter.result.grid, ...this.settings.table};
+        }
+        if (this.settings?.table?.toolbar) {
+            this._config.filter.result.grid.toolbar = {...this._config.filter.result.grid.toolbar, ...this.settings.table.toolbar};
+        }
+        this.requestUpdate();
     }
 
     opencgaSessionObserver() {
@@ -757,7 +778,7 @@ export default class VariantBrowser extends LitElement {
                                                       .populationFrequencies="${this.populationFrequencies}"
                                                       .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
                                                       .consequenceTypes="${this.consequenceTypes}"
-                                                      .config="${this._config.filter}"
+                                                      .config="${this._config.filter.result.grid}"
                                                       @selectrow="${this.onSelectVariant}">
                                 </variant-browser-grid>
 

@@ -58,36 +58,31 @@ export default class OpencgaFileGrid extends LitElement {
     _init() {
         this._prefix = "fg" + UtilsNew.randomString(6);
         this.gridId = this._prefix + "FileBrowserGrid";
-        this._config = this.getDefaultConfig();
         this.active = true;
     }
 
     connectedCallback() {
         super.connectedCallback();
-
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this._config = {...this.getDefaultConfig()};
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
     }
 
-    firstUpdated(_changedProperties) {
-        this.dispatchEvent(new CustomEvent("clear", {detail: {}, bubbles: true, composed: true}));
-        this.table = this.querySelector("#" + this.gridId);
-        this.query = {};
-    }
-
     updated(changedProperties) {
-        if ((changedProperties.has("opencgaSession") || changedProperties.has("query") || changedProperties.has("active")) && this.active) {
+        if ((changedProperties.has("opencgaSession") ||
+            changedProperties.has("query") ||
+            changedProperties.has("config") ||
+            changedProperties.has("active")) &&
+            this.active) {
             this.propertyObserver();
-        }
-
-        if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
-            this.requestUpdate();
         }
     }
 
     propertyObserver() {
+        // With each property change we must updated config and create the columns again. No extra checks are needed.
+        this._config = {...this.getDefaultConfig(), ...this.config};
+        // Config for the grid toolbar
         this.toolbarConfig = {
+            ...this.config.toolbar,
             resource: "FILE",
             buttons: ["columns", "download"],
             columns: this._getDefaultColumns().filter(column => column.visible !== false)
@@ -106,7 +101,7 @@ export default class OpencgaFileGrid extends LitElement {
     }
 
     renderRemoteTable() {
-        if (this.opencgaSession.opencgaClient && this.opencgaSession.study && this.opencgaSession.study.fqn) {
+        if (this.opencgaSession.opencgaClient && this.opencgaSession?.study?.fqn) {
             this.table = $("#" + this.gridId);
             this.table.bootstrapTable("destroy");
             this.table.bootstrapTable({
@@ -220,26 +215,31 @@ export default class OpencgaFileGrid extends LitElement {
     }
 
     _getDefaultColumns() {
-        const _columns = [
+        let _columns = [
             {
+                id: "name",
                 title: "Name",
                 field: "name"
             },
             {
+                id: "directory",
                 title: "Directory",
                 // field: "path",
                 formatter: (value, row) => "/" + row.path.replace("/" + row.name, "")
             },
             {
+                id: "size",
                 title: "Size",
                 field: "size",
                 formatter: UtilsNew.getDiskUsage
             },
             {
+                id: "format",
                 title: "Format",
                 field: "format"
             },
             {
+                id: "bioformat",
                 title: "Bioformat",
                 field: "bioformat"
             },
@@ -248,15 +248,18 @@ export default class OpencgaFileGrid extends LitElement {
             //     field: "internal.status.name"
             // },
             {
+                id: "index",
                 title: "Index",
                 field: "internal.index.status.name"
             },
             {
+                id: "creationDate",
                 title: "Creation date",
                 field: "creationDate",
                 formatter: CatalogGridFormatter.dateFormatter
             },
             {
+                id: "actions",
                 title: "Actions",
                 field: "id",
                 visible: this._config.downloadFile ?? true, // it comes from opencga-sample-browser.config.js
@@ -273,6 +276,7 @@ export default class OpencgaFileGrid extends LitElement {
 
         if (this._config.showSelectCheckbox) {
             _columns.push({
+                id: "state",
                 field: "state",
                 checkbox: true,
                 // formatter: this.stateFormatter,
@@ -280,6 +284,8 @@ export default class OpencgaFileGrid extends LitElement {
                 eligible: false
             });
         }
+
+        _columns = UtilsNew.mergeTable(_columns, this._config.columns || this._config.hiddenColumns, !!this._config.hiddenColumns);
 
         return _columns;
     }
@@ -301,7 +307,7 @@ export default class OpencgaFileGrid extends LitElement {
                 const results = restResponse.getResults();
                 if (results) {
                     // Check if user clicked in Tab or JSON format
-                    if (e.detail.option.toLowerCase() === "tab") {
+                    if (e.detail.option.toUpperCase() === "TAB") {
                         const fields = ["id", "path", "format", "bioformat", "size", "creationDate", "modificationDate", "internal.status.name"];
                         const data = UtilsNew.toTableString(results, fields);
                         UtilsNew.downloadData(data, "files_" + this.opencgaSession.study.id + ".txt", "text/plain");
@@ -329,21 +335,26 @@ export default class OpencgaFileGrid extends LitElement {
             pageList: [10, 25, 50],
             showExport: false,
             detailView: false,
-            detailFormatter: undefined, // function with the detail formatter
+            detailFormatter: null, // function with the detail formatter
             multiSelection: false,
-            showSelectCheckbox: false
+            showSelectCheckbox: false,
+            showToolbar: true
         };
     }
 
     render() {
         return html`
-            <opencb-grid-toolbar  .config="${this.toolbarConfig}"
-                                  .query="${this.query}"
-                                  .opencgaSession="${this.opencgaSession}"
-                                  @columnChange="${this.onColumnChange}"
-                                  @download="${this.onDownload}"
-                                  @export="${this.onDownload}">
-            </opencb-grid-toolbar>
+            ${this._config.showToolbar ?
+                html`
+                    <opencb-grid-toolbar  .config="${this.toolbarConfig}"
+                                          .query="${this.query}"
+                                          .opencgaSession="${this.opencgaSession}"
+                                          @columnChange="${this.onColumnChange}"
+                                          @download="${this.onDownload}"
+                                          @export="${this.onDownload}">
+                    </opencb-grid-toolbar>` :
+                ""
+            }
             <div id="${this._prefix}GridTableDiv">
                 <table id="${this._prefix}FileBrowserGrid"></table>
             </div>

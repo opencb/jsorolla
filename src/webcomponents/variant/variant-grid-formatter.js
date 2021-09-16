@@ -47,10 +47,13 @@ export default class VariantGridFormatter {
         if (proteinSubstitutionScores) {
             const pssColor = new Map();
             for (const i in proteinSubstitutionScores) {
-                const obj = proteinSubstitutionScores[i];
-                Object.keys(obj).forEach(key => {
-                    pssColor.set(key, obj[key]);
-                });
+                if (Object.prototype.hasOwnProperty.call(proteinSubstitutionScores, i)) {
+
+                    const obj = proteinSubstitutionScores[i];
+                    Object.keys(obj).forEach(key => {
+                        pssColor.set(key, obj[key]);
+                    });
+                }
             }
             result.pssColor = pssColor;
         }
@@ -683,7 +686,9 @@ export default class VariantGridFormatter {
                     `;
                 }
 
-                let domains = "<a class=\"ct-protein-domain-tooltip\" tooltip-title='Info' tooltip-text='No protein domains found' tooltip-position-at=\"left bottom\" tooltip-position-my=\"right top\"><i class='fa fa-times' style='color: gray'></i></a>";
+                let domains = `<a class="ct-protein-domain-tooltip" tooltip-title='Info' tooltip-text='No protein domains found' tooltip-position-at="left bottom" tooltip-position-my="right top">
+                                    <i class='fa fa-times' style='color: gray'></i>
+                               </a>`;
                 if (pva.features) {
                     let tooltipText = "";
                     const visited = new Set();

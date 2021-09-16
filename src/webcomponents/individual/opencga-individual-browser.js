@@ -17,7 +17,12 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
 import "./opencga-individual-inferred-sex-view.js";
+import "./individual-view.js";
+import "./opencga-individual-inferred-sex-view.js";
+import "./opencga-individual-mendelian-errors-view.js";
+import "./../clinical/opencga-clinical-analysis-grid.js";
 import "../commons/opencga-browser.js";
+import "../commons/json-viewer.js";
 
 
 export default class OpencgaIndividualBrowser extends LitElement {
@@ -47,14 +52,14 @@ export default class OpencgaIndividualBrowser extends LitElement {
             selectedFacet: {
                 type: Object
             },*/
-            config: {
+            settings: {
                 type: Object
             }
         };
     }
 
     _init() {
-        this._prefix = "facet" + UtilsNew.randomString(6);
+        this._prefix = "ib" + UtilsNew.randomString(6);
 
         // These are for making the queries to server
         /* this.facetFields = [];
@@ -79,10 +84,26 @@ export default class OpencgaIndividualBrowser extends LitElement {
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
-    updated(changedProperties) {
-        if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
-            this.requestUpdate();
+    // NOTE turn updated into update here reduces the number of remote requests from 2 to 1 as in the grid components propertyObserver()
+    // is executed twice in case there is external settings
+    update(changedProperties) {
+        if (changedProperties.has("settings")) {
+            this.settingsObserver();
+        }
+        super.update(changedProperties);
+    }
+
+    settingsObserver() {
+        this._config = {...this.getDefaultConfig()};
+        // merge filter list, canned filters, detail tabs
+        if (this.settings?.menu) {
+            this._config.filter = UtilsNew.mergeFiltersAndDetails(this._config?.filter, this.settings);
+        }
+        if (this.settings?.table) {
+            this._config.filter.result.grid = {...this._config.filter.result.grid, ...this.settings.table};
+        }
+        if (this.settings?.table?.toolbar) {
+            this._config.filter.result.grid.toolbar = {...this._config.filter.result.grid.toolbar, ...this.settings.table.toolbar};
         }
     }
 
@@ -217,12 +238,14 @@ export default class OpencgaIndividualBrowser extends LitElement {
                         }
                     }
                 ],
-                grid: {
-                    pageSize: 10,
-                    pageList: [10, 25, 50],
-                    detailView: true,
-                    multiSelection: false,
-                    showSelectCheckbox: false
+                result: {
+                    grid: {
+                        pageSize: 10,
+                        pageList: [10, 25, 50],
+                        detailView: true,
+                        multiSelection: false,
+                        showSelectCheckbox: false
+                    }
                 },
                 gridComparator: {
                     pageSize: 5,
@@ -231,7 +254,52 @@ export default class OpencgaIndividualBrowser extends LitElement {
                     multiSelection: true
                 },
                 detail: {
-                    /* configuration in opencga-individual-detail */
+                    title: "Individual",
+                    showTitle: true,
+                    items: [
+                        {
+                            id: "individual-view",
+                            name: "Overview",
+                            active: true,
+                            render: (individual, active, opencgaSession) => {
+                                return html`<individual-view .individual="${individual}" .opencgaSession="${opencgaSession}"></individual-view>`;
+                            }
+                        },
+                        {
+                            id: "clinical-analysis-grid",
+                            name: "Clinical Analysis",
+                            render: (individual, active, opencgaSession) => {
+                                const config = {
+                                    readOnlyMode: true
+                                };
+                                return html`
+                            <p class="alert"> <i class="fas fa-info-circle align-middle"></i> Clinical Analysis in which the individual is the proband.</p>
+                            <opencga-clinical-analysis-grid .config=${config} .query="${{"family.members": individual.id}}" .opencgaSession="${opencgaSession}"></opencga-clinical-analysis-grid>`;
+                            }
+                        },
+                        {
+                            id: "individual-inferred-sex",
+                            name: "Inferred Sex",
+                            render: (individual, active, opencgaSession) => {
+                                return html`<opencga-individual-inferred-sex-view .individual="${individual}" .opencgaSession="${opencgaSession}"></opencga-individual-inferred-sex-view>`;
+                            }
+                        },
+                        {
+                            id: "individual-mendelian-error",
+                            name: "Mendelian Error",
+                            render: (individual, active, opencgaSession) => {
+                                return html`<opencga-individual-mendelian-errors-view .individual="${individual}" .opencgaSession="${opencgaSession}"></opencga-individual-mendelian-errors-view>`;
+                            }
+                        },
+                        {
+                            id: "json-view",
+                            name: "JSON Data",
+                            mode: "development",
+                            render: (individual, active, opencgaSession) => {
+                                return html`<json-viewer .data="${individual}" .active="${active}"></json-viewer>`;
+                            }
+                        }
+                    ]
                 }
             },
             aggregation: {
@@ -429,12 +497,12 @@ export default class OpencgaIndividualBrowser extends LitElement {
     }
 
     render() {
-        return this._config ? html`
+        return this.opencgaSession && this._config ? html`
             <opencga-browser  resource="INDIVIDUAL"
                             .opencgaSession="${this.opencgaSession}"
                             .query="${this.query}"
                             .config="${this._config}">
-            </opencga-browser>` : null;
+            </opencga-browser>` : "";
     }
 
 }

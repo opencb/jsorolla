@@ -96,6 +96,14 @@ export default class SelectTokenFilter extends LitElement {
         })
             .on("select2:select", e => {
                 this.filterChange(e);
+                /* TODO dynamic width in progress
+                let width = 80;
+                $(".select2-selection__choice", this).each(function () {
+                    const token = $(this);
+                    const tokenWidth = token.outerWidth();
+                    width+=tokenWidth;
+                });
+                $(this).find("span.select2-selection").css("width", width);*/
             })
             .on("select2:unselect", e => {
                 this.filterChange(e);

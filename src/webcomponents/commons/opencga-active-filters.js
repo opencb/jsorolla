@@ -213,6 +213,7 @@ export default class OpencgaActiveFilters extends LitElement {
                     }
                 }
             }
+
         }
         this.queryList = _queryList;
 
@@ -652,11 +653,12 @@ export default class OpencgaActiveFilters extends LitElement {
                                 <i class="fa fa-filter icon-padding" aria-hidden="true"></i> Filters <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu saved-filter-wrapper">
-                                <li>
-                                    <a><i class="fas fa-cloud-upload-alt icon-padding"></i> <strong>Saved Filters</strong></a>
-                                </li>
-                                ${this._filters && this._filters.length ?
-                                    this._filters.map(item => item.separator ?
+                                ${this._filters && this._filters.length ? html`
+                                    <li>
+                                        <a><i class="fas fa-cloud-upload-alt icon-padding"></i> <strong>Saved Filters</strong></a>
+                                    </li>
+
+                                    ${this._filters.map(item => item.separator ?
                                         html`
                                             <li role="separator" class="divider"></li>` :
                                         html`
@@ -674,11 +676,10 @@ export default class OpencgaActiveFilters extends LitElement {
                                                     </span>
                                                 </a>
                                             </li>`
-                                        ) :
-                                    html`<li><a class="help-block">No filters found</a></li>`
-                                }
-
-                                <li role="separator" class="divider"></li>
+                                        )}
+                                    <li role="separator" class="divider"></li>
+                                    ` :
+                                "" }
                                 <li>
                                     <a href="javascript: void 0" @click="${this.clear}" data-action="active-filter-clear">
                                         <i class="fa fa-eraser icon-padding" aria-hidden="true"></i> <strong>Clear</strong>

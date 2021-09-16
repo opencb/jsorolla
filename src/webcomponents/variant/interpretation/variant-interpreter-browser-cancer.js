@@ -60,6 +60,9 @@ class VariantInterpreterBrowserCancer extends LitElement {
             },
             config: {
                 type: Object
+            },
+            settings: {
+                type: Object
             }
         };
     }
@@ -87,12 +90,18 @@ class VariantInterpreterBrowserCancer extends LitElement {
     }
 
     updated(changedProperties) {
+        if (changedProperties.has("settings") || changedProperties.has("config")) {
+            this.settingsObserver();
+        }
+
         if (changedProperties.has("opencgaSession")) {
             this.clinicalAnalysisManager = new ClinicalAnalysisManager(this.clinicalAnalysis, this.opencgaSession);
         }
 
         if (changedProperties.has("clinicalAnalysis")) {
             this.clinicalAnalysisObserver();
+            // clinicalAnalysisObserver() calls settingsObserver()
+            // this.settingsObserver();
         }
 
         if (changedProperties.has("clinicalAnalysisId")) {
@@ -102,9 +111,26 @@ class VariantInterpreterBrowserCancer extends LitElement {
         // if (changedProperties.has("query")) {
         //     this.queryObserver();
         // }
-        if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
+    }
+
+    settingsObserver() {
+        if (!this.clinicalAnalysis) {
+            return;
         }
+        // merge filters
+        this._config = {...this.getDefaultConfig(), ...this.config};
+        // filter list, canned filters, detail tabs
+        if (this.settings?.menu) {
+            this._config.filter = UtilsNew.mergeFiltersAndDetails(this._config?.filter, this.settings);
+        }
+
+        if (this.settings?.table) {
+            this._config.filter.result.grid = {...this._config.filter.result.grid, ...this.settings.table};
+        }
+        if (this.settings?.table?.toolbar) {
+            this._config.filter.result.grid.toolbar = {...this._config.filter.result.grid.toolbar, ...this.settings.table.toolbar};
+        }
+        this.requestUpdate();
     }
 
     queryObserver() {
@@ -155,7 +181,9 @@ class VariantInterpreterBrowserCancer extends LitElement {
                         // populationFrequencyAlt: "1kG_phase3:ALL<=0.001",
                     };
                     // NOTE: We need to update the _config to update the dynamic VCF caller filters
-                    this._config = {...this.getDefaultConfig(), ...this.config};
+                    // this._config = {...this.getDefaultConfig(), ...this.config};
+
+                    this.settingsObserver();
                     this.queryObserver();
                 })
                 .catch(response => {
@@ -200,7 +228,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
         // this.requestUpdate();
     }
 
-    /**
+    /*
      * Fetch the CinicalAnalysis object from REST and trigger the observer call.
      */
     clinicalAnalysisIdObserver() {
@@ -700,8 +728,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                     ]
                 }
             },
-            aggregation: {
-            }
+            aggregation: {}
         };
     }
 

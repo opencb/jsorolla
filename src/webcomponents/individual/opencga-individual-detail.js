@@ -85,62 +85,13 @@ export default class OpencgaIndividualDetail extends LitElement {
 
     getDefaultConfig() {
         return {
-            title: "Individual",
-            showTitle: true,
-            items: [
-                {
-                    id: "individual-view",
-                    name: "Overview",
-                    active: true,
-                    render: (individual, active, opencgaSession) => {
-                        return html`<individual-view .individual="${individual}" .opencgaSession="${opencgaSession}"></individual-view>`;
-                    }
-                },
-                {
-                    id: "clinical-analysis-grid",
-                    name: "Clinical Analysis",
-                    render: (individual, active, opencgaSession) => {
-                        const config = {
-                            readOnlyMode: true,
-                            columns: {
-                                hidden: ["actions"]
-                            }
-                        };
-                        return html`
-                            <p class="alert"> <i class="fas fa-info-circle align-middle"></i> Clinical Analysis in which the individual is the proband.</p>
-                            <opencga-clinical-analysis-grid .config=${config} .query="${{"family.members": individual.id}}" .opencgaSession="${opencgaSession}"></opencga-clinical-analysis-grid>`;
-                    }
-                },
-                {
-                    id: "individual-inferred-sex",
-                    name: "Inferred Sex",
-                    render: (individual, active, opencgaSession) => {
-                        return html`<opencga-individual-inferred-sex-view .individual="${individual}" .opencgaSession="${opencgaSession}"></opencga-individual-inferred-sex-view>`;
-                    }
-                },
-                {
-                    id: "individual-mendelian-error",
-                    name: "Mendelian Error",
-                    render: (individual, active, opencgaSession) => {
-                        return html`<opencga-individual-mendelian-errors-view .individual="${individual}" .opencgaSession="${opencgaSession}"></opencga-individual-mendelian-errors-view>`;
-                    }
-                },
-                {
-                    id: "json-view",
-                    name: "JSON Data",
-                    mode: "development",
-                    render: (individual, active, opencgaSession) => {
-                        return html`<json-viewer .data="${individual}" .active="${active}"></json-viewer>`;
-                    }
-                }
-            ]
+            // detail-tab configuration in individual-browser
         };
     }
 
     render() {
         return this.opencgaSession && this.individual ?
-            html`<detail-tabs .data="${this.individual}" .config="${this._config}" .opencgaSession="${this.opencgaSession}"></detail-tabs>` :
-            null;
+            html`<detail-tabs .data="${this.individual}" .config="${this._config}" .opencgaSession="${this.opencgaSession}"></detail-tabs>` : "";
     }
 
 }

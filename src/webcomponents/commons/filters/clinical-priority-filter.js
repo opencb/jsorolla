@@ -86,7 +86,7 @@ export default class ClinicalPriorityFilter extends LitElement {
             <select-field-filter
                 .placeholder="${this.placeholder}"
                 ?multiple="${this._config.multiple}"
-                .data="${UtilsNew.isEmptyArray(this.priorities) ? this._config.priorities : this.priorities}"
+                .data="${this.priorities?.length ? this.priorities : this._config.priorities}"
                 .value=${this.priority}
                 multiple
                 @filterChange="${e => this.filterChange(e)}">
