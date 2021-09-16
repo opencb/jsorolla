@@ -632,7 +632,6 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                         ${~this._config.filter.sections[0].fields.findIndex(field => field.id === "disorder") ? html`
                                             <!-- Disorder -->
                                             <div class="btn-group" data-cy="form-disorder">
-                                                ${JSON.stringify(this.query?.disorder)}
                                                 <disorder-id-autocomplete .config=${{placeholder: "Disorders", freeTag: true}} .value="${this.query?.disorder}" .opencgaSession="${this.opencgaSession}"
                                                                           @filterChange="${e => this.onFilterChange("disorder", e.detail.value)}"></disorder-id-autocomplete>
 
