@@ -175,7 +175,7 @@ export default class OpencgaLogin extends LitElement {
                 border-left: 0;
             }
 
-            #formLogin .input-group-addon{
+            #formLogin .input-group-text{
                 background: none;
             }
 
@@ -184,9 +184,9 @@ export default class OpencgaLogin extends LitElement {
                 margin-bottom: 20px;
             }
 
-            .has-error .form-control:focus {
+            /* .has-error .form-control:focus {
 
-            }
+            } */
 
             opencga-login #error {
                 max-width: 316px;
@@ -197,30 +197,32 @@ export default class OpencgaLogin extends LitElement {
             <div class="login-box row v-offset shadow">
                 <div class="col-md-12">
                     <form id="formLogin" data-toggle="validator" class="form-horizontal" role="form">
-                        <div class="form-group has-feedback">
-                            <label for="opencgaUser" class="control-label label-login">User ID</label>
+                        <div class="has-feedback">
+                            <label for="opencgaUser" class=".col-form-label label-login">User ID</label>
                             <div class="input-group">
-                                <span class="input-group-addon" id="username">
+                                <span class="input-group-text" id="username">
                                     <i class="fa fa-user fa-lg"></i>
                                 </span>
                                 <input id="opencgaUser" value="${this.userName}" type="text" pattern="^[_\\-A-z0-9@\\.]+$" class="form-control input-login"
-                                       placeholder="User ID (case sensitive)" aria-label="Recipient's username" aria-describedby="username" required data-required-error="This field is required">
+                                        placeholder="User ID (case sensitive)" aria-label="Recipient's username" aria-describedby="username" required data-required-error="This field is required">
                             </div>
                             <div class="help-block with-errors"></div>
                         </div>
 
-                        <div class="form-group">
-                            <label for="opencgaPassword" class="control-label label-login">Password</label>
+                        <div>
+                            <label for="opencgaPassword" class=".col-form-label label-login">Password</label>
                             <div class="input-group">
-                                <span class="input-group-addon " id="password">
+                                <span class="input-group-text " id="password">
                                     <i class="fa fa-key"></i>
                                 </span>
                                 <input id="opencgaPassword" value="${this.password}" type="password" maxlength="256" class="form-control input-login"
-                                       placeholder="Password" aria-describedby="password" required>
+                                        placeholder="Password" aria-describedby="password" required>
                             </div>
                         </div>
-                        <div class="form-group">
-                            <button type="submit" class="btn btn-lg btn-primary btn-block ripple">${this.buttonText}</button>
+                        <div>
+                            <div class="d-grid gap-2 d-md-block mt-2">
+                                <button type="submit" class="btn btn-primary btn-lg">${this.buttonText}</button>
+                            </div>
                         </div>
                     </form>
                 </div>
