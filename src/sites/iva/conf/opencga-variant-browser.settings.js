@@ -1,4 +1,4 @@
-const OpencgaVariantBrowserSettings = {
+const OPENCGA_VARIANT_BROWSER_SETTINGS = {
     menu: {
         // merge criterium: internal sections and filters are used to hydrates the external filters list for each section (which is a list of string). Sections and filter order is respected.
         sections: [

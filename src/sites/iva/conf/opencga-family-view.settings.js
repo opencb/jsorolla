@@ -1,4 +1,4 @@
-const opencgaFamilyViewSettings = {
+const OPENCGA_FAMILY_VIEW_SETTINGS = {
     // merge criterium: uses this array as filter for internal 1D array. Same as settings.table.columns in `clinical-review-cases.settings`.
     /**
      * works either with:

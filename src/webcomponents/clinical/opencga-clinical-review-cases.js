@@ -405,7 +405,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                 return html`
                                     <opencga-clinical-analysis-view .opencgaSession="${opencgaSession}"
                                                                     .clinicalAnalysisId=${clinicalAnalysis.id}
-                                                                    .settings="${opencgaClinicalAnalysisViewSettings}">
+                                                                    .settings="${OPENCGA_CLINICAL_ANALYSIS_VIEW_SETTINGS}">
                                     </opencga-clinical-analysis-view>
                                 `;
                             }

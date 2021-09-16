@@ -337,7 +337,7 @@ export default class OpencgaGeneView extends LitElement {
                                                   .opencgaClient="${this.opencgaClient}"
                                                   .cellbaseClient="${this.cellbaseClient}"
                                                   .gene="${this.gene}"
-                                                  .config="${opencgaGeneViewSettings.protein}"
+                                                  .config="${OPENCGA_GENE_VIEW_SETTINGS.protein}"
                                                   .summary="${this.summary}">
                             </variant-protein-view>
                         </div>

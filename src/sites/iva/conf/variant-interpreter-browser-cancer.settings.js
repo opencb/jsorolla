@@ -1,4 +1,4 @@
-const variantInterpreterBrowserCancerSettings = {
+const VARIANT_INTERPRETER_BROWSER_CANCER_SETTINGS = {
     menu: {
         // add all filters and let variant-interpreter-browser-cancer handle the visibility based on callers
         // filters: []

@@ -1,4 +1,4 @@
-const variantInterpreterBrowserRdSettings = {
+const VARIANT_INTERPRETER_BROWSER_RD_SETTINGS = {
     menu: {
         sections: [
             {

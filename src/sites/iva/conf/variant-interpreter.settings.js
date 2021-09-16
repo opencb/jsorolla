@@ -1,4 +1,4 @@
-const variantInterpreterSettings = {
+const VARIANT_INTERPRETER_SETTINGS = {
     tools: [
         {
             id: "select"
@@ -8,7 +8,7 @@ const variantInterpreterSettings = {
             tabs: [
                 {
                     id: "overview",
-                    settings: variantInterpreterQcOverviewSettings
+                    settings: VARIANT_INTERPRETER_QC_OVERVIEW_SETTINGS
                 },
                 {id: "sampleVariantStats"},
                 /* {id: "cancerQCPlots"},*/
@@ -23,9 +23,9 @@ const variantInterpreterSettings = {
         {
             id: "variant-browser",
             browsers: {
-                CANCER: variantInterpreterBrowserCancerSettings,
-                FAMILY: variantInterpreterBrowserRdSettings,
-                SINGLE: variantInterpreterBrowserRdSettings
+                CANCER: VARIANT_INTERPRETER_BROWSER_CANCER_SETTINGS,
+                FAMILY: VARIANT_INTERPRETER_BROWSER_RD_SETTINGS,
+                SINGLE: VARIANT_INTERPRETER_BROWSER_RD_SETTINGS
             }
         }
         /* {

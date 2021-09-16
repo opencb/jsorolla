@@ -1,4 +1,4 @@
-const opencgaIndividualBrowserSettings = {
+const OPENCGA_INDIVIDUAL_BROWSER_SETTINGS = {
     /**
      *  Full settings
      */

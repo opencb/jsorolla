@@ -1,4 +1,4 @@
-const opencgaJobBrowserSettings = {
+const OPENCGA_JOB_BROWSER_SETTINGS = {
     /**
      *  Full settings
      */

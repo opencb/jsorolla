@@ -1,4 +1,4 @@
-const opencgaCohortBrowserSettings = {
+const OPENCGA_COHORT_BROWSER_SETTINGS = {
     /**
      *  Full settings
      */

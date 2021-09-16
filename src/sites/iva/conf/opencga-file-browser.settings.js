@@ -1,4 +1,4 @@
-const opencgaFileBrowserSettings = {
+const OPENCGA_FILE_BROWSER_SETTINGS = {
     /**
      *  Full settings
      */
