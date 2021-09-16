@@ -55,5 +55,9 @@
         "lit/no-property-change-update": 0
       }
     }
-  ]
+  ],
+  "globals": {
+    "$": true,
+    "globalThis": true
+  }
 }
