@@ -122,12 +122,16 @@ export default class SelectTokenFilter extends LitElement {
             /* if (this.value) {
                 this.state = this.value.split(",");
             }*/
-            this.select.val(null).trigger("change");
+
+            /* this.select.val(null).trigger("change");
             const selection = this.value ? this.value.split(",") : null;
             this.select.val(selection);
             this.select.trigger("change");
+            */
 
-            // this.addOptions(this.value?.split(this.separator));
+            this.select.empty();
+            this.addOptions(this.value?.split(this.separator));
+
             // const selection = this.value ? this.value.split(this.separator) : null;
             // this.select.val(selection); // this wont work as options arent actually there since there is an ajax source
             // this.select.trigger('change');
@@ -146,7 +150,7 @@ export default class SelectTokenFilter extends LitElement {
         return results;
     }
 
-    /* addOptions(ids) {
+    addOptions(ids) {
         if (ids) {
             for (const id of ids) {
                 if (this.select.find("option[value='" + id + "']").length) {
@@ -163,8 +167,7 @@ export default class SelectTokenFilter extends LitElement {
             this.select.val(null).trigger("change");
 
         }
-
-    }*/
+    }
 
     filterChange(e) {
         const selection = this.select.select2("data").map(el => el.id).join(this.separator);
