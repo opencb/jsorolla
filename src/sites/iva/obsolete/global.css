@@ -2014,8 +2014,8 @@ opencga-gene-view h3.section-title /* TODO refactor */{
 }
 
 /* jobs-monitor*/
-.notification-nav li.notification,
-.notification-nav li.notification > a {
+.notification-nav .notification,
+.notification-nav .notification .dropdown-toggle {
     height: 50px;
     min-width: 40px;
 }
@@ -2029,7 +2029,7 @@ opencga-gene-view h3.section-title /* TODO refactor */{
     font-weight: bold;
 }
 
-.notification-nav .dropdown-menu a {
+.notification-nav .dropdown-menu .dropdown-item {
     border-top: 1px solid #dedede;
 }
 .notification-nav .dropdown-menu li:first-child a {

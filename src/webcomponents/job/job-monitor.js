@@ -213,45 +213,45 @@ export class JobMonitor extends LitElement {
 
     render() {
         return html`
-            <ul id="job-monitor" class="nav navbar-nav notification-nav">
-                <li class="notification">
-                    <a href="#" class="dropdown-toggle" title="Job Monitor" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" @click="${this.toggleDropdown}">
-                        <span class="badge badge-pill badge-primary ${this.updatedCnt > 0 ? "" : "invisible"}">${this.updatedCnt}</span> <i class="fas fa-rocket"></i>
+            <div id="job-monitor" class="notification-nav">
+                <li class="nav-item dropdown notification">
+                    <a href="#" class="nav-link dropdown-toggle" title="Job Monitor" data-bs-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" @click="${this.toggleDropdown}">
+                        <span class="badge rounded-pill bg-danger ${this.updatedCnt > 0 ? "" : "invisible"}">${this.updatedCnt}</span> <i class="fas fa-rocket"></i>
                     </a>
-                    <ul class="dropdown-menu">
+                    <ul class="dropdown-menu dropdown-menu-end">
                         <!-- <li class="info">Jobs done since your last access /*moment(this.opencgaSession.user.configs.IVA.lastAccess).format("DD-MM-YYYY HH:mm:ss") */</li> -->
                         <li class="info">
-                            <button @click="${this.filterJobs}" class="btn btn-small btn-default ripple">ALL</button>
-                            <button @click="${this.filterJobs}" class="btn btn-small btn-default ripple" data-type="PENDING,QUEUED,RUNNING,REGISTERING">Running</button>
-                            <button @click="${this.filterJobs}" class="btn btn-small btn-default ripple" data-type="UNREGISTERED,DONE,ERROR,ABORTED">Finished</button>
-                            <button @click="${this.forceRefresh}" class="btn btn-small btn-default ripple pull-right" title="Force immediate refresh"><i class="fas fa-sync-alt"></i></button>
-
+                            <button @click="${this.filterJobs}" class="btn btn-small btn-light ripple">ALL</button>
+                            <button @click="${this.filterJobs}" class="btn btn-small btn-light ripple" data-type="PENDING,QUEUED,RUNNING,REGISTERING">Running</button>
+                            <button @click="${this.filterJobs}" class="btn btn-small btn-light ripple" data-type="UNREGISTERED,DONE,ERROR,ABORTED">Finished</button>
+                            <button @click="${this.forceRefresh}" class="btn btn-small btn-light ripple float-end" title="Force immediate refresh"><i class="fas fa-sync-alt"></i></button>
                         </li>
                         ${this.filteredJobs.length ? this.filteredJobs.map(job => html`
                                 <li>
-                                    <a href="#job-view" @click=${() => this.openJob(job.id)} class="job-monitor-item ${job.updated && !job._visited ? `updated status-${job?.internal?.status?.name}` : ""}">
-                                        <div class="media">
-                                            <div class="media-left rocket-${job?.internal?.status?.name ?? "default"}">
+                                    <a class="dropdown-item job-monitor-item ${job.updated && !job._visited ? `updated status-${job?.internal?.status?.name}` : ""}" href="#job-view" @click=${() => this.openJob(job.id)} >
+                                        <div class="d-flex flex-row media">
+                                            <div class="d-flex align-items-center p-2 media-left rocket-${job?.internal?.status?.name ?? "default"}">
                                                 <i class="fas fa-rocket"></i>
                                             </div>
                                             <div class="media-body">
                                                 ${job.updated && !job._visited ? html`<span class="badge">NEW</span>` : ""}
                                                 <h4 class="media-heading">${job.id}</h4>
-                                                <small>${job.tool.id}</small> |
-                                                <small>${moment(job.creationDate, "YYYYMMDDHHmmss").format("D MMM YYYY, h:mm:ss a")}</small>
-                                                <p>${UtilsNew.renderHTML(UtilsNew.jobStatusFormatter(job?.internal?.status))}</p>
+                                                    <small>${job.tool.id}</small> <br/>
+                                                    <small>${moment(job.creationDate, "YYYYMMDDHHmmss").format("D MMM YYYY, h:mm:ss a")}</small>
+
+                                                    <p>${UtilsNew.renderHTML(UtilsNew.jobStatusFormatter(job?.internal?.status))}</p>
                                             </div>
                                         </div>
-                                     </a>
+                                    </a>
                                 </li>`) :
                             html`
                                 <li>
-                                    <a> No jobs </a>
+                                    <a class="dropdown-item"> No jobs </a>
                                 </li>`
                             }
                     </ul>
                 </li>
-            </ul>
+            </div>
         `;
     }
 

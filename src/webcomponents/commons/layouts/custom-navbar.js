@@ -116,9 +116,18 @@ export default class CustomNavBar extends LitElement {
                 .navbar-inverse .navbar-nav>.active>a, .navbar-inverse .navbar-nav>.active>a:focus, .navbar-inverse .navbar-nav>.active>a:hover {
                     background-color: var(--main-bg-color-darker);
                 }
-                .navbar-inverse .navbar-nav>li>a {
+                .navbar-inverse .navbar-nav .nav-item .nav-link{
                     color: #d2d2d2;
                 }
+
+                .navbar-inverse .navbar-nav .dropdown-menu .dropdown-item {
+                    color: #333;
+                }
+
+                .navbar-inverse .navbar-nav .nav-item .nav-link:hover {
+                    color: #fff;
+                }
+
                 .navbar-inverse .dropdown-menu>.active>a, .navbar-inverse .dropdown-menu>.active>a:focus, .navbar-inverse .dropdown-menu>.active>a:hover {
                     background-color: var(--main-bg-color);
                 }
@@ -145,7 +154,8 @@ export default class CustomNavBar extends LitElement {
                     margin-right: 0;
                 }
 
-                .notification-nav > li > a .badge  {
+                .notification-nav .nav-item .nav-link .badge,
+                .notification-nav .dropdown-item .badge  {
                     position: relative;
                     z-index: 10;
                     bottom: -7px;
@@ -374,15 +384,18 @@ export default class CustomNavBar extends LitElement {
 
                             <!-- Jobs -->
                             ${this.isVisible(this.app?.jobMonitor) ? html`
+                            <li class="nav-item">
                                 <job-monitor
                                     .opencgaSession="${this.opencgaSession}"
                                     @jobSelected="${this.onJobSelected}">
                                 </job-monitor>
+                            </li>
+
                             ` : null}
 
                             ${this.isVisible(this.app?.fileExplorer) ? html`
                                 <li class="nav-item">
-                                    <a href="#file-manager" title="File Manager" role="button" @click="${this.onChangeTool}">
+                                    <a class="nav-link" href="#file-manager" title="File Manager" role="button" @click="${this.onChangeTool}">
                                         <i class="fas fa-folder-open icon-padding"></i>
                                     </a>
                                 </li>
@@ -421,7 +434,7 @@ export default class CustomNavBar extends LitElement {
                                         <i class="fa fa-user-circle fa-lg icon-padding" aria-hidden="true">
                                         </i>${this.opencgaSession.user?.name ?? this.opencgaSession.user?.email} <span class="caret"></span>
                                     </a>
-                                    <ul class="dropdown-menu">
+                                    <ul class="dropdown-menu dropdown-menu-end">
                                         ${this.app?.userMenu?.length ? this.app.userMenu.filter(item => this.isVisible(item)).map(item => html`
                                             <li>
                                                 <a class="dropdown-item" href="${item.url}" data-user-menu="${item.id}">

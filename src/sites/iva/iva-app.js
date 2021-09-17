@@ -950,7 +950,7 @@ class IvaApp extends LitElement {
                     margin-right: 0;
                 }
 
-                .notification-nav > li > a .badge  {
+                .notification-nav .nav-item .nav-link .badge  {
                     position: relative;
                     z-index: 10;
                     bottom: -7px;
