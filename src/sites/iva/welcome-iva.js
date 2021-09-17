@@ -218,17 +218,21 @@ export default class WelcomeIva extends LitElement {
 
                 ${UtilsNew.renderHTML(this.config.welcomePageContent)}
 
-                <div class="row hi-icon-wrap hi-icon-effect-9 hi-icon-animation">
+                <div class="d-flex flex-row justify-content-around hi-icon-wrap hi-icon-effect-9 hi-icon-animation">
                     ${this.app.menu.filter(this.isVisible).map(item => html`
                         ${item.submenu ? html`
-                            <a class="icon-wrapper" data-cat-id="cat-${item.id}" data-title="${item.name}" href="#cat-${item.id}/${this._checkProjects() ? `${this.opencgaSession.project.id}/${this.opencgaSession.study.id}` : ""}">
+                        <div class="p-2">
+                            <a class="icon-wrapper"
+                            data-cat-id="cat-${item.id}" data-title="${item.name}" href="#cat-${item.id}/${this._checkProjects() ? `${this.opencgaSession.project.id}/${this.opencgaSession.study.id}` : ""}">
                                 <div class="hi-icon">
                                     <img alt="${item.name}" src="${item.icon}" />
                                 </div>
                                 <p>${item.name}</p>
                                 <span class="smaller"></span>
                             </a>
+                        </div>
                         ` : html`
+                        <div class="p-2">
                             <a class="icon-wrapper" href="#${item.id}/${this._checkProjects() ? `${this.opencgaSession.project.id}/${this.opencgaSession.study.id}` : ""}">
                                 <div class="hi-icon">
                                     <img alt="${item.name}" src="${item.icon}" />
@@ -236,16 +240,17 @@ export default class WelcomeIva extends LitElement {
                                 <p>${item.name}</p>
                                 <span class="smaller"></span>
                             </a>
+                        </div>
                         `}
                     `)}
                 </div>
 
                 ${suite.appConfig === "opencb" ? html`
-                    <div class="row text-center">
+                    <div class="d-flex justify-content-center">
                         <a class="getting-started" href="#gettingstarted"><span>Getting started with IVA</span></a>
                     </div>
                 ` : html`
-                    <div class="row text-center">
+                    <div class="d-flex justify-content-center">
                         <a class="getting-started" href="${this.config.about.links.find(link => link.id === "documentation").url}" target="_blank"><span>Documentation</span></a>
                     </div>
                 `}

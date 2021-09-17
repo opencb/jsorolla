@@ -161,7 +161,7 @@ export default class WelcomeWeb extends LitElement {
                 }
             </style>
 
-            <div class="col-md-8 col-md-offset-2 col-sm-12 welcome-center text-muted text-justify">
+            <div class="d-flex justify-content-around welcome-center text-muted text-justify">
                 <div style="margin: 40px">
                     ${this.renderWelcome(this.app)}
                 </div>

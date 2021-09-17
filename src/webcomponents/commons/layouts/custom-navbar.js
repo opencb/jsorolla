@@ -132,6 +132,11 @@ export default class CustomNavBar extends LitElement {
                     background-color: var(--main-bg-color);
                 }
 
+                .dropdown-menu {
+                    max-height: 480px;
+                    overflow-y: auto;
+                }
+
                 .navbar-nav li.notification > a > i {
                     font-size: 20px;
                     position: absolute;
