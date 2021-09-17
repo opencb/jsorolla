@@ -139,8 +139,8 @@ export default class OpencgaClinicalReviewCases extends LitElement {
     }
 
     onServerFilterChange(e) {
-        // suppress if I actually have clicked on an action buttons
-        if (e.target.className !== "id-filter-button") {
+        // suppress if I have clicked on an action buttons
+        if (e.target?.dataset?.action === "delete-filter") {
             return;
         }
 
@@ -193,7 +193,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
     }
 
     launchModal() {
-        $(PolymerUtils.getElementById(this._prefix + "SaveModal")).modal("show");
+        $("#" + this._prefix + "SaveModal").modal("show");
     }
 
     refreshFilters() {
@@ -205,6 +205,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
             } else {
                 this._filters = [...(this.filters || [])];
             }
+            this.requestUpdate();
             this.updateComplete.then(() => UtilsNew.initTooltip(this));
         });
     }
@@ -258,6 +259,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                                 this._filters[i] = restResponse.response[0].result[0];
                                             }
                                         }
+                                        this.requestUpdate();
                                         this.updateComplete.then(() => UtilsNew.initTooltip(this));
                                     } else {
                                         console.error(restResponse);
@@ -267,8 +269,8 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                             "error"
                                         );
                                     }
-                                    PolymerUtils.setValue(this._prefix + "filterName", "");
-                                    PolymerUtils.setValue(this._prefix + "filterDescription", "");
+                                    $("#" + this._prefix + "filterName").val("");
+                                    $("#" + this._prefix + "filterDescription").val("");
                                 }).catch(restResponse => {
                                     console.error(restResponse);
                                     Swal.fire(
@@ -293,13 +295,14 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                         .then(restResponse => {
                             if (!restResponse.getEvents?.("ERROR")?.length) {
                                 this._filters = [...this._filters, data];
-                                PolymerUtils.setValue(this._prefix + "filterName", "");
-                                PolymerUtils.setValue(this._prefix + "filterDescription", "");
+                                $("#" + this._prefix + "filterName").val("");
+                                $("#" + this._prefix + "filterDescription").val("");
                                 Swal.fire(
                                     "Filter Saved",
                                     "Filter has been saved.",
                                     "success"
                                 );
+                                this.requestUpdate();
                                 this.updateComplete.then(() => UtilsNew.initTooltip(this));
                             } else {
                                 console.error(restResponse);

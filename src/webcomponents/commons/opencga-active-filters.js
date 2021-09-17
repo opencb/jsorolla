@@ -291,6 +291,7 @@ export default class OpencgaActiveFilters extends LitElement {
             } else {
                 this._filters = [...(this.filters || [])];
             }
+            this.requestUpdate();
             this.updateComplete.then(() => UtilsNew.initTooltip(this));
         });
     }
@@ -358,6 +359,7 @@ export default class OpencgaActiveFilters extends LitElement {
                                             "Filter has been saved.",
                                             "success"
                                         );
+                                        this.requestUpdate();
                                         this.updateComplete.then(() => UtilsNew.initTooltip(this));
                                     } else {
                                         console.error(restResponse);
@@ -400,6 +402,7 @@ export default class OpencgaActiveFilters extends LitElement {
                                     "Filter has been saved.",
                                     "success"
                                 );
+                                this.requestUpdate();
                                 this.updateComplete.then(() => UtilsNew.initTooltip(this));
                             } else {
                                 console.error(restResponse);
@@ -437,7 +440,7 @@ export default class OpencgaActiveFilters extends LitElement {
 
     onServerFilterChange(e) {
         // suppress if I have clicked on an action buttons
-        if (e.target.className !== "id-filter-button") {
+        if (e.target?.dataset?.action === "delete-filter") {
             return;
         }
 
@@ -467,8 +470,8 @@ export default class OpencgaActiveFilters extends LitElement {
                     }
                     this.dispatchEvent(new CustomEvent("activeFilterChange", {
                         detail: _queryList,
-                        bubbles: true,
-                        composed: true
+                        /* bubbles: true,
+                        composed: true*/
                     }));
                 } else {
                     filter.active = false;
@@ -670,9 +673,9 @@ export default class OpencgaActiveFilters extends LitElement {
                                                         <span tooltip-title="${item.id}"
                                                               tooltip-text="${(item.description ? item.description + "<br>" : "") + Object.entries(item.query).map(([k, v]) => `<b>${k}</b> = ${v}`).join("<br>")}"
                                                               data-filter-id="${item.id}">
-                                                            <i class="fas fa-eye"></i>
+                                                            <i class="fas fa-eye" data-action="view-filter"></i>
                                                         </span>
-                                                        <i data-cy="delete" tooltip-title="Delete filter" class="fas fa-trash" data-filter-id="${item.id}" @click="${this.serverFilterDelete}"></i>
+                                                        <i data-cy="delete" data-action="delete-filter" tooltip-title="Delete filter" class="fas fa-trash" data-filter-id="${item.id}" @click="${this.serverFilterDelete}"></i>
                                                     </span>
                                                 </a>
                                             </li>`
