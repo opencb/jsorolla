@@ -781,13 +781,17 @@ button.active-filter-label:hover {
 }
 
 .saved-filter-wrapper .action-buttons {
-    padding: 0 0 0 10px;
+    padding: 0;
     color: #adadad;
     position: absolute;
     display: inline-block;
     right: 15px;
     top: 5px;
 
+}
+
+.saved-filter-wrapper .action-buttons i[data-action="delete-filter"]:hover {
+    color: #d00000;
 }
 
 .saved-filter-wrapper .action-buttons i:hover {
