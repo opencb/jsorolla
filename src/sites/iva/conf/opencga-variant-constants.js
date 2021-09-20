@@ -60,7 +60,7 @@ const CONSEQUENCE_TYPES = {
         high: "red",
         moderate: "darkorange",
         low: "#5d91a2",
-        modifier: "green"
+        modifier: "#17d617"
     },
 
     // Loss-of-function SO terms
