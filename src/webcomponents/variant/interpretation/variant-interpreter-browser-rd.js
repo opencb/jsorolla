@@ -59,6 +59,9 @@ class VariantInterpreterBrowserRd extends LitElement {
             },
             config: {
                 type: Object
+            },
+            settings: {
+                type: Object
             }
         };
     }
@@ -90,11 +93,16 @@ class VariantInterpreterBrowserRd extends LitElement {
     }
 
     updated(changedProperties) {
+        if (changedProperties.has("settings") || changedProperties.has("config")) {
+            this.settingsObserver();
+        }
         if (changedProperties.has("opencgaSession")) {
             this.clinicalAnalysisManager = new ClinicalAnalysisManager(this.clinicalAnalysis, this.opencgaSession);
         }
         if (changedProperties.has("clinicalAnalysis")) {
             this.clinicalAnalysisObserver();
+            // this.config has a clinicalAnalysis reference in it, we need to updated it once clinicalAnalysis is available
+            this.settingsObserver();
         }
         if (changedProperties.has("clinicalAnalysisId")) {
             this.clinicalAnalysisIdObserver();
@@ -102,9 +110,26 @@ class VariantInterpreterBrowserRd extends LitElement {
         if (changedProperties.has("query")) {
             this.queryObserver();
         }
-        if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
+    }
+
+    settingsObserver() {
+        if (!this.clinicalAnalysis) {
+            return;
         }
+        // merge filters
+        this._config = {...this.getDefaultConfig(), ...this.config};
+        // filter list, canned filters, detail tabs
+        if (this.settings?.menu) {
+            this._config.filter = UtilsNew.mergeFiltersAndDetails(this._config?.filter, this.settings);
+        }
+
+        if (this.settings?.table) {
+            this._config.filter.result.grid = {...this._config.filter.result.grid, ...this.settings.table};
+        }
+        if (this.settings?.table?.toolbar) {
+            this._config.filter.result.grid.toolbar = {...this._config.filter.result.grid.toolbar, ...this.settings.table.toolbar};
+        }
+        this.requestUpdate();
     }
 
     queryObserver() {
@@ -188,8 +213,7 @@ class VariantInterpreterBrowserRd extends LitElement {
             this.savedVariants = this.clinicalAnalysis?.interpretation?.primaryFindings?.map(v => v.id);
         }
 
-        this._config = {...this.getDefaultConfig(), ...this.config};
-        this.requestUpdate();
+        // this.requestUpdate();
     }
 
     /**
@@ -346,8 +370,8 @@ class VariantInterpreterBrowserRd extends LitElement {
                             {
                                 id: "file-quality",
                                 title: "Quality Filters",
-                                tooltip: "VCF file based FILTER and QUAL filters",
-                                showDepth: application.appConfig === "opencb"
+                                tooltip: "VCF file based FILTER and QUAL filters"
+                                // showDepth: false
                             },
                             {
                                 id: "cohort",
@@ -667,8 +691,7 @@ class VariantInterpreterBrowserRd extends LitElement {
                     ]
                 }
             },
-            aggregation: {
-            }
+            aggregation: {}
         };
     }
 

@@ -44,7 +44,7 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
             clinicalAnalysis: {
                 type: Object
             },
-            config: {
+            settings: {
                 type: Object
             }
         };
@@ -61,13 +61,26 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
     }
 
     updated(changedProperties) {
-        if (changedProperties.has("clinicalAnalysisId")){
-            this.clinicalAnalysisIdObserver();
+        if (changedProperties.has("settings")) {
+            this.settingsObserver();
         }
 
-        if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
+        if (changedProperties.has("clinicalAnalysisId")) {
+            this.clinicalAnalysisIdObserver();
         }
+    }
+
+    settingsObserver() {
+        this._config = {...this.getDefaultConfig()};
+        if (this.settings?.fields?.length) {
+            this._config.hiddenFields = null;
+            this._config = UtilsNew.mergeDataFormConfig(this._config, this.settings.fields);
+        } else if (this.settings?.hiddenFields?.length) {
+            this._config.hiddenFields = this.settings.hiddenFields;
+            this._config = {...this._config, ...this.getDefaultConfig()}; // this is needed as we need to relauch getDefaultConfig() with the updated `hiddenFields` array
+
+        }
+        this.requestUpdate();
     }
 
     clinicalAnalysisIdObserver() {
@@ -79,7 +92,7 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                         this.requestUpdate();
                     }
                 })
-                .catch(function(reason) {
+                .catch(function (reason) {
                     console.error(reason);
                 });
         }
@@ -89,7 +102,8 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
         return {
             title: "Summary",
             icon: "",
-            hiddenFields: OpencgaClinicalAnalysisViewSettings.hiddenFields,
+            // comes from external settings
+            // hiddenFields: [],
             display: {
                 collapsable: true,
                 showTitle: false,
@@ -179,6 +193,7 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                         {
                             name: "Disorder",
                             field: "disorder",
+                            id: "type",
                             type: "custom",
                             display: {
                                 render: disorder => UtilsNew.renderHTML(CatalogGridFormatter.disorderFormatter(disorder))
@@ -188,7 +203,7 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                             name: "Analysis Type",
                             field: "type",
                             display: {
-                                visible: !this._config?.hiddenFields?.includes("type"),
+                                visible: !this._config?.hiddenFields?.includes("type")
                             }
                         },
                         {
@@ -199,7 +214,7 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                                 visible: !this._config?.hiddenFields?.includes("flags"),
                                 contentLayout: "horizontal",
                                 render: field => {
-                                    return html`<span class="badge badge-secondary">${field}</span>`
+                                    return html`<span class="badge badge-secondary">${field}</span>`;
                                 }
                             }
                         },
@@ -207,7 +222,7 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                             name: "Status",
                             field: "status.name",
                             display: {
-                                visible: !this._config?.hiddenFields?.includes("status.name") && !!this.opencgaSession?.study?.configuration?.clinical?.status,
+                                visible: !this._config?.hiddenFields?.includes("status.name") && !!this.opencgaSession?.study?.configuration?.clinical?.status
                             }
                         },
                         {
@@ -236,7 +251,7 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                             name: "Assigned To",
                             field: "analyst.assignee",
                             display: {
-                                visible: !this._config?.hiddenFields?.includes("analyst.assignee"),
+                                visible: !this._config?.hiddenFields?.includes("analyst.assignee")
                             }
                         },
                         {
@@ -295,7 +310,7 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                                     if (disorder.id.startsWith("OMIM:")) {
                                         id = html`<a href="https://omim.org/entry/${disorder.id.split(":")[1]}" target="_blank">${disorder.id}</a>`;
                                     }
-                                    return html`${disorder.name} (${id})`
+                                    return html`${disorder.name} (${id})`;
                                 },
                                 defaultValue: "N/A"
                             }
@@ -307,11 +322,11 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                             display: {
                                 render: phenotypes => {
                                     if (phenotypes) {
-                                        return [...phenotypes].sort( (a,b) => a.status === "OBSERVED" ? -1 : 1).map(phenotype => html`
-                                            ${phenotype.source && phenotype.source.toUpperCase() === "HPO"
-                                                ? html`<li>${phenotype.name} (<a target="_blank" href="https://hpo.jax.org/app/browse/term/${phenotype.id}">${phenotype.id}</a>) - ${phenotype.status}</li>`
-                                                : html`<li>${phenotype.id} - ${phenotype.status}</li>`}`
-                                            )
+                                        return [...phenotypes].sort((a, b) => a.status === "OBSERVED" ? -1 : 1).map(phenotype => html`
+                                            ${phenotype.source && phenotype.source.toUpperCase() === "HPO" ?
+                                                html`<li>${phenotype.name} (<a target="_blank" href="https://hpo.jax.org/app/browse/term/${phenotype.id}">${phenotype.id}</a>) - ${phenotype.status}</li>` :
+                                                html`<li>${phenotype.id} - ${phenotype.status}</li>`}`
+                                        );
                                     }
                                 },
                                 defaultValue: "N/A"
@@ -382,7 +397,7 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                                 style: "padding-left: 0px",
                                 render: family => {
                                     if (family && family.members) {
-                                        let individualGridConfig = {
+                                        const individualGridConfig = {
                                             showSelectCheckbox: false,
                                             showToolbar: false
                                         };
@@ -407,7 +422,7 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                             name: "Pedigree",
                             type: "custom",
                             display: {
-                                //TODO at the moment pedigree doesn't work with families with over 2 generations
+                                // TODO at the moment pedigree doesn't work with families with over 2 generations
                                 visible: !this._config?.hiddenFields?.includes("pedigree"),
                                 layout: "vertical",
                                 render: clinicalAnalysis => html`<pedigree-view .family="${clinicalAnalysis.family}"></pedigree-view>`
@@ -431,7 +446,7 @@ export default class OpencgaClinicalAnalysisView extends LitElement {
                     ]
                 }
             ]
-        }
+        };
     }
 
     render() {

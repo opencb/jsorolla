@@ -27,6 +27,7 @@ import "../commons/filters/disorder-id-autocomplete.js";
 import "../commons/filters/proband-id-autocomplete.js";
 import "../commons/filters/clinical-priority-filter.js";
 import "../commons/filters/clinical-status-filter.js";
+import "../commons/view/detail-tabs.js";
 
 
 export default class OpencgaClinicalReviewCases extends LitElement {
@@ -51,6 +52,9 @@ export default class OpencgaClinicalReviewCases extends LitElement {
             },
             config: {
                 type: Object
+            },
+            settings: {
+                type: Object
             }
         };
     }
@@ -61,25 +65,31 @@ export default class OpencgaClinicalReviewCases extends LitElement {
         this.resource = "CLINICAL_ANALYSIS";
         this.query = {};
         this.checkProjects = false;
-        this.flag = false;
     }
 
     connectedCallback() {
         super.connectedCallback();
+        // settings is a prop, therefore the first render is performed without it
         this._config = {...this.getDefaultConfig(), ...this.config};
+
     }
 
-    updated(changedProperties) {
+    update(changedProperties) {
+        if (changedProperties.has("settings")) {
+            this.settingsObserver();
+        }
         if (changedProperties.has("opencgaSession")) {
             this.opencgaSessionObserver();
         }
         if (changedProperties.has("opencgaSession") || changedProperties.has("query") || changedProperties.has("config")) {
             this.propertyObserver();
         }
+        super.update(changedProperties);
     }
 
     opencgaSessionObserver() {
-        this.filters = this._config.filter.examples;
+        // console.error(this._config.filter)
+        this.filters = this._config?.filter?.examples;
         if (this?.opencgaSession?.study) {
             this.checkProjects = true;
             this.refreshFilters();
@@ -90,11 +100,29 @@ export default class OpencgaClinicalReviewCases extends LitElement {
     }
 
     propertyObserver() {
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this.settingsObserver();
+
         if (UtilsNew.isNotUndefinedOrNull(this.query)) {
             this._query = {...this.query};
         }
-        this.requestUpdate();
+        // this.requestUpdate();
+    }
+
+    settingsObserver() {
+        this._config = {...this.getDefaultConfig(), ...this.config};
+        // filter list and canned filters
+        if (this.settings?.menu) {
+            this._config.filter = UtilsNew.mergeFiltersAndDetails(this._config?.filter, this.settings);
+        }
+
+        if (this.settings?.table) {
+            this._config.grid = {...this._config.grid, ...this.settings.table};
+        }
+        if (this.settings?.table?.toolbar) {
+            this._config.grid.toolbar = {...this._config.grid.toolbar, ...this.settings.table.toolbar};
+        }
+
+        // this.requestUpdate();
     }
 
     isLoggedIn() {
@@ -111,8 +139,8 @@ export default class OpencgaClinicalReviewCases extends LitElement {
     }
 
     onServerFilterChange(e) {
-        // suppress if I actually have clicked on an action buttons
-        if (e.target.className !== "id-filter-button") {
+        // suppress if I have clicked on an action buttons
+        if (e.target?.dataset?.action === "delete-filter") {
             return;
         }
 
@@ -165,7 +193,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
     }
 
     launchModal() {
-        $(PolymerUtils.getElementById(this._prefix + "SaveModal")).modal("show");
+        $("#" + this._prefix + "SaveModal").modal("show");
     }
 
     refreshFilters() {
@@ -177,6 +205,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
             } else {
                 this._filters = [...(this.filters || [])];
             }
+            this.requestUpdate();
             this.updateComplete.then(() => UtilsNew.initTooltip(this));
         });
     }
@@ -230,6 +259,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                                 this._filters[i] = restResponse.response[0].result[0];
                                             }
                                         }
+                                        this.requestUpdate();
                                         this.updateComplete.then(() => UtilsNew.initTooltip(this));
                                     } else {
                                         console.error(restResponse);
@@ -239,8 +269,8 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                                             "error"
                                         );
                                     }
-                                    PolymerUtils.setValue(this._prefix + "filterName", "");
-                                    PolymerUtils.setValue(this._prefix + "filterDescription", "");
+                                    $("#" + this._prefix + "filterName").val("");
+                                    $("#" + this._prefix + "filterDescription").val("");
                                 }).catch(restResponse => {
                                     console.error(restResponse);
                                     Swal.fire(
@@ -265,13 +295,14 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                         .then(restResponse => {
                             if (!restResponse.getEvents?.("ERROR")?.length) {
                                 this._filters = [...this._filters, data];
-                                PolymerUtils.setValue(this._prefix + "filterName", "");
-                                PolymerUtils.setValue(this._prefix + "filterDescription", "");
+                                $("#" + this._prefix + "filterName").val("");
+                                $("#" + this._prefix + "filterDescription").val("");
                                 Swal.fire(
                                     "Filter Saved",
                                     "Filter has been saved.",
                                     "success"
                                 );
+                                this.requestUpdate();
                                 this.updateComplete.then(() => UtilsNew.initTooltip(this));
                             } else {
                                 console.error(restResponse);
@@ -316,7 +347,6 @@ export default class OpencgaClinicalReviewCases extends LitElement {
         }
     }
 
-    // TODO better adapt config to the a dynamic view
     getDefaultConfig() {
         return {
             title: "Review Portal",
@@ -324,6 +354,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
             filter: {
                 sections: [
                     {
+                        id: "main",
                         title: "",
                         fields: [
                             {
@@ -364,7 +395,34 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                             disorder: "Intellectual disability"
                         }
                     }
-                ]
+                ],
+                detail: {
+                    title: "Case Study",
+                    showTitle: true,
+                    items: [
+                        {
+                            id: "clinical-analysis-view",
+                            name: "Overview",
+                            active: true,
+                            render: (clinicalAnalysis, active, opencgaSession) => {
+                                return html`
+                                    <opencga-clinical-analysis-view .opencgaSession="${opencgaSession}"
+                                                                    .clinicalAnalysisId=${clinicalAnalysis.id}
+                                                                    .settings="${OPENCGA_CLINICAL_ANALYSIS_VIEW_SETTINGS}">
+                                    </opencga-clinical-analysis-view>
+                                `;
+                            }
+                        },
+                        {
+                            id: "proband-view",
+                            name: "Proband",
+                            render: (clinicalAnalysis, active, opencgaSession) => {
+                                return html`
+                                    <individual-view .opencgaSession="${opencgaSession}" .individual="${clinicalAnalysis.proband}"></individual-view>`;
+                            }
+                        }
+                    ]
+                }
             },
             grid: {
                 pageSize: 10,
@@ -373,406 +431,320 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                 multiSelection: false,
                 showActions: true,
                 toolbar: {
+                    showColumns: true,
                     showCreate: true,
-                    buttons: ["columns", "download"],
-                    newButtonLink: "#clinical-analysis-writer/"
+                    showExport: true,
+                    showDownload: true
                 }
-            }
+            },
+            view: {}
         };
     }
 
     render() {
         return this.checkProjects ? html`
-        <style>
+            <style>
 
-            .filter-button {
-                color: rgb(153,153,153);
-            }
+                .filter-button {
+                    color: rgb(153, 153, 153);
+                }
 
-            .ocap-text-button {
-                display: inline-block;
-                overflow: hidden;
-                width: 90px;
-                text-align: left;
-                float: left !important;
-            }
+                .ocap-text-button {
+                    display: inline-block;
+                    overflow: hidden;
+                    width: 90px;
+                    text-align: left;
+                    float: left !important;
+                }
 
-            .filter-label {
-                margin: auto 10px;
-                white-space: nowrap
-            }
+                .filter-label {
+                    margin: auto 10px;
+                    white-space: nowrap
+                }
 
-            .browser-variant-tab-title {
-                font-size: 115%;
-                font-weight: bold;
-            }
-            .horizontal-flex{
-                display: flex;
-            }
-            .horizontal-flex > div {
-                padding:5px;
-                flex:1;
-                box-sizing: border-box;
-            }
-            .horizontal-flex > div label {
-                display:block
-            }
+                .browser-variant-tab-title {
+                    font-size: 115%;
+                    font-weight: bold;
+                }
 
-            .clinical-right-buttons {
-                float: right;
-                padding: 7px;
-            }
-        </style>
+                .horizontal-flex {
+                    display: flex;
+                }
 
-        <div class="row">
-            <div class="col-md-10 col-md-offset-1">
-                <div style="">
-                    <form @submit="${() => console.log("submit")}">
-                        <div class="panel panel-default" style="margin-bottom: 10px">
-                            <!--<div class="panel-heading">Case Filters</div>-->
-                            <div class="panel-body" style="padding: 10px">
-                                <div class="lhs">
+                .horizontal-flex > div {
+                    padding: 5px;
+                    flex: 1;
+                    box-sizing: border-box;
+                }
 
-                                    <div class="dropdown saved-filter-dropdown" style="margin-right: 5px">
-                                        <button type="button" class="active-filter-label ripple no-shadow" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-cy="filter-button">
-                                            <i class="fa fa-filter icon-padding" aria-hidden="true"></i> Filters <span class="caret"></span>
-                                        </button>
-                                        <ul class="dropdown-menu saved-filter-wrapper">
-                                            <li>
-                                                <a><i class="fas fa-cloud-upload-alt icon-padding"></i> <strong>Saved Filters</strong></a>
-                                            </li>
-                                            ${this._filters && this._filters.length ?
-                                                this._filters.map(item => item.separator ?
-                                                    html`
-                                                        <li role="separator" class="divider"></li>` :
-                                                    html`
-                                                        <li>
-                                                            <a data-filter-id="${item.id}" class="filtersLink" style="cursor: pointer;color: ${!item.active ? "black" : "green"}"
-                                                                @click="${this.onServerFilterChange}">
-                                                                <span class="id-filter-button">${item.id}</span>
-                                                                <span class="action-buttons">
-                                                                    <span
-                                                                        tooltip-title="${item.id}"
-                                                                        tooltip-text="${(item.description ? item.description + "<br>" : "") +
-                                                                        Object.entries(item.query).map(([k, v]) => `<b>${k}</b> = ${v}`).join("<br>")}"
-                                                                        data-filter-id="${item.id}">
-                                                                        <i class="fas fa-eye"></i>
-                                                                    </span>
-                                                                    <i data-cy="delete" tooltip-title="Delete filter" class="fas fa-trash"
-                                                                    data-filter-id="${item.id}" @click="${this.serverFilterDelete}">
-                                                                    </i>
-                                                                </span>
-                                                            </a>
-                                                        </li>`
-                                                    ) :
-                                                    html`<li><a class="help-block">No filters found</a></li>`
-                                            }
+                .horizontal-flex > div label {
+                    display: block
+                }
 
-                                            <li role="separator" class="divider"></li>
-                                            <li>
-                                                <a href="javascript: void 0" @click="${this.clear}" data-action="active-filter-clear">
-                                                    <i class="fa fa-eraser icon-padding" aria-hidden="true"></i> <strong>Clear</strong>
-                                                </a>
-                                            </li>
-                                            ${this.isLoggedIn() ? html`
-                                                <li>
-                                                    <a style="cursor: pointer" @click="${this.launchModal}" data-action="active-filter-save">
-                                                        <i class="fas fa-save icon-padding"></i>
-                                                        <strong>Save filter...</strong>
-                                                    </a>
-                                                </li>
-                                            ` : null}
-                                        </ul>
-                                    </div>
+                .clinical-right-buttons {
+                    float: right;
+                    padding: 7px;
+                }
+            </style>
 
-                                    ${~this._config.filter.sections[0].fields.findIndex(field => field.id === "case") ? html`
-                                        <!-- Case ID -->
-                                        <div class="btn-group" data-cy="form-case">
-                                            <button type="button" class="dropdown-toggle btn btn-default filter-button"
-                                                    id="${this._prefix}caseMenu"
-                                                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                                                <span class="ocap-text-button">Case: <span>${this.query.id ?? "All"}</span></span>&nbsp;<span class="caret"></span>
-                                            </button>
-                                            <ul class="dropdown-menu" aria-labelledby="${this._prefix}caseMenu">
-                                                <li style="padding: 5px;">
-                                                    <div style="display: inline-flex; width: 300px;">
-                                                        <label class="filter-label">Case ID:</label>
-                                                        <clinical-analysis-id-autocomplete
-                                                            .config=${{showList: true}}
-                                                            .value="${this.query?.id}"
-                                                            .opencgaSession="${this.opencgaSession}"
-                                                            @filterChange="${e => this.onFilterChange("id", e.detail.value)}">
-                                                        </clinical-analysis-id-autocomplete>
-                                                    </div>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                    ` : null}
+            <div class="row">
+                <div class="col-md-10 col-md-offset-1">
+                    <div style="">
+                        <form @submit="${() => console.log("submit")}">
+                            <div class="panel panel-default" style="margin-bottom: 10px">
+                                <!--<div class="panel-heading">Case Filters</div>-->
+                                <div class="panel-body" style="padding: 10px">
+                                    <div class="lhs">
 
-                                    ${~this._config.filter.sections[0].fields.findIndex(field => field.id === "sample") ? html`
-                                    <!-- Sample -->
-                                    <div class="btn-group" data-cy="form-sample">
-                                        <button type="button" class="dropdown-toggle btn btn-default filter-button"
-                                                id="${this._prefix}sampleMenu"
-                                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                                            <span class="ocap-text-button">Sample: <span>${this.query.sample ?? "All"}</span></span>&nbsp;<span class="caret"></span>
-                                        </button>
-                                        <ul class="dropdown-menu" aria-labelledby="${this._prefix}caseMenu">
-                                            <li style="padding: 5px;">
-                                                <div style="display: inline-flex; width: 300px;">
-                                                    <label class="filter-label">Sample ID:</label>
-                                                    <sample-id-autocomplete
-                                                        .config=${{showList: true}}
-                                                        .value="${this.query?.sample}"
-                                                        .opencgaSession="${this.opencgaSession}"
-                                                        @filterChange="${e => this.onFilterChange("sample", e.detail.value)}">
-                                                    </sample-id-autocomplete>
-                                                </div>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                    ` : null}
-
-                                    ${~this._config.filter.sections[0].fields.findIndex(field => field.id === "proband") ? html`
-                                    <!-- Proband -->
-                                    <div class="btn-group" data-cy="form-proband">
-                                        <button type="button" class="btn btn-default dropdown-toggle filter-button"
-                                                id="${this._prefix}probandMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                                            <span class="ocap-text-button">Proband: <span>${this.query.proband ?? "All"}</span></span>&nbsp; <span class="caret"></span>
-                                        </button>
-                                        <ul class="dropdown-menu" aria-labelledby="${this._prefix}probandMenu">
-                                            <li style="padding: 5px;">
-                                                <div style="display: inline-flex;width: 300px">
-                                                    <label class="filter-label">Proband ID:</label>
-                                                    <proband-id-autocomplete
-                                                        .config=${{showList: true}}
-                                                        .value="${this.query?.proband}"
-                                                        .opencgaSession="${this.opencgaSession}"
-                                                        @filterChange="${e => this.onFilterChange("proband", e.detail.value)}">
-                                                    </proband-id-autocomplete>
-                                                </div>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                    ` : null}
-
-                                    ${~this._config.filter.sections[0].fields.findIndex(field => field.id === "family") ? html`
-                                    <!-- Family -->
-                                    <div class="btn-group" data-cy="form-family">
-                                        <button type="button" class="dropdown-toggle btn btn-default filter-button"
-                                                id="${this._prefix}familyMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                                            <span class="ocap-text-button">Family: <span>${this.query.family ?? "All"}</span></span>&nbsp; <span class="caret"></span>
-                                        </button>
-                                        <ul class="dropdown-menu" aria-labelledby="${this._prefix}FamilyMenu">
-                                            <li style="padding: 5px;">
-                                                <div style="display: inline-flex; width: 300px;">
-                                                    <label class="filter-label">Family ID:</label>
-                                                    <family-id-autocomplete
-                                                        .config=${{showList: true}}
-                                                        .value="${this.query?.family}"
-                                                        .opencgaSession="${this.opencgaSession}"
-                                                        @filterChange="${e => this.onFilterChange("family", e.detail.value)}">
-                                                    </family-id-autocomplete>
-                                                </div>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                    ` : null}
-
-                                    ${~this._config.filter.sections[0].fields.findIndex(field => field.id === "disorder") ? html`
-                                    <!-- Disorder -->
-                                    <div class="btn-group" data-cy="form-disorder">
-                                        <button type="button" class="dropdown-toggle btn btn-default filter-button"
-                                                id="${this._prefix}disorderMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                                            <span class="ocap-text-button">Disorder: <span>${this.query?.disorder ?? "All"}</span></span>&nbsp; <span class="caret"></span>
-                                        </button>
-                                        <ul class="dropdown-menu" aria-labelledby="${this._prefix}DisorderMenu">
-                                            <li style="padding: 5px;">
-                                                <div style="display: inline-flex; width: 300px;">
-                                                    <label class="filter-label">Disorder:</label>
-                                                    <disorder-id-autocomplete
-                                                        .config=${{showList: true}}
-                                                        .value="${this.query?.disorder}"
-                                                        .opencgaSession="${this.opencgaSession}"
-                                                        @filterChange="${e => this.onFilterChange("disorder", e.detail.value)}">
-                                                    </disorder-id-autocomplete>
-                                                </div>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                    ` : null}
-
-                                    ${~this._config.filter.sections[0].fields.findIndex(field => field.id === "type") ? html`
-                                    <!-- Type -->
-                                    <div class="btn-group" data-cy="form-type">
-                                        <select-field-filter
-                                            placeholder="Type"
-                                            multiple .data="${["SINGLE", "FAMILY", "CANCER"]}"
-                                            .value=${this.query?.type} @filterChange="${e => this.onFilterChange("type", e.detail.value)}">
-                                        </select-field-filter>
-                                    </div>
-                                    ` : null}
-
-                                    ${~this._config.filter.sections[0].fields.findIndex(field => field.id === "status") ? html`
-                                    <!-- Status -->
-                                    <div class="btn-group" data-cy="form-status">
-                                        <clinical-status-filter
-                                            placeholder="${"Status: All"}"
-                                            .statuses="${this.opencgaSession?.study?.internal.configuration?.clinical?.status ?? []}"
-                                            .value=${this.query?.status}
-                                            @filterChange="${e => this.onFilterChange("status", e.detail.value)}">
-                                        </clinical-status-filter>
-                                    ` : null}
-
-                                    ${~this._config.filter.sections[0].fields.findIndex(field => field.id === "priority") ? html`
-                                    <!-- Priority -->
-                                    <div class="btn-group" data-cy="form-priority">
-                                        <clinical-priority-filter placeholder="${"Priority: All"}"
-                                            .priorities="${Object.values(this.opencgaSession?.study?.internal.configuration?.clinical?.priorities ?? {}) ?? []}"
-                                            @filterChange="${e => this.onFilterChange("priority", e.detail.value)}">
-                                        </clinical-priority-filter>
-                                    </div>
-                                    ` : null}
-
-                                    ${~this._config.filter.sections[0].fields.findIndex(field => field.id === "assignee") ? html`
-                                    <!-- Assignees -->
-                                    <div class="btn-group" data-cy="form-assignees">
-                                        <select-field-filter
-                                            placeholder="Assignee: All"
-                                            multiple .data="${this.users}"
-                                            @filterChange="${e => this.onFilterChange("analystAssignee", e.detail.value)}">
-                                        </select-field-filter>
-                                    </div>
-                                    ` : null}
-
-                                    <!-- Buttons
-                                    <button type="button" class="btn btn-primary btn-sm ripple" @click="\${this.updateQuery}">
-                                            <i class="fa fa-search icon-padding" aria-hidden="true"></i> Filter
-                                    </button>-->
-                                </div>
-
-
-                                ${this.flag ? html`
-                                    <div class="rhs" style="padding: 7px">
-                                        <button type="button" class="btn btn-primary btn-sm ripple" @click="${this.clear}">
-                                            <i class="fa fa-times icon-padding" aria-hidden="true"></i> Clear
-                                        </button>
-                                        <div class="dropdown saved-filter-wrapper">
-                                            <button type="button" class="btn btn-primary btn-sm dropdown-toggle ripple" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <div class="dropdown saved-filter-dropdown" style="margin-right: 5px">
+                                            <button type="button" class="active-filter-label ripple no-shadow" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                                                    data-cy="filter-button">
                                                 <i class="fa fa-filter icon-padding" aria-hidden="true"></i> Filters <span class="caret"></span>
                                             </button>
-                                            <ul class="dropdown-menu">
-                                                <li><a style="font-weight: bold">Saved Filters</a></li>
-                                                ${this._filters && this._filters.length ?
-                                                    this._filters.map(item => item.separator ? html`
-                                                        <li role="separator" class="divider"></li>
-                                                    ` : html`
-                                                        <li>
-                                                            <a class="filtersLink" data-filter-id="${item.id}"
-                                                            style="cursor: pointer;color: ${!item.active ? "black" : "green"}"
-                                                            title="${item.description ?? ""}"
-                                                            @click="${this.onServerFilterChange}" >
-                                                                <span class="id-filter-button">&nbsp;&nbsp;${item.id}</span>
-                                                                <span class="delete-filter-button"  data-filter-id="${item.id}"
-                                                                    title="Delete filter" @click="${this.serverFilterDelete}">
-                                                                    <i class="fas fa-times"></i>
-                                                                </span>
-                                                            </a>
-                                                        </li>`) :
-                                                    null }
+                                            <ul class="dropdown-menu saved-filter-wrapper">
+                                                ${this._filters && this._filters.length ? html`
+                                                            <li>
+                                                                <a><i class="fas fa-cloud-upload-alt icon-padding"></i> <strong>Saved Filters</strong></a>
+                                                            </li>
 
-                                                ${this.opencgaSession?.token ? html`
-                                                    <li role="separator" class="divider"></li>
+                                                            ${this._filters.map(item => item.separator ?
+                                                                    html`
+                                                                        <li role="separator" class="divider"></li>` :
+                                                                    html`
+                                                                        <li>
+                                                                            <a data-filter-id="${item.id}" class="filtersLink" style="cursor: pointer;color: ${!item.active ? "black" : "green"}"
+                                                                               @click="${this.onServerFilterChange}">
+                                                                                <span class="id-filter-button">${item.id}</span>
+                                                                                <span class="action-buttons">
+                                                                    <span tooltip-title="${item.id}"
+                                                                          tooltip-text="${(item.description ? item.description + "<br>" : "") + Object.entries(item.query).map(([k, v]) => `<b>${k}</b> = ${v}`).join("<br>")}"
+                                                                          data-filter-id="${item.id}">
+                                                                        <i class="fas fa-eye"></i>
+                                                                    </span>
+                                                                    <i data-cy="delete" tooltip-title="Delete filter" class="fas fa-trash" data-filter-id="${item.id}"
+                                                                       @click="${this.serverFilterDelete}"></i>
+                                                                </span>
+                                                                            </a>
+                                                                        </li>`
+                                                            )}
+                                                            <li role="separator" class="divider"></li>
+                                                        ` :
+                                                        ""}
+
+
+                                                <li>
+                                                    <a href="javascript: void 0" @click="${this.clear}" data-action="active-filter-clear">
+                                                        <i class="fa fa-eraser icon-padding" aria-hidden="true"></i> <strong>Clear</strong>
+                                                    </a>
+                                                </li>
+                                                ${this.isLoggedIn() ? html`
                                                     <li>
-                                                        <a style="cursor: pointer" @click="${this.launchModal}">
-                                                            <i class="fa fa-floppy-o icon-padding" aria-hidden="true"></i> Save...
-                                                        </a>
+                                                        <a style="cursor: pointer" @click="${this.launchModal}" data-action="active-filter-save"><i class="fas fa-save icon-padding"></i> <strong>Save
+                                                            filter...</strong></a>
                                                     </li>
                                                 ` : null}
                                             </ul>
                                         </div>
-                                    </div>
-                                ` : null}
-
-                            </div>
-                        </div>
-                    </form>
-
-                    <div style="margin-top: 25px">
-                        <opencga-clinical-analysis-grid .opencgaSession="${this.opencgaSession}"
-                                                        .query="${this.query}"
-                                                        .config="${this._config.grid}"
-                                                        @selectrow="${this.onSelectClinicalAnalysis}">
-                        </opencga-clinical-analysis-grid>
-
-                        <!-- Bottom tabs with specific variant information -->
-                        ${this.clinicalAnalysis ? html`
-                            <div>
-                                <h3>Case Study: ${this.clinicalAnalysis.id}</h3>
-                                <div>
-                                    <ul id="${this._prefix}ViewTabs" class="nav nav-tabs" role="tablist">
-                                        <li role="presentation" class="active">
-                                            <a href="#${this._prefix}Info" role="tab" data-toggle="tab" class="browser-variant-tab-title" style="font-weight: bold">Summary</a>
-                                        </li>
-                                        <li role="presentation">
-                                            <a href="#${this._prefix}Proband" role="tab" data-toggle="tab" class="browser-variant-tab-title" style="font-weight: bold">Proband Info</a>
-                                        </li>
-                                    </ul>
-
-                                    <div class="tab-content" style="padding: 20px">
-                                        <div id="${this._prefix}Info" role="tabpanel" class="tab-pane active">
-                                            <div>
-                                                <opencga-clinical-analysis-view .opencgaSession="${this.opencgaSession}"
-                                                                                .clinicalAnalysisId=${this.clinicalAnalysis.id}
-                                                                                .config="${this.config}">
-                                                </opencga-clinical-analysis-view>
+                                        ${~this._config.filter.sections[0].fields.findIndex(field => field.id === "case") ? html`
+                                            <!-- Case ID -->
+                                            <div class="btn-group" data-cy="form-case">
+                                                <clinical-analysis-id-autocomplete .config=${{placeholder: "Case Id"}} .value="${this.query?.id}" .opencgaSession="${this.opencgaSession}"
+                                                                                   @filterChange="${e => this.onFilterChange("id", e.detail.value)}"></clinical-analysis-id-autocomplete>
+                                                <!--<button type="button" class="dropdown-toggle btn btn-default filter-button"
+                                                        id="${this._prefix}caseMenu"
+                                                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                                    <span class="ocap-text-button">Case: <span>${this.query.id ?? "All"}</span></span>&nbsp;<span class="caret"></span>
+                                                </button>
+                                                <ul class="dropdown-menu" aria-labelledby="${this._prefix}caseMenu">
+                                                    <li style="padding: 5px;">
+                                                        <div style="display: inline-flex; width: 300px;">
+                                                            <label class="filter-label">Case ID:</label>
+                                                            <clinical-analysis-id-autocomplete .config=${{showList: true}} .value="${this.query?.id}" .opencgaSession="${this.opencgaSession}"
+                                                                                               @filterChange="${e => this.onFilterChange("id", e.detail.value)}"></clinical-analysis-id-autocomplete>
+                                                        </div>
+                                                    </li>
+                                                </ul> -->
                                             </div>
-                                        </div>
-                                        <div id="${this._prefix}Proband" role="tabpanel" class="tab-pane">
-                                            <div>
-                                                <individual-view .opencgaSession="${this.opencgaSession}" .individual="${this.clinicalAnalysis.proband}"></individual-view>
+                                        ` : null}
+
+                                        ${~this._config.filter.sections[0].fields.findIndex(field => field.id === "sample") ? html`
+                                            <!-- Sample -->
+                                            <div class="btn-group" data-cy="form-sample">
+                                                <sample-id-autocomplete .config=${{placeholder: "Sample Id"}}  .value="${this.query?.sample}" .opencgaSession="${this.opencgaSession}"
+                                                                        @filterChange="${e => this.onFilterChange("sample", e.detail.value)}"></sample-id-autocomplete>
+                                                <!--<button type="button" class="dropdown-toggle btn btn-default filter-button"
+                                                        id="${this._prefix}sampleMenu"
+                                                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                                    <span class="ocap-text-button">Sample: <span>${this.query.sample ?? "All"}</span></span>&nbsp;<span class="caret"></span>
+                                                </button>
+                                                <ul class="dropdown-menu" aria-labelledby="${this._prefix}caseMenu">
+                                                    <li style="padding: 5px;">
+                                                        <div style="display: inline-flex; width: 300px;">
+                                                            <label class="filter-label">Sample ID:</label>
+                                                            <sample-id-autocomplete .config=${{showList: true}} .value="${this.query?.sample}" .opencgaSession="${this.opencgaSession}"
+                                                                                    @filterChange="${e => this.onFilterChange("sample", e.detail.value)}"></sample-id-autocomplete>
+                                                        </div>
+                                                    </li>
+                                                </ul> -->
                                             </div>
-                                        </div>
+                                        ` : null}
+
+                                        ${~this._config.filter.sections[0].fields.findIndex(field => field.id === "proband") ? html`
+                                            <!-- Proband -->
+                                            <div class="btn-group" data-cy="form-proband">
+                                                <proband-id-autocomplete .config=${{placeholder: "Proband Id"}}  .value="${this.query?.proband}" .opencgaSession="${this.opencgaSession}"
+                                                                         @filterChange="${e => this.onFilterChange("proband", e.detail.value)}"></proband-id-autocomplete>
+                                                <!--<button type="button" class="btn btn-default dropdown-toggle filter-button"
+                                                        id="${this._prefix}probandMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                                    <span class="ocap-text-button">Proband: <span>${this.query.proband ?? "All"}</span></span>&nbsp; <span class="caret"></span>
+                                                </button>
+                                                <ul class="dropdown-menu" aria-labelledby="${this._prefix}probandMenu">
+                                                    <li style="padding: 5px;">
+                                                        <div style="display: inline-flex;width: 300px">
+                                                            <label class="filter-label">Proband ID:</label>
+                                                            <proband-id-autocomplete .config=${{showList: true}} .value="${this.query?.proband}" .opencgaSession="${this.opencgaSession}"
+                                                                                     @filterChange="${e => this.onFilterChange("proband", e.detail.value)}"></proband-id-autocomplete>
+                                                        </div>
+                                                    </li>
+                                                </ul> -->
+                                            </div>
+                                        ` : null}
+
+                                        ${~this._config.filter.sections[0].fields.findIndex(field => field.id === "family") ? html`
+                                            <!-- Family -->
+                                            <div class="btn-group" data-cy="form-family">
+                                                <family-id-autocomplete .config=${{placeholder: "Family Id"}}  .value="${this.query?.family}" .opencgaSession="${this.opencgaSession}"
+                                                                        @filterChange="${e => this.onFilterChange("family", e.detail.value)}"></family-id-autocomplete>
+
+                                                <!--<button type="button" class="dropdown-toggle btn btn-default filter-button"
+                                                        id="${this._prefix}familyMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                                    <span class="ocap-text-button">Family: <span>${this.query.family ?? "All"}</span></span>&nbsp; <span class="caret"></span>
+                                                </button>
+                                                <ul class="dropdown-menu" aria-labelledby="${this._prefix}FamilyMenu">
+                                                    <li style="padding: 5px;">
+                                                        <div style="display: inline-flex; width: 300px;">
+                                                            <label class="filter-label">Family ID:</label>
+                                                            <family-id-autocomplete .config=${{showList: true}} .value="${this.query?.family}" .opencgaSession="${this.opencgaSession}"
+                                                                                    @filterChange="${e => this.onFilterChange("family", e.detail.value)}"></family-id-autocomplete>
+                                                        </div>
+                                                    </li>
+                                                </ul> -->
+                                            </div>
+                                        ` : null}
+
+                                        ${~this._config.filter.sections[0].fields.findIndex(field => field.id === "disorder") ? html`
+                                            <!-- Disorder -->
+                                            <div class="btn-group" data-cy="form-disorder">
+                                                <disorder-id-autocomplete .config=${{placeholder: "Disorders", freeTag: true}} .value="${this.query?.disorder}" .opencgaSession="${this.opencgaSession}"
+                                                                          @filterChange="${e => this.onFilterChange("disorder", e.detail.value)}"></disorder-id-autocomplete>
+
+                                                <!--<button type="button" class="dropdown-toggle btn btn-default filter-button"
+                                                        id="${this._prefix}disorderMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                                    <span class="ocap-text-button">Disorder: <span>${this.query?.disorder ?? "All"}</span></span>&nbsp; <span class="caret"></span>
+                                                </button>
+                                                <ul class="dropdown-menu" aria-labelledby="${this._prefix}DisorderMenu">
+                                                    <li style="padding: 5px;">
+                                                        <div style="display: inline-flex; width: 300px;">
+                                                            <label class="filter-label">Disorder:</label>
+                                                            <disorder-id-autocomplete .config=${{showList: true}} .value="${this.query?.disorder}" .opencgaSession="${this.opencgaSession}"
+                                                                                      @filterChange="${e => this.onFilterChange("disorder", e.detail.value)}"></disorder-id-autocomplete>
+                                                        </div>
+                                                    </li>
+                                                </ul> -->
+                                            </div>
+                                        ` : null}
+
+                                        ${~this._config.filter.sections[0].fields.findIndex(field => field.id === "type") ? html`
+                                            <!-- Type -->
+                                            <div class="btn-group" data-cy="form-type">
+                                                <select-field-filter placeholder="Type" multiple .data="${["SINGLE", "FAMILY", "CANCER"]}" .value=${this.query?.type}
+                                                                     @filterChange="${e => this.onFilterChange("type", e.detail.value)}"></select-field-filter>
+                                            </div>
+                                        ` : null}
+
+                                        ${~this._config.filter.sections[0].fields.findIndex(field => field.id === "status") ? html`
+                                            <!-- Status -->
+                                            <div class="btn-group" data-cy="form-status">
+                                                <clinical-status-filter placeholder="${"Status: All"}" .statuses="${this.opencgaSession?.study?.internal?.configuration?.clinical?.status ?? []}"
+                                                                        .value=${this.query?.status} @filterChange="${e => this.onFilterChange("status", e.detail.value)}"></clinical-status-filter>
+                                        ` : null}
+
+                                        ${~this._config.filter.sections[0].fields.findIndex(field => field.id === "priority") ? html`
+                                            <!-- Priority -->
+                                            <div class="btn-group" data-cy="form-priority">
+                                                <clinical-priority-filter placeholder="${"Priority: All"}"
+                                                                          .priorities="${Object.values(this.opencgaSession?.study?.internal?.configuration?.clinical?.priorities ?? {})}"
+                                                                          @filterChange="${e => this.onFilterChange("priority", e.detail.value)}"></clinical-priority-filter>
+                                            </div>
+                                        ` : null}
+
+                                        ${~this._config.filter.sections[0].fields.findIndex(field => field.id === "assignee") ? html`
+                                            <!-- Assignees -->
+                                            <div class="btn-group" data-cy="form-assignees">
+                                                <select-field-filter placeholder="Assignee: All" multiple .data="${this.users}"
+                                                                     @filterChange="${e => this.onFilterChange("analystAssignee", e.detail.value)}"></select-field-filter>
+                                            </div>
+                                        ` : null}
+
+                                            <!-- Buttons
+                                    <button type="button" class="btn btn-primary btn-sm ripple" @click="\${this.updateQuery}">
+                                            <i class="fa fa-search icon-padding" aria-hidden="true"></i> Filter
+                                    </button>-->
                                     </div>
+
                                 </div>
                             </div>
-                        ` : null}
-                    </div>
-                </div>
-            </div>
-        </div>
+                        </form>
 
-        <!-- Modal -->
-        <div class="modal fade" id="${this._prefix}SaveModal" tabindex="-1" role="dialog"
-            aria-labelledby="${this._prefix}SaveModalLabel" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                        <h4 class="modal-title" id="${this._prefix}SaveModalLabel">Filter</h4>
-                    </div>
-                    <div class="modal-body">
-                        <div class="form-group row">
-                            <label for="filterName" class="col-xs-2 col-form-label">Name</label>
-                            <div class="col-xs-10">
-                                <input class="form-control" type="text" id="${this._prefix}filterName">
-                            </div>
+                        <div style="margin-top: 25px">
+                            <opencga-clinical-analysis-grid .opencgaSession="${this.opencgaSession}"
+                                                            .query="${this.query}"
+                                                            .config="${this._config.grid}"
+                                                            @selectrow="${this.onSelectClinicalAnalysis}">
+                            </opencga-clinical-analysis-grid>
+
+                            <!-- Bottom tabs with specific variant information -->
+                            ${this.clinicalAnalysis ? html`
+                                <div>
+                                    <detail-tabs .data="${this.clinicalAnalysis}" .config="${this._config.filter.detail}" .opencgaSession="${this.opencgaSession}"></detail-tabs>
+                                </div>
+                            ` : null}
                         </div>
-                        <div class="form-group row">
-                            <label for="${this._prefix}filterDescription" class="col-xs-2 col-form-label">Description</label>
-                            <div class="col-xs-10">
-                                <input class="form-control" type="text" id="${this._prefix}filterDescription">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${this.save}">Save</button>
                     </div>
                 </div>
             </div>
-        </div>
+
+            <!-- Modal -->
+            <div class="modal fade" id="${this._prefix}SaveModal" tabindex="-1" role="dialog"
+                 aria-labelledby="${this._prefix}SaveModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                            <h4 class="modal-title" id="${this._prefix}SaveModalLabel">Filter</h4>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group row">
+                                <label for="filterName" class="col-xs-2 col-form-label">Name</label>
+                                <div class="col-xs-10">
+                                    <input class="form-control" type="text" id="${this._prefix}filterName">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="${this._prefix}filterDescription" class="col-xs-2 col-form-label">Description</label>
+                                <div class="col-xs-10">
+                                    <input class="form-control" type="text" id="${this._prefix}filterDescription">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary" data-dismiss="modal" @click="${this.save}">Save</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         ` : html`
             <div class="guard-page">
                 <i class="fas fa-lock fa-5x"></i>

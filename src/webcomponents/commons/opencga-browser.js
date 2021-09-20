@@ -106,8 +106,7 @@ export default class OpencgaBrowser extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
-        // TODO we don't need _config anymore, this.config is enough here
-        this._config = {...this.config};
+        // we don't need _config here
     }
 
     firstUpdated(_changedProperties) {
@@ -313,13 +312,13 @@ export default class OpencgaBrowser extends LitElement {
                 return html`
                             <div id="table-tab" class="content-tab active">
                                 <opencga-file-grid .opencgaSession="${this.opencgaSession}"
-                                                   .config="${this._config.filter.grid}"
+                                                   .config="${this.config.filter.result.grid}"
                                                    .query="${this.executedQuery}"
                                                    .eventNotifyName="${this.eventNotifyName}"
                                                     @selectrow="${e => this.onClickRow(e, "file")}">
                                 </opencga-file-grid>
                                 <opencga-file-detail    .opencgaSession="${this.opencgaSession}"
-                                                        .config="${this._config.filter.detail}"
+                                                        .config="${this.config.filter.detail}"
                                                         .fileId="${this.detail.file?.id}">
                                 </opencga-file-detail>
                             </div>
@@ -331,12 +330,12 @@ export default class OpencgaBrowser extends LitElement {
                         <div id="table-tab" class="content-tab active">
                             <opencga-sample-grid .opencgaSession="${this.opencgaSession}"
                                                      .query="${this.executedQuery}"
-                                                     .config="${this._config.filter.grid}"
+                                                     .config="${this.config.filter.result.grid}"
                                                      .active="${true}"
                                                      @selectrow="${e => this.onClickRow(e, "sample")}">
                             </opencga-sample-grid>
                             <opencga-sample-detail  .opencgaSession="${this.opencgaSession}"
-                                                    .config="${this._config.filter.detail}"
+                                                    .config="${this.config.filter.detail}"
                                                     .sampleId="${this.detail.sample?.id}">
                             </opencga-sample-detail>
                         </div>
@@ -346,14 +345,14 @@ export default class OpencgaBrowser extends LitElement {
                 return html`
                         <div id="table-tab" class="content-tab active">
                             <opencga-individual-grid .opencgaSession="${this.opencgaSession}"
-                                                     .config="${this._config.filter.grid}"
+                                                     .config="${this.config.filter.result.grid}"
                                                      .eventNotifyName="${this.eventNotifyName}"
                                                      .query="${this.executedQuery}"
                                                      .active="${true}"
                                                      @selectrow="${e => this.onClickRow(e, "individual")}">
                             </opencga-individual-grid>
                             <opencga-individual-detail  .opencgaSession="${this.opencgaSession}"
-                                                        .config="${this._config.filter.detail}"
+                                                        .config="${this.config.filter.detail}"
                                                         .individualId="${this.detail.individual?.id}">
                             </opencga-individual-detail>
                         </div>
@@ -365,13 +364,13 @@ export default class OpencgaBrowser extends LitElement {
                             <opencga-cohort-grid   .opencgaSession="${this.opencgaSession}"
                                                    .query="${this.executedQuery}"
                                                    .search="${this.executedQuery}"
-                                                   .config="${this._config.filter.grid}"
+                                                   .config="${this.config.filter.result.grid}"
                                                    .eventNotifyName="${this.eventNotifyName}"
                                                    .active="${true}"
                                                    @selectrow="${e => this.onClickRow(e, "cohort")}">
                             </opencga-cohort-grid>
                             <opencga-cohort-detail  .opencgaSession="${this.opencgaSession}"
-                                                    .config="${this._config.filter.detail}"
+                                                    .config="${this.config.filter.detail}"
                                                     .cohortId="${this.detail.cohort?.id}">
                             </opencga-cohort-detail>
                         </div>
@@ -382,13 +381,13 @@ export default class OpencgaBrowser extends LitElement {
                         <div id="table-tab" class="content-tab active">
                             <opencga-family-grid .opencgaSession="${this.opencgaSession}"
                                                  .query="${this.executedQuery}"
-                                                 .config="${this._config.filter.grid}"
+                                                 .config="${this.config.filter.result.grid}"
                                                  .active="${true}"
                                                  .eventNotifyName="${this.eventNotifyName}"
                                                  @selectrow="${e => this.onClickRow(e, "family")}">
                             </opencga-family-grid>
                             <opencga-family-detail  .opencgaSession="${this.opencgaSession}"
-                                                    .config="${this._config.filter.detail}"
+                                                    .config="${this.config.filter.detail}"
                                                     .family="${this.detail.family}">
                             </opencga-family-detail>
                         </div>
@@ -398,7 +397,7 @@ export default class OpencgaBrowser extends LitElement {
                 return html`
                         <div id="table-tab" class="content-tab active">
                             <opencga-clinical-analysis-grid .opencgaSession="${this.opencgaSession}"
-                                                            .config="${this._config.filter.grid}"
+                                                            .config="${this.config.filter.result.grid}"
                                                             .query="${this.executedQuery}"
                                                             .search="${this.executedQuery}"
                                                             .active="${true}"
@@ -406,7 +405,7 @@ export default class OpencgaBrowser extends LitElement {
                                                             @selectrow="${e => this.onClickRow(e, "clinicalAnalysis")}">
                             </opencga-clinical-analysis-grid>
                             <opencga-clinical-analysis-detail   .opencgaSession="${this.opencgaSession}"
-                                                                .config="${this._config.filter.detail}"
+                                                                .config="${this.config.filter.detail}"
                                                                 .clinicalAnalysisId="${this.detail.clinicalAnalysis?.id}">
                             </opencga-clinical-analysis-detail>
                         </div>
@@ -416,7 +415,7 @@ export default class OpencgaBrowser extends LitElement {
                 return html`
                     <div id="table-tab" class="content-tab active">
                          <opencga-job-grid .opencgaSession="${this.opencgaSession}"
-                                         .config="${this._config.filter.grid}"
+                                         .config="${this.config.filter.result.grid}"
                                          .query="${this.executedQuery}"
                                          .search="${this.executedQuery}"
                                          .eventNotifyName="${this.eventNotifyName}"
@@ -424,7 +423,7 @@ export default class OpencgaBrowser extends LitElement {
                                          @selectrow="${e => this.onClickRow(e, "job")}">
                          </opencga-job-grid>
                          <opencga-job-detail   .opencgaSession="${this.opencgaSession}"
-                                                .config="${this._config.filter.detail}"
+                                                .config="${this.config.filter.detail}"
                                                 .jobId="${this.detail.job?.id}">
                          </opencga-job-detail>
                     </div>
@@ -444,31 +443,31 @@ export default class OpencgaBrowser extends LitElement {
     render() {
         return html`
 
-            <!--<div class="alert alert-info">selectedFacet: ${JSON.stringify(this.selectedFacet)}</div>
-            <div class="alert alert-info">preparedFacetQueryFormatted: ${JSON.stringify(this.preparedFacetQueryFormatted)}</div>
-            <div class="alert alert-info">executedFacetQueryFormatted:${JSON.stringify(this.executedFacetQueryFormatted)}</div>-->
+            <!--<div class="alert alert-info">selectedFacet: \${JSON.stringify(this.selectedFacet)}</div>
+            <div class="alert alert-info">preparedFacetQueryFormatted: \${JSON.stringify(this.preparedFacetQueryFormatted)}</div>
+            <div class="alert alert-info">executedFacetQueryFormatted:\${JSON.stringify(this.executedFacetQueryFormatted)}</div>-->
 
             ${this.checkProjects ? html`
-                <tool-header title="${this._config.title}" icon="${this._config.icon}"></tool-header>
+                <tool-header title="${this.config.title}" icon="${this.config.icon}"></tool-header>
                 <div class="row">
                     <div class="col-md-2">
                         <div class="search-button-wrapper">
                             <button type="button" class="btn btn-primary ripple" @click="${this.onRun}">
-                                <i class="fa fa-arrow-circle-right" aria-hidden="true"></i> ${this._config.searchButtonText || "Search"}
+                                <i class="fa fa-arrow-circle-right" aria-hidden="true"></i> ${this.config.searchButtonText || "Search"}
                             </button>
                         </div>
                         <ul class="nav nav-tabs left-menu-tabs" role="tablist">
                             <li role="presentation" class="active">
                                 <a href="#filters_tab" aria-controls="profile" role="tab" data-toggle="tab">Filters</a>
                             </li>
-                            ${this._config.aggregation ? html`<li role="presentation"><a href="#facet_tab" aria-controls="home" role="tab" data-toggle="tab">Aggregation</a></li>` : null}
+                            ${this.config.aggregation ? html`<li role="presentation"><a href="#facet_tab" aria-controls="home" role="tab" data-toggle="tab">Aggregation</a></li>` : null}
                         </ul>
 
                         <div class="tab-content">
                             <div role="tabpanel" class="tab-pane active" id="filters_tab">
                                 ${this.resource === "FILE" ? html`
                                     <opencga-file-filter    .opencgaSession="${this.opencgaSession}"
-                                                            .config="${this._config.filter}"
+                                                            .config="${this.config.filter}"
                                                             .query="${this.query}"
                                                             @queryChange="${this.onQueryFilterChange}"
                                                             @querySearch="${this.onQueryFilterSearch}">
@@ -477,7 +476,7 @@ export default class OpencgaBrowser extends LitElement {
 
                                 ${this.resource === "SAMPLE" ? html`
                                     <sample-browser-filter  .opencgaSession="${this.opencgaSession}"
-                                                            .config="${this._config.filter}"
+                                                            .config="${this.config.filter}"
                                                             .query="${this.query}"
                                                             @queryChange="${this.onQueryFilterChange}"
                                                             @querySearch="${this.onQueryFilterSearch}">
@@ -486,7 +485,7 @@ export default class OpencgaBrowser extends LitElement {
 
                                 ${this.resource === "INDIVIDUAL" ? html`
                                     <opencga-individual-filter  .opencgaSession="${this.opencgaSession}"
-                                                                .config="${this._config.filter}"
+                                                                .config="${this.config.filter}"
                                                                 .query="${this.query}"
                                                                 @queryChange="${this.onQueryFilterChange}"
                                                                 @querySearch="${this.onQueryFilterSearch}">
@@ -495,7 +494,7 @@ export default class OpencgaBrowser extends LitElement {
 
                                 ${this.resource === "FAMILY" ? html`
                                     <opencga-family-filter  .opencgaSession="${this.opencgaSession}"
-                                                            .config="${this._config.filter}"
+                                                            .config="${this.config.filter}"
                                                             .query="${this.query}"
                                                             @queryChange="${this.onQueryFilterChange}"
                                                             @querySearch="${this.onQueryFilterSearch}">
@@ -504,7 +503,7 @@ export default class OpencgaBrowser extends LitElement {
 
                                 ${this.resource === "COHORT" ? html`
                                     <opencga-cohort-filter  .opencgaSession="${this.opencgaSession}"
-                                                            .config="${this._config.filter}"
+                                                            .config="${this.config.filter}"
                                                             .query="${this.query}"
                                                             .variableSets="${this.variableSets}"
                                                             @queryChange="${this.onQueryFilterChange}"
@@ -514,7 +513,7 @@ export default class OpencgaBrowser extends LitElement {
 
                                 ${this.resource === "CLINICAL_ANALYSIS" ? html`
                                     <opencga-clinical-analysis-filter   .opencgaSession="${this.opencgaSession}"
-                                                                        .config="${this._config.filter}"
+                                                                        .config="${this.config.filter}"
                                                                         .query="${this.query}"
                                                                         @queryChange="${this.onQueryFilterChange}"
                                                                         @querySearch="${this.onQueryFilterSearch}">
@@ -523,7 +522,7 @@ export default class OpencgaBrowser extends LitElement {
 
                                 ${this.resource === "JOB" ? html`
                                     <opencga-job-filter .opencgaSession="${this.opencgaSession}"
-                                                        .config="${this._config.filter}"
+                                                        .config="${this.config.filter}"
                                                         .files="${this.files}"
                                                         .query="${this.query}"
                                                         .variableSets="${this.variableSets}"
@@ -533,9 +532,9 @@ export default class OpencgaBrowser extends LitElement {
                                 ` : null}
                             </div>
 
-                            ${this._config.aggregation ? html`
+                            ${this.config.aggregation ? html`
                                 <div role="tabpanel" class="tab-pane" id="facet_tab" aria-expanded="true">
-                                    <facet-filter .config="${this._config.aggregation}"
+                                    <facet-filter .config="${this.config.aggregation}"
                                                   .selectedFacet="${this.selectedFacet}"
                                                   @facetQueryChange="${this.onFacetQueryChange}">
                                     </facet-filter>
@@ -548,7 +547,7 @@ export default class OpencgaBrowser extends LitElement {
                         <!-- tabs buttons -->
                         <div class="btn-group content-pills" role="toolbar" aria-label="toolbar">
                             <div class="btn-group" role="group" style="margin-left: 0px">
-                                ${this._config.views && this._config.views.length ? this._config.views.map(tab => html`
+                                ${this.config.views && this.config.views.length ? this.config.views.map(tab => html`
                                     <button type="button" class="btn btn-success ripple content-pills ${tab.active ? "active" : ""}" ?disabled=${tab.disabled} @click="${this.onClickPill}" data-id="${tab.id}">
                                         <i class="${tab.icon ?? "fa fa-table"} icon-padding" aria-hidden="true"></i> ${tab.name}
                                     </button>
@@ -566,8 +565,8 @@ export default class OpencgaBrowser extends LitElement {
                                                     .facetQuery="${this.preparedFacetQueryFormatted}"
                                                     .executedFacetQuery="${this.executedFacetQueryFormatted}"
                                                     .alias="${this.activeFilterAlias}"
-                                                    .config="${this._config.activeFilters}"
-                                                    .filters="${this._config.filter.examples}"
+                                                    .config="${this.config.activeFilters}"
+                                                    .filters="${this.config.filter.examples}"
                                                     @activeFilterChange="${this.onActiveFilterChange}"
                                                     @activeFilterClear="${this.onActiveFilterClear}"
                                                     @activeFacetChange="${this.onActiveFacetChange}"

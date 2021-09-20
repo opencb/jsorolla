@@ -114,7 +114,9 @@ class VariantInterpreterLanding extends LitElement {
         // $("#" + this._prefix + tabId, this).show();
         $("#" + this._prefix + tabId).addClass("active");
         for (const tab in this.activeTab) {
-            this.activeTab[tab] = false;
+            if (Object.prototype.hasOwnProperty.call(this.activeTab, tab)) {
+                this.activeTab[tab] = false;
+            }
         }
         this.activeTab[tabId] = true;
         this.requestUpdate();
@@ -145,11 +147,13 @@ class VariantInterpreterLanding extends LitElement {
     onClinicalAnalysisIdChange(key, value) {
         this.clinicalAnalysisId = value;
         this.probandId = null;
+        this.onClinicalAnalysisChange();
     }
 
     onProbandIdChange(key, value) {
         // this.probandId = value;
         this.clinicalAnalysisId = value;
+        this.onClinicalAnalysisChange();
     }
 
     onClinicalAnalysisChange() {
@@ -234,6 +238,7 @@ class VariantInterpreterLanding extends LitElement {
                 this.clinicalAnalysisId = null;
                 break;
         }
+        this.onClinicalAnalysisChange();
     }
 
     getSearchConfig() {
@@ -268,22 +273,16 @@ class VariantInterpreterLanding extends LitElement {
                             display: {
                                 render: () => {
                                     const config = {
-                                        addButton: false,
-                                        multiple: false,
-                                        dataSource: (query, process) => {
-                                            const filters = {
-                                                study: this.opencgaSession.study.fqn,
-                                                limit: 20,
-                                                count: false,
-                                                id: "~^" + query.toUpperCase()
-                                            };
-                                            this.opencgaSession.opencgaClient.clinical().search(filters).then(restResponse => {
-                                                const results = restResponse.getResults();
-                                                process(results.map(item => ({"name": item.id, "Type": item?.type, "Proband Id": item?.proband?.id})));
-                                            });
+                                        select2Config: {
+                                            multiple: false
                                         }
                                     };
-                                    return html`<clinical-analysis-id-autocomplete .config=${config} .opencgaSession="${this.opencgaSession}" @filterChange="${e => this.onClinicalAnalysisIdChange("clinicalAnalysisId", e.detail.value)}"></clinical-analysis-id-autocomplete>`;
+                                    return html`
+                                        <clinical-analysis-id-autocomplete
+                                            .config=${config}
+                                            .opencgaSession="${this.opencgaSession}"
+                                            @filterChange="${e => this.onClinicalAnalysisIdChange("clinicalAnalysisId", e.detail.value)}">
+                                        </clinical-analysis-id-autocomplete>`;
                                 },
                                 placeholder: "eg. AN-3",
                                 errorMessage: ""
@@ -296,22 +295,36 @@ class VariantInterpreterLanding extends LitElement {
                             display: {
                                 render: () => {
                                     const config = {
-                                        addButton: false,
-                                        multiple: false,
-                                        dataSource: (query, process) => {
+                                        select2Config: {
+                                            multiple: false
+                                        },
+                                        limit: 10,
+                                        source: async (params, success, failure) => {
+                                            const _params = params;
+                                            _params.data.page = params.data.page || 1;
+                                            const proband = _params?.data?.term ? {proband: "~^" + _params?.data?.term?.toUpperCase()} : "";
                                             const filters = {
                                                 study: this.opencgaSession.study.fqn,
-                                                limit: 20,
+                                                limit: config.limit,
                                                 count: false,
-                                                proband: "~^" + query.toUpperCase()
+                                                skip: (_params.data.page - 1) * config.limit,
+                                                include: "id,proband",
+                                                ...proband
                                             };
-                                            this.opencgaSession.opencgaClient.clinical().search(filters).then(restResponse => {
-                                                const results = restResponse.getResults();
-                                                process(results.map(item => ({name: item.id, Proband: item?.proband?.id})));
-                                            });
-                                        }
+                                            try {
+                                                const restResponse = await this.opencgaSession.opencgaClient.clinical().search(filters);
+                                                success(restResponse);
+                                            } catch (e) {
+                                                failure(e);
+                                            }
+                                        },
                                     };
-                                    return html`<clinical-analysis-id-autocomplete .config=${config} .opencgaSession="${this.opencgaSession}" @filterChange="${e => this.onProbandIdChange("individualId", e.detail.value)}"></clinical-analysis-id-autocomplete>`;
+                                    return html`
+                                        <clinical-analysis-id-autocomplete
+                                            .config=${config}
+                                            .opencgaSession="${this.opencgaSession}"
+                                            @filterChange="${e => this.onProbandIdChange("individualId", e.detail.value)}">
+                                        </clinical-analysis-id-autocomplete>`;
                                 }
                             }
                         },

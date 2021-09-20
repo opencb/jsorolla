@@ -213,6 +213,7 @@ export default class OpencgaActiveFilters extends LitElement {
                     }
                 }
             }
+
         }
         this.queryList = _queryList;
 
@@ -290,6 +291,7 @@ export default class OpencgaActiveFilters extends LitElement {
             } else {
                 this._filters = [...(this.filters || [])];
             }
+            this.requestUpdate();
             this.updateComplete.then(() => UtilsNew.initTooltip(this));
         });
     }
@@ -357,6 +359,7 @@ export default class OpencgaActiveFilters extends LitElement {
                                             "Filter has been saved.",
                                             "success"
                                         );
+                                        this.requestUpdate();
                                         this.updateComplete.then(() => UtilsNew.initTooltip(this));
                                     } else {
                                         console.error(restResponse);
@@ -399,6 +402,7 @@ export default class OpencgaActiveFilters extends LitElement {
                                     "Filter has been saved.",
                                     "success"
                                 );
+                                this.requestUpdate();
                                 this.updateComplete.then(() => UtilsNew.initTooltip(this));
                             } else {
                                 console.error(restResponse);
@@ -436,7 +440,7 @@ export default class OpencgaActiveFilters extends LitElement {
 
     onServerFilterChange(e) {
         // suppress if I have clicked on an action buttons
-        if (e.target.className !== "id-filter-button") {
+        if (e.target?.dataset?.action === "delete-filter") {
             return;
         }
 
@@ -466,8 +470,8 @@ export default class OpencgaActiveFilters extends LitElement {
                     }
                     this.dispatchEvent(new CustomEvent("activeFilterChange", {
                         detail: _queryList,
-                        bubbles: true,
-                        composed: true
+                        /* bubbles: true,
+                        composed: true*/
                     }));
                 } else {
                     filter.active = false;
@@ -652,11 +656,12 @@ export default class OpencgaActiveFilters extends LitElement {
                                 <i class="fa fa-filter icon-padding" aria-hidden="true"></i> Filters <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu saved-filter-wrapper">
-                                <li>
-                                    <a><i class="fas fa-cloud-upload-alt icon-padding"></i> <strong>Saved Filters</strong></a>
-                                </li>
-                                ${this._filters && this._filters.length ?
-                                    this._filters.map(item => item.separator ?
+                                ${this._filters && this._filters.length ? html`
+                                    <li>
+                                        <a><i class="fas fa-cloud-upload-alt icon-padding"></i> <strong>Saved Filters</strong></a>
+                                    </li>
+
+                                    ${this._filters.map(item => item.separator ?
                                         html`
                                             <li role="separator" class="divider"></li>` :
                                         html`
@@ -668,17 +673,16 @@ export default class OpencgaActiveFilters extends LitElement {
                                                         <span tooltip-title="${item.id}"
                                                               tooltip-text="${(item.description ? item.description + "<br>" : "") + Object.entries(item.query).map(([k, v]) => `<b>${k}</b> = ${v}`).join("<br>")}"
                                                               data-filter-id="${item.id}">
-                                                            <i class="fas fa-eye"></i>
+                                                            <i class="fas fa-eye" data-action="view-filter"></i>
                                                         </span>
-                                                        <i data-cy="delete" tooltip-title="Delete filter" class="fas fa-trash" data-filter-id="${item.id}" @click="${this.serverFilterDelete}"></i>
+                                                        <i data-cy="delete" data-action="delete-filter" tooltip-title="Delete filter" class="fas fa-trash" data-filter-id="${item.id}" @click="${this.serverFilterDelete}"></i>
                                                     </span>
                                                 </a>
                                             </li>`
-                                        ) :
-                                    html`<li><a class="help-block">No filters found</a></li>`
-                                }
-
-                                <li role="separator" class="divider"></li>
+                                        )}
+                                    <li role="separator" class="divider"></li>
+                                    ` :
+                                "" }
                                 <li>
                                     <a href="javascript: void 0" @click="${this.clear}" data-action="active-filter-clear">
                                         <i class="fa fa-eraser icon-padding" aria-hidden="true"></i> <strong>Clear</strong>

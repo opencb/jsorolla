@@ -19,6 +19,7 @@ import {LitElement, html} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
 import "../commons/opencga-browser.js";
 
+
 export default class OpencgaFileBrowser extends LitElement {
 
     constructor() {
@@ -46,7 +47,7 @@ export default class OpencgaFileBrowser extends LitElement {
             selectedFacet: {
                 type: Object
             },*/
-            config: {
+            settings: {
                 type: Object
             }
         };
@@ -78,17 +79,32 @@ export default class OpencgaFileBrowser extends LitElement {
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
-    updated(changedProperties) {
-        if (changedProperties.has("config")) {
-            this._config = {...this.getDefaultConfig(), ...this.config};
-            this.requestUpdate();
+    // NOTE turn updated into update here reduces the number of remote requests from 2 to 1 as in the grid components propertyObserver()
+    // is executed twice in case there is external settings
+    update(changedProperties) {
+        if (changedProperties.has("settings")) {
+            this.settingsObserver();
+        }
+        super.update(changedProperties);
+    }
+
+    settingsObserver() {
+        this._config = {...this.getDefaultConfig()};
+        // merge filter list, canned filters, detail tabs
+        if (this.settings?.menu) {
+            this._config.filter = UtilsNew.mergeFiltersAndDetails(this._config?.filter, this.settings);
+        }
+        if (this.settings?.table) {
+            this._config.filter.result.grid = {...this._config.filter.result.grid, ...this.settings.table};
+        }
+        if (this.settings?.table?.toolbar) {
+            this._config.filter.result.grid.toolbar = {...this._config.filter.result.grid.toolbar, ...this.settings.table.toolbar};
         }
     }
 
     getDefaultConfig() {
         return {
             title: "File Browser",
-            // active: false,
             icon: "fab fa-searchengin",
             description: "",
             views: [
@@ -198,7 +214,8 @@ export default class OpencgaFileBrowser extends LitElement {
                             name: "Overview",
                             active: true,
                             render: (file, active, opencgaSession) => {
-                                return html` <opencga-file-view .opencgaSession="${opencgaSession}" .file="${file}"></opencga-file-view>`;
+                                return html`
+                                    <opencga-file-view .opencgaSession="${opencgaSession}" .file="${file}"></opencga-file-view>`;
                             }
                         },
                         {
@@ -225,7 +242,8 @@ export default class OpencgaFileBrowser extends LitElement {
                             name: "JSON Data",
                             mode: "development",
                             render: (file, active, opencgaSession) => {
-                                return html`<json-viewer .data="${file}" .active="${active}"></json-viewer>`;
+                                return html`
+                                    <json-viewer .data="${file}" .active="${active}"></json-viewer>`;
                             }
                         }
                     ]
@@ -441,12 +459,12 @@ export default class OpencgaFileBrowser extends LitElement {
     }
 
     render() {
-        return this._config ? html`
-            <opencga-browser  resource="FILE"
-                            .opencgaSession="${this.opencgaSession}"
-                            .query="${this.query}"
-                            .config="${this._config}">
-            </opencga-browser>` : null;
+        return this.opencgaSession && this._config ? html`
+            <opencga-browser resource="FILE"
+                             .opencgaSession="${this.opencgaSession}"
+                             .query="${this.query}"
+                             .config="${this._config}">
+            </opencga-browser>` : "";
     }
 
 }

@@ -192,13 +192,6 @@ input[type="number"] {
 
 }
 
-.company-logo {
-    padding: 1px;
-}
-.company-logo img{
-    height: 45px;
-}
-
 .iva-logo img {
     width: 35em;
 }
@@ -228,16 +221,28 @@ input[type="number"] {
     margin: 0 4px;
 }
 
-.iva-logo-white {
+.navbar .navbar-header {
+    padding-left: 8px;
+}
+
+.company-logo {
+    padding: 1px;
+}
+
+.company-logo img{
+    height: 45px;
+}
+
+.app-logo {
     padding: 10px;
 }
 
-.iva-logo-white img{
+.app-logo img{
     width: 70px;
     display: inline-block;
 }
 
-.iva-logo-white sup{
+.app-logo sup{
     font-variant: all-small-caps;
     top: -1em;
     text-transform: uppercase;
@@ -776,13 +781,17 @@ button.active-filter-label:hover {
 }
 
 .saved-filter-wrapper .action-buttons {
-    padding: 0 0 0 10px;
+    padding: 0;
     color: #adadad;
     position: absolute;
     display: inline-block;
     right: 15px;
     top: 5px;
 
+}
+
+.saved-filter-wrapper .action-buttons i[data-action="delete-filter"]:hover {
+    color: #d00000;
 }
 
 .saved-filter-wrapper .action-buttons i:hover {
@@ -2661,6 +2670,22 @@ select.no-data + .select2-container--bootstrap.select2-container--open.select2-c
     font-size: 14px;
     line-height: 26px;
 }
+.select2-selection__rendered {
+    width: auto;
+}
+/* dynamic width: it renders active area for the dropdown and selected tokens in one line, where possible */
+.select2-container--bootstrap .select2-selection--multiple .select2-selection__rendered {
+    width: auto;
+    display: inline-block;
+}
+.select2-search.select2-search--inline {
+    display: inline-block;
+}
+
+/* active area to click on to open the dropdown
+.select2-container--bootstrap .select2-selection--multiple .select2-search--inline .select2-search__field {
+    min-width: 2em;
+} */
 
 /* Notification */
 

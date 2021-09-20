@@ -59,7 +59,7 @@ class VariantInterpreter extends LitElement {
             cellbaseClient: {
                 type: Object
             },
-            config: {
+            settings: {
                 type: Object
             }
         };
@@ -67,17 +67,19 @@ class VariantInterpreter extends LitElement {
 
     _init() {
         this._prefix = UtilsNew.randomString(8);
-
         this.activeTab = {};
     }
 
     connectedCallback() {
         super.connectedCallback();
-
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this._config = {...this.getDefaultConfig()};
     }
 
     updated(changedProperties) {
+        if (changedProperties.has("settings")) {
+            this.settingsObserver();
+        }
+
         if (changedProperties.has("opencgaSession")) {
             this.opencgaSessionObserver();
         }
@@ -87,10 +89,16 @@ class VariantInterpreter extends LitElement {
         }
     }
 
+    settingsObserver() {
+        this._config.tools = UtilsNew.mergeArray(this._config.tools, this.settings?.tools, false, true);
+        this._config = {...this._config};
+        this.requestUpdate();
+    }
+
     opencgaSessionObserver() {
         if (this?.opencgaSession?.study?.fqn) {
             // With each property change we must updated config and create the columns again. No extra checks are needed.
-            this._config = {...this.getDefaultConfig(), ...this.config};
+            // this._config = {...this.getDefaultConfig(), ...this.config};
             this.clinicalAnalysis = null;
             this._changeView(this._config?.tools[0].id);
             this.requestUpdate();
@@ -149,7 +157,11 @@ class VariantInterpreter extends LitElement {
 
         $(".variant-interpreter-step", this).removeClass("active");
         // $(".clinical-portal-content", this).removeClass("active");
-        for (const tab in this.activeTab) this.activeTab[tab] = false;
+        for (const tab in this.activeTab) {
+            if (Object.prototype.hasOwnProperty.call(this.activeTab, tab)) {
+                this.activeTab[tab] = false;
+            }
+        }
         $(`button.content-pills[data-id=${tabId}]`, this).addClass("active");
         $("#" + tabId, this).addClass("active");
         this.activeTab[tabId] = true;
@@ -243,10 +255,12 @@ class VariantInterpreter extends LitElement {
             <div class="variant-interpreter-tool">
                 ${this.clinicalAnalysis && this.clinicalAnalysis.id ? html`
                     <tool-header icon="${this._config.icon}"
-                                 .title="${`${this._config.title}<span class="inverse"> Case ${this.clinicalAnalysis?.id} </span>` }"
+                                 .title="${`${this._config.title}<span class="inverse"> Case ${this.clinicalAnalysis?.id} </span>`}"
                                  .rhs="${html`
                                     <download-button .json="${this.clinicalAnalysis}" title="Download Clinical Analysis"></download-button>
-                                    <a class="btn btn-default ripple text-black" title="Close Case" href="#clinicalAnalysisPortal/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}"><i class="fas fa-times"></i> Close</a>
+                                    <a class="btn btn-default ripple text-black" title="Close Case" href="#clinicalAnalysisPortal/${this.opencgaSession.project.id}/${this.opencgaSession.study.id}">
+                                        <i class="fas fa-times"></i> Close
+                                    </a>
                                     <!--<div class="dropdown more-button">
                                         <a class="btn btn-default ripple dropdown-toggle" type="button" data-toggle="dropdown"><i class="fas fa-ellipsis-h"></i></a>
                                         <ul class="dropdown-menu pull-right">
@@ -263,23 +277,25 @@ class VariantInterpreter extends LitElement {
                         <div class="container-fluid">
                             <!-- Brand and toggle get grouped for better mobile display -->
                             <div class="navbar-header">
-                                <!--
-                                    <a class="navbar-brand" href="#home" @click="${this.changeTool}">
-                                        <b>${this._config.title} <sup>${this._config.version}</sup></b>
+                                    <!--
+                                    <a class="navbar-brand" href="#home" @click="\${this.changeTool}">
+                                        <b>\${this._config.title} <sup>\${this._config.version}</sup></b>
                                     </a>
                                  -->
                             </div>
                             <div>
                                 <!-- Controls aligned to the LEFT -->
                                 <div class="row hi-icon-wrap wizard hi-icon-animation variant-interpreter-wizard">
-                                ${this._config.tools && this._config.tools.map(item => html`
+                                    ${this._config.tools && this._config.tools.map(item => html`
                                     ${!item.hidden ? html`
-                                        <a class="icon-wrapper variant-interpreter-step ${!this.clinicalAnalysis && item.id !== "select" || item.disabled ? "disabled" : ""} ${this.activeTab[item.id] ? "active" : ""}" href="javascript: void 0" data-view="${item.id}" @click="${this.onClickSection}">
+                                        <a class="icon-wrapper variant-interpreter-step ${!this.clinicalAnalysis && item.id !== "select" || item.disabled ? "disabled" : ""} ${this.activeTab[item.id] ? "active" : ""}"
+                                           href="javascript: void 0" data-view="${item.id}"
+                                           @click="${this.onClickSection}">
                                             <div class="hi-icon ${item.icon}"></div>
                                             <p>${item.title}</p>
                                             <span class="smaller"></span>
                                         </a>` :
-                                    null}
+                                        ""}
                                 `)}
                                 </div>
                             </div>
@@ -306,7 +322,7 @@ class VariantInterpreter extends LitElement {
                                     <variant-interpreter-qc .opencgaSession="${this.opencgaSession}"
                                                             .cellbaseClient="${this.cellbaseClient}"
                                                             .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                            .config="${this._config}"
+                                                            .config="${this._config.tools.find(tool => tool.id === "qc")}"
                                                             @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
                                     </variant-interpreter-qc>
                                 </div>
@@ -327,6 +343,7 @@ class VariantInterpreter extends LitElement {
                                                                     .clinicalAnalysis="${this.clinicalAnalysis}"
                                                                     .query="${this.interpretationSearchQuery}"
                                                                     .cellbaseClient="${this.cellbaseClient}"
+                                                                    .settings="${this._config.tools.find(tool => tool.id === "variant-browser")}"
                                                                     @clinicalAnalysisUpdate="${this.onClinicalAnalysisUpdate}">
                                     </variant-interpreter-browser>
                                 </div>

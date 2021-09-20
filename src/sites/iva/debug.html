@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Template refresh throubleshooting</title>
+</head>
+<body>
+
+
+<lit-counter></lit-counter>
+<script type="module">
+
+    // import {LitElement, html} from 'https://unpkg.com/@polymer/lit-element@latest/lit-element.js?module';
+    import {LitElement, html} from 'lit';
+
+    class LitCounter extends LitElement {
+        static get properties() {
+            return {
+            };
+        }
+
+        constructor() {
+            super();
+            this._count = 0;
+        }
+
+        createRenderRoot() {
+            return this;
+        }
+
+        setCount = async count => {
+            this._count = count;
+            this.requestUpdate();
+            await this.updateComplete;
+            console.log("Is the count correct? ", this._count === +document.querySelector("#count").innerText)
+        };
+
+        render() {
+            const { _count } = this;
+            return html`
+              <h2>You clicked <span id="count">${_count}</span> times</h2>
+              <button type="button" @click=${() => this.setCount(_count + 1)}>Increment</button>
+        `;
+        }
+    }
+
+    customElements.define('lit-counter', LitCounter);
+</script>
+
+</body>
+</html>

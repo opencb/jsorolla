@@ -607,7 +607,7 @@ export default class DataForm extends LitElement {
     /**
      * This element accepts 4 main parameters: onText, offText, activeClass and inactiveClass.
      * Default values are: ON, OFF, btn-primary and btn-default, respectively.
-     * @param element
+     * @param {Object} element
      * @returns {TemplateResult}
      * @private
      */

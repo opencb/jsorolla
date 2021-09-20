@@ -59,7 +59,7 @@ export default class SelectTokenFilter extends LitElement {
     firstUpdated() {
         this.select = $("#" + this._prefix);
         this.select.select2({
-            // tags: true,
+            tags: this._config.freeTag === true,
             multiple: true,
             width: "style",
             placeholder: this._config.placeholder,
@@ -96,6 +96,17 @@ export default class SelectTokenFilter extends LitElement {
         })
             .on("select2:select", e => {
                 this.filterChange(e);
+                /* dynamic width. DONE in css */
+                /* if (this._config.dynamicWidth) {
+                    let width = 200;
+                    $(".select2-selection__choice", this).each(function () {
+                        const token = $(this);
+                        const tokenWidth = token.outerWidth();
+                        width += tokenWidth;
+                    });
+                    console.log("$(this).find(\"span.select2-selection\")", $(this).find("span.select2-selection"))
+                    $(this).find("span.select2-selection").css("max-width", width);
+                }*/
             })
             .on("select2:unselect", e => {
                 this.filterChange(e);
@@ -108,16 +119,19 @@ export default class SelectTokenFilter extends LitElement {
             this._config = {...this.getDefaultConfig(), ...this.config};
         }
         if (_changedProperties.has("value")) {
-
             /* if (this.value) {
                 this.state = this.value.split(",");
             }*/
-            this.select.val(null).trigger("change");
+
+            /* this.select.val(null).trigger("change");
             const selection = this.value ? this.value.split(",") : null;
             this.select.val(selection);
             this.select.trigger("change");
+            */
 
-            // this.addOptions(this.value?.split(this.separator));
+            this.select.empty();
+            this.addOptions(this.value?.split(this.separator));
+
             // const selection = this.value ? this.value.split(this.separator) : null;
             // this.select.val(selection); // this wont work as options arent actually there since there is an ajax source
             // this.select.trigger('change');
@@ -136,7 +150,7 @@ export default class SelectTokenFilter extends LitElement {
         return results;
     }
 
-    /* addOptions(ids) {
+    addOptions(ids) {
         if (ids) {
             for (const id of ids) {
                 if (this.select.find("option[value='" + id + "']").length) {
@@ -153,8 +167,7 @@ export default class SelectTokenFilter extends LitElement {
             this.select.val(null).trigger("change");
 
         }
-
-    }*/
+    }
 
     filterChange(e) {
         const selection = this.select.select2("data").map(el => el.id).join(this.separator);
@@ -173,6 +186,7 @@ export default class SelectTokenFilter extends LitElement {
             minimumInputLength: 0,
             maxItems: 0,
             placeholder: "Start typing",
+            freeTag: false,
             source: () => {
                 throw new Error("Data source not defined");
             },

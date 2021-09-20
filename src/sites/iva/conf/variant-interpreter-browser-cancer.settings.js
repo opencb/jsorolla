@@ -1,10 +1,12 @@
-const VARIANT_INTERPRETER_BROWSER_RD_SETTINGS = {
+const VARIANT_INTERPRETER_BROWSER_CANCER_SETTINGS = {
     menu: {
-        sections: [
+        // add all filters and let variant-interpreter-browser-cancer handle the visibility based on callers
+        // filters: []
+
+        sections: [ // sections and subsections, structure and order is respected
             {
-                title: "Sample",
-                // TODO file-quality: showDepth: false
-                filters: ["sample-genotype", "sample", "file-quality", "cohort"]
+                title: "Sample And File",
+                filters: ["sample-genotype", "variant-file", "file-quality"/* "variant-caller-info-filter"*/],
             },
             {
                 title: "Genomic",
@@ -43,12 +45,12 @@ const VARIANT_INTERPRETER_BROWSER_RD_SETTINGS = {
             showExport: false,
             showDownload: true
             // columns list for the dropdown will be added in grid components based on settings.table.columns
-        },
+        }
         // merge criterium: uses this array as filter for internal 1D/2D array. It handles row/col span
         // It is supported either columns[] or hiddenColumns[].
-        columns: ["id", "gene", "type", "consequenceType", "zygosity", "evidences", "VCF_Data", "frequencies", "clinicalInfo", "interpretation", "review", "actions"]
-    },
+        // columns: ["id"]
+    }
     // merge criterium: uses this array as filter for internal 1D array.
-    details: ["annotationSummary", "annotationConsType", "annotationPropFreq", "annotationClinical", "fileMetrics", "cohortStats", "samples", "beacon"]
+    // details: []
 
 };

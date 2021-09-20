@@ -182,8 +182,8 @@ export default class OpencgaVariantFilter extends LitElement {
 
     /*
      * Handles filterChange events from all the filter components (this is the new updateQueryFilters)
-     * @param key the name of the property in this.query
-     * @param value the new value of the property
+     * @param {String} key the name of the property in this.query
+     * @param {String|Object} value the new value of the property
      */
     onFilterChange(key, value) {
         /* Some filters may return more than one parameter, in this case key and value are objects with all the keys and filters
@@ -393,21 +393,19 @@ export default class OpencgaVariantFilter extends LitElement {
                         const sampleDataFilters = this.preparedQuery.sampleData.split(";");
                         depth = sampleDataFilters.find(filter => filter.startsWith("DP")).split(">=")[1];
                     }
-                    content = html`
-                        <file-quality-filter .filter="${this.preparedQuery.filter}" .depth="${depth}" .qual="${this.preparedQuery.qual}"
-                                             @filterChange="${e => this.onFilterChange({
+                    content = html`<file-quality-filter .filter="${this.preparedQuery.filter}" .depth="${depth}" .qual="${this.preparedQuery.qual}"
+                                                        @filterChange="${e => this.onFilterChange({
                                                                 filter: "filter",
                                                                 sampleData: "sampleData",
                                                                 qual: "qual"
                                                             }, e.detail.value)}" .config="${subsection}">
-                        </file-quality-filter>
+                                    </file-quality-filter>
                             `;
                     break;
                 case "region":
-                    content = html`
-                        <region-filter  .cellbaseClient="${this.cellbaseClient}" .region="${this.preparedQuery.region}"
-                                        @filterChange="${e => this.onFilterChange("region", e.detail.value)}">
-                        </region-filter>`;
+                    content = html`<region-filter  .cellbaseClient="${this.cellbaseClient}" .region="${this.preparedQuery.region}"
+                                                    @filterChange="${e => this.onFilterChange("region", e.detail.value)}">
+                                    </region-filter>`;
                     break;
                 case "feature":
                     content = html`
@@ -446,30 +444,32 @@ export default class OpencgaVariantFilter extends LitElement {
                         </population-frequency-filter>`;
                     break;
                 case "consequenceType":
-                    content = html`
-                        <consequence-type-filter .consequenceTypes="${this.consequenceTypes}"
-                                                 .ct="${this.preparedQuery.ct}"
-                                                 @filterChange="${e => this.onFilterChange("ct", e.detail.value)}">
-                        </consequence-type-filter>`;
+                    content = html`<consequence-type-filter
+                            .consequenceTypes="${this.consequenceTypes}"
+                            .ct="${this.preparedQuery.ct}"
+                            @filterChange="${e => this.onFilterChange("ct", e.detail.value)}">
+                    </consequence-type-filter>`;
                     break;
                 case "consequenceTypeSelect":
-                    content = html`
-                        <consequence-type-select-filter .ct="${this.preparedQuery.ct}"
-                                                        .config="${this.consequenceTypes}"
-                                                        @filterChange="${e => this.onFilterChange("ct", e.detail.value)}">
-                        </consequence-type-select-filter>`;
+                    content = html`<consequence-type-select-filter
+                            .ct="${this.preparedQuery.ct}"
+                            .config="${this.consequenceTypes}"
+                            @filterChange="${e => this.onFilterChange("ct", e.detail.value)}">
+                    </consequence-type-select-filter>`;
                     break;
                 case "proteinSubstitutionScore":
-                    content = html`
-                        <protein-substitution-score-filter .protein_substitution="${this.preparedQuery.protein_substitution}"
-                                                           @filterChange="${e => this.onFilterChange("protein_substitution", e.detail.value)}">
-                        </protein-substitution-score-filter>`;
+                    content = html`<protein-substitution-score-filter
+                            .protein_substitution="${this.preparedQuery.protein_substitution}"
+                            @filterChange="${e => this.onFilterChange("protein_substitution", e.detail.value)}">
+                    </protein-substitution-score-filter>`;
                     break;
                 case "cadd":
-                    content = html`
-                        <cadd-filter .annot-functional-score="${this.preparedQuery["annot-functional-score"]}"
-                                     @filterChange="${e => this.onFilterChange("annot-functional-score", e.detail.value)}">
+                    if (this.opencgaSession.project.organism.assembly.toLowerCase() === "grch37") {
+                        content = html`<cadd-filter
+                                .annot-functional-score="${this.preparedQuery["annot-functional-score"]}"
+                                @filterChange="${e => this.onFilterChange("annot-functional-score", e.detail.value)}">
                         </cadd-filter>`;
+                    }
                     break;
                 case "conservation":
                     content = html`

@@ -46,40 +46,35 @@ export default class OpencgaIndividualGrid extends LitElement {
             individuals: {
                 type: Array
             },
-            active: {
-                type: Boolean
-            },
             config: {
                 type: Object
+            },
+            active: {
+                type: Boolean
             }
         };
     }
 
     _init() {
         this._prefix = "VarIndividualGrid" + UtilsNew.randomString(6);
-
         this.catalogUiUtils = new CatalogWebUtils();
         this.gridId = this._prefix + "IndividualBrowserGrid";
+        this.active = true;
     }
 
     connectedCallback() {
         super.connectedCallback();
-
-        this._config = {...this.getDefaultConfig(), ...this.config};
+        this._config = {...this.getDefaultConfig()};
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
     }
 
-    firstUpdated(_changedProperties) {
-        this.table = $("#" + this.gridId);
-    }
-
     updated(changedProperties) {
-        if (changedProperties.has("opencgaSession") ||
+        if ((changedProperties.has("opencgaSession") ||
             changedProperties.has("query") ||
             changedProperties.has("config") ||
-            changedProperties.has("active")) {
+            changedProperties.has("active")) &&
+            this.active) {
             this.propertyObserver();
-            // this.renderTable();
         }
     }
 
@@ -88,6 +83,8 @@ export default class OpencgaIndividualGrid extends LitElement {
         this._config = {...this.getDefaultConfig(), ...this.config};
         // Config for the grid toolbar
         this.toolbarConfig = {
+            ...this.config.toolbar,
+            resource: "INDIVIDUAL",
             columns: this._getDefaultColumns()
         };
 
@@ -105,7 +102,7 @@ export default class OpencgaIndividualGrid extends LitElement {
     }
 
     renderRemoteTable() {
-        if (this.opencgaSession.opencgaClient && this.opencgaSession.study && this.opencgaSession.study.fqn) {
+        if (this.opencgaSession.opencgaClient && this.opencgaSession?.study?.fqn) {
             const filters = {...this.query};
             if (UtilsNew.isNotUndefinedOrNull(this.lastFilters) &&
                 JSON.stringify(this.lastFilters) === JSON.stringify(filters)) {
@@ -269,7 +266,6 @@ export default class OpencgaIndividualGrid extends LitElement {
         this.gridCommons.onColumnChange(e);
     }
 
-    // TODO lit-html refactor
     detailFormatter(value, row) {
         let result = `<div class='row' style="padding: 5px 10px 20px 10px">
                                 <div class='col-md-12'>
@@ -382,32 +378,37 @@ export default class OpencgaIndividualGrid extends LitElement {
         // const customAnnotationVisible = (UtilsNew.isNotUndefinedOrNull(this._config.customAnnotations) &&
         //     UtilsNew.isNotEmptyArray(this._config.customAnnotations.fields));
 
-        const _columns = [
+        let _columns = [
             {
+                id: "id",
                 title: "Individual",
                 field: "id",
                 sortable: true,
                 halign: this._config.header.horizontalAlign
             },
             {
+                id: "samples",
                 title: "Samples",
                 field: "samples",
                 formatter: this.samplesFormatter,
                 halign: this._config.header.horizontalAlign
             },
             {
+                id: "father",
                 title: "Father",
                 field: "father.id",
                 formatter: this.fatherFormatter,
                 halign: this._config.header.horizontalAlign
             },
             {
+                id: "mother",
                 title: "Mother",
                 field: "mother.id",
                 formatter: this.motherFormatter,
                 halign: this._config.header.horizontalAlign
             },
             {
+                id: "disorders",
                 title: "Disorders",
                 field: "disorders",
                 formatter: disorders => {
@@ -417,24 +418,28 @@ export default class OpencgaIndividualGrid extends LitElement {
                 halign: this._config.header.horizontalAlign
             },
             {
+                id: "phenotypes",
                 title: "Phenotypes",
                 field: "phenotypes",
                 formatter: CatalogGridFormatter.phenotypesFormatter,
                 halign: this._config.header.horizontalAlign
             },
             {
+                id: "caseId",
                 title: "Case ID",
                 field: "attributes.OPENCGA_CLINICAL_ANALYSIS",
                 formatter: (value, row) => CatalogGridFormatter.caseFormatter(value, row, row.id, this.opencgaSession),
                 halign: this._config.header.horizontalAlign
             },
             {
+                id: "sex",
                 title: "Sex (Karyotypic Sex)",
                 field: "sex",
                 formatter: this.sexFormatter,
                 halign: this._config.header.horizontalAlign
             },
             {
+                id: "lifeStatus",
                 title: "Life Status",
                 field: "lifeStatus",
                 halign: this._config.header.horizontalAlign
@@ -447,6 +452,7 @@ export default class OpencgaIndividualGrid extends LitElement {
             //     halign: this._config.header.horizontalAlign
             // },
             {
+                id: "dateOfBirth",
                 title: "Date of Birth",
                 field: "dateOfBirth",
                 sortable: true,
@@ -454,6 +460,7 @@ export default class OpencgaIndividualGrid extends LitElement {
                 halign: this._config.header.horizontalAlign
             },
             {
+                id: "creationDate",
                 title: "Creation Date",
                 field: "creationDate",
                 sortable: true,
@@ -464,6 +471,7 @@ export default class OpencgaIndividualGrid extends LitElement {
 
         if (this._config.showSelectCheckbox) {
             _columns.push({
+                id: "state",
                 field: "state",
                 checkbox: true,
                 // formatter: this.stateFormatter,
@@ -472,13 +480,15 @@ export default class OpencgaIndividualGrid extends LitElement {
             });
         }
 
+        _columns = UtilsNew.mergeTable(_columns, this._config.columns || this._config.hiddenColumns, !!this._config.hiddenColumns);
+
         return _columns;
     }
 
     async onDownload(e) {
         this.toolbarConfig = {...this.toolbarConfig, downloading: true};
         await this.updateComplete;
-        const query = {
+        const params = {
             ...this.query,
             study: this.opencgaSession.study.fqn,
             limit: 1000,
@@ -486,9 +496,9 @@ export default class OpencgaIndividualGrid extends LitElement {
             count: false
         };
 
-        this.opencgaSession.opencgaClient.individuals().search(query)
-            .then(response => {
-                const results = response.responses[0].results;
+        this.opencgaSession.opencgaClient.individuals().search(params)
+            .then(restResponse => {
+                const results = restResponse.getResults();
                 if (results) {
                     // Check if user clicked in Tab or JSON format
                     if (e.detail.option.toUpperCase() === "TAB") {
@@ -496,7 +506,7 @@ export default class OpencgaIndividualGrid extends LitElement {
                         const data = UtilsNew.toTableString(results, fields);
                         UtilsNew.downloadData(data, "individuals_" + this.opencgaSession.study.id + ".txt", "text/plain");
                     } else {
-                        UtilsNew.downloadData(JSON.stringify(results, null, "\t"), this.opencgaSession.study.id + ".json", "application/json");
+                        UtilsNew.downloadData(JSON.stringify(results, null, "\t"), "individuals_" + this.opencgaSession.study.id + ".json", "application/json");
                     }
                 } else {
                     console.error("Error in result format");
@@ -539,11 +549,14 @@ export default class OpencgaIndividualGrid extends LitElement {
         return html`
             ${this._config.showToolbar ?
                 html`
-                    <opencb-grid-toolbar    .config="${this.toolbarConfig}"
-                                            @download="${this.onDownload}"
-                                            @columnChange="${this.onColumnChange}">
+                    <opencb-grid-toolbar  .config="${this.toolbarConfig}"
+                                          .query="${this.query}"
+                                          .opencgaSession="${this.opencgaSession}"
+                                          @columnChange="${this.onColumnChange}"
+                                          @download="${this.onDownload}"
+                                          @export="${this.onDownload}">
                     </opencb-grid-toolbar>` :
-                null
+                ""
             }
 
             <div id="${this._prefix}GridTableDiv">

@@ -85,26 +85,15 @@ export default class OpencgaClinicalAnalysisDetail extends LitElement {
 
     getDefaultConfig() {
         return {
-            title: "Clinical Analysis",
-            showTitle: true,
-            items: [
-                {
-                    id: "clinical-analysis-view",
-                    name: "Overview",
-                    active: true,
-                    render: (clinicalAnalysis, active, opencgaSession) => {
-                        return html`<opencga-clinical-analysis-view .opencgaSession="${opencgaSession}" .clinicalAnalysis="${clinicalAnalysis}"></opencga-clinical-analysis-view>`;
-                    }
-                }
-            ]
+            // details config in clinical-analysis-browser
         };
     }
 
     render() {
-        return this.opencgaSession && this.clinicalAnalysis
-            ? html`
-                <detail-tabs .data="${this.clinicalAnalysis}" .config="${this._config}" .opencgaSession="${this.opencgaSession}"></detail-tabs>`
-            : null;
+        return this.opencgaSession && this.clinicalAnalysis ?
+            html`
+                <detail-tabs .data="${this.clinicalAnalysis}" .config="${this._config}" .opencgaSession="${this.opencgaSession}"></detail-tabs>` :
+            "";
     }
 }
 
