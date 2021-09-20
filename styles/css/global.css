@@ -2627,16 +2627,14 @@ interpretation-editor .status-wrapper .row > div:last-child {
 }
 
 .select2-container--bootstrap .select2-selection--multiple .select2-selection__choice {
-    padding-right: 0;
-}
-.select2-container--bootstrap .select2-selection--multiple .select2-selection__choice {
     border: 1px solid #cdd5e3;
     margin: 5px 6px 0 6px;
     position: relative;
     vertical-align: middle;
-    padding: 0 0 0 5px;
+    padding: 3px 0 0 5px;
     background-color: #eff2f7;
     border-radius: 2px;
+    line-height: 1;
     word-break: break-all; /* selected tag on multiple lines if needed */
 }
 
@@ -2670,6 +2668,7 @@ select.no-data + .select2-container--bootstrap.select2-container--open.select2-c
     font-size: 14px;
     line-height: 26px;
 }
+
 .select2-selection__rendered {
     width: auto;
 }
@@ -2681,6 +2680,8 @@ select.no-data + .select2-container--bootstrap.select2-container--open.select2-c
 .select2-search.select2-search--inline {
     display: inline-block;
 }
+/* /dynamic width: it renders active area for the dropdown and selected tokens in one line, where possible */
+
 
 /* active area to click on to open the dropdown
 .select2-container--bootstrap .select2-selection--multiple .select2-search--inline .select2-search__field {

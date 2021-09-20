@@ -70,13 +70,14 @@ export default class SelectTokenFilter extends LitElement {
                     const _params = params;
                     _params.page = _params.page || 1;
                     return {
-                        results: this.preprocessResults(restResponse.getResults()),
+                        results: this._config.preprocessResults(restResponse.getResults()),
                         pagination: {
                             more: (_params.page * this._config.limit) < restResponse.getResponse().numMatches
                         }
                     };
                 }
             },
+            /* dropdown template */
             templateResult: item => {
                 if (item.loading) {
                     return item.text;
@@ -89,6 +90,7 @@ export default class SelectTokenFilter extends LitElement {
                     console.error(e);
                 }
             },
+            /* selection template. At this stage select2 assumes item as an {id,text} pair or a string. */
             templateSelection: item => {
                 return item.id ?? item.text;
             },
@@ -129,6 +131,7 @@ export default class SelectTokenFilter extends LitElement {
             this.select.trigger("change");
             */
 
+            // manual addition of <option> elements is needed when tags=true in select2. We do it in any case.
             this.select.empty();
             this.addOptions(this.value?.split(this.separator));
 
@@ -139,15 +142,6 @@ export default class SelectTokenFilter extends LitElement {
 
         }
 
-    }
-
-    preprocessResults(results) {
-        if (results.length) {
-            if ("string" === typeof results[0]) {
-                return results.map(s => ({id: s}));
-            }
-        }
-        return results;
     }
 
     addOptions(ids) {
@@ -193,6 +187,15 @@ export default class SelectTokenFilter extends LitElement {
             fields: item => ({
                 "name": item.id,
             }),
+            /* remap results coming from opencga */
+            preprocessResults(results) {
+                if (results.length) {
+                    if ("string" === typeof results[0]) {
+                        return results.map(s => ({id: s}));
+                    }
+                }
+                return results;
+            }
         };
     }
 
