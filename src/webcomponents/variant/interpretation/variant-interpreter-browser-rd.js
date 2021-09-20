@@ -404,7 +404,7 @@ class VariantInterpreterBrowserRd extends LitElement {
                             {
                                 id: "biotype",
                                 title: "Gene Biotype",
-                                biotypes: BIOTYPES,
+                                biotypes: SAMPLE_STATS_BIOTYPES,
                                 tooltip: tooltips.biotype
                             },
                             {
@@ -756,7 +756,7 @@ class VariantInterpreterBrowserRd extends LitElement {
                                             .clinicalAnalysis="${this.clinicalAnalysis}"
                                             .cellbaseClient="${this.cellbaseClient}"
                                             .populationFrequencies="${populationFrequencies}"
-                                            .consequenceTypes="${CONSEQUENCE_TYPES}"
+                                            .consequenceTypes="${SAMPLE_STATS_CONSEQUENCE_TYPES}"
                                             .config="${this._config.filter}"
                                             @queryChange="${this.onVariantFilterChange}"
                                             @querySearch="${this.onVariantFilterSearch}">
