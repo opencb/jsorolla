@@ -80,7 +80,7 @@ export default class PhenotypeIdAutocomplete extends LitElement {
                     ...phenotypes
                 };
                 try {
-                    const restResponse = await this.opencgaSession.opencgaClient.individuals().distinct("phenotypes.id", filters);
+                    const restResponse = await this.opencgaSession.opencgaClient.individuals().distinct("phenotypes.name", filters);
                     success(restResponse);
                 } catch (e) {
                     failure(e);
