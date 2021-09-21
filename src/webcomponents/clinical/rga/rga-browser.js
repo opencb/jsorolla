@@ -255,7 +255,7 @@ export default class RgaBrowser extends LitElement {
                             {
                                 id: "knockoutType",
                                 name: "Knockout Type",
-                                allowedValues: ["COMP_HET", "HOM_ALT"]
+                                allowedValues: [{id: "COMP_HET", name: "Compound Heterozygous"}, {id: "HOM_ALT", name: "Homozygous"}]
                             }
                         ]
                     },
@@ -370,7 +370,7 @@ export default class RgaBrowser extends LitElement {
                 </div>`;
         }
 
-        if (this.opencgaSession.study?.attributes?.RGA !== "INDEXED") {
+        if (this.opencgaSession.study?.attributes?.RGA?.status !== "INDEXED") {
             return html`
                 <div class="guard-page">
                     <i class="fas fa-lock fa-5x"></i>
@@ -435,7 +435,7 @@ export default class RgaBrowser extends LitElement {
                                                 .opencgaSession="${this.opencgaSession}"
                                                 .defaultStudy="${this.opencgaSession?.study?.fqn}"
                                                 .query="${this.preparedQuery}"
-                                                .refresh="${this.executedQuery}"
+                                                .executedQuery="${this.executedQuery}"
                                                 .alias="${this.activeFilterAlias}"
                                                 .config="${this._config.activeFilters}"
                                                 .filters="${this._config.filter.examples}"

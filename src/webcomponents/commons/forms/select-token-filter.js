@@ -80,7 +80,7 @@ export default class SelectTokenFilter extends LitElement {
             /* dropdown template */
             templateResult: item => {
                 if (item.loading) {
-                    return item.text;
+                    return $(`<i class="fa fa-spinner fa-spin" aria-hidden="true"></i> <span>${item.text}</span>`);
                 }
                 // NOTE this function silently fails in case of errors if not wrapped in try/catch block
                 try {
@@ -147,14 +147,10 @@ export default class SelectTokenFilter extends LitElement {
     addOptions(ids) {
         if (ids) {
             for (const id of ids) {
-                if (this.select.find("option[value='" + id + "']").length) {
-                    this.select.val(id).trigger("change");
-                } else {
-                    // Create a DOM Option and pre-select by default
-                    const newOption = new Option(id, id, true, true);
-                    // Append it to the select
-                    this.select.append(newOption).trigger("change");
-                }
+                // Create a DOM Option and pre-select by default
+                const newOption = new Option(id, id, true, true);
+                // Append it to the select
+                this.select.append(newOption).trigger("change");
             }
             this.select.trigger("change");
         } else {

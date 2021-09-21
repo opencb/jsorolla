@@ -67,31 +67,6 @@ export default class OpencgaCohortFilter extends LitElement {
         // super.ready();
         this._prefix = "osf-" + UtilsNew.randomString(6) + "_";
 
-        const _years = [];
-        const fullDate = new Date();
-        const limitYear = fullDate.getFullYear();
-        for (let year = this.minYear; year <= limitYear; year++) {
-            _years.push(year);
-        }
-        // This change triggers the polymer dom-repeat
-        this.years = _years;
-
-
-        // Init arrays for Date selector
-        const _yearsToSearch = [];
-        for (let year = limitYear, i = 0; i < 5; year--, i++) {
-            _yearsToSearch.push(year);
-        }
-        this.yearsToSearch = _yearsToSearch;
-
-        this.monthToSearch = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-
-        const _days = [];
-        for (let i = 1; i <= 31; i++) {
-            _days.push(i);
-        }
-        this.daysToSearch = _days;
-
         this.annotationFilterConfig = {
             class: "small",
             buttonClass: "btn-sm",
@@ -108,8 +83,7 @@ export default class OpencgaCohortFilter extends LitElement {
         this.preparedQuery = {...this.query}; // propagates here the iva-app query object
     }
 
-    firstUpdated(_changedProperties) {
-        super.firstUpdated(_changedProperties);
+    firstUpdated() {
         UtilsNew.initTooltip(this);
     }
 
@@ -121,7 +95,7 @@ export default class OpencgaCohortFilter extends LitElement {
             this.variablesChanged();
         }
         if (changedProperties.has("opencgaSession")) {
-            //this.updateVariableSets();
+            // this.updateVariableSets();
         }
     }
 
@@ -131,9 +105,9 @@ export default class OpencgaCohortFilter extends LitElement {
 
     onAnnotationChange(e) {
         if (e.detail.value) {
-            this.preparedQuery.annotation = e.detail.value
+            this.preparedQuery.annotation = e.detail.value;
         } else {
-            delete this.preparedQuery.annotation
+            delete this.preparedQuery.annotation;
         }
         this.preparedQuery = {...this.preparedQuery};
         this.notifyQuery(this.preparedQuery);
@@ -188,25 +162,47 @@ export default class OpencgaCohortFilter extends LitElement {
         let content = "";
         switch (subsection.id) {
             case "id":
-                content = html`<cohort-id-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></cohort-id-autocomplete>`;
+                content = html`
+                    <cohort-id-autocomplete .config="${subsection}"
+                                           .opencgaSession="${this.opencgaSession}"
+                                           .value="${this.preparedQuery[subsection.id]}"
+                                           @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
+                    </cohort-id-autocomplete>`;
                 break;
             case "samples":
-                content = html`<sample-id-autocomplete .config="${subsection}" .opencgaSession="${this.opencgaSession}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></sample-id-autocomplete>`;
+                content = html`
+                    <sample-id-autocomplete
+                        .config="${subsection}"
+                        .opencgaSession="${this.opencgaSession}"
+                        .value="${this.preparedQuery[subsection.id]}"
+                        @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
+                    </sample-id-autocomplete>`;
                 break;
             case "annotations":
-                content = html`<opencga-annotation-filter-modal .opencgaSession="${this.opencgaSession}"
-                                                      .opencgaClient="${this.opencgaSession.opencgaClient}"
-                                                      resource="COHORT"
-                                                      .config="${this.annotationFilterConfig}"
-                                                      .selectedVariablesText="${this.preparedQuery.annotation}"
-                                                      @annotationChange="${this.onAnnotationChange}">
-                        </opencga-annotation-filter-modal>`;
+                content = html`
+                    <opencga-annotation-filter-modal
+                        resource="COHORT"
+                        .opencgaSession="${this.opencgaSession}"
+                        .opencgaClient="${this.opencgaSession.opencgaClient}"
+                        .config="${this.annotationFilterConfig}"
+                        .selectedVariablesText="${this.preparedQuery.annotation}"
+                        @annotationChange="${this.onAnnotationChange}">
+                    </opencga-annotation-filter-modal>`;
                 break;
             case "type":
-                content = html`<select-field-filter ?multiple="${subsection.multiple}" .data="${subsection.allowedValues}" .value="${this.preparedQuery[subsection.id]}" @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}"></select-field-filter>`;
+                content = html`
+                    <select-field-filter
+                            ?multiple="${subsection.multiple}"
+                            .data="${subsection.allowedValues}"
+                            .value="${this.preparedQuery[subsection.id]}"
+                            @filterChange="${e => this.onFilterChange(subsection.id, e.detail.value)}">
+                    </select-field-filter>`;
                 break;
             case "date":
-                content = html`<date-filter .creationDate="${this.preparedQuery.creationDate}" @filterChange="${e => this.onFilterChange("creationDate", e.detail.value)}"></date-filter>`;
+                content = html`<date-filter
+                        .creationDate="${this.preparedQuery.creationDate}"
+                        @filterChange="${e => this.onFilterChange("creationDate", e.detail.value)}">
+                </date-filter>`;
                 break;
             default:
                 console.error("Filter component not found");
@@ -230,7 +226,7 @@ export default class OpencgaCohortFilter extends LitElement {
         this.variables = [];
         const _this = this;
         this.opencgaSession.opencgaClient.studies().info(this.opencgaSession.study.id, {include: "variableSets"})
-            .then(function(response) {
+            .then(function (response) {
                 _this.variableSets = response.response[0].result[0].variableSets;
                 // debugger
                 if (_this.variableSets.length > 0) {
@@ -245,7 +241,7 @@ export default class OpencgaCohortFilter extends LitElement {
                 }
                 _this.requestUpdate();
             })
-            .catch(function() {
+            .catch(function () {
                 console.log("Could not obtain the variable sets of the study " + _this.opencgaSession.study);
             });
     }
@@ -273,7 +269,7 @@ export default class OpencgaCohortFilter extends LitElement {
 
             <div class="panel-group" id="${this._prefix}Accordion" role="tablist" aria-multiselectable="true">
                 <div class="">
-                    ${this.config.sections && this.config.sections.length ? this.config.sections.map( section => this._createSection(section)) : html`No filter has been configured.`}
+                    ${this.config.sections && this.config.sections.length ? this.config.sections.map(section => this._createSection(section)) : html`No filter has been configured.`}
                 </div>
             </div>
         `;

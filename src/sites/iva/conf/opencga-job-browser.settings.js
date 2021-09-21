@@ -18,12 +18,13 @@ const OPENCGA_JOB_BROWSER_SETTINGS = {
         toolbar: {
             showColumns: true,
             showExport: false,
-            showDownload: true
+            showDownload: true,
+            autorefreshTiming: 15000, // 15s
             // columns list for the dropdown will be added in grid components based on settings.table.columns
         },
         // merge criterium: uses this array as filter for internal 1D/2D array. It handles row/col span
         // It is supported either columns[] or hiddenColumns[].
-        columns: ["id"/* "toolId", "status", "priority", "dependsOn", "output", "execution", "execution", "creationDate"*/]
+        columns: ["id", "toolId", "status", "priority", "dependsOn", "output", "execution", "execution", "creationDate"]
     },
     // merge criterium: uses this array as filter for internal 1D array.
     details: ["job-view", "job-log", "json-view"]
