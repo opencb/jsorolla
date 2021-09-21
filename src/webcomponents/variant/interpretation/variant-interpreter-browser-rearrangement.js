@@ -403,7 +403,7 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
                             {
                                 id: "biotype",
                                 title: "Gene Biotype",
-                                biotypes: BIOTYPES,
+                                biotypes: SAMPLE_STATS_BIOTYPES,
                                 tooltip: tooltips.biotype
                             },
                             {
@@ -478,7 +478,7 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
                                 return html`
                                     <cellbase-variant-annotation-summary
                                             .variantAnnotation="${variant.annotation}"
-                                            .consequenceTypes="${CONSEQUENCE_TYPES}"
+                                            .consequenceTypes="${SAMPLE_STATS_CONSEQUENCE_TYPES}"
                                             .proteinSubstitutionScores="${PROTEIN_SUBSTITUTION_SCORE}">
                                     </cellbase-variant-annotation-summary>`;
                             }
@@ -634,7 +634,7 @@ class VariantInterpreterBrowserRearrangement extends LitElement {
                                             .clinicalAnalysis="${this.clinicalAnalysis}"
                                             .cellbaseClient="${this.cellbaseClient}"
                                             .populationFrequencies="${this.populationFrequencies}"
-                                            .consequenceTypes="${this.consequenceTypes}"
+                                            .consequenceTypes="${SAMPLE_STATS_CONSEQUENCE_TYPES}"
                                             .config="${this._config.filter}"
                                             @queryChange="${this.onVariantFilterChange}"
                                             @querySearch="${this.onVariantFilterSearch}">

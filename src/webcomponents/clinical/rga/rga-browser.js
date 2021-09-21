@@ -89,13 +89,14 @@ export default class RgaBrowser extends LitElement {
         UtilsNew.initTooltip(this);
     }
 
-    updated(changedProperties) {
+    update(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
             this.opencgaSessionObserver();
         }
         if (changedProperties.has("query")) {
             this.queryObserver();
         }
+        super.update(changedProperties);
     }
 
     opencgaSessionObserver() {
@@ -118,7 +119,7 @@ export default class RgaBrowser extends LitElement {
                     this.preparedQuery = {study: this.opencgaSession.study.fqn, ...this.defaultQuery};
                     this.executedQuery = {study: this.opencgaSession.study.fqn, ...this.defaultQuery};
                 }
-                // onServerFilterChange() in opencga-active-filters drops a filterchange event when the Filter dropdown is used
+                // onServerFilterChange() in opencga-active-filters fires an activeFilterChange event when the Filter dropdown is used
                 this.dispatchEvent(new CustomEvent("queryChange", {
                     detail: this.preparedQuery
                 }
@@ -128,7 +129,7 @@ export default class RgaBrowser extends LitElement {
                 // console.error("same queries")
             }
             this.forceQuery = false;
-            this.requestUpdate();
+            // this.requestUpdate();
         }
     }
 

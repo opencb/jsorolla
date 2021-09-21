@@ -571,7 +571,7 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                             {
                                 id: "biotype",
                                 title: "Gene Biotype",
-                                biotypes: BIOTYPES,
+                                biotypes: SAMPLE_STATS_BIOTYPES,
                                 tooltip: tooltips.biotype
                             },
                             {
@@ -719,7 +719,7 @@ export default class SampleCancerVariantStatsBrowser extends LitElement {
                                             .query="${this.query}"
                                             .cellbaseClient="${this.cellbaseClient}"
                                             .populationFrequencies="${this.populationFrequencies}"
-                                            .consequenceTypes="${this.consequenceTypes}"
+                                            .consequenceTypes="${SAMPLE_STATS_CONSEQUENCE_TYPES}"
                                             .cohorts="${this.cohorts}"
                                             .searchButton="${true}"
                                             .config="${this._config.filter}"

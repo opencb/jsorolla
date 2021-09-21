@@ -65,13 +65,13 @@ export default class FeatureFilter extends LitElement {
             } else if (this.query.geneName) {
                 this.value = this.query.geneName;
             } else {
-                this.value = "";
+                this.value = null;
             }
             this.requestUpdate();
         }
     }
 
-    onFilterChange(key, value) {
+    onFilterChange(value) {
         const event = new CustomEvent("filterChange", {
             detail: {
                 value: value
@@ -83,14 +83,12 @@ export default class FeatureFilter extends LitElement {
     getDefaultConfig() {
         return {
             limit: 10,
-            fields: item => ({
-                name: item.name
-            }),
-            dataSource: (query, process) => {
-                this.cellbaseClient.get("feature", "id", query.toUpperCase(), "starts_with", {limit: 20}, {})
-                    .then(restResponse => {
-                        process(restResponse.response[0].result.map(this._config.fields));
-                    });
+            fields: item => {
+                // item is the object from the list from `preprocessResults()`
+                return {
+                    id: item._id,
+                    name: item.name,
+                };
             },
             source: async (params, success, failure) => {
                 try {
@@ -105,11 +103,20 @@ export default class FeatureFilter extends LitElement {
                     failure(e);
                 }
             },
+            /* remap results coming from opencga. config.fields fn works for the dropdown, at a different stage. */
+            preprocessResults(results) {
+                return results.map(s => ({
+                    id: s.name, // force selected gene (token) to be the name not the id.
+                    name: s.name,
+                    _id: s.id,
+                }));
+
+            }
         };
     }
 
     render() {
-        return html`<select-token-filter .config=${this._config} .value="${this.value}" @filterChange="${e => this.onFilterChange("id", e.detail.value)}"></select-token-filter>`;
+        return html`<select-token-filter .config=${this._config} .value="${this.value}" @filterChange="${e => this.onFilterChange(e.detail.value)}"></select-token-filter>`;
     }
 
 }
