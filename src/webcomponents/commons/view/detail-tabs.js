@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { LitElement, html } from "lit";
+import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
 
 export default class DetailTabs extends LitElement {
@@ -75,6 +75,7 @@ export default class DetailTabs extends LitElement {
     }
 
     changeBottomTab(e) {
+        console.log("changeBottomTab Working. ...");
         this.activeTabs = Object.assign({}, ...this._config.items.map(item => ({[item.id]: false})));
         const tabId = e.currentTarget.dataset.id;
         this.activeTabs[tabId] = true;
@@ -86,8 +87,8 @@ export default class DetailTabs extends LitElement {
             ${this._config.items.length && this._config.items.map(item => {
                 if (typeof item.mode === "undefined" || item.mode === this.opencgaSession.mode) {
                     return html`
-                        <li role="presentation" class="${this._config.display?.tabTitleClass} ${this.activeTabs[item.id] ? "active" : ""}" style="${this._config.display?.tabTitleStyle}">
-                            <a href="#${this._prefix}${item.id}" role="tab" data-toggle="tab" data-id="${item.id}" @click="${this.changeBottomTab}">
+                        <li role="presentation" class="nav-item ${this._config.display?.tabTitleClass} ${this.activeTabs[item.id] ? "active" : ""}" style="${this._config.display?.tabTitleStyle}">
+                            <a class="nav-link" href="#${this._prefix}${item.id}" role="tab" data-bs-toggle="tab" data-id="${item.id}" @click="${this.changeBottomTab}">
                                 <span>${item.name}</span>
                             </a>
                         </li>`;

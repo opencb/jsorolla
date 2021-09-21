@@ -21,6 +21,7 @@ import "./annotation/cellbase-population-frequency-grid.js";
 import "./annotation/variant-annotation-clinical-view.js";
 import "./variant-cohort-stats.js";
 import "./opencga-variant-samples.js";
+import "../commons/view/detail-tabs.js";
 
 
 export default class VariantBrowserDetail extends LitElement {

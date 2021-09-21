@@ -680,17 +680,17 @@ export default class VariantBrowser extends LitElement {
                         </button>
                     </div>
 
-                    <ul class="nav nav-tabs left-menu-tabs" role="tablist">
-                        <li role="presentation" class="active">
-                            <a href="#filters_tab" aria-controls="profile" role="tab" data-toggle="tab">${this._config.filter.title}</a>
+                    <ul id="myTab" class="nav nav-tabs left-menu-tabs" role="tablist" >
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link active" href="#filters_tab" aria-controls="profile" role="tab" data-bs-toggle="tab">${this._config.filter.title}</a>
                         </li>
-                        <li role="presentation">
-                            <a href="#facet_tab" aria-controls="home" role="tab" data-toggle="tab">${this._config.aggregation.title}</a>
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link" href="#facet_tab" aria-controls="home" role="tab" data-bs-toggle="tab">${this._config.aggregation.title}</a>
                         </li>
                     </ul>
 
                     <div class="tab-content">
-                        <div role="tabpanel" class="tab-pane active" id="filters_tab">
+                        <div class="tab-pane fade show active" id="filters_tab" role="tabpanel" >
                             <opencga-variant-filter .opencgaSession=${this.opencgaSession}
                                                     .query="${this.query}"
                                                     .cellbaseClient="${this.cellbaseClient}"
@@ -704,10 +704,11 @@ export default class VariantBrowser extends LitElement {
                             </opencga-variant-filter>
                         </div>
 
-                        <div role="tabpanel" class="tab-pane" id="facet_tab">
-                            <facet-filter .selectedFacet="${this.selectedFacet}"
-                                          .config="${this._config.aggregation}"
-                                          @facetQueryChange="${this.onFacetQueryChange}">
+                        <div class="tab-pane fade" id="facet_tab" role="tabpanel" >
+                            <facet-filter
+                                        .selectedFacet="${this.selectedFacet}"
+                                        .config="${this._config.aggregation}"
+                                        @facetQueryChange="${this.onFacetQueryChange}">
                             </facet-filter>
                         </div>
                     </div>
@@ -750,15 +751,16 @@ export default class VariantBrowser extends LitElement {
 
                         <div class="main-view">
                             <div id="table-tab" class="content-tab active">
-                                <variant-browser-grid .opencgaSession="${this.opencgaSession}"
-                                                      .query="${this.executedQuery}"
-                                                      .cohorts="${this.opencgaSession?.project?.studies ?? []}"
-                                                      .cellbaseClient="${this.cellbaseClient}"
-                                                      .populationFrequencies="${this.populationFrequencies}"
-                                                      .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
-                                                      .consequenceTypes="${this.consequenceTypes}"
-                                                      .config="${this._config.filter}"
-                                                      @selectrow="${this.onSelectVariant}">
+                                <variant-browser-grid
+                                    .opencgaSession="${this.opencgaSession}"
+                                    .query="${this.executedQuery}"
+                                    .cohorts="${this.opencgaSession?.project?.studies ?? []}"
+                                    .cellbaseClient="${this.cellbaseClient}"
+                                    .populationFrequencies="${this.populationFrequencies}"
+                                    .proteinSubstitutionScores="${this.proteinSubstitutionScores}"
+                                    .consequenceTypes="${this.consequenceTypes}"
+                                    .config="${this._config.filter}"
+                                    @selectrow="${this.onSelectVariant}">
                                 </variant-browser-grid>
 
                                 <!-- Bottom tabs with specific variant information -->
@@ -771,11 +773,11 @@ export default class VariantBrowser extends LitElement {
 
                             <div id="facet-tab" class="content-tab">
                                 <opencb-facet-results resource="VARIANT"
-                                                      .opencgaSession="${this.opencgaSession}"
-                                                      .active="${this.activeTab["facet-tab"]}"
-                                                      .query="${this.facetQuery}"
-                                                      .data="${this.facetResults}"
-                                                      .error="${this.errorState}">
+                                    .opencgaSession="${this.opencgaSession}"
+                                    .active="${this.activeTab["facet-tab"]}"
+                                    .query="${this.facetQuery}"
+                                    .data="${this.facetResults}"
+                                    .error="${this.errorState}">
                                 </opencb-facet-results>
                             </div>
                         </div>
