@@ -186,11 +186,13 @@ export class JobMonitor extends LitElement {
         this.jobs = [...this.jobs];
         this.requestUpdate();
 
-        this.dispatchEvent(new CustomEvent("jobSelected", {
+        this.dispatchEvent(new CustomEvent("route", {
             detail: {
-                jobId: jobId
+                hash: "#job",
+                resource: "job",
+                query: {id: jobId}
             },
-            bubbles: true,
+            bubbles: true, // this is necessary as the event is handled in iva-app
             composed: true
         }));
     }
@@ -229,7 +231,7 @@ export class JobMonitor extends LitElement {
                         </li>
                         ${this.filteredJobs.length ? this.filteredJobs.map(job => html`
                                 <li>
-                                    <a href="#job-view" @click=${() => this.openJob(job.id)} class="job-monitor-item ${job.updated && !job._visited ? `updated status-${job?.internal?.status?.name}` : ""}">
+                                    <a href="javascript: void 0" @click=${() => this.openJob(job.id)} class="job-monitor-item ${job.updated && !job._visited ? `updated status-${job?.internal?.status?.name}` : ""}">
                                         <div class="media">
                                             <div class="media-left rocket-${job?.internal?.status?.name ?? "default"}">
                                                 <i class="fas fa-rocket"></i>

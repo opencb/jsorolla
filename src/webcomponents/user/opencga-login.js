@@ -61,19 +61,19 @@ export default class OpencgaLogin extends LitElement {
     firstUpdated(changedProperties) {
         $("#formLogin").validator("update");
         $("#formLogin").validator().on("submit", e => this.submitLogin(e));
-        this.redirect();
+        this.route();
     }
 
     updated(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
-            this.redirect();
+            this.route();
         }
     }
 
-    redirect() {
+    route() {
         if (this.opencgaSession?.study) {
             // window.location.hash = "#home";
-            this.dispatchEvent(new CustomEvent("redirect", {
+            this.dispatchEvent(new CustomEvent("route", {
                 detail: {
                     hash: "#home"
                 }
