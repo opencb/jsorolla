@@ -346,7 +346,7 @@ const CONSEQUENCE_TYPES = {
     ]
 };
 
-// Fill 'consequenceTypes.impact' from the consequenceTypes.categories
+// Fill 'CONSEQUENCE_TYPES.impact' from the CONSEQUENCE_TYPES.categories
 for (const category of CONSEQUENCE_TYPES.categories) {
     if (category.terms) {
         category.terms.forEach(term => CONSEQUENCE_TYPES.impact[term.name] = term.impact);
@@ -364,8 +364,8 @@ const SAMPLE_STATS_CONSEQUENCE_TYPES = {
         // This is the impact color. It allows to customise both the impact categories and desired colors
         high: "red",
         moderate: "darkorange",
-        low: "blue",
-        modifier: "green"
+        low: "#5d91a2",
+        modifier: "#17d617"
     },
 
     // This is filled below from the 'categories' array
@@ -669,6 +669,14 @@ const SAMPLE_STATS_CONSEQUENCE_TYPES = {
     ]
 };
 
+// Fill 'SAMPLE_STATS_CONSEQUENCE_TYPES.impact' from the SAMPLE_STATS_CONSEQUENCE_TYPES.categories
+for (const category of SAMPLE_STATS_CONSEQUENCE_TYPES.categories) {
+    if (category.terms) {
+        category.terms.forEach(term => SAMPLE_STATS_CONSEQUENCE_TYPES.impact[term.name] = term.impact);
+    } else {
+        SAMPLE_STATS_CONSEQUENCE_TYPES.impact[category.name] = category.impact;
+    }
+}
 
 const populationFrequencies = {
     style: {
