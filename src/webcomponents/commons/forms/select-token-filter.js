@@ -147,14 +147,10 @@ export default class SelectTokenFilter extends LitElement {
     addOptions(ids) {
         if (ids) {
             for (const id of ids) {
-                if (this.select.find("option[value='" + id + "']").length) {
-                    this.select.val(id).trigger("change");
-                } else {
-                    // Create a DOM Option and pre-select by default
-                    const newOption = new Option(id, id, true, true);
-                    // Append it to the select
-                    this.select.append(newOption).trigger("change");
-                }
+                // Create a DOM Option and pre-select by default
+                const newOption = new Option(id, id, true, true);
+                // Append it to the select
+                this.select.append(newOption).trigger("change");
             }
             this.select.trigger("change");
         } else {
