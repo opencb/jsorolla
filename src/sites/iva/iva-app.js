@@ -614,8 +614,11 @@ class IvaApp extends LitElement {
         }
     }
 
-    redirect(e) {
+    route(e) {
         this.tool = e.detail.hash;
+        if (e.detail?.resource) {
+            this.queries = {...this.queries, [e.detail.resource]: e.detail?.query};
+        }
         this.renderHashFragments();
     }
 
@@ -994,7 +997,9 @@ class IvaApp extends LitElement {
                 @changeApp=${e => this.onChangeApp(e.detail.event, e.detail.toggle)}
                 @studySelect=${ e => this.onStudySelect(e.detail.event, e.detail.study)}
                 @jobSelected=${e => this.onJobSelected(e)}
-            ></custom-navbar>
+                @route="${this.route}">
+            </custom-navbar>
+
 
             <!-- End of navigation bar -->
 
@@ -1055,7 +1060,7 @@ class IvaApp extends LitElement {
                                         loginTitle="Sign in"
                                         .notifyEventMessage="${this.config.notifyEventMessage}"
                                         @login="${this.onLogin}"
-                                        @redirect="${this.redirect}">
+                                        @route="${this.route}">
                         </opencga-login>
                     </div>
                 ` : null}

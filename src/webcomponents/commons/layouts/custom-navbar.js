@@ -73,10 +73,6 @@ export default class CustomNavBar extends LitElement {
         LitUtils.dispatchEventCustom(this, "changeTool", e);
     }
 
-    onJobSelected(e) {
-        LitUtils.dispatchEventCustom(this, "jobSelected", e);
-    }
-
     onChangeApp(e, toggle) {
         LitUtils.dispatchEventCustom(this, "changeApp", "", null, {event: e, toggle: toggle});
     }
@@ -382,7 +378,7 @@ export default class CustomNavBar extends LitElement {
 
                             <!-- Jobs -->
                             ${this.isVisible(this.app?.jobMonitor) ? html`
-                                <job-monitor .opencgaSession="${this.opencgaSession}" @jobSelected="${this.onJobSelected}"></job-monitor>
+                                <job-monitor .opencgaSession="${this.opencgaSession}"></job-monitor>
                             ` : null}
 
                             ${this.isVisible(this.app?.fileExplorer) ? html`

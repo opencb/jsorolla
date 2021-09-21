@@ -231,6 +231,27 @@ export default class OpencgaJobGrid extends LitElement {
         this.query = filterParams;
     }*/
 
+
+    setAutorefresh() {
+        if (this.autorefresh) {
+            clearInterval(this.interval);
+            this.autorefresh = false;
+            this.requestUpdate();
+        } else {
+            this.autorefresh = true;
+            this.renderTable();
+            this.interval = setInterval(() => {
+                if (!this?.opencgaSession?.token || !$(`#${this.gridId}`).is(":visible")) {
+                    this.autorefresh = false;
+                    clearInterval(this.interval);
+                } else {
+                    this.autorefresh = true;
+                    this.renderTable();
+                }
+            }, this._config?.toolbar?.autorefreshTiming ?? this._config.autorefreshTiming);
+        }
+    }
+
     _initTableColumns() {
         let _columns = [
             // name,path,samples,status,format,bioformat,creationDate,modificationDate,uuid"
@@ -441,6 +462,25 @@ export default class OpencgaJobGrid extends LitElement {
             });
     }
 
+    getRightToolbar() {
+        return [
+            {
+                render: () => html`
+                    <div class="btn-group" role="group">
+                        <button type="button"
+                                class="btn btn-default btn-sm ripple ${this.autorefresh === true ? "active" : ""}"
+                                @click="${() => this.setAutorefresh()}" title="Autorefresh of results every ${(this._config?.toolbar?.autorefreshTiming ?? this._config.autorefreshTiming)/1000}s">
+                            Autorefresh <i class="fas fa-sync-alt ${this.autorefresh === true ? "anim-rotate" : "disabled"}"></i>
+                        </button>
+                        <button type="button" class="btn btn-default btn-sm ripple" @click="${() => this.renderTable()}" title="Force a refresh of results">
+                            <i class="fas fa-bolt"></i>
+                        </button>
+                    </div>
+                `
+            }
+        ];
+    }
+
     getDefaultConfig() {
         return {
             pagination: true,
@@ -457,7 +497,8 @@ export default class OpencgaJobGrid extends LitElement {
             header: {
                 horizontalAlign: "center",
                 verticalAlign: "bottom"
-            }
+            },
+            autorefreshTiming: 30000
         };
     }
 
@@ -468,6 +509,7 @@ export default class OpencgaJobGrid extends LitElement {
                     <opencb-grid-toolbar  .config="${this.toolbarConfig}"
                                           .query="${this.query}"
                                           .opencgaSession="${this.opencgaSession}"
+                                          .rightToolbar="${this.getRightToolbar()}"
                                           @columnChange="${this.onColumnChange}"
                                           @download="${this.onDownload}"
                                           @export="${this.onDownload}">

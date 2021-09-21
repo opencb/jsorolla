@@ -662,7 +662,7 @@ h3.page-title {
 /********** active-filters  *************/
 .active-filter-button {
     word-break: break-all;
-    margin: 3px 0 0 0;
+    margin: 0;
 }
 
 .active-filter-button:hover {
@@ -728,7 +728,7 @@ button.active-filter-label:hover {
 }
 
 .lhs .btn-group {
-    padding: 2px 0;
+    padding: 0;
 }
 
 .rhs {

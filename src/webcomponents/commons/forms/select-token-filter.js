@@ -80,7 +80,7 @@ export default class SelectTokenFilter extends LitElement {
             /* dropdown template */
             templateResult: item => {
                 if (item.loading) {
-                    return item.text;
+                    return $(`<i class="fa fa-spinner fa-spin" aria-hidden="true"></i> <span>${item.text}</span>`);
                 }
                 // NOTE this function silently fails in case of errors if not wrapped in try/catch block
                 try {
