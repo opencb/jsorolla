@@ -128,8 +128,11 @@ export default class CustomNavBar extends LitElement {
                     color: #fff;
                 }
 
-                .navbar-inverse .dropdown-menu>.active>a, .navbar-inverse .dropdown-menu>.active>a:focus, .navbar-inverse .dropdown-menu>.active>a:hover {
+                .navbar-inverse .dropdown-menu .active > a,
+                .navbar-inverse .dropdown-menu>.active>a:focus,
+                .navbar-inverse .dropdown-menu>.active>a:hover {
                     background-color: var(--main-bg-color);
+                    color: #fff !important;
                 }
 
                 .dropdown-menu {
