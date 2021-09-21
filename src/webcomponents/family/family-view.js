@@ -19,6 +19,7 @@ import UtilsNew from "../../core/utilsNew.js";
 import "../commons/forms/data-form.js";
 import "../commons/view/pedigree-view.js";
 
+
 export default class FamilyView extends LitElement {
 
     constructor() {
@@ -323,7 +324,8 @@ export default class FamilyView extends LitElement {
     }
 
     render() {
-        if (!this.family?.id && this.familyId) {
+
+        if (!this.family && this.familyId) {
             return html`
                 <div class="alert alert-info">
                     <i class="fas fa-3x fa-info-circle align-middle"></i> No family found.

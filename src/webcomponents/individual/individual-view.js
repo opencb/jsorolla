@@ -300,14 +300,17 @@ export default class IndividualView extends LitElement {
     }
 
     render() {
-        if (!this.individual?.id && this.individualId) {
+        if (!this.individual && this.individualId) {
             return html`
                 <h2>Individual not found</h2>
             `;
         }
 
         return html`
-            <data-form .data=${this.individual} .config="${this._config}"></data-form>
+            <data-form
+                .data=${this.individual}
+                .config="${this._config}">
+            </data-form>
         `;
     }
 

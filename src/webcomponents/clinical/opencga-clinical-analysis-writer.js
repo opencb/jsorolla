@@ -603,10 +603,11 @@ export default class OpencgaClinicalAnalysisWriter extends LitElement {
                             defaultValue: "MEDIUM",
                             display: {
                                 render: priority => html`
-                                    <clinical-priority-filter   .config=${{multiple: false}}
-                                                                .priorities="${[...Object.values(this.opencgaSession.study.configuration?.clinical?.priorities || {})]}"
-                                                                @filterChange="${e => this.onCustomFieldChange("priority", e)}"
-                                                                .priority="${priority}">
+                                    <clinical-priority-filter
+                                        .config=${{multiple: false}}
+                                        .priorities="${[...Object.values(this.opencgaSession.study.configuration?.clinical?.priorities || {})]}"
+                                        @filterChange="${e => this.onCustomFieldChange("priority", e)}"
+                                        .priority="${priority}">
                                     </clinical-priority-filter>`
                             }
                         },

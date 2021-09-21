@@ -124,7 +124,7 @@ export default class StudyAdminFamily extends LitElement {
                     name: "View Family",
                     active: true,
                     render: (study, active, opencgaSession) => {
-                        return html `
+                        return html`
                             <div class="row">
                                 <div class="col-md-6" style="margin: 20px 10px">
                                     <div style="float: right">
@@ -135,7 +135,7 @@ export default class StudyAdminFamily extends LitElement {
                                             <i class="fa fa-edit icon-hover" @click="${e => this.editForm(e)}"></i>
                                         </span>
                                     </div>
-                                    ${this.editFamily? html`
+                                    ${this.editFamily ? html`
                                         <family-update
                                             .family="${this.family}"
                                             .opencgaSession="${opencgaSession}">
@@ -154,7 +154,7 @@ export default class StudyAdminFamily extends LitElement {
                     id: "create-family",
                     name: "Create Family",
                     render: (study, active, opencgaSession) => {
-                        return html `
+                        return html`
                             <div class="row">
                                 <div class="col-md-6" style="margin: 20px 10px">
                                     <family-create

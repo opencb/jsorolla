@@ -133,7 +133,7 @@ export default class SelectTokenFilter extends LitElement {
 
             // manual addition of <option> elements is needed when tags=true in select2. We do it in any case.
             this.select.empty();
-            this.addOptions(this.value?.split(this.separator));
+            this.addOptions(UtilsNew.isNotEmpty(this.value) ? this.value?.split(this.separator) : "");
 
             // const selection = this.value ? this.value.split(this.separator) : null;
             // this.select.val(selection); // this wont work as options arent actually there since there is an ajax source

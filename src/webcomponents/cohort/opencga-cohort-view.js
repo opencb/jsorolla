@@ -171,7 +171,7 @@ export default class OpencgaCohortView extends LitElement {
     }
 
     render() {
-        if (!this.cohort?.id && this.cohortId) {
+        if (!this.cohort && this.cohortId) {
             return html`
                 <h2>Loading info... </h2>
             `;
