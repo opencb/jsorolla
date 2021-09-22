@@ -100,6 +100,7 @@ export default class OpencgaAnnotationFilterDynamic extends LitElement {
             const variables = this.selectedVariablesFormatted.split(";");
             // reset selectedVariables
             this.selectedVariables = Object.assign({}, ...this.variableSets.map(_ => ({[_.id]: []})));
+            this.requestUpdate();
             await this.updateComplete;
 
             for (let v of variables) {
@@ -184,6 +185,7 @@ export default class OpencgaAnnotationFilterDynamic extends LitElement {
             this.selectedVariables[variableSetId] = this.selectedVariables[variableSetId].filter(variable => variable.id !== difference);
             //console.log("removing", difference, this.selectedVariables[variableSetId]);
         }
+        this.requestUpdate();
         await this.updateComplete;
     }
 

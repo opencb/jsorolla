@@ -82,6 +82,7 @@ export default class OpencgaFilePreview extends LitElement {
         this.content = null;
         // this.title = "";
         this.contentType = null;
+        this.requestUpdate();
         await this.updateComplete;
         switch (this.file.format) {
             case "PLAIN":

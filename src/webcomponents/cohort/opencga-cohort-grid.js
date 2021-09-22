@@ -236,6 +236,7 @@ export default class OpencgaCohortGrid extends LitElement {
 
     async onDownload(e) {
         this.toolbarConfig = {...this.toolbarConfig, downloading: true};
+        this.requestUpdate();
         await this.updateComplete;
         const params = {
             ...this.query,

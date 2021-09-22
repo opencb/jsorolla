@@ -109,6 +109,7 @@ export default class OpencgaAnnotationFilter extends LitElement {
     async onChangeSelectedVariable(e, variableSetName) {
         // this.selectedVariable = e.detail.value[0];
         this.selectedVariable = e.detail.value;
+        this.requestUpdate();
         await this.updateComplete;
         this.lastAnnotationFilter = undefined;
         // We do this manually here because the selectpicker class does not show/hide automatically
@@ -240,6 +241,7 @@ export default class OpencgaAnnotationFilter extends LitElement {
 
             this.multipleVariableSets = this.variableSets.length > 1;
             this.singleVariableSet = !this.multipleVariableSets ? this.variableSets[0].id : null;
+            this.requestUpdate();
             await this.updateComplete;
             this.dispatchEvent(new CustomEvent("variablesetselected", {detail: {id: this.variableSets[0].id}}));
 

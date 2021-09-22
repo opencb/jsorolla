@@ -428,6 +428,7 @@ export default class OpencgaJobGrid extends LitElement {
 
     async onDownload(e) {
         this.toolbarConfig = {...this.toolbarConfig, downloading: true};
+        this.requestUpdate();
         await this.updateComplete;
         const filters = {
             limit: 1000,

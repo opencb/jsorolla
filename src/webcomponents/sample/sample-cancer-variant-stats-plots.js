@@ -79,6 +79,7 @@ export default class SampleCancerVariantStatsPlots extends LitElement {
 
     async propertyObserver() {
         this.signature = null;
+        this.requestUpdate();
         await this.updateComplete;
 
         this.signatureQuery();

@@ -898,6 +898,7 @@ export default class VariantInterpreterGrid extends LitElement {
     // TODO fix tab jsonToTabConvert isn't working!
     async onDownload(e) {
         this.toolbarConfig = {...this.toolbarConfig, downloading: true};
+        this.requestUpdate();
         await this.updateComplete;
         if (this.clinicalAnalysis.type.toUpperCase() === "FAMILY" && this.query?.sample) {
             const samples = this.query.sample.split(";");
