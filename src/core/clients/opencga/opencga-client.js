@@ -308,7 +308,7 @@ export class OpenCGAClient {
                             session.server = {
                                 host: _this._config.host,
                                 version: _this._config.version,
-                                serverVersion: _this._config.serverVersion,
+                                // serverVersion: _this._config.serverVersion,
                             };
                             session.opencgaClient = _this;
                             _this._notifySessionEvent("signingIn", "Updating User config");

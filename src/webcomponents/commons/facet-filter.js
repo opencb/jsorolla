@@ -171,6 +171,7 @@ export default class FacetFilter extends LitElement {
             const newField = this._recFind(this.config.sections, difference);
             // console.log("newField", newField)
             this.selectedFacet[difference] = {...newField, value: newField && newField.defaultValue ? newField.defaultValue : ""};
+            this.requestUpdate();
             await this.updateComplete;
             $(".bootstrap-select", this).selectpicker();
         } else {

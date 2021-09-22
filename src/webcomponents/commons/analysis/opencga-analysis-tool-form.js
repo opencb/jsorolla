@@ -102,6 +102,7 @@ export default class OpencgaAnalysisToolForm extends LitElement {
         if (changedProperties.has("opencgaSession")) {
             this.params.study = this.opencgaSession.study.fqn;
             this.runnable = OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "EXECUTE_JOBS");
+            this.requestUpdate();
             await this.updateComplete;
             // await this.updateComplete;
             UtilsNew.initTooltip(this);

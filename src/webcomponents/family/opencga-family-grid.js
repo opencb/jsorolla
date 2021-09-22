@@ -418,6 +418,7 @@ export default class OpencgaFamilyGrid extends LitElement {
 
     async onDownload(e) {
         this.toolbarConfig = {...this.toolbarConfig, downloading: true};
+        this.requestUpdate();
         await this.updateComplete;
         const params = {
             study: this.opencgaSession.study.fqn,

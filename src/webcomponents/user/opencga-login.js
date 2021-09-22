@@ -104,7 +104,7 @@ export default class OpencgaLogin extends LitElement {
                             if (restResponse instanceof RestResponse) {
                                 if (restResponse.getEvents?.("ERROR")?.length) {
                                     this.errorState = restResponse.getEvents("ERROR");
-                                    new NotificationQueue().push(this.errorState[0].name, this.errorState[0].message, "error");
+                                    UtilsNew.notifyError(restResponse);
                                 } else if (restResponse) {
                                     this.querySelector("#opencgaUser").value = "";
                                     this.querySelector("#opencgaPassword").value = "";
@@ -130,22 +130,8 @@ export default class OpencgaLogin extends LitElement {
                         })
                         .catch(response => {
                             // response isn't necessarily a restResponse instance
-                            if (response instanceof RestResponse) {
-                                if (response.getEvents?.("ERROR")?.length) {
-                                    this.errorState = response.getEvents("ERROR");
-                                    this.errorState.forEach(error => new NotificationQueue().push(error.name, error.message, "ERROR"));
-                                } else {
-                                    this.errorState = [{name: "Generic Server Error", message: JSON.stringify(response)}];
-                                    new NotificationQueue().push(this.errorState[0].name, this.errorState[0].message, "error");
-                                }
-                            } else if (response instanceof Error) {
-                                this.errorState = [{name: response.name, message: response.message}];
-                                new NotificationQueue().push(this.errorState[0].name, this.errorState[0].message, "error");
-                            } else {
-                                this.errorState = [{name: "Generic Error", message: JSON.JSON.stringify(response)}];
-                                new NotificationQueue().push(this.errorState[0].name, this.errorState[0].message, "error");
-                            }
-                        }).finally(() => this.updateComplete);
+                            UtilsNew.notifyError(response);
+                        }).finally(() => this.requestUpdate());
                 } else {
                     new NotificationQueue().push("Error retrieving OpencgaSession", null, "ERROR");
                 }

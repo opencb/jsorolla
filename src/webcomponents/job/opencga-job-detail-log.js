@@ -68,7 +68,7 @@ export default class OpencgaJobDetailLog extends LitElement {
         if (changedProperties.has("active")) {
             //console.log("active", this.active);
             this.content = null;
-
+            this.requestUpdate();
             await this.updateComplete;
             // todo this should call fetchContent iff the job has changed
             // console.log("new job = old job ", this.active && this.jobId === this.job.id)
@@ -125,6 +125,7 @@ export default class OpencgaJobDetailLog extends LitElement {
             this.content = "";
         }
         this.loading = true;
+        this.requestUpdate();
         await this.updateComplete;
 
         const command = params.command || this._config.command;

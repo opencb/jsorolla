@@ -294,6 +294,7 @@ export default class FamilyGenotypeFilter extends LitElement {
         this.errorState = !this.state[probandSampleId].genotypes.length ? "At least one genotype have to be selected for the proband." : false;
         this.state = {...this.state};
         this.noGtSamples = [...this.noGtSamples];
+        this.requestUpdate();
         await this.updateComplete;
         this.notifySampleFilterChange();
     }

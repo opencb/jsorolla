@@ -124,7 +124,7 @@ export default class GeneCoverageBrowser extends LitElement {
             return;
         }
         this.loading = true;
-        //debugger
+        this.requestUpdate();
         await this.updateComplete;
         this.opencgaSession.opencgaClient.alignments().statsCoverage(this.fileId, geneId, {study: this.opencgaSession.study.fqn})
             .then( restResponse => {

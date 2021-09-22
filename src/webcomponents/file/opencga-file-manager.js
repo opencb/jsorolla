@@ -62,6 +62,7 @@ export default class OpencgaFileManager extends LitElement {
         if (changedProperties.has("opencgaSession")) {
             this.loading = true;
             this.currentRoot = null;
+            this.requestUpdate();
             await this.updateComplete;
             this.opencgaSession.opencgaClient.files().tree(this.currentRootId, {study: this.opencgaSession.study.fqn, maxDepth: 1, include: "id,name,path,size,format"})
                 .then(restResponse => {
@@ -202,6 +203,7 @@ export default class OpencgaFileManager extends LitElement {
             console.error("no id!");
         }
         //$("." + id + " + ul").slideToggle();
+        this.requestUpdate();
         await this.updateComplete;
     }
 

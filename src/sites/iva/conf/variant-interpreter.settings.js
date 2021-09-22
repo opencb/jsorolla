@@ -27,12 +27,12 @@ const VARIANT_INTERPRETER_SETTINGS = {
                 FAMILY: VARIANT_INTERPRETER_BROWSER_RD_SETTINGS,
                 SINGLE: VARIANT_INTERPRETER_BROWSER_RD_SETTINGS
             }
-        }
-        /* {
+        },
+        {
             id: "review"
         },
         {
             id: "report"
-        }*/
+        }
     ]
 };

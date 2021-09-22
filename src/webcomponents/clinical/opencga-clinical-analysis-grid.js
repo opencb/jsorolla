@@ -207,7 +207,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
                         limit: params.data.limit,
                         skip: params.data.offset || 0,
                         count: !this.table.bootstrapTable("getOptions").pageNumber || this.table.bootstrapTable("getOptions").pageNumber === 1,
-                        exclude: "files",
+                        exclude: "files,secondaryInterpretations",
                         ...this.query
                     };
                     try {
@@ -690,6 +690,7 @@ export default class OpencgaClinicalAnalysisGrid extends LitElement {
 
         try {
             this.toolbarConfig = {...this.toolbarConfig, downloading: true};
+            this.requestUpdate();
             await this.updateComplete;
             const params = {
                 ...this.query,

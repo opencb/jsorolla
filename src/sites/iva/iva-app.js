@@ -307,7 +307,7 @@ class IvaApp extends LitElement {
             userId: userId,
             cookies: {active: true, prefix: this.config.opencga.cookie.prefix},
             // TODO remove this soon!
-            serverVersion: this.config.opencga.serverVersion
+            // serverVersion: this.config.opencga.serverVersion
         });
 
         // this.cellBaseClientConfig = new CellBaseClientConfig(this.config.cellbase.hosts, this.config.cellbase.version, "hsapiens");
@@ -346,6 +346,7 @@ class IvaApp extends LitElement {
 
     async _createOpenCGASession() {
         this.signingIn = "Creating session..";
+        this.requestUpdate();
         await this.updateComplete;
         const _this = this;
         const opencgaSession = this.opencgaClient.createSession()

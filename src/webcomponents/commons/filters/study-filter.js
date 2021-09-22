@@ -53,7 +53,8 @@ export default class StudyFilter extends LitElement {
             if (this.opencgaSession.project.studies.length) {
                 this.differentStudies = this.opencgaSession.project.studies.filter(study => this.opencgaSession.study.id !== study.id);
             }
-            this.updateComplete.then( () => {
+            this.requestUpdate();
+            this.updateComplete.then(() => {
                 $(".selectpicker", this).selectpicker("refresh");
             });
         }

@@ -82,6 +82,7 @@ export default class OpencgaFilePreview extends LitElement {
         this.content = null;
         // this.title = "";
         this.contentType = null;
+        this.requestUpdate();
         await this.updateComplete;
         switch (this.file.format) {
             case "PLAIN":
@@ -135,6 +136,7 @@ export default class OpencgaFilePreview extends LitElement {
                 // this.title = "Image";
                 this.opencgaSession.opencgaClient.files().image(this.file.id, params)
                     .then(response => {
+                        this.requestUpdate();
                         this.updateComplete.then(() => this.querySelector("#thumbnail").src = "data:image/png;base64, " + response.getResult(0).content);
                     })
                     .catch(response => {

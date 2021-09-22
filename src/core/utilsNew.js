@@ -312,7 +312,9 @@ export default class UtilsNew {
     static notifyError(response) {
         if (response?.getEvents?.("ERROR")?.length) {
             const errors = response.getEvents("ERROR");
-            errors.forEach(error => new NotificationQueue().push(error.name, error.message, "ERROR"));
+            errors.forEach(error => {
+                new NotificationQueue().push(error.name, error.message, "ERROR")
+            });
         } else if (response instanceof Error) {
             new NotificationQueue().push(response.name, response.message, "ERROR");
         } else {

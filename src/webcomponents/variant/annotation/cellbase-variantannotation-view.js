@@ -123,6 +123,7 @@ export default class CellbaseVariantAnnotationView extends LitElement {
                         this.numberGTA = UtilsNew.isNotUndefinedOrNull(this.variantAnnotation.geneTraitAssociation) ? this.variantAnnotation.geneTraitAssociation.length : 0;
                     }
 
+                    this.requestUpdate();
                     await this.updateComplete;
                     // Gene Trait Association definition
                     $("#" + this._prefix + "GTATable").bootstrapTable("destroy");

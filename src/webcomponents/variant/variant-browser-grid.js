@@ -719,6 +719,7 @@ export default class VariantBrowserGrid extends LitElement {
 
     async onDownload(e) {
         this.toolbarConfig = {...this.toolbarConfig, downloading: true};
+        this.requestUpdate();
         await this.updateComplete;
         const params = {
             study: this.opencgaSession.study.fqn,
@@ -767,7 +768,7 @@ export default class VariantBrowserGrid extends LitElement {
             },
             consequenceType: {
                 maneTranscript: true,
-                gencodeBasicTranscript: false,
+                gencodeBasicTranscript: true,
                 ensemblCanonicalTranscript: true,
                 refseqTranscript: true,
                 ccdsTranscript: false,
