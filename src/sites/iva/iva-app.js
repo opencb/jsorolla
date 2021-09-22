@@ -345,6 +345,7 @@ class IvaApp extends LitElement {
 
     async _createOpenCGASession() {
         this.signingIn = "Creating session..";
+        this.requestUpdate();
         await this.updateComplete;
         const _this = this;
         const opencgaSession = this.opencgaClient.createSession()

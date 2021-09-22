@@ -253,6 +253,7 @@ export default class OpencgaAnnotationFilter extends LitElement {
 
             this.dispatchEvent(new CustomEvent("variablesetselected", {detail: {id: null}}));
         }
+        this.requestUpdate();
         this.updateComplete.then(() => {
             $("select.selectpicker", this).selectpicker("refresh");
         });

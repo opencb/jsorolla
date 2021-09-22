@@ -293,7 +293,7 @@ export default class OpencgaAnnotationFilterDynamic extends LitElement {
             }
             this.variableSets = _variableSets;
         }
-
+        this.requestUpdate();
         this.updateComplete.then(() => {
             $("select.selectpicker", this).selectpicker("refresh");
         });
