@@ -53,7 +53,7 @@ context("14 - RGA Browser", () => {
         let geneName;
         getResult("rga-gene-view", 0).then($text => {
             geneName = $text;
-            cy.get("feature-filter input[type='text']").type(geneName);
+            cy.get("feature-filter textarea").type(geneName);
             cy.get("feature-filter ul.dropdown-menu li").should("have.lengthOf", 1);
 
             // occasionally fails
@@ -178,7 +178,7 @@ context("14 - RGA Browser", () => {
         let geneName = "";
         getResult("rga-variant-view", 1).then($text => {
             geneName = $text.split(",")[0];
-            cy.get("feature-filter input[type='text']").type(geneName);
+            cy.get("feature-filter textarea").type(geneName);
             cy.get("feature-filter ul.dropdown-menu li").should("have.lengthOf", 1);
 
             // occasionally fails

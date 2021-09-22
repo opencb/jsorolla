@@ -23,15 +23,23 @@ context("2 - Login", () => {
         cy.visit("http://localhost:3000/src/sites/iva/#login");
     });
 
-    it("2.1 - login unsuccessful", () => {
+    it("2.1 - login unsuccessful: not existing user", () => {
         cy.get("#opencgaUser").type("demouser");
         cy.get("#opencgaPassword").type("demo2");
         cy.get("form#formLogin").submit();
         cy.get("#error").should("be.visible");
-        cy.get("#error").contains("Incorrect user or password.");
+        cy.get("#error").contains("User id 'demouser' does not exist");
     });
 
-    it("2.2 - login successful", () => {
+    it("2.2 - login unsuccessful: wrong password", () => {
+        cy.get("#opencgaUser").type("testest23ml");
+        cy.get("#opencgaPassword").type("123456");
+        cy.get("form#formLogin").submit();
+        cy.get("#error").should("be.visible");
+        cy.get("#error").contains("CatalogAuthenticationException");
+    });
+
+    it("2.3 - login successful", () => {
 
         const username = Cypress.env("username");
         const password = Cypress.env("password");

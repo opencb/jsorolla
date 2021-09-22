@@ -108,7 +108,11 @@ context("4. Variant Browser", () => {
     });
 
     it("4.6 Filters. Genomic: Feature IDs", () => {
-        cy.get("feature-filter input").type("C5{enter}rs4680{enter}");
+        cy.get("feature-filter textarea").type("C5");
+        cy.get("feature-filter textarea").type("{enter}");
+        cy.get("opencga-active-filters").contains("XRef");
+        cy.get("feature-filter textarea").type("rs");
+        cy.get("feature-filter textarea").type("{enter}");
         cy.get("div.search-button-wrapper button").click();
         checkResults("variant-browser-grid");
         cy.get("opencga-active-filters button[data-filter-name='xref']").click();
@@ -198,7 +202,7 @@ context("4. Variant Browser", () => {
     });
 
     it("4.13 Filters. Population Frequency: gnomAD - Set all < 0.00001", () => {
-        // Population Frequency: gnomAD	- Set all < 0.00001
+        // Population Frequency: gnomAD - Set all < 0.00001
         cy.get("population-frequency-filter i[data-cy='pop-freq-toggle-GNOMAD_GENOMES']").click();
         cy.get("population-frequency-filter div[data-cy='pop-freq-codes-wrapper-GNOMAD_GENOMES']").should("be.visible");
         cy.get("population-frequency-filter div[data-cy='pop-freq-codes-wrapper-GNOMAD_GENOMES'] div[data-cy='number-field-filter-wrapper-AFR'] input[data-field='value']").type("0.0001");
@@ -210,7 +214,7 @@ context("4. Variant Browser", () => {
     });
 
     it("4.14 Filters. Clinical and Disease: ClinVar Accessions: Pathogenic", () => {
-        // Clinical and Disease: ClinVar Accessions	Use example: Pathogenic
+        // Clinical and Disease: ClinVar Accessions. Use example: Pathogenic
         cy.get("opencga-variant-filter a[data-accordion-id='Clinical']").click();
         cy.get("clinvar-accessions-filter select").select("Pathogenic", {force: true});
         checkResults("variant-browser-grid");
@@ -219,7 +223,7 @@ context("4. Variant Browser", () => {
     });
 
     it("4.15 Filters. Clinical and Disease: Full text: Mortality", () => {
-        // Clinical and Disease: Full text	Use example: Mortality
+        // Clinical and Disease: Full text. Use example: Mortality
         cy.get("fulltext-search-accessions-filter textarea").type("Mortality");
         // cy.get("fulltext-search-accessions-filter textarea").type("centroid");
         cy.get("div.search-button-wrapper button").click();
