@@ -369,6 +369,10 @@ export default class CustomNavBar extends LitElement {
                                                 <li>
                                                     <a href="javascript: void 0"
                                                        data-cy-fqn="${study.fqn}"
+                                                       data-study="${study.id}"
+                                                       data-project="${project.id}"
+                                                       data-project-name="${project.name}"
+                                                       data-study-name="${study.name}"
                                                        title="${study.fqn}"
                                                        @click="${e => this.onStudySelect(e, study)}">${study.name}</a>
                                                 </li>
