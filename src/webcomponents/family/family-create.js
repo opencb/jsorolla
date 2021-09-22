@@ -43,23 +43,18 @@ export default class FamilyCreate extends LitElement {
     }
 
     _init() {
-        this.famiy = {};
+        this.family = {};
+        this.members = "";
     }
 
     connectedCallback() {
         super.connectedCallback();
         this._config = {...this.getDefaultConfig(), ...this.config};
-        if (UtilsNew.isUndefined(this.family)) {
-            this.family = {
-                members: []
-            };
-        }
     }
 
     dispatchSessionUpdateRequest() {
         this.dispatchEvent(new CustomEvent("sessionUpdateRequest", {
-            detail: {
-            },
+            detail: {},
             bubbles: true,
             composed: true
         }));
@@ -89,19 +84,13 @@ export default class FamilyCreate extends LitElement {
                 delete this.family[field];
             }
         }
+        this.requestUpdate();
     }
 
     onSync(e) {
         e.stopPropagation();
-        // debugger;
-        // this.family.members.push(e.detail.value);
-        this.family["members"] = [...this.family["members"], e.detail.value];
-        // this.family = {...this.family, members: e.detail.value};
-        // this._config = {...this.getDefaultConfig(), ...this.config};
-        // this.requestUpdate();
-        console.log("Result family:", this.family, this);
+        this.members = e.detail.value;
     }
-
 
     onClear(e) {
         console.log("OnClear family form", this);
@@ -111,11 +100,10 @@ export default class FamilyCreate extends LitElement {
         console.log("Testing");
         this.opencgaSession.opencgaClient
             .families()
-            .create(this.famiy, {study: this.opencgaSession.study.fqn})
+            .create(this.family, {study: this.opencgaSession.study.fqn, members: this.members})
             .then(res => {
-                this.famiy = {};
+                this.family = {};
                 this.requestUpdate();
-                // this.dispatchSessionUpdateRequest();
                 FormUtils.showAlert(
                     "New Family",
                     "Family save correctly",
@@ -187,15 +175,8 @@ export default class FamilyCreate extends LitElement {
                             display: {
                                 placeholder: "e.g. Homo sapiens, ...",
                                 render: () => html`
-                                <div class="col-md-12" style="padding: 10px 20px">
-                                        ${this.family?.members?.map(item => html`
-                                            <span class="label label-primary" style="font-size: 14px; margin:5px; padding-right:0px; display:inline-block">${item}
-                                                <span class="badge" style="cursor:pointer" >X</span>
-                                            </span>`
-                                        )}
-                                    </div>
                                     <individual-id-autocomplete
-                                        .value="${this.family?.members}"
+                                        .value="${this.members}"
                                         .opencgaSession="${this.opencgaSession}"
                                         @filterChange="${e => this.onSync(e)}">
                                     </individual-id-autocomplete>`
@@ -229,47 +210,6 @@ export default class FamilyCreate extends LitElement {
                 }
             ]
         };
-    }
-
-
-    saveFamily() {
-        // this.opencgaSession.opencgaClient.projects().create(this.project)
-        //     .then(res => {
-        //         this.family = {};
-        //         this.requestUpdate();
-
-        //         this.dispatchSessionUpdateRequest();
-
-        //         Swal.fire(
-        //             "New Sample",
-        //             "New Sample created correctly.",
-        //             "success"
-        //         );
-        //     })
-        //     .catch(err => {
-        //         console.error(err);
-        //         params.error(err);
-        //     });
-    }
-
-    updateFamily() {
-        // this.opencgaSession.opencgaClient.projects().update(this.Sample?.fqn,this.Sample)
-        //     .then(res => {
-        //         this.Sample = {};
-        //         this.requestUpdate();
-
-        //         this.dispatchSessionUpdateRequest();
-
-        //         Swal.fire(
-        //             "Edit Sample",
-        //             "Sample updated correctly.",
-        //             "success"
-        //         );
-        //     })
-        //     .catch(err => {
-        //         console.error(err);
-        //         params.error(err);
-        //     });
     }
 
     render() {
