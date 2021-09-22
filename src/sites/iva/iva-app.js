@@ -95,6 +95,7 @@ import "../../webcomponents/Notification.js";
 
 import "../../webcomponents/commons/layouts/custom-footer.js";
 import "../../webcomponents/commons/layouts/custom-navbar.js";
+import "../../webcomponents/commons/layouts/custom-sidebar";
 
 import "../../webcomponents/clinical/rga/rga-browser.js";
 
@@ -849,7 +850,7 @@ class IvaApp extends LitElement {
         this.querySelector("#side-nav").style.width = "0";
     }
 
-    toggleSideNav(e) {
+    toggleSideBar(e) {
         e.preventDefault();
         // const sidenav = this.querySelector("#side-nav");
         $("#side-nav").toggleClass("active");
@@ -866,7 +867,7 @@ class IvaApp extends LitElement {
 
         // We only want to toggle when clicked in the sidenav
         if (toggle) {
-            this.toggleSideNav(e);
+            this.toggleSideBar(e);
         }
 
         this.changeTool(e);
@@ -881,18 +882,6 @@ class IvaApp extends LitElement {
             about: this.config.about,
             userMenu: this.config.userMenu,
         };
-    }
-
-    isVisible(item) {
-        switch (item?.visibility) {
-            case "public":
-                return true;
-            case "private":
-                return !!this?.opencgaSession?.token;
-            case "none":
-            default:
-                return false;
-        }
     }
 
     isLoggedIn() {
@@ -987,12 +976,21 @@ class IvaApp extends LitElement {
             <!-- <loading-bar></loading-bar> -->
 
             <!-- Left Sidebar: we only display this if more than 1 visible app exist -->
+            <custom-sidebar
+                .config=${this.config}
+                .loggedIn=${this.isLoggedIn()}
+                @changeApp=${e => this.onChangeApp(e.detail.event, e.detail.toggle)}
+                @sideBarToggle=${e => this.toggleSideBar(e.detail.event)}
+            ></custom-sidebar>
+
+            <!-- Navbar -->
             <custom-navbar
                 .app=${this.app}
+                .loggedIn=${this.isLoggedIn()}
                 .opencgaSession=${this.opencgaSession}
                 .config=${this.config}
-                @isLoggedIn=${e => this.isLoggedIn()}
                 @logout=${e => this.logout()}
+                @sideBarToggle=${e => this.toggleSideBar(e.detail.event)}
                 @changeTool=${e => this.changeTool(e.detail.value)}
                 @changeApp=${e => this.onChangeApp(e.detail.event, e.detail.toggle)}
                 @studySelect=${ e => this.onStudySelect(e.detail.event, e.detail.study)}
@@ -1004,7 +1002,11 @@ class IvaApp extends LitElement {
             <!-- End of navigation bar -->
 
             ${this.signingIn ? html`
-                <div class="login-overlay"><loading-spinner .description="${this.signingIn}"></loading-spinner></div>
+                <div class="login-overlay">
+                    <loading-spinner
+                        .description="${this.signingIn}">
+                    </loading-spinner>
+                </div>
             ` : null}
             <!--<div class="alert alert-info">\${JSON.stringify(this.queries)}</div>-->
 
@@ -1060,26 +1062,27 @@ class IvaApp extends LitElement {
                                         loginTitle="Sign in"
                                         .notifyEventMessage="${this.config.notifyEventMessage}"
                                         @login="${this.onLogin}"
-                                        @route="${this.route}">
+                                        @route="${this.route}"></opencga-login>
                         </opencga-login>
                     </div>
                 ` : null}
 
                 ${this.config.enabledComponents.browser ? html`
                     <div class="content" id="browser">
-                        <variant-browser .opencgaSession="${this.opencgaSession}"
-                                         .cellbaseClient="${this.cellbaseClient}"
-                                         .reactomeClient="${this.reactomeClient}"
-                                         .query="${this.queries.variant}"
-                                         .settings="${OPENCGA_VARIANT_BROWSER_SETTINGS}"
-                                         .populationFrequencies="${this.config.populationFrequencies}"
-                                         .proteinSubstitutionScores="${this.config.proteinSubstitutionScores}"
-                                         .consequenceTypes="${this.config.consequenceTypes}"
-                                         @onGene="${this.geneSelected}"
-                                         @onSamplechange="${this.onSampleChange}"
-                                         @querySearch="${e => this.onQueryFilterSearch(e, "variant")}"
-                                         @activeFilterChange="${e => this.onQueryFilterSearch(e, "variant")}"
-                                         @facetSearch="${this.quickFacetSearch}">
+                        <variant-browser
+                            .opencgaSession="${this.opencgaSession}"
+                            .cellbaseClient="${this.cellbaseClient}"
+                            .reactomeClient="${this.reactomeClient}"
+                            .query="${this.queries.variant}"
+                            .settings="${OPENCGA_VARIANT_BROWSER_SETTINGS}"
+                            .populationFrequencies="${this.config.populationFrequencies}"
+                            .proteinSubstitutionScores="${this.config.proteinSubstitutionScores}"
+                            .consequenceTypes="${this.config.consequenceTypes}"
+                            @onGene="${this.geneSelected}"
+                            @onSamplechange="${this.onSampleChange}"
+                            @querySearch="${e => this.onQueryFilterSearch(e, "variant")}"
+                            @activeFilterChange="${e => this.onQueryFilterSearch(e, "variant")}"
+                            @facetSearch="${this.quickFacetSearch}">
                         </variant-browser>
                     </div>
                 ` : null}

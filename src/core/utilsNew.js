@@ -730,4 +730,16 @@ export default class UtilsNew {
         return internal;
     }
 
+    static isAppVisible(item, session) {
+        switch (item?.visibility) {
+            case "public":
+                return true;
+            case "private":
+                return !!session?.token;
+            case "none":
+            default:
+                return false;
+        }
+    }
+
 }

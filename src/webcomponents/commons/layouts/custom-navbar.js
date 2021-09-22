@@ -32,6 +32,9 @@ export default class CustomNavBar extends LitElement {
 
     static get properties() {
         return {
+            loggedIn: {
+                type: Boolean
+            },
             app: {
                 type: Object
             },
@@ -44,29 +47,8 @@ export default class CustomNavBar extends LitElement {
         };
     }
 
-    toggleSideNav(e) {
-        e.preventDefault();
-        // const sidenav = this.querySelector("#side-nav");
-        // TODO: convert to pure js
-        $("#side-nav").toggleClass("active");
-        $("#overlay").toggleClass("active");
-    }
-
-    isVisible(item) {
-        switch (item?.visibility) {
-            case "public":
-                return true;
-            case "private":
-                return !!this?.opencgaSession?.token;
-            case "none":
-            default:
-                return false;
-        }
-    }
-
-    isLoggedIn() {
-        // LitUtils.dispatchEventCustom(this, "isLoggedIn");
-        return !!this?.opencgaSession?.token;
+    onSideBarToggle(e) {
+        LitUtils.dispatchEventCustom(this, "sideBarToggle", "", null, {event: e});
     }
 
     onChangeTool(e) {
@@ -105,17 +87,23 @@ export default class CustomNavBar extends LitElement {
                 .navbar-inverse {
                     background-color: var(--main-bg-color);
                 }
-                .navbar-inverse .navbar-nav>.open>a, .navbar-inverse .navbar-nav>.open>a:focus, .navbar-inverse .navbar-nav>.open>a:hover {
+                .navbar-inverse .navbar-nav>.open>a,
+                .navbar-inverse .navbar-nav>.open>a:focus,
+                .navbar-inverse .navbar-nav>.open>a:hover {
                     background-color: var(--main-bg-color-darker);
                     /*filter: brightness(0.8); this involves text as well..*/
                 }
-                .navbar-inverse .navbar-nav>.active>a, .navbar-inverse .navbar-nav>.active>a:focus, .navbar-inverse .navbar-nav>.active>a:hover {
+                .navbar-inverse .navbar-nav>.active>a,
+                .navbar-inverse .navbar-nav>.active>a:focus,
+                .navbar-inverse .navbar-nav>.active>a:hover {
                     background-color: var(--main-bg-color-darker);
                 }
                 .navbar-inverse .navbar-nav>li>a {
                     color: #d2d2d2;
                 }
-                .navbar-inverse .dropdown-menu>.active>a, .navbar-inverse .dropdown-menu>.active>a:focus, .navbar-inverse .dropdown-menu>.active>a:hover {
+                .navbar-inverse .dropdown-menu>.active>a,
+                .navbar-inverse .dropdown-menu>.active>a:focus,
+                .navbar-inverse .dropdown-menu>.active>a:hover {
                     background-color: var(--main-bg-color);
                 }
 
@@ -169,76 +157,6 @@ export default class CustomNavBar extends LitElement {
                     justify-content: center;
                 }
 
-                /* The side navigation menu */
-                #side-nav {
-                    position: fixed;
-                    z-index: 1002;
-                    top: 0;
-                    left: -250px;
-                    background-color: #fff;
-                    overflow-x: hidden;
-                    padding-top: 20px;
-                    width: 320px;
-                    visibility: hidden;
-                    /*transform: translate(-250px);*/
-                    height: 100vh;
-                    transform-origin: top left;
-                    animation-duration: .3s;
-                    animation-timing-function: ease;
-                    animation-name: slideOutFrames
-                }
-
-                #side-nav.active {
-                    left: 0px;
-                    visibility: visible;
-                    animation-name: slideInFrames
-                }
-
-                #side-nav .iva-logo {
-                    font-size: 5px;
-                    text-align: center;
-                    margin-top: 30px;
-                }
-
-                #side-nav .nav a {
-                    padding: 6px 1px 6px 1px;
-                    text-decoration: none;
-                    color: #818181;
-                    display: block;
-                    transition: 0.3s;
-                    font-size: 14px;
-                    text-transform: uppercase;
-                    letter-spacing: .2em;
-                }
-
-                #side-nav .nav a:hover {
-                    color: #204d74;
-                }
-
-                #side-nav .closebtn {
-                    position: absolute;
-                    top: 0;
-                    right: 25px;
-                    font-size: 36px;
-                    margin-left: 50px;
-                    padding:0;
-                    z-index: 99;
-                }
-
-                #side-nav a.closebtn:hover {
-                    background: transparent;
-                    text-decoration: none;
-                    color: black;
-                }
-
-                #side-nav a > img,
-                #side-nav a > i {
-                    width:48px
-                }
-
-                #side-nav .nav a.sidebar-nav-login {
-                    padding: 20px 0;
-                }
 
                 /*#progress-bar {
                     width: 100%;
@@ -252,47 +170,13 @@ export default class CustomNavBar extends LitElement {
 
             <!-- <loading-bar></loading-bar> -->
 
-            <!-- Left Sidebar: we only display this if more than 1 visible app exist -->
-            ${this.config?.apps?.filter(app => this.isVisible(app)).length > 0 ? html`
-                <div id="overlay" @click="${this.toggleSideNav}"></div>
-                <div id="side-nav" class="sidenav shadow-lg">
-                    <a href="javascript:void(0)" class="closebtn" @click="${this.toggleSideNav}">&times;</a>
-                    <nav class="navbar" id="sidebar-wrapper" role="navigation">
-                        <a href="#home" @click="${e => this.onChangeApp(e, true)}">
-                            <div class="iva-logo">
-                                <img src="${this.config.logoAlt}" />
-                                <span class="subtitle">OpenCB Suite</span>
-                            </div>
-                        </a>
-                        <ul class="nav sidebar-nav">
-                            ${!this.isLoggedIn() ? html`
-                                <li>
-                                    <a href="#login" class="text-center sidebar-nav-login" role="button" @click="${e => this.onChangeApp(e, true)}">
-                                        <i href="#login" class="fa fa-3x fa-sign-in-alt fa-lg icon-padding" aria-hidden="true"></i>Login
-                                    </a>
-                                </li>
-                            ` : null}
-
-                            ${this.config?.apps?.filter(item => this.isVisible(item)).map(item => html`
-                                <li>
-                                    <a href="#home" role="button" data-id="${item.id}" @click="${e => this.onChangeApp(e, true)}">
-                                        <img src="${item.icon}" alt="${item.name}"/>  ${item.name}
-                                    </a>
-                                </li>
-                            `)}
-                        </ul>
-                    </nav>
-                </div>
-            ` : null
-            }
-
             <nav class="navbar navbar-inverse main-navbar">
                 <div>
-                    <!-- Left Sidebar Icon: we only show the icon if more than 1 visible app exist -->
-                    ${this.config.apps?.filter(app => this.isVisible(app)).length > 1 ? html`
+                    <!-- Left Sidebar Icon -->
+                    ${this.config.apps?.filter(app => UtilsNew.isAppVisible(app, this.opencgaSession)).length > 1 ? html`
                         <ul class="nav navbar-nav">
                             <li>
-                                <a href="#" @click="${this.toggleSideNav}" id="waffle-icon-wrapper">
+                                <a href="#" @click="${this.onSideBarToggle}" id="waffle-icon-wrapper">
                                     <div id="waffle-icon"></div>
                                 </a>
                             </li>
@@ -319,9 +203,9 @@ export default class CustomNavBar extends LitElement {
                         <!-- Controls aligned to the LEFT -->
                         <ul class="nav navbar-nav">
                             <!-- This code parse the config menu arrays and creates a custom menu taking into account visibility -->
-                            ${this.app?.menu?.filter?.(item => this.isVisible(item)).map(item => html`
+                            ${this.app?.menu?.filter?.(item => UtilsNew.isAppVisible(item, this.opencgaSession)).map(item => html`
                                 <!-- If there is not submenu we just display a button -->
-                                ${item.submenu && item.submenu.filter(sm => this.isVisible(sm)).length > 0 ? html`
+                                ${item.submenu && item.submenu.some(sm => UtilsNew.isAppVisible(sm, this.opencgaSession)) ? html`
                                     <!-- If there is a submenu we create a dropdown menu item -->
                                     <li class="dropdown">
                                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
@@ -377,11 +261,11 @@ export default class CustomNavBar extends LitElement {
                             ` : null}
 
                             <!-- Jobs -->
-                            ${this.isVisible(this.app?.jobMonitor) ? html`
+                            ${UtilsNew.isAppVisible(this.app?.jobMonitor, this.opencgaSession) ? html`
                                 <job-monitor .opencgaSession="${this.opencgaSession}"></job-monitor>
                             ` : null}
 
-                            ${this.isVisible(this.app?.fileExplorer) ? html`
+                            ${UtilsNew.isAppVisible(this.app?.fileExplorer, this.opencgaSession) ? html`
                                 <li>
                                     <a href="#file-manager" title="File Manager" role="button" @click="${this.onChangeTool}">
                                         <i class="fas fa-folder-open icon-padding"></i>
@@ -407,7 +291,7 @@ export default class CustomNavBar extends LitElement {
                             `) }
 
                             <!-- Login/Logout button -->
-                            ${this.config.login.visible && !this.isLoggedIn() ? html`
+                            ${this.config.login.visible && !this.loggedIn ? html`
                                 <li class="dropdown">
                                     <a href="#login" id="loginButton" role="button" @click="${this.onChangeTool}">
                                         <i href="#login" class="fa fa-sign-in-alt fa-lg icon-padding" aria-hidden="true"></i>Login
@@ -416,14 +300,14 @@ export default class CustomNavBar extends LitElement {
                             ` : null}
 
                             <!--User-->
-                            ${this.isLoggedIn() ? html`
+                            ${this.loggedIn ? html`
                                 <li class="dropdown" data-cy="user-menu">
                                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
                                         <i class="fa fa-user-circle fa-lg icon-padding" aria-hidden="true">
                                         </i>${this.opencgaSession.user?.name ?? this.opencgaSession.user?.email} <span class="caret"></span>
                                     </a>
                                     <ul class="dropdown-menu">
-                                        ${this.app?.userMenu?.length ? this.app.userMenu.filter(item => this.isVisible(item)).map(item => html`
+                                        ${this.app?.userMenu?.length ? this.app.userMenu.filter(item => UtilsNew.isAppVisible(item, this.opencgaSession)).map(item => html`
                                             <li>
                                                 <a href="${item.url}" data-user-menu="${item.id}"><i class="${item.icon} icon-padding" aria-hidden="true"></i> ${item.name}</a>
                                             </li>
