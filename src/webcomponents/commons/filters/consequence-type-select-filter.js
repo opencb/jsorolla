@@ -84,7 +84,12 @@ export default class ConsequenceTypeSelectFilter extends LitElement {
     }
 
     mapTerm(term) {
-        return {id: term.name, name: `${term.name} <span class='badge badge-light' style="color: ${CONSEQUENCE_TYPES.style[term.impact]}">${term.impact}</span> <span class="badge badge-light">${term.id}</span>`};
+        // TODO think about this badge:
+        // <span class='badge badge-light' style="color: ${CONSEQUENCE_TYPES.style[term.impact]}">${term.impact}</span>
+        return {
+            id: term.name,
+            name: `${term.name}  <span class="badge badge-light">${term.id}</span>`
+        };
     }
 
     onFilterChange(e) {
@@ -107,7 +112,7 @@ export default class ConsequenceTypeSelectFilter extends LitElement {
                 }
                 this.filterChange(this._ct.join(","));
             } else {
-                console.error("Consequence type rpeset not found: ", preset);
+                console.error("Consequence type preset not found: ", preset);
             }
         }
     }
@@ -189,7 +194,7 @@ export default class ConsequenceTypeSelectFilter extends LitElement {
                                        @click="${e => this.onPresetSelect(alias.name, e)}">
                                 <span style="margin: 0px 5px">${alias.name} </span>
                             </label>
-                            <span tooltip-title="Terms" tooltip-text="${alias.terms.join(", ")}" class="badge badge-secondary">${alias.terms?.length} terms</a>
+                            <span tooltip-title="Terms" tooltip-text="${alias.terms.join("<br>")}" class="badge badge-secondary">${alias.terms?.length} terms</a>
                         </div>`)
                     }
                     ` : null
@@ -197,11 +202,14 @@ export default class ConsequenceTypeSelectFilter extends LitElement {
             </div>
 
             <div class="form-group">
-                <div style="margin: 5px 0px">
-                    <span>Custom consequence types selection:</span>
+                <div style="margin: 10px 0px">
+                    <span>Custom consequence type selection:</span>
                 </div>
-                <select-field-filter multiple liveSearch=${"true"} .data="${this.options}" .value=${this._ct}
-                    @filterChange="${this.onFilterChange}">
+                <select-field-filter multiple
+                                     liveSearch=${"true"}
+                                     .data="${this.options}"
+                                     .value=${this._ct}
+                                     @filterChange="${this.onFilterChange}">
                 </select-field-filter>
             </div>
         `;
