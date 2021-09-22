@@ -33,7 +33,7 @@ export const login = () => {
 
     // switch to defined Study
     if (Cypress.env("study")) {
-        cy.get(`a[data-fqn="${Cypress.env("study")}"]`, {timeout: 60000}).click({force: true});
+        cy.get(`a[data-cy-fqn="${Cypress.env("study")}"]`, {timeout: 60000}).click({force: true});
     }
 
 
@@ -188,7 +188,7 @@ export const Facet = {
     }
 };
 
-/**
+/*
  * Date-filter test
  */
 export const dateFilterCheck = gridSelector => {
@@ -217,7 +217,7 @@ export const dateFilterCheck = gridSelector => {
 };
 
 
-/**
+/*
  * Lookup for the first simple text variable
  * type a random string and then check whether the button in opencga-active-filters is built correctly
  */

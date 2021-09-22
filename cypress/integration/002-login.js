@@ -49,7 +49,7 @@ context("2 - Login", () => {
 
         // switch to defined Study
         if (Cypress.env("study")) {
-            cy.get(`a[data-fqn="${Cypress.env("study")}"]`, {timeout: 60000}).click({force: true});
+            cy.get(`a[data-cy-fqn="${Cypress.env("study")}"]`, {timeout: 60000}).click({force: true});
         }
 
         goTo("iva");
