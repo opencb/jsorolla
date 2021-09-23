@@ -11,7 +11,7 @@ import {babel} from "@rollup/plugin-babel";
 import {terser} from "rollup-plugin-terser";
 import {execSync} from "child_process";
 import pkg from "./package.json";
-
+import {env} from 'process';
 
 const buildPath = path.resolve(__dirname, "build");
 const ivaPath = path.resolve(__dirname, "src/sites/iva");
@@ -19,6 +19,8 @@ const genomeMapsDemoPath = path.resolve(__dirname, "src/genome-browser");
 const patternExt = /\.[0-9a-z]+$/i;
 const patternConfig = /(config|settings|constants|tools)/gi;
 const internalCss = /(global|magic-check|style|toggle-switch)/gi;
+
+const IVA_INDEX_HTML = env.IVA_INDEX_HTML || "index";
 
 const revision = () => {
     try {
@@ -47,15 +49,15 @@ export default defineConfig({
     mode: "development",
     root: "./",
     server: {
-        open: "/src/sites/iva/index.html",
+        open: `/src/sites/iva/${IVA_INDEX_HTML}.html`,
         port: 3000,
-        watch: ["src", "styles"]
+        watch: ["src", "styles", "custom-conf"]
     },
     build: {
         sourcemap: true,
         rollupOptions: {
             input: {
-                "iva/index.html": `${ivaPath}/index.html`,
+                "iva/index.html": `${ivaPath}/${IVA_INDEX_HTML}.html`,
                 "genome-maps/index.html": `${genomeMapsDemoPath}/demo/genome-browser.html`,
             },
             plugins: [
@@ -94,52 +96,54 @@ export default defineConfig({
                     ]
                 }),
             ],
-            output: {
-                manualChunks: id => { // It's only detect "import" from script type=module.. the others no.
-                    if (id.includes("node_modules")) {
-                        return "vendors/js/vendors";
-                    }
-                    if (id.includes("src/webcomponents")) {
-                        return "lib/webcomponents.min";
-                    }
-                    if (id.includes("src/core")) {
-                        return "lib/core.min";
-                    }
-                },
-                chunkFileNames: chunkInfo =>{
-                    return "[name]-[hash].js"; // configuration of manualChunks about name format and folder.
-                },
-                entryFileNames: chunkInfo => { // configuration for entry script module and inline script
-                    return "lib/[name].js";
-                },
-                assetFileNames: assetInfo => {
+            output:
+                {
+                    manualChunks: id => { // It's only detect "import" from script type=module.. the others no.
+                        if (id.includes("node_modules")) {
+                            return "vendors/js/vendors";
+                        }
+                        if (id.includes("src/webcomponents")) {
+                            return "lib/webcomponents.min";
+                        }
+                        if (id.includes("src/core")) {
+                            return "lib/core.min";
+                        }
+                    },
+                    chunkFileNames: chunkInfo => {
+                        return "[name]-[hash].js"; // configuration of manualChunks about name format and folder.
+                    },
+                    entryFileNames:
+                        chunkInfo => { // configuration for entry script module and inline script
+                            return "lib/[name].js";
+                        },
+                    assetFileNames:
+                        assetInfo => {
+                            if (assetInfo.name.includes("genome-browser.config")) {
+                                return "genome-maps/conf/[name][extname]";
+                            }
 
-                    if (assetInfo.name.includes("genome-browser.config")) {
-                        return "genome-maps/conf/[name][extname]";
-                    }
+                            if (isConfig(assetInfo.name)) {
+                                return "iva/conf/[name][extname]";
+                            }
 
-                    if (isConfig(assetInfo.name)) {
-                        return "iva/conf/[name][extname]";
-                    }
+                            if (isInternalCss(assetInfo.name)) {
+                                return "css/[name]-[hash][extname]";
+                            }
 
-                    if (isInternalCss(assetInfo.name)) {
-                        return "css/[name]-[hash][extname]";
-                    }
+                            if (assetInfo.name.endsWith(".js") && !isConfig(assetInfo.name)) {
+                                return "vendors/js/[name]-[hash][extname]";
+                            }
 
-                    if (assetInfo.name.endsWith(".js") && !isConfig(assetInfo.name)) {
-                        return "vendors/js/[name]-[hash][extname]";
-                    }
+                            if (assetInfo.name.endsWith(".css")) {
+                                return "vendors/css/[name]-[hash][extname]";
+                            }
 
-                    if (assetInfo.name.endsWith(".css")) {
-                        return "vendors/css/[name]-[hash][extname]";
-                    }
-
-                    return "vendors/[name]-[hash][extname]";
+                            return "vendors/[name]-[hash][extname]";
+                        }
                 }
-            }
         },
         emptyOutDir: false,
-        outDir: "build",
+        outDir:
+            "build",
     },
-
 });
