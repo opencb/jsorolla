@@ -43,14 +43,32 @@ const isInternalCss = name => {
     return name.match(internalCss) !== null;
 };
 
+const htmlPlugin = () => {
+    return {
+        name: "html-transform",
+        transformIndexHtml(html) {
+            return html.replace(
+                "[build-signature]",
+                revision()
+            );
+        }
+    };
+};
+
 export default defineConfig({
     mode: "development",
     root: "./",
     server: {
         open: "/src/sites/iva/index.html",
         port: 3000,
-        watch: ["src", "styles"]
+        watch: ["src", "styles"],
     },
+    plugins: [
+        {
+            ...htmlPlugin(),
+            apply: "serve"
+        }
+    ],
     build: {
         sourcemap: true,
         rollupOptions: {

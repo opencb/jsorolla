@@ -808,7 +808,7 @@ const suite = {
             name: "OpenCGA Admin",
             logo: "img/tools/icons/file_explorer.svg",
             icon: "img/tools/icons/file_explorer.svg",
-            visibility: "none",
+            visibility: "public",
             menu: [
                 {
                     id: "projects-admin",

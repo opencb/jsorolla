@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import DetailTabs from "../commons/view/detail-tabs.js";
+import UtilsNew from "./../../core/utilsNew.js";
 import "./../family/family-create.js";
 import "./../family/family-update.js";
 import "./../family/family-view.js";
-import UtilsNew from "./../../core/utilsNew.js";
-import FamilyForm from "./../family/family-create.js";
+
 
 export default class StudyAdminFamily extends LitElement {
 
@@ -131,9 +131,9 @@ export default class StudyAdminFamily extends LitElement {
                                         <span style="padding-right:5px">
                                             <i class="fas fa-times icon-hover" @click="${e => this.clearForm(e)}" ></i>
                                         </span>
-                                        <span style="padding-left:5px">
+                                        ${UtilsNew.isNotEmpty(this.family)?html`<span style="padding-left:5px">
                                             <i class="fa fa-edit icon-hover" @click="${e => this.editForm(e)}"></i>
-                                        </span>
+                                        </span>`: nothing}
                                     </div>
                                     ${this.editFamily ? html`
                                         <family-update

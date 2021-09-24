@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import DetailTabs from "../commons/view/detail-tabs.js";
+import UtilsNew from "../../core/utilsNew.js";
 import "../individual/individual-update.js";
 import "../individual/individual-create.js";
 import "../individual/individual-view.js";
@@ -129,9 +130,11 @@ export default class StudyAdminIndividual extends LitElement {
                                         <span style="padding-right:5px">
                                             <i class="fas fa-times icon-hover" @click="${e => this.clearForm(e)}" ></i>
                                         </span>
-                                        <span style="padding-left:5px">
-                                            <i class="fa fa-edit icon-hover" @click="${e => this.editForm(e)}"></i>
-                                        </span>
+                                        ${UtilsNew.isNotEmpty(this.individual)? html`
+                                            <span style="padding-left:5px">
+                                                <i class="fa fa-edit icon-hover" @click="${e => this.editForm(e)}"></i>
+                                            </span>` : nothing}
+
                                     </div>
                                     ${this.editIndividual? html`
                                         <individual-update
