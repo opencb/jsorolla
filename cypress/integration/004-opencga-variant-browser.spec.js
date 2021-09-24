@@ -212,10 +212,12 @@ context("4. Variant Browser", () => {
         checkResults("variant-browser-grid");
     });
 
-    it("4.14 Filters. Clinical and Disease: ClinVar Accessions: Pathogenic", () => {
+    it("4.14 Filters. Clinical and Disease: Clinical Annotation: Pathogenic", () => {
         // Clinical and Disease: ClinVar Accessions. Use example: Pathogenic
         cy.get("opencga-variant-filter a[data-accordion-id='Clinical']").click();
-        cy.get("clinvar-accessions-filter select").select("Pathogenic", {force: true});
+        cy.get("clinical-annotation-filter div[data-cy='clinical-significance'] button.dropdown-toggle").click();
+        cy.get("clinical-annotation-filter div[data-cy='clinical-significance'] .dropdown-menu").contains("Pathogenic").click();
+        cy.get("div.search-button-wrapper button").click();
         checkResults("variant-browser-grid");
         cy.get("opencga-active-filters button[data-filter-name='clinicalSignificance']").click();
         checkResults("variant-browser-grid");
