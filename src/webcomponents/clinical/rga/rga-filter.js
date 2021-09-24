@@ -81,9 +81,8 @@ export default class RgaFilter extends LitElement {
         if (changedProperties.has("query")) {
             this.queryObserver();
         }
-        if (changedProperties.has("opencgaSession")) {
-            // this.updateVariableSets();
-        }
+        /* if (changedProperties.has("opencgaSession")) {
+        }*/
         UtilsNew.initTooltip(this);
 
     }

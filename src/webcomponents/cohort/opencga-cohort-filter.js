@@ -222,7 +222,7 @@ export default class OpencgaCohortFilter extends LitElement {
                 `;
     }
 
-    updateVariableSets() {
+    /* updateVariableSets() {
         this.variables = [];
         const _this = this;
         this.opencgaSession.opencgaClient.studies().info(this.opencgaSession.study.id, {include: "variableSets"})
@@ -252,6 +252,7 @@ export default class OpencgaCohortFilter extends LitElement {
             myTemplate.render();
         }
     }
+    */
 
     variablesChanged() {
         this._areVariablesEmpty = (this.variables.length === 0);
