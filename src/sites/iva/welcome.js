@@ -24,7 +24,7 @@ export default class WelcomeWeb extends LitElement {
     constructor() {
         super();
 
-        this.checkProjects = false;
+        // this.checkProjects = false;
     }
 
     createRenderRoot() {
@@ -62,6 +62,7 @@ export default class WelcomeWeb extends LitElement {
         if (changedProperties.has("opencgaSession")) {
             this._checkProjects();
         }
+
         super.update(changedProperties);
     }
 

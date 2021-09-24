@@ -206,6 +206,7 @@ export default class WelcomeIva extends LitElement {
 
             <!-- This is where main application is rendered -->
             <div>
+                <!--
                 <h1 id="welcome-page-title">
                     <div class="iva-logo">
                         <img alt="IVA" src="./img/iva.svg" />
@@ -215,8 +216,9 @@ export default class WelcomeIva extends LitElement {
                         <span class="subtitle">Interactive Variant Analysis</span>
                     </div>
                 </h1>
+                -->
 
-                ${UtilsNew.renderHTML(this.config.welcomePageContent)}
+                ${UtilsNew.renderHTML(this.app.welcomePageContent)}
 
                 <div class="row hi-icon-wrap hi-icon-effect-9 hi-icon-animation">
                     ${this.app.menu.filter(this.isVisible).map(item => html`

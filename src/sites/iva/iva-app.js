@@ -240,7 +240,7 @@ class IvaApp extends LitElement {
         this.config = _config;
 
         // Initially we load the SUIte config
-        this.app = this.getSuiteConfig();
+        this.app = this.getActiveAppConfig();
 
         // We need to listen to hash fragment changes to update the display and breadcrumb
         const _this = this;
@@ -465,7 +465,7 @@ class IvaApp extends LitElement {
 
         if (this.tool === "#login") {
             this.tool = "#home";
-            this.app = this.getSuiteConfig();
+            this.app = this.getActiveAppConfig();
         }
 
         // 60000 ms = 1 min. Every 1 min we check if session is close to expire.
@@ -482,7 +482,7 @@ class IvaApp extends LitElement {
         this._createOpencgaSessionFromConfig();
 
         this.tool = "#home";
-        this.app = this.getSuiteConfig();
+        this.app = this.getActiveAppConfig();
         window.location.hash = "home";
         window.clearInterval(this.intervalCheckSession);
     }
@@ -863,7 +863,7 @@ class IvaApp extends LitElement {
         if (e.currentTarget.dataset.id) {
             this.app = this.config.apps.find(app => app.id === e.currentTarget.dataset.id);
         } else {
-            this.app = this.getSuiteConfig();
+            this.app = this.getActiveAppConfig();
         }
 
         // We only want to toggle when clicked in the sidenav
@@ -875,14 +875,21 @@ class IvaApp extends LitElement {
         this.requestUpdate();
     }
 
-    getSuiteConfig() {
-        return {
-            name: this.config.name,
-            version: this.config.version,
-            logo: this.config.logo,
-            about: this.config.about,
-            userMenu: this.config.userMenu,
-        };
+    getActiveAppConfig() {
+        const visibleApps = this.config.apps.filter(app => app.visibility === "public");
+        // If there is only ona visible App we DO NOT need to show the Suite welcome, just the App.
+        if (visibleApps.length === 1) {
+            return visibleApps[0];
+        } else {
+            // Render the Suite welcome page.
+            return {
+                name: this.config.name,
+                version: this.config.version,
+                logo: this.config.logo,
+                about: this.config.about,
+                userMenu: this.config.userMenu,
+            };
+        }
     }
 
     isLoggedIn() {
@@ -971,7 +978,6 @@ class IvaApp extends LitElement {
                     align-items: center;
                     justify-content: center;
                 }
-
             </style>
 
             <!-- <loading-bar></loading-bar> -->

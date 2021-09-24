@@ -107,12 +107,13 @@ const opencga = {
 // FIXME Change JSorolla components to use suite.appConfig instead
 const application = {appConfig: "opencb"};
 
-const separator = {
+const MENU_SEPARATOR = {
     separator: true,
     visibility: "public"
 };
 
 const suite = {
+    id: "suite",
     name: "OpenCGA Suite",
     version: "v2.2.0-dev",
     logo: "img/iva-white.svg",
@@ -149,15 +150,14 @@ const suite = {
         minRemainingTime: 60000,
         maxRemainingTime: 600000 // 10 min
     },
-    // Components in the welcome page
     welcomePageContent: `
-            <p class="text-center">
-                Welcome to the OpenCB Suite for whole genome variant analysis.<br />
-                This interactive tool allows finding genes affected by deleterious variants<br />that segregate along family
-                pedigrees, case-controls or sporadic samples.
-            </p><br>`,
+                <p class="text-center">
+                    Welcome to the OpenCB Suite for whole genome variant analysis.<br />
+                    This interactive tool allows finding genes affected by deleterious variants<br />that segregate along family
+                    pedigrees, case-controls or sporadic samples.
+                </p>
+                <br>`,
     welcomePageFooter: "<p><img id=\"logo\" src=\"img/opencb-logo.png\" alt=\"opencb-logo\"/></p>",
-    // gettingStartedComponents: ["browser", "clinicalAnalysisPortal"],
 
     // The order, title and nested submenus are respected
     apps: [
@@ -169,6 +169,18 @@ const suite = {
             // logo: "img/tools/icons/variant_browser.svg",
             // alt: "This is the old IVA tool",
             icon: "img/tools/icons/variant_browser.svg",
+            welcomePageContent: `
+                <h1 id="welcome-page-title">
+                    <div class="iva-logo">
+                        <img alt="IVA" src="./img/iva.svg" />
+                        <span class="subtitle">Interactive Variant Analysis</span>
+                    </div>
+                </h1>
+                <p class="text-center">
+                    Welcome to the Variant Analysis application.<br>
+                    This interactive tool allows browse and run variant analysis.
+                </p>
+                <br>`,
             visibility: "public",
             menu: [
                 {
@@ -183,13 +195,13 @@ const suite = {
                             name: "Variant Browser",
                             acronym: "VB",
                             description: `
-                                    <p>Explore all variants identified by the 100,000 Genomes Project</p>
-                                    <ul>
-                                        <li>Rich annotation and links to leading reference databases</li>
-                                        <li>Filter by gene, consequence, frequency and much more</li>
-                                    </ul>`,
+                                <p>Explore all variants identified by the 100,000 Genomes Project</p>
+                                <ul>
+                                    <li>Rich annotation and links to leading reference databases</li>
+                                    <li>Filter by gene, consequence, frequency and much more</li>
+                                </ul>`,
                             visibility: "public",
-                            fa_icon: "fa fa-list",
+                            // fa_icon: "fa fa-list",
                             icon: "img/tools/icons/variant_browser.svg",
                             thumbnail: "variant-browser.png"
                         },
@@ -225,9 +237,9 @@ const suite = {
                     visibility: "public",
                     submenu: [
                         {
+                            id: "cat-analysis",
                             name: "Summary Stats",
                             category: true,
-                            id: "cat-analysis",
                             visibility: "public"
                         },
                         {
@@ -246,13 +258,7 @@ const suite = {
                             icon: "",
                             visibility: "public"
                         },
-                        // {
-                        //     id: "hw", title: "Hardy-Weinberg", acronym: "HW",
-                        //     description: "",
-                        //     icon: "",
-                        //     visibility: "public"
-                        // },
-                        separator,
+                        MENU_SEPARATOR,
                         {
                             name: "Association Analysis",
                             category: true,
@@ -275,7 +281,7 @@ const suite = {
                         //     icon: "",
                         //     visibility: "public"
                         // },
-                        separator,
+                        MENU_SEPARATOR,
                         {
                             name: "Sample Analysis",
                             category: true,
@@ -305,7 +311,7 @@ const suite = {
                             icon: "",
                             visibility: "public"
                         },
-                        separator,
+                        MENU_SEPARATOR,
                         {
                             name: "Individual Analysis",
                             category: true,
@@ -336,7 +342,7 @@ const suite = {
                             icon: "",
                             visibility: "public"
                         },
-                        separator,
+                        MENU_SEPARATOR,
                         {
                             name: "Cancer Analysis",
                             category: true,
@@ -351,7 +357,7 @@ const suite = {
                             icon: "img/tools/icons/aggregation.svg",
                             visibility: "public"
                         },
-                        separator,
+                        MENU_SEPARATOR,
                         {
                             name: "Clinical Interpretation",
                             category: true,
@@ -374,28 +380,7 @@ const suite = {
                             icon: "",
                             visibility: "public"
                         },
-                        // {
-                        //     id: "team",
-                        //     title: "TEAM",
-                        //     description: "",
-                        //     icon: "",
-                        //     visibility: "public"
-                        // },
-                        // {
-                        //     id: "zetta",
-                        //     title: "Zetta",
-                        //     description: "",
-                        //     icon: "",
-                        //     visibility: "public"
-                        // },
-                        // {
-                        //     id: "cancer-tiering",
-                        //     title: "OpenCGA Cancer Tiering (Based on GEL algorithm)",
-                        //     description: "",
-                        //     icon: "",
-                        //     visibility: "public"
-                        // },
-                        separator,
+                        MENU_SEPARATOR,
                         {
                             name: "Quality Control",
                             category: true,
@@ -423,7 +408,7 @@ const suite = {
                             icon: "",
                             visibility: "public"
                         },
-                        separator,
+                        MENU_SEPARATOR,
                         {
                             name: "External Tools",
                             category: true,
@@ -446,7 +431,7 @@ const suite = {
                             icon: "",
                             visibility: "public"
                         },
-                        separator,
+                        MENU_SEPARATOR,
                         {
                             name: "Other",
                             category: true,
@@ -526,7 +511,7 @@ const suite = {
                     name: "Alignment",
                     description: "",
                     icon: "img/tools/icons/alignment.svg",
-                    visibility: "public",
+                    visibility: "none",
                     submenu: [
                         {
                             name: "Data Management",
@@ -548,11 +533,11 @@ const suite = {
                             icon: "",
                             visibility: "public"
                         },
-                        separator,
+                        MENU_SEPARATOR,
                         {
+                            id: "cat-alignment",
                             name: "Summary Stats",
                             category: true,
-                            id: "cat-alignment",
                             visibility: "public"
                         },
                         {
@@ -575,7 +560,7 @@ const suite = {
                             name: "Projects",
                             visibility: "public"
                         },
-                        separator,
+                        MENU_SEPARATOR,
                         {
                             name: "Browsers",
                             category: true,
@@ -653,7 +638,7 @@ const suite = {
             logo: "img/tools/icons/interpretation_portal_white.svg",
             logoAlt: "img/tools/icons/interpretation_portal.svg",
             icon: "img/tools/icons/interpretation_portal.svg",
-            visibility: "none",
+            visibility: "public",
             menu: [
                 {
                     id: "clinical",
