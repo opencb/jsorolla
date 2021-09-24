@@ -65,7 +65,7 @@ export default class ProbandIdAutocomplete extends LitElement {
             source: async (params, success, failure) => {
                 const _params = params;
                 _params.data.page = params.data.page || 1;
-                const proband = _params?.data?.term ? {proband: "~^" + _params?.data?.term?.toUpperCase()} : "";
+                const proband = _params?.data?.term ? {proband: "~^" + _params?.data?.term} : "";
                 const filters = {
                     study: this.opencgaSession.study.fqn,
                     limit: this._config.limit,

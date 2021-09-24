@@ -69,7 +69,7 @@ export default class FileNameAutocomplete extends LitElement {
             source: async (params, success, failure) => {
                 const _params = params;
                 _params.data.page = params.data.page || 1;
-                const name = _params?.data?.term ? {id: "~^" + _params?.data?.term?.toUpperCase()} : "";
+                const name = _params?.data?.term ? {id: "~^" + _params?.data?.term} : "";
                 const filters = {
                     study: this.opencgaSession.study.fqn,
                     limit: this._config.limit,
