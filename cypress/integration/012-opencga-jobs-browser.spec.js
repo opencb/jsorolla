@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {login, getResult, checkResults, Facet, changePage, dateFilterCheck, annotationFilterCheck, goTo} from "../plugins/utils.js";
+import {login, getResult, checkResults, Facet, changePage, dateFilterCheck, annotationFilterCheck, goTo, selectToken} from "../plugins/utils.js";
 import {TIMEOUT} from "../plugins/constants.js";
 
 
@@ -31,10 +31,11 @@ context("12 - Jobs Browser", () => {
         checkResults("opencga-job-grid");
 
         getResult("opencga-job-grid", 1).then($text => {
-            cy.get("jobs-id-autocomplete input").type($text + "{enter}");
+            selectToken("jobs-id-autocomplete", $text);
         });
+
         getResult("opencga-job-grid", 2).then($text => {
-            cy.get("analysis-tool-id-autocomplete input").type($text + "{enter}");
+            selectToken("analysis-tool-id-autocomplete", $text);
         });
 
         cy.get(".lhs button[data-filter-name]").should("have.length", 2);

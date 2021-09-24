@@ -108,9 +108,9 @@ context("4. Variant Browser", () => {
     });
 
     it("4.6 Filters. Genomic: Feature IDs", () => {
-        selectToken("feature-filter textarea", "C5");
+        selectToken("feature-filter", "C5");
         cy.get("opencga-active-filters").contains("XRef");
-        selectToken("feature-filter textarea", "rs");
+        selectToken("feature-filter", "rs");
         cy.get("div.search-button-wrapper button").click();
         checkResults("variant-browser-grid");
         cy.get("opencga-active-filters button[data-filter-name='xref']").click();

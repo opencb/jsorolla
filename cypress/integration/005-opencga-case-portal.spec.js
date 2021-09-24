@@ -36,7 +36,7 @@ context("5 - Case Portal", () => {
             .find("td:nth-child(1) a[data-cy='case-id']")
             .then($a => {
                 const caseId = $a.text().trim();
-                selectToken("div[data-cy='form-case'] textarea", caseId);
+                selectToken("div[data-cy='form-case']", caseId);
                 checkResults("opencga-clinical-analysis-grid");
 
             });
@@ -48,7 +48,7 @@ context("5 - Case Portal", () => {
             .then($p => {
                 const probandSampleId = $p.text().trim();
                 console.log("probandSampleId", probandSampleId);
-                selectToken("div[data-cy='form-sample'] textarea", probandSampleId);
+                selectToken("div[data-cy='form-sample']", probandSampleId);
                 checkResults("opencga-clinical-analysis-grid");
 
             });
@@ -60,7 +60,7 @@ context("5 - Case Portal", () => {
             .then($span => {
                 const probandId = $span.text().trim();
                 console.log("probandId", probandId);
-                selectToken("div[data-cy='form-proband'] textarea", probandId);
+                selectToken("div[data-cy='form-proband']", probandId);
                 checkResults("opencga-clinical-analysis-grid");
 
             });
@@ -74,7 +74,7 @@ context("5 - Case Portal", () => {
                 const span = Cypress.$("span[data-cy='disorder-name']", $td).first();
                 const disorderName = span.text().trim();
                 console.log("disorderName", disorderName);
-                selectToken("div[data-cy='form-disorder'] textarea", disorderName);
+                selectToken("div[data-cy='form-disorder']", disorderName);
                 checkResults("opencga-clinical-analysis-grid");
 
             });
@@ -89,7 +89,7 @@ context("5 - Case Portal", () => {
                 if (spans.length) {
                     const familyId = spans.first().text().trim();
                     // console.log("familyId", familyId);
-                    selectToken("div[data-cy='form-family'] textarea", familyId);
+                    selectToken("div[data-cy='form-family']", familyId);
                     checkResults("opencga-clinical-analysis-grid");
                 }
             });

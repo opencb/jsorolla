@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {checkResults, login, getResult, Facet, changePage, dateFilterCheck, annotationFilterCheck, goTo} from "../plugins/utils.js";
+import {checkResults, login, getResult, Facet, changePage, dateFilterCheck, annotationFilterCheck, goTo, selectToken} from "../plugins/utils.js";
 import {TIMEOUT} from "../plugins/constants.js";
 
 
@@ -30,7 +30,7 @@ context("11 - Cohort Browser", () => {
         checkResults("opencga-cohort-grid");
 
         getResult("opencga-cohort-grid").then($text => {
-            cy.get("cohort-id-autocomplete input").type($text + "{enter}");
+            selectToken("cohort-id-autocomplete", $text);
         });
         cy.get(".lhs button[data-filter-name]").should("have.length", 1);
 
