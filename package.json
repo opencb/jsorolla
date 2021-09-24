@@ -13,9 +13,7 @@
   },
   "scripts": {
     "serve": "vite",
-    "serve-custom": "IVA_INDEX_HTML=index.custom vite",
     "build": "vite build && npm run package",
-    "build-custom": "IVA_INDEX_HTML=index.custom vite build && npm run package",
     "preview": "vite preview",
     "prepare": "husky install",
     "browser-support": "npx browserslist",
@@ -80,7 +78,6 @@
     "moment": "^2.15.1",
     "pako": "~0.2.8",
     "pdfmake": "~0.1.20",
-    "process": "^0.11.10",
     "qtip2": "~3.0.3",
     "select2": "^4.1.0-rc.0",
     "select2-bootstrap-theme": "0.1.0-beta.10",
