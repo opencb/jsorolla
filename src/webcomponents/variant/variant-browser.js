@@ -539,7 +539,7 @@ export default class VariantBrowser extends LitElement {
                         {
                             id: "annotationPropFreq",
                             name: "Population Frequencies",
-                            mode: "",
+                            // mode: "",
                             render: (variant, active) => {
                                 return html`
                                     <cellbase-population-frequency-grid
