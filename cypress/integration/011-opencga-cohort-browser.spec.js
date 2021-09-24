@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {checkResults, login, getResult, Facet, changePage, dateFilterCheck, annotationFilterCheck} from "../plugins/utils.js";
+import {checkResults, login, getResult, Facet, changePage, dateFilterCheck, annotationFilterCheck, goTo} from "../plugins/utils.js";
 import {TIMEOUT} from "../plugins/constants.js";
 
 

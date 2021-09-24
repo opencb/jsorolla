@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-import {login, checkResults} from "../plugins/utils.js";
+import {login, checkResults, goTo} from "../plugins/utils.js";
 import {TIMEOUT} from "../plugins/constants.js";
 
 const getCaseType = grid => {
     checkResults(grid);
-    return cy.get("opencga-clinical-analysis-grid table tr[data-index=0] td:nth-child(1)  p[data-cy='case-type']", {timeout: 60000}).then(type => console.log("TYPE", type)).invoke("text")
+    return cy.get("opencga-clinical-analysis-grid table tr[data-index=0] td:nth-child(1)  p[data-cy='case-type']", {timeout: 60000}).then(type => console.log("TYPE", type)).invoke("text");
 };
 
 
@@ -50,7 +50,7 @@ context("6 - Case Interpreter", () => {
                 cy.get("div.page-title h2", {timeout: TIMEOUT}).should("be.visible").and("contain", "Case Interpreter Case " + caseId);
 
                 // test Case Interpreter in Family Cases
-                console.log("caseType === \"FAMILY\"", caseType === "FAMILY")
+                console.log("caseType: FAMILY", caseType === "FAMILY");
                 if (caseType === "FAMILY") {
 
                     /**
