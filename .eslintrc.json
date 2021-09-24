@@ -52,7 +52,8 @@
     {
       "files": ["*.js"],
       "rules": {
-        "lit/no-property-change-update": 0
+        "lit/no-property-change-update": 0,
+        "cypress/no-unnecessary-waiting": 0
       }
     }
   ],
