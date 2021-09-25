@@ -1,5 +1,9 @@
 import UtilsNew from "../../core/utilsNew.js";
 import FeatureTrack from "./feature-track.js";
+import HistogramRenderer from "../renderers/histogram-renderer.js";
+import VariantRenderer from "../renderers/variant-renderer.js";
+import OpencgaAdapter from "../../core/data-adapter/opencga-adapter.js";
+import {SVG} from "../../core/svg.js";
 
 export default class VariantTrack extends FeatureTrack {
 

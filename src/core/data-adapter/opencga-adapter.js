@@ -23,7 +23,11 @@
  * Created by pfurio on 16/11/16.
  */
 
-class OpencgaAdapter extends FeatureAdapter {
+import FeatureAdapter from "./feature-adapter.js";
+import Region from "../bioinfo/region.js";
+import UtilsNew from "../../core/utilsNew.js";
+
+export default class OpencgaAdapter extends FeatureAdapter {
 
     constructor(client, category, subcategory, resource, params = {}, options = {}, handlers = {}) {
         super();
@@ -50,8 +54,8 @@ class OpencgaAdapter extends FeatureAdapter {
         // this.species = species;
     }
 
-    getData(args){
-        switch(this.category) {
+    getData(args) {
+        switch (this.category) {
             case "analysis/variant":
                 return this._getVariant(args);
             case "analysis/alignment":
@@ -63,7 +67,7 @@ class OpencgaAdapter extends FeatureAdapter {
         }
     }
 
-    _getExpressionData(args){
+    _getExpressionData(args) {
         //TODO check with expression data
         console.log("In GetExpressionData");
         let _this = this;
@@ -115,7 +119,7 @@ class OpencgaAdapter extends FeatureAdapter {
         });
     }
 
-    _getVariant(args){
+    _getVariant(args) {
         console.log("OpenCGA Data Adapter: fetching Variants");
 
         let params = {};

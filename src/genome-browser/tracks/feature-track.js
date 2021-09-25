@@ -573,7 +573,7 @@ export default class FeatureTrack {
             //     interval: this.interval,
             //     exclude: this.exclude
             // };
-            if (UtilsNew.isUndefined(adapter.params)){
+            if (UtilsNew.isUndefined(adapter.params)) {
                 adapter.params = {};
             }
             let params = Object.assign(adapter.params, {
