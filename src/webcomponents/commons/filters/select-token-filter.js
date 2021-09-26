@@ -18,6 +18,10 @@ import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
 
 /**
+ * tokenize version
+ * @deprecated
+ *
+ *
  * TODO
  * 1. find a better way than silendClear() to clear the tokens without triggering filterChange(). We need that in updated().
  * 2. avoid pointless remote requests each click on the blank area of the select.
@@ -81,9 +85,9 @@ export default class SelectTokenFilter extends LitElement {
                     // include: "id",
                     id: "~^" + term.toUpperCase()
                 };
-                this.client().search(filters).then( restResponse => {
+                this.client().search(filters).then(restResponse => {
                     const results = restResponse.getResults();
-                    object.trigger("tokenize:dropdown:fill", [results.map( result => ({text: result.id, value: result.id}))]);
+                    object.trigger("tokenize:dropdown:fill", [results.map(result => ({text: result.id, value: result.id}))]);
                 });
             }
         });
@@ -106,10 +110,10 @@ export default class SelectTokenFilter extends LitElement {
         if (_changedProperties.has("value")) {
             if (this.value) {
                 if (this.value.split(",").length) {
-                    //$(".tokenize", this).tokenize2().trigger("tokenize:clear");
-                    console.log("changing")
-                    this.silentClear()
-                    this.value.split(",").forEach( v => $(".tokenize", this).tokenize2().trigger("tokenize:tokens:add", [v, v, true]));
+                    // $(".tokenize", this).tokenize2().trigger("tokenize:clear");
+                    console.log("changing");
+                    this.silentClear();
+                    this.value.split(",").forEach(v => $(".tokenize", this).tokenize2().trigger("tokenize:tokens:add", [v, v, true]));
                 }
             } else {
                 $(".tokenize", this).tokenize2().trigger("tokenize:clear");
@@ -165,11 +169,11 @@ export default class SelectTokenFilter extends LitElement {
     }
 
     readFile(event) {
-        //console.log(event);
+        // console.log(event);
         const input = event.target;
         const reader = new FileReader();
         reader.readAsText(input.files[0]);
-        reader.onload = function() {
+        reader.onload = function () {
             const dataURL = reader.result;
             console.log(dataURL);
         };
@@ -189,8 +193,8 @@ export default class SelectTokenFilter extends LitElement {
     }
 
     // it silently clear the input field without triggering  tokenize:tokens:remove which fire the filterChange
-    silentClear(){
-        //$("select.tokenize").empty()
+    silentClear() {
+        // $("select.tokenize").empty()
         $(".tokens-container li.token").remove();
         $(".tokens-container li.placeholder").show();
 

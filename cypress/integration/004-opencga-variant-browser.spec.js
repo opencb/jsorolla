@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {login, randomString, checkResults, checkResultsOrNot, Facet, changePage, goTo} from "../plugins/utils.js";
+import {login, randomString, checkResults, checkResultsOrNot, Facet, changePage, goTo, selectToken} from "../plugins/utils.js";
 import {TIMEOUT} from "../plugins/constants.js";
 
 context("4. Variant Browser", () => {
@@ -103,16 +103,14 @@ context("4. Variant Browser", () => {
         cy.get("region-filter textarea").type("1:5000000-10000000");
         cy.get("div.search-button-wrapper button").click();
         checkResults("variant-browser-grid");
-        cy.get("opencga-active-filters button[data-filter-name='region']").click();
+        cy.get("opencga-active-filters button[data-filter-name='region']").contains("Region").click();
         checkResults("variant-browser-grid");
     });
 
     it("4.6 Filters. Genomic: Feature IDs", () => {
-        cy.get("feature-filter textarea").type("C5");
-        cy.get("feature-filter textarea").type("{enter}");
+        selectToken("feature-filter", "C5");
         cy.get("opencga-active-filters").contains("XRef");
-        cy.get("feature-filter textarea").type("rs");
-        cy.get("feature-filter textarea").type("{enter}");
+        selectToken("feature-filter", "rs");
         cy.get("div.search-button-wrapper button").click();
         checkResults("variant-browser-grid");
         cy.get("opencga-active-filters button[data-filter-name='xref']").click();
@@ -192,9 +190,11 @@ context("4. Variant Browser", () => {
         cy.get("population-frequency-filter i[data-cy='pop-freq-toggle-1kG_phase3']").click();
         cy.get("population-frequency-filter div[data-cy='pop-freq-codes-wrapper-1kG_phase3']").should("be.visible");
         cy.get("population-frequency-filter div[data-cy='pop-freq-codes-wrapper-1kG_phase3'] div[data-cy='number-field-filter-wrapper-AFR'] input[data-field='value']").type("0.0001");
-        cy.get("population-frequency-filter div[data-cy='pop-freq-codes-wrapper-1kG_phase3'] div[data-cy='number-field-filter-wrapper-AFR'] select[data-field='comparator']").select("<");
+        // cy.get("population-frequency-filter div[data-cy='pop-freq-codes-wrapper-1kG_phase3'] div[data-cy='number-field-filter-wrapper-AFR'] select-field-filter button").click();
+        // cy.get("population-frequency-filter div[data-cy='pop-freq-codes-wrapper-1kG_phase3'] div[data-cy='number-field-filter-wrapper-AFR'] select-field-filter div.dropdown-menu").find("li").contains(">").click();
         cy.get("population-frequency-filter div[data-cy='pop-freq-codes-wrapper-1kG_phase3'] div[data-cy='number-field-filter-wrapper-EUR'] input[data-field='value']").type("0.0001");
-        cy.get("population-frequency-filter div[data-cy='pop-freq-codes-wrapper-1kG_phase3'] div[data-cy='number-field-filter-wrapper-EUR'] select[data-field='comparator']").select(">");
+        cy.get("population-frequency-filter div[data-cy='pop-freq-codes-wrapper-1kG_phase3'] div[data-cy='number-field-filter-wrapper-EUR'] select-field-filter button").click();
+        cy.get("population-frequency-filter div[data-cy='pop-freq-codes-wrapper-1kG_phase3'] div[data-cy='number-field-filter-wrapper-EUR'] select-field-filter div.dropdown-menu").find("li").contains(">").click();
         cy.get("div.search-button-wrapper button").click();
         checkResults("variant-browser-grid");
         cy.get("opencga-active-filters button[data-filter-name='populationFrequencyAlt']").click();
@@ -206,17 +206,18 @@ context("4. Variant Browser", () => {
         cy.get("population-frequency-filter i[data-cy='pop-freq-toggle-GNOMAD_GENOMES']").click();
         cy.get("population-frequency-filter div[data-cy='pop-freq-codes-wrapper-GNOMAD_GENOMES']").should("be.visible");
         cy.get("population-frequency-filter div[data-cy='pop-freq-codes-wrapper-GNOMAD_GENOMES'] div[data-cy='number-field-filter-wrapper-AFR'] input[data-field='value']").type("0.0001");
-        cy.get("population-frequency-filter div[data-cy='pop-freq-codes-wrapper-GNOMAD_GENOMES'] div[data-cy='number-field-filter-wrapper-AFR'] select[data-field='comparator']").select("<");
         cy.get("div.search-button-wrapper button").click();
         checkResults("variant-browser-grid");
         cy.get("opencga-active-filters button[data-filter-name='populationFrequencyAlt']").click();
         checkResults("variant-browser-grid");
     });
 
-    it("4.14 Filters. Clinical and Disease: ClinVar Accessions: Pathogenic", () => {
+    it("4.14 Filters. Clinical and Disease: Clinical Annotation: Pathogenic", () => {
         // Clinical and Disease: ClinVar Accessions. Use example: Pathogenic
         cy.get("opencga-variant-filter a[data-accordion-id='Clinical']").click();
-        cy.get("clinvar-accessions-filter select").select("Pathogenic", {force: true});
+        cy.get("clinical-annotation-filter div[data-cy='clinical-significance'] button.dropdown-toggle").click();
+        cy.get("clinical-annotation-filter div[data-cy='clinical-significance'] .dropdown-menu").contains("Pathogenic").click();
+        cy.get("div.search-button-wrapper button").click();
         checkResults("variant-browser-grid");
         cy.get("opencga-active-filters button[data-filter-name='clinicalSignificance']").click();
         checkResults("variant-browser-grid");

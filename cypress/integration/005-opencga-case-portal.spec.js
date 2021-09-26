@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {login, goTo, randomString, checkResults} from "../plugins/utils.js";
+import {login, goTo, randomString, checkResults, selectToken} from "../plugins/utils.js";
 import {TIMEOUT} from "../plugins/constants.js";
 
 
@@ -36,8 +36,7 @@ context("5 - Case Portal", () => {
             .find("td:nth-child(1) a[data-cy='case-id']")
             .then($a => {
                 const caseId = $a.text().trim();
-                cy.get("div[data-cy='form-case'] button").click();
-                cy.get("div[data-cy='form-case'] input").type(caseId + "{enter}", {force: true});
+                selectToken("div[data-cy='form-case']", caseId);
                 checkResults("opencga-clinical-analysis-grid");
 
             });
@@ -49,8 +48,7 @@ context("5 - Case Portal", () => {
             .then($p => {
                 const probandSampleId = $p.text().trim();
                 console.log("probandSampleId", probandSampleId);
-                cy.get("div[data-cy='form-sample'] button").click();
-                cy.get("div[data-cy='form-sample'] input").type(probandSampleId + "{enter}", {force: true});
+                selectToken("div[data-cy='form-sample']", probandSampleId);
                 checkResults("opencga-clinical-analysis-grid");
 
             });
@@ -62,8 +60,7 @@ context("5 - Case Portal", () => {
             .then($span => {
                 const probandId = $span.text().trim();
                 console.log("probandId", probandId);
-                cy.get("div[data-cy='form-proband'] button").click();
-                cy.get("div[data-cy='form-proband'] input").type(probandId + "{enter}", {force: true});
+                selectToken("div[data-cy='form-proband']", probandId);
                 checkResults("opencga-clinical-analysis-grid");
 
             });
@@ -77,8 +74,7 @@ context("5 - Case Portal", () => {
                 const span = Cypress.$("span[data-cy='disorder-name']", $td).first();
                 const disorderName = span.text().trim();
                 console.log("disorderName", disorderName);
-                cy.get("div[data-cy='form-disorder'] button").click();
-                cy.get("div[data-cy='form-disorder'] input").type(disorderName + "{enter}", {force: true});
+                selectToken("div[data-cy='form-disorder']", disorderName);
                 checkResults("opencga-clinical-analysis-grid");
 
             });
@@ -93,8 +89,7 @@ context("5 - Case Portal", () => {
                 if (spans.length) {
                     const familyId = spans.first().text().trim();
                     // console.log("familyId", familyId);
-                    cy.get("div[data-cy='form-family'] button").click();
-                    cy.get("div[data-cy='form-family'] input").type(familyId + "{enter}", {force: true});
+                    selectToken("div[data-cy='form-family']", familyId);
                     checkResults("opencga-clinical-analysis-grid");
                 }
             });

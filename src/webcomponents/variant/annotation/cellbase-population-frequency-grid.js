@@ -89,8 +89,8 @@ export default class CellbasePopulationFrequencyGrid extends LitElement {
     }
 
     alleleFormatter(value, row, index) {
-        let refAllele = row.refAllele ? row.refAllele : "-";
-        let altAllele = row.altAllele ? row.altAllele : "-";
+        const refAllele = row.refAllele ? row.refAllele : "-";
+        const altAllele = row.altAllele ? row.altAllele : "-";
         return refAllele + "/" + altAllele;
     }
 

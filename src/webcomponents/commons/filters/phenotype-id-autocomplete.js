@@ -70,7 +70,7 @@ export default class PhenotypeIdAutocomplete extends LitElement {
             source: async (params, success, failure) => {
                 const _params = params;
                 _params.data.page = params.data.page || 1;
-                const phenotypes = _params?.data?.term ? {phenotypes: "~^" + _params?.data?.term?.toUpperCase()} : "";
+                const phenotypes = _params?.data?.term ? {phenotypes: "~^" + _params?.data?.term} : "";
                 const filters = {
                     study: this.opencgaSession.study.fqn,
                     limit: this._config.limit,

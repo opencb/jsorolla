@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {login, getResult, checkResults, Facet, changePage, dateFilterCheck, annotationFilterCheck} from "../plugins/utils.js";
+import {login, getResult, checkResults, Facet, changePage, dateFilterCheck, annotationFilterCheck, goTo, selectToken} from "../plugins/utils.js";
 import {TIMEOUT} from "../plugins/constants.js";
 
 
@@ -31,7 +31,8 @@ context("10 - File Browser", () => {
         checkResults("opencga-file-grid");
 
         getResult("opencga-file-grid").then($text => {
-            cy.get("file-name-autocomplete input").type($text + "{enter}");
+            selectToken("file-name-autocomplete", $text);
+
         });
 
         cy.get(".lhs button[data-filter-name]").should("have.length", 1);

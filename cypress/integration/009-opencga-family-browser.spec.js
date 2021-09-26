@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {checkResults, login, getResult, checkResultsOrNot, hasResults, Facet, changePage, dateFilterCheck, annotationFilterCheck} from "../plugins/utils.js";
+import {checkResults, login, getResult, checkResultsOrNot, hasResults, Facet, changePage, dateFilterCheck, annotationFilterCheck, goTo, selectToken} from "../plugins/utils.js";
 import {TIMEOUT} from "../plugins/constants.js";
 
 
@@ -34,7 +34,7 @@ context("9 - Family Browser", () => {
             if ($bool) {
                 // run other tests in case there are results
                 getResult("opencga-family-grid", 1).then($text => {
-                    cy.get("family-id-autocomplete input").type($text + "{enter}");
+                    selectToken("family-id-autocomplete", $text);
                     cy.get(".lhs button[data-filter-name]").should("have.length", 1);
                     cy.get("div.search-button-wrapper button").click();
                 });

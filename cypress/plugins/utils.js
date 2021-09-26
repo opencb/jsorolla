@@ -259,3 +259,12 @@ export const annotationFilterCheck = gridSelector => {
             }
         });
 };
+
+export const selectToken = (filterSelector, value) => {
+    cy.get(filterSelector + " textarea").type(value);
+    cy.wait(1000); // it is necessary to avoid the following negative assertion is early satisfied
+    cy.get("span.select2-dropdown ul li").first().should("be.visible").and("not.contain", "Searching");
+    cy.get(filterSelector + " textarea").focus().type("{enter}");
+    // check at least one of select2-selection__choice button contains `value`
+
+};

@@ -7,6 +7,8 @@ dist/
 bower_components/
 grunt/
 dist-genome/
+custom-conf
+*.tar.gz
 
 npm-debug.log
 

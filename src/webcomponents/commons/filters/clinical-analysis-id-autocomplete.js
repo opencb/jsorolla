@@ -66,7 +66,7 @@ export default class ClinicalAnalysisIdAutocomplete extends LitElement {
             source: async (params, success, failure) => {
                 const _params = params;
                 _params.data.page = params.data.page || 1;
-                const id = _params?.data?.term ? {id: "~^" + _params?.data?.term?.toUpperCase()} : "";
+                const id = _params?.data?.term ? {id: "~^" + _params?.data?.term} : "";
                 const filters = {
                     study: this.opencgaSession.study.fqn,
                     limit: this._config.limit,

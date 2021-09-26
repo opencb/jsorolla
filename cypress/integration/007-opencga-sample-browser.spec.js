@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {login, checkResults, changePage, getResult, Facet, dateFilterCheck, annotationFilterCheck} from "../plugins/utils.js";
+import {login, checkResults, changePage, getResult, Facet, dateFilterCheck, annotationFilterCheck, goTo, selectToken} from "../plugins/utils.js";
 import {TIMEOUT} from "../plugins/constants.js";
 
 
@@ -30,7 +30,7 @@ context("7 - Sample Browser", () => {
 
         checkResults("opencga-sample-grid");
         getResult("opencga-sample-grid").then($text => {
-            cy.get("sample-id-autocomplete input").type($text + "{enter}");
+            selectToken("sample-id-autocomplete", $text);
         });
 
         cy.get(".lhs button[data-filter-name]").should("have.length", 1);

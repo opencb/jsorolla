@@ -1,10 +1,10 @@
-
 import {defineConfig} from "vite";
 import html from "@web/rollup-plugin-html";
 import copy from "rollup-plugin-copy";
 import resolve from "@rollup/plugin-node-resolve";
 import minifyHTML from "rollup-plugin-minify-html-literals";
 import summary from "rollup-plugin-summary";
+import fs from "fs";
 import path from "path";
 import del from "rollup-plugin-delete";
 import {babel} from "@rollup/plugin-babel";
@@ -12,13 +12,16 @@ import {terser} from "rollup-plugin-terser";
 import {execSync} from "child_process";
 import pkg from "./package.json";
 
-
-const buildPath = path.resolve(__dirname, "build");
+const env = process.env || {};
+const buildPath = path.join(__dirname, "build");
+const sitesPath = path.join(__dirname, "src/sites");
 const ivaPath = path.resolve(__dirname, "src/sites/iva");
 const genomeMapsDemoPath = path.resolve(__dirname, "src/genome-browser");
 const patternExt = /\.[0-9a-z]+$/i;
 const patternConfig = /(config|settings|constants|tools)/gi;
 const internalCss = /(global|magic-check|style|toggle-switch)/gi;
+
+const sites = ["iva"];
 
 const revision = () => {
     try {
@@ -43,43 +46,58 @@ const isInternalCss = name => {
     return name.match(internalCss) !== null;
 };
 
-const htmlPlugin = () => {
+const getSiteConfigPath = name => {
+    if (env.npm_config_custom_config) {
+        return `../../../custom-conf/${env.npm_config_custom_config}/${name}`;
+    }
+    return "conf"; // Default path configuration
+};
+
+const transformHtmlContent = html => {
+    let newHtml = html.replace("[build-signature]", revision());
+    sites.forEach(name => {
+        const regex = new RegExp(`{{ ${name.toUpperCase()}_CONFIG_PATH }}`, "g");
+        newHtml = newHtml.replace(regex, getSiteConfigPath(name));
+    });
+    return newHtml;
+};
+
+const getSiteContent = name => {
+    const content = fs.readFileSync(path.join(sitesPath, name, "index.html"), "utf8");
     return {
-        name: "html-transform",
-        transformIndexHtml(html) {
-            return html.replace(
-                "[build-signature]",
-                revision()
-            );
-        }
+        name: `${name}/index.html`,
+        html: transformHtmlContent(content),
     };
 };
 
 export default defineConfig({
-    mode: "development",
+    mode: env.NODE_ENV || "development",
     root: "./",
     server: {
         open: "/src/sites/iva/index.html",
         port: 3000,
-        watch: ["src", "styles"],
+        watch: ["src", "styles", "custom-conf"]
     },
     plugins: [
         {
-            ...htmlPlugin(),
-            apply: "serve"
+            name: "html-transform",
+            transformIndexHtml: transformHtmlContent,
+            apply: "serve",
         }
     ],
     build: {
-        sourcemap: true,
+        sourcemap: false,
         rollupOptions: {
             input: {
                 "iva/index.html": `${ivaPath}/index.html`,
-                "genome-maps/index.html": `${genomeMapsDemoPath}/demo/genome-browser.html`,
             },
             plugins: [
                 del({targets: "build"}),
                 html({
-                    transformHtml: [html => html.replace("[build-signature]", revision())],
+                    rootDir: sitesPath,
+                    input: [
+                        getSiteContent("iva"),
+                    ],
                 }),
                 resolve(),
                 minifyHTML(),
@@ -124,14 +142,13 @@ export default defineConfig({
                         return "lib/core.min";
                     }
                 },
-                chunkFileNames: chunkInfo =>{
+                chunkFileNames: chunkInfo => {
                     return "[name]-[hash].js"; // configuration of manualChunks about name format and folder.
                 },
-                entryFileNames: chunkInfo => { // configuration for entry script module and inline script
-                    return "lib/[name].js";
+                entryFileNames: chunkInfo => {
+                    return "lib/[name].js"; // configuration for entry script module and inline script
                 },
                 assetFileNames: assetInfo => {
-
                     if (assetInfo.name.includes("genome-browser.config")) {
                         return "genome-maps/conf/[name][extname]";
                     }
@@ -153,11 +170,10 @@ export default defineConfig({
                     }
 
                     return "vendors/[name]-[hash][extname]";
-                }
-            }
+                },
+            },
         },
         emptyOutDir: false,
         outDir: "build",
     },
-
 });

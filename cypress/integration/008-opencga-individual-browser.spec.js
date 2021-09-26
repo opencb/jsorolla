@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {login, checkResults, getResult, Facet, changePage, dateFilterCheck, annotationFilterCheck, checkExactResult} from "../plugins/utils.js";
+import {login, checkResults, getResult, Facet, changePage, dateFilterCheck, annotationFilterCheck, checkExactResult, goTo, selectToken} from "../plugins/utils.js";
 import {TIMEOUT} from "../plugins/constants.js";
 
 
@@ -35,7 +35,7 @@ context("8 - Individual Browser", () => {
         checkResults("opencga-individual-grid");
 
         getResult("opencga-individual-grid", 1).then($text => {
-            cy.get("individual-id-autocomplete input").first().type($text + "{enter}");
+            selectToken(".subsection-content[data-cy='id'] individual-id-autocomplete", $text);
             cy.get("div.search-button-wrapper button").click();
             checkExactResult("opencga-individual-grid", 1);
             cy.get("opencga-active-filters button[data-filter-name='id']").click();

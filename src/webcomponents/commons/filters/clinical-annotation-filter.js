@@ -100,7 +100,7 @@ export default class ClinicalAnnotationFilter extends LitElement {
         return html`
             <div style="margin: 10px 0px">
                 <span>Select Clinical Database</span>
-                <div style="padding: 2px 0px">
+                <div style="padding: 2px 0px" data-cy="clinical-db">
                     <select-field-filter multiple
                                          .data="${this._config.clinicalDatabases}"
                                          .value=${this.clinical}
@@ -111,7 +111,7 @@ export default class ClinicalAnnotationFilter extends LitElement {
 
             <div style="margin: 15px 0px">
                 <span>Select Clinical Significance</span>
-                <div style="padding: 2px 0px">
+                <div style="padding: 2px 0px" data-cy="clinical-significance">
                     <select-field-filter multiple
                                          .data=${CLINICAL_SIGNIFICANCE}
                                          .value=${this.clinicalSignificance}
@@ -122,7 +122,7 @@ export default class ClinicalAnnotationFilter extends LitElement {
 
             <div style="margin: 15px 0px">
                 <span>Check Status</span>
-                <div style="padding: 2px 0px">
+                <div style="padding: 2px 0px" class="clinical-status">
                     <checkbox-field-filter .data="${["Confirmed"]}"
                                            .value=${this.clinicalConfirmedStatus === true || this.clinicalConfirmedStatus === "true" ? "Confirmed" : null}
                                            @filterChange="${e => this.filterChange(e, "clinicalConfirmedStatus")}">

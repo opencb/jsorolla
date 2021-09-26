@@ -264,9 +264,9 @@ export default class VariantBrowser extends LitElement {
     }
 
     onActiveFilterChange(e) {
-        // console.log("onActiveFilterChange");
         this.preparedQuery = {study: this.opencgaSession.study.fqn, ...e.detail};
         this.query = {study: this.opencgaSession.study.fqn, ...e.detail};
+        this.notifySearch(this.query);
         this.facetQueryBuilder();
     }
 
@@ -274,6 +274,7 @@ export default class VariantBrowser extends LitElement {
         // console.log("onActiveFilterClear");
         this.query = {study: this.opencgaSession.study.fqn};
         this.preparedQuery = {...this.query};
+        this.notifySearch(this.query);
         this.facetQueryBuilder();
     }
 
@@ -367,7 +368,7 @@ export default class VariantBrowser extends LitElement {
                             },
                             {
                                 id: "feature",
-                                title: "Feature IDs (gene, SNPs, ...)",
+                                title: "Feature IDs (gene, SNPs...)",
                                 tooltip: tooltips.feature
                             },
                             {
@@ -538,7 +539,7 @@ export default class VariantBrowser extends LitElement {
                         {
                             id: "annotationPropFreq",
                             name: "Population Frequencies",
-                            mode: "",
+                            // mode: "",
                             render: (variant, active) => {
                                 return html`
                                     <cellbase-population-frequency-grid

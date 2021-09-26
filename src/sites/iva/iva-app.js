@@ -240,7 +240,7 @@ class IvaApp extends LitElement {
         this.config = _config;
 
         // Initially we load the SUIte config
-        this.app = this.getSuiteConfig();
+        this.app = this.getActiveAppConfig();
 
         // We need to listen to hash fragment changes to update the display and breadcrumb
         const _this = this;
@@ -348,20 +348,20 @@ class IvaApp extends LitElement {
         this.signingIn = "Creating session..";
         this.requestUpdate();
         await this.updateComplete;
-        const _this = this;
-        const opencgaSession = this.opencgaClient.createSession()
+        this.opencgaClient.createSession()
             .then(response => {
+                const _response = response;
                 console.log("_createOpenCGASession", response);
                 // check if project array has been defined in the config.js
-                if (UtilsNew.isNotEmptyArray(_this.config.opencga.projects)) {
+                if (UtilsNew.isNotEmptyArray(this.config.opencga.projects)) {
                     // We store the project and study ids the user needs to visualise (defined in the config.js)
                     const configProjects = {};
-                    for (let i = 0; i < _this.config.opencga.projects.length; i++) {
-                        configProjects[_this.config.opencga.projects[i].id] = [];
+                    for (let i = 0; i < this.config.opencga.projects.length; i++) {
+                        configProjects[this.config.opencga.projects[i].id] = [];
 
-                        for (let j = 0; j < _this.config.opencga.projects[i].studies.length; j++) {
-                            configProjects[_this.config.opencga.projects[i].id].push(
-                                _this.config.opencga.projects[i].studies[j].id
+                        for (let j = 0; j < this.config.opencga.projects[i].studies.length; j++) {
+                            configProjects[this.config.opencga.projects[i].id].push(
+                                this.config.opencga.projects[i].studies[j].id
                             );
                         }
                     }
@@ -386,19 +386,20 @@ class IvaApp extends LitElement {
                     }
 
                     // TODO we must query projects/info URL to get the whole object
-                    response.projects = activeProjects || [];
+                    _response.projects = activeProjects || [];
                     if (UtilsNew.isNotEmptyArray(response.projects[0].studies)) {
-                        response.project = response.projects[0];
-                        response.study = response.projects[0].studies[0];
+                        _response.project = response.projects[0];
+                        _response.study = response.projects[0].studies[0];
                     }
                 }
                 // this forces the observer to be executed.
-                this.opencgaSession = Object.assign({}, response);
-                this.opencgaSession.mode = _this.config.mode;
+                this.opencgaSession = {..._response};
+                this.opencgaSession.mode = this.config.mode;
                 // this.config.menu = [...application.menu];
-                this.config = {..._this.config};
+                this.config = {...this.config};
             })
             .catch(e => {
+                console.error(e);
                 UtilsNew.notifyError(e);
             }).finally(() => {
                 this.signingIn = false;
@@ -465,7 +466,7 @@ class IvaApp extends LitElement {
 
         if (this.tool === "#login") {
             this.tool = "#home";
-            this.app = this.getSuiteConfig();
+            this.app = this.getActiveAppConfig();
         }
 
         // 60000 ms = 1 min. Every 1 min we check if session is close to expire.
@@ -482,7 +483,7 @@ class IvaApp extends LitElement {
         this._createOpencgaSessionFromConfig();
 
         this.tool = "#home";
-        this.app = this.getSuiteConfig();
+        this.app = this.getActiveAppConfig();
         window.location.hash = "home";
         window.clearInterval(this.intervalCheckSession);
     }
@@ -863,7 +864,7 @@ class IvaApp extends LitElement {
         if (e.currentTarget.dataset.id) {
             this.app = this.config.apps.find(app => app.id === e.currentTarget.dataset.id);
         } else {
-            this.app = this.getSuiteConfig();
+            this.app = this.getActiveAppConfig();
         }
 
         // We only want to toggle when clicked in the sidenav
@@ -875,14 +876,21 @@ class IvaApp extends LitElement {
         this.requestUpdate();
     }
 
-    getSuiteConfig() {
-        return {
-            name: this.config.name,
-            version: this.config.version,
-            logo: this.config.logo,
-            about: this.config.about,
-            userMenu: this.config.userMenu,
-        };
+    getActiveAppConfig() {
+        const visibleApps = this.config.apps.filter(app => app.visibility === "public");
+        // If there is only ona visible App we DO NOT need to show the Suite welcome, just the App.
+        if (visibleApps.length === 1) {
+            return visibleApps[0];
+        } else {
+            // Render the Suite welcome page.
+            return {
+                name: this.config.name,
+                version: this.config.version,
+                logo: this.config.logo,
+                about: this.config.about,
+                userMenu: this.config.userMenu,
+            };
+        }
     }
 
     isLoggedIn() {
@@ -971,7 +979,6 @@ class IvaApp extends LitElement {
                     align-items: center;
                     justify-content: center;
                 }
-
             </style>
 
             <!-- <loading-bar></loading-bar> -->

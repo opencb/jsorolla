@@ -1,7 +1,9 @@
 var CELLBASE_HOST = "http://bioinfo.hpc.cam.ac.uk/cellbase";
 var CELLBASE_VERSION = "v4";
 
-var OPENCGA_HOST = "http://bioinfodev.hpc.cam.ac.uk/hgva-1.3.2";
+// var OPENCGA_HOST = "http://bioinfodev.hpc.cam.ac.uk/hgva-1.3.2";
+var OPENCGA_HOST = "https://ws.opencb.org/opencga-test";
+// var OPENCGA_HOST = "https://ws.opencb.org/opencga-prod";
 var OPENCGA_USER = "";
 var OPENCGA_PASSWORD = "";
 

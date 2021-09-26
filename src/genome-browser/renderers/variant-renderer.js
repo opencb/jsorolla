@@ -11,7 +11,7 @@ import FeatureBinarySearchTree from "../feature-binary-search-tree.js";
  *
  * @type {Renderer}
  */
-export class VariantRenderer extends Renderer {
+export default class VariantRenderer extends Renderer {
 
     /*
      *

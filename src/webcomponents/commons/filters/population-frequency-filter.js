@@ -274,9 +274,9 @@ export default class PopulationFrequencyFilter extends LitElement {
                         <div id="${this._prefix}${study.id}" class="form-horizontal" hidden data-cy="pop-freq-codes-wrapper-${study.id}">
                             ${this.showSetAll ? html`
                                 <div class="set-all-form-wrapper form-group">
-                                    <div class="col-md-2 control-label" data-toggle="tooltip" data-placement="top">Set all</div>
-                                    <div class="col-md-5"></div>
-                                    <div class="col-md-5">
+                                    <div class="col-md-7" data-toggle="tooltip" data-placement="top">Set all</div>
+                                    <!--<div class="col-md-5"></div>-->
+                                    <div class="col-md-5" style="padding: 0px 2px;">
                                         <input id="${this._prefix}${study.id}Input" type="text" data-mode="all" data-study="${study.id}"
                                                class="form-control input-sm ${this._prefix}FilterTextInput"
                                                name="${study.id}Input" @input="${this.onSetAllFreqChange}">
