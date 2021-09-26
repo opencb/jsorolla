@@ -73,7 +73,7 @@
     "jquery.json-viewer": "^1.4.0",
     "jwt-decode": "^2.2.0",
     "line-navigator": "https://github.com/anpur/line-navigator.git",
-    "lit": "^2.0.0-rc.4",
+    "lit": "^2.0.0",
     "lodash": "^4.17.19",
     "moment": "^2.15.1",
     "pako": "~0.2.8",
