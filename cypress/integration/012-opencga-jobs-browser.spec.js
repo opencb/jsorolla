@@ -43,9 +43,15 @@ context("12 - Jobs Browser", () => {
         cy.get("div.search-button-wrapper button").click();
         checkResults("opencga-job-grid");
 
+        cy.get("opencga-active-filters button[data-filter-name='id']").click();
+        checkResults("opencga-job-grid");
+
+        cy.get("opencga-active-filters button[data-filter-name='tool']").click();
+        checkResults("opencga-job-grid");
+
         cy.get("#priority + .subsection-content a").click({force: true, multiple: true});
 
-        cy.get(".lhs button[data-filter-name]").should("have.length", 3);
+        cy.get(".lhs button[data-filter-name]").should("have.length", 1);
         cy.get("div.search-button-wrapper button").click();
 
         checkResults("opencga-job-grid");
@@ -55,7 +61,6 @@ context("12 - Jobs Browser", () => {
         checkResults("opencga-job-grid");
 
         dateFilterCheck("opencga-job-grid");
-        annotationFilterCheck("opencga-job-grid");
 
     });
 

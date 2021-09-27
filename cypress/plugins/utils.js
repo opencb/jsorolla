@@ -19,6 +19,11 @@ Cypress.Commands.add("getAttached", selector => {
     }).then(() => cy.wrap($el));
 });
 
+export const waitTable = gridSelector => {
+    cy.wait(1000); // it is necessary to avoid the following negative assertion is early satisfied
+    cy.get(gridSelector + " div.fixed-table-loading", {timeout: 60000}).should("be.not.visible");
+};
+
 export const login = () => {
     cy.visit("http://localhost:3000/src/sites/iva/#login");
     const username = Cypress.env("username");
@@ -28,12 +33,12 @@ export const login = () => {
     cy.get("form#formLogin").submit();
 
     // temp fix
-    cy.get(".login-overlay", {timeout: 60000}).should("be.visible");
-    cy.get(".login-overlay", {timeout: 60000}).should("not.exist");
+    cy.get(".login-overlay", {timeout: TIMEOUT}).should("be.visible");
+    cy.get(".login-overlay", {timeout: TIMEOUT}).should("not.exist");
 
     // switch to defined Study
     if (Cypress.env("study")) {
-        cy.get(`a[data-cy-fqn="${Cypress.env("study")}"]`, {timeout: 60000}).click({force: true});
+        cy.get(`a[data-cy-fqn="${Cypress.env("study")}"]`, {timeout: TIMEOUT}).click({force: true});
     }
 
 
@@ -60,8 +65,8 @@ export const randomString = length => {
 };
 
 export const waitTableResults = gridSelector => {
-    cy.get(gridSelector + " div.fixed-table-loading", {timeout: 60000}).should("be.visible");
-    cy.get(gridSelector + " div.fixed-table-loading", {timeout: 60000}).should("be.not.visible");
+    cy.get(gridSelector + " div.fixed-table-loading", {timeout: TIMEOUT}).should("be.visible");
+    cy.get(gridSelector + " div.fixed-table-loading", {timeout: TIMEOUT}).should("be.not.visible");
 };
 
 /**
@@ -71,7 +76,7 @@ export const waitTableResults = gridSelector => {
  * @returns {void}
  */
 export const checkExactResult = (gridSelector, numResults = 1) => {
-    cy.get(gridSelector + " table", {timeout: 60000}).find("tr[data-index]", {timeout: 60000}).should("have.lengthOf", numResults); // .should("be.gte", 1);
+    cy.get(gridSelector + " table", {timeout: TIMEOUT}).find("tr[data-index]", {timeout: TIMEOUT}).should("have.lengthOf", numResults); // .should("be.gte", 1);
 };
 
 /**
@@ -80,7 +85,8 @@ export const checkExactResult = (gridSelector, numResults = 1) => {
  * @returns {void}
  */
 export const checkResults = gridSelector => {
-    cy.get(gridSelector + " table", {timeout: 60000}).find("tr[data-index]", {timeout: 60000}).should("have.length.gt", 0); // .should("be.gte", 1);
+    waitTable(gridSelector);
+    cy.get(gridSelector + " table", {timeout: TIMEOUT}).find("tr[data-index]", {timeout: TIMEOUT}).should("have.length.gt", 0); // .should("be.gte", 1);
 };
 
 /**
@@ -90,18 +96,8 @@ export const checkResults = gridSelector => {
  * @returns {void}
  */
 export const checkResultsOrNot = (gridSelector, id) => {
-    // TODO (no-unnecessary-waiting) #L99
-    // https://docs.cypress.io/guides/references/best-practices#Unnecessary-Waiting
-    // Temporal solution for now
-
-    // *************************
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(1000); // it is necessary to avoid the following negative assertion is early satisfied
-    // *************************
-
-    cy.get(gridSelector + " div.fixed-table-loading", {timeout: 60000}).should("be.not.visible");
-
-    cy.get(gridSelector + " .fixed-table-body > table > tbody", {timeout: 60000}).find(" > tr", {timeout: 10000})
+    waitTable(gridSelector);
+    cy.get(gridSelector + " .fixed-table-body > table > tbody", {timeout: TIMEOUT}).find(" > tr", {timeout: 10000})
         .should("satisfy", $els => {
 
             // TODO Debug this. the first print is defined the second is not
@@ -111,10 +107,6 @@ export const checkResultsOrNot = (gridSelector, id) => {
 
             const $firstRow = Cypress.$($els[0]);
             if ($firstRow) {
-                // console.error("$firstRow.data(index)", $firstRow.data("index"))
-                // console.error("$els.text()", $els.text())
-                // console.error("id", id)
-                // console.error("No matching records found", $els.text().includes("No matching records found"))
                 // it covers either the case of some results or 0 results
                 return $firstRow.data("index") === 0 || $els.text().includes("No matching records found");
             }
@@ -122,19 +114,20 @@ export const checkResultsOrNot = (gridSelector, id) => {
         });
 };
 
+
 /**
- * given column and row coordinates, it returns a single value out of a bootstrap table
- * @param {String} [gridSelector] - name of the gridSelector
- * @param {Number} [colIndex] - index of the column
- * @param {Number} [rowIndex] - index of the row
- * @param {String} [invokeFn] - invoke a function
- * @returns {Promise} - return a promise
+ * Given column and row coordinates, it returns the value of a single cell out of a bootstrap table
+ * @param {String} gridSelector CSS selector of the table
+ * @param {Number} colIndex column index
+ * @param {Number} rowIndex row index
+ * @param {String} invokeFn text|html
+ * @returns {Cypress.Chainable}
  */
 export const getResult = (gridSelector, colIndex = 0, rowIndex = 0, invokeFn= "text") => {
     // check results are >= resultIndex
-    // cy.get(gridSelector + " table", {timeout: 60000}).find("tr[data-index]", {timeout: 60000}).should("have.length.gte", rowIndex);
-    // cy.get(gridSelector + " table", {timeout: 60000}).find(`tr[data-index=${rowIndex}] > :nth-child(${colIndex})`, {timeout: 60000}).invoke("text").as("text")
-    return cy.get(gridSelector + " table", {timeout: 60000}).find(`tr[data-index=${rowIndex}] > :nth-child(${colIndex + 1})`, {timeout: 60000}).first().invoke(invokeFn);
+    // cy.get(gridSelector + " table", {timeout: TIMEOUT}).find("tr[data-index]", {timeout: TIMEOUT}).should("have.length.gte", rowIndex);
+    // cy.get(gridSelector + " table", {timeout: TIMEOUT}).find(`tr[data-index=${rowIndex}] > :nth-child(${colIndex})`, {timeout: TIMEOUT}).invoke("text").as("text")
+    return cy.get(gridSelector + " table", {timeout: TIMEOUT}).find(`tr[data-index=${rowIndex}] > :nth-child(${colIndex + 1})`, {timeout: TIMEOUT}).first().invoke(invokeFn);
 };
 
 /**
@@ -222,7 +215,7 @@ export const dateFilterCheck = gridSelector => {
  * type a random string and then check whether the button in opencga-active-filters is built correctly
  */
 export const annotationFilterCheck = gridSelector => {
-    cy.get("opencga-annotation-filter-modal", {timeout: 60000})
+    cy.get("opencga-annotation-filter-modal", {timeout: TIMEOUT})
         .then($wc => {
             // check whether there are variableSet
             if (Cypress.$("button", $wc).length) {

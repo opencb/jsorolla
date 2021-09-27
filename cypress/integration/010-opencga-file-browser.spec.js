@@ -32,12 +32,12 @@ context("10 - File Browser", () => {
 
         getResult("opencga-file-grid").then($text => {
             selectToken("file-name-autocomplete", $text);
-
         });
 
         cy.get(".lhs button[data-filter-name]").should("have.length", 1);
-
         cy.get("div.search-button-wrapper button").click();
+        checkResults("opencga-file-grid");
+        cy.get("opencga-active-filters button[data-filter-name='name']").click();
         checkResults("opencga-file-grid");
 
         cy.get("#format + .subsection-content a").contains("VCF").click({force: true});

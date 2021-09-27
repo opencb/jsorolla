@@ -33,8 +33,9 @@ context("11 - Cohort Browser", () => {
             selectToken("cohort-id-autocomplete", $text);
         });
         cy.get(".lhs button[data-filter-name]").should("have.length", 1);
-
         cy.get("div.search-button-wrapper button").click();
+        checkResults("opencga-cohort-grid");
+        cy.get("opencga-active-filters button[data-filter-name='id']").click();
 
         checkResults("opencga-cohort-grid");
         changePage("opencga-cohort-grid", 2);
