@@ -2479,6 +2479,9 @@ interpretation-editor .status-wrapper .row > div:last-child {
 }
 
 /************  case review / case portal  ************/
+.lhs.case-portal .btn-group {
+    margin: 2px ;
+}
 .dropdown-menu a.right-icon {
     position: relative;
 }
