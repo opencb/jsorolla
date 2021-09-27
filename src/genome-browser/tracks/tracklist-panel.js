@@ -5,8 +5,6 @@ import SequenceRenderer from "../renderers/sequence-renderer.js";
 export default class TrackListPanel { // parent is a DOM div element
 
     constructor(args) {
-        let _this = this;
-
         Object.assign(this, Backbone.Events);
 
         this.cellBaseHost = "http://bioinfo.hpc.cam.ac.uk/cellbase";
@@ -39,16 +37,14 @@ export default class TrackListPanel { // parent is a DOM div element
         // set new region object
         this.region = new Region(this.region);
         this.width -= 18;
-
-
         this.status;
 
         // this region is used to do not modify original region, and will be used by trackSvg
         this.visualRegion = new Region(this.region);
 
-        /********/
+        /* *******/
         this._setPixelBase();
-        /********/
+        /* *******/
 
         this.on(this.handlers);
 
@@ -135,14 +131,14 @@ export default class TrackListPanel { // parent is a DOM div element
 
                 this.collapseDiv.appendChild(collapseSpan);
 
-                $(titleDiv).dblclick(function() {
+                $(titleDiv).dblclick(function () {
                     if (_this.collapsed) {
                         _this.showContent();
                     } else {
                         _this.hideContent();
                     }
                 });
-                $(this.collapseDiv).click(function() {
+                $(this.collapseDiv).click(function () {
                     if (_this.collapsed) {
                         _this.showContent();
                     } else {
@@ -294,7 +290,7 @@ export default class TrackListPanel { // parent is a DOM div element
         }
 
 
-        $(this.div).mousemove(function(event) {
+        $(this.div).mousemove(function (event) {
             let centerPosition = _this.region.center();
             let mid = _this.width / 2;
             let mouseLineOffset = _this.pixelBase / 2;
@@ -316,7 +312,7 @@ export default class TrackListPanel { // parent is a DOM div element
             });
         });
 
-        $(this.tlTracksDiv).dblclick(function(event) {
+        $(this.tlTracksDiv).dblclick(function (event) {
             if (!_this.regionChanging) {
                 _this.regionChanging = true;
                 /**/
@@ -335,14 +331,14 @@ export default class TrackListPanel { // parent is a DOM div element
                 /**/
                 /**/
                 /**/
-                setTimeout(function() {
+                setTimeout(function () {
                     _this.regionChanging = false;
                 }, 700);
             }
         });
 
         let downX, moveX;
-        $(this.tlTracksDiv).mousedown(function(event) {
+        $(this.tlTracksDiv).mousedown(function (event) {
             $("html").addClass("unselectable");
             //                            $('.qtip').qtip('hide').qtip('disable'); // Hide AND disable all tooltips
             $(_this.mouseLine).css({
@@ -370,7 +366,7 @@ export default class TrackListPanel { // parent is a DOM div element
                                 _this.region.start -= disp;
                                 _this.region.end -= disp;
                                 _this._setTextPosition();
-                                //						_this.onMove.notify(disp);
+                                // _this.onMove.notify(disp);
                                 _this.trigger("region:move", {
                                     region: _this.region,
                                     disp: disp,
@@ -400,7 +396,7 @@ export default class TrackListPanel { // parent is a DOM div element
                     $(selBox).css({
                         "left": downX
                     });
-                    $(this).mousemove(function(event) {
+                    $(this).mousemove(function (event) {
                         moveX = (event.pageX - $(_this.tlTracksDiv).offset().left);
                         if (moveX < downX) {
                             $(selBox).css({
@@ -422,7 +418,7 @@ export default class TrackListPanel { // parent is a DOM div element
 
         });
 
-        $(this.tlTracksDiv).mouseup(function(event) {
+        $(this.tlTracksDiv).mouseup(function (event) {
             $("html").removeClass("unselectable");
             $(this).css({
                 "cursor": "default"
@@ -477,7 +473,7 @@ export default class TrackListPanel { // parent is a DOM div element
 
         });
 
-        $(this.tlTracksDiv).mouseleave(function(event) {
+        $(this.tlTracksDiv).mouseleave(function (event) {
             $(this).css({
                 "cursor": "default"
             });
@@ -494,18 +490,9 @@ export default class TrackListPanel { // parent is a DOM div element
             moveX = null;
         });
 
-        $(this.tlTracksDiv).mouseenter(function(e) {
-            //            $('.qtip').qtip('enable'); // To enable them again ;)
-            $(_this.mouseLine).css({
-                "visibility": "visible"
-            });
-            $("body").off("keydown.genomeViewer");
-            enableKeys();
-        });
-
-        var enableKeys = function() {
-            //keys
-            $("body").bind("keydown.genomeViewer", function(e) {
+        var enableKeys = function () {
+            // keys
+            $("body").bind("keydown.genomeViewer", function (e) {
                 let disp = 0;
                 switch (e.keyCode) {
                     case 37: // left arrow
@@ -527,7 +514,7 @@ export default class TrackListPanel { // parent is a DOM div element
                     _this.region.start -= disp;
                     _this.region.end -= disp;
                     _this._setTextPosition();
-                    //					_this.onMove.notify(disp);
+                    // _this.onMove.notify(disp);
                     _this.trigger("region:move", {
                         region: _this.region,
                         disp: disp,
@@ -541,11 +528,16 @@ export default class TrackListPanel { // parent is a DOM div element
                 }
             });
         };
-
+        $(this.tlTracksDiv).mouseenter(function (e) {
+            //            $('.qtip').qtip('enable'); // To enable them again ;)
+            $(_this.mouseLine).css({
+                "visibility": "visible"
+            });
+            $("body").off("keydown.genomeViewer");
+            enableKeys();
+        });
         this.tlHeaderDiv = tlHeaderDiv;
         this.panelDiv = panelDiv;
-
-
         this.setVisible(!this.hidden);
         this.rendered = true;
     }
@@ -590,7 +582,7 @@ export default class TrackListPanel { // parent is a DOM div element
     setRegion(region) { // item.chromosome, item.position, item.species
         console.log(`trackListPanel setRegion region ------> ${region}`);
         console.log(`trackListPanel setRegion width ------> ${this.width}`);
-        let _this = this;
+
         let mid = this.width / 2;
         this.region.load(region);
         this.visualRegion.load(region);
@@ -638,7 +630,6 @@ export default class TrackListPanel { // parent is a DOM div element
     }
 
     draw() {
-        let _this = this;
         this.targetDiv = (this.target instanceof HTMLElement) ? this.target : document.querySelector(`#${this.target}`);
         if (!this.targetDiv) {
             console.log("target not found");
@@ -671,7 +662,7 @@ export default class TrackListPanel { // parent is a DOM div element
     }
     _addTrack(track) {
         if (!this.rendered) {
-            console.info(`${this.id} is not rendered yet`);
+            console.log(`${this.id} is not rendered yet`);
             return;
         }
         let _this = this;
@@ -683,7 +674,6 @@ export default class TrackListPanel { // parent is a DOM div element
         if (this.containsTrack(track)) {
             return false;
         }
-
 
         let length = this.tracks.push(track);
         let insertPosition = length - 1;
@@ -713,12 +703,12 @@ export default class TrackListPanel { // parent is a DOM div element
 
 
         // trackEvents
-        track.set("track:draw", function(event) {
+        track.set("track:draw", function (event) {
             track.draw();
         });
 
 
-        track.set("trackRegion:change", function(event) {
+        track.set("trackRegion:change", function (event) {
             console.log(`trackListPanel trackRegion:change region ------> ${event.region}`);
             console.log(`trackListPanel trackRegion:change width ------> ${_this.width}`);
             track.setWidth(_this.width);
@@ -728,14 +718,14 @@ export default class TrackListPanel { // parent is a DOM div element
         });
 
 
-        track.set("trackRegion:move", function(event) {
+        track.set("trackRegion:move", function (event) {
             track.set("region", event.region);
             track.set("pixelBase", _this.pixelBase);
             track.move(event.disp);
         });
 
 
-        track.set("trackFeature:highlight", function(event) {
+        track.set("trackFeature:highlight", function (event) {
 
 
             let attrName = event.attrName || "feature_id";
@@ -768,13 +758,13 @@ export default class TrackListPanel { // parent is a DOM div element
             }
         });
 
-        track.on("track:close", function(event) {
+        track.on("track:close", function (event) {
             _this.removeTrack(event.sender);
         });
-        track.on("track:up", function(event) {
+        track.on("track:up", function (event) {
             _this._reallocateAbove(event.sender);
         });
-        track.on("track:down", function(event) {
+        track.on("track:down", function (event) {
             _this._reallocateUnder(event.sender);
         });
 
@@ -852,7 +842,7 @@ export default class TrackListPanel { // parent is a DOM div element
         //        this.off('trackSpecies:change', track.get('trackSpecies:change'));
         this.off("trackRegion:change", track.get("trackRegion:change"));
         this.off("trackRegion:move", track.get("trackRegion:move"));
-        //this.off('trackWidth:change', track.set('trackWidth:change'));
+        // this.off('trackWidth:change', track.set('trackWidth:change'));
         this.off("trackFeature:highlight", track.get("trackFeature:highlight"));
 
         this.refreshTracksDom();
@@ -895,7 +885,7 @@ export default class TrackListPanel { // parent is a DOM div element
         }
     }
 
-    //This routine is called when track order is modified
+    // This routine is called when track order is modified
     _reallocateUnder(track) {
         if (!this.containsTrack((track))) {
             return false;
@@ -957,7 +947,7 @@ export default class TrackListPanel { // parent is a DOM div element
             return false;
         }
 
-        let y = $(track.div).position().top;
+        const y = $(track.div).position().top;
         $(this.tlTracksDiv).scrollTop(y);
     }
 
@@ -985,7 +975,7 @@ export default class TrackListPanel { // parent is a DOM div element
 
     _setTextPosition() {
         let centerPosition = this.region.center();
-        let baseLength = parseInt(this.width / this.pixelBase); //for zoom 100
+        let baseLength = parseInt(this.width / this.pixelBase); // for zoom 100
         let aux = Math.ceil((baseLength / 2) - 1);
         this.visualRegion.start = Math.floor(centerPosition - aux);
         this.visualRegion.end = Math.floor(centerPosition + aux);
@@ -1044,16 +1034,16 @@ export default class TrackListPanel { // parent is a DOM div element
     setCellBaseHost(host) {
         this.cellBaseHost = host;
         for (let i = 0; i < this.tracks.length; i++) {
-            let track = this.tracks[i];
+            const track = this.tracks[i];
             if (track.dataAdapter instanceof CellBaseAdapter) {
                 track.dataAdapter.setHost(this.cellBaseHost);
             }
         }
     }
-    deleteTracksCache(){
+    deleteTracksCache() {
         for (let i = 0; i < this.tracks.length; i++) {
-            let track = this.tracks[i];
-            if(track.dataAdapter.deleteCache != null){
+            const track = this.tracks[i];
+            if (track.dataAdapter.deleteCache != null) {
                 track.dataAdapter.deleteCache();
             }
         }
