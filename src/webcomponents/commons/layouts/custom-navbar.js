@@ -212,7 +212,7 @@ export default class CustomNavBar extends LitElement {
                                             ${item.name} <span class="caret"></span>
                                         </a>
                                         <ul class="dropdown-menu">
-                                            ${item.submenu.map(subitem => subitem.category ? html`
+                                            ${item.submenu.filter(subitem => UtilsNew.isAppVisible(subitem, this.opencgaSession)).map(subitem => subitem.category ? html`
                                                 <li>
                                                     <a class="nav-item-category" href="${subitem.id ? "#" + subitem.id : "javascript: void 0"}">${subitem.name}</a>
                                                 </li>
