@@ -168,16 +168,17 @@ class VariantInterpreterBrowserCancer extends LitElement {
                     }
 
                     // Init the default caller INFO filters
-                    const fileDataFilters = [];
-                    for (const caller of this._config.filter.callers) {
-                        if (this.callerToFile[caller.id]) {
-                            fileDataFilters.push(this.callerToFile[caller.id].name + ":" + caller.queryString);
-                        }
-                    }
+                    // const fileDataFilters = [];
+                    // for (const caller of this._config.filter.callers) {
+                    //     if (this.callerToFile[caller.id]) {
+                    //         fileDataFilters.push(this.callerToFile[caller.id].name + ":" + caller.queryString);
+                    //     }
+                    // }
 
                     this.query = {
                         ...this.query,
-                        fileData: fileDataFilters.join(",")
+                        // fileData: fileDataFilters.join(",")
+                        fileData: this._fileData
                         // populationFrequencyAlt: "1kG_phase3:ALL<=0.001",
                     };
                     // NOTE: We need to update the _config to update the dynamic VCF caller filters
@@ -328,22 +329,22 @@ class VariantInterpreterBrowserCancer extends LitElement {
 
     getDefaultConfig() {
         // DEPRECATED: Prepare dynamic Variant Caller INFO filters
-        const callers = ["Caveman", "strelka", "Pindel", "ASCAT", "Canvas", "BRASS", "Manta", "TNhaplotyper2", "Pisces", "CRAFT"];
-        const callerFilters = [];
-        for (const caller of callers) {
-            const callerId = caller.toLowerCase();
-            callerFilters.push(
-                {
-                    id: callerId,
-                    title: caller + " Filters",
-                    description: () => html`File filters for <span style="font-style: italic; word-break: break-all">${this.callerToFile[callerId].name}</span>`,
-                    visible: () => this.callerToFile && this.callerToFile[callerId],
-                    params: {
-                        fileId: `${this.callerToFile ? this.callerToFile[callerId]?.name : null}`
-                    }
-                }
-            );
-        }
+        // const callers = ["Caveman", "strelka", "Pindel", "ASCAT", "Canvas", "BRASS", "Manta", "TNhaplotyper2", "Pisces", "CRAFT"];
+        // const callerFilters = [];
+        // for (const caller of callers) {
+        //     const callerId = caller.toLowerCase();
+        //     callerFilters.push(
+        //         {
+        //             id: callerId,
+        //             title: caller + " Filters",
+        //             description: () => html`File filters for <span style="font-style: italic; word-break: break-all">${this.callerToFile[callerId].name}</span>`,
+        //             visible: () => this.callerToFile && this.callerToFile[callerId],
+        //             params: {
+        //                 fileId: `${this.callerToFile ? this.callerToFile[callerId]?.name : null}`
+        //             }
+        //         }
+        //     );
+        // }
 
         // New code
         const variantCallers = [];
@@ -363,6 +364,12 @@ class VariantInterpreterBrowserCancer extends LitElement {
                 id: "caveman",
                 columns: ["ASMD"],
                 dataFilters: [
+                    {
+                        id: "FILTER",
+                        name: "PASS",
+                        type: "BOOLEAN",
+                        defaultValue: "PASS"
+                    },
                     {
                         id: "CLPM",
                         name: "CLPM name",
@@ -392,6 +399,13 @@ class VariantInterpreterBrowserCancer extends LitElement {
                 ],
                 fileId: this.callerToFile["pindel"]?.name
             });
+
+            const _fileDataArray = [];
+            for (const variantCaller of variantCallers) {
+                _fileDataArray
+                    .push(variantCaller.fileId + ":" + variantCaller.dataFilters.map(f => f.id !== "FILTER" ? f.id + f.defaultValue : f.id + "=PASS").join(";"));
+            }
+            this._fileData = _fileDataArray.join(",");
         }
 
         return {
@@ -415,22 +429,22 @@ class VariantInterpreterBrowserCancer extends LitElement {
                     hiddenFields: [],
                     lockedFields: [{id: "sample"}]
                 },
-                callers: [
-                    {
-                        id: "caveman",
-                        queryString: "FILTER=PASS;CLPM>=0;ASMD>=140"
-                        // queryString: "FILTER=PASS"
-                    },
-                    {
-                        id: "pindel",
-                        // queryString: "FILTER=PASS;QUAL>=250;REP<=9"
-                        queryString: "FILTER=PASS"
-                    },
-                    {
-                        id: "tnhaplotyper2",
-                        queryString: "FILTER=PASS"
-                    }
-                ],
+                // callers: [
+                //     {
+                //         id: "caveman",
+                //         queryString: "FILTER=PASS;CLPM>=0;ASMD>=140"
+                //         // queryString: "FILTER=PASS"
+                //     },
+                //     {
+                //         id: "pindel",
+                //         // queryString: "FILTER=PASS;QUAL>=250;REP<=9"
+                //         queryString: "FILTER=PASS"
+                //     },
+                //     {
+                //         id: "tnhaplotyper2",
+                //         queryString: "FILTER=PASS"
+                //     }
+                // ],
                 sections: [ // sections and subsections, structure and order is respected
                     {
                         title: "Sample And File",
@@ -469,14 +483,14 @@ class VariantInterpreterBrowserCancer extends LitElement {
                                 tooltip: "VCF file based FILTER and QUAL filters",
                                 visible: UtilsNew.isEmpty(this.callerToFile)
                             },
-                            ...callerFilters,
-                            // {
-                            //     id: "variant-file-info-filter",
-                            //     title: "Variant File Caller Filter",
-                            //     params: {
-                            //         callers: variantCallers
-                            //     }
-                            // }
+                            // ...callerFilters,
+                            {
+                                id: "variant-file-info-filter",
+                                title: "Variant File Caller Filter",
+                                params: {
+                                    callers: variantCallers
+                                }
+                            }
                         ]
                     },
                     {
