@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2015-2016 OpenCB
  *
@@ -41,21 +42,17 @@ const hosts = [
         id: "local",
         url: "http://localhost:1234/opencga"
     },
-    {
-        id: "gel",
-        url: "https://re-uat.opencga.gel.zone/opencga"
-    }
+    // {
+    //     id: "gel",
+    //     url: "https://re-uat.opencga.gel.zone/opencga"
+    // }
 ];
 
 const opencga = {
-    host: hosts[1].url,
-    // host: "https://ws.opencb.org/opencga-prod",
-    // host: "http://localhost:1234/opencga",
-    // host: "https://uat.eglh.app.zettagenomics.com/opencga", // public instance
+    host: hosts[3].url,
     version: "v2",
-    // serverVersion: "1.4",
     cookie: {
-        prefix: "iva-" + hosts[1].id
+        prefix: "iva-" + hosts[3].id
     }
 
     // This forces the following projects to be used instead of the user's project
@@ -201,7 +198,6 @@ const suite = {
                                     <li>Filter by gene, consequence, frequency and much more</li>
                                 </ul>`,
                             visibility: "public",
-                            // fa_icon: "fa fa-list",
                             icon: "img/tools/icons/variant_browser.svg",
                             thumbnail: "variant-browser.png"
                         },
@@ -273,14 +269,6 @@ const suite = {
                             icon: "",
                             visibility: "public"
                         },
-                        // {
-                        //     id: "tdt",
-                        //     title: "Family-Based Association (TDT)",
-                        //     acronym: "TDT",
-                        //     description: "",
-                        //     icon: "",
-                        //     visibility: "public"
-                        // },
                         MENU_SEPARATOR,
                         {
                             name: "Sample Analysis",
@@ -793,6 +781,13 @@ const suite = {
             name: "OpenCGA Admin",
             logo: "img/tools/icons/file_explorer.svg",
             icon: "img/tools/icons/file_explorer.svg",
+            welcomePageContent: `
+            <p class="text-center">
+                Welcome to the OpenCB Suite for whole genome variant analysis.<br />
+                This interactive tool allows finding genes affected by deleterious variants<br />that segregate along family
+                pedigrees, case-controls or sporadic samples.
+            </p>
+            <br>`,
             visibility: "public",
             menu: [
                 {

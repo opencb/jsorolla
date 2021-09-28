@@ -590,6 +590,9 @@ export default class DataForm extends LitElement {
         let value = this.getValue(element.field); // || this._getDefaultValue(element);
         const disabled = this._getBooleanValue(element.display?.disabled, false);
 
+        if (element.field.endsWith("FILTER")) {
+            debugger
+        }
         // TODO to be fixed.
         if (element.field === "FILTER") {
             value = value === "PASS";

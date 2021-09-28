@@ -18,8 +18,10 @@ import UtilsNew from "./../../core/utilsNew.js";
 import "./welcome-iva.js";
 import "./welcome-admin.js";
 import "./welcome-clinical.js";
+import "../../webcomponents/commons/layouts/welcome-app.js";
 
-export default class WelcomeWeb extends LitElement {
+
+export default class WelcomeSuite extends LitElement {
 
     constructor() {
         super();
@@ -89,26 +91,26 @@ export default class WelcomeWeb extends LitElement {
             switch (app.id) {
                 case "iva":
                     return html`
-                        <welcome-iva
-                                .app="${app}"
-                                .opencgaSession="${this.opencgaSession}"
-                                version="${this.config.version}"
-                                .cellbaseClient=${this.cellbaseClient}
-                                .config="${this.config}">
-                        </welcome-iva>`;
+                        <welcome-app
+                            version="${this.config.version}"
+                            .app="${app}"
+                            .opencgaSession="${this.opencgaSession}"
+                            .cellbaseClient=${this.cellbaseClient}
+                            .config="${this.config}">
+                        </welcome-app>`;
                 case "clinical":
                     return html`
-                        <welcome-clinical
+                        <welcome-app
                                 .opencgaSession="${this.opencgaSession}"
                                 .config="${this.config}">
-                        </welcome-clinical>`;
+                        </welcome-app>`;
                 case "admin":
                     return html`
-                        <welcome-admin
+                        <welcome-app
                                 .app="${app}"
                                 .opencgaSession="${this.opencgaSession}"
                                 .config="${this.config}">
-                        </welcome-admin>`;
+                        </welcome-app>`;
                 default:
                     return this.renderSuiteWelcome();
             }
@@ -119,7 +121,7 @@ export default class WelcomeWeb extends LitElement {
         return html`
             <div>
                 <h1 style="text-align: center">
-                    OpenCB Suite
+                    ${this.config.name}
                 </h1>
                 <div style="margin: 20px">
                     ${UtilsNew.renderHTML(this.config.welcomePageContent)}
@@ -182,4 +184,4 @@ export default class WelcomeWeb extends LitElement {
 
 }
 
-customElements.define("welcome-web", WelcomeWeb);
+customElements.define("welcome-suite", WelcomeSuite);

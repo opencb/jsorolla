@@ -425,8 +425,8 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                 }
             },
             grid: {
-                pageSize: 10,
-                pageList: [10, 25, 50],
+                pageSize: 5,
+                pageList: [5, 10, 25, 50],
                 detailView: false,
                 multiSelection: false,
                 showActions: true,
@@ -494,7 +494,7 @@ export default class OpencgaClinicalReviewCases extends LitElement {
                             <div class="panel panel-default" style="margin-bottom: 10px">
                                 <!--<div class="panel-heading">Case Filters</div>-->
                                 <div class="panel-body" style="padding: 10px">
-                                    <div class="lhs">
+                                    <div class="lhs case-portal">
 
                                         <div class="dropdown saved-filter-dropdown" style="margin-right: 5px">
                                             <button type="button" class="active-filter-label ripple no-shadow" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"

@@ -26,9 +26,9 @@ const revision = () => {
     try {
         const jsorollaBranch = execSync("git rev-parse --abbrev-ref HEAD").toString();
         const jsorollaSha1 = execSync("git rev-parse HEAD").toString();
-        return `~
-        ~ Jsorolla Version: ${pkg.version} | Git: ${jsorollaBranch.trim()} - ${jsorollaSha1.trim()}
-        ~ Build generated on: ${new Date()}`;
+        return `
+        Jsorolla Version: ${pkg.version} | Git: ${jsorollaBranch.trim()} - ${jsorollaSha1.trim()}
+        Build generated on: ${new Date()}\n    `;
     } catch (error) {
         console.error(`
             Status: ${error.status}
@@ -53,10 +53,11 @@ const getSiteConfigPath = name => {
 };
 
 const transformHtmlContent = html => {
-    let newHtml = html.replace("[build-signature]", revision());
+    const annihilator = /<!-- build:delete -->[\s\S]*?<!-- \/build -->/mg;
+    let newHtml = html.replace("[build-signature]", revision()).replace(annihilator, "");
     sites.forEach(name => {
         const regex = new RegExp(`{{ ${name.toUpperCase()}_CONFIG_PATH }}`, "g");
-        newHtml = newHtml.replace(regex, getSiteConfigPath(name));
+        newHtml = newHtml.replace(regex, getSiteConfigPath(name)).replace(annihilator, "");
     });
     return newHtml;
 };
