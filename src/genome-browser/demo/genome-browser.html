@@ -166,33 +166,8 @@
             /** *** Demo Gene Track using GeneTrack and Cellbase adapter             ***/
             /** ************************************************************************/
 
-            const gene = new GeneTrack({
-                title: "Gene",
-                minHistogramRegionSize: 20000000,
-                maxLabelRegionSize: 10000000,
-                minTranscriptRegionSize: 200000,
-                height: 120,
-                cellbase: {
-                    "host": CELLBASE_HOST,
-                    "version": CELLBASE_VERSION,
-                    "species": "hsapiens"
-                }
-                //            renderer: new GeneRenderer({
-                //                handlers: {
-                //                    'feature:click': function(e) {
-                //                        console.log(e)
-                //                    }
-                //                }
-                //            })
-                //            dataAdapter: new CellBaseAdapter(cellbaseClient, "genomic", "region", "gene", {
-                //                exclude: 'transcripts.tfbs,transcripts.xrefs,transcripts.exons.sequence'
-                //            }, {
-                //                chunkSize: 100000
-                //            })
-            });
+            const gene = new GeneTrack({cellbaseClient: cellbaseClient});
             tracks.push(gene);
-
-            // The user can change the render and adapter as in the commented example
 
             /** *************************************************************************/
             /** ***   Demo SNP Track using FeatureTrack and Cellbase adapter          ***/
