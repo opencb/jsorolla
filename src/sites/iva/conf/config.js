@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2015-2016 OpenCB
  *
@@ -780,6 +781,13 @@ const suite = {
             name: "OpenCGA Admin",
             logo: "img/tools/icons/file_explorer.svg",
             icon: "img/tools/icons/file_explorer.svg",
+            welcomePageContent: `
+            <p class="text-center">
+                Welcome to the OpenCB Suite for whole genome variant analysis.<br />
+                This interactive tool allows finding genes affected by deleterious variants<br />that segregate along family
+                pedigrees, case-controls or sporadic samples.
+            </p>
+            <br>`,
             visibility: "public",
             menu: [
                 {
