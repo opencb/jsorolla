@@ -61,14 +61,10 @@
         import Region from "../../core/bioinfo/region.js";
         import Utils from "../../core/utils.js";
         import GenomeBrowser from "../genome-browser.js";
-        import FeatureRenderer from "../renderers/feature-renderer.js";
-        import FeatureTrack from "../tracks/feature-track.js";
         import GeneTrack from "../tracks/gene-track.js";
-        import CellBaseAdapter from "../../core/data-adapter/cellbase-adapter.js";
-        import SequenceRenderer from "../renderers/sequence-renderer.js";
-        import SnpTrack3 from "../tracks/snp-track3.js";
+        import SnpTrack from "../tracks/snp-track.js";
         import SequenceTrack from "../tracks/sequence-track.js";
-        import GeneOverviewTrack3 from "../tracks/gene-overview-track3.js";
+        import GeneOverviewTrack from "../tracks/gene-overview-track.js";
 
         /** *************************************************************************/
         /** *** Setting Defaults Params                                           ***/
@@ -77,8 +73,6 @@
         // We first parse URL to check (and overwrite) if a CellBase Host and Version have been provided
         // if we do not provide the CellbaseHost then you will get those configured in the file "config.js"
 
-        //let CELLBASE_HOST = "http://ws.zettagenomics.com/cellbase";
-        //let CELLBASE_VERSION = "v4";
         let AVAILABLE_SPECIES;
 
         const queryParams = URI.parseQuery(window.location.search);
@@ -158,8 +152,8 @@
             /** *** Demo Gene overview Track using FeatureTrack and Cellbase adapter  ***/
             /** *************************************************************************/
 
-            // const geneOverviewTrack = new GeneOverviewTrack3({ cellbaseClient:cellbaseClient });
-            // genomeBrowser.addOverviewTrack(geneOverviewTrack);
+            const geneOverviewTrack = new GeneOverviewTrack({ cellbaseClient:cellbaseClient });
+            genomeBrowser.addOverviewTrack(geneOverviewTrack);
 
             /** *************************************************************************/
             /** *** Demo Sequence Track using FeatureTrack and Cellbase adapter       ***/
@@ -204,7 +198,7 @@
             /** ***   Demo SNP Track using FeatureTrack and Cellbase adapter          ***/
             /** *************************************************************************/
 
-            const snp = new SnpTrack3({cellbaseClient: cellbaseClient});
+            const snp = new SnpTrack({cellbaseClient: cellbaseClient});
             tracks.push(snp);
 
             genomeBrowser.addTrack(tracks);

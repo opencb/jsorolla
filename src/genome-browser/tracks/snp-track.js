@@ -8,10 +8,14 @@ import CellBaseAdapter from "../../core/data-adapter/cellbase-adapter";
 /* @param cellbaseClient       required             */
 /* **************************************************/
 
-export default class SnpTrack {
+export default class SnpTrack extends FeatureTrack {
 
     constructor(args) {
-        this._config = {...this.getDefaultConfig(), ...args};
+        super(args);
+        Object.assign(this, this.getDefaultConfig(), args);
+        this._init();
+        this.resource = this.dataAdapter.resource;
+        this.species = this.dataAdapter.species;
     }
 
     getDefaultConfig() {
@@ -25,20 +29,12 @@ export default class SnpTrack {
         };
     }
 
-    createTrack() {
-        return new FeatureTrack({
-            title: this._config.title,
-            featureType: this._config.featureType,
-            minHistogramRegionSize: this._config.minHistogramRegionSize,
-            maxLabelRegionSize: this._config.maxLabelRegionSize,
-            height: this._config.height,
-            exclude: this._config.exclude,
-            renderer: new FeatureRenderer(FEATURE_TYPES.snp),
-            dataAdapter: new CellBaseAdapter(this._config.cellbaseClient, "genomic", "region", "snp", {
-                exclude: "annotation.populationFrequencies,annotation.additionalAttributes,transcriptVariations,xrefs,samples"
-            }, {
-                chunkSize: 10000
-            })
+    _init() {
+        this.renderer = new FeatureRenderer(FEATURE_TYPES.snp);
+        this. dataAdapter= new CellBaseAdapter(this.cellbaseClient, "genomic", "region", "snp", {
+            exclude: "annotation.populationFrequencies,annotation.additionalAttributes,transcriptVariations,xrefs,samples"
+        }, {
+            chunkSize: 10000
         });
     }
 
