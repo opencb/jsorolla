@@ -11,10 +11,10 @@ const VARIANT_INTERPRETER_SETTINGS = {
                     settings: VARIANT_INTERPRETER_QC_OVERVIEW_SETTINGS
                 },
                 {id: "sampleVariantStats"},
-                /* {id: "cancerQCPlots"},*/
+                {id: "cancerQCPlots"},
                 {id: "somaticVariantStats"},
-                {id: "germlineVariantStats"}
-                /* "{id: geneCoverage"}*/
+                {id: "germlineVariantStats"},
+                {id: "geneCoverage"}
             ],
         },
         /* {
@@ -23,9 +23,9 @@ const VARIANT_INTERPRETER_SETTINGS = {
         {
             id: "variant-browser",
             browsers: {
-                CANCER: VARIANT_INTERPRETER_BROWSER_CANCER_SETTINGS,
+                SINGLE: VARIANT_INTERPRETER_BROWSER_RD_SETTINGS,
                 FAMILY: VARIANT_INTERPRETER_BROWSER_RD_SETTINGS,
-                SINGLE: VARIANT_INTERPRETER_BROWSER_RD_SETTINGS
+                CANCER: VARIANT_INTERPRETER_BROWSER_CANCER_SETTINGS
             }
         },
         {

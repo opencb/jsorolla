@@ -212,17 +212,19 @@ export default class CustomNavBar extends LitElement {
                                             ${item.name} <span class="caret"></span>
                                         </a>
                                         <ul class="dropdown-menu">
-                                            ${item.submenu.map(subitem => subitem.category ? html`
-                                                <li>
-                                                    <a class="nav-item-category" href="${subitem.id ? "#" + subitem.id : "javascript: void 0"}">${subitem.name}</a>
-                                                </li>
-                                            ` : subitem.separator ? html`
-                                                <li role="separator" class="divider"></li>
-                                            ` : html`
-                                                <li>
-                                                    <a href="#${subitem.id}" @click="${this.onChangeTool}" data-id="${subitem.id}">${subitem.name}</a>
-                                                </li>
-                                            `)}
+                                            ${item.submenu
+                                                    .filter(subItem => UtilsNew.isAppVisible(subItem, this.opencgaSession))
+                                                    .map(subItem => subItem.category ? html`
+                                                        <li>
+                                                            <a class="nav-item-category" href="${subItem.id ? "#" + subItem.id : "javascript: void 0"}">${subItem.name}</a>
+                                                        </li>
+                                                    ` : subItem.separator ? html`
+                                                        <li role="separator" class="divider"></li>
+                                                    ` : html`
+                                                        <li>
+                                                            <a href="#${subItem.id}" @click="${this.onChangeTool}" data-id="${subItem.id}">${subItem.name}</a>
+                                                        </li>
+                                                  `)}
                                         </ul>
                                     </li>
                                 ` : html`

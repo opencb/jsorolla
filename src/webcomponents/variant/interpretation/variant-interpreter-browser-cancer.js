@@ -155,7 +155,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
             }
 
             this.callerToFile = {};
-            this.opencgaSession.opencgaClient.files().search({sampleIds: this._sample.id, study: this.opencgaSession.study.fqn})
+            this.opencgaSession.opencgaClient.files().search({sampleIds: this._sample.id, format: "VCF", study: this.opencgaSession.study.fqn})
                 .then(fileResponse => {
                     this.files = fileResponse.response[0].results;
                     // Prepare a map from caller to File
@@ -327,7 +327,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
     }
 
     getDefaultConfig() {
-        // Prepare dynamic Variant Caller INFO filters
+        // DEPRECATED: Prepare dynamic Variant Caller INFO filters
         const callers = ["Caveman", "strelka", "Pindel", "ASCAT", "Canvas", "BRASS", "Manta", "TNhaplotyper2", "Pisces", "CRAFT"];
         const callerFilters = [];
         for (const caller of callers) {
@@ -343,6 +343,55 @@ class VariantInterpreterBrowserCancer extends LitElement {
                     }
                 }
             );
+        }
+
+        // New code
+        const variantCallers = [];
+        if (this.opencgaSession?.study?.internal?.configuration?.clinical?.interpretation?.variantCallers) {
+            for (const caller of this.opencgaSession.study.internal.configuration.clinical.interpretation.variantCallers) {
+                if (this.callerToFile?.[caller.id]) {
+                    variantCallers.push({
+                        ...caller,
+                        fileId: this.callerToFile[caller.id]?.name
+                    });
+                }
+            }
+        }
+        // FIXME remove this temporary code ASAP
+        if (variantCallers.length === 0 && this.opencgaSession?.study?.id === "test") {
+            variantCallers.push({
+                id: "caveman",
+                columns: ["ASMD"],
+                dataFilters: [
+                    {
+                        id: "CLPM",
+                        name: "CLPM name",
+                        type: "NUMERIC",
+                        defaultValue: "<0"
+                    },
+                    {
+                        id: "ASMD",
+                        name: "ASMD name",
+                        type: "NUMERIC",
+                        source: "FILE",
+                        defaultValue: ">=140"
+                    }
+                ],
+                fileId: this.callerToFile["caveman"]?.name
+            });
+            variantCallers.push({
+                id: "pindel",
+                columns: ["REP"],
+                dataFilters: [
+                    {
+                        id: "FILTER",
+                        name: "PASS",
+                        type: "BOOLEAN",
+                        defaultValue: "PASS"
+                    }
+                ],
+                fileId: this.callerToFile["pindel"]?.name
+            });
         }
 
         return {
@@ -370,11 +419,17 @@ class VariantInterpreterBrowserCancer extends LitElement {
                     {
                         id: "caveman",
                         queryString: "FILTER=PASS;CLPM>=0;ASMD>=140"
+                        // queryString: "FILTER=PASS"
                     },
-                    // {
-                    //     id: "pindel",
-                    //     queryString: "FILTER=PASS;QUAL>=250;REP<=9"
-                    // }
+                    {
+                        id: "pindel",
+                        // queryString: "FILTER=PASS;QUAL>=250;REP<=9"
+                        queryString: "FILTER=PASS"
+                    },
+                    {
+                        id: "tnhaplotyper2",
+                        queryString: "FILTER=PASS"
+                    }
                 ],
                 sections: [ // sections and subsections, structure and order is respected
                     {
@@ -414,7 +469,14 @@ class VariantInterpreterBrowserCancer extends LitElement {
                                 tooltip: "VCF file based FILTER and QUAL filters",
                                 visible: UtilsNew.isEmpty(this.callerToFile)
                             },
-                            ...callerFilters
+                            ...callerFilters,
+                            // {
+                            //     id: "variant-file-info-filter",
+                            //     title: "Variant File Caller Filter",
+                            //     params: {
+                            //         callers: variantCallers
+                            //     }
+                            // }
                         ]
                     },
                     {

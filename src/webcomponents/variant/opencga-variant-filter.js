@@ -39,6 +39,7 @@ import "./family-genotype-modal.js";
 import "../commons/filters/study-filter.js";
 import "../commons/filters/variant-file-filter.js";
 import "../commons/filters/variant-caller-info-filter.js";
+import "../commons/filters/variant-file-info-filter.js";
 import "../commons/filters/variant-type-filter.js";
 import "../commons/filters/variant-ext-svtype-filter.js";
 
@@ -266,7 +267,7 @@ export default class OpencgaVariantFilter extends LitElement {
     _isFilterVisible(filter) {
         // FIXME  Maybe we should keep this:   && this.config?.skipSubsections?.length && !!~this.config.skipSubsections.indexOf(field.id)
         let visible = true;
-        if (typeof filter.visible !== "undefined" && filter.visible !== null) {
+        if (filter?.visible) {
             if (typeof filter.visible === "boolean") {
                 visible = filter.visible;
             } else {
@@ -403,9 +404,11 @@ export default class OpencgaVariantFilter extends LitElement {
                             `;
                     break;
                 case "region":
-                    content = html`<region-filter  .cellbaseClient="${this.cellbaseClient}" .region="${this.preparedQuery.region}"
-                                                    @filterChange="${e => this.onFilterChange("region", e.detail.value)}">
-                                    </region-filter>`;
+                    content = html`
+                        <region-filter  .cellbaseClient="${this.cellbaseClient}"
+                                        .region="${this.preparedQuery.region}"
+                                        @filterChange="${e => this.onFilterChange("region", e.detail.value)}">
+                        </region-filter>`;
                     break;
                 case "feature":
                     content = html`
@@ -444,11 +447,12 @@ export default class OpencgaVariantFilter extends LitElement {
                         </population-frequency-filter>`;
                     break;
                 case "consequenceType":
-                    content = html`<consequence-type-filter
-                            .consequenceTypes="${this.consequenceTypes}"
-                            .ct="${this.preparedQuery.ct}"
-                            @filterChange="${e => this.onFilterChange("ct", e.detail.value)}">
-                    </consequence-type-filter>`;
+                    content = html`
+                        <consequence-type-filter
+                                .consequenceTypes="${this.consequenceTypes}"
+                                .ct="${this.preparedQuery.ct}"
+                                @filterChange="${e => this.onFilterChange("ct", e.detail.value)}">
+                        </consequence-type-filter>`;
                     break;
                 case "consequenceTypeSelect":
                     content = html`<consequence-type-select-filter
@@ -558,6 +562,15 @@ export default class OpencgaVariantFilter extends LitElement {
                                                             e => this.onVariantCallerInfoFilter(subsection.params.fileId, e.detail.value, subsection.callback)
                                                     }">
                         </variant-caller-info-filter>`;
+                    break;
+                case "variant-file-info-filter":
+                    content = html`
+                        <variant-file-info-filter .callers="${subsection.params.callers}"
+                                                  .fileData="${this.preparedQuery.fileData}"
+                                                  @filterChange="${
+                                                        e => this.onFilterChange("fileData", e.detail.value)
+                                                  }">
+                        </variant-file-info-filter>`;
                     break;
                 default:
                     console.error("Filter component not found");
