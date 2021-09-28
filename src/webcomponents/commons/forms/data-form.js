@@ -549,7 +549,7 @@ export default class DataForm extends LitElement {
         const disabled = this._getBooleanValue(element?.display?.disabled, false);
         const [min = "", max = ""] = element.allowedValues || [];
         const step = element.step || "1";
-        // debugger
+debugger
         return html`
             <div class="">
                 <number-field-filter label="Value" .value="${value ? value : ""}"
@@ -591,7 +591,7 @@ export default class DataForm extends LitElement {
         const disabled = this._getBooleanValue(element.display?.disabled, false);
 
         if (element.field.endsWith("FILTER")) {
-            debugger
+            // debugger
         }
         // TODO to be fixed.
         if (element.field === "FILTER") {
