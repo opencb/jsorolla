@@ -1,0 +1,287 @@
+/*
+ * Copyright 2015-2016 OpenCB
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import {LitElement, html} from "lit";
+import UtilsNew from "../../../core/utilsNew.js";
+import "../forms/data-form.js";
+
+
+export default class VariantFileInfoFilter extends LitElement {
+
+    constructor() {
+        super();
+
+        // Set status and init private properties
+        this._init();
+    }
+
+    createRenderRoot() {
+        return this;
+    }
+
+    static get properties() {
+        return {
+            // Mandatory
+            callers: {
+                type: Array
+            },
+            // fileId: {
+            //     type: String
+            // },
+            fileData: {
+                type: String
+            },
+            // config: {
+            //     type: Object
+            // }
+        };
+    }
+
+    _init() {
+        this._prefix = UtilsNew.randomString(8);
+
+        this.callerParamTypeToDataForm = {
+            "NUMERIC": "input-number",
+            "BOOLEAN": "checkbox",
+        };
+        this.fileDataSeparator = ",";
+        this._config = this.getDefaultConfig();
+    }
+
+    connectedCallback() {
+        super.connectedCallback();
+
+        // this._config = {...this.getDefaultConfig(), ...this.config};
+    }
+
+    update(changedProperties) {
+        if (changedProperties.has("callers")) {
+            this.callersObserver();
+        }
+
+        if (changedProperties.has("fileData")) {
+            this.fileDataObserver();
+        }
+        super.update(changedProperties);
+    }
+
+
+    callersObserver() {
+        this._sections = [];
+        for (const caller of this.callers) {
+            this._sections.push({
+                title: caller.id,
+                display: {
+                    titleHeader: "h4"
+                },
+                elements: caller.dataFilters.map(field => {
+                    return {
+                        name: field.name || field.id,
+                        field: caller.fileId + "." + field.id,
+                        type: this.callerParamTypeToDataForm[field.type],
+                        // defaultValue: field.type !== "BOOLEAN" ? field.defaultValue : field.defaultValue === "true"
+                        defaultValue: field.defaultValue
+                    };
+                })
+            });
+        }
+
+        // Update this._config to update changes
+        this._config = this.getDefaultConfig();
+    }
+
+    /*
+     * This observer process the fileData string and prepares the query object for data-form
+     * and stores some variables for notifying the new fileData.
+     */
+    fileDataObserver() {
+        const _fileDataQuery = {};
+        if (this.fileData) {
+            // Let's keep the fileData split in an array format, this will be used later
+            this.fileDataArray = this.fileData.split(this.fileDataSeparator);
+            for (const fileDataItem of this.fileDataArray) {
+                if (fileDataItem.includes(":")) {
+                    const [fileId, filters] = fileDataItem.split(":");
+                    // const filters = fileDataItem.split(";");
+                    _fileDataQuery[fileId] = {};
+                    for (const filter of filters.split(";")) {
+                        let key, comparator, value;
+                        if (filter.includes("<") || filter.includes("<=") || filter.includes(">") || filter.includes(">=")) {
+                            [, key, comparator, value] = filter.match(/(\w*)(<=?|>=?|=)(-?\d*\.?\d+)/);
+                        } else {
+                            [key, value] = filter.split("=");
+                            if (key === "FILTER") {
+                                comparator = "";
+                                value = value === "PASS";
+                            } else {
+                                // number-field-filter needs the equal operator
+                                isNaN(value) ? comparator = "" : comparator = "=";
+                            }
+                        }
+                        _fileDataQuery[fileId][key] = comparator + value;
+                    }
+                } else {
+                    console.warn("No fileId provided");
+                }
+            }
+        }
+        this.fileDataQuery = _fileDataQuery;
+        debugger
+        // this.requestUpdate();
+    }
+
+    /*
+     * This observer process the fileData string and prepares the query object for data-form
+     * and stores some variables for notifying the new fileData.
+     */
+    oldfileDataObserver() {
+        if (this.fileData) {
+            // Let's keep the fileData split in an array format, this will be used later
+            this.fileDataArray = this.fileData.split(this.fileDataSeparator);
+
+            // First, check if fileId has been provided, this is only mandatory when more than fileData exists.
+            if (this.fileId) {
+                // Let's store the fileData index for the current fileId, this will be used later
+                this.fileDataIndex = this.fileDataArray.findIndex(e => e.startsWith(this.fileId));
+            } else {
+                if (this.fileDataArray.length === 1) {
+                    this.fileDataIndex = 0;
+                } else {
+                    console.error("No fileId provided and more than fileData found", this.fileDataArray);
+                    return;
+                }
+            }
+
+            // Check if the fileId provided exists in fileData, it can be absent if not filter has been ever selected
+            if (this.fileDataIndex >= 0) {
+                // fileId is optional in the fileData filter when one single file exist
+                this.fileDataInfoFilters = "";
+                if (this.fileDataArray[this.fileDataIndex].includes(":")) {
+                    this.fileDataInfoFilters = this.fileDataArray[this.fileDataIndex].split(":")[1];
+                } else {
+                    this.fileDataInfoFilters = this.fileDataArray[this.fileDataIndex];
+                }
+
+                // Let's get the key values filters, we assume an AND here
+                this.fileDataQuery = {};
+                const filters = this.fileDataInfoFilters.split(";");
+                for (let filter of filters) {
+                    let key, comparator, value;
+                    if (filter.includes("<") || filter.includes("<=") || filter.includes(">") || filter.includes(">=")) {
+                        [, key, comparator, value] = filter.match(/(\w*)(<=?|>=?|=)(-?\d*\.?\d+)/);
+                    } else {
+                        [key, value] = filter.split("=");
+                        // number-field-filter needs the equal operator
+                        isNaN(value) ? comparator = "" : comparator = "=";
+                    }
+                    this.fileDataQuery[key] = comparator + value;
+                }
+                debugger
+            } else {
+                // fileData does not contain an entry for this file, so no filters are applied
+                this.fileDataArray = [];
+                this.fileDataIndex = -1;
+                this.fileDataInfoFilters = "";
+                this.fileDataQuery = {};
+            }
+        } else {
+            // fileData can be empty in different situations such as after executing clear()
+            this.fileDataArray = [];
+            this.fileDataIndex = -1;
+            this.fileDataInfoFilters = "";
+            this.fileDataQuery = {};
+        }
+
+        // this.requestUpdate();
+    }
+
+    filterChange(e) {
+        // Fetch existing filters
+        let filters = [];
+        if (this.fileDataInfoFilters) {
+            filters = this.fileDataInfoFilters.split(";");
+        }
+
+        let filterIndex = filters.findIndex(filter => filter.startsWith(e.detail.param));
+        if (e.detail.value) {
+            let filter = "";
+            switch (e.detail.param) {
+                case "FILTER":
+                    filter = "FILTER=PASS";
+                    break;
+                default:
+                    filter = e.detail.param + "" + e.detail.value;
+                    break;
+            }
+
+            // Check if we are editing an existing filter (index >= 0) or adding a new filter
+            if (filterIndex >= 0) {
+                filters[filterIndex] = filter;
+            } else {
+                filters.push(filter);
+            }
+        } else {
+            // If value is empty we must delete the filter if exist
+            if (filterIndex >= 0) {
+                filters.splice(filterIndex, 1);
+            }
+        }
+
+        // Build the fileData ONLY FOR THIS PARTICULAR FILE
+        let filter = "";
+        if (filters.length > 0) {
+            filter = this.fileId ? this.fileId + ":" : "";
+            filter += filters.join(";");
+        }
+
+        const event = new CustomEvent("filterChange", {
+            detail: {
+                value: filter
+            },
+            bubbles: true,
+            composed: true
+        });
+        this.dispatchEvent(event);
+    }
+
+    getDefaultConfig() {
+        return {
+            title: "",
+            icon: "",
+            type: "form",
+            display: {
+                collapsable: true,
+                showTitle: false,
+                labelWidth: 2,
+                defaultValue: "-",
+                defaultLayout: "vertical"
+            },
+            sections: this._sections
+        };
+    }
+
+    render() {
+        return html`
+            <data-form .data=${this.fileDataQuery}
+                       .config="${this._config}"
+                       @fieldChange="${this.filterChange}">
+            </data-form>
+        `;
+    }
+
+}
+
+customElements.define("variant-file-info-filter", VariantFileInfoFilter);

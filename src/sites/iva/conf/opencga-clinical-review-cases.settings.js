@@ -3,7 +3,7 @@ const OPENCGA_CLINICAL_REVIEW_CASES_SETTINGS = {
         // merge criterium: internal sections and filters are used to hydrates the external filters list for each section (which is a list of string). Sections and filter order is respected.
         sections: [
             {
-                filters: ["case", "sample", "proband", "family", "disorder"/* "status", "priority", "type", "assignee"*/]
+                filters: ["case", "sample", "proband", "family", "disorder", "status", "priority", "type", "assignee"]
             }
         ],
         // merge criterium: full outer join-like. it adds objects presents in internal array only and in external array only. In case of same id, the external value overwrite the internal.
@@ -29,7 +29,7 @@ const OPENCGA_CLINICAL_REVIEW_CASES_SETTINGS = {
         // merge criterium: uses this array as filter for internal 1D/2D array. It handles row/col span
         // It is supported either columns[] or hiddenColumns[].
         // TODO NOTE this refers to clinical-analysis-grid (same list in clinical-analysis-browser.settings)
-        columns: ["caseId", "probandId", "familyId", "disorderId", "interpretation", "actions"]
+        // columns: ["caseId", "probandId", "familyId", "disorderId", "interpretation", "actions"]
     },
-    details: ["clinical-analysis-view", "proband-view"]
+    // details: ["clinical-analysis-view", "proband-view"]
 };

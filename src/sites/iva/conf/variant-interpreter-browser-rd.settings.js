@@ -46,9 +46,9 @@ const VARIANT_INTERPRETER_BROWSER_RD_SETTINGS = {
         },
         // merge criterium: uses this array as filter for internal 1D/2D array. It handles row/col span
         // It is supported either columns[] or hiddenColumns[].
-        columns: ["id", "gene", "type", "consequenceType", "zygosity", "evidences", "VCF_Data", "frequencies", "clinicalInfo", "interpretation", "review", "actions"]
+        // columns: ["id", "gene", "type", "consequenceType", "zygosity", "evidences", "VCF_Data", "frequencies", "clinicalInfo", "interpretation", "review", "actions"]
     },
     // merge criterium: uses this array as filter for internal 1D array.
-    details: ["annotationSummary", "annotationConsType", "annotationPropFreq", "annotationClinical", "fileMetrics", "cohortStats", "samples", "beacon"]
+    // details: ["annotationSummary", "annotationConsType", "annotationPropFreq", "annotationClinical", "fileMetrics", "cohortStats", "samples", "beacon"]
 
 };

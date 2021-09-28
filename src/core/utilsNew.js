@@ -739,8 +739,9 @@ export default class UtilsNew {
             case "private":
                 return !!session?.token;
             case "none":
-            default:
                 return false;
+            default:
+                return true;
         }
     }
 
