@@ -174,11 +174,16 @@ class VariantInterpreterBrowserCancer extends LitElement {
                     //         fileDataFilters.push(this.callerToFile[caller.id].name + ":" + caller.queryString);
                     //     }
                     // }
+                    const fileDataFilters = this.getVariantCallers().map(caller => {
+                        const filters = caller.dataFilters.map(f => {
+                            return f.id + (f.id !== "FILTER" ? f.defaultValue : "=PASS");
+                        });
+                        return [caller.fileId, filters.join(";")].join(":");
+                    });
 
                     this.query = {
                         ...this.query,
-                        // fileData: fileDataFilters.join(",")
-                        fileData: this._fileData
+                        fileData: fileDataFilters.join(","),
                         // populationFrequencyAlt: "1kG_phase3:ALL<=0.001",
                     };
                     // NOTE: We need to update the _config to update the dynamic VCF caller filters
@@ -327,26 +332,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
         this.queryObserver();
     }
 
-    getDefaultConfig() {
-        // DEPRECATED: Prepare dynamic Variant Caller INFO filters
-        // const callers = ["Caveman", "strelka", "Pindel", "ASCAT", "Canvas", "BRASS", "Manta", "TNhaplotyper2", "Pisces", "CRAFT"];
-        // const callerFilters = [];
-        // for (const caller of callers) {
-        //     const callerId = caller.toLowerCase();
-        //     callerFilters.push(
-        //         {
-        //             id: callerId,
-        //             title: caller + " Filters",
-        //             description: () => html`File filters for <span style="font-style: italic; word-break: break-all">${this.callerToFile[callerId].name}</span>`,
-        //             visible: () => this.callerToFile && this.callerToFile[callerId],
-        //             params: {
-        //                 fileId: `${this.callerToFile ? this.callerToFile[callerId]?.name : null}`
-        //             }
-        //         }
-        //     );
-        // }
-
-        // New code
+    getVariantCallers() {
         const variantCallers = [];
         if (this.opencgaSession?.study?.internal?.configuration?.clinical?.interpretation?.variantCallers) {
             for (const caller of this.opencgaSession.study.internal.configuration.clinical.interpretation.variantCallers) {
@@ -399,14 +385,31 @@ class VariantInterpreterBrowserCancer extends LitElement {
                 ],
                 fileId: this.callerToFile["pindel"]?.name
             });
-
-            const _fileDataArray = [];
-            for (const variantCaller of variantCallers) {
-                _fileDataArray
-                    .push(variantCaller.fileId + ":" + variantCaller.dataFilters.map(f => f.id !== "FILTER" ? f.id + f.defaultValue : f.id + "=PASS").join(";"));
-            }
-            this._fileData = _fileDataArray.join(",");
         }
+
+        return variantCallers;
+    }
+
+    getDefaultConfig() {
+        // DEPRECATED: Prepare dynamic Variant Caller INFO filters
+        // const callers = ["Caveman", "strelka", "Pindel", "ASCAT", "Canvas", "BRASS", "Manta", "TNhaplotyper2", "Pisces", "CRAFT"];
+        // const callerFilters = [];
+        // for (const caller of callers) {
+        //     const callerId = caller.toLowerCase();
+        //     callerFilters.push(
+        //         {
+        //             id: callerId,
+        //             title: caller + " Filters",
+        //             description: () => html`File filters for <span style="font-style: italic; word-break: break-all">${this.callerToFile[callerId].name}</span>`,
+        //             visible: () => this.callerToFile && this.callerToFile[callerId],
+        //             params: {
+        //                 fileId: `${this.callerToFile ? this.callerToFile[callerId]?.name : null}`
+        //             }
+        //         }
+        //     );
+        // }
+
+        const variantCallers = this.getVariantCallers();
 
         return {
             title: "Cancer Case Interpreter",
