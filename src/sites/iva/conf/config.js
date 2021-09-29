@@ -148,10 +148,11 @@ const suite = {
         maxRemainingTime: 600000 // 10 min
     },
     welcomePage: {
-        title: `
-            <h1 style="text-align: center">
-                OpenCGA Suite
-            </h1>`,
+        display: {
+            titleHeader: "h1",
+            titleStyle: "text-align:center"
+        },
+        title: "OpenCGA Suite",
         logo: "",
         content: `
         <div style="margin: 20px">
@@ -161,7 +162,7 @@ const suite = {
                 pedigrees, case-controls or sporadic samples.
             </p>
             <br>
-        </div>`
+        </div>`,
     },
     welcomePageFooter: "<p><img id=\"logo\" src=\"img/opencb-logo.png\" alt=\"opencb-logo\"/></p>",
 
@@ -642,7 +643,7 @@ const suite = {
             logo: "img/tools/icons/interpretation_portal_white.svg",
             logoAlt: "img/tools/icons/interpretation_portal.svg",
             icon: "img/tools/icons/interpretation_portal.svg",
-            visibility: "none",
+            visibility: "public",
             menu: [
                 {
                     id: "clinical",

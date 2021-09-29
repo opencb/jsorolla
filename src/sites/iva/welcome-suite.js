@@ -100,9 +100,14 @@ export default class WelcomeSuite extends LitElement {
     }
 
     renderSuiteWelcome() {
+        const titleHeader = document.createElement(this.config.welcomePage.display?.titleHeader ?? "h1");
+        const textNode = document.createTextNode(this.config.welcomePage?.title ?? "Suite");
+        titleHeader.appendChild(textNode);
+        titleHeader.style = this.config.welcomePage.display?.titleStyle ?? "text-align:center";
+
         return html`
             <div>
-                    ${UtilsNew.renderHTML(this.config.welcomePage?.title)}
+                    ${titleHeader}
                     ${UtilsNew.renderHTML(this.config.welcomePage?.logo)}
                     ${UtilsNew.renderHTML(this.config.welcomePage?.content)}
                 <div class="row hi-icon-wrap hi-icon-effect-9 hi-icon-animation">
