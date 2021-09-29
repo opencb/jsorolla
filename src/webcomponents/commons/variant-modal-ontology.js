@@ -15,11 +15,10 @@
  */
 
 import {LitElement, html} from "lit";
+import {classMap} from "lit/directives/class-map.js";
 import UtilsNew from "./../../core/utilsNew.js";
-import PolymerUtils from "../PolymerUtils.js";
+import "./forms/select-token-filter";
 
-
-//TODO FIXME selectedTerms: reopening the modal they are wrong (array of strings)
 export default class VariantModalOntology extends LitElement {
 
     constructor() {
@@ -35,7 +34,7 @@ export default class VariantModalOntology extends LitElement {
 
     static get properties() {
         return {
-            //there will be 2 instances of this component, so it inherit the prefix from the related father (hpo-accessions-filter/go-accessions-filter)
+            // there will be 2 instances of this component, so it inherit the prefix from the related father (hpo-accessions-filter/go-accessions-filter)
             _prefix: {
                 type: String
             },
@@ -47,13 +46,42 @@ export default class VariantModalOntology extends LitElement {
             },
             selectedTerms: {
                 type: Array
-            }
+            },
         };
     }
 
+    connectedCallback() {
+        super.connectedCallback();
+        this._config = {...this.getDefaultConfig(), ...this.config};
+    }
+
+    _init() {
+        this._prefix = "vmo-" + UtilsNew.randomString(6) + "_";
+        this.ebiConfig = {
+            root: "https://www.ebi.ac.uk/ols/api",
+            tree: {
+                "hp": ["/ontologies/hp/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FHP_0012823",
+                    "/ontologies/hp/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FHP_0040279",
+                    "/ontologies/hp/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FHP_0000005",
+                    "/ontologies/hp/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FHP_0040006",
+                    "/ontologies/hp/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FHP_0000118",
+                    /* "/ontologies/hp/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FUPHENO_0001002"*/],
+                "go": ["/ontologies/go/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FGO_0008150",
+                    "/ontologies/go/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FGO_0005575",
+                    "/ontologies/go/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FGO_0003674"],
+            },
+            search: "/search",
+        };
+        this.rootTree = [{text: "All", nodes: [], selectable: false}];
+
+        this.selectedTerms = [];
+        this.selectedTermsFull = [];
+    }
+
+
     updated(changedProperties) {
         if (changedProperties.has("selectedTerms")) {
-            //selectedTerm observer to handle subsequent reopening of the modal after a first selection
+            // selectedTerm observer to handle subsequent reopening of the modal after a first selection
         }
         if (changedProperties.has("ontologyFilter")) {
             this.ontologyFilterObserver();
@@ -61,72 +89,24 @@ export default class VariantModalOntology extends LitElement {
     }
 
     firstUpdated() {
-        const _this = this;
-        const typeaheadField = $("#" + this._prefix + "typeahead");
-        typeaheadField.typeahead("destroy");
-        typeaheadField.typeahead({
-            source: function(query, process) {
-                return _this.searchTerm(query, process);
-            },
-            hint: true,
-            highlight: true,
-            minLength: 1,
-            autoSelect: true,
-            items: 15,
-            afterSelect: this.selectTerm.bind(_this)
-        });
-    }
-
-    process(data) {
-        return data;
-    }
-
-    _init() {
-        // this._prefix = "vmo-" + UtilsNew.randomString(6) + "_";
-        this.ebiConfig = {
-            root: "https://www.ebi.ac.uk/ols/api",
-            tree: {
-                "hp": ["/ontologies/hp/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FHP_0012823", "/ontologies/hp/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FHP_0040279",
-                    "/ontologies/hp/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FHP_0000005", "/ontologies/hp/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FHP_0040006",
-                    "/ontologies/hp/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FHP_0000118", "/ontologies/hp/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FUPHENO_0001002"],
-                "go": ["/ontologies/go/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FGO_0008150", "/ontologies/go/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FGO_0005575",
-                    "/ontologies/go/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FGO_0003674"]
-            },
-            search: "/search"
-        };
-        this.selectedTerms = [];
-        this.selectedTermsFull = [];
+        this.loadTermsTree();
     }
 
     ontologyFilterObserver() {
         this.loadTermsTree();
-        this.selectedTerm = {};
-        this.listCurrentSelected = [];
-        PolymerUtils.setValue(this._prefix + "typeahead", "");
-        /*if (UtilsNew.isNotEmptyArray(this.selectedTerms)) {
-            this.listCurrentSelected = this.selectedTerms.slice();
-        }*/
         this.requestUpdate();
     }
 
     selectTerm(selected) {
-        if (UtilsNew.isNotUndefinedOrNull(this.fullTerms)) {
-            this.selectedTerm = this.fullTerms.find(elem => elem.label === selected.label);
-        }
-        this.requestUpdate();
-
     }
 
-    addSelectedTermToList(e) {
-        // const selectedTerm = e.target.getAttribute("data-selected-term");
-        const selectedTerm = this.selectedTerm;
-        const isPresent = this.selectedTerms.find(id => id === selectedTerm.obo_id);
-        if (!isPresent) {
-            this.selectedTerms.push(selectedTerm.obo_id);
-            this.selectedTermsFull.push(selectedTerm);
+    addTerm(oboId) {
+        if (oboId) {
+            const oboIds = oboId.split(",");
+            this.selectedTerms = oboId.split(",");
         }
+        this.selectedTerms = [...this.selectedTerms];
         this.requestUpdate();
-
     }
 
     deleteTermFromList(e) {
@@ -140,124 +120,168 @@ export default class VariantModalOntology extends LitElement {
         this.requestUpdate();
     }
 
-    clickOkModal(e) {
+    clickOkModal() {
         this.dispatchEvent(new CustomEvent("clickOkModal", {
             detail: {
                 result: this.selectedTerms,
-                resultFull: this.selectedTermsFull
+                resultFull: this.selectedTermsFull,
             },
-            bubbles: true,
-            composed: true
         }));
     }
 
     searchTerm(query, process) {
-        const rowsPerPage = 15;
-        const _this = this;
-        const queryEncoded = query;
-        // TODO shouldn't this use encodeURIComponent()?
-        return fetch(this.ebiConfig.root + this.ebiConfig.search + "?q=*" + queryEncoded + "*&ontology=" + this.ontologyFilter + "&rows=" + rowsPerPage + "&queryFields=label,obo_id")
-            .then(response => {
-                return response.json().then(json => {
-                    _this.fullTerms = json.response.docs;
-                    const arraySearch = [];
-                    json.response.docs.forEach(elem => {
-                        arraySearch.push({name: elem.label + " - (" + elem.obo_id + ")", label: elem.label, id: elem.obo_id});
-                    });
-                    process(arraySearch);
-                });
-            })
-            .catch(error => {
-                console.error(error);
-            });
     }
 
     drawTree(data) {
-        const _this = this;
-        $(PolymerUtils.getElementById(this._prefix + "TermsTree")).treeview({
-            data: data,
-            onNodeSelected: function(event, node) {
-                _this.selectedTerm = _this.fullTree.find(elem => {
-                    return elem.label === node.text;
-                });
-                if (UtilsNew.isNotUndefinedOrNull(_this.selectedTerm)) {
-                    PolymerUtils.setValue(_this._prefix + "typeahead", node.text);
-                    _this.requestUpdate();
-                }
-            },
-            onNodeUnselected: function(event, node) {
 
-            },
-            onNodeExpanded: function(event, node) {
-                if (UtilsNew.isEmptyArray(node.nodes)) {
-                    let currentNodeInTree = _this.rootTree[0];
-                    node.path.forEach(elem => {
-                        currentNodeInTree = currentNodeInTree.nodes[elem];
-                    });
-                    fetch(node.children)
-                        .then(response => {
-                            response.json().then(json => {
-                                json._embedded.terms.forEach(elem => {
-                                    _this.fullTree.push(elem);
-                                    const path = currentNodeInTree.path.slice();
-                                    path.push(currentNodeInTree.nodes.length);
-                                    currentNodeInTree.nodes.push({
-                                        text: elem.label,
-                                        selectable: true,
-                                        iri: elem.iri,
-                                        has_children: elem.has_children,
-                                        children: elem.has_children ? elem._links.children.href : "",
-                                        nodes: elem.has_children ? [] : null,
-                                        path: path,
-                                        state: {expanded: false}
-                                    });
-                                });
-                                currentNodeInTree.state.expanded = true;
-                                _this.drawTree(data);
-                            });
-                        })
-                        .catch(error => {
-                            console.error("Error fetching Tree data: ", error);
-                        });
-                }
-            }
-        });
     }
 
-    loadTermsTree() {
-        this.rootTree = [{text: "All", nodes: [], selectable: false}];
-        this.fullTree = [];
-
-        const _this = this;
+    async loadTermsTree() {
         const defaultsNodes = this.ebiConfig.tree[this.ontologyFilter];
-        if (UtilsNew.isNotEmptyArray(defaultsNodes)) {
-            defaultsNodes.forEach(nodeUrl => {
-                fetch(this.ebiConfig.root + nodeUrl)
-                    .then(response => {
-                        response.json().then(json => {
-                            console.log(json);
-                            //                                json._embedded.terms.forEach((elem) => {
-                            _this.fullTree.push(json);
-                            _this.rootTree[0].nodes.push({
-                                text: json.label,
-                                selectable: true,
-                                iri: json.iri,
-                                has_children: json.has_children,
-                                children: json.has_children ? json._links.children.href : "",
-                                nodes: json.has_children ? [] : null,
-                                path: [_this.rootTree[0].nodes.length],
-                                state: {expanded: false}
-                            });
-                            //                            });
-                            _this.drawTree(_this.rootTree);
-                        });
-                    })
-                    .catch(error => {
-                        console.error("ERROR: ", error);
+        if (defaultsNodes?.length) {
+            const requests = defaultsNodes.map(nodeUrl => fetch(this.ebiConfig.root + nodeUrl));
+            try {
+                const responses = await Promise.all(requests);
+                let i = 0;
+                for (const response of responses) {
+                    const json = await response.json();
+                    this.rootTree[0].nodes.push({
+                        text: json.label,
+                        short_form: json.short_form,
+                        selectable: true,
+                        iri: json.iri,
+                        has_children: json.has_children,
+                        children: json.has_children ? json._links.children.href : "",
+                        nodes: json.has_children ? [] : null,
+                        path: [i++],
+                        depth: 0,
+                        obo_id: json.obo_id,
+                        state: {expanded: false},
                     });
-            });
+                }
+                this.requestUpdate();
+            } catch (e) {
+                console.error(e);
+                UtilsNew.notifyError(e);
+            }
         }
-        return [];
+    }
+
+    toggleNode(node) {
+
+        node.state.expanded = !node.state.expanded;
+        this.rootTree = {...this.rootTree};
+        this.requestUpdate();
+
+        if (!node.nodes?.length) {
+            fetch(node.children)
+                .then(response => {
+                    response.json().then(json => {
+                        if (json._embedded) {
+                            json._embedded.terms.forEach(elem => {
+                                // const path = currentNodeInTree.path.slice();
+                                // path.push(currentNodeInTree.nodes.length);
+                                node.nodes.push({
+                                    text: elem.label,
+                                    short_form: elem.short_form,
+                                    selectable: true,
+                                    iri: elem.iri,
+                                    has_children: elem.has_children,
+                                    children: elem.has_children ? elem._links.children.href : "",
+                                    nodes: elem.has_children ? [] : null,
+                                    path: "000",
+                                    depth: node.depth + 1,
+                                    obo_id: elem.obo_id,
+                                    state: {expanded: false},
+                                });
+                            });
+                            this.requestUpdate();
+                        } else {
+                            console.log("no _embedded elements");
+                        }
+                    });
+                })
+                .catch(error => {
+                    console.error("Error fetching Tree data: ", error);
+                });
+        }
+    }
+
+    selectItem(node) {
+        console.log(node);
+        this.selectedItem = node;
+        this.requestUpdate();
+    }
+
+    getDefaultConfig() {
+        return {
+            limit: 10,
+            fields: item => {
+                return {
+                    name: item.text,
+                    id: item.id,
+                    IRI: item.iri,
+                };
+            },
+            select2Config: {
+                ajax: {
+                    transport: async (params, success, failure) => {
+                        const _params = params;
+                        _params.data.page = params.data.page || 1;
+                        const q = _params?.data?.term ? _params.data.term : "";
+                        try {
+
+                            const request = await fetch(this.ebiConfig.root + this.ebiConfig.search + "?q=*" + q + "*&ontology=" + this.ontologyFilter + "&rows=" + this._config.limit + "&queryFields=label,obo_id");
+                            const json = await request.json();
+                            this.fullTerms = json.response.docs;
+                            const results = [];
+                            json.response.docs.forEach(elem => {
+                                results.push({text: elem.label, id: elem.obo_id, iri: elem.iri});
+                            });
+                            success(results);
+                        } catch (e) {
+                            console.error(e);
+                            UtilsNew.notifyError(e);
+                            failure(e);
+                        }
+                    },
+                    processResults: (response, params) => {
+                        const _params = params;
+                        _params.page = _params.page || 1;
+                        return {
+                            results: response,
+                            /* pagination: {
+                                more: (_params.page * this._config.limit) < restResponse.getResponse().numMatches
+                            }*/
+                        };
+                    }
+                },
+            }
+        };
+    }
+
+
+    drawNode(node) {
+        return html`
+            <div class="" role="tablist">
+                <div class="ontology-node ${classMap({active: node.obo_id === this.selectedItem?.obo_id})}" role="tab" id="collapseListGroupHeading1" @click="${e => this.selectItem(node)}" data-obo-id="${node.obo_id}">
+                    ${node.has_children ? html`
+                        <span style="margin-left: ${node.depth}em">
+                            <span @click="${e => this.toggleNode(node)}" class="" role="button" data-toggle="collapse" aria-expanded="true" aria-controls="collapseListGroup1">
+                                ${!node.state.expanded ? html`<i class="fas fa-plus"></i>` : html`<i class="fas fa-minus"></i>`}
+                            </span>
+                            ${node.text} ${node.depth}
+                        </span>
+                    ` : html`<span class="leaf" style="margin-left: ${node.depth}em;">${node.text}</span>`}
+                    ${node.obo_id}
+                </div>
+                ${node.has_children ? html`
+                    <div class="panel-collapse collapse ${node.state.expanded ? "in" : ""}" role="tabpanel" id="collapseListGroup1" aria-labelledby="collapseListGroupHeading1" aria-expanded="true" style="">
+                    ${node.state.expanded ? html`${node.nodes.map(n => this.drawNode(n))}` : ""}
+                </div>
+                ` : ""}
+
+            </div>`;
     }
 
     render() {
@@ -275,51 +299,44 @@ export default class VariantModalOntology extends LitElement {
                         <div class="modal-body">
                             <div class="container-fluid">
                                 <div class="row">
-                                    <div class="col-sm-12">
-                                        <label>Introduce an ${this.term} term</label>
-                                        <form>
-                                            <fieldset>
-                                                <div class="form-group">
-                                                    <input matcher="${this.searchTerm}" class="form-control typeahead" name="query"
-                                                           id="${this._prefix}typeahead" data-provide="typeahead"
-                                                           placeholder="Start typing something to search..." type="text"
-                                                           autocomplete="off">
-                                                </div>
-                                            </fieldset>
-                                        </form>
+                                    <div class="col-md-12">
+                                        <select-token-filter
+                                                .opencgaSession="${this.opencgaSession}"
+                                                .config=${this._config}
+                                                .value="${this.selectedTerms?.join(",")}"
+                                                @filterChange="${e => this.addTerm(e.detail.value)}">
+                                        </select-token-filter>
                                     </div>
-                                    <div class="col-sm-6" style="overflow-y: auto; height:400px;">
-                                        <div id="${this._prefix}TermsTree"></div>
+                                </div>
+                                <div class="row ontology-tree-wrapper">
+                                    <div class="col-md-6 ontology-tree">
+                                        ${this.rootTree[0].nodes.map(node => this.drawNode(node))}
                                     </div>
-                                    <div class="col-sm-6" style="overflow-y: auto; height:400px;" id="${this._prefix}divDatalist">
-
-                                        ${this.selectedTerm ? html`
+                                    <div class="col-md-6">
+                                        ${this.selectedItem ? html`
                                             <ul class="list-group infoHpo">
-                                                <li class="list-group-item"><strong>Label: </strong>${this.selectedTerm.label}</li>
-                                                <li class="list-group-item"><strong>Short form: </strong>${this.selectedTerm.short_form}</li>
-                                                <li class="list-group-item"><strong>Obo Id: </strong>${this.selectedTerm.obo_id}</li>
-                                                <li class="list-group-item"><strong>IRI: </strong>${this.selectedTerm.iri}</li>
-                                                <li class="list-group-item"><strong>Description: </strong>${this.selectedTerm.description}</li>
-                                                <li class="list-group-item"><button type="button" class="btn btn-info" @click="${this.addSelectedTermToList}">Add Term</button></li>
+                                                <li class="list-group-item"><strong>Label: </strong>${this.selectedItem.text}</li>
+                                                <li class="list-group-item"><strong>Short form: </strong>${this.selectedItem.short_form}</li>
+                                                <li class="list-group-item"><strong>Obo Id: </strong>${this.selectedItem.obo_id}</li>
+                                                <li class="list-group-item"><strong>IRI: </strong>${this.selectedItem.iri}</li>
+                                                <li class="list-group-item"><strong>Description: </strong>${this.selectedItem.description}</li>
+                                                <li class="list-group-item">
+                                                    <button type="button" class="btn btn-default btn-small ripple" @click="${e => this.addTerm(this.selectedItem.obo_id)}">Add Term</button>
+                                                </li>
                                             </ul>
-                                        ` : null}
-
-                                        <ul class="list-group">
-                                            ${this.selectedTermsFull && this.selectedTermsFull.length ? this.selectedTermsFull.map(item => html`
-                                                <li class="list-group-item">${item.label}(${item.obo_id}) <button type="button" class="btn danger" @click="${this.deleteTermFromList}" data-selected-term-id="${item.obo_id}">X</button></li>
-                                            `) : null}
-                                        </ul>
+                                        ` : ""}
                                     </div>
+                                    </fieldset>
                                 </div>
                             </div>
                         </div>
-
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-primary" @click="${this.clickOkModal}">OK</button>
+                            <button type="button" class="btn btn-primary ripple" @click="${this.clickOkModal}">OK</button>
                         </div>
                     </div>
                 </div>
-            </div>`;
+            </div>
+        `;
     }
 
 }

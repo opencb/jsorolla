@@ -16,7 +16,6 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "./../../core/utilsNew.js";
-import "../commons/variant-modal-ontology.js";
 import "../commons/filters/cadd-filter.js";
 import "../commons/filters/biotype-filter.js";
 import "../commons/filters/region-filter.js";
