@@ -591,7 +591,7 @@ export default class DataForm extends LitElement {
         const disabled = this._getBooleanValue(element.display?.disabled, false);
 
         if (element.field.endsWith("FILTER")) {
-            debugger
+            // debugger
         }
         // TODO to be fixed.
         if (element.field === "FILTER") {

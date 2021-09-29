@@ -16,7 +16,6 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "./../../core/utilsNew.js";
-import "../commons/variant-modal-ontology.js";
 import "../commons/filters/cadd-filter.js";
 import "../commons/filters/biotype-filter.js";
 import "../commons/filters/region-filter.js";
@@ -544,25 +543,25 @@ export default class OpencgaVariantFilter extends LitElement {
                         <variant-ext-svtype-filter @filterChange="${e => this.onVariantCallerInfoFilter(subsection.params.fileId, e.detail.value)}">
                         </variant-ext-svtype-filter>`;
                     break;
-                case "caveman":
-                case "strelka":
-                case "pindel":
-                case "ascat":
-                case "canvas":
-                case "brass":
-                case "manta":
-                case "tnhaplotyper2":
-                case "pisces":
-                case "craft":
-                    content = html`
-                        <variant-caller-info-filter .caller="${subsection.id}"
-                                                    .fileId="${subsection.params.fileId}"
-                                                    .fileData="${this.preparedQuery.fileData}"
-                                                    @filterChange="${
-                                                            e => this.onVariantCallerInfoFilter(subsection.params.fileId, e.detail.value, subsection.callback)
-                                                    }">
-                        </variant-caller-info-filter>`;
-                    break;
+                // case "caveman":
+                // case "strelka":
+                // case "pindel":
+                // case "ascat":
+                // case "canvas":
+                // case "brass":
+                // case "manta":
+                // case "tnhaplotyper2":
+                // case "pisces":
+                // case "craft":
+                //     content = html`
+                //         <variant-caller-info-filter .caller="${subsection.id}"
+                //                                     .fileId="${subsection.params.fileId}"
+                //                                     .fileData="${this.preparedQuery.fileData}"
+                //                                     @filterChange="${
+                //                                             e => this.onVariantCallerInfoFilter(subsection.params.fileId, e.detail.value, subsection.callback)
+                //                                     }">
+                //         </variant-caller-info-filter>`;
+                //     break;
                 case "variant-file-info-filter":
                     content = html`
                         <variant-file-info-filter .callers="${subsection.params.callers}"

@@ -16,9 +16,10 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
+import "../variant-modal-ontology.js";
 
 
-//TODO FIX in textarea is always used a comma as separator, but in case of loading a saved filter this component could receive a text with semicolon as separator.
+// TODO FIX in textarea is always used a comma as separator, but in case of loading a saved filter this component could receive a text with semicolon as separator.
 
 export default class HpoAccessionsFilter extends LitElement {
 

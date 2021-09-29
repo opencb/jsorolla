@@ -66,6 +66,7 @@ export default class SelectTokenFilter extends LitElement {
             minimumInputLength: this._config.minimumInputLength,
             ajax: {
                 transport: async (params, success, failure) => this._config.source(params, success, failure),
+                // NOTE processResults() expects a RestResponse instance, override the whole ajax() method in case of external data source (not Opencga)
                 processResults: (restResponse, params) => {
                     const _params = params;
                     _params.page = _params.page || 1;

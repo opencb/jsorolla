@@ -18,7 +18,7 @@ LABEL org.label-schema.vendor="OpenCB" \
 
 ## Copy files
 COPY    ./docker/iva-app/entrypoint.sh      /usr/local/bin
-COPY    ./build/                             /usr/local/apache2/htdocs/iva/
+COPY    ./build/iva                         /usr/local/apache2/htdocs/iva
 
 EXPOSE 80
 

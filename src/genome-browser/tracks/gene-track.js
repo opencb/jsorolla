@@ -5,6 +5,17 @@ import Region from "../../core/bioinfo/region.js";
 import HistogramRenderer from "../renderers/histogram-renderer.js";
 import GeneRenderer from "../renderers/gene-renderer.js";
 
+/* ***************************************************/
+/* Create a Gene track for genome-browser            */
+/* @author Asunción Gallego                          */
+/* @param cellbaseClient       required              */
+/*                    or                             */
+/* @param  cellbase: {                               */
+/*                    "host": CELLBASE_HOST,         */
+/*                    "version": CELLBASE_VERSION,   */
+/*                    "species": "hsapiens"          */
+/*                }                                  */
+/* ***************************************************/
 
 export default class GeneTrack extends FeatureTrack {
 
@@ -13,11 +24,8 @@ export default class GeneTrack extends FeatureTrack {
 
         this.DEFAULT_EXCLUDE = "transcripts.tfbs,transcripts.xrefs,transcripts.cDnaSequence,transcripts.exons.sequence,annotation";
 
-        // set default values
-        this.minTranscriptRegionSize = 200000;
-
         // set user args
-        Object.assign(this, args);
+        Object.assign(this, this.getDefaultConfig(), args);
 
         // init dataAdapter and renderer
         this.histogramRenderer = new HistogramRenderer(args);
@@ -29,10 +37,22 @@ export default class GeneTrack extends FeatureTrack {
         this.species = this.dataAdapter.species;
     }
 
+    getDefaultConfig() {
+        return {
+            title: "Gene",
+            minHistogramRegionSize: 20000000,
+            maxLabelRegionSize: 10000000,
+            minTranscriptRegionSize: 200000,
+            height: 120
+        };
+    }
     _init() {
         // set CellBase adapter as default
         if (typeof this.dataAdapter === "undefined") {
-            if (typeof this.cellbase !== "undefined" && this.cellbase !== null) {
+            if (typeof this.cellbaseClient !== "undefined" && this.cellbaseClient !== null) {
+                this.dataAdapter = new CellBaseAdapter(this.cellbaseClient, "genomic", "region", "gene", {},
+                    {chunkSize: 100000});
+            } else if (typeof this.cellbase !== "undefined" && this.cellbase !== null) {
                 const cellBaseConfig = {
                     host: this.cellbase.host,
                     version: this.cellbase.version,

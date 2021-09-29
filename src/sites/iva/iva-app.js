@@ -312,7 +312,7 @@ class IvaApp extends LitElement {
 
         // this.cellBaseClientConfig = new CellBaseClientConfig(this.config.cellbase.hosts, this.config.cellbase.version, "hsapiens");
         this.cellbaseClient = new CellBaseClient({
-            hosts: this.config.cellbase.host,
+            host: this.config.cellbase.host,
             version: this.config.cellbase.version,
             species: "hsapiens"
         });
@@ -884,7 +884,9 @@ class IvaApp extends LitElement {
         } else {
             // Render the Suite welcome page.
             return {
+                id: this.config.id,
                 name: this.config.name,
+                welcome: this.config.welcome,
                 version: this.config.version,
                 logo: this.config.logo,
                 about: this.config.about,

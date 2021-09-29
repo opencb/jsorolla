@@ -2780,8 +2780,8 @@ select.no-data + .select2-container--bootstrap.select2-container--open.select2-c
 
 /******   opencga-export   *********/
 .export-buttons {
-    width: 180px;
-    height: 90px;
+    width: 160px;
+    height: 80px;
     margin: 0 10px 0 0;
     flex-direction: column;
     display: inline-flex;
@@ -2896,4 +2896,44 @@ div.clipboard-button:hover {
 
 .icon-hover:hover {
     color: red;
+}
+
+/****** hpo and go filters ********/
+.ontology-tree-wrapper {
+    margin-top: 20px;
+}
+
+.ontology-tree {
+    overflow-y: auto;
+    height: 400px;
+    padding-top: 5px;
+}
+
+.ontology-tree .ontology-node:hover {
+    background-color: #F5F5F5;
+}
+
+.ontology-tree .panel-title {
+    font-size: inherit;
+    text-transform: inherit;
+    letter-spacing: inherit;
+}
+
+.ontology-tree .ontology-node {
+    padding: 10px 15px;
+    background-color: #fff;
+    box-shadow: 0 0 0 1px #ddd;
+    cursor: pointer;
+}
+
+.ontology-tree .ontology-node.active, .ontology-node.active:hover {
+    background: #d0e9c6;
+}
+
+.ontology-tree .ontology-node.active, .ontology-node.active:hover {
+    background: rgba(178 218 162, 1.5);
+}
+
+.ontology-node .leaf {
+    padding-left: 10px;
 }

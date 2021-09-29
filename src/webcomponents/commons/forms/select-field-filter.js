@@ -22,7 +22,7 @@ import UtilsNew from "../../../core/utilsNew.js";
 /** NOTE - Design choice: to allow deselection, the single mode (this.multiple=false), has been implemented with the multiple flag in bootstrap-select, but forcing 1 selection with data-max-options=1
  *  (this has no consequences for the developer point of view). This behaviour can be over overridden using "forceSelection" prop.
  *
- *  NOTE putting names in data-content attr instead of as <option> content inself, allows HTML entities to be correctly decoded.
+ *  NOTE putting names in data-content attr instead of as <option> content itself allows HTML entities to be correctly decoded.
  *
  *  Usage:
  * <select-field-filter .data="${["A","B","C"]}" .value=${"A"} @filterChange="${e => console.log(e)}"></select-field-filter>

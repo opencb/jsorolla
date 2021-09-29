@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
 import PolymerUtils from "../../PolymerUtils.js";
+import "../variant-modal-ontology.js";
+
 
 export default class GoAccessionsFilter extends LitElement {
 
@@ -71,8 +72,8 @@ export default class GoAccessionsFilter extends LitElement {
                 .replace(/\s/g, "")
                 .split(",")
                 .filter(Boolean);
-            //console.log("_go", _go)
-            //console.log("length", _go.length)
+            // console.log("_go", _go)
+            // console.log("length", _go.length)
             if (_go.length < 100) {
                 go_message.innerHTML = "";
                 go_message.style.display = "none";

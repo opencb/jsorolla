@@ -100,8 +100,6 @@ class VariantInterpreterBrowserCancer extends LitElement {
 
         if (changedProperties.has("clinicalAnalysis")) {
             this.clinicalAnalysisObserver();
-            // clinicalAnalysisObserver() calls settingsObserver()
-            // this.settingsObserver();
         }
 
         if (changedProperties.has("clinicalAnalysisId")) {
@@ -151,15 +149,13 @@ class VariantInterpreterBrowserCancer extends LitElement {
                     ...this.query,
                     sample: this._sample.id + ":0/1,1/1,NA"
                 };
-                // this.predefinedFilter = {...this.query};
             }
 
+            // Object to map callers ID to Files
             this.callerToFile = {};
             this.opencgaSession.opencgaClient.files().search({sampleIds: this._sample.id, format: "VCF", study: this.opencgaSession.study.fqn})
                 .then(fileResponse => {
                     this.files = fileResponse.response[0].results;
-                    // Prepare a map from caller to File
-                    this.callerToFile = {};
                     for (const file of this.files) {
                         if (file.software?.name) {
                             const softwareName = file.software.name.toLowerCase();
@@ -168,20 +164,28 @@ class VariantInterpreterBrowserCancer extends LitElement {
                     }
 
                     // Init the default caller INFO filters
-                    const fileDataFilters = [];
-                    for (const caller of this._config.filter.callers) {
-                        if (this.callerToFile[caller.id]) {
-                            fileDataFilters.push(this.callerToFile[caller.id].name + ":" + caller.queryString);
-                        }
-                    }
+                    // const fileDataFilters = [];
+                    // for (const caller of this._config.filter.callers) {
+                    //     if (this.callerToFile[caller.id]) {
+                    //         fileDataFilters.push(this.callerToFile[caller.id].name + ":" + caller.queryString);
+                    //     }
+                    // }
 
+                    // Create the variantCallers configuration to: i) set the default init query; ii) create the dynamic side menu
+                    this.variantCallers = this.getVariantCallers();
+                    const fileDataFilters = this.variantCallers.map(caller => {
+                        const filters = caller.dataFilters.map(f => {
+                            return f.id + (f.id !== "FILTER" ? f.defaultValue : "=PASS");
+                        });
+                        return [caller.fileId, filters.join(";")].join(":");
+                    });
+
+                    // Add study caller default 'fileData' query
+                    // TODO add sampleData.
                     this.query = {
                         ...this.query,
-                        fileData: fileDataFilters.join(",")
-                        // populationFrequencyAlt: "1kG_phase3:ALL<=0.001",
+                        fileData: fileDataFilters.join(","),
                     };
-                    // NOTE: We need to update the _config to update the dynamic VCF caller filters
-                    // this._config = {...this.getDefaultConfig(), ...this.config};
 
                     this.settingsObserver();
                     this.queryObserver();
@@ -326,35 +330,62 @@ class VariantInterpreterBrowserCancer extends LitElement {
         this.queryObserver();
     }
 
-    getDefaultConfig() {
-        // DEPRECATED: Prepare dynamic Variant Caller INFO filters
-        const callers = ["Caveman", "strelka", "Pindel", "ASCAT", "Canvas", "BRASS", "Manta", "TNhaplotyper2", "Pisces", "CRAFT"];
-        const callerFilters = [];
-        for (const caller of callers) {
-            const callerId = caller.toLowerCase();
-            callerFilters.push(
-                {
-                    id: callerId,
-                    title: caller + " Filters",
-                    description: () => html`File filters for <span style="font-style: italic; word-break: break-all">${this.callerToFile[callerId].name}</span>`,
-                    visible: () => this.callerToFile && this.callerToFile[callerId],
-                    params: {
-                        fileId: `${this.callerToFile ? this.callerToFile[callerId]?.name : null}`
-                    }
-                }
-            );
-        }
-
-        // New code
+    getVariantCallers() {
         const variantCallers = [];
-        if (this.opencgaSession?.study?.internal?.configuration?.clinical?.interpretation?.variantCallers) {
-            for (const caller of this.opencgaSession.study.internal.configuration.clinical.interpretation.variantCallers) {
+        const studyInternalConfiguration = this.opencgaSession?.study?.internal?.configuration;
+        if (studyInternalConfiguration?.clinical?.interpretation?.variantCallers) {
+            for (const caller of studyInternalConfiguration.clinical.interpretation.variantCallers) {
                 if (this.callerToFile?.[caller.id]) {
                     variantCallers.push({
                         ...caller,
                         fileId: this.callerToFile[caller.id]?.name
                     });
                 }
+            }
+        } else {
+            // If not variantCallers configuration exist we can check for the indexed custom fields in the sample index.
+            // Example:
+            // "customFields": [
+            //     {
+            //         "source": "FILE",
+            //         "key": "FILTER",
+            //         "type": "CATEGORICAL",
+            //         "values": [
+            //             "PASS"
+            //         ],
+            //         "nullable": true
+            //     },
+            //     {
+            //         "source": "FILE",
+            //         "key": "QUAL",
+            //         "type": "RANGE_LT",
+            //         "thresholds": [
+            //             20,
+            //             30,
+            //             250,
+            //             300
+            //         ],
+            //         "nullable": true
+            //     }
+            // ]
+            if (studyInternalConfiguration?.variantEngine?.sampleIndex?.fileIndexConfiguration?.customFields) {
+                // this.files
+                // debugger
+                // const fileIds = Object.values(this.callerToFile);
+                // for (const customField of studyInternalConfiguration.variantEngine.sampleIndex.fileIndexConfiguration.customFields) {
+                //     // At the moment we only support FILE
+                //     if (customField.source === "FILE") {
+                //         // We ONLY add custom indexed fields from VCF INFO column
+                //         if (customField.key !== "FILTER" && customField.key !== "QUAL") {
+                //             for (const fileId of fileIds) {
+                //                 variantCallers.push({
+                //                     id: customField.key,
+                //                     fileId: fileId
+                //                 });
+                //             }
+                //         }
+                //     }
+                // }
             }
         }
         // FIXME remove this temporary code ASAP
@@ -364,16 +395,23 @@ class VariantInterpreterBrowserCancer extends LitElement {
                 columns: ["ASMD"],
                 dataFilters: [
                     {
+                        id: "FILTER",
+                        name: "PASS",
+                        type: "BOOLEAN",
+                        defaultValue: "PASS"
+                    },
+                    {
                         id: "CLPM",
                         name: "CLPM name",
                         type: "NUMERIC",
-                        defaultValue: "<0"
+                        defaultValue: ">=0"
                     },
                     {
                         id: "ASMD",
                         name: "ASMD name",
                         type: "NUMERIC",
                         source: "FILE",
+                        // allowedValues: ["120", "130", "140"],
                         defaultValue: ">=140"
                     }
                 ],
@@ -394,7 +432,29 @@ class VariantInterpreterBrowserCancer extends LitElement {
             });
         }
 
-        return {
+        return variantCallers;
+    }
+
+    getDefaultConfig() {
+        // DEPRECATED: Prepare dynamic Variant Caller INFO filters
+        // const callers = ["Caveman", "strelka", "Pindel", "ASCAT", "Canvas", "BRASS", "Manta", "TNhaplotyper2", "Pisces", "CRAFT"];
+        // const callerFilters = [];
+        // for (const caller of callers) {
+        //     const callerId = caller.toLowerCase();
+        //     callerFilters.push(
+        //         {
+        //             id: callerId,
+        //             title: caller + " Filters",
+        //             description: () => html`File filters for <span style="font-style: italic; word-break: break-all">${this.callerToFile[callerId].name}</span>`,
+        //             visible: () => this.callerToFile && this.callerToFile[callerId],
+        //             params: {
+        //                 fileId: `${this.callerToFile ? this.callerToFile[callerId]?.name : null}`
+        //             }
+        //         }
+        //     );
+        // }
+
+            return {
             title: "Cancer Case Interpreter",
             icon: "fas fa-search",
             active: false,
@@ -415,22 +475,22 @@ class VariantInterpreterBrowserCancer extends LitElement {
                     hiddenFields: [],
                     lockedFields: [{id: "sample"}]
                 },
-                callers: [
-                    {
-                        id: "caveman",
-                        queryString: "FILTER=PASS;CLPM>=0;ASMD>=140"
-                        // queryString: "FILTER=PASS"
-                    },
-                    {
-                        id: "pindel",
-                        // queryString: "FILTER=PASS;QUAL>=250;REP<=9"
-                        queryString: "FILTER=PASS"
-                    },
-                    {
-                        id: "tnhaplotyper2",
-                        queryString: "FILTER=PASS"
-                    }
-                ],
+                // callers: [
+                //     {
+                //         id: "caveman",
+                //         queryString: "FILTER=PASS;CLPM>=0;ASMD>=140"
+                //         // queryString: "FILTER=PASS"
+                //     },
+                //     {
+                //         id: "pindel",
+                //         // queryString: "FILTER=PASS;QUAL>=250;REP<=9"
+                //         queryString: "FILTER=PASS"
+                //     },
+                //     {
+                //         id: "tnhaplotyper2",
+                //         queryString: "FILTER=PASS"
+                //     }
+                // ],
                 sections: [ // sections and subsections, structure and order is respected
                     {
                         title: "Sample And File",
@@ -469,14 +529,14 @@ class VariantInterpreterBrowserCancer extends LitElement {
                                 tooltip: "VCF file based FILTER and QUAL filters",
                                 visible: UtilsNew.isEmpty(this.callerToFile)
                             },
-                            ...callerFilters,
-                            // {
-                            //     id: "variant-file-info-filter",
-                            //     title: "Variant File Caller Filter",
-                            //     params: {
-                            //         callers: variantCallers
-                            //     }
-                            // }
+                            // ...callerFilters,
+                            {
+                                id: "variant-file-info-filter",
+                                title: "Variant File Caller Filter",
+                                params: {
+                                    callers: this.variantCallers
+                                }
+                            }
                         ]
                     },
                     {
@@ -493,11 +553,6 @@ class VariantInterpreterBrowserCancer extends LitElement {
                                 title: "Feature IDs (gene, SNPs, ...)",
                                 tooltip: tooltips.feature
                             },
-                            // {
-                            //     id: "diseasePanels",
-                            //     title: "Disease Panels",
-                            //     tooltip: tooltips.diseasePanels
-                            // },
                             {
                                 id: "biotype",
                                 title: "Gene Biotype",
@@ -521,11 +576,6 @@ class VariantInterpreterBrowserCancer extends LitElement {
                                 title: "Disease Panels",
                                 tooltip: tooltips.diseasePanels
                             },
-                            // {
-                            //     id: "clinvar",
-                            //     title: "ClinVar Accession",
-                            //     tooltip: tooltips.clinvar
-                            // },
                             {
                                 id: "clinical-annotation",
                                 title: "Clinical Annotation",
@@ -584,11 +634,6 @@ class VariantInterpreterBrowserCancer extends LitElement {
                         title: "Phenotype",
                         collapsed: true,
                         fields: [
-                            // {
-                            //     id: "clinvar",
-                            //     title: "ClinVar Accessions",
-                            //     tooltip: tooltips.clinvar
-                            // },
                             {
                                 id: "go",
                                 title: "GO Accessions (max. 100 terms)",
