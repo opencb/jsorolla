@@ -347,7 +347,7 @@ const client = new OpenCGAClient({
                                     <i class="fas fa-exclamation-triangle"></i>
                                     <span>
                                         <span style="font-weight: bold">Note: </span>This option will launch an
-                                        <span style="font-weight: bold">async job</span> in the server to export all records.
+                                        <span style="font-weight: bold">async job</span> in the server to export all records, notice that no limit is applied.
                                         This might take few minutes depending on the data size and cluster load.
                                     </span>
                                 </div>
@@ -381,7 +381,8 @@ const client = new OpenCGAClient({
 
                                 <label for="inputPassword" class="col-md-2 control-label">Job ID</label>
                                 <div class="col-md-10">
-                                    <input type="text" class="form-control" placeholder="Enter Job ID, leave empty for default." @input="${this.changeJobId}">
+                                    <input type="text" class="form-control" placeholder="Enter Job ID, leave empty for default."
+                                           value="${this.config.resource.toLowerCase()}_export_${UtilsNew.dateFormatter(new Date(), "YYYYMMDDhhmm")}" @input="${this.changeJobId}">
                                 </div>
                             </div>
                         </div>
