@@ -21,7 +21,7 @@
 // import { LitElement, html } from 'lit-element'; // bare import by name doesn't work yet in browser,
 // see: https://www.polymer-project.org/blog/2018-02-26-3.0-preview-paths-and-names
 import {LitElement, html} from "lit";
-import "./welcome.js";
+import "./welcome-suite.js";
 import "./about.js";
 import "./contact.js";
 import "./faq.js";
@@ -884,7 +884,9 @@ class IvaApp extends LitElement {
         } else {
             // Render the Suite welcome page.
             return {
+                id: this.config.id,
                 name: this.config.name,
+                welcome: this.config.welcome,
                 version: this.config.version,
                 logo: this.config.logo,
                 about: this.config.about,
@@ -1022,7 +1024,7 @@ class IvaApp extends LitElement {
             <div class="container-fluid">
                 ${this.config.enabledComponents.home ? html`
                     <div class="content" id="home">
-                        <welcome-web
+                        <welcome-suite
                             .app="${this.app}"
                             .opencgaSession="${this.opencgaSession}"
                             version="${this.config.version}"
@@ -1030,7 +1032,7 @@ class IvaApp extends LitElement {
                             @changeApp="${e => this.onChangeApp(e.detail.e, false)}"
                             @search="${this.quickSearch}"
                             .config="${this.config}">
-                        </welcome-web>
+                        </welcome-suite>
                     </div>
                 ` : null}
 
