@@ -55,6 +55,7 @@ export default class VariantFileInfoFilter extends LitElement {
 
         this.callerParamTypeToDataForm = {
             "NUMERIC": "input-number",
+            "CATEGORICAL": "select",
             "BOOLEAN": "checkbox",
         };
         this.fileDataSeparator = ",";

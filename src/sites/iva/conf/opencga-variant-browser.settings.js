@@ -57,7 +57,7 @@ const OPENCGA_VARIANT_BROWSER_SETTINGS = {
         // merge criterium: spread operator
         toolbar: {
             showColumns: true,
-            showExport: false,
+            showExport: true,
             showDownload: true
             // columns list for the dropdown will be added in grid components based on settings.table.columns
         },
