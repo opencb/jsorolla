@@ -88,45 +88,23 @@ export default class WelcomeSuite extends LitElement {
         if (!app || app.id === "suite") {
             return this.renderSuiteWelcome();
         } else {
-            switch (app.id) {
-                case "iva":
-                    return html`
-                        <welcome-app
-                            version="${this.config.version}"
-                            .app="${app}"
-                            .opencgaSession="${this.opencgaSession}"
-                            .cellbaseClient=${this.cellbaseClient}
-                            .config="${this.config}">
-                        </welcome-app>`;
-                case "clinical":
-                    return html`
-                        <welcome-app
-                                .opencgaSession="${this.opencgaSession}"
-                                .config="${this.config}">
-                        </welcome-app>`;
-                case "admin":
-                    return html`
-                        <welcome-app
-                                .app="${app}"
-                                .opencgaSession="${this.opencgaSession}"
-                                .config="${this.config}">
-                        </welcome-app>`;
-                default:
-                    return this.renderSuiteWelcome();
-            }
+            return html `
+                <welcome-app
+                    version="${this.config?.version}"
+                    .app="${app}"
+                    .opencgaSession="${this.opencgaSession}"
+                    .cellbaseClient=${this.cellbaseClient}
+                    .config="${this.config}">
+                </welcome-app>`;
         }
     }
 
     renderSuiteWelcome() {
         return html`
             <div>
-                <h1 style="text-align: center">
-                    ${this.config.name}
-                </h1>
-                <div style="margin: 20px">
-                    ${UtilsNew.renderHTML(this.config.welcomePageContent)}
-                </div>
-
+                    ${UtilsNew.renderHTML(this.config.welcomePage?.title)}
+                    ${UtilsNew.renderHTML(this.config.welcomePage?.logo)}
+                    ${UtilsNew.renderHTML(this.config.welcomePage?.content)}
                 <div class="row hi-icon-wrap hi-icon-effect-9 hi-icon-animation">
                     ${this.config.apps.filter(app => this.isVisible(app)).map(item => html`
                         <a class="icon-wrapper" href="#home" data-id="${item.id}" @click="${this.onChangeApp}">

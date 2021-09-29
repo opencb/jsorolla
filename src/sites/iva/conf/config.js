@@ -147,13 +147,22 @@ const suite = {
         minRemainingTime: 60000,
         maxRemainingTime: 600000 // 10 min
     },
-    welcomePageContent: `
-                <p class="text-center">
-                    Welcome to the OpenCB Suite for whole genome variant analysis.<br />
-                    This interactive tool allows finding genes affected by deleterious variants<br />that segregate along family
-                    pedigrees, case-controls or sporadic samples.
-                </p>
-                <br>`,
+    welcomePage: {
+        title: `
+            <h1 style="text-align: center">
+                OpenCGA Suite
+            </h1>`,
+        logo: "",
+        content: `
+        <div style="margin: 20px">
+            <p class="text-center">
+                Welcome to the OpenCB Suite for whole genome variant analysis.<br />
+                This interactive tool allows finding genes affected by deleterious variants<br />that segregate along family
+                pedigrees, case-controls or sporadic samples.
+            </p>
+            <br>
+        </div>`
+    },
     welcomePageFooter: "<p><img id=\"logo\" src=\"img/opencb-logo.png\" alt=\"opencb-logo\"/></p>",
 
     // The order, title and nested submenus are respected
@@ -166,18 +175,25 @@ const suite = {
             // logo: "img/tools/icons/variant_browser.svg",
             // alt: "This is the old IVA tool",
             icon: "img/tools/icons/variant_browser.svg",
-            welcomePageContent: `
-                <h1 id="welcome-page-title">
-                    <div class="iva-logo">
-                        <img alt="IVA" src="./img/iva.svg" />
-                        <span class="subtitle">Interactive Variant Analysis</span>
-                    </div>
-                </h1>
-                <p class="text-center">
-                    Welcome to the Variant Analysis application.<br>
-                    This interactive tool allows browse and run variant analysis.
-                </p>
-                <br>`,
+            welcomePage: {
+                title: `
+                    <h1 style="text-align: center">
+                        Variant Analysis
+                    </h1>`,
+                logo: `
+                    <h1 id="welcome-page-title">
+                        <div class="iva-logo">
+                            <img alt="IVA" src="./img/iva.svg" />
+                            <span class="subtitle">Interactive Variant Analysis</span>
+                        </div>
+                    </h1>`,
+                content: `
+                    <p class="text-center">
+                        Welcome to the Variant Analysis application.<br>
+                        This interactive tool allows browse and run variant analysis.
+                    </p>
+                    <br>`
+            },
             visibility: "public",
             menu: [
                 {
@@ -626,7 +642,7 @@ const suite = {
             logo: "img/tools/icons/interpretation_portal_white.svg",
             logoAlt: "img/tools/icons/interpretation_portal.svg",
             icon: "img/tools/icons/interpretation_portal.svg",
-            visibility: "public",
+            visibility: "none",
             menu: [
                 {
                     id: "clinical",
@@ -781,14 +797,21 @@ const suite = {
             name: "OpenCGA Admin",
             logo: "img/tools/icons/file_explorer.svg",
             icon: "img/tools/icons/file_explorer.svg",
-            welcomePageContent: `
-            <p class="text-center">
-                Welcome to the OpenCB Suite for whole genome variant analysis.<br />
-                This interactive tool allows finding genes affected by deleterious variants<br />that segregate along family
-                pedigrees, case-controls or sporadic samples.
-            </p>
-            <br>`,
-            visibility: "public",
+            visibility: "none",
+            welcomePage: {
+                title: `
+                    <h1 style="text-align: center">
+                        OpenCGA Admin
+                    </h1>`,
+                logo: "",
+                content: `
+                <p class="text-center">
+                    Welcome to the OpenCB Suite for whole genome variant analysis.<br />
+                    This interactive tool allows finding genes affected by deleterious variants<br />that segregate along family
+                    pedigrees, case-controls or sporadic samples.
+                </p>
+                <br>`
+            },
             menu: [
                 {
                     id: "projects-admin",

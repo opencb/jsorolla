@@ -884,7 +884,9 @@ class IvaApp extends LitElement {
         } else {
             // Render the Suite welcome page.
             return {
+                id: this.config.id,
                 name: this.config.name,
+                welcome: this.config.welcome,
                 version: this.config.version,
                 logo: this.config.logo,
                 about: this.config.about,

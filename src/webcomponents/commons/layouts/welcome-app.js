@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {LitElement, html} from "lit";
+import {LitElement, html, nothing} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
 import PolymerUtils from "../../PolymerUtils.js";
 
@@ -207,22 +207,10 @@ export default class WelcomeApp extends LitElement {
 
             <!-- This is where main application is rendered -->
             <div>
-                <!--
-                <h1 id="welcome-page-title">
-                    <div class="iva-logo">
-                        <img alt="IVA" src="./img/iva.svg" />
-                        <p class="version">
-                            <span class="bracket">(</span><span>${this.version}</span><span class="bracket">)</span>
-                        </p>
-                        <span class="subtitle">Interactive Variant Analysis</span>
-                    </div>
-                </h1>
-                -->
-                <h1 style="text-align: center">
-                    ${this.app.name}
-                </h1>
 
-                ${UtilsNew.renderHTML(this.app.welcomePageContent)}
+                ${UtilsNew.renderHTML(this.app.welcomePage?.title)}
+                ${UtilsNew.renderHTML(this.app.welcomePage?.logo)}
+                ${UtilsNew.renderHTML(this.app.welcomePage?.content)}
 
                 <div class="row hi-icon-wrap hi-icon-effect-9 hi-icon-animation">
                     ${this.app.menu.filter(this.isVisible).map(item => html`
