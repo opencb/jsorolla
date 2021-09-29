@@ -24,6 +24,7 @@ export default class OpencgaExport extends LitElement {
 
     constructor() {
         super();
+
         this._init();
     }
 
@@ -46,7 +47,7 @@ export default class OpencgaExport extends LitElement {
     }
 
     _init() {
-        this._prefix = "sf-" + UtilsNew.randomString(6) + "_";
+        this._prefix = UtilsNew.randomString(8);
         this.activeTab = {
             link: {url: true},
             code: {cli: true}
@@ -71,18 +72,12 @@ export default class OpencgaExport extends LitElement {
     connectedCallback() {
         super.connectedCallback();
         // this._config = {...this.getDefaultConfig(), ...this.config};
-
-    }
-
-    firstUpdated(_changedProperties) {
-
     }
 
     updated(changedProperties) {
         if (changedProperties.has("opencgaSession")) {
-
-
         }
+
         if (changedProperties.has("query") || changedProperties.has("config")) {
             // this._config = {...this.getDefaultConfig(), ...this.config};
             if (this.config?.resource) {
@@ -93,7 +88,6 @@ export default class OpencgaExport extends LitElement {
                 new ClipboardJS(".clipboard-button");
             }
             this.requestUpdate();
-
         }
     }
 
@@ -115,7 +109,6 @@ export default class OpencgaExport extends LitElement {
     }
 
     generateCode(language) {
-
         if (!this.config?.resource) {
             return "Resource not defined";
         }
@@ -227,8 +220,6 @@ const client = new OpenCGAClient({
                 console.error(e);
                 UtilsNew.notifyError(e);
             }
-        } else {
-
         }
     }
 
@@ -266,17 +257,15 @@ const client = new OpenCGAClient({
 
     render() {
         return html`
-            <style>
-
-
-            </style>
             <div>
                 <ul class="nav nav-tabs">
-                    <li class="active"><a data-toggle="tab" href="#plain_text">Plain text</a></li>
+                    <li class="active"><a data-toggle="tab" href="#plain_text">Download Table</a></li>
+                    <li><a data-toggle="tab" href="#${this._prefix}export">Export Query</a></li>
                     <li><a data-toggle="tab" href="#link">Link</a></li>
-                    <li><a data-toggle="tab" href="#code">Opencga Client</a></li>
+                    <li><a data-toggle="tab" href="#code">Opencga Client Script Code</a></li>
                 </ul>
             </div>
+
             <div class="tab-content">
                 <div id="plain_text" class="tab-pane active">
                     <form class="form-horizontal">
@@ -323,7 +312,7 @@ const client = new OpenCGAClient({
                             </div>
                         </div>
                         <div class="alert alert-info">
-                            <i class="fa fa-info-circle url"></i>
+                            <i class="fas fa-info-circle url"></i>
                             ${this.mode === "sync" ? "The download is immediate, but the results are limited to the first 1000." : "An async job will be scheduled. [...]"}
                         </div>
 
@@ -347,9 +336,62 @@ const client = new OpenCGAClient({
                                 <button type="button" class="btn btn-primary btn-lg ripple" @click="${this.launchJob}">Launch job</button>`
                             }
                     </div>
-
                 </div>
 
+                <div id="${this._prefix}export" class="tab-pane">
+                    <form class="form-horizontal">
+
+                        <div class="form-group" style="margin-top: 10px">
+                            <div class="col-md-12">
+                                <div class="alert alert-warning" style="margin-bottom: 10px">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    <span>
+                                        <span style="font-weight: bold">Note: </span>This option will launch an
+                                        <span style="font-weight: bold">async job</span> in the server to export all records.
+                                        This might take few minutes depending on the data size and cluster load.
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="col-md-12">
+                                <h4 class="export-section-title">Select Output Format</h4>
+
+                                <button type="button" class="btn export-buttons ripple ${classMap({active: this.format === "tab"})}" data-format="tab" @click="${this.changeFormat}">
+                                    <i class="fas fa-table fa-2x"></i>
+                                    <span class="export-buttons-text">${this.config.resource === "VARIANT" ? "VCF" : "CSV"}</span>
+                                </button>
+                                ${this.config.resource === "VARIANT" ? html`
+                                    <button type="button" class="btn export-buttons ripple ${classMap({active: this.format === "vep"})}" data-format="vep" @click="${this.changeFormat}">
+                                        <i class="fas fa-file-code fa-2x"></i>
+                                        <span class="export-buttons-text">Ensembl VEP</span>
+                                    </button>` : null
+                                }
+                                <button type="button" class="btn export-buttons ripple ${classMap({active: this.format === "json"})}" data-format="json" @click="${this.changeFormat}">
+                                    <i class="fas fa-file-code fa-2x"></i>
+                                    <span class="export-buttons-text">JSON</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="col-md-12">
+                                <h4 class="export-section-title">Job Info</h4>
+
+                                <label for="inputPassword" class="col-md-2 control-label">Job ID</label>
+                                <div class="col-md-10">
+                                    <input type="text" class="form-control" placeholder="Enter Job ID, leave empty for default." @input="${this.changeJobId}">
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default ripple" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary ripple" @click="${this.launchJob}">Launch job</button>
+                    </div>
+                </div>
 
                 <div id="link" class="tab-pane">
                     <div class="btn-group btn-group-tab" role="toolbar" aria-label="toolbar">
