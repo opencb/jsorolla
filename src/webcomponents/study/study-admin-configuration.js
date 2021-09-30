@@ -18,6 +18,8 @@ import {html, LitElement} from "lit";
 import UtilsNew from "../../core/utilsNew.js";
 import DetailTabs from "../commons/view/detail-tabs.js";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
+import "./configuration/study-variant-config.js";
+import "./configuration/study-clinical-config.js";
 
 export default class StudyAdminConfiguration extends LitElement {
 
@@ -56,11 +58,6 @@ export default class StudyAdminConfiguration extends LitElement {
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
-    // Note: WE NEED this function because we are rendering using JQuery not lit-element API
-    firstUpdated(changedProperties) {
-
-    }
-
     update(changedProperties) {
 
         // if (changedProperties.has("study")) {
@@ -79,11 +76,10 @@ export default class StudyAdminConfiguration extends LitElement {
                     active: true,
                     render: () => {
                         return html`
-                            <div class="guard-page">
-                                <i class="fas fa-pencil-ruler fa-5x"></i>
-                                <h3>Component under construction</h3>
-                                <h3>(Coming Soon)</h3>
-                            </div>`;
+                            <study-clinical-config
+                                .study=${this.study}
+                                .opencgaSession=${this.opencgaSession}>
+                            </study-clinical-config>`;
                     }
                 },
                 {
