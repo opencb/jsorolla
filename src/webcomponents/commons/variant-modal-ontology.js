@@ -88,10 +88,6 @@ export default class VariantModalOntology extends LitElement {
         }
     }
 
-    firstUpdated() {
-        this.loadTermsTree();
-    }
-
     ontologyFilterObserver() {
         this.loadTermsTree();
         this.requestUpdate();
@@ -100,23 +96,15 @@ export default class VariantModalOntology extends LitElement {
     selectTerm(selected) {
     }
 
-    addTerm(oboId) {
-        if (oboId) {
-            const oboIds = oboId.split(",");
-            this.selectedTerms = oboId.split(",");
-        }
-        this.selectedTerms = [...this.selectedTerms];
-        this.requestUpdate();
+    filterChange(e) {
+        this.selectedTerms = e.detail.value ? e.detail.value.split(",") : [];
     }
 
-    deleteTermFromList(e) {
-        const deletedTermId = e.target.getAttribute("data-selected-term-id");
-        const index = this.selectedTerms.indexOf(deletedTermId);
-        if (index > -1) {
-            this.selectedTerms.splice(index, 1);
-            this.selectedTermsFull.splice(index, 1);
-            this.selectedTerms = [...this.selectedTerms];
+    addTerm(oboId) {
+        if (oboId) {
+            this.selectedTerms = [...new Set([...this.selectedTerms, oboId])];
         }
+        this.selectedTerms = [...this.selectedTerms];
         this.requestUpdate();
     }
 
@@ -127,13 +115,6 @@ export default class VariantModalOntology extends LitElement {
                 resultFull: this.selectedTermsFull,
             },
         }));
-    }
-
-    searchTerm(query, process) {
-    }
-
-    drawTree(data) {
-
     }
 
     async loadTermsTree() {
@@ -174,6 +155,9 @@ export default class VariantModalOntology extends LitElement {
         this.requestUpdate();
 
         if (!node.nodes?.length) {
+            node.state.loading = true;
+            this.rootTree = {...this.rootTree};
+            this.requestUpdate();
             fetch(node.children)
                 .then(response => {
                     response.json().then(json => {
@@ -195,6 +179,8 @@ export default class VariantModalOntology extends LitElement {
                                     state: {expanded: false},
                                 });
                             });
+                            node.state.loading = false;
+                            this.rootTree = {...this.rootTree};
                             this.requestUpdate();
                         } else {
                             console.log("no _embedded elements");
@@ -208,7 +194,6 @@ export default class VariantModalOntology extends LitElement {
     }
 
     selectItem(node) {
-        console.log(node);
         this.selectedItem = node;
         this.requestUpdate();
     }
@@ -230,14 +215,9 @@ export default class VariantModalOntology extends LitElement {
                         _params.data.page = params.data.page || 1;
                         const q = _params?.data?.term ? _params.data.term : "";
                         try {
-
                             const request = await fetch(this.ebiConfig.root + this.ebiConfig.search + "?q=*" + q + "*&ontology=" + this.ontologyFilter + "&rows=" + this._config.limit + "&queryFields=label,obo_id");
                             const json = await request.json();
-                            this.fullTerms = json.response.docs;
-                            const results = [];
-                            json.response.docs.forEach(elem => {
-                                results.push({text: elem.label, id: elem.obo_id, iri: elem.iri});
-                            });
+                            const results = json.response.docs.map(i => ({text: i.label, id: i.obo_id, iri: i.iri}));
                             success(results);
                         } catch (e) {
                             console.error(e);
@@ -270,10 +250,10 @@ export default class VariantModalOntology extends LitElement {
                             <span @click="${e => this.toggleNode(node)}" class="" role="button" data-toggle="collapse" aria-expanded="true" aria-controls="collapseListGroup1">
                                 ${!node.state.expanded ? html`<i class="fas fa-plus"></i>` : html`<i class="fas fa-minus"></i>`}
                             </span>
-                            ${node.text} ${node.depth}
+                            ${node.text}
+                            ${node.state.loading ? html`<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>` : ""}
                         </span>
                     ` : html`<span class="leaf" style="margin-left: ${node.depth}em;">${node.text}</span>`}
-                    ${node.obo_id}
                 </div>
                 ${node.has_children ? html`
                     <div class="panel-collapse collapse ${node.state.expanded ? "in" : ""}" role="tabpanel" id="collapseListGroup1" aria-labelledby="collapseListGroupHeading1" aria-expanded="true" style="">
@@ -304,7 +284,7 @@ export default class VariantModalOntology extends LitElement {
                                                 .opencgaSession="${this.opencgaSession}"
                                                 .config=${this._config}
                                                 .value="${this.selectedTerms?.join(",")}"
-                                                @filterChange="${e => this.addTerm(e.detail.value)}">
+                                                @filterChange="${this.filterChange}">
                                         </select-token-filter>
                                     </div>
                                 </div>
