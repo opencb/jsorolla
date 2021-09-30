@@ -550,15 +550,21 @@ export default class DataForm extends LitElement {
         const [min = "", max = ""] = element.allowedValues || [];
         const step = element.step || "1";
         // debugger
-        return html`
-            <div class="">
-                <number-field-filter label="Value" .value="${value ? value : ""}"
-                                     .min=${min} .max=${max} .step="${step}" .placeholder="${element.display?.placeholder || ""}"
-                                     .classes="${element.display?.updated ? "updated" : ""}"
-                                     @filterChange="${e => this.onFilterChange(element.field, e.detail.value)}">
-                </number-field-filter>
-            </div>
-        `;
+        if (!element.allowedValues) {
+            return html`
+                hola chicoos!
+            `;
+        } else {
+            return html`
+                <div class="">
+                    <number-field-filter label="Value" .value="${value ? value : ""}" .config=${{comparator: "<"}}
+                                         .min=${min} .max=${max} .step="${step}" .placeholder="${element.display?.placeholder || ""}"
+                                         .classes="${element.display?.updated ? "updated" : ""}"
+                                         @filterChange="${e => this.onFilterChange(element.field, e.detail.value)}">
+                    </number-field-filter>
+                </div>
+            `;
+        }
     }
 
     _createInputDateElement(element) {

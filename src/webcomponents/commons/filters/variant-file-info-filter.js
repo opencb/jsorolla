@@ -58,6 +58,7 @@ export default class VariantFileInfoFilter extends LitElement {
             "CATEGORICAL": "select",
             "BOOLEAN": "checkbox",
         };
+
         this.fileDataSeparator = ",";
         this.fileToCaller = {};
         this._config = this.getDefaultConfig();
@@ -93,11 +94,12 @@ export default class VariantFileInfoFilter extends LitElement {
                 display: {
                     titleHeader: "h4"
                 },
-                elements: caller.dataFilters.map(field => {
+                elements: caller.dataFilters.map(dataFilter => {
                     return {
-                        name: field.name || field.id,
-                        field: caller.id + "." + field.id,
-                        type: this.callerParamTypeToDataForm[field.type],
+                        name: dataFilter.name || dataFilter.id,
+                        field: caller.id + "." + dataFilter.id,
+                        type: this.callerParamTypeToDataForm[dataFilter.type],
+                        allowedValues: dataFilter.allowedValues,
                         // defaultValue: field.type !== "BOOLEAN" ? field.defaultValue : field.defaultValue === "true"
                         defaultValue: ""
                     };
@@ -109,6 +111,18 @@ export default class VariantFileInfoFilter extends LitElement {
         this._config = this.getDefaultConfig();
     }
 
+    // getDataFormType(dataFilter) {
+    //     if (dataFilter.allowedValues) {
+    //         return "select";
+    //     } else {
+    //         this.callerParamTypeToDataForm = {
+    //             "NUMERIC": "input-number",
+    //             "CATEGORICAL": "select",
+    //             "BOOLEAN": "checkbox",
+    //         };
+    //         return this.callerParamTypeToDataForm[dataFilter.type];
+    //     }
+    // }
     /*
      * This observer process the fileData string and prepares the query object for data-form
      * and stores some variables for notifying the new fileData.

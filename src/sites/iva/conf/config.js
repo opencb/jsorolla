@@ -798,7 +798,7 @@ const suite = {
             name: "OpenCGA Admin",
             logo: "img/tools/icons/file_explorer.svg",
             icon: "img/tools/icons/file_explorer.svg",
-            visibility: "none",
+            visibility: "public",
             welcomePage: {
                 title: `
                     <h1 style="text-align: center">

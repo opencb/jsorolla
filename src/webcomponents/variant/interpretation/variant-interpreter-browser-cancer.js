@@ -371,7 +371,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
             //         "nullable": true
             //     }
             // ]
-            if (studyInternalConfiguration?.variantEngine?.sampleIndex?.fileIndexConfiguration?.customFields) {
+            if (false && studyInternalConfiguration?.variantEngine?.sampleIndex?.fileIndexConfiguration?.customFields) {
                 const fieldToCaller = {};
                 for (const file of this.files) {
                     file.attributes.variantFileMetadata.header.complexLines
@@ -445,8 +445,8 @@ class VariantInterpreterBrowserCancer extends LitElement {
                         name: "ASMD name",
                         type: "NUMERIC",
                         source: "FILE",
-                        // comparators: ["<", ">="]
-                        // allowedValues: ["120", "130", "140"],
+                        comparators: ["<", ">="],
+                        allowedValues: ["120", "130", "140"],
                         defaultValue: ">=140"
                     }
                 ],
