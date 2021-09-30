@@ -259,95 +259,62 @@ const client = new OpenCGAClient({
         return html`
             <div>
                 <ul class="nav nav-tabs">
-                    <li class="active"><a data-toggle="tab" href="#plain_text">Download Table</a></li>
+                    <li class="active"><a data-toggle="tab" href="#${this._prefix}download">Download Table</a></li>
                     <li><a data-toggle="tab" href="#${this._prefix}export">Export Query</a></li>
                     <li><a data-toggle="tab" href="#link">Link</a></li>
-                    <li><a data-toggle="tab" href="#code">Opencga Client Script Code</a></li>
+                    <li><a data-toggle="tab" href="#code">Opencga Script Code</a></li>
                 </ul>
             </div>
 
             <div class="tab-content">
-                <div id="plain_text" class="tab-pane active">
+                <div id="${this._prefix}download" class="tab-pane active">
                     <form class="form-horizontal">
-
-                        <div class="form-group">
+                        <div class="form-group" style="margin-top: 10px">
                             <div class="col-md-12">
-                                <div class="form-group">
-                                    <div class="col-md-12">
-                                        <h4 class="export-section-title">Format</h4>
-                                        <button type="button" class="btn export-buttons ripple ${classMap({active: this.format === "tab"})}" data-format="tab" @click="${this.changeFormat}">
-                                            <i class="fas fa-table fa-2x"></i>
-                                            <span class="export-buttons-text">${this.config.resource === "VARIANT" ? "VCF" : "CSV"}</span>
-                                        </button>
-                                        <button type="button" class="btn export-buttons ripple ${classMap({active: this.format === "json"})}" data-format="json" @click="${this.changeFormat}">
-                                            <i class="fas fa-file-code fa-2x"></i>
-                                            <span class="export-buttons-text">JSON</span>
-                                        </button>
-                                    </div>
+                                <div class="alert alert-warning" style="margin-bottom: 10px">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    <span>
+                                        <span style="font-weight: bold">Note: </span>This option will
+                                        <span style="font-weight: bold">automatically download</span>
+                                        the table, note that only first <span style="font-weight: bold">1,000 records</span> are downloaded.
+                                    </span>
                                 </div>
                             </div>
                         </div>
+
                         <div class="form-group">
                             <div class="col-md-12">
-                                <h4 class="export-section-title">Mode</h4>
-                                <div class="">
-                                    <button type="button" class="btn export-buttons ripple ${classMap({active: this.mode === "sync"})}" data-mode="sync" @click="${this.changeMode}">
-                                        <i class="fas fa-download fa-2x"></i>
-                                        <span class="export-buttons-text">Download</span>
-                                        <span class="export-buttons-description">Immediate donwload. Limited to the first 1000 entries.</span>
-                                    </button>
-                                    <button type="button" class="btn export-buttons ripple ${classMap({active: this.mode === "async"})}" data-mode="async" @click="${this.changeMode}">
-                                        <i class="fas fa-rocket fa-2x"></i>
-                                        <span class="export-buttons-text">Job</span>
-                                        <span class="export-buttons-description">description</span>
-
-                                    </button>
-                                    <!--<label class="radio-inline">
-                                        <input type="radio" name="inlineRadioOptions" id="mode_immediate" value="sync" checked @click="${this.changeMode}"> Download
-                                    </label>
-                                    <label class="radio-inline">
-                                        <input type="radio" name="inlineRadioOptions" id="mode_job" value="async" @click="${this.changeMode}"> Schedule a job
-                                    </label> -->
-                                </div>
+                                <h4 class="export-section-title">Select Output Format</h4>
+                                <button type="button" class="btn export-buttons ripple ${classMap({active: this.format === "tab"})}" data-format="tab" @click="${this.changeFormat}">
+                                    <i class="fas fa-table fa-2x"></i>
+                                    <span class="export-buttons-text">TSV</span>
+                                </button>
+                                <button type="button" class="btn export-buttons ripple ${classMap({active: this.format === "json"})}" data-format="json" @click="${this.changeFormat}">
+                                    <i class="fas fa-file-code fa-2x"></i>
+                                    <span class="export-buttons-text">JSON</span>
+                                </button>
                             </div>
                         </div>
-                        <div class="alert alert-info">
-                            <i class="fas fa-info-circle url"></i>
-                            ${this.mode === "sync" ? "The download is immediate, but the results are limited to the first 1000." : "An async job will be scheduled. [...]"}
-                        </div>
-
-                        ${this.mode === "async" ? html`
-                            <div class="form-horizontal">
-                                <div class="form-group">
-                                    <label for="inputPassword" class="col-sm-2 control-label">Job ID</label>
-                                    <div class="col-sm-10">
-                                        <input type="text" class="form-control" placeholder="Enter Job ID, leave empty for default." @input="${this.changeJobId}">
-                                    </div>
-                                </div>
-                            </div>` : null}
                     </form>
 
-                    <div class="modal-footer">
+                    <div class="modal-footer" style="padding-top: 25px">
                         <button type="button" class="btn btn-default ripple" data-dismiss="modal">Close</button>
-                            ${this.mode === "sync" ? html`
-                                <button type="button" class="btn btn-primary btn-lg ripple" @click="${this.onDownloadClick}">
-                                    ${this.config?.downloading === true ? html`<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>` : null} <i class="fa fa-download icon-padding" aria-hidden="true"></i> Download
-                                </button>` : html`
-                                <button type="button" class="btn btn-primary btn-lg ripple" @click="${this.launchJob}">Launch job</button>`
-                            }
+                        <button type="button" class="btn btn-primary ripple" @click="${this.onDownloadClick}">
+                            ${this.config?.downloading === true ? html`<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>` : null}
+                            <i class="fa fa-download icon-padding" aria-hidden="true"></i> Download
+                        </button>
                     </div>
                 </div>
 
                 <div id="${this._prefix}export" class="tab-pane">
                     <form class="form-horizontal">
-
                         <div class="form-group" style="margin-top: 10px">
                             <div class="col-md-12">
                                 <div class="alert alert-warning" style="margin-bottom: 10px">
                                     <i class="fas fa-exclamation-triangle"></i>
                                     <span>
                                         <span style="font-weight: bold">Note: </span>This option will launch an
-                                        <span style="font-weight: bold">async job</span> in the server to export all records, notice that no limit is applied.
+                                        <span style="font-weight: bold">async job</span> in the server to export all records, note that no limit is applied.
                                         This might take few minutes depending on the data size and cluster load.
                                     </span>
                                 </div>
@@ -357,7 +324,6 @@ const client = new OpenCGAClient({
                         <div class="form-group">
                             <div class="col-md-12">
                                 <h4 class="export-section-title">Select Output Format</h4>
-
                                 <button type="button" class="btn export-buttons ripple ${classMap({active: this.format === "tab"})}" data-format="tab" @click="${this.changeFormat}">
                                     <i class="fas fa-table fa-2x"></i>
                                     <span class="export-buttons-text">${this.config.resource === "VARIANT" ? "VCF" : "CSV"}</span>
@@ -378,17 +344,16 @@ const client = new OpenCGAClient({
                         <div class="form-group">
                             <div class="col-md-12">
                                 <h4 class="export-section-title">Job Info</h4>
-
                                 <label for="inputPassword" class="col-md-2 control-label">Job ID</label>
                                 <div class="col-md-10">
                                     <input type="text" class="form-control" placeholder="Enter Job ID, leave empty for default."
-                                           value="${this.config.resource.toLowerCase()}_export_${UtilsNew.dateFormatter(new Date(), "YYYYMMDDhhmm")}" @input="${this.changeJobId}">
+                                           value="${this.config?.resource?.toLowerCase()}_export_${UtilsNew.dateFormatter(new Date(), "YYYYMMDDhhmm")}" @input="${this.changeJobId}">
                                 </div>
                             </div>
                         </div>
                     </form>
 
-                    <div class="modal-footer">
+                    <div class="modal-footer" style="padding-top: 25px">
                         <button type="button" class="btn btn-default ripple" data-dismiss="modal">Close</button>
                         <button type="button" class="btn btn-primary ripple" @click="${this.launchJob}">Launch job</button>
                     </div>
@@ -403,7 +368,7 @@ const client = new OpenCGAClient({
                                 data-tab-id="curl">cURL
                         </button>
                         <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab.link["wget"]})}" @click="${this._changeTab}" data-view-id="link"
-                                data-tab-id="wget">wGET
+                                data-tab-id="wget">WGET
                         </button>
                     </div>
 
@@ -442,17 +407,17 @@ const client = new OpenCGAClient({
 
                 <div id="code" class="tab-pane">
                     <div class="btn-group btn-group-tab" role="toolbar" aria-label="toolbar">
-                        <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab.code["cli"]})}" @click="${this._changeTab}" data-view-id="code"
-                                data-tab-id="cli">CLI
+                        <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab.code["cli"]})}"
+                                @click="${this._changeTab}" data-view-id="code" data-tab-id="cli">CLI
                         </button>
-                        <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab.code["python"]})}" @click="${this._changeTab}" data-view-id="code"
-                                data-tab-id="python">Python
+                        <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab.code["python"]})}"
+                                @click="${this._changeTab}" data-view-id="code" data-tab-id="python">Python
                         </button>
-                        <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab.code["r"]})}" @click="${this._changeTab}" data-view-id="code"
-                                data-tab-id="r">R
+                        <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab.code["r"]})}"
+                                @click="${this._changeTab}" data-view-id="code" data-tab-id="r">R
                         </button>
-                        <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab.code["js"]})}" @click="${this._changeTab}" data-view-id="code"
-                                data-tab-id="js">Javascript
+                        <button type="button" class="btn btn-success ripple content-pills ${classMap({active: this.activeTab.code["js"]})}"
+                                @click="${this._changeTab}" data-view-id="code" data-tab-id="js">Javascript
                         </button>
                     </div>
 
