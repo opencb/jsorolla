@@ -117,10 +117,8 @@ export default class StudyAdminUsers extends LitElement {
 
                     this.users = this.groupsMap.get("@members");
                     this.sortedUserIds = this.groupsMap.get("@members").map(user => user.id).sort();
-
                     this.renderUserGrid();
                     this.requestUpdate();
-                    console.log(this.groupsMap);
                 })
                 .catch(response => {
                     console.error("An error occurred fetching clinicalAnalysis: ", response);

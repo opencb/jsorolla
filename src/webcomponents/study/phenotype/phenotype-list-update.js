@@ -43,14 +43,12 @@ export default class PhenotypeListUpdate extends LitElement {
     connectedCallback() {
         super.connectedCallback();
         if (UtilsNew.isUndefined(this.phenotypes)) {
-            console.log("It's Undefined");
             this.phenotypes = [];
         }
     }
 
     _init() {
         this._prefix = UtilsNew.randomString(8);
-        console.log("this.phenotypes init", this.phenotypes);
         this.phenotype = {};
         this._manager = {
             action: "",

@@ -48,13 +48,9 @@ export default class AnnotationUpdate extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
-        console.log("AnnotationSet: ---->", this.annotationSet);
         this._config = {...this.getDefaultConfig(), ...this.config};
     }
 
-    // firstUpdated(changedProperties) {
-    //     this.variableSetObserver();
-    // }
 
     update(changedProperties) {
 

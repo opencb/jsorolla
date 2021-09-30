@@ -54,7 +54,6 @@ export default class VariableSetIdAutocomplete extends LitElement {
                 .then(response => {
                     const variableSets = response.responses[0].results;
                     this.variableSetIds = variableSets.map(variableSet => variableSet.id);
-                    console.log("variableSets ..............", this.variableSetIds);
                 })
                 .catch(reason => {
                     this.variableSetIds = [];

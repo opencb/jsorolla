@@ -69,7 +69,6 @@ export default class PermissionBrowserGrid extends LitElement {
     }
 
     firstUpdated(changedProperties) {
-        console.log("firstUpdated the table exist?", document.querySelector(`#${this.gridId}`));
         if (changedProperties.has("study")) {
             this.studyObserver();
         }
