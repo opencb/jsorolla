@@ -179,12 +179,12 @@ export default class VariantModalOntology extends LitElement {
                                     state: {expanded: false},
                                 });
                             });
-                            node.state.loading = false;
-                            this.rootTree = {...this.rootTree};
-                            this.requestUpdate();
                         } else {
-                            console.log("no _embedded elements");
+                            console.warn("no _embedded elements", json);
                         }
+                        node.state.loading = false;
+                        this.rootTree = {...this.rootTree};
+                        this.requestUpdate();
                     });
                 })
                 .catch(error => {
@@ -244,10 +244,10 @@ export default class VariantModalOntology extends LitElement {
     drawNode(node) {
         return html`
             <div class="" role="tablist">
-                <div class="ontology-node ${classMap({active: node.obo_id === this.selectedItem?.obo_id})}" role="tab" id="collapseListGroupHeading1" @click="${e => this.selectItem(node)}" data-obo-id="${node.obo_id}">
+                <div class="ontology-node ${classMap({active: node.obo_id === this.selectedItem?.obo_id})}" role="tab" @click="${e => this.selectItem(node)}" data-obo-id="${node.obo_id}">
                     ${node.has_children ? html`
                         <span style="margin-left: ${node.depth}em">
-                            <span @click="${e => this.toggleNode(node)}" class="" role="button" data-toggle="collapse" aria-expanded="true" aria-controls="collapseListGroup1">
+                            <span @click="${e => this.toggleNode(node)}" class="" role="button" data-toggle="collapse" aria-expanded="true">
                                 ${!node.state.expanded ? html`<i class="fas fa-plus"></i>` : html`<i class="fas fa-minus"></i>`}
                             </span>
                             ${node.text}
@@ -256,7 +256,7 @@ export default class VariantModalOntology extends LitElement {
                     ` : html`<span class="leaf" style="margin-left: ${node.depth}em;">${node.text}</span>`}
                 </div>
                 ${node.has_children ? html`
-                    <div class="panel-collapse collapse ${node.state.expanded ? "in" : ""}" role="tabpanel" id="collapseListGroup1" aria-labelledby="collapseListGroupHeading1" aria-expanded="true" style="">
+                    <div class="panel-collapse collapse ${node.state.expanded ? "in" : ""}" role="tabpanel">
                     ${node.state.expanded ? html`${node.nodes.map(n => this.drawNode(n))}` : ""}
                 </div>
                 ` : ""}
