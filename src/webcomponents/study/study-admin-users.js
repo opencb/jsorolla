@@ -19,7 +19,7 @@ import UtilsNew from "../../core/utilsNew.js";
 import GridCommons from "../commons/grid-commons.js";
 import OpencgaCatalogUtils from "../../core/clients/opencga/opencga-catalog-utils.js";
 import "../commons/forms/text-field-filter.js";
-
+import NotificationUtils from "../NotificationUtils.js";
 
 export default class StudyAdminUsers extends LitElement {
 
@@ -168,7 +168,7 @@ export default class StudyAdminUsers extends LitElement {
     async onCheck(e, value, row, group, context) {
         console.log("Row selected:", e.currentTarget.checked, group, row.id);
         const isChecked = e.currentTarget.checked;
-        const messageAlert = isChecked? `Added user to the group ${group} correctly`:`Removed user to the group ${group} correctly `;
+        const messageAlert = isChecked? `Added user:${row.id} to the group:${group} correctly`:`Removed user:${row.id} to the group:${group} correctly `;
         // row.id == User Id
         const data = {
             users: [row.id]
@@ -181,7 +181,8 @@ export default class StudyAdminUsers extends LitElement {
         try {
             const resp = await this.opencgaSession.opencgaClient.studies().updateUsers(this.study.fqn, group, data, params);
             const results = resp.responses[0].results;
-            this.showMessage("Message", messageAlert, "success");
+            // this.showMessage("Message", messageAlert, "success");
+            NotificationUtils.showNotify(messageAlert, "SUCCESS");
             this.notifyStudyUpdateRequest();
             this.requestUpdate();
         } catch (err) {
@@ -467,7 +468,8 @@ export default class StudyAdminUsers extends LitElement {
         const messageAlert = `${!message.error.length ?
             `Group deleted correctly: ${message.success.join()}` :
             `Group deleted correctly: ${message.success.join()}, these groups could not deleted: ${message.error.join()}`}`;
-        this.showMessage("Message", messageAlert, "info");
+        // this.showMessage("Message", messageAlert, "info");
+        NotificationUtils.showNotify(messageAlert, "INFO");
 
         this.notifyStudyUpdateRequest();
         this.requestUpdate();
@@ -484,10 +486,6 @@ export default class StudyAdminUsers extends LitElement {
         }));
     }
 
-    // TODO move to a Utils
-    showMessage(title, message, status) {
-        Swal.fire(title, message, status);
-    }
 
     render() {
 

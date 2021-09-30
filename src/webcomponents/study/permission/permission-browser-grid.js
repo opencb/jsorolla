@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-import { LitElement, html } from "lit"
+import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
 import GridCommons from "../../commons/grid-commons.js";
+import NotificationUtils from "../../NotificationUtils.js";
 
 export default class PermissionBrowserGrid extends LitElement {
 
     constructor() {
         super();
-
         this._init();
     }
 
@@ -41,7 +41,7 @@ export default class PermissionBrowserGrid extends LitElement {
             opencgaSession: {
                 type: Object
             }
-        }
+        };
     }
 
     _init() {
@@ -56,20 +56,20 @@ export default class PermissionBrowserGrid extends LitElement {
         this.permissions = this.permissionString.map(perm => {
             return {
                 id: perm
-            }
+            };
         });
         this.studyPermissions = this.permissions;
-        this.searchPermission = ""
+        this.searchPermission = "";
     }
 
     connectedCallback() {
-        this._config = { ...this.getDefaultConfig(), ...this.config };
+        this._config = {...this.getDefaultConfig(), ...this.config};
         this.gridCommons = new GridCommons(this.gridId, this, this._config);
         super.connectedCallback();
     }
 
     firstUpdated(changedProperties) {
-        console.log("firstUpdated the table exist?", document.querySelector(`#${this.gridId}`))
+        console.log("firstUpdated the table exist?", document.querySelector(`#${this.gridId}`));
         if (changedProperties.has("study")) {
             this.studyObserver();
         }
@@ -85,6 +85,17 @@ export default class PermissionBrowserGrid extends LitElement {
 
     studyObserver() {
         this.renderPermissionGrid();
+    }
+
+    // TODO move to a Utils
+    notifyStudyUpdateRequest() {
+        this.dispatchEvent(new CustomEvent("studyUpdateRequest", {
+            detail: {
+                value: this.study.fqn
+            },
+            bubbles: true,
+            composed: true
+        }));
     }
 
     renderPermissionGrid() {
@@ -108,7 +119,7 @@ export default class PermissionBrowserGrid extends LitElement {
             onClickRow: (row, selectedElement, field) => this.gridCommons.onClickRow(row.id, row, selectedElement),
             onPostBody: data => {
                 // We call onLoadSuccess to select first row
-                this.gridCommons.onLoadSuccess({ rows: data, total: data.length }, 1);
+                this.gridCommons.onLoadSuccess({rows: data, total: data.length}, 1);
             }
         });
     }
@@ -116,15 +127,45 @@ export default class PermissionBrowserGrid extends LitElement {
 
     groupFormatter(value, row) {
         if (this.field.groupId === "@admins") {
-            return `<input type="checkbox" checked disabled>`;
+            return "<input type=\"checkbox\" checked disabled>";
         } else {
             const checked = this.field.acl?.[this.field.groupId]?.includes(row.id);
             return `<input type="checkbox" ${checked ? "checked" : ""}>`;
         }
     }
 
+
+    async onCheck(e, value, row, group, context) {
+        console.log("Row selected:", e.currentTarget.checked, group, row.id);
+        // Row selected: true @test WRITE_INDIVIDUALS
+        const isChecked = e.currentTarget.checked;
+        const messageAlert = isChecked ?`
+        Added permission:${row.id} to the group:${group} correctly`: `
+        Removed permission:${row.id} to the group:${group} correctly `;
+        // row.id == Permission Id
+        const paramsAction = {
+            action: isChecked ? "ADD" : "REMOVE"
+        };
+        const params = {
+            permissions: row.id,
+            study: this.study.fqn
+        };
+
+        try {
+            // updateACL has bad documentation
+            const resp = await this.opencgaSession.opencgaClient.studies().updateAcl(group, paramsAction, params);
+            const results = resp.responses[0].results;
+            // this.showMessage("Message", messageAlert, "success");
+            NotificationUtils.showNotify(messageAlert, "SUCCESS");
+            // this.notifyStudyUpdateRequest();
+            this.requestUpdate();
+        } catch (err) {
+            console.error("Message error: ", err);
+        }
+    }
+
     _getDefaultColumns() {
-        let groupColumns = [];
+        const groupColumns = [];
         if (this.study.groups) {
             // Make sure @members and @admins are the last groups
             const groups = this.study.groups.filter(g => g.id !== "@members" && g.id !== "@admins").map(g => g.id);
@@ -140,7 +181,10 @@ export default class PermissionBrowserGrid extends LitElement {
                         },
                         rowspan: 1,
                         colspan: 1,
-                        formatter: this.groupFormatter
+                        formatter: this.groupFormatter,
+                        events: {
+                            "click input": (e, value, row) => this.onCheck(e, value, row, group, this)
+                        }
                     }
                 );
             }
@@ -193,7 +237,7 @@ export default class PermissionBrowserGrid extends LitElement {
             showSelectCheckbox: true,
             showToolbar: true,
             showActions: true,
-        }
+        };
     }
 
     onPermissionFieldChange(e) {
@@ -208,7 +252,7 @@ export default class PermissionBrowserGrid extends LitElement {
         if (this.searchPermission) {
             this.studyPermissions = this.permissions.filter(perm => perm.id.includes(this.searchPermission.toUpperCase()));
         } else {
-            this.studyPermissions = this.permissions
+            this.studyPermissions = this.permissions;
         }
         this.renderPermissionGrid();
         this.requestUpdate();
@@ -248,7 +292,7 @@ export default class PermissionBrowserGrid extends LitElement {
             <div id="${this._prefix}GridTableDiv" class="force-overflow" style="margin: 20px 0px">
                 <table id="${this._prefix}PermissionBrowserGrid"></table>
             </div>
-        `
+        `;
     }
 
     render() {
