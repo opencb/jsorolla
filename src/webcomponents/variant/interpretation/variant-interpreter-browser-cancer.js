@@ -338,10 +338,13 @@ class VariantInterpreterBrowserCancer extends LitElement {
                 if (this.callerToFile?.[caller.id]) {
                     variantCallers.push({
                         ...caller,
+                        // allpwedValues: from sample index
                         fileId: this.callerToFile[caller.id]?.name
                     });
                 }
             }
+            //
+
         } else {
             // If not variantCallers configuration exist we can check for the indexed custom fields in the sample index.
             // Example:
@@ -357,7 +360,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
             //     },
             //     {
             //         "source": "FILE",
-            //         "key": "QUAL",
+            //         "key": "ASMD",
             //         "type": "RANGE_LT",
             //         "thresholds": [
             //             20,
@@ -369,23 +372,54 @@ class VariantInterpreterBrowserCancer extends LitElement {
             //     }
             // ]
             if (studyInternalConfiguration?.variantEngine?.sampleIndex?.fileIndexConfiguration?.customFields) {
-                // this.files
-                // debugger
-                // const fileIds = Object.values(this.callerToFile);
-                // for (const customField of studyInternalConfiguration.variantEngine.sampleIndex.fileIndexConfiguration.customFields) {
-                //     // At the moment we only support FILE
-                //     if (customField.source === "FILE") {
-                //         // We ONLY add custom indexed fields from VCF INFO column
-                //         if (customField.key !== "FILTER" && customField.key !== "QUAL") {
-                //             for (const fileId of fileIds) {
-                //                 variantCallers.push({
-                //                     id: customField.key,
-                //                     fileId: fileId
-                //                 });
-                //             }
-                //         }
-                //     }
-                // }
+                const fieldToCaller = {};
+                for (const file of this.files) {
+                    file.attributes.variantFileMetadata.header.complexLines
+                        .filter(line => line.key === "INFO")
+                        .forEach(line => {
+                            if (!fieldToCaller[line.id]) {
+                                fieldToCaller[line.id] = [];
+                            }
+                            fieldToCaller[line.id].push({callerId: file.software?.name, fileId: file.id});
+                        });
+                }
+
+                const callerToDataFilters = {};
+                for (const customField of studyInternalConfiguration.variantEngine.sampleIndex.fileIndexConfiguration.customFields) {
+                    // At the moment we only support FILE
+                    if (customField.source === "FILE") {
+                        // We ONLY add custom indexed fields from VCF INFO column
+                        if (customField.key !== "FILTER" && customField.key !== "QUAL") {
+                            if (!fieldToCaller[customField.key]) {
+                                fieldToCaller[customField.key] = [];
+                            }
+
+                            for (const c of fieldToCaller[customField.key]) {
+                                if (!callerToDataFilters[c.callerId]) {
+                                    callerToDataFilters[c.callerId] = [];
+                                }
+                                callerToDataFilters[c.callerId].push({
+                                    id: customField.key,
+                                    name: customField.key,
+                                    type: customField.type.startsWith("RANGE") ? "NUMERIC" : "CATEGORICAL",
+                                    source: customField.source,
+                                    // allowedValues: customField.type.startsWith("RANGE") ? customField .thru: "CATEGORICAL",
+                                });
+                            }
+                        }
+                    }
+                }
+
+                const entries = Object.entries(this.callerToFile);
+                for (const entry of entries) {
+                    if (callerToDataFilters[entry[0]]) {
+                        variantCallers.push({
+                            id: entry[0],
+                            dataFilters: callerToDataFilters[entry[0]],
+                            fileId: entry[1]
+                        });
+                    }
+                }
             }
         }
         // FIXME remove this temporary code ASAP
@@ -411,6 +445,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                         name: "ASMD name",
                         type: "NUMERIC",
                         source: "FILE",
+                        // comparators: ["<", ">="]
                         // allowedValues: ["120", "130", "140"],
                         defaultValue: ">=140"
                     }
