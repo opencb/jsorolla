@@ -207,9 +207,21 @@ export default class WelcomeApp extends LitElement {
 
             <!-- This is where main application is rendered -->
             <div>
+                ${this.app.welcomePage.title? html`
+                    <h1 style=${this.app.welcomePage.title?.display?.style}>
+                        ${this.app.welcomePage?.title.text}
+                    </h1>
+                `: null}
 
-                ${UtilsNew.renderHTML(this.app.welcomePage?.title)}
-                ${UtilsNew.renderHTML(this.app.welcomePage?.logo)}
+                ${this.app.welcomePage?.logo? html`
+                    <h1 id="welcome-page-title">
+                        <div class="iva-logo">
+                            <img alt="IVA" src="${this.app.welcomePage.logo.path}" />
+                            <span class="subtitle">${this.app.welcomePage.logo.subtitle}</span>
+                        </div>
+                    </h1>
+                ` : null}
+
                 ${UtilsNew.renderHTML(this.app.welcomePage?.content)}
 
                 <div class="row hi-icon-wrap hi-icon-effect-9 hi-icon-animation">
