@@ -234,15 +234,10 @@ export default class WelcomeApp extends LitElement {
                     `)}
                 </div>
 
-                ${this.app.id === "iva" ? html`
-                    <div class="row text-center">
-                        <a class="getting-started" href="#gettingstarted"><span>Getting started with IVA</span></a>
-                    </div>
-                ` : html`
-                    <div class="row text-center">
-                        <a class="getting-started" href="${this.config.about.links.find(link => link.id === "documentation").url}" target="_blank"><span>Documentation</span></a>
-                    </div>
-                `}
+                <div class="row text-center">
+                    <a class="getting-started" href="${this.config.about.links.find(link => link.id === "documentation").url}" target="_blank"><span>Documentation</span></a>
+                </div>
+
             </div >
         `;
     }

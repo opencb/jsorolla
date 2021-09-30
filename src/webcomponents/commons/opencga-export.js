@@ -276,7 +276,7 @@ const client = new OpenCGAClient({
                                     <span>
                                         <span style="font-weight: bold">Note: </span>This option will
                                         <span style="font-weight: bold">automatically download</span>
-                                        the table, notice that only first <span style="font-weight: bold">1,000 records</span> are downloaded.
+                                        the table, note that only first <span style="font-weight: bold">1,000 records</span> are downloaded.
                                     </span>
                                 </div>
                             </div>
@@ -314,7 +314,7 @@ const client = new OpenCGAClient({
                                     <i class="fas fa-exclamation-triangle"></i>
                                     <span>
                                         <span style="font-weight: bold">Note: </span>This option will launch an
-                                        <span style="font-weight: bold">async job</span> in the server to export all records, notice that no limit is applied.
+                                        <span style="font-weight: bold">async job</span> in the server to export all records, note that no limit is applied.
                                         This might take few minutes depending on the data size and cluster load.
                                     </span>
                                 </div>
