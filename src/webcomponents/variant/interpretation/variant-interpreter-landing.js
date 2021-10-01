@@ -68,7 +68,7 @@ class VariantInterpreterLanding extends LitElement {
             }
         };
 
-        this.activeTab = {};
+        this.activeTab = "";
     }
 
     connectedCallback() {
@@ -90,13 +90,11 @@ class VariantInterpreterLanding extends LitElement {
     propertyObserver() {
         this.editMode = OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS");
         if (this.clinicalAnalysis) {
-            if (!this.editMode) {
-                this.activeTab = {"Overview": true};
-            } else {
-                this.activeTab = {"General": true};
+            if (this.activeTab === "Select") {
+                this.activeTab = this.editMode ? "General" : "Overview";
             }
         } else {
-            this.activeTab = {"Select": true};
+            this.activeTab = "Select";
         }
         // this.onCloseClinicalAnalysis();
 
@@ -106,19 +104,7 @@ class VariantInterpreterLanding extends LitElement {
     // non-bootstrap tabs
     _changeTab(e) {
         e.preventDefault();
-
-        const tabId = e.currentTarget.dataset.id;
-        // the selectors are strictly defined to avoid conflics in tabs in children components
-        $("#variant-interpreter-landing > div > .tablist > .content-pills", this).removeClass("active");
-        // $("#variant-interpreter-landing > .content-tab-wrapper > .content-tab", this).hide();
-        // $("#" + this._prefix + tabId, this).show();
-        $("#" + this._prefix + tabId).addClass("active");
-        for (const tab in this.activeTab) {
-            if (Object.prototype.hasOwnProperty.call(this.activeTab, tab)) {
-                this.activeTab[tab] = false;
-            }
-        }
-        this.activeTab[tabId] = true;
+        this.activeTab = e.currentTarget.dataset.id;
         this.requestUpdate();
     }
 
@@ -370,35 +356,35 @@ class VariantInterpreterLanding extends LitElement {
                 <div>
                     <ul class="nav nav-tabs nav-center tablist" role="tablist" aria-label="toolbar">
                         ${OpencgaCatalogUtils.checkPermissions(this.opencgaSession.study, this.opencgaSession.user.id, "WRITE_CLINICAL_ANALYSIS") ? html`
-                            <li role="presentation" class="content-pills ${classMap({active: this.activeTab["General"] || UtilsNew.isEmpty(this.activeTab)})}">
+                            <li role="presentation" class="content-pills ${classMap({active: this.activeTab === "General" || this.activeTab === ""})}">
                                 <a href="javascript: void 0" role="tab" data-id="General"
                                     @click="${e => this.editMode && this._changeTab(e)}" class="tab-title ${classMap({disabled: !this.editMode})}">General</a>
                             </li>
-                            <li role="presentation" class="content-pills ${classMap({active: this.activeTab["Clinical"]})}">
+                            <li role="presentation" class="content-pills ${classMap({active: this.activeTab === "Clinical"})}">
                                 <a href="javascript: void 0" role="tab" data-id="Clinical"
                                     @click="${e => this.editMode && this._changeTab(e)}" class="tab-title ${classMap({disabled: !this.editMode})}">Clinical</a>
                             </li>
-                            <li role="presentation" class="content-pills ${classMap({active: this.activeTab["Interpretations"]})}">
+                            <li role="presentation" class="content-pills ${classMap({active: this.activeTab === "Interpretations"})}">
                                 <a href="javascript: void 0" role="tab" data-id="Interpretations"
                                     @click="${e => this.editMode && this._changeTab(e)}" class="tab-title ${classMap({disabled: !this.editMode})}">Interpretation Manager</a>
                             </li>
-                            <li role="presentation" class="content-pills ${classMap({active: this.activeTab["Consent"]})}">
+                            <li role="presentation" class="content-pills ${classMap({active: this.activeTab === "Consent"})}">
                                 <a href="javascript: void 0" role="tab" data-id="Consent"
                                     @click="${e => this.editMode && this._changeTab(e)}" class="tab-title ${classMap({disabled: !this.editMode})}">Consent</a>
                             </li>
-                            <li role="presentation" class="content-pills ${classMap({active: this.activeTab["Audit"]})}">
+                            <li role="presentation" class="content-pills ${classMap({active: this.activeTab === "Audit"})}">
                                 <a href="javascript: void 0" role="tab" data-id="Audit"
                                     @click="${e => this.editMode && this._changeTab(e)}" class="tab-title ${classMap({disabled: !this.editMode})}">Audit</a>
                             </li>
                             ` : null
                         }
                         ${this.clinicalAnalysis ? html`
-                            <li role="presentation" class="content-pills active ${classMap({active: this.activeTab["Overview"]})}">
+                            <li role="presentation" class="content-pills ${classMap({active: this.activeTab === "Overview"})}">
                                 <a href="javascript: void 0" role="tab" data-id="Overview"
                                     @click="${this._changeTab}" class="tab-title">Case Overview</a>
                             </li>
                         ` : html`
-                            <li role="presentation" class="content-pills active ${classMap({active: this.activeTab["Select"]})}">
+                            <li role="presentation" class="content-pills ${classMap({active: this.activeTab === "Select"})}">
                                 <a href="javascript: void 0" role="tab" data-id="Overview" @click="${this._changeTab}" class="tab-title">Select Case</a>
                             </li>`
                         }
@@ -406,7 +392,7 @@ class VariantInterpreterLanding extends LitElement {
                 </div>
 
                 <div class="content-tab-wrapper">
-                    ${this.activeTab["General"] ? html`
+                    ${this.activeTab === "General" ? html`
                         <div id="${this._prefix}General" role="tabpanel" class="active tab-pane content-tab col-md-10 col-md-offset-1">
                             <tool-header title="General Settings - ${this.clinicalAnalysis?.id ?? ""}" class="bg-white"></tool-header>
                             <div style="padding: 0px 20px">
@@ -416,7 +402,7 @@ class VariantInterpreterLanding extends LitElement {
                             </div>
                         </div>
                     ` : null}
-                    ${this.activeTab["Clinical"] ? html`
+                    ${this.activeTab === "Clinical" ? html`
                         <div id="${this._prefix}Clinical" role="tabpanel" class="active tab-pane content-tab col-md-10 col-md-offset-1">
                             <tool-header title="Clinical" class="bg-white"></tool-header>
                             <div style="padding: 0px 20px">
@@ -426,7 +412,7 @@ class VariantInterpreterLanding extends LitElement {
                             </div>
                         </div>
                     ` : null}
-                    ${this.activeTab["Interpretations"] ? html`
+                    ${this.activeTab === "Interpretations" ? html`
                         <div id="${this._prefix}Interpretations" role="tabpanel" class="active tab-pane content-tab col-md-10 col-md-offset-1">
                             <tool-header title="Interpretation Manager" class="bg-white"></tool-header>
                             <div style="padding: 0px 20px">
@@ -437,7 +423,7 @@ class VariantInterpreterLanding extends LitElement {
                             </div>
                         </div>
                     ` : null}
-                    ${this.activeTab["Consent"] ? html`
+                    ${this.activeTab === "Consent" ? html`
                         <div id="${this._prefix}Consent" role="tabpanel" class="active tab-pane content-tab col-md-10 col-md-offset-1">
                             <tool-header title="Consent - ${this.clinicalAnalysis?.proband.id}" class="bg-white"></tool-header>
                             <div style="padding: 0px 20px">
@@ -447,18 +433,19 @@ class VariantInterpreterLanding extends LitElement {
                             </div>
                         </div>
                     ` : null}
-                    ${this.activeTab["Audit"] ? html`
+                    ${this.activeTab === "Audit" ? html`
                         <div id="${this._prefix}Audit" role="tabpanel" class="active tab-pane content-tab col-md-10 col-md-offset-1">
                             <tool-header title="Audit Log" class="bg-white"></tool-header>
                             <div style="padding: 0px 10px">
-                                <clinical-analysis-audit-browser    .opencgaSession="${this.opencgaSession}"
-                                                                    .clinicalAnalysis="${this.clinicalAnalysis}"
-                                                                    .active="${this.activeTab["Audit"]}">
+                                <clinical-analysis-audit-browser
+                                    .opencgaSession="${this.opencgaSession}"
+                                    .clinicalAnalysis="${this.clinicalAnalysis}"
+                                    .active="${this.activeTab === "Audit"}">
                                 </clinical-analysis-audit-browser>
                             </div>
                         </div>
                     ` : null}
-                    ${this.activeTab["Overview"] ? html`
+                    ${this.activeTab === "Overview" ? html`
                         <div id="${this._prefix}Overview" role="tabpanel" class="active tab-pane content-tab col-md-10 col-md-offset-1">
                             ${this.clinicalAnalysis ? html`
                                 <tool-header title="Case Summary - ${this.clinicalAnalysis?.id}" class="bg-white"></tool-header>
@@ -470,7 +457,7 @@ class VariantInterpreterLanding extends LitElement {
                             ` : null}
                         </div>
                     ` : null}
-                    ${this.activeTab["Select"] ? html`
+                    ${this.activeTab === "Select" ? html`
                         <div id="${this._prefix}Overview" role="tabpanel" class="active tab-pane content-tab col-md-10 col-md-offset-1">
                             <data-form  .data="${{}}"
                                         .config="${this.getSearchConfig()}"
