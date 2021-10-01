@@ -172,12 +172,20 @@ class VariantInterpreterBrowserCancer extends LitElement {
                     // }
 
                     // Create the variantCallers configuration to: i) set the default init query; ii) create the dynamic side menu
+                    const fileDataFilters = [];
                     this.variantCallers = this.getVariantCallers();
-                    const fileDataFilters = this.variantCallers.map(caller => {
-                        const filters = caller.dataFilters.map(f => {
-                            return f.id + (f.id !== "FILTER" ? f.defaultValue : "=PASS");
-                        });
-                        return [caller.fileId, filters.join(";")].join(":");
+                    this.variantCallers.forEach(caller => {
+                        const filters = caller.dataFilters
+                            .filter(filter => !!filter.defaultValue)
+                            .map(filter => {
+                                // Notice that defaultValue includes the comparator, eg. =, >, ...
+                                return filter.id + (filter.id !== "FILTER" ? filter.defaultValue : "=PASS");
+                            });
+
+                        // Only add this file to the filter if we have at least one default value
+                        if (filters.length > 0) {
+                            fileDataFilters.push(caller.fileId + ":" + filters.join(";"));
+                        }
                     });
 
                     // Add study caller default 'fileData' query
@@ -332,19 +340,35 @@ class VariantInterpreterBrowserCancer extends LitElement {
 
     getVariantCallers() {
         const variantCallers = [];
+        const fieldToCaller = {};
+
+        // Generate a map of fields to callerIds and fileIds
+        this.files.forEach(file => {
+            file.attributes.variantFileMetadata.header.complexLines
+                .filter(line => line.key === "INFO")
+                .forEach(line => {
+                    if (!fieldToCaller[line.id]) {
+                        fieldToCaller[line.id] = [];
+                    }
+
+                    fieldToCaller[line.id].push({
+                        callerId: file.software?.name,
+                        fileId: file.id
+                    });
+                });
+        });
+
         const studyInternalConfiguration = this.opencgaSession?.study?.internal?.configuration;
         if (studyInternalConfiguration?.clinical?.interpretation?.variantCallers) {
             for (const caller of studyInternalConfiguration.clinical.interpretation.variantCallers) {
                 if (this.callerToFile?.[caller.id]) {
                     variantCallers.push({
                         ...caller,
-                        // allpwedValues: from sample index
+                        // add allowedValues: from sample index
                         fileId: this.callerToFile[caller.id]?.name
                     });
                 }
             }
-            //
-
         } else {
             // If not variantCallers configuration exist we can check for the indexed custom fields in the sample index.
             // Example:
@@ -372,40 +396,40 @@ class VariantInterpreterBrowserCancer extends LitElement {
             //     }
             // ]
             if (studyInternalConfiguration?.variantEngine?.sampleIndex?.fileIndexConfiguration?.customFields) {
-                const fieldToCaller = {};
-                for (const file of this.files) {
-                    file.attributes.variantFileMetadata.header.complexLines
-                        .filter(line => line.key === "INFO")
-                        .forEach(line => {
-                            if (!fieldToCaller[line.id]) {
-                                fieldToCaller[line.id] = [];
-                            }
-                            fieldToCaller[line.id].push({callerId: file.software?.name, fileId: file.id});
-                        });
-                }
-
                 const callerToDataFilters = {};
                 for (const customField of studyInternalConfiguration.variantEngine.sampleIndex.fileIndexConfiguration.customFields) {
                     // At the moment we only support FILE
                     if (customField.source === "FILE") {
                         // We ONLY add custom indexed fields from VCF INFO column
                         if (customField.key !== "FILTER" && customField.key !== "QUAL") {
-                            if (!fieldToCaller[customField.key]) {
-                                fieldToCaller[customField.key] = [];
+                            // Parse sample index config
+                            let fieldType, fieldValues, fieldComparators;
+                            if (customField.type.startsWith("RANGE_")) {
+                                fieldType = "NUMERIC";
+                                fieldValues = customField.thresholds;
+                                fieldComparators = customField.type === "RANGE_LT" ? ["<", ">="] : [">", "<="];
+                            } else {
+                                fieldType = "CATEGORICAL";
+                                fieldValues = customField.values || null;
+                                fieldComparators = [];
                             }
 
-                            for (const c of fieldToCaller[customField.key]) {
-                                if (!callerToDataFilters[c.callerId]) {
-                                    callerToDataFilters[c.callerId] = [];
+                            // Add this field to each caller
+                            (fieldToCaller[customField.key] || []).forEach(caller => {
+                                if (!callerToDataFilters[caller.callerId]) {
+                                    callerToDataFilters[caller.callerId] = [];
                                 }
-                                callerToDataFilters[c.callerId].push({
+
+                                // Register this field in the caller
+                                callerToDataFilters[caller.callerId].push({
                                     id: customField.key,
                                     name: customField.key,
-                                    type: customField.type.startsWith("RANGE") ? "NUMERIC" : "CATEGORICAL",
+                                    type: fieldType,
                                     source: customField.source,
-                                    // allowedValues: customField.type.startsWith("RANGE") ? customField .thru: "CATEGORICAL",
+                                    allowedValues: fieldValues,
+                                    comparators: fieldComparators,
                                 });
-                            }
+                            });
                         }
                     }
                 }
@@ -416,12 +440,13 @@ class VariantInterpreterBrowserCancer extends LitElement {
                         variantCallers.push({
                             id: entry[0],
                             dataFilters: callerToDataFilters[entry[0]],
-                            fileId: entry[1]
+                            fileId: entry[1].name,
                         });
                     }
                 }
             }
         }
+
         // FIXME remove this temporary code ASAP
         if (variantCallers.length === 0 && this.opencgaSession?.study?.id === "test") {
             variantCallers.push({
@@ -445,8 +470,8 @@ class VariantInterpreterBrowserCancer extends LitElement {
                         name: "ASMD name",
                         type: "NUMERIC",
                         source: "FILE",
-                        // comparators: ["<", ">="]
-                        // allowedValues: ["120", "130", "140"],
+                        comparators: ["<", ">="],
+                        allowedValues: ["120", "130", "140"],
                         defaultValue: ">=140"
                     }
                 ],
@@ -489,7 +514,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
         //     );
         // }
 
-            return {
+        return {
             title: "Cancer Case Interpreter",
             icon: "fas fa-search",
             active: false,

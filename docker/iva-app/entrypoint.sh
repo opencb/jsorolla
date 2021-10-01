@@ -12,10 +12,15 @@ shift
 for i in "${@}"; do
    case $i in
       --host=*)
-         echo host ${i##--host=}
-         echo "opencga.host = ${i##--host=};" >> /usr/local/apache2/htdocs/iva/conf/config.js
-         shift 2
-         ;;
+        echo host ${i##--host=}
+        echo "opencga.host = \"${i##--host=}\";" >> /usr/local/apache2/htdocs/iva/conf/config.js
+        shift 2
+        ;;
+      --cb-host=*)
+        echo cellbase-host ${i##--cb-host=}
+        echo "cellbase.host = \"${i##--cb-host=}\";" >> /usr/local/apache2/htdocs/iva/conf/config.js
+        shift 2
+        ;;
       -*|--*)
         echo "Fatal error. Unknown option $i. "
         exit

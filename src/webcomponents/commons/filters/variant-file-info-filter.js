@@ -58,6 +58,7 @@ export default class VariantFileInfoFilter extends LitElement {
             "CATEGORICAL": "select",
             "BOOLEAN": "checkbox",
         };
+
         this.fileDataSeparator = ",";
         this.fileToCaller = {};
         this._config = this.getDefaultConfig();
@@ -83,27 +84,27 @@ export default class VariantFileInfoFilter extends LitElement {
     callersObserver() {
         this.fileToCaller = {};
         this.callerToFile = {};
-        this._sections = [];
-        for (const caller of this.callers) {
+
+        this._sections = this.callers.map(caller => {
             this.fileToCaller[caller.fileId] = caller.id;
             this.callerToFile[caller.id] = caller.fileId;
 
-            this._sections.push({
+            // Generate the caller section
+            return {
                 title: caller.id,
                 display: {
                     titleHeader: "h4"
                 },
-                elements: caller.dataFilters.map(field => {
-                    return {
-                        name: field.name || field.id,
-                        field: caller.id + "." + field.id,
-                        type: this.callerParamTypeToDataForm[field.type],
-                        // defaultValue: field.type !== "BOOLEAN" ? field.defaultValue : field.defaultValue === "true"
-                        defaultValue: ""
-                    };
-                })
-            });
-        }
+                elements: caller.dataFilters.map(field => ({
+                    name: field.name || field.id,
+                    field: caller.id + "." + field.id,
+                    type: this.callerParamTypeToDataForm[field.type],
+                    comparators: (field.comparators || []).join(","),
+                    allowedValues: field.allowedValues,
+                    defaultValue: "",
+                })),
+            };
+        });
 
         // Update this._config to update changes
         this._config = this.getDefaultConfig();
