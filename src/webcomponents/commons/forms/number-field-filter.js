@@ -18,6 +18,13 @@ import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
 import "./select-field-filter.js";
 
+const defaultComparators = [
+    {id: "<", name: "<"},
+    {id: "<=", name: "&#8804;"},
+    {id: "=", name: "="},
+    {id: ">", name: ">"},
+    {id: ">=", name: "&#8805;"},
+];
 
 export default class NumberFieldFilter extends LitElement {
 
@@ -57,7 +64,10 @@ export default class NumberFieldFilter extends LitElement {
             },
             step: {
                 type: String
-            }
+            },
+            comparators: {
+                type: String
+            },
         };
     }
 
@@ -82,7 +92,7 @@ export default class NumberFieldFilter extends LitElement {
                 this.state = {comparator, value};
             } else {
                 this.state = {
-                    comparator: "<",
+                    comparator: this._config.values[0].id,
                     value: null
                 };
             }
@@ -113,43 +123,41 @@ export default class NumberFieldFilter extends LitElement {
     }
 
     getDefaultConfig() {
+        const wantedComparators = (this.comparators || "<,<=,=,>=,>").split(",");
         return {
             layout: [3, 4, 5], // in case the label is not needed the expected value of the first element is 0
             comparator: true,
-            values: [{id: "=", name: "="}, {id: "<", name: "<"}, {id: "<=", name: "&#8804;"}, {id: ">", name: ">"}, {id: ">=", name: "&#8805;"}]
+            values: defaultComparators.filter(item => {
+                return wantedComparators.includes(item.id);
+            }),
         };
     }
 
     render() {
         return html`
             <div class="number-field-filter form-group" data-cy="number-field-filter-wrapper-${this.label ?? ""}">
-                ${this.label ? html`<div class="col-md-${this._config.layout[0]} control-label" data-toggle="tooltip" data-placement="top" title="${this.label}">
-                        ${this.label}
-                    </div>` : null}
-                ${this._config.comparator ? html`<div class="col-md-${this._config.layout[1]}">
-                    <select-field-filter    .data="${this._config.values}"
-                                            .value="${this.state.comparator}"
-                                            @filterChange="${e => this.filterChange(e, "comparator")}">
+                ${this.label ? html`
+                <div class="col-md-${this._config.layout[0]} control-label" data-toggle="tooltip" data-placement="top" title="${this.label}">
+                    ${this.label}
+                </div>` : null}
+                ${this._config.comparator ? html`
+                <div class="col-md-${this._config.layout[1]}">
+                    <select-field-filter
+                        .data="${this._config.values}"
+                        .value="${this.state.comparator}"
+                        @filterChange="${e => this.filterChange(e, "comparator")}">
                     </select-field-filter>
-                    <!--<select id="\${this._prefix}Comparator" name="\${this._prefix}Comparator"
-                            class="form-control input-sm \${this._prefix}FilterSelect"
-                            @change="\${this.filterChange}" data-field="comparator">
-                        <option .selected="\${this.state.comparator === "="}" value="=">=</option>
-                        <option .selected="\${this.state.comparator === "<"}" value="<">&lt;</option>
-                        <option .selected="\${this.state.comparator === "<="}" value="<=">&le;</option>
-                        <option .selected="\${this.state.comparator === ">"}" value=">">&gt;</option>
-                        <option .selected="\${this.state.comparator === ">="}" value=">=">&ge;</option>
-                     </select>-->
                 </div>` : null}
                 <div class="col-md-${this._config.layout[2]}">
-                    <input  type="${this.type ?? "number"}"
-                            class="form-control input-sm ${this._prefix}FilterTextInput"
-                            data-field="value"
-                            .min="${this.min ?? false}"
-                            .max="${this.max ?? false}"
-                            .step="${this.step ?? false}"
-                            .value="${this.state.value ?? ""}"
-                            @input="${e => this.filterChange(e, "value")}">
+                    <input
+                        type="${this.type ?? "number"}"
+                        class="form-control input-sm ${this._prefix}FilterTextInput"
+                        data-field="value"
+                        .min="${this.min ?? false}"
+                        .max="${this.max ?? false}"
+                        .step="${this.step ?? false}"
+                        .value="${this.state.value ?? ""}"
+                        @input="${e => this.filterChange(e, "value")}">
                 </div>
             </div>
         `;

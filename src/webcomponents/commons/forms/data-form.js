@@ -550,21 +550,21 @@ export default class DataForm extends LitElement {
         const [min = "", max = ""] = element.allowedValues || [];
         const step = element.step || "1";
         // debugger
-        if (!element.allowedValues) {
-            return html`
-                hola chicoos!
-            `;
-        } else {
-            return html`
-                <div class="">
-                    <number-field-filter label="Value" .value="${value ? value : ""}" .config=${{comparator: "<"}}
-                                         .min=${min} .max=${max} .step="${step}" .placeholder="${element.display?.placeholder || ""}"
-                                         .classes="${element.display?.updated ? "updated" : ""}"
-                                         @filterChange="${e => this.onFilterChange(element.field, e.detail.value)}">
-                    </number-field-filter>
-                </div>
-            `;
-        }
+        return html`
+            <div class="">
+                <number-field-filter
+                    label="Value"
+                    .value="${value ? value : ""}"
+                    .comparators=${element.comparators || null}
+                    .min=${min}
+                    .max=${max}
+                    .step="${step}"
+                    .placeholder="${element.display?.placeholder || ""}"
+                    .classes="${element.display?.updated ? "updated" : ""}"
+                    @filterChange="${e => this.onFilterChange(element.field, e.detail.value)}">
+                </number-field-filter>
+            </div>
+        `;
     }
 
     _createInputDateElement(element) {
@@ -1062,8 +1062,9 @@ export default class DataForm extends LitElement {
 
         if (this.config.display && this.config.display?.mode?.type === "modal") {
             const buttonClass = this.config.display.mode.buttonClass ? this.config.display.mode.buttonClass : "btn-primary";
+            const isDisabled = this.config.display.mode.disabled === true;
             return html`
-                <button type="button" class="btn ${buttonClass} ${this.config.display.mode.disabled === true ? "disabled" : null}" data-toggle="modal" disabled="${ifDefined(this.config.display.mode.disabled === true ? "disabled" : undefined)}" data-target="#${this._prefix}DataModal">
+                <button type="button" class="btn ${buttonClass} ${isDisabled ? "disabled" : null}" data-toggle="modal" disabled="${isDisabled ? "disabled" : undefined}" data-target="#${this._prefix}DataModal">
                     <i class="${this.config.icon ? this.config.icon : "fas fa-info-circle"} icon-padding" aria-hidden="true"></i> ${this.config.title}
                 </button>
                 <div class="modal fade" id="${this._prefix}DataModal" tabindex="-1" role="dialog" aria-labelledby="${this._prefix}exampleModalLabel"

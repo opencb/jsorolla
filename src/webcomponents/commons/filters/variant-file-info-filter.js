@@ -84,28 +84,28 @@ export default class VariantFileInfoFilter extends LitElement {
     callersObserver() {
         this.fileToCaller = {};
         this.callerToFile = {};
-        this._sections = [];
-        for (const caller of this.callers) {
+
+        this._sections = this.callers.map(caller => {
             this.fileToCaller[caller.fileId] = caller.id;
             this.callerToFile[caller.id] = caller.fileId;
 
-            this._sections.push({
+            // Generate the caller section
+            return {
                 title: caller.id,
                 display: {
                     titleHeader: "h4"
                 },
-                elements: caller.dataFilters.map(dataFilter => {
-                    return {
-                        name: dataFilter.name || dataFilter.id,
-                        field: caller.id + "." + dataFilter.id,
-                        type: this.callerParamTypeToDataForm[dataFilter.type],
-                        allowedValues: dataFilter.allowedValues,
-                        // defaultValue: field.type !== "BOOLEAN" ? field.defaultValue : field.defaultValue === "true"
-                        defaultValue: ""
-                    };
-                })
-            });
-        }
+                elements: caller.dataFilters.map(field => ({
+                    name: field.name || field.id,
+                    field: caller.id + "." + field.id,
+                    type: this.callerParamTypeToDataForm[field.type],
+                    // defaultValue: field.type !== "BOOLEAN" ? field.defaultValue : field.defaultValue === "true"
+                    allowedValues: field.allowedValues || null,
+                    comparators: (field.comparators || []).join(","),
+                    defaultValue: "",
+                })),
+            };
+        });
 
         // Update this._config to update changes
         this._config = this.getDefaultConfig();
