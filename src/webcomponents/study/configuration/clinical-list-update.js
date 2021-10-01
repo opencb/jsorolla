@@ -36,13 +36,19 @@ export default class ClinicalListUpdate extends LitElement {
         return {
             items: {
                 type: Array
+            },
+            tabs: {
+                type: Boolean
             }
         };
     }
 
     connectedCallback() {
         super.connectedCallback();
-        this._config = {...this.getDefaultConfig()};
+        if (this.tabs) {
+            this._config = {...this.getDefaultConfig()};
+        }
+
         if (UtilsNew.isUndefined(this.items)) {
             this.items = [];
         }
@@ -167,12 +173,18 @@ export default class ClinicalListUpdate extends LitElement {
 
     render() {
         return html`
-            <div>
+            ${this.tabs ? html `
                 <detail-tabs
-                        .config="${this._config}"
-                        .mode="${DetailTabs.PILLS_VERTICAL_MODE}">
-                </detail-tabs>
-            </div>`;
+                    .config="${this._config}"
+                    .mode="${DetailTabs.PILLS_VERTICAL_MODE}">
+                </detail-tabs>`:
+                html `
+                ${this.renderConfig(this.items)}
+                <button type="button" style="margin-top:6px" class="btn btn-primary btn-sm">
+                    Add
+                </button>
+                `}
+            `;
     }
 
 }

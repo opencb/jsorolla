@@ -106,7 +106,8 @@ export default class StudyClinicalConfig extends LitElement {
                                 style: "padding-left: 0px",
                                 render: clinical => html`
                                     <clinical-list-update
-                                        .items="${clinical.status}">
+                                        .items="${clinical.status}"
+                                        .tabs="${true}">
                                     </clinical-list-update>`
                             }
                         },
@@ -124,7 +125,8 @@ export default class StudyClinicalConfig extends LitElement {
                                 style: "padding-left: 0px",
                                 render: clinical => html`
                                     <clinical-list-update
-                                        .items="${clinical.interpretation.status}">
+                                        .items="${clinical.interpretation.status}"
+                                        .tabs="${true}">
                                     </clinical-list-update>`
                             }
                         },
@@ -132,7 +134,22 @@ export default class StudyClinicalConfig extends LitElement {
                 },
                 {
                     title: "Priorities",
-                    elements: []
+                    elements: [
+                        {
+                            type: "custom",
+                            display: {
+                                layout: "vertical",
+                                defaultLayout: "vertical",
+                                width: 8,
+                                style: "padding-left: 0px",
+                                render: clinical => html`
+                                    <clinical-list-update
+                                        .items="${clinical.priorities}"
+                                        .tabs="${false}">
+                                    </clinical-list-update>`
+                            }
+                        },
+                    ]
                 },
                 {
                     title: "flags",
@@ -146,7 +163,8 @@ export default class StudyClinicalConfig extends LitElement {
                                 style: "padding-left: 0px",
                                 render: clinical => html`
                                     <clinical-list-update
-                                        .items="${clinical.flags}">
+                                        .items="${clinical.flags}"
+                                        .tabs="${true}">
                                     </clinical-list-update>`
                             }
                         },
@@ -154,7 +172,22 @@ export default class StudyClinicalConfig extends LitElement {
                 },
                 {
                     title: "consent",
-                    elements: []
+                    elements: [
+                        {
+                            type: "custom",
+                            display: {
+                                layout: "vertical",
+                                defaultLayout: "vertical",
+                                width: 8,
+                                style: "padding-left: 0px",
+                                render: clinical => html`
+                                    <clinical-list-update
+                                        .items="${clinical.consent.consents}"
+                                        .tabs="${false}">
+                                    </clinical-list-update>`
+                            }
+                        },
+                    ]
                 }
             ]
         };
