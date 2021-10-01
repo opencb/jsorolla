@@ -86,7 +86,14 @@ export default class SelectTokenFilter extends LitElement {
                 // NOTE this function silently fails in case of errors if not wrapped in try/catch block
                 try {
                     const {name, ...rest} = this._config.fields(item) ?? item.id;
-                    return $(`<span>${name}</span> ${(rest ? Object.entries(rest).map(([label, value]) => `<p class="dropdown-item-extra"><label>${label}</label> ${value || "-"}</p>`).join("") : "") }`);
+
+                    // if name is not defined it means tags=true, _config.fields() mapper function is defined but the user is typing a non existing word (in data source). This avoids printing `undefined` in dropdown.
+                    if (name) {
+                        return $(`<span>${name}</span> ${(rest ? Object.entries(rest).map(([label, value]) => `<p class="dropdown-item-extra"><label>${label}</label> ${value || "-"}</p>`).join("") : "") }`);
+                    } else {
+                        return item.id;
+                    }
+
                 } catch (e) {
                     console.error(e);
                 }
