@@ -16,8 +16,9 @@
 
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
-import PolymerUtils from "../../PolymerUtils.js";
 import "../variant-modal-ontology.js";
+import "./accessions-autocomplete-filter.js";
+import {NotificationQueue} from "../../../core/NotificationQueue";
 
 
 export default class GoAccessionsFilter extends LitElement {
@@ -35,9 +36,6 @@ export default class GoAccessionsFilter extends LitElement {
 
     static get properties() {
         return {
-            opencgaSession: {
-                type: Object
-            },
             go: {
                 type: Object
             }
@@ -46,101 +44,84 @@ export default class GoAccessionsFilter extends LitElement {
 
     _init() {
         this._prefix = "gaf-" + UtilsNew.randomString(6) + "_";
-        this.selectedTerms = [];
-    }
-
-    updated(_changedProperties) {
-        if (_changedProperties.has("go")) {
-            if (this.go) {
-                this.querySelector("#" + this._prefix + "GeneOntologyTextarea").value = this.go;
-                const q = this.go.replace(/\r?\n/g, ",").replace(/\s/g, "");
-                this.selectedTerms = q.split(",");
-            } else {
-                this.selectedTerms = [];
-                this.querySelector("#" + this._prefix + "GeneOntologyTextarea").value = "";
-            }
-        }
-    }
-
-    filterChange() {
-        const inputTextArea = PolymerUtils.getElementById(this._prefix + "GeneOntologyTextarea");
-        const go_message = this.querySelector("#" + this._prefix + "GeneOntologyMonitor");
-        if (inputTextArea && inputTextArea.value) {
-            // Process the textarea: remove newline chars, empty chars, leading/trailing commas
-            let _go = inputTextArea.value.trim()
-                .replace(/\r?\n/g, ",")
-                .replace(/\s/g, "")
-                .split(",")
-                .filter(Boolean);
-            // console.log("_go", _go)
-            // console.log("length", _go.length)
-            if (_go.length < 100) {
-                go_message.innerHTML = "";
-                go_message.style.display = "none";
-                _go = _go.join(",");
-            } else {
-                const msg = `${_go.length} has been selected. Only the first 100 will be taken into account.`;
-                go_message.style.display = "block";
-                go_message.innerHTML = `<i class="fa fa-exclamation-triangle fa-2x"></i><span>${msg}</span>`;
-                _go = _go.slice(0, 99).join(",");
-            }
-            console.log("filterChange", _go || null);
-            const event = new CustomEvent("filterChange", {
-                detail: {
-                    value: _go || null
-                }
-            });
-            this.dispatchEvent(event);
-        }
-    }
-
-    onClickOkModal(e) {
-        this.selectedTerms = e.detail.result;
-        this.querySelector("#" + this._prefix + "GeneOntologyTextarea").value = e.detail.result.join(","); // join by comma no matter the operator (in textarea only)
-        this.filterChange();
-        $("#" + this._prefix + "ontologyModal").modal("hide");
-    }
-
-    onOntologyModalOpen(e) {
-        console.log("onOntologyModalOpen variant-filter", e.detail);
-        // modal window from variant-modal-ontology
-        this.openHPO = false;
+        this.selectedTerms = "";
         this.ontologyTerm = "GO";
         this.ontologyFilter = "go";
+        this._config = {...this.getDefaultConfig(), ...this.config};
+    }
+
+    update(_changedProperties) {
+        if (_changedProperties.has("go")) {
+            // this.selectedTerms = this.go ? this.go.split(/[,;]/) : [];
+            this.selectedTerms = this.go;
+            // this.requestUpdate();
+        }
+        super.update(_changedProperties);
+    }
+
+    onFilterChange(e) {
+        console.log("filterChange", e || null);
+        let terms = e.detail?.value;
+        this.warnMessage = null;
+        if (terms) {
+            const arr = terms.split(/[;,]/);
+            if (arr.length > 100) {
+                console.log("more than 100 terms");
+                this.warnMessage = html`<i class="fa fa-exclamation-triangle fa-2x"></i><span></span>`;
+                new NotificationQueue().push("Warning", `${arr.length} has been selected. Only the first 100 will be taken into account.`, "warning");
+                terms = arr.slice(0, 99).join(",");
+            }
+        }
+
+        this.selectedTerms = terms;
         this.requestUpdate();
-        $("#" + this._prefix + "ontologyModal").modal("show");
-        // this.openModal = true;
+
+        const event = new CustomEvent("filterChange", {
+            detail: {
+                value: terms ?? null
+            }
+        });
+        this.dispatchEvent(event);
+    }
+
+    openModal(e) {
+        $("#go_ontologyModal").modal("show");
+    }
+
+    getDefaultConfig() {
+        return {
+            placeholder: "GO:0000145",
+            ontologyFilter: "go",
+            ebiConfig: {
+                root: "https://www.ebi.ac.uk/ols/api",
+                tree: {
+                    "hp": ["/ontologies/hp/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FHP_0012823",
+                        "/ontologies/hp/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FHP_0040279",
+                        "/ontologies/hp/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FHP_0000005",
+                        "/ontologies/hp/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FHP_0040006",
+                        "/ontologies/hp/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FHP_0000118",
+                        /* "/ontologies/hp/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FUPHENO_0001002"*/],
+                    "go": ["/ontologies/go/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FGO_0008150",
+                        "/ontologies/go/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FGO_0005575",
+                        "/ontologies/go/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FGO_0003674"],
+                },
+                search: "/search",
+            }
+        };
     }
 
     render() {
         return html`
-            <style>
-            .geneOntologyMonitor {
-                padding: 10px;
-                font-weight: bold;
-                display: none;
-                text-align: center;
-            }
+            <accessions-autocomplete-filter .ontologyFilter="go" .value="${this.selectedTerms}" .config="${this._config}" @filterChange="${this.onFilterChange}"></accessions-autocomplete-filter>
 
-            .geneOntologyMonitor span {
-                display: block;
-            }
-
-
-            </style>
-            <textarea id="${this._prefix}GeneOntologyTextarea" class="form-control clearable ${this._prefix}FilterTextInput"
-                                rows="3" name="geneOntology" placeholder="GO:0000145" @input="${this.filterChange}"></textarea>
-            <button class="btn btn-primary ripple full-width" id="${this._prefix}buttonOpenGoAccesions" @click="${this.onOntologyModalOpen}">
-                <i class="fa fa-search" aria-hidden="true"></i>  Add GO Term
-
+            <button class="btn btn-primary ripple full-width" id="${this._prefix}buttonOpenGoAccesions" @click="${this.openModal}">
+                <i class="fa fa-search" aria-hidden="true"></i>  Browse GO Terms
             </button>
-            <p class="bg-warning geneOntologyMonitor" id="${this._prefix}GeneOntologyMonitor"></p>
 
-            <variant-modal-ontology _prefix=${this._prefix}
-                                ontologyFilter="${this.ontologyFilter}"
-                                term="${this.ontologyTerm}"
-                                .selectedTerms="${this.selectedTerms}"
-                                @clickOkModal="${this.onClickOkModal}">
+            <variant-modal-ontology term="GO"
+                                    .config="${this._config}"
+                                    .selectedTerms="${this.selectedTerms}"
+                                    @filterChange="${this.onFilterChange}">
             </variant-modal-ontology>
         `;
     }

@@ -2899,6 +2899,12 @@ div.clipboard-button:hover {
 }
 
 /****** hpo and go filters ********/
+
+hpo-accessions-filter .select2-selection,
+go-accessions-filter .select2-selection {
+    min-height: 80px !important;
+}
+
 .ontology-tree-wrapper {
     margin-top: 20px;
 }

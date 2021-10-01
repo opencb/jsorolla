@@ -17,9 +17,9 @@
 import {LitElement, html} from "lit";
 import UtilsNew from "../../../core/utilsNew.js";
 import "../variant-modal-ontology.js";
+import "./accessions-autocomplete-filter.js";
+import {NotificationQueue} from "../../../core/NotificationQueue";
 
-
-// TODO FIX in textarea is always used a comma as separator, but in case of loading a saved filter this component could receive a text with semicolon as separator.
 
 export default class HpoAccessionsFilter extends LitElement {
 
@@ -36,9 +36,6 @@ export default class HpoAccessionsFilter extends LitElement {
 
     static get properties() {
         return {
-            "opencgaSession": {
-                type: Object
-            },
             "annot-hpo": {
                 type: Object
             }
@@ -47,115 +44,129 @@ export default class HpoAccessionsFilter extends LitElement {
 
     _init() {
         this._prefix = "hpof-" + UtilsNew.randomString(6) + "_";
-        this.selectedTerms = [];
+        this._selectedTermsArr = [];
+        this.ontologyTerm = "HPO";
+        this.ontologyFilter = "hp";
+        this._config = {...this.getDefaultConfig(), ...this.config};
+        this.operator = ","; // or = , and = ;
     }
 
-    updated(_changedProperties) {
+    update(_changedProperties) {
         if (_changedProperties.has("annot-hpo")) {
             if (this["annot-hpo"]) {
-                this.querySelector("#" + this._prefix + "HumanPhenotypeOntologyTextarea").value = this["annot-hpo"];
-
                 // parse operator
                 if (this["annot-hpo"].split(",").length > 2) {
                     let operator;
-                    // TODO create an Util function getOperator(str) to discriminate the operator in a query filter string
                     const or = this["annot-hpo"].split(",");
                     const and = this["annot-hpo"].split(";");
                     if (or.length >= and.length) {
-                        operator = "or";
+                        operator = ",";
                     } else {
-                        operator = "and";
+                        operator = ";";
                     }
-                    $("input:radio[value=" + operator + "]").attr("disabled", false);
-                    $("input:radio[value=" + operator + "]").checked = true;
-                    this.selectedTerms = this["annot-hpo"].split(operator);
+                    this.operator = operator;
+                    this.selectedTerms = this["annot-hpo"];
+                    this._selectedTermsArr = this["annot-hpo"].split(operator);
                 } else {
                     // disable radio buttons if there are less than 2 values
-                    $("input:radio").attr("disabled", true);
+                    // $("input:radio").attr("disabled", true);
+                    this.operator = null;
                 }
             } else {
-                this.selectedTerms = [];
-                this.querySelector("#" + this._prefix + "HumanPhenotypeOntologyTextarea").value = "";
-                $("input:radio").attr("disabled", true);
+                this.selectedTerms = null;
+                // this.querySelector("#" + this._prefix + "HumanPhenotypeOntologyTextarea").value = "";
+                // $("input:radio").attr("disabled", true);
+                this.operator = null;
             }
         }
+        super.update(_changedProperties);
     }
 
-    filterChange(e) {
-        let annotHpo;
-        const inputTextArea = this.querySelector("#" + this._prefix + "HumanPhenotypeOntologyTextarea");
-        if (inputTextArea && inputTextArea.value) {
-            const hpoValues = inputTextArea.value.split(",");
-            if (UtilsNew.isNotEmptyArray(hpoValues)) {
-                $("input:radio[name=hpoRadio]").attr("disabled", false);
-                const filter = $("input:radio[name=hpoRadio]:checked").val();
-                if (filter === "and") {
-                    annotHpo = hpoValues.join(";");
-                } else {
-                    annotHpo = hpoValues.join(",");
-                }
+    onFilterChange(e) {
+        // TODO FIX operator AND/OR
+        console.log("filterChange", e || null);
+        let terms = e.detail?.value;
+        this.warnMessage = null;
+        if (terms) {
+            let arr = terms.split(/[;,]/);
+            if (arr.length > 100) {
+                console.log("more than 100 terms");
+                this.warnMessage = html`<i class="fa fa-exclamation-triangle fa-2x"></i><span></span>`;
+                new NotificationQueue().push("Warning", `${arr.length} has been selected. Only the first 100 will be taken into account.`, "warning");
+                arr = arr.slice(0, 99);
+                terms = arr.join(",");
             }
+            this._selectedTermsArr = arr;
         }
 
-        console.log("filterChange", annotHpo);
+        this.selectedTerms = terms;
+        this.requestUpdate();
+
         const event = new CustomEvent("filterChange", {
             detail: {
-                value: annotHpo || null
+                value: terms ?? null
             }
         });
         this.dispatchEvent(event);
     }
 
-    onClickOkModal(e) {
-        this.selectedTerms = e.detail.result;
-        this.querySelector("#" + this._prefix + "HumanPhenotypeOntologyTextarea").value = e.detail.result.join(","); // join by comma no matter the operator (in textarea only)
-        this.filterChange();
-        $("#" + this._prefix + "ontologyModal").modal("hide");
-
+    openModal(e) {
+        $("#hp_ontologyModal").modal("show");
     }
 
-    // from variant-filter
-    openModal(e) {
-        console.log("onOntologyModalOpen variant-filter", e.detail);
-        // modal window from variant-modal-ontology
-        this.openHPO = true;
-        this.ontologyTerm = "HPO";
-        this.ontologyFilter = "hp";
-        this.requestUpdate();
-        $("#" + this._prefix + "ontologyModal").modal("show");
+    getDefaultConfig() {
+        return {
+            ontologyFilter: "hp",
+            placeholder: "HP:0000001, HP:3000079",
+            ebiConfig: {
+                root: "https://www.ebi.ac.uk/ols/api",
+                tree: {
+                    "hp": ["/ontologies/hp/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FHP_0012823",
+                        "/ontologies/hp/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FHP_0040279",
+                        "/ontologies/hp/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FHP_0000005",
+                        "/ontologies/hp/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FHP_0040006",
+                        "/ontologies/hp/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FHP_0000118",
+                        /* "/ontologies/hp/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FUPHENO_0001002"*/],
+                    "go": ["/ontologies/go/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FGO_0008150",
+                        "/ontologies/go/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FGO_0005575",
+                        "/ontologies/go/terms/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FGO_0003674"],
+                },
+                search: "/search",
+            }
+        };
     }
 
     render() {
         return html`
-            <textarea id="${this._prefix}HumanPhenotypeOntologyTextarea"
-                      class="form-control clearable ${this._prefix}FilterTextInput"
-                      rows="3" name="hpo" placeholder="HP:0000001, HP:3000079" @input="${this.filterChange}"></textarea>
+
+            <accessions-autocomplete-filter .value="${this.selectedTerms}" .config="${this._config}" @filterChange="${this.onFilterChange}"></accessions-autocomplete-filter>
+
             <button class="btn btn-primary ripple full-width" id="${this._prefix}buttonOpenHpoAccesions" @click="${this.openModal}">
                 <i class="fa fa-search searchingButton" aria-hidden="true"></i>
-                Add HPO Term
+                Browse HPO Terms
             </button>
 
             <fieldset class="switch-toggle-wrapper">
                     <label style="font-weight: normal;">Logical Operator</label>
                     <div class="switch-toggle text-white alert alert-light">
                         <input id="${this._prefix}hpoOrRadio" name="hpoRadio" type="radio" value="or"
-                                   class="radio-or ${this._prefix}FilterRadio" checked disabled
-                                   @change="${this.filterChange}">
+                                   class="radio-or" ?checked="${this.operator === ","}" ?disabled="${this._selectedTermsArr.length < 2}"
+                                   @change="${this.changeOperator}">
                             <label for="${this._prefix}hpoOrRadio"
                                    class="rating-label rating-label-or">OR</label>
                         <input id="${this._prefix}hpoAndRadio" name="hpoRadio" type="radio" value="and"
-                                   class="radio-and ${this._prefix}FilterRadio" disabled @change="${this.filterChange}">
+                                   class="radio-and" ?checked="${this.operator === ";"}" ?disabled="${this._selectedTermsArr.length < 2}" @change="${this.changeOperator}">
                             <label for="${this._prefix}hpoAndRadio"
                                    class="rating-label rating-label-and">AND</label>
                         <a class="btn btn-primary ripple btn-small"></a>
                     </div>
             </fieldset>
 
-            <variant-modal-ontology _prefix=${this._prefix}
-                                ontologyFilter="${this.ontologyFilter}"
-                                term="${this.ontologyTerm}"
-                                .selectedTerms="${this.selectedTerms}"
-                                @clickOkModal="${this.onClickOkModal}">
+            this._selectedTermsArr ${JSON.stringify(this._selectedTermsArr)}
+            <variant-modal-ontology term="HPO"
+                                    .config="${this._config}"
+                                    .selectedTerms="${this.selectedTerms}"
+                                    @filterChange="${this.onFilterChange}">
             </variant-modal-ontology>
         `;
     }
