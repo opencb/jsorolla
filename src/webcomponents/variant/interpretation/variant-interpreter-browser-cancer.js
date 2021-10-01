@@ -360,11 +360,29 @@ class VariantInterpreterBrowserCancer extends LitElement {
 
         const studyInternalConfiguration = this.opencgaSession?.study?.internal?.configuration;
         if (studyInternalConfiguration?.clinical?.interpretation?.variantCallers) {
+            const indexedFields = {};
+            if (studyInternalConfiguration?.variantEngine?.sampleIndex?.fileIndexConfiguration?.customFields) {
+                for (const customField of studyInternalConfiguration.variantEngine.sampleIndex.fileIndexConfiguration.customFields) {
+                    if (customField.source === "FILE") {
+                        indexedFields[customField.key] = customField;
+                    }
+                }
+            }
+
+            // TODO check if this work
             for (const caller of studyInternalConfiguration.clinical.interpretation.variantCallers) {
                 if (this.callerToFile?.[caller.id]) {
+                    // Check if dataFilter are indexed
+                    for (const dataFilter of caller.dataFilters) {
+                        if (indexedFields[dataFilter.id]) {
+                            dataFilter.comparators = indexedFields[dataFilter.id].type === "RANGE_LT" ? ["<", ">="] : [">", "<="];
+                            dataFilter.allowedValues = indexedFields[dataFilter.id].type
+                                .startsWith("RANGE_") ? indexedFields[dataFilter.id].thresholds : indexedFields[dataFilter.id].values;
+                        }
+                    }
+
                     variantCallers.push({
                         ...caller,
-                        // add allowedValues: from sample index
                         fileId: this.callerToFile[caller.id]?.name
                     });
                 }
