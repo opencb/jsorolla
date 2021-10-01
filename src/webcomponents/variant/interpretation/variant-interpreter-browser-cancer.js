@@ -178,6 +178,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                         const filters = caller.dataFilters
                             .filter(filter => !!filter.defaultValue)
                             .map(filter => {
+                                // Notice that defaultValue includes the comparator, eg. =, >, ...
                                 return filter.id + (filter.id !== "FILTER" ? filter.defaultValue : "=PASS");
                             });
 
@@ -341,7 +342,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
         const variantCallers = [];
         const fieldToCaller = {};
 
-        // Generate a map of files to callers
+        // Generate a map of fields to callerIds and fileIds
         this.files.forEach(file => {
             file.attributes.variantFileMetadata.header.complexLines
                 .filter(line => line.key === "INFO")
@@ -363,13 +364,11 @@ class VariantInterpreterBrowserCancer extends LitElement {
                 if (this.callerToFile?.[caller.id]) {
                     variantCallers.push({
                         ...caller,
-                        // allpwedValues: from sample index
+                        // add allowedValues: from sample index
                         fileId: this.callerToFile[caller.id]?.name
                     });
                 }
             }
-            //
-
         } else {
             // If not variantCallers configuration exist we can check for the indexed custom fields in the sample index.
             // Example:
@@ -396,7 +395,6 @@ class VariantInterpreterBrowserCancer extends LitElement {
             //         "nullable": true
             //     }
             // ]
-
             if (studyInternalConfiguration?.variantEngine?.sampleIndex?.fileIndexConfiguration?.customFields) {
                 const callerToDataFilters = {};
                 for (const customField of studyInternalConfiguration.variantEngine.sampleIndex.fileIndexConfiguration.customFields) {
@@ -404,14 +402,16 @@ class VariantInterpreterBrowserCancer extends LitElement {
                     if (customField.source === "FILE") {
                         // We ONLY add custom indexed fields from VCF INFO column
                         if (customField.key !== "FILTER" && customField.key !== "QUAL") {
-                            let fieldType = "CATEGORICAL";
-                            let fieldValues = customField.values || null;
-                            let fieldComparators = [];
-
+                            // Parse sample index config
+                            let fieldType, fieldValues, fieldComparators;
                             if (customField.type.startsWith("RANGE_")) {
                                 fieldType = "NUMERIC";
                                 fieldValues = customField.thresholds;
                                 fieldComparators = customField.type === "RANGE_LT" ? ["<", ">="] : [">", "<="];
+                            } else {
+                                fieldType = "CATEGORICAL";
+                                fieldValues = customField.values || null;
+                                fieldComparators = [];
                             }
 
                             // Add this field to each caller
@@ -428,7 +428,6 @@ class VariantInterpreterBrowserCancer extends LitElement {
                                     source: customField.source,
                                     allowedValues: fieldValues,
                                     comparators: fieldComparators,
-                                    // allowedValues: customField.type.startsWith("RANGE") ? customField .thru: "CATEGORICAL",
                                 });
                             });
                         }
@@ -447,6 +446,7 @@ class VariantInterpreterBrowserCancer extends LitElement {
                 }
             }
         }
+
         // FIXME remove this temporary code ASAP
         if (variantCallers.length === 0 && this.opencgaSession?.study?.id === "test") {
             variantCallers.push({

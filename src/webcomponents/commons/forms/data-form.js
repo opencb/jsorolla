@@ -549,13 +549,14 @@ export default class DataForm extends LitElement {
         const disabled = this._getBooleanValue(element?.display?.disabled, false);
         const [min = "", max = ""] = element.allowedValues || [];
         const step = element.step || "1";
-        // debugger
+
         return html`
             <div class="">
                 <number-field-filter
                     label="Value"
                     .value="${value ? value : ""}"
                     .comparators=${element.comparators || null}
+                    .allowedValues=${element.allowedValues || null}
                     .min=${min}
                     .max=${max}
                     .step="${step}"

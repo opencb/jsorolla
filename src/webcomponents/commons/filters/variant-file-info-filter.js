@@ -99,9 +99,8 @@ export default class VariantFileInfoFilter extends LitElement {
                     name: field.name || field.id,
                     field: caller.id + "." + field.id,
                     type: this.callerParamTypeToDataForm[field.type],
-                    // defaultValue: field.type !== "BOOLEAN" ? field.defaultValue : field.defaultValue === "true"
-                    allowedValues: field.allowedValues || null,
                     comparators: (field.comparators || []).join(","),
+                    allowedValues: field.allowedValues,
                     defaultValue: "",
                 })),
             };
@@ -111,18 +110,6 @@ export default class VariantFileInfoFilter extends LitElement {
         this._config = this.getDefaultConfig();
     }
 
-    // getDataFormType(dataFilter) {
-    //     if (dataFilter.allowedValues) {
-    //         return "select";
-    //     } else {
-    //         this.callerParamTypeToDataForm = {
-    //             "NUMERIC": "input-number",
-    //             "CATEGORICAL": "select",
-    //             "BOOLEAN": "checkbox",
-    //         };
-    //         return this.callerParamTypeToDataForm[dataFilter.type];
-    //     }
-    // }
     /*
      * This observer process the fileData string and prepares the query object for data-form
      * and stores some variables for notifying the new fileData.
