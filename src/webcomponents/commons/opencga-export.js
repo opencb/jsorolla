@@ -347,7 +347,7 @@ const client = new OpenCGAClient({
                                 <label for="inputPassword" class="col-md-2 control-label">Job ID</label>
                                 <div class="col-md-10">
                                     <input type="text" class="form-control" placeholder="Enter Job ID, leave empty for default."
-                                           value="${this.config?.resource?.toLowerCase()}_export_${UtilsNew.dateFormatter(new Date(), "YYYYMMDDhhmm")}" @input="${this.changeJobId}">
+                                           value="${this.config.resource?.toLowerCase()}_export_${UtilsNew.dateFormatter(new Date(), "YYYYMMDDhhmm")}" @input="${this.changeJobId}">
                                 </div>
                             </div>
                         </div>
